@@ -1,0 +1,20 @@
+Class Prefix: v
+Lokal Prefix: l
+
+Presuffix:
+
+Vector: V
+List:   L
+Enum:   e
+
+
+Sufix:
+bool:     b
+Char:     c
+String:   str
+int:      i
+long int: li
+  .
+  .
+  .
+unsigned long int: uli
