@@ -24,8 +24,8 @@ set(CM_VERSION_MAJOR  0)
 set(CM_VERSION_MINOR  1)
 set(CM_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
-configure_file("${PROJECT_SOURCE_DIR}/include/engine.in.hpp"
-               "${PROJECT_SOURCE_DIR}/include/engine.hpp")
+configure_file("${PROJECT_SOURCE_DIR}/src/engine.in.hpp"
+               "${PROJECT_SOURCE_DIR}/src/engine.hpp")
 
 # Optionen
 add_definitions(-Wall -fPIC -std=c++11 -O0) # -Winline -std=c++0x -O3

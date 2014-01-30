@@ -8,7 +8,7 @@ ARGV=$*
 ###########################
 
 SOURCE_FILE="sources.cmake"
-INCLUDE_FILE="include/engine.in.hpp"
+INCLUDE_FILE="src/engine.in.hpp"
 
 ## The platform dirs ##
 X11_DIR="src/x11"
@@ -108,7 +108,7 @@ for B in $TEMP; do
     SERACH_IN="$SERACH_IN $B"
 done
 
-SERACH_IN="src/ include/ $SERACH_IN"
+SERACH_IN="src/ $SERACH_IN"
 dirs_func $SERACH_IN
 
 for C in $SERACH_IN; do
