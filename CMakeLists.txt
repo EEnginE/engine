@@ -101,7 +101,7 @@ set_target_properties(
 )
 
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/test/)
+add_subdirectory(${PROJECT_SOURCE_DIR}/tests/)
 
 
 set(DEPENDENCES ${PROJECT_SOURCE_DIR}/cmake/FindEngine.cmake

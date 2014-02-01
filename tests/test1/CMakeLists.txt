@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-set( CSD ${PROJECT_SOURCE_DIR}/test/test1 )
+set( CSD ${PROJECT_SOURCE_DIR}/tests/test1 )
 
 configure_file("${CSD}/config.in.h" "${CSD}/config.h")
 

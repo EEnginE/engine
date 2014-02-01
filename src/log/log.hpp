@@ -160,7 +160,7 @@ class eLog {
       }
       
       
-      inline std::string getLogFileFullPath() {return vLogFielFullPath_str;}
+      std::string getLogFileFullPath() {return vLogFielFullPath_str;}
 
 
       template<class T>
