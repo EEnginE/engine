@@ -1,7 +1,7 @@
 # Try to find the GMP librairies
-# GMP_FOUND - system has GMP lib
+# GMP_FOUND       - system has GMP lib
 # GMP_INCLUDE_DIR - the GMP include directory
-# GMP_LIBRARIES - Libraries needed to use GMP
+# GMP_LIBRARIES   - Libraries needed to use GMP
 
 if (GMP_INCLUDE_DIR AND GMP_LIBRARIES)
                 # Already in cache, be silent

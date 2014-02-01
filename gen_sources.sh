@@ -444,6 +444,8 @@ cat > $INCLUDE_FILE << EOF
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef ENGINE_HPP
+#define ENGINE_HPP
 
 $INC_ALL_HPP
 
@@ -460,6 +462,8 @@ $INC_WINDOWS_HPP
 const unsigned short E_VERSION_MAJOR  =  @CM_VERSION_MAJOR@;
 const unsigned short E_VERSION_MINOR  =  @CM_VERSION_MINOR@;
 const char*          E_INSTALL_PREFIX = "@CM_INSTALL_PREFIX@";
+
+#endif // ENGINE_HPP
 
 EOF
 
