@@ -467,7 +467,7 @@ const char*          E_INSTALL_PREFIX = "@CM_INSTALL_PREFIX@";
 
 EOF
 
-CLOC_EXEC="$(which cloc)"
+CLOC_EXEC="$(which cloc 2> /dev/null)"
 
 for I in $ARGV; do
     if [ "$I" = "rsa" ]; then
