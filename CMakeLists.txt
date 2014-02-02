@@ -38,7 +38,7 @@ if( NOT DEFINED BOOST_NO_STATIC )
 endif()
 
 find_package(Boost   REQUIRED COMPONENTS system regex thread chrono filesystem date_time )
-find_package(GLEW    REQUIRED)
+find_package(GLEW2   REQUIRED) # The orginal FindGLEW.cmake has no options to set a Root path
 #find_package(PNG     REQUIRED)
 find_package(OpenGL  REQUIRED)
 find_package(Threads REQUIRED)
