@@ -477,7 +477,7 @@ for I in $ARGV; do
 done
 
 if [ -n "$CLOC_EXEC" ]; then
-    $CLOC_EXEC --not-match-d='[a-zA-Z_/]*\.[a-zA-Z\._]+' src include | tee temp_cloc.txt;
+    $CLOC_EXEC --not-match-d='[a-zA-Z_/]*\.[a-zA-Z\._]+' src | tee temp_cloc.txt;
     CALC_ALL="$(cat temp_cloc.txt | grep SUM)"
     CALC_ALL="$(echo $CALC_ALL    | sed 's/SUM: [0-9]*//g')"
     CALC_ALL="$(echo $CALC_ALL    | sed 's/ /\+/g')"
