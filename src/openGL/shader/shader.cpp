@@ -26,7 +26,6 @@
 #include <sstream>
 #include <fstream>
 #include "log.hpp"
-#include "platform.hpp"
 
 namespace e_engine {
 

@@ -19,8 +19,14 @@
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "defines.hpp"
 
-#include "platform.hpp"
+#if UNIX_X11
+#include <GL/glxew.h>
+#endif
+
+
+
 #include "window_data.hpp"
 
 using std::string;
@@ -53,17 +59,21 @@ __eWindowData_Config::__eWindowData_Config() {
 
 
 void __eWindowData_FBA::reset() {
+#if  UNIX_X11
    FBA_RENDER_TYPE           = GLX_RGBA_BIT;
    FBA_RENDERABLE            = GL_TRUE;
    FBA_DRAWABLE_TYPE         = GLX_WINDOW_BIT;
    FBA_DOUBLEBUFFER          = GL_TRUE;
+#endif // UNIX_X11
    FBA_RED                   = 8;  // 8
    FBA_GREEN                 = 8;  // 8
    FBA_BLUE                  = 8;  // 8
    FBA_ALPHA                 = 8;  // 8
    FBA_DEPTH                 = 24; // 24
    FBA_STENCIL               = 8;  // 8
+#if UNIX_X11
    FBA_VISUAL_TYPE           = GLX_TRUE_COLOR;
+#endif
    //FBA_STEREO                = GL_TRUE;
 }
 
@@ -112,20 +122,20 @@ void __eLogData_Config::reset() {
    
    width                    = -1;
    
-   stdout.colors            = DISABLED;
-   stdout.Time              = LEFT_REDUCED;
-   stdout.File              = RIGHT_REDUCED;
-   stdout.ErrorType         = LEFT_FULL;
+   logOUT.colors            = DISABLED;
+   logOUT.Time              = LEFT_REDUCED;
+   logOUT.File              = RIGHT_REDUCED;
+   logOUT.ErrorType         = LEFT_FULL;
    
-   stderr.colors            = REDUCED;
-   stderr.Time              = LEFT_REDUCED;
-   stderr.File              = RIGHT_REDUCED;
-   stderr.ErrorType         = LEFT_FULL;
+   logERR.colors            = REDUCED;
+   logERR.Time              = LEFT_REDUCED;
+   logERR.File              = RIGHT_REDUCED;
+   logERR.ErrorType         = LEFT_FULL;
    
-   stdlog.Time              = LEFT_FULL;
-   stdlog.File              = LEFT_FULL;
-   stdlog.ErrorType         = LEFT_FULL;
-   stdlog.logFileName.clear();
+   logFILE.Time             = LEFT_FULL;
+   logFILE.File             = LEFT_FULL;
+   logFILE.ErrorType        = LEFT_FULL;
+   logFILE.logFileName.clear();
 }
 
 

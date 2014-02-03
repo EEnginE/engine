@@ -459,10 +459,6 @@ $INC_WINDOWS_HPP
 
 #endif // defined WIN32
 
-const unsigned short E_VERSION_MAJOR  =  @CM_VERSION_MAJOR@;
-const unsigned short E_VERSION_MINOR  =  @CM_VERSION_MINOR@;
-const char*          E_INSTALL_PREFIX = "@CM_INSTALL_PREFIX@";
-
 #endif // ENGINE_HPP
 
 EOF
@@ -477,7 +473,7 @@ for I in $ARGV; do
 done
 
 if [ -n "$CLOC_EXEC" ]; then
-    $CLOC_EXEC --not-match-d='[a-zA-Z_/]*\.[a-zA-Z\._]+' src | tee temp_cloc.txt;
+    $CLOC_EXEC --not-match-d='([a-zA-Z_/]*\.[a-zA-Z\._]+|build)' ./ | tee temp_cloc.txt;
     CALC_ALL="$(cat temp_cloc.txt | grep SUM)"
     CALC_ALL="$(echo $CALC_ALL    | sed 's/SUM: [0-9]*//g')"
     CALC_ALL="$(echo $CALC_ALL    | sed 's/ /\+/g')"

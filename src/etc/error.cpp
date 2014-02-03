@@ -1,10 +1,10 @@
 /// \file error.cpp
 /// \brief \b Classes: \a eError
 /// \sa e_error.hpp 
+
 #include "error.hpp"
-#include "platform.hpp"
 #include "log.hpp"
-#include "color.hpp"
+
 namespace e_engine {
    
 

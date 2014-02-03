@@ -23,16 +23,20 @@
 #ifndef E_INIT_HPP
 #define E_INIT_HPP
 
-#include "platform.hpp"
+#if defined __linux__
+#include <GL/glxew.h>
+#endif
+
+#if defined WIN32 || defined _WIN32
+#include <GL/glew.h>
+#endif
+
 #include "context.hpp"
+#include "keyboard.hpp"
 #include "signal_slot.hpp"
 #include "window_data.hpp"
 #include <boost/thread.hpp>
 
-#if defined __linux__
-#include "keycode_to_key.hpp"
-#elif defined _WIN32
-#endif
 
 
 namespace e_engine {
@@ -55,7 +59,7 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  *
  * \sa eContext eWindowData e_init.cpp e_event.cpp
  */
-class eInit : public eContext {
+class eInit : public eContext, public eKeyboard {
       typedef eSignal<void, eWinInfo>      _SIGNAL_;
       typedef eSlot<void, eInit, eWinInfo> _SLOT_;
    private:
@@ -116,8 +120,6 @@ class eInit : public eContext {
    public:
       eInit();
       ~eInit() {closeWindow();shutdown();}
-
-      eKeys E_KEYS;
 
       int    init();
       int    shutdown();
@@ -190,9 +192,9 @@ class __eInit_Pointer {
          is_set  = false;
       }
       ~__eInit_Pointer() {pointer = 0;}
-      bool set( eInit *THIS ) {
+      bool set( eInit *_THIS ) {
          if ( is_set == true ) {return false;}
-         pointer = THIS;
+         pointer = _THIS;
          is_set = true;
          return true;
       }

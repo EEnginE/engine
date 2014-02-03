@@ -23,7 +23,6 @@
 #ifndef LINKER_HPP
 #define LINKER_HPP
 
-#include "platform.hpp"
 #include <vector>
 #include <string>
 #include "shader.hpp"

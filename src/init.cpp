@@ -25,7 +25,6 @@
 #include "init.hpp"
 #include "system.hpp"
 #include "log.hpp"
-// #include "error.hpp"
 
 namespace e_engine {
 namespace e_engine_internal {
@@ -86,9 +85,9 @@ int eInit::init() {
    signal( SIGINT, handleSignal );
    signal( SIGTERM, handleSignal );
 
-   if ( WinData.log.stdlog.logFileName.empty() ) {
-      WinData.log.stdlog.logFileName =  SYSTEM.getLogFilePath();
-      WinData.log.stdlog.logFileName += "/Log";
+   if ( WinData.log.logFILE.logFileName.empty() ) {
+      WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
+      WinData.log.logFILE.logFileName += "/Log";
    }
 
    if ( WinData.log.logDefaultInit )
@@ -120,14 +119,14 @@ int eInit::shutdown() {
 
 
 void eInit::handleSignal( int _signal ) {
-   eInit *THIS = e_engine_internal::__eInit_Pointer_OBJ.get();;
+   eInit *_THIS = e_engine_internal::__eInit_Pointer_OBJ.get();;
 
    if ( _signal == SIGINT ) {
       if ( WinData.handleSIGINT == true ) {
          wLOG "Received SIGINT (Crt-C) => Closing Window and exit(5);" END
-         THIS->closeWindow( true );
-         THIS->destroyContext();
-         THIS->shutdown();
+         _THIS->closeWindow( true );
+         _THIS->destroyContext();
+         _THIS->shutdown();
          exit( 5 );
       }
       wLOG "Received SIGINT (Crt-C) => " ADD 'B', 'Y', "DO NOTHING" END
@@ -136,9 +135,9 @@ void eInit::handleSignal( int _signal ) {
    if ( _signal == SIGTERM ) {
       if ( WinData.handleSIGTERM == true ) {
          wLOG "Received SIGTERM => Closing Window and exit(6);" END
-         THIS->closeWindow( true );
-         THIS->destroyContext();
-         THIS->shutdown();
+         _THIS->closeWindow( true );
+         _THIS->destroyContext();
+         _THIS->shutdown();
          exit( 6 );
       }
       wLOG "Received SIGTERM => Closing Window and exit(6);" ADD 'B', 'Y', "DO NOTHING" END

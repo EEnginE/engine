@@ -15,7 +15,7 @@ inline void color( float r, float g, float b, eInit *i ) {
    glClearColor( r, g, b, alpha );
    glClear( GL_COLOR_BUFFER_BIT );
    i->swapBuffers();
-   usleep( 100 );
+   B_SLEEP( milliseconds(100) );
    //E_CLOCK.sleepUsec( 25000 );
 }
 
@@ -155,7 +155,7 @@ void MyHandler::key( eWinInfo info ) {
          case L'Q':
          case E_KEY_ESCAPE:      info.eInitPointer->closeWindow(); break;
          case L'u':
-            if ( info.eInitPointer->E_KEYS.getKeyState( E_KEY_BACKSPACE ) == E_KEY_PRESSED ) {
+            if ( info.eInitPointer->getKeyState( E_KEY_BACKSPACE ) == E_KEY_PRESSED ) {
                iLOG "JAAAAA" END;
             }
             break;
@@ -176,19 +176,19 @@ int main( int argc, char **argv ) {
    WinData.config.appName      = "E Engine";
 
 #if KDEVELOP == 0 || COLOR == 1
-   WinData.log.stdout.colors   = FULL;
-   WinData.log.stderr.colors   = FULL;
+   WinData.log.logOUT.colors   = FULL;
+   WinData.log.logERR.colors   = FULL;
 #else
-   WinData.log.stdout.colors   = DISABLED;
-   WinData.log.stderr.colors   = DISABLED;
+   WinData.log.logOUT.colors   = DISABLED;
+   WinData.log.logERR.colors   = DISABLED;
 
    WinData.log.width           = 175;
 #endif
-   WinData.log.stdout.Time     = LEFT_FULL;
-   WinData.log.stdout.File     = RIGHT_FULL;
-   WinData.log.stderr.Time     = LEFT_FULL;
-   WinData.log.stderr.File     = RIGHT_FULL;
-   WinData.log.stdlog.File     = RIGHT_FULL;
+   WinData.log.logOUT.Time     = LEFT_FULL;
+   WinData.log.logOUT.File     = RIGHT_FULL;
+   WinData.log.logERR.Time     = LEFT_FULL;
+   WinData.log.logERR.File     = RIGHT_FULL;
+   WinData.log.logFILE.File    = RIGHT_FULL;
    WinData.win.restoreOldScreenRes = false;
 
    RandISAAC myRand;

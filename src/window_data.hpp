@@ -139,14 +139,14 @@ struct __eLogData_Config {
       LOG_PRINT_TYPE Time;
       LOG_PRINT_TYPE File;
       LOG_PRINT_TYPE ErrorType;
-   } stdout;
+   } logOUT;
 
    struct __eLogDataErrorOut {
       LOG_COLOR_TYPE colors;
       LOG_PRINT_TYPE Time;
       LOG_PRINT_TYPE File;
       LOG_PRINT_TYPE ErrorType;
-   } stderr;
+   } logERR;
 
    struct __eLogDataFileOut {
       LOG_PRINT_TYPE Time;
@@ -154,7 +154,7 @@ struct __eLogData_Config {
       LOG_PRINT_TYPE ErrorType;
 
       std::string logFileName;   //!< The BASIC name (without .log, etc.) of the log file ( changes will be ignored after the 1st log entry ) \c CLASSES: \a eLog
-   } stdlog;
+   } logFILE;
 
   void reset();
 

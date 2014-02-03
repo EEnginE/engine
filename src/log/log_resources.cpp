@@ -9,8 +9,10 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
+#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
 #define E_COLOR_NO_TERMTEST
 #include "color.hpp"
+#endif
 
 namespace e_engine {
 namespace e_engine_internal {
@@ -29,7 +31,7 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
       LOG.devInit();
    }
 
-   for ( GLuint i = 0; i < _vLogTypes_V_eLT.size(); ++i ) {
+   for ( unsigned int i = 0; i < _vLogTypes_V_eLT.size(); ++i ) {
       if ( _vLogTypes_V_eLT[i].getType() == vType_C ) {
          _entry.data.vType_STR     = _vLogTypes_V_eLT[i].getString();
          _entry.data.vBasicColor_C = _vLogTypes_V_eLT[i].getColor();
@@ -48,6 +50,7 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
 }
 
 std::string __eLogStoreHelper::testNewColor()  {
+#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
 if ( vFG_C != '-' ) {
       if ( vAttrib_C != '-' ) {
          if ( vBG_C != '-' ) {
@@ -57,11 +60,13 @@ if ( vFG_C != '-' ) {
       }
       return eCMDColor::color( vFG_C );
    }
+#endif
    return "";
 }
 
 
 bool __eLogStore::hasColor()  {
+#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
    if ( vFG_C != '-' ) {
       if ( vAttrib_C != '-' ) {
          if ( vBG_C != '-' ) {
@@ -74,13 +79,14 @@ bool __eLogStore::hasColor()  {
       vColor_STR = eCMDColor::color( vFG_C );
       return true;
    }
+#endif
    return false;
 }
 
 
 }
 
-GLvoid eLogEntry::configure( e_engine::LOG_COLOR_TYPE _color, e_engine::LOG_PRINT_TYPE _time, e_engine::LOG_PRINT_TYPE _file, e_engine::LOG_PRINT_TYPE _errorType, GLint _columns ) {
+void eLogEntry::configure( e_engine::LOG_COLOR_TYPE _color, e_engine::LOG_PRINT_TYPE _time, e_engine::LOG_PRINT_TYPE _file, e_engine::LOG_PRINT_TYPE _errorType, int _columns ) {
    config.vColor_LCT     = _color;
    config.vTime_LPT      = _time;
    config.vFile_LPT      = _file;

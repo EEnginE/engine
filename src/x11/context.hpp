@@ -1,10 +1,12 @@
-/// \file context.hpp
-/// \brief \b Classes: \a eContext
-///
-/// This file contains the class \b eContext which creates
-/// the window and the OpenGL context on it.
-///
-/// \sa e_context.cpp e_init.cpp
+/*! 
+ * \file context.hpp
+ * \brief \b Classes: \a eContext
+ * 
+ * This file contains the class \b eContext which creates
+ * the window and the OpenGL context on it.
+ * 
+ * \sa e_context.cpp e_init.cpp
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
@@ -29,6 +31,7 @@
 
 #include "randr.hpp"
 #include "randr_display.hpp"
+#include "defines.hpp"
 #include <GL/glew.h>
 // WARNING Can not include <glxew.h> because it would overwrite all <glx.h> macros
 //         which dont work before calling glewInit();
@@ -39,33 +42,6 @@ namespace e_engine {
 
 //typedef GLXContext( *glXCreateContextAttribsARBProc )( Display *, GLXFBConfig, GLXContext, bool, const int * );  // <= Old Style
 using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool, const int * );   // <= C++11 style (successfully  tested with GCC 4.8.2)
-
-//! \brief Attributes for eContext::NET_WM_STATE()
-//! \sa eContext::NET_WM_STATE()
-enum WINDOW_ATTRIBUTE {
-   MODAL,              //!< Sets the window modal
-   STICKY,             //!< Sets the window sticky
-   MAXIMIZED_VERT,     //!< Maximize the window in the vert. direction
-   MAXIMIZED_HORZ,     //!< Maximize the window in the horz. direction
-   SHADED,             //!< Should add some shadow effects
-   SKIP_TASKBAR,       //!< Removes the windoe from the taskbar
-   SKIP_PAGER,         //!< Removes the window from the pager
-   HIDDEN,             //!< This should hide it somehow
-   FULLSCREEN,         //!< This schould make the window fullscreen
-   ABOVE,              //!< This schould set the window above all other windows (always in the forderground)
-   BELOW,              //!< This schould set the window below all other windows (always in the background)
-   DEMANDS_ATTENTION,  //!< Tells the window manager to make the window borders blink or something like that -- stops usualy when the user clicks in the window
-   FOCUSED,            //!< Schould set the window focused
-   NONE                //!< Change nothing
-};
-
-//! \brief Actions for eContext::NET_WM_STATE()
-//! \sa eContext::NET_WM_STATE()
-enum ACTION {
-   C_REMOVE = 0, //!< Remove the attribute
-   C_ADD,        //!< Add the attribute
-   C_TOGGLE      //!< Toggle the attribute
-};
 
 
 /*!

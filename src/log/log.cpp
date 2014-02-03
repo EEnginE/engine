@@ -120,11 +120,11 @@ void eLog::addType( char _type, std::string _name, char _color, bool _bold ) {
       vMaxTypeStringLength_usI = _name.size();
 }
 
-bool eLog::openLogFile( ushort i ) {
+bool eLog::openLogFile( uint16_t i ) {
    std::stringstream lThisLog_SS;
    std::stringstream lNextLog_SS;
 
-   vLogFileName_str = WinData.log.stdlog.logFileName;
+   vLogFileName_str = WinData.log.logFILE.logFileName;
 
    if ( i == 0 ) {
       lThisLog_SS << vLogFileName_str << ".log";
@@ -208,10 +208,10 @@ void eLog::stdOutStandard( e_engine::eLogEntry _e ) {
    _e.config.vColor_LCT = DISABLED;
 #endif
 
-   _e.configure( WinData.log.stdout.colors,
-                 WinData.log.stdout.Time,
-                 WinData.log.stdout.File,
-                 WinData.log.stdout.ErrorType,
+   _e.configure( WinData.log.logOUT.colors,
+                 WinData.log.logOUT.Time,
+                 WinData.log.logOUT.File,
+                 WinData.log.logOUT.ErrorType,
                  WinData.log.width );
 
 #ifdef __linux__
@@ -240,10 +240,10 @@ void eLog::stdErrStandard( eLogEntry _e ) {
    _e.config.vColor_LCT = DISABLED;
 #endif
 
-   _e.configure( WinData.log.stderr.colors,
-                 WinData.log.stderr.Time,
-                 WinData.log.stderr.File,
-                 WinData.log.stderr.ErrorType,
+   _e.configure( WinData.log.logERR.colors,
+                 WinData.log.logERR.Time,
+                 WinData.log.logERR.File,
+                 WinData.log.logERR.ErrorType,
                  WinData.log.width );
 
 #ifdef __linux__
@@ -277,9 +277,9 @@ void eLog::stdLogStnagard( e_engine::eLogEntry _e ) {
    }
 
    _e.configure( DISABLED,                      // Impossible to schow colors in a Text File
-                 WinData.log.stdlog.Time,
-                 WinData.log.stdlog.File,
-                 WinData.log.stdlog.ErrorType,
+                 WinData.log.logFILE.Time,
+                 WinData.log.logFILE.File,
+                 WinData.log.logFILE.ErrorType,
                  -1 );
 
    generateEntry( _e );

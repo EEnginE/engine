@@ -19,11 +19,14 @@
  */
 
 #include "system.hpp"
-#include "platform.hpp"
 #include "log.hpp"
 #include "window_data.hpp"
+#include "defines.hpp"
+
+#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
 #include <unistd.h>
 #include <pwd.h>
+#endif
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
@@ -33,6 +36,7 @@ namespace e_engine {
 eSystem SYSTEM;
 
 eSystem::eSystem() {
+#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
    uid_t tempUserID = geteuid();
    struct passwd *pw = 0;
 
@@ -42,6 +46,7 @@ eSystem::eSystem() {
    userLogin = pw->pw_name;
    userName  = pw->pw_gecos;
    userHome  = pw->pw_dir;
+#endif
 
    mainConfigDir.clear();
    logFilePath.clear();
@@ -56,7 +61,7 @@ std::string eSystem::getMainConfigDirPath() {
       const char *fmt =  "-";
       std::string out = boost::regex_replace( WinData.config.appName, ex, fmt );
 
-#if defined __linux__
+#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
       std::string dir1_str = userHome + "/.";
       dir1_str += out;
       std::string dir2_str = userHome + "/.config/";
@@ -68,7 +73,7 @@ std::string eSystem::getMainConfigDirPath() {
       bool dir1_exists, dir2_exists;
       bool dir1_noDir,  dir2_noDir;
       bool dotConfigExists;
-            
+
       try {
          // Is there a $HOME/.NAME dir already?
          if ( boost::filesystem::exists( dir1 ) ) {
@@ -113,7 +118,7 @@ std::string eSystem::getMainConfigDirPath() {
             dir2_noDir  = true;
             dotConfigExists = false;
          }
-         
+
          // Only $HOME/.NAME aleady exits
          if ( dir1_exists && ! dir2_exists ) {
             mainConfigDir = dir1_str;
@@ -181,13 +186,13 @@ std::string eSystem::getMainConfigDirPath() {
                return mainConfigDir;
             }
          }
-      } catch ( const boost::filesystem::filesystem_error& ex ) {
+      } catch ( const boost::filesystem::filesystem_error &ex ) {
          std::cerr << ex.what() << std::endl; // LOG wont work
       }
 
-#elif defined WIN32
-      std::string temp1 = userHome + "/"
-                          temp1 += out;
+#elif WINDOWS
+      std::string temp1 = userHome + "/";
+      temp1 += out;
 #endif
 
    }
@@ -221,7 +226,7 @@ std::string eSystem::getLogFilePath() {
                logFilePath = temp;
                return logFilePath;
             }
-         } catch ( const boost::filesystem::filesystem_error& ex ) {
+         } catch ( const boost::filesystem::filesystem_error &ex ) {
             std::cerr << ex.what() << std::endl; // LOG wont work
          }
 
@@ -257,7 +262,7 @@ std::string eSystem::getConfigFilePath() {
                configFilePath = temp;
                return configFilePath;
             }
-         } catch ( const boost::filesystem::filesystem_error& ex ) {
+         } catch ( const boost::filesystem::filesystem_error &ex ) {
             std::cerr << ex.what() << std::endl; // LOG wont work
          }
 

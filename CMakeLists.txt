@@ -29,6 +29,49 @@ configure_file(
 )
 
 
+
+if( NOT DEFINED DISPLAY_SERVER )
+   if( UNIX )
+      set( DISPLAY_SERVER UNIX_X11 )
+   elseif( WIN32 )
+      set( DISPLAY_SERVER WINDOWS )
+   endif( UNIX )
+endif( NOT DEFINED DISPLAY_SERVER )
+
+if( UNIX )
+   if( NOT DISPLAY_SERVER MATCHES UNIX_X11 AND NOT DISPLAY_SERVER MATCHES UNIX_WAYLAND AND NOT DISPLAY_SERVER MATCHES UNIX_MIR )
+       message( FATAL_ERROR "Display server '${DISPLAY_SERVER}' is not supported in UNIX (possible: UNIX_X11, UNIX_WAYLAND, UNIX_MIR)" )
+   endif( NOT DISPLAY_SERVER MATCHES UNIX_X11 AND NOT DISPLAY_SERVER MATCHES UNIX_WAYLAND AND NOT DISPLAY_SERVER MATCHES UNIX_MIR )
+endif( UNIX )
+
+if( WIN32 )
+   if( NOT DISPLAY_SERVER MATCHES WINDOWS )
+       message( FATAL_ERROR "Display server '${DISPLAY_SERVER}' is not supported in Windwes (possible: WINDOWS)" )
+   endif( NOT DISPLAY_SERVER MATCHES WINDOWS )
+endif( WIN32 )
+
+set( CM_UNIX_X11     0 )
+set( CM_UNIX_WAYLAND 0 )
+set( CM_UNIX_MIR     0 )
+set( CM_WINDOWS      0 )
+
+if( DISPLAY_SERVER MATCHES UNIX_X11 )
+   set( CM_UNIX_X11 1 )
+elseif( DISPLAY_SERVER MATCHES WINDOWS )
+   set( CM_WINDOWS  1 )
+else( DISPLAY_SERVER MATCHES UNIX_X11 )
+   message( FATAL_ERROR "${DISPLAY_SERVER} is currently not implemented. " )
+endif( DISPLAY_SERVER MATCHES UNIX_X11 )
+
+
+
+
+configure_file(
+ "${PROJECT_SOURCE_DIR}/src/defines.in.hpp"
+ "${PROJECT_SOURCE_DIR}/src/defines.hpp"
+)
+
+
 set(CM_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 
@@ -37,7 +80,6 @@ if( NOT DEFINED BOOST_NO_STATIC )
    set(Boost_USE_STATIC_LIBS ON)
 endif()
 
-find_package(Boost   REQUIRED COMPONENTS system regex thread chrono filesystem date_time )
 find_package(GLEW2   REQUIRED) # The orginal FindGLEW.cmake has no options to set a Root path
 #find_package(PNG     REQUIRED)
 find_package(OpenGL  REQUIRED)
@@ -45,7 +87,10 @@ find_package(Threads REQUIRED)
 find_package(GMP     REQUIRED)
 
 if( UNIX )
-   find_package(X11  REQUIRED)
+   find_package(X11   REQUIRED)
+   find_package(Boost REQUIRED COMPONENTS system regex thread chrono filesystem date_time )
+elseif( WIN32 )
+   find_package(Boost REQUIRED COMPONENTS system regex thread_win32-mt chrono filesystem date_time )
 endif( UNIX )
 
 if( ENGINE_DEBUG )
@@ -74,7 +119,7 @@ set(ENGINE_LINK
 
 
 # Optionen
-add_definitions(-Wall -fPIC -std=c++11 -O0) # -Winline -std=c++0x -O3
+add_definitions(-Wall -std=c++11) # -Winline -std=c++0x -O3
 include_directories(
  ${Boost_INCLUDE_DIRS}
  ${GLEW_INCLUDE_DIRS}
@@ -92,6 +137,10 @@ include(sources.cmake)
 
 #add_library( ${PROJECT_NAME} STATIC ${ENGINE_SRC} )
 add_library( ${PROJECT_NAME} SHARED ${ENGINE_SRC} )
+
+if( WIN32 )
+   target_link_libraries( ${PROJECT_NAME} ${ENGINE_LINK} )
+endif( WIN32 )
 
 set_target_properties(
  ${PROJECT_NAME}
