@@ -23,7 +23,6 @@
 #define E_TIME_HPP
 
 #include <sys/time.h>
-#include "platform.hpp"
 #include <cstdlib>
 
 #define TIMEVAL2USEC(x) ((x.tv_sec * 1000) + (x.tv_usec / 1000))
@@ -57,7 +56,7 @@ class eTime {
        * \param[out] result the result
        * \returns Nothing
        */
-      static inline GLvoid addTimeval( timeval &a, timeval &b, timeval &result ) {
+      static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
          result.tv_sec  = a.tv_sec  + b.tv_sec;
          result.tv_usec = a.tv_usec + b.tv_usec;
          while ( result.tv_usec >= 1000000 ) {
@@ -73,7 +72,7 @@ class eTime {
        * \param[out] result the result
        * \returns Nothing
        */
-      static inline GLvoid subTimeval( timeval &a, timeval &b, timeval &result ) {
+      static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
          result.tv_sec  = a.tv_sec  - b.tv_sec;
          result.tv_usec = a.tv_usec - b.tv_usec;
          while ( result.tv_usec < 0 ) {
@@ -87,14 +86,14 @@ class eTime {
        * \param sec Sleep this time
        * \returns Nothing
        */
-      inline GLvoid sleepSec( long int sec )   {sleepUsec( ( sec * 1000000 ) );};
+      inline void sleepSec( long int sec )   {sleepUsec( ( sec * 1000000 ) );};
       
       /*!
        * \brief Sleep some time
        * \param usec Sleep this time
        * \returns Nothing
        */
-      inline GLvoid sleepUsec( long int usec ) {
+      inline void sleepUsec( long int usec ) {
          tv.tv_sec  = 0;
          tv.tv_usec = usec;
 
@@ -105,7 +104,7 @@ class eTime {
        * \brief Start the timer
        * \returns Nothing
        */
-      inline GLvoid     startTimer()        {gettimeofday( &tv, NULL ); timer = TIMEVAL2USEC( tv );}
+      inline void     startTimer()        {gettimeofday( &tv, NULL ); timer = TIMEVAL2USEC( tv );}
       /*!
        * \brief Stop the timer
        * \returns The time elapsed

@@ -23,7 +23,6 @@
 #ifndef E_SHADER_HPP
 #define E_SHADER_HPP
 
-#include "platform.hpp"
 #include "error.hpp"
 #include <string>
 

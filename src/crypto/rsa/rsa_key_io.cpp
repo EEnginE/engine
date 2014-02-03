@@ -245,7 +245,7 @@ int RSA::importKey( std::string _file ) {
          return -1;
 
       unsigned char lLength_CSTR[4];
-      u_int32_t     lLength_uI;
+      uint32_t      lLength_uI;
 
       for ( unsigned char & c : lLength_CSTR ) {
          c = lInStream.get();

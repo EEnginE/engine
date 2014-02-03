@@ -1,73 +1,60 @@
 /*!
- * \file platform.hpp
- * \brief Handle platform specific stuff
- */
-/*
- *  E Engine
- *  Copyright (C) 2013 Daniel Mensinger
+ * \file defines.hpp
  *
- *  This library is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Defines some variables
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLATFORM_HPP
-#define PLATFORM_HPP
-
-#if !defined(WIN32) && (defined(_WIN32)) || defined(__WIN32__) || defined(__WIN32) || defined(__CYGWIN__) || defined(__WINDOWS__) // Windows
-#define WIN32
-#elseif !defined(__linux__) && (defined(__linux)) || defined(linux) || defined(__unix) || defined(__unix__) //linux
-#define __linux__
-#endif
+#ifndef DEFINES_HPP
+#define DEFINES_HPP
 
 
-#if defined __linux__
-#if defined NO_GLEW
+#define UNIX_X11     @CM_UNIX_X11@
+#define UNIX_WAYLAND @CM_UNIX_WAYLAND@
+#define UNIX_MIR     @CM_UNIX_MIR@
+#define WINDOWS      @CM_WINDOWS@
 
-#include <GL/glx.h>
-#include <GL/gl.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
+#define E_VERSION_MAJOR    @CM_VERSION_MAJOR@
+#define E_VERSION_MINOR    @CM_VERSION_MINOR@
+#define E_INSTALL_PREFIX   "@CMAKE_INSTALL_PREFIX@"
 
-#else // NO_GLEW
 
-#include <GL/glxew.h>
-#include <GL/glx.h>
-#include <X11/XKBlib.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-
-#endif // NO_GLEW
-
-#define _E_THREAD_EXIT(x) pthread_exit( x );
-
-#endif // __linux__
-
-#if defined WIN32
-#define E_COLOR_DISABLED
-#define E_COLOR_NO_TERMTEST
-#endif // WIN32
-
+namespace e_engine {
+   
 
 /*!
- * \namespace e_engine
- * \brief The main namespace of this OpenGL engine
- *
- * This is the main namespace of this project, which reduces
- * the nameincombabillitys of the project
+* \brief Attributes for eContext::NET_WM_STATE()
+* \sa eContext::NET_WM_STATE()
+*/
+enum WINDOW_ATTRIBUTE {
+   MODAL,              //!< Sets the window modal
+   STICKY,             //!< Sets the window sticky
+   MAXIMIZED_VERT,     //!< Maximize the window in the vert. direction
+   MAXIMIZED_HORZ,     //!< Maximize the window in the horz. direction
+   SHADED,             //!< Should add some shadow effects
+   SKIP_TASKBAR,       //!< Removes the windoe from the taskbar
+   SKIP_PAGER,         //!< Removes the window from the pager
+   HIDDEN,             //!< This should hide it somehow
+   FULLSCREEN,         //!< This schould make the window fullscreen
+   ABOVE,              //!< This schould set the window above all other windows (always in the forderground)
+   BELOW,              //!< This schould set the window below all other windows (always in the background)
+   DEMANDS_ATTENTION,  //!< Tells the window manager to make the window borders blink or something like that -- stops usualy when the user clicks in the window
+   FOCUSED,            //!< Schould set the window focused
+   NONE                //!< Change nothing
+};
+
+/*!
+ * \brief Actions for eContext::NET_WM_STATE()
+ * \sa eContext::NET_WM_STATE()
  */
-namespace e_engine {
+enum ACTION {
+   C_REMOVE = 0, //!< Remove the attribute
+   C_ADD,        //!< Add the attribute
+   C_TOGGLE      //!< Toggle the attribute
+};
+
+}
+
 
 // Keys
 #define E_KEY_UNKNOWN      -1
@@ -159,8 +146,6 @@ namespace e_engine {
 #define E_KEY_PRESSED      1
 #define E_KEY_RELEASED     0
 
-}
+#endif // DEFINES_HPP
 
-
-#endif // PLATFORM_HPP
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

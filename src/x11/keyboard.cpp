@@ -1,6 +1,8 @@
-/// \filekeycode_to_key.cpp 
-/// \brief \b Classes: \a eKeys
-/// \sa e_keycode_to_key.hpp
+/*!
+ * \file keyboard.cpp
+ * \brief \b Classes: \a eKeys
+ * \sa e_keycode_to_key.cpp
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
@@ -25,7 +27,8 @@
  * the function keysym2unicode and the idea is from the XTerm project
  */
 
-#include "keycode_to_key.hpp"
+#include "keyboard.hpp"
+#include <GL/glxew.h>
 
 namespace e_engine {
 
@@ -823,7 +826,7 @@ static struct codepair {
 };
 
 
-wchar_t eKeys::keysym2unicode( KeySym keysym ) {
+wchar_t eKeyboard::keysym2unicode( KeySym keysym ) {
    int min = 0;
    int max = sizeof( keysymtab ) / sizeof( struct codepair ) - 1;
    int mid;
@@ -854,7 +857,7 @@ wchar_t eKeys::keysym2unicode( KeySym keysym ) {
    return E_KEY_UNKNOWN;
 }
 
-wchar_t eKeys::keycode_to_key( XKeyPressedEvent _kEv, short unsigned int _key_state, Display* _display ) {
+wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int _key_state, Display* _display ) {
    KeySym key;
    unsigned int level1 = 0, level2 = 0, level2_temp;
 

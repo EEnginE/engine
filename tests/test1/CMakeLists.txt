@@ -6,7 +6,7 @@ configure_file("${CSD}/config.in.h" "${CSD}/config.h")
 
 
 # Optionen
-add_definitions(-Wall -std=c++0x -fPIC -O2)
+add_definitions(-Wall -std=c++0x -O2)
 add_executable( engine_test1 ${CSD}/main.cpp )
 
 target_link_libraries(

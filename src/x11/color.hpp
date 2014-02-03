@@ -25,7 +25,6 @@
 #include <string>
 #include <GL/glew.h>
 #include <boost/lexical_cast.hpp>
-#include "platform.hpp"
 
 #ifdef __linux__
 #include <sys/ioctl.h>

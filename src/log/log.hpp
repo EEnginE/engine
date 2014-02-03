@@ -97,14 +97,14 @@ class eLog {
       _SLOT_ vStdErr_eSLOT;
       _SLOT_ vStdLog_eSLOT;
 
-      ushort vMaxTypeStringLength_usI; //!< The max string length from a \a Error \a type.
+      uint16_t vMaxTypeStringLength_usI; //!< The max string length from a \a Error \a type.
       
             
       boost::mutex vOnlyOneLogLoop_MUTEX;
       
       boost::thread vLogLoopThread_THREAD;
 
-      bool openLogFile( ushort i = 0 );
+      bool openLogFile( uint16_t i = 0 );
 
       void logLoop();
 

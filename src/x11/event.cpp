@@ -1,6 +1,8 @@
-/// \file event.cpp 
-/// \brief \b Classes: \a eInit
-/// \sa e_init.cpp e_init.hpp
+/*!
+ * \file event.cpp
+ * \brief \b Classes: \a eInit
+ * \sa e_init.cpp e_init.hpp
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
@@ -21,7 +23,6 @@
 
 #include "init.hpp"
 #include "log.hpp"
-#include "keycode_to_key.hpp"
 #include "time.hpp"
 
 /*
@@ -31,7 +32,7 @@
 
 namespace e_engine {
 
-int eInit::eventLoop(  ) {
+int eInit::eventLoop() {
    vEventLoopHasFinished_B = false;
    XEvent e;
    unsigned int key_state;
@@ -94,7 +95,7 @@ int eInit::eventLoop(  ) {
             case KeyPress: {
                   eWinInfo tempInfo( this );
                   tempInfo.eKey.state = key_state;
-                  tempInfo.eKey.key = E_KEYS.keycode_to_key( e.xkey, key_state, getDisplay() );
+                  tempInfo.eKey.key = processX11KeyInput( e.xkey, key_state, getDisplay() );
                   vKey_SIG.sendSignal( tempInfo );
                }
                break;

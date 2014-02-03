@@ -7,5 +7,6 @@
 /src/log/macros.hpp
 /src/engine.in.hpp
 /src/engine.hpp
+/src/defines.hpp
 *config.h
 /.project

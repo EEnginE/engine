@@ -149,11 +149,7 @@ struct eLogEntry {
       std::string vMessage_STR;
    } temp;
 
-   void configure( LOG_COLOR_TYPE _color,
-                   LOG_PRINT_TYPE _time,
-                   LOG_PRINT_TYPE _file,
-                   LOG_PRINT_TYPE _errorType,
-                   int            _columns );
+   void configure( e_engine::LOG_COLOR_TYPE _color, e_engine::LOG_PRINT_TYPE _time, e_engine::LOG_PRINT_TYPE _file, e_engine::LOG_PRINT_TYPE _errorType, int _columns );
 };
 
 namespace e_engine_internal {
