@@ -437,14 +437,14 @@ bool eContext::fullScreenMultiMonitor() {
  * \returns 2 when sending the X11 event failed
  * \returns the result of eRandR::getIndexOfDisplay() when there was a failure
  */
-int eContext::setFullScreenMonitor( eRandRDisplay _disp ) {
+int eContext::setFullScreenMonitor( eDisplays _disp ) {
    if ( ! vHaveGLEW_B )
       return 0;
 
    int lDisp_I = getIndexOfDisplay( _disp );
 
    if ( lDisp_I < 0 ) {
-      wLOG "No valid eRandRDisplay [ setFullScreenMonitor(...) ] ==> Return eRandR::getIndexOfDisplay( _disp ) = " ADD lDisp_I END
+      wLOG "No valid eDisplays [ setFullScreenMonitor(...) ] ==> Return eRandR::getIndexOfDisplay( _disp ) = " ADD lDisp_I END
       return lDisp_I;
    }
 

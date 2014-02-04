@@ -5,11 +5,12 @@
 
 #include "log_resources.hpp"
 #include "log.hpp"
+#include "defines.hpp"
 #include <iomanip>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
-#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
+#if UNIX
 #define E_COLOR_NO_TERMTEST
 #include "color.hpp"
 #endif
@@ -25,7 +26,7 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
    _entry.data.vTime_lI          = vTime_lI;
    _entry.data.vType_STR         = "UNKNOWN";
    _entry.data.vNewColor_STR     = testNewColor();
-   
+      
    if( _vLogTypes_V_eLT.empty() ) {
       eLOG "No Log type found!! Please add at least one manualy or run 'eLog.devInit();', which will be run now to prevent other Errors" END
       LOG.devInit();
@@ -50,7 +51,7 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
 }
 
 std::string __eLogStoreHelper::testNewColor()  {
-#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
+#if UNIX
 if ( vFG_C != '-' ) {
       if ( vAttrib_C != '-' ) {
          if ( vBG_C != '-' ) {
@@ -66,7 +67,7 @@ if ( vFG_C != '-' ) {
 
 
 bool __eLogStore::hasColor()  {
-#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
+#if UNIX
    if ( vFG_C != '-' ) {
       if ( vAttrib_C != '-' ) {
          if ( vBG_C != '-' ) {

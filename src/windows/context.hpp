@@ -12,6 +12,7 @@
 #define CONTEXT_HPP
 
 #include "defines.hpp"
+#include "displays.hpp"
 
 namespace e_engine {
 
@@ -26,6 +27,20 @@ class eContext {
       
       void makeContextCurrent()  {}
       void makeNOContexCurrent() {}
+      
+      bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) {return false;}
+      
+      std::vector<eDisplays> getDisplayResolutions() { return std::vector<eDisplays>(); }
+
+      bool setDisplaySizes( eDisplays const &_disp ) {return false;}
+      void setPrimary( eDisplays const &_disp ) {}
+
+      bool applyNewRandRSettings() {return false;}
+      
+      int  setFullScreenMonitor( eDisplays _disp ) {return 0;}
+      bool setDecoration( ACTION _action ) {return false;}
+      int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {return 0;}
+      bool fullScreenMultiMonitor() {return false;}
 };
 
 }

@@ -7,7 +7,7 @@
 #define E_RANDR_HPP
 
 #include "randr_structs.hpp"
-#include "randr_display.hpp"
+#include "displays.hpp"
 
 namespace e_engine {
 
@@ -66,17 +66,17 @@ class eRandR {
 
       void printRandRStatus();
 
-      bool setGamma( eRandRDisplay _disp, float _r, float _g, float _b, float _brightness = 1 );
+      bool setGamma( eDisplays const &_disp, float _r, float _g, float _b, float _brightness = 1 );
 
       void getMostLeftRightTopBottomCRTC( unsigned int &_left, unsigned int &_right, unsigned int &_top, unsigned int &_bottom );
-      int  getIndexOfDisplay( e_engine::eRandRDisplay _disp );
+      int  getIndexOfDisplay( eDisplays const &_disp );
 
       bool initRandR( Display *_display, Window _window, Window _root );
 
-      std::vector<eRandRDisplay> getDisplayResolutions();
+      std::vector<eDisplays> getDisplayResolutions();
 
-      bool setDisplaySizes( e_engine::eRandRDisplay _disp );
-      void setPrimary( eRandRDisplay _disp );
+      bool setDisplaySizes( eDisplays const &_disp );
+      void setPrimary( eDisplays const &_disp );
 
       bool applyNewRandRSettings();
 

@@ -23,7 +23,7 @@ namespace e_engine {
  *
  * \note Most code is a simple copy and paste from the XRandR project (http://www.x.org/wiki/Projects/XRandR/)
  */
-bool eRandR::setGamma( e_engine::eRandRDisplay _disp, float _r, float _g, float _b, float _brightness ) {
+bool eRandR::setGamma( eDisplays const &_disp, float _r, float _g, float _b, float _brightness ) {
    if ( _r < 0 || _g < 0 || _b < 0 || _brightness < 0 || ! isRandRSupported() )
       return false;
 

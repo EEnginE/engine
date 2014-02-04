@@ -163,8 +163,8 @@ bool eRandR::restore( e_engine_internal::_config _conf ) {
  *
  * \sa eRandRDisplay
  */
-std::vector< eRandRDisplay > eRandR::getDisplayResolutions() {
-   std::vector<eRandRDisplay> lTempSizes_eWS;
+std::vector< eDisplays > eRandR::getDisplayResolutions() {
+   std::vector<eDisplays> lTempSizes_eWS;
    if ( ! isRandRSupported() )
       return lTempSizes_eWS;
    reload( false );
@@ -175,7 +175,7 @@ std::vector< eRandRDisplay > eRandR::getDisplayResolutions() {
       if ( fOutput.connection != 0 )
          continue;
 
-      eRandRDisplay lTempDisplay_eRRD(
+      eDisplays lTempDisplay_eRRD(
          fOutput.name,
          fOutput.id,
          ( fOutput.crtc != None ) ? true : false
@@ -263,7 +263,7 @@ std::vector< eRandRDisplay > eRandR::getDisplayResolutions() {
  *
  * \note This function will change the primary display IMMEDIATELY; Calling applyNewSettings() will have no effect to this.
  */
-void eRandR::setPrimary( eRandRDisplay _disp ) {
+void eRandR::setPrimary( e_engine::eDisplays const &_disp ) {
    if ( ! isRandRSupported() )
       return;
    XRRSetOutputPrimary( vDisplay_X11, vRootWindow_X11, _disp.getOutput() );
@@ -327,7 +327,7 @@ void eRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left, unsigned int &_
  * \returns -2 When the eRandRDisplay is out of date
  * \returns -10 When a impossible error happened
  */
-int eRandR::getIndexOfDisplay( eRandRDisplay _disp ) {
+int eRandR::getIndexOfDisplay( eDisplays const &_disp ) {
    reload();
    
    RRCrtc lCRTC_XRR    = None;

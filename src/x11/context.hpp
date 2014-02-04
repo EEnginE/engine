@@ -30,7 +30,6 @@
 
 
 #include "randr.hpp"
-#include "randr_display.hpp"
 #include "defines.hpp"
 #include <GL/glew.h>
 // WARNING Can not include <glxew.h> because it would overwrite all <glx.h> macros
@@ -179,7 +178,7 @@ class eContext : public eRandR {
 
       bool fullScreen( ACTION _action, bool _allMonitors = false );
       bool fullScreenMultiMonitor();
-      int  setFullScreenMonitor( eRandRDisplay _disp );
+      int  setFullScreenMonitor( eDisplays _disp );
       bool maximize( ACTION _action );
       bool setDecoration( ACTION _action );
 };

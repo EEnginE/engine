@@ -29,7 +29,7 @@
 #include "macros.hpp"
 #include "log_resources.hpp"
 
-#define B_SLEEP( chrono_sleep ) boost::this_thread::sleep_for( boost::chrono::chrono_sleep )
+#define B_SLEEP( chrono_sleep, time ) boost::this_thread::sleep_for( boost::chrono::chrono_sleep( time ) )
 
 
 namespace e_engine {

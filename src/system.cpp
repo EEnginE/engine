@@ -23,7 +23,7 @@
 #include "window_data.hpp"
 #include "defines.hpp"
 
-#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
+#if UNIX
 #include <unistd.h>
 #include <pwd.h>
 #endif
@@ -61,7 +61,7 @@ std::string eSystem::getMainConfigDirPath() {
       const char *fmt =  "-";
       std::string out = boost::regex_replace( WinData.config.appName, ex, fmt );
 
-#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
+#if UNIX
       std::string dir1_str = userHome + "/.";
       dir1_str += out;
       std::string dir2_str = userHome + "/.config/";
