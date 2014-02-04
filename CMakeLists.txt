@@ -75,6 +75,22 @@ configure_file(
 set(CM_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 
+
+# Begin STATIC ###
+if( ENGINE_LINK_SHARED )
+   message( STATUS "Do not change CMAKE_FIND_LIBRARY_SUFFIXES ( ${CMAKE_FIND_LIBRARY_SUFFIXES} )" )
+else( ENGINE_LINK_SHARED )
+   set( OLD_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES} )
+   if( WIN32 )
+      set( CMAKE_FIND_LIBRARY_SUFFIXES .a .lib .dll ${CMAKE_FIND_LIBRARY_SUFFIXES} )
+   else( WIN32 )
+      set( CMAKE_FIND_LIBRARY_SUFFIXES .a .so ${CMAKE_FIND_LIBRARY_SUFFIXES} )
+   endif( WIN32 )
+   message( STATUS "Changed CMAKE_FIND_LIBRARY_SUFFIXES for static linking ( ${CMAKE_FIND_LIBRARY_SUFFIXES} )" )
+endif( ENGINE_LINK_SHARED )
+# End STATIC ###
+
+
 set(Boost_USE_MULTITHREADED ON)
 if( NOT DEFINED BOOST_NO_STATIC )
    set(Boost_USE_STATIC_LIBS ON)
@@ -117,9 +133,12 @@ set(ENGINE_LINK
    ${CMAKE_THREAD_LIBS_INIT}
 )
 
+if( NOT ENGINE_LINK_SHARED )
+   set( DEF_GLEW_STATIC -DGLEW_STATIC )
+endif( NOT ENGINE_LINK_SHARED )
 
 # Optionen
-add_definitions(-Wall -std=c++11) # -Winline -std=c++0x -O3
+add_definitions(-Wall -std=c++11 ${DEF_GLEW_STATIC} ) # -Winline -std=c++0x -O3
 include_directories(
  ${Boost_INCLUDE_DIRS}
  ${GLEW_INCLUDE_DIRS}
@@ -135,12 +154,15 @@ include_directories(
 # ENGINE_SRC and ENGINE_INC
 include(sources.cmake)
 
-#add_library( ${PROJECT_NAME} STATIC ${ENGINE_SRC} )
-add_library( ${PROJECT_NAME} SHARED ${ENGINE_SRC} )
+if( ENGINE_BUILD_SHARED )
+   add_library( ${PROJECT_NAME} SHARED ${ENGINE_SRC} )
+else( ENGINE_BUILD_SHARED )
+   add_library( ${PROJECT_NAME} STATIC ${ENGINE_SRC} )
+endif( ENGINE_BUILD_SHARED )
 
-if( WIN32 )
+if( WIN32 AND ENGINE_BUILD_SHARED )
    target_link_libraries( ${PROJECT_NAME} ${ENGINE_LINK} )
-endif( WIN32 )
+endif( WIN32 AND ENGINE_BUILD_SHARED )
 
 set_target_properties(
  ${PROJECT_NAME}
@@ -163,3 +185,4 @@ install(
  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/ 
  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
 )
+
