@@ -1,26 +1,20 @@
-/// \file randr_display.cpp
-/// \brief \b Classes: \a eRandRDisplay
+/*!
+ * \file displays.cpp
+ * \brief \b Classes: \a eDisplays
+ */
 
-#include "randr_display.hpp"
+#include "displays.hpp"
 
 namespace e_engine {
 
-// --- private ---
-void eRandRDisplay::setCurrentSizeAndPosition( unsigned int _width, unsigned int _height, unsigned int _posX, unsigned int _posY, unsigned int _rate ) {
-   vCurrentWidth_uI  = _width;
-   vCurrentHeight_uI = _height;
-   vPosX_uI          = _posX;
-   vPosY_uI          = _posY;
-   vCurrentRate_D    = _rate;
-}
 
 // --- private ---
-void eRandRDisplay::addClone( RROutput _clone ) {
+void eDisplays::addClone( RROutput _clone ) {
    vClones_V_XRR.push_back( _clone );
 }
 
 // --- private ---
-void eRandRDisplay::addMode( RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate ) {
+void eDisplays::addMode( RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate ) {
    mode lTempMode_mode;
 
    lTempMode_mode.id       = _id;
@@ -45,9 +39,9 @@ void eRandRDisplay::addMode( RRMode _id, bool _prefered, unsigned int _width, un
  *
  * \returns Nothing
  */
-void eRandRDisplay::autoSelectBest() {
+void eDisplays::autoSelectBest() {
    // Check if there is a prefered mode
-   for ( eRandRDisplay::mode const & fMode : vModes_V_mode ) {
+   for ( eDisplays::mode const & fMode : vModes_V_mode ) {
       if ( fMode.prefered ) {
          vModeToUse_XRR = fMode.id;
          return; // We have everything we need
@@ -56,7 +50,7 @@ void eRandRDisplay::autoSelectBest() {
 
    unsigned int lMaxWidth_uI  = 0;
    unsigned int lMaxHeight_uI = 0;
-   for ( eRandRDisplay::mode const & fMode : vModes_V_mode ) {
+   for ( eDisplays::mode const & fMode : vModes_V_mode ) {
       if ( ( lMaxWidth_uI < fMode.width ) && ( lMaxHeight_uI < fMode.height ) ) {
          vCurrentWidth_uI  = lMaxWidth_uI  = fMode.width;
          vCurrentHeight_uI = lMaxHeight_uI = fMode.height;
@@ -70,11 +64,13 @@ void eRandRDisplay::autoSelectBest() {
    }
 }
 
+
+
 // --- private ---
-double eRandRDisplay::findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, RRMode &_mode, double &_diff ) {
+double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, RRMode &_mode, double &_diff ) const {
    _diff = 1000000;
    double lRate_D = -1;
-   for ( eRandRDisplay::mode const & fMode : vModes_V_mode ) {
+   for ( eDisplays::mode const & fMode : vModes_V_mode ) {
       if ( _width == fMode.width && _height == fMode.height ) {
          if ( _rate == fMode.rate ) {
             _diff = 0;
@@ -126,7 +122,7 @@ double eRandRDisplay::findNearestFreqTo( double _rate, unsigned int _width, unsi
  *          If _preferedRate failed but a mode with the "normal" behavior
  *          was found, the rate will be negative.
  */
-double eRandRDisplay::autoSelectBySize( unsigned int _width, unsigned int _height, double _preferedRate, double _maxDiff ) {
+double eDisplays::autoSelectBySize( unsigned int _width, unsigned int _height, double _preferedRate, double _maxDiff ) {
    double lMinDiffTo60Hz_D;
    double lMinDiffTo120Hz_D;
    double lMinDiffTo240Hz_D;
@@ -169,7 +165,7 @@ double eRandRDisplay::autoSelectBySize( unsigned int _width, unsigned int _heigh
       }
    }
 
-   for ( eRandRDisplay::mode const & fMode : vModes_V_mode ) {
+   for ( eDisplays::mode const & fMode : vModes_V_mode ) {
       if ( _width == fMode.width && _height == fMode.height ) {
          lFoundOneSizeMatch = true;
          if ( fMode.prefered ) {
@@ -238,7 +234,7 @@ double eRandRDisplay::autoSelectBySize( unsigned int _width, unsigned int _heigh
 }
 
 //! \brief Disables the display
-void eRandRDisplay::disable() {
+void eDisplays::disable() {
    vEnabled_B = false;
    vCurrentWidth_uI  = 0;
    vCurrentHeight_uI = 0;
@@ -247,14 +243,14 @@ void eRandRDisplay::disable() {
 }
 
 //! \brief Enables the display and runs autoSelectBest() if necessary.
-void eRandRDisplay::enable() {
+void eDisplays::enable() {
    vEnabled_B = true;
    if ( vModeToUse_XRR == None )
       autoSelectBest();
 }
 
 //! \brief Returns a vector with all possible rates for the resolution
-std::vector< double > eRandRDisplay::getPossibleRates( unsigned int _width, unsigned int _height ) {
+std::vector< double > eDisplays::getPossibleRates( unsigned int _width, unsigned int _height ) const {
    std::vector<double> lTempRates;
 
    for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
@@ -267,8 +263,8 @@ std::vector< double > eRandRDisplay::getPossibleRates( unsigned int _width, unsi
 }
 
 //! \brief Returns a vector with all possible resolutions
-std::vector< eRandRDisplay::res > eRandRDisplay::getPossibleResolutions() {
-   std::vector<eRandRDisplay::res> lTempSizes_V;
+std::vector<eDisplayBasic::res> eDisplays::getPossibleResolutions() const {
+   std::vector<eDisplayBasic::res> lTempSizes_V;
    for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
       bool lSizeExistsAlready_B = false;
 
@@ -282,7 +278,7 @@ std::vector< eRandRDisplay::res > eRandRDisplay::getPossibleResolutions() {
       if ( lSizeExistsAlready_B )
          continue;
 
-      eRandRDisplay::res lTempRes;
+      eDisplayBasic::res lTempRes;
 
       lTempRes.width  = vModes_V_mode[i].width;
       lTempRes.height = vModes_V_mode[i].height;
@@ -293,14 +289,9 @@ std::vector< eRandRDisplay::res > eRandRDisplay::getPossibleResolutions() {
    return lTempSizes_V;
 }
 
-//! \brief Returns the selected position via references
-void eRandRDisplay::getSelectedPosition( int &_posX, int &_posY ) {
-   _posX = vPosX_uI;
-   _posY = vPosY_uI;
-}
 
 //! \brief Returns the resolution and rate via references
-void eRandRDisplay::getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) {
+void eDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) const {
    if ( vModeToUse_XRR == None ) {
       _width  = 0;
       _height = 0;
@@ -319,7 +310,7 @@ void eRandRDisplay::getSelectedRes( unsigned int &_width, unsigned int &_height,
 }
 
 //! \brief Checks if the resolution is supported
-bool eRandRDisplay::isSizeSupported( unsigned int _width, unsigned int _height ) {
+bool eDisplays::isSizeSupported( unsigned int _width, unsigned int _height ) const {
    for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
       if ( _width == vModes_V_mode[i].width && _height == vModes_V_mode[i].height ) {
          return true;
@@ -329,7 +320,7 @@ bool eRandRDisplay::isSizeSupported( unsigned int _width, unsigned int _height )
 }
 
 //! \brief Select the mode with this resolution and rate
-bool eRandRDisplay::select( unsigned int _width, unsigned int _height, double _rate ) {
+bool eDisplays::select( unsigned int _width, unsigned int _height, double _rate ) {
    for ( unsigned int i = 0; vModes_V_mode.size(); ++i ) {
       if ( _width == vModes_V_mode[i].width && _height == vModes_V_mode[i].height && _rate == vModes_V_mode[i].rate ) {
          vModeToUse_XRR    = vModes_V_mode[i].id;
@@ -343,36 +334,8 @@ bool eRandRDisplay::select( unsigned int _width, unsigned int _height, double _r
    return false;
 }
 
-//! \brief Set the absolute position of this display
-void eRandRDisplay::setPositionAbsolute( unsigned int _posX, unsigned int _posY ) {
-   vPosX_uI = ( _posX < 0 ) ? 0 : _posX;
-   vPosY_uI = ( _posY < 0 ) ? 0 : _posY;
-}
-
-//! \brief Set the position relative to an other display
-void eRandRDisplay::setPositionRelative( eRandRDisplay::POSITON _where, eRandRDisplay &_disp ) {
-   switch ( _where ) {
-      case LEFT_OFF:
-         _disp.vPosX_uI = vPosX_uI + vCurrentWidth_uI;
-         _disp.vPosY_uI = vPosY_uI;
-         break;
-      case RIGHT_OFF:
-         vPosX_uI       = _disp.vPosX_uI + _disp.vCurrentWidth_uI;
-         vPosY_uI       = _disp.vPosY_uI;
-         break;
-      case ABOVE:
-         _disp.vPosX_uI = vPosX_uI;
-         _disp.vPosY_uI = vPosY_uI + vCurrentHeight_uI;
-         break;
-      case BELOW:
-         vPosX_uI       = _disp.vPosX_uI;
-         vPosY_uI       = _disp.vPosY_uI + _disp.vCurrentHeight_uI;
-         break;
-   }
-}
-
 //! \brief Set this display as a clone off an other display
-void eRandRDisplay::setCloneOf( const e_engine::eRandRDisplay &_disp ) {
+void eDisplays::setCloneOf( const e_engine::eDisplays &_disp ) {
    for ( unsigned int i = 0; i < vClones_V_XRR.size(); ++i ) {
       if ( vClones_V_XRR[i] == _disp.vID_XRR ) {
          return;

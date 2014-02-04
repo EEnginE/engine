@@ -161,6 +161,9 @@ bool eRandR::applyNewRandRSettings() {
          ( 25.4 * lNewHeight_I ) / lDPI_D
       );
    }
+   
+   // We work now only with lTempAllCRTC_V_RandR
+   vChangeCRTC_V_RandR.clear();
 
    printRandRStatus();
 

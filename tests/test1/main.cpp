@@ -7,7 +7,7 @@ using namespace e_engine;
 #define KDEVELOP 0
 #define COLOR    0
 #define DO_RSA   0
-#define DO_SHA   0
+#define DO_SHA   1
 
 GLfloat alpha = 1;
 
@@ -15,7 +15,7 @@ inline void color( float r, float g, float b, eInit *i ) {
    glClearColor( r, g, b, alpha );
    glClear( GL_COLOR_BUFFER_BIT );
    i->swapBuffers();
-   B_SLEEP( milliseconds(100) );
+   B_SLEEP( milliseconds, 1 );
    //E_CLOCK.sleepUsec( 25000 );
 }
 
@@ -90,7 +90,7 @@ void render( eWinInfo info ) {
 class MyHandler {
       typedef eSlot<void, MyHandler, eWinInfo> _SLOT_;
    private:
-      vector<eRandRDisplay> vDisp_RandR;
+      vector<eDisplays> vDisp_RandR;
 
    public:
       _SLOT_ slotWindowClose;
@@ -137,7 +137,7 @@ void MyHandler::key( eWinInfo info ) {
          case E_KEY_F10:         info.eInitPointer->setAttribute( C_TOGGLE, BELOW ); break;
          case E_KEY_F11:         info.eInitPointer->setAttribute( C_TOGGLE, FOCUSED ); break;
          case E_KEY_F12:
-            B_SLEEP( seconds( 5 ) );
+            B_SLEEP( seconds, 5 );
             info.eInitPointer->setAttribute( C_TOGGLE, DEMANDS_ATTENTION ); break;
          case L'm':              info.eInitPointer->setAttribute( C_TOGGLE, MAXIMIZED_HORZ, MAXIMIZED_VERT ); break;
          case E_KEY_KP_SUBTRACT: info.eInitPointer->setDecoration( e_engine::C_REMOVE ); break;
@@ -218,7 +218,7 @@ int main( int argc, char **argv ) {
       start.addResizeSlot( handeler.getSResize() );
       start.addKeySlot( handeler.getSKey() );
 
-      vector<eRandRDisplay> displays = start.getDisplayResolutions();
+      vector<eDisplays> displays = start.getDisplayResolutions();
 
       iLOG "Displays: " ADD displays.size() END
 
@@ -227,16 +227,39 @@ int main( int argc, char **argv ) {
       }
 
       if ( displays.size() == 2 ) {
+//          displays[0].disable();
+//          displays[1].disable();
+         
+//          iLOG start.setDisplaySizes( displays[0] ) END
+//          iLOG start.setDisplaySizes( displays[1] ) END
+         
+//          start.applyNewRandRSettings();
+         
+//          B_SLEEP( seconds, 1 );
+         
+//          displays.clear();
+//          displays = start.getDisplayResolutions();
+         
          displays[0].enable();
          displays[1].enable();
+         displays[0].autoSelectBest();
+         displays[1].autoSelectBest();
+//          iLOG start.setDisplaySizes( displays[0] ) END
+//          iLOG start.setDisplaySizes( displays[1] ) END
+//          start.applyNewRandRSettings();
+         
+//          displays.clear();
+//          displays = start.getDisplayResolutions();
+         
          displays[0].setNoClones();
          displays[1].setNoClones();
          displays[1].setPositionAbsolute( 0, 0 );
-         displays[0].setPositionRelative( eRandRDisplay::RIGHT_OFF, displays[1] );
+         displays[0].setPositionRelative( eDisplays::RIGHT_OFF, displays[1] );
          iLOG start.setDisplaySizes( displays[0] ) END
          iLOG start.setDisplaySizes( displays[1] ) END
          start.setPrimary( displays[1] );
          start.applyNewRandRSettings();
+         start.setPrimary( displays[1] );
       }
 
       string temp;
@@ -297,12 +320,13 @@ int main( int argc, char **argv ) {
 #if DO_SHA == 1
       SHA_2 mySHA( SHA2_384 );
    mySHA.selftest();
+#endif 
 
    iLOG "Credits: " ADD 'B', 'G', "Daniel ( Mense ) Mensinger" END
-#endif 
 
    LOG.stopLogLoop();
    return EXIT_SUCCESS;
 }
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+

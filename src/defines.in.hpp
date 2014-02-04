@@ -14,6 +14,12 @@
 #define UNIX_MIR     @CM_UNIX_MIR@
 #define WINDOWS      @CM_WINDOWS@
 
+#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
+#define UNIX         1
+#else
+#define UNIX         0
+#endif
+
 #define E_VERSION_MAJOR    @CM_VERSION_MAJOR@
 #define E_VERSION_MINOR    @CM_VERSION_MINOR@
 #define E_INSTALL_PREFIX   "@CMAKE_INSTALL_PREFIX@"

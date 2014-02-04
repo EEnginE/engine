@@ -7,7 +7,7 @@
 #include "log.hpp"
 #include "defines.hpp"
 
-#if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
+#if UNIX
 #define E_COLOR_NO_TERMTEST
 #include "color.hpp"
 #endif
@@ -101,11 +101,11 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
    std::string lDefCol2_STR = "";    // Default color escape sequence string -- Hidden when REDUCED
    std::string lResetColl_STR = "";  // Default color reset escape sequence
 
-#if  ! UNIX_X11 && ! UNIX_WAYLAND && ! UNIX_MIR
+#if  ! UNIX
    _rawEntry.config.vColor_LCT = DISABLED;
 #endif
 
-#if UNIX_X11 && UNIX_WAYLAND && UNIX_MIR
+#if UNIX
    if ( _rawEntry.config.vColor_LCT != DISABLED )
       lResetColl_STR = eCMDColor::RESET;
 
@@ -137,7 +137,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 // ========= Generate The Time Entry ==============================================================================================================
 
    if ( _rawEntry.config.vTime_LPT != OFF ) {
-#if UNIX_X11 && UNIX_WAYLAND && UNIX_MIR
+#if UNIX
       if ( _rawEntry.config.vColor_LCT == FULL && _rawEntry.data.vBold_B == false )
          _rawEntry.temp.vTime_STR += eCMDColor::color( eCMDColor::OFF,  WinData.log.standardTimeColor );
 
@@ -174,7 +174,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
       if ( lFilename_STR.size() > WinData.log.maxFilenameSize ) {
          lFilename_STR.resize( WinData.log.maxFilenameSize );
       }
-#if UNIX_X11 && UNIX_WAYLAND && UNIX_MIR
+#if UNIX
       if ( _rawEntry.config.vColor_LCT == FULL || ( _rawEntry.data.vBold_B == true && _rawEntry.config.vColor_LCT != DISABLED ) ) {
          _rawEntry.temp.vFile_STR += eCMDColor::color( _rawEntry.data.vBold_B ? eCMDColor::BOLD : eCMDColor::OFF, eCMDColor::RED );
       }
@@ -185,7 +185,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 
       // Make a (yellow) ':' (and set a color)
       if ( _rawEntry.config.vFile_LPT == LEFT_FULL || _rawEntry.config.vFile_LPT == RIGHT_FULL ) {
-#if UNIX_X11 && UNIX_WAYLAND && UNIX_MIR
+#if UNIX
          if ( _rawEntry.config.vColor_LCT == FULL || ( _rawEntry.data.vBold_B == true && _rawEntry.config.vColor_LCT != DISABLED ) ) {
             _rawEntry.temp.vFile_STR += eCMDColor::color( eCMDColor::BOLD, eCMDColor::MAGENTA ) +
                                         ':' +
@@ -219,7 +219,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
    std::string BR_OPEN  = "[";
    std::string BR_CLOSE = "]";
 
-#if UNIX_X11 && UNIX_WAYLAND && UNIX_MIR
+#if UNIX
    if ( _rawEntry.config.vColor_LCT == FULL || ( _rawEntry.config.vColor_LCT == REDUCED && _rawEntry.data.vBold_B ) ) {
       BR_OPEN  = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + '[';
       BR_CLOSE = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + ']' + eCMDColor::RESET;
@@ -393,7 +393,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
       if ( _rawEntry.data.vLogEntries_V_eLS[i].getType() == e_engine_internal::NEW_POINT ) {
          lMessage_VEC.push_back( ( lTempMessageString_STR + lResetColl_STR ) );
          
-#if UNIX_X11 && UNIX_WAYLAND && UNIX_MIR
+#if UNIX
          if ( _rawEntry.config.vColor_LCT == FULL || ( _rawEntry.config.vColor_LCT == REDUCED && _rawEntry.data.vBold_B ) )
             lTempColor_STR = eCMDColor::color( eCMDColor::OFF, eCMDColor::CYAN );
 #endif
@@ -456,7 +456,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
       else
          lTempMessageSize_uI = lMessage_VEC[i].size();
 
-#if UNIX_X11 && UNIX_WAYLAND && UNIX_MIR
+#if UNIX
       if ( isatty( fileno( stdout ) ) != 0 && _rawEntry.config.vColor_LCT != DISABLED ) {
          // Clear the current line
          _rawEntry.vResultStrin_STR += "\x1B[2K\x1b[0G";

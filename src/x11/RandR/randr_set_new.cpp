@@ -37,7 +37,7 @@ e_engine_internal::_crtc eRandR::isOutputPossible( RROutput _id, RRCrtc _crtc ) 
  *
  * \note It is also possible to run setDisplaySizes() more than once without running applyNewSettings().
  */
-bool eRandR::setDisplaySizes( eRandRDisplay _disp ) {
+bool eRandR::setDisplaySizes( e_engine::eDisplays const &_disp ) {
    if ( ! isRandRSupported() )
       return false;
 

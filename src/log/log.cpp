@@ -318,13 +318,13 @@ void eLog::logLoop() {
    unsigned int lLogTypeId_uI = 0;
    do {
       // Killing the CPU is not our Task
-      B_SLEEP( milliseconds( 25 ) );
+      B_SLEEP( milliseconds, 25 );
 
 
       while ( ! vLogList_L_eLSH.empty() ) {
 
          for ( unsigned int i = 0; i < 100 && ! vLogList_L_eLSH.front().getIsComplete(); ++i )
-            B_SLEEP( milliseconds( 50 ) );
+            B_SLEEP( milliseconds, 50 );
 
          // All in all we have 5 seconds to complete a log entry
          if ( ! vLogList_L_eLSH.front().getIsComplete() ) {
@@ -363,7 +363,7 @@ bool eLog::stopLogLoop() {
    // when there was too litle time for the thread to check and set
    // vIsLogLoopRunning_B. 10 milliseconds sleeping schould be enough
    // in this case.
-   B_SLEEP( milliseconds( 10 ) );
+   B_SLEEP( milliseconds, 10 );
 
    if ( vIsLogLoopRunning_B == false )
       return false;
