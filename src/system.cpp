@@ -46,7 +46,7 @@ namespace e_engine {
 eSystem SYSTEM;
 
 eSystem::eSystem() {
-#if 0//UNIX
+#if UNIX
    uid_t tempUserID = geteuid();
    struct passwd *pw = 0;
 
@@ -56,7 +56,7 @@ eSystem::eSystem() {
    userName  = pw->pw_gecos;
    userHome  = pw->pw_dir;
 
-#elif 1 // WINDOWS
+#elif WINDOWS
    DWORD lUsername_DWORD = UNLEN + 1;
    TCHAR lUsername_TCSTR[UNLEN + 1];
    if ( GetUserName ( lUsername_TCSTR, &lUsername_DWORD ) == 0 ) {
