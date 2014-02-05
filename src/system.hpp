@@ -36,7 +36,6 @@ namespace e_engine {
  */
 class eSystem {
 private:
-   unsigned int userID;    //!< The user ID var
    std::string  userName;  //!< The user name var
    std::string  userLogin; //!< The user login name var
    std::string  userHome;  //!< The user home dir var
@@ -46,12 +45,6 @@ private:
    std::string  configFilePath;
 public:
    eSystem();
-   
-   /*!
-    * \brief Get the user ID
-    * \returns User ID
-    */
-   unsigned int getUserID() {return userID;}
    
    /*!
     * \brief Get the user name
@@ -71,40 +64,9 @@ public:
     */
    std::string  getUserHomeDirectory() {return userHome;}
    
-   /*!
-    * \brief Get the main config dir path
-    * 
-    * Serch for an existing main config dir and if it doesn't
-    * exists  creates it. The settings from \c WinData.config
-    * will be used.
-    * 
-    * \returns The main config dir path
-    * \sa _eWindowData
-    */
-   std::string  getMainConfigDirPath();
    
-   /*!
-    * \brief Get the log file dir
-    * 
-    * Serch for an existing log file dir in the main config dir and
-    * if it doesn't exists creates it. The settings from \c WinData.config
-    * will be used.
-    * 
-    * \returns The log file dir path
-    * \sa _eWindowData
-    */
+   std::string getMainConfigDirPath();
    std::string getLogFilePath();
-   
-   /*!
-    * \brief Get the config file dir
-    * 
-    * Serch for an existing log config dir in the main config dir and
-    * if it doesn't exists creates it. The settings from \c WinData.config
-    * will be used.
-    * 
-    * \returns The config file dir path
-    * \sa _eWindowData
-    */
    std::string getConfigFilePath();
 };
 

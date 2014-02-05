@@ -22,6 +22,7 @@
  */
 
 #include "log.hpp"
+#include "defines.hpp"
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 
@@ -73,7 +74,7 @@ eLog::eLog() {
 
    vStdOut_eSLOT.setFunc( &eLog::stdOutStandard, this );
    vStdErr_eSLOT.setFunc( &eLog::stdErrStandard, this );
-   vStdLog_eSLOT.setFunc( &eLog::stdLogStnagard, this );
+   vStdLog_eSLOT.setFunc( &eLog::stdLogStandard, this );
 
    vLogList_L_eLSH.clear();
 }
@@ -101,6 +102,8 @@ void eLog::devInit() {
       connectSlotWith( 'I', vStdLog_eSLOT );
       connectSlotWith( 'W', vStdLog_eSLOT );
       connectSlotWith( 'E', vStdLog_eSLOT );
+      
+      iLOG "LOGFILE:    ---  " ADD vLogFielFullPath_str ADD "  ---" END
    } else {
       wLOG "Unable to open log file \"" ADD vLogFielFullPath_str ADD "\" ==> No Log file output" END
    }
@@ -203,7 +206,7 @@ bool eLog::openLogFile( uint16_t i ) {
 
 
 void eLog::stdOutStandard( e_engine::eLogEntry _e ) {
-#ifdef WIN32
+#if WINDOWS
    // Sorry, no Color support for Windows
    _e.config.vColor_LCT = DISABLED;
 #endif
@@ -214,7 +217,7 @@ void eLog::stdOutStandard( e_engine::eLogEntry _e ) {
                  WinData.log.logOUT.ErrorType,
                  WinData.log.width );
 
-#ifdef __linux__
+#if UNIX
    if ( isatty( fileno( stdout ) ) == 0 ) {
       // No colors supported => no colors
       _e.config.vColor_LCT = DISABLED;
@@ -225,7 +228,7 @@ void eLog::stdOutStandard( e_engine::eLogEntry _e ) {
       ioctl( 0, TIOCGWINSZ, &winS );
       _e.config.vColumns_uI = winS.ws_col;
    }
-#endif // __linux__
+#endif // UNIX
 
 
    generateEntry( _e );
@@ -264,7 +267,7 @@ void eLog::stdErrStandard( eLogEntry _e ) {
    std::cerr << _e.vResultStrin_STR;
 }
 
-void eLog::stdLogStnagard( e_engine::eLogEntry _e ) {
+void eLog::stdLogStandard( e_engine::eLogEntry _e ) {
    if ( ! vLogFileOutput_OS.is_open() ) {
       wLOG "Logfile has closed! Trying to reopen it..." END
       vLogFileOutput_OS.open( vLogFielFullPath_str.c_str() );

@@ -33,32 +33,30 @@ using std::string;
 
 namespace e_engine {
 
-namespace e_engine_internal {
 
-__eWindowData_FBA::__eWindowData_FBA() {
+_eWindowData::__eWindowData_FBA::__eWindowData_FBA() {
    reset();
 }
 
-__eWindowData_Versions::__eWindowData_Versions() {
+_eWindowData::__eWindowData_Versions::__eWindowData_Versions() {
    reset();
 }
 
-__eWindowData_Window::__eWindowData_Window() {
+_eWindowData::__eWindowData_Window::__eWindowData_Window() {
    reset();
 }
 
-__eLogData_Config::__eLogData_Config() {
+_eWindowData::__eLogData_Config::__eLogData_Config() {
+   reset();
+}
+
+_eWindowData::__eWindowData_Config::__eWindowData_Config() {
    reset();
 }
 
 
-__eWindowData_Config::__eWindowData_Config() {
-   reset();
-}
 
-
-
-void __eWindowData_FBA::reset() {
+void _eWindowData::__eWindowData_FBA::reset() {
 #if  UNIX_X11
    FBA_RENDER_TYPE           = GLX_RGBA_BIT;
    FBA_RENDERABLE            = GL_TRUE;
@@ -77,14 +75,14 @@ void __eWindowData_FBA::reset() {
    //FBA_STEREO                = GL_TRUE;
 }
 
-void __eWindowData_Versions::reset() {
+void _eWindowData::__eWindowData_Versions::reset() {
    minGlxMajorVer            = 1;
    minGlxMinorVer            = 3;
    glMajorVersion            = 4;
    glMinorVersion            = 3;
 }
 
-void __eWindowData_Window::reset() {
+void _eWindowData::__eWindowData_Window::reset() {
    width                     = 800;
    height                    = 600;
    minWidth                  = 50;
@@ -105,7 +103,7 @@ void __eWindowData_Window::reset() {
    //iconPath.clear();
 }
 
-void __eLogData_Config::reset() {
+void _eWindowData::__eLogData_Config::reset() {
    standardTimeColor        = 'M';
    
    maxFilenameSize          = 20;
@@ -139,7 +137,7 @@ void __eLogData_Config::reset() {
 }
 
 
-void __eWindowData_Config::reset() {
+void _eWindowData::__eWindowData_Config::reset() {
    appName = "e-engine";
    configSubFolder.clear();
    logSubFolder = "log";
@@ -155,11 +153,8 @@ void __eWindowData_Config::reset() {
 }
 
 
-}
-
 
 _eWindowData::_eWindowData() {
-
    handleSIGINT                  = true;
    handleSIGTERM                 = true;
    timeoutForMainLoopThread_mSec = 1000; // 1 second

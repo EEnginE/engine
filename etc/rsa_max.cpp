@@ -68,8 +68,8 @@ int main( int argc, char *argv[] ) {
       for ( unsigned int j = lastMax ;; ++j ) {
          char *numCompare = new char[number.size() * j + 1];
          for ( unsigned int k = 0; k < j; ++k ) {
-            for( unsigned int l = 0; l < number.size(); ++l ) {
-               numCompare[number.size() * k + l ] = number.at(l);
+            for ( unsigned int l = 0; l < number.size(); ++l ) {
+               numCompare[number.size() * k + l ] = number.at( l );
             }
          }
          numCompare[number.size() * j] = '\0';
@@ -96,19 +96,31 @@ int main( int argc, char *argv[] ) {
       delete[] numSTR;
    }
 
-   ofstream f1;
-   f1.open( argv[4] );
+   string fCPP = argv[4];
+   fCPP += ".cpp";
+   string fHPP = argv[4];
+   fHPP += ".hpp";
+
+   ofstream f1, f2;
+   f1.open( fHPP );
+   f2.open( fCPP );
 
    if ( f1.is_open() != true ) {
+      cerr << "Unable to open file " << argv[4] << endl;
+      return 6;
+   }
+   
+   if ( f2.is_open() != true ) {
       cerr << "Unable to open file " << argv[4] << endl;
       return 6;
    }
 
    boost::regex ex( "^((/[a-zA-Z0-9]+)*|([a-zA-Z0-9]*/)*)" );
    const char *lReplace_C = "";
-   string filename  = argv[4];
-   filename = boost::regex_replace( filename, ex, lReplace_C );
-   string filename2;
+   fCPP = boost::regex_replace( fCPP, ex, lReplace_C );
+   fHPP = boost::regex_replace( fHPP, ex, lReplace_C );
+   string fCPP2;
+   string fHPP2;
 
    string Namespace = argv[5];
    string data_type; // = argv[6];
@@ -120,14 +132,26 @@ int main( int argc, char *argv[] ) {
    unsigned int maxNumLine = atoi( argv[9] );
    unsigned int minWidth   = atoi( argv[10] );
 
-   for ( unsigned int i = 0; i < filename.length(); ++i ) {
-      if ( filename.at( i ) == '.' ) {
-         filename2 += '_';
+   for ( unsigned int i = 0; i < fCPP.length(); ++i ) {
+      if ( fCPP.at( i ) == '.' ) {
+         fCPP2 += '_';
          continue;
       }
 
-      filename2 += filename.at( i );
+      fCPP2 += fCPP.at( i );
    }
+
+   for ( unsigned int i = 0; i < fHPP.length(); ++i ) {
+      if ( fHPP.at( i ) == '.' ) {
+         fHPP2 += '_';
+         continue;
+      }
+
+      fHPP2 += fHPP.at( i );
+   }
+
+   boost::to_upper( fCPP2 );
+   boost::to_upper( fHPP2 );
 
    for ( unsigned int i = 0; i < std::strlen( argv[6] ); ++i ) {
       if ( argv[6][i] == '_' ) {
@@ -138,10 +162,8 @@ int main( int argc, char *argv[] ) {
       data_type += argv[6][i];
    }
 
-   boost::to_upper( filename2 );
-
-   f1 << "/*!" << endl
-      << " * \\file " << filename << endl
+   f2 << "/*!" << endl
+      << " * \\file " << fCPP << endl
       << " * \\brief \\b Functions: \\a " << function << " (get the numbers of chars which save for a specific number of bits)" << endl
       << " * \\warning this is a automatically generated file from " << argv[0] << " <b> DO NOT EDIT </b>" << endl
       << " *" << endl
@@ -149,20 +171,19 @@ int main( int argc, char *argv[] ) {
       << " * - lower limit:   " << min << endl
       << " * - upper limit:   " << max << endl
       << " * - byte number:   " << number << endl
-      << " * - output file:   " << filename << endl
+      << " * - output file:   " << argv[4] << " [.cpp/.hpp]" << endl
       << " * - namespace:     " << Namespace << endl
       << " * - data type:     " << data_type << endl
       << " * - function name: " << function << endl
-      << " * - indent:        " << indent << endl
+      << " * - indent:        " << indent.size() << endl
       << " * - nums per line: " << maxNumLine << endl
       << " * - min num width: " << minWidth << endl
       << " *" << endl
-      << " * \\note Full command: " << argv[0] << " " << argv[1] << " " << argv[2] << " " << argv[3] << " " << argv[4] << " " << argv[5] << " " 
+      << " * \\note Full command: " << argv[0] << " " << argv[1] << " " << argv[2] << " " << argv[3] << " " << argv[4] << " " << argv[5] << " "
       << argv[6] << " " << argv[7] << " " << argv[8] << " " << argv[9] << " " << argv[10] << " " << endl
       << " */" << endl
       << endl
-      << "#ifndef " << filename2 << endl
-      << "#define " << filename2 << endl
+      << "#include \"" << fHPP << "\"" << endl
       << endl
       << ( ( Namespace == "0" ) ? "" : "namespace " + Namespace + " {\n\n" )
       << data_type << ' ' << function << "( " << data_type << " _nBits ) {" << endl
@@ -170,18 +191,18 @@ int main( int argc, char *argv[] ) {
       << indent << "const static " << data_type << " jump[] = {" << endl;
 
    unsigned int count = 0;
-   f1 << indent << indent;
+   f2 << indent << indent;
    for ( unsigned int i : oneUp ) {
-      f1 << setfill( ' ' ) << setw( minWidth ) << i << ( ( i == oneUp.back() ) ? "" : "," );
+      f2 << setfill( ' ' ) << setw( minWidth ) << i << ( ( i == oneUp.back() ) ? "" : "," );
       ++count;
 
       if ( count == maxNumLine ) {
          count = 0;
-         f1 << endl << indent << indent;
+         f2 << endl << indent << indent;
       }
    }
 
-   f1 << endl << indent << "};" << endl
+   f2 << endl << indent << "};" << endl
       << endl
       << indent << "for ( " << data_type << " i = 0; i < " << oneUp.size() << "; ++i ) {" << endl
       << indent << indent << "if ( _nBits <= jump[i] ) {" << endl
@@ -196,11 +217,45 @@ int main( int argc, char *argv[] ) {
       << indent << "return startValue;" <<  endl
       << '}' << endl
       << ( ( Namespace == "0" ) ? "" : "\n}" ) << endl
+      << endl;
+
+
+
+
+   f1 << "/*!" << endl
+      << " * \\file " << fHPP << endl
+      << " * \\brief \\b Functions: \\a " << function << " (get the numbers of chars which save for a specific number of bits)" << endl
+      << " * \\warning this is a automatically generated file from " << argv[0] << " <b> DO NOT EDIT </b>" << endl
+      << " *" << endl
+      << " * Arguments:" << endl
+      << " * - lower limit:   " << min << endl
+      << " * - upper limit:   " << max << endl
+      << " * - byte number:   " << number << endl
+      << " * - output file:   " << argv[4] << " [.cpp/.hpp]" << endl
+      << " * - namespace:     " << Namespace << endl
+      << " * - data type:     " << data_type << endl
+      << " * - function name: " << function << endl
+      << " * - indent:        " << indent.size() << endl
+      << " * - nums per line: " << maxNumLine << endl
+      << " * - min num width: " << minWidth << endl
+      << " *" << endl
+      << " * \\note Full command: " << argv[0] << " " << argv[1] << " " << argv[2] << " " << argv[3] << " " << argv[4] << " " << argv[5] << " "
+      << argv[6] << " " << argv[7] << " " << argv[8] << " " << argv[9] << " " << argv[10] << " " << endl
+      << " */" << endl
       << endl
-      << "#endif // " << filename2 << endl
+      << "#ifndef " << fHPP2 << endl
+      << "#define " << fHPP2 << endl
+      << endl
+      << ( ( Namespace == "0" ) ? "" : "namespace " + Namespace + " {\n\n" )
+      << data_type << ' ' << function << "( " << data_type << " _nBits );" << endl
+      << endl
+      << ( ( Namespace == "0" ) ? "" : "}\n" ) << endl
+      << endl
+      << "#endif // " << fHPP2 << endl
       << endl;
 
    f1.close();
+   f2.close();
 
    return 0;
 }

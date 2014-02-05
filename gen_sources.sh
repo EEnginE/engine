@@ -468,7 +468,7 @@ CLOC_EXEC="$(which cloc 2> /dev/null)"
 for I in $ARGV; do
     if [ "$I" = "rsa" ]; then
         ./etc/build.sh
-        ./etc/rsa_max $RSA_LOWER_LENGTH $RSA_UPPER_LENGTH 255 src/crypto/rsa/rsa_save_bits.hpp e_engine unsigned_int getSaveBlockSize 3 15 7
+        ./etc/rsa_max $RSA_LOWER_LENGTH $RSA_UPPER_LENGTH 255 src/crypto/rsa/rsa_save_bits e_engine unsigned_int getSaveBlockSize 3 15 7
     fi
 done
 
