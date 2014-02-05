@@ -110,7 +110,7 @@ class eLog {
 
       void stdOutStandard( e_engine::eLogEntry _e );
       void stdErrStandard( eLogEntry _e );
-      void stdLogStnagard( eLogEntry _e );
+      void stdLogStandard( eLogEntry _e );
 
       std::list<e_engine_internal::__eLogStoreHelper> vLogList_L_eLSH;
    public:

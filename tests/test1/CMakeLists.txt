@@ -7,7 +7,11 @@ configure_file("${CSD}/config.in.h" "${CSD}/config.h")
 
 # Optionen
 add_definitions(-Wall -std=c++0x -O2)
-add_executable( engine_test1 ${CSD}/main.cpp )
+add_executable( 
+ engine_test1
+  ${CSD}/main.cpp
+  ${CSD}/handler.cpp
+)
 
 target_link_libraries(
  engine_test1
