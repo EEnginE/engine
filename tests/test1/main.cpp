@@ -64,10 +64,11 @@ int main ( int argc, char **argv ) {
    bb = myRand ( 0, 1 ) ? true : false;
 
 
-   iLOG "User Name:   " ADD SYSTEM.getUserName()          END
-   iLOG "User Login:  " ADD SYSTEM.getUserLogin()         END
-   iLOG "Home:        " ADD SYSTEM.getUserHomeDirectory() END
-   iLOG "Main config: " ADD SYSTEM.getMainConfigDirPath() END
+   iLOG "User Name:     " ADD SYSTEM.getUserName()          END
+   iLOG "User Login:    " ADD SYSTEM.getUserLogin()         END
+   iLOG "Home:          " ADD SYSTEM.getUserHomeDirectory() END
+   iLOG "Main config:   " ADD SYSTEM.getMainConfigDirPath() END
+   iLOG "Log File Path: " ADD SYSTEM.getLogFilePath()       END
 
 
 #if ! KDEVELOP
@@ -145,14 +146,19 @@ int main ( int argc, char **argv ) {
       }
 #else // UNIX
    WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
-   WinData.log.logFILE.logFileName += "/Log";
+   WinData.log.logFILE.logFileName += "\\Log";
 
    LOG.devInit();
    LOG.startLogLoop();
 #endif
 #else
    WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
+   
+#if UNIX
    WinData.log.logFILE.logFileName += "/Log";
+#elif WINDOWS
+   WinData.log.logFILE.logFileName += "\\Log";
+#endif
 
    LOG.devInit();
    LOG.startLogLoop();

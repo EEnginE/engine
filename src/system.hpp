@@ -36,13 +36,13 @@ namespace e_engine {
  */
 class eSystem {
 private:
-   std::string  userName;  //!< The user name var
-   std::string  userLogin; //!< The user login name var
-   std::string  userHome;  //!< The user home dir var
+   std::string  vUserName;  //!< The user name var
+   std::string  vUserLogin; //!< The user login name var
+   std::string  vUserHome;  //!< The user home dir var
    
-   std::string  mainConfigDir;
-   std::string  logFilePath;
-   std::string  configFilePath;
+   std::string  vMainConfigDir;
+   std::string  vLogFilePath;
+   std::string  vConfigFilePath;
 public:
    eSystem();
    
@@ -50,19 +50,19 @@ public:
     * \brief Get the user name
     * \returns User name
     */
-   std::string  getUserName() {return userName;}
+   std::string  getUserName() {return vUserName;}
    
    /*!
     * \brief Get the user login name
     * \returns User login name
     */
-   std::string  getUserLogin() {return userLogin;}
+   std::string  getUserLogin() {return vUserLogin;}
    
    /*!
     * \brief Get the user home dir
     * \returns User home dir
     */
-   std::string  getUserHomeDirectory() {return userHome;}
+   std::string  getUserHomeDirectory() {return vUserHome;}
    
    
    std::string getMainConfigDirPath();
