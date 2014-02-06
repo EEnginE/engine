@@ -2,6 +2,10 @@
 #include "handler.hpp"
 #include <engine.hpp>
 
+#if WINDOWS
+#include <windows.h>
+#endif
+
 using namespace std;
 using namespace e_engine;
 
@@ -78,20 +82,20 @@ int main ( int argc, char **argv ) {
 
    if ( start.init() == 1 ) {
 
-         start.setRenderFunc ( render );
-         start.addWindowCloseSlot ( handeler.getSWindowClose() );
-         start.addResizeSlot ( handeler.getSResize() );
-         start.addKeySlot ( handeler.getSKey() );
+      start.setRenderFunc ( render );
+      start.addWindowCloseSlot ( handeler.getSWindowClose() );
+      start.addResizeSlot ( handeler.getSResize() );
+      start.addKeySlot ( handeler.getSKey() );
 
-         vector<eDisplays> displays = start.getDisplayResolutions();
+      vector<eDisplays> displays = start.getDisplayResolutions();
 
-         iLOG "Displays: " ADD displays.size() END
+      iLOG "Displays: " ADD displays.size() END
 
-         for ( GLuint i = 0; i < displays.size(); ++i ) {
-               iLOG "Display " ADD i ADD ": " ADD displays[i].getName() END
-            }
+      for ( GLuint i = 0; i < displays.size(); ++i ) {
+         iLOG "Display " ADD i ADD ": " ADD displays[i].getName() END
+      }
 
-         if ( displays.size() == 2 ) {
+      if ( displays.size() == 2 ) {
 //          displays[0].disable();
 //          displays[1].disable();
 
@@ -105,10 +109,10 @@ int main ( int argc, char **argv ) {
 //          displays.clear();
 //          displays = start.getDisplayResolutions();
 
-               displays[0].enable();
-               displays[1].enable();
-               displays[0].autoSelectBest();
-               displays[1].autoSelectBest();
+         displays[0].enable();
+         displays[1].enable();
+         displays[0].autoSelectBest();
+         displays[1].autoSelectBest();
 //          iLOG start.setDisplaySizes( displays[0] ) END
 //          iLOG start.setDisplaySizes( displays[1] ) END
 //          start.applyNewRandRSettings();
@@ -116,34 +120,33 @@ int main ( int argc, char **argv ) {
 //          displays.clear();
 //          displays = start.getDisplayResolutions();
 
-               displays[0].setNoClones();
-               displays[1].setNoClones();
-               displays[1].setPositionAbsolute ( 0, 0 );
-               displays[0].setPositionRelative ( eDisplays::RIGHT_OFF, displays[1] );
-               iLOG start.setDisplaySizes ( displays[0] ) END
-               iLOG start.setDisplaySizes ( displays[1] ) END
-               start.setPrimary ( displays[1] );
-               start.applyNewRandRSettings();
-               start.setPrimary ( displays[1] );
-            }
-
-         string temp;
-         temp += ( string ) INSTALL_PREFIX + "/share/engineTests/test1/colors_p";
-
-         if ( argc == 2 ) {
-               temp = ( string ) argv[1] + "/colors_p" ;
-            }
-
-         eLinker prog ( temp );
-         try {
-               prog.link();
-            }
-         catch ( eError &e ) {
-               e.what();
-            }
-         start.startMainLoop();
-         start.closeWindow();
+         displays[0].setNoClones();
+         displays[1].setNoClones();
+         displays[1].setPositionAbsolute ( 0, 0 );
+         displays[0].setPositionRelative ( eDisplays::RIGHT_OFF, displays[1] );
+         iLOG start.setDisplaySizes ( displays[0] ) END
+         iLOG start.setDisplaySizes ( displays[1] ) END
+         start.setPrimary ( displays[1] );
+         start.applyNewRandRSettings();
+         start.setPrimary ( displays[1] );
       }
+
+      string temp;
+      temp += ( string ) INSTALL_PREFIX + "/share/engineTests/test1/colors_p";
+
+      if ( argc == 2 ) {
+         temp = ( string ) argv[1] + "/colors_p" ;
+      }
+
+      eLinker prog ( temp );
+      try {
+         prog.link();
+      } catch ( eError &e ) {
+         e.what();
+      }
+      start.startMainLoop();
+      start.closeWindow();
+   }
 #else // UNIX
    WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
    WinData.log.logFILE.logFileName += "\\Log";
@@ -153,11 +156,23 @@ int main ( int argc, char **argv ) {
 #endif
 #else
    WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
-   
+
 #if UNIX
    WinData.log.logFILE.logFileName += "/Log";
 #elif WINDOWS
    WinData.log.logFILE.logFileName += "\\Log";
+
+   HANDLE console = GetConsoleWindow();
+   CONSOLE_SCREEN_BUFFER_INFO info;
+
+   if ( console == NULL ) {
+      wLOG "Console is NULL" END
+   } else {
+
+      GetConsoleScreenBufferInfo ( console, &info );
+
+      iLOG "X | Y: " ADD info.dwSize.X ADD " | " ADD info.dwSize.Y END
+   }
 #endif
 
    LOG.devInit();
@@ -205,6 +220,7 @@ int main ( int argc, char **argv ) {
 
    iLOG "Credits: " ADD 'B', 'G', "Daniel ( Mense ) Mensinger" END
 
+   B_SLEEP( seconds, 5 );
    LOG.stopLogLoop();
    return EXIT_SUCCESS;
 }

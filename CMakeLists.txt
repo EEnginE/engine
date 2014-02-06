@@ -92,9 +92,9 @@ endif( ENGINE_LINK_SHARED )
 
 
 set(Boost_USE_MULTITHREADED ON)
-if( NOT DEFINED BOOST_NO_STATIC )
+if( NOT ENGINE_LINK_SHARED )
    set(Boost_USE_STATIC_LIBS ON)
-endif()
+endif( NOT ENGINE_LINK_SHARED )
 
 find_package(GLEW2   REQUIRED) # The orginal FindGLEW.cmake has no options to set a Root path
 #find_package(PNG     REQUIRED)
@@ -136,6 +136,12 @@ set(ENGINE_LINK
 if( NOT ENGINE_LINK_SHARED )
    set( DEF_GLEW_STATIC "-DGLEW_STATIC" )
 endif( NOT ENGINE_LINK_SHARED )
+
+if( WIN32 )
+   if( ENGINE_BUILD_SHARED )
+      set( WIN_SHARED_OPTIONS -shared -Wl,--output-def,testdll.def,--out-implib,libtestdll.a )
+   endif( ENGINE_BUILD_SHARED )
+endif( WIN32 )
 
 # Optionen
 add_definitions(-Wall -std=c++11 ${DEF_GLEW_STATIC} ) # -Winline -std=c++0x -O3
@@ -181,7 +187,8 @@ set(DEPENDENCES ${PROJECT_SOURCE_DIR}/cmake/FindEngine.cmake
 install( FILES ${ENGINE_INC}      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/engine)
 install( FILES ${DEPENDENCES}     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/engine)
 install( 
- TARGETS ${PROJECT_NAME} 
+ TARGETS ${PROJECT_NAME}
+ RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/
  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/ 
  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
 )

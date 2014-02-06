@@ -117,14 +117,14 @@ std::string eSystem::getMainConfigDirPath() {
       std::string out = boost::regex_replace ( WinData.config.appName, ex, fmt );
 
 #if UNIX
-      std::string dir1_str = userHome + "/.";
+      std::string dir1_str = vUserHome + "/.";
       dir1_str += out;
-      std::string dir2_str = userHome + "/.config/";
+      std::string dir2_str = vUserHome + "/.config/";
       dir2_str += out;
 
       boost::filesystem::path dir1 ( dir1_str );
       boost::filesystem::path dir2 ( dir2_str );
-      boost::filesystem::path configDir ( userHome + "/.config" );
+      boost::filesystem::path configDir ( vUserHome + "/.config" );
       bool dir1_exists, dir2_exists;
       bool dir1_noDir,  dir2_noDir;
       bool dotConfigExists;
