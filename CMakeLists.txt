@@ -137,12 +137,8 @@ if( NOT ENGINE_LINK_SHARED )
    set( DEF_GLEW_STATIC "-DGLEW_STATIC" )
 endif( NOT ENGINE_LINK_SHARED )
 
-if( WIN32 )
-   set( WINDOWS_VERSION -DNTDDI_VERSION='0x06000000' -D_WIN32_WINNT='0x06000000' -DWINVER='0x06000000' )
-endif( WIN32 )
-
 # Optionen
-add_definitions(-Wall -std=c++11 ${DEF_GLEW_STATIC} ${WINDOWS_VERSION} ) # -Winline -std=c++0x -O3
+add_definitions(-Wall -std=c++11 ${DEF_GLEW_STATIC} ) # -Winline -std=c++0x -O3
 include_directories(
  ${Boost_INCLUDE_DIRS}
  ${GLEW_INCLUDE_DIRS}

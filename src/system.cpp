@@ -30,8 +30,9 @@
 #elif WINDOWS
 #include <windows.h>
 #include <lmcons.h>
+#include <stdlib.h>
 
-#undef POINT // conflicts with shlobj.h
+#undef POINT
 #include <shlobj.h>
 
 #endif
@@ -52,35 +53,49 @@ eSystem::eSystem() {
 
    pw = getpwuid ( tempUserID );
 
-   userLogin = pw->pw_name;
-   userName  = pw->pw_gecos;
-   userHome  = pw->pw_dir;
+   vUserLogin = pw->pw_name;
+   vUserName  = pw->pw_gecos;
+   vUserHome  = pw->pw_dir;
 
 #elif WINDOWS
    DWORD lUsername_DWORD = UNLEN + 1;
    TCHAR lUsername_TCSTR[UNLEN + 1];
    if ( GetUserName ( lUsername_TCSTR, &lUsername_DWORD ) == 0 ) {
-      wLOG "Failed to get Username" END
+      wLOG "Failed to get Username (WINDOWS)" END
       lUsername_TCSTR[0] = 0;
    }
 
-   WCHAR **lAppData_PWSTR = 0;
-   if ( SHGetKnownFolderPath ( FOLDERID_ProgramData, 0, NULL, lAppData_PWSTR ) != S_OK ) {
-
+   TCHAR lAppData_LPTSTR[MAX_PATH + 1];
+   if ( SHGetFolderPath ( NULL, CSIDL_APPDATA, NULL, 0, lAppData_LPTSTR ) != S_OK ) {
+      wLOG "Failed to get AppData (WINDOWS)" END
    }
 
-   CoTaskMemFree ( lAppData_PWSTR );
+#if defined UNICODE || defined _UNICODE
+   char lUsername_CSTR[UNLEN + 1];
+   char lAppData_CSTR[MAX_PATH + 1];
 
+   if ( wcstombs ( lUsername_CSTR, lUsername_TCSTR, UNLEN ) == ( size_t ) - 1 ) {
+      wLOG "Failed to convert a WCHAR string to a CHAR string using wcstombs (USERNAME)" END
+   }
 
-#ifdef _UNICODE
+   if ( wcstombs ( lAppData_CSTR, lAppData_LPTSTR, MAX_PATH ) == ( size_t ) - 1 ) {
+      wLOG "Failed to convert a WCHAR string to a CHAR string using wcstombs (APPDATA)" END
+   }
 
+   vUserName  = lUsername_CSTR;
+   vUserLogin = vUserName;
+   vUserHome  = lAppData_CSTR;
+#else
+   vUserName  = lUsername_TCSTR;
+   vUserLogin = vUserName;
+   vUserHome  = lAppData_LPTSTR;
 #endif
 
 #endif
 
-   mainConfigDir.clear();
-   logFilePath.clear();
-   configFilePath.clear();
+   vMainConfigDir.clear();
+   vLogFilePath.clear();
+   vConfigFilePath.clear();
 }
 
 /*!
@@ -94,7 +109,7 @@ eSystem::eSystem() {
  * \sa _eWindowData
  */
 std::string eSystem::getMainConfigDirPath() {
-   if ( mainConfigDir.empty() ) {
+   if ( vMainConfigDir.empty() ) {
 
       // Replace all bad characters with '-'
       boost::regex ex ( "[^A-Za-z0-9.\\*]" );
@@ -161,25 +176,25 @@ std::string eSystem::getMainConfigDirPath() {
 
          // Only $HOME/.NAME aleady exits
          if ( dir1_exists && ! dir2_exists ) {
-            mainConfigDir = dir1_str;
-            return mainConfigDir;
+            vMainConfigDir = dir1_str;
+            return vMainConfigDir;
          }
 
          // Only $HOME/.config/NAME already exists
          if ( ! dir1_exists && dir2_exists ) {
-            mainConfigDir = dir2_str;
-            return mainConfigDir;
+            vMainConfigDir = dir2_str;
+            return vMainConfigDir;
          }
 
          // Both already exists
          if ( dir1_exists && dir2_exists ) {
             // Chose the prefered
             if ( WinData.config.unixPathType ) {
-               mainConfigDir = dir2_str;
-               return mainConfigDir;
+               vMainConfigDir = dir2_str;
+               return vMainConfigDir;
             } else {
-               mainConfigDir = dir1_str;
-               return mainConfigDir;
+               vMainConfigDir = dir1_str;
+               return vMainConfigDir;
             }
          }
 
@@ -190,53 +205,80 @@ std::string eSystem::getMainConfigDirPath() {
             // There is no none directory file $HOME/.config/NAME
             if ( ! dir2_noDir ) {
                boost::filesystem::create_directory ( dir2 );
-               mainConfigDir = dir2_str;
-               return mainConfigDir;
+               vMainConfigDir = dir2_str;
+               return vMainConfigDir;
             } else if ( ! dir1_noDir ) {
                boost::filesystem::create_directory ( dir1 );
-               mainConfigDir = dir1_str;
-               return mainConfigDir;
+               vMainConfigDir = dir1_str;
+               return vMainConfigDir;
                // Remove the file $HOME/.config/NAME and create the dir
             } else if ( dotConfigExists ) {
                boost::filesystem::remove ( dir2 );
                boost::filesystem::create_directory ( dir2 );
-               mainConfigDir = dir2_str;
-               return mainConfigDir;
+               vMainConfigDir = dir2_str;
+               return vMainConfigDir;
             } else {
                boost::filesystem::remove ( dir1 );
                boost::filesystem::create_directory ( dir1 );
-               mainConfigDir = dir1_str;
-               return mainConfigDir;
+               vMainConfigDir = dir1_str;
+               return vMainConfigDir;
             }
          } else {
             // There is no none directory file $HOME/.NAME
             if ( ! dir1_noDir ) {
                boost::filesystem::create_directory ( dir1 );
-               mainConfigDir = dir1_str;
-               return mainConfigDir;
+               vMainConfigDir = dir1_str;
+               return vMainConfigDir;
             } else if ( ! dir2_noDir && dotConfigExists ) {
                boost::filesystem::create_directory ( dir2 );
-               mainConfigDir = dir2_str;
-               return mainConfigDir;
+               vMainConfigDir = dir2_str;
+               return vMainConfigDir;
                // Remove the file $HOME/.NAME and create the dir
             } else {
                boost::filesystem::remove ( dir1 );
                boost::filesystem::create_directory ( dir1 );
-               mainConfigDir = dir1_str;
-               return mainConfigDir;
+               vMainConfigDir = dir1_str;
+               return vMainConfigDir;
             }
          }
       } catch ( const boost::filesystem::filesystem_error &ex ) {
-         std::cerr << ex.what() << std::endl; // LOG wont work
+         eLOG ex.what() END
       }
 
 #elif WINDOWS
-      std::string temp1 = userHome + "/";
-      temp1 += out;
+      vMainConfigDir = vUserHome + '\\' + out;
+
+      boost::filesystem::path dir1 ( vMainConfigDir );
+
+      try {
+         if ( boost::filesystem::exists ( dir1 ) ) {
+            if ( ! boost::filesystem::is_directory ( dir1 ) ) {
+               boost::filesystem::remove ( dir1 );
+               boost::filesystem::create_directory ( dir1 );
+            }
+         } else {
+            boost::filesystem::create_directory ( dir1 );
+         }
+
+         if ( ! boost::filesystem::exists ( dir1 ) ) {
+            wLOG "Failed to craete / select the main config dir " ADD vMainConfigDir END
+            vMainConfigDir.clear();
+            return "";
+         }
+         
+         if ( ! boost::filesystem::is_directory ( dir1 ) ) {
+            wLOG "Failed to craete / select the main config dir " ADD vMainConfigDir END
+            vMainConfigDir.clear();
+            return "";
+         }
+
+      } catch ( const boost::filesystem::filesystem_error &ex ) {
+         eLOG ex.what() END
+      }
 #endif
 
    }
-   return mainConfigDir;
+   return vMainConfigDir;
 }
 
 
@@ -251,12 +293,18 @@ std::string eSystem::getMainConfigDirPath() {
  * \sa _eWindowData
  */
 std::string eSystem::getLogFilePath() {
-   if ( logFilePath.empty() ) {
+   if ( vLogFilePath.empty() ) {
       if ( WinData.config.logSubFolder.empty() ) {
-         logFilePath = getMainConfigDirPath();
-         return logFilePath;
+         vLogFilePath = getMainConfigDirPath();
+         return vLogFilePath;
       } else {
+
+#if UNIX
          std::string temp = getMainConfigDirPath() + "/";
+#elif WINDOWS
+         std::string temp = getMainConfigDirPath() + "\\";
+#endif
+
          temp += WinData.config.logSubFolder;
 
          boost::filesystem::path logPath ( temp );
@@ -264,18 +312,18 @@ std::string eSystem::getLogFilePath() {
          try {
             if ( boost::filesystem::exists ( logPath ) ) {
                if ( boost::filesystem::is_directory ( logPath ) ) {
-                  logFilePath = temp;
-                  return logFilePath;
+                  vLogFilePath = temp;
+                  return vLogFilePath;
                } else {
                   boost::filesystem::remove ( logPath );
                   boost::filesystem::create_directory ( logPath );
-                  logFilePath = temp;
-                  return logFilePath;
+                  vLogFilePath = temp;
+                  return vLogFilePath;
                }
             } else {
                boost::filesystem::create_directory ( logPath );
-               logFilePath = temp;
-               return logFilePath;
+               vLogFilePath = temp;
+               return vLogFilePath;
             }
          } catch ( const boost::filesystem::filesystem_error &ex ) {
             std::cerr << ex.what() << std::endl; // LOG wont work
@@ -283,7 +331,7 @@ std::string eSystem::getLogFilePath() {
 
       }
    }
-   return logFilePath;
+   return vLogFilePath;
 }
 
 
@@ -298,12 +346,17 @@ std::string eSystem::getLogFilePath() {
  * \sa _eWindowData
  */
 std::string eSystem::getConfigFilePath() {
-   if ( configFilePath.empty() ) {
+   if ( vConfigFilePath.empty() ) {
       if ( WinData.config.logSubFolder.empty() ) {
-         configFilePath = getMainConfigDirPath();
-         return configFilePath;
+         vConfigFilePath = getMainConfigDirPath();
+         return vConfigFilePath;
       } else {
+
+#if UNIX
          std::string temp = getMainConfigDirPath() + "/";
+#elif WINDOWS
+         std::string temp = getMainConfigDirPath() + "\\";
+#endif
          temp += WinData.config.logSubFolder;
 
          boost::filesystem::path confPath ( temp );
@@ -311,18 +364,18 @@ std::string eSystem::getConfigFilePath() {
          try {
             if ( boost::filesystem::exists ( confPath ) ) {
                if ( boost::filesystem::is_directory ( confPath ) ) {
-                  configFilePath = temp;
-                  return configFilePath;
+                  vConfigFilePath = temp;
+                  return vConfigFilePath;
                } else {
                   boost::filesystem::remove ( confPath );
                   boost::filesystem::create_directory ( confPath );
-                  configFilePath = temp;
-                  return configFilePath;
+                  vConfigFilePath = temp;
+                  return vConfigFilePath;
                }
             } else {
                boost::filesystem::create_directory ( confPath );
-               configFilePath = temp;
-               return configFilePath;
+               vConfigFilePath = temp;
+               return vConfigFilePath;
             }
          } catch ( const boost::filesystem::filesystem_error &ex ) {
             eLOG ex.what() END // LOG wont work
@@ -330,7 +383,7 @@ std::string eSystem::getConfigFilePath() {
 
       }
    }
-   return configFilePath;
+   return vConfigFilePath;
 }
 
 
