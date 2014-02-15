@@ -162,17 +162,6 @@ int main ( int argc, char **argv ) {
 #elif WINDOWS
    WinData.log.logFILE.logFileName += "\\Log";
 
-   HANDLE console = GetConsoleWindow();
-   CONSOLE_SCREEN_BUFFER_INFO info;
-
-   if ( console == NULL ) {
-      wLOG "Console is NULL" END
-   } else {
-
-      GetConsoleScreenBufferInfo ( console, &info );
-
-      iLOG "X | Y: " ADD info.dwSize.X ADD " | " ADD info.dwSize.Y END
-   }
 #endif
 
    LOG.devInit();
@@ -220,7 +209,6 @@ int main ( int argc, char **argv ) {
 
    iLOG "Credits: " ADD 'B', 'G', "Daniel ( Mense ) Mensinger" END
 
-   B_SLEEP( seconds, 5 );
    LOG.stopLogLoop();
    return EXIT_SUCCESS;
 }

@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 2.8.9)
 
 project(engine)
 
-
 set(CM_VERSION_MAJOR  0)
 set(CM_VERSION_MINOR  1)
-
 
 # START uninstall
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
@@ -106,7 +104,7 @@ if( UNIX )
    find_package(X11   REQUIRED)
    find_package(Boost REQUIRED COMPONENTS system regex thread chrono filesystem date_time )
 elseif( WIN32 )
-   find_package(Boost REQUIRED COMPONENTS system regex thread_win32-mt chrono filesystem date_time )
+   find_package(Boost REQUIRED COMPONENTS system regex thread_win32 chrono filesystem date_time )
 endif( UNIX )
 
 if( ENGINE_DEBUG )
