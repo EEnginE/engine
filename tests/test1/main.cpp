@@ -9,7 +9,7 @@
 using namespace std;
 using namespace e_engine;
 
-#define KDEVELOP 1
+#define KDEVELOP 0
 #define COLOR    1
 #define DO_RSA   0
 #define DO_SHA   1
