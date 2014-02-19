@@ -26,8 +26,9 @@
 #if UNIX
 #include <unistd.h>
 #include <pwd.h>
+#endif // UNIX
 
-#elif WINDOWS
+#if WINDOWS
 #include <windows.h>
 #include <lmcons.h>
 #include <stdlib.h>
