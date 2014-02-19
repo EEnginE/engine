@@ -449,15 +449,15 @@ cat > $INCLUDE_FILE << EOF
 
 $INC_ALL_HPP
 
-#if defined UNIX
+#if UNIX
 $INC_X11_HPP
 
-#endif // defined UNIX
+#endif // UNIX
 
-#if defined WINDOWS
+#if WINDOWS
 $INC_WINDOWS_HPP
 
-#endif // defined WINDOWS
+#endif // WINDOWS
 
 #endif // ENGINE_HPP
 
