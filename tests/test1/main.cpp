@@ -76,11 +76,12 @@ int main ( int argc, char **argv ) {
 
 
 #if ! KDEVELOP
-#if UNIX
    eInit start;
    MyHandler handeler;
 
    if ( start.init() == 1 ) {
+      
+#if UNIX
 
       start.setRenderFunc ( render );
       start.addWindowCloseSlot ( handeler.getSWindowClose() );
@@ -145,9 +146,11 @@ int main ( int argc, char **argv ) {
          e.what();
       }
       start.startMainLoop();
+#endif // UNIX
+      B_SLEEP( seconds, 1 );
       start.closeWindow();
    }
-#else // UNIX
+#if WINDOWS
    WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
    WinData.log.logFILE.logFileName += "\\Log";
 
