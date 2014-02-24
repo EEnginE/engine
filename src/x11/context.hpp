@@ -83,8 +83,6 @@ extern Atom atom_wmDeleteWindow;
  * called \b before \c GLEW is init and needing \c GLX
  * functions and in the other file ( e_context.cpp ) the
  * rest of the functions.
- *
- * \todo Multimonitorsupport (??? _NET_WM_FULLSCREEN_MONITORS ???)
  */
 class eContext : public eRandR {
    private:

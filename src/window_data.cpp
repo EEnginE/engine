@@ -79,7 +79,7 @@ void _eWindowData::__eWindowData_Versions::reset() {
    minGlxMajorVer            = 1;
    minGlxMinorVer            = 3;
    glMajorVersion            = 4;
-   glMinorVersion            = 3;
+   glMinorVersion            = 5;
 }
 
 void _eWindowData::__eWindowData_Window::reset() {

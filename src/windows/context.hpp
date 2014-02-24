@@ -14,32 +14,56 @@
 #include "defines.hpp"
 #include "displays.hpp"
 
+#include <GL/glew.h>
+#include <GL/wglew.h>
+
 namespace e_engine {
 
 class eContext {
-   public:
-      void swapBuffers() {}
-      int  createContext() {return 1;}
-      int  fullScreen( ACTION _action, bool _allMonitors = false ) {return 1;}
-      int  enableVSync() {return 1;}
-      void destroyContext() {}
-      bool getHaveContext() { return true; }
+   private:
+      PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
+      HINSTANCE             vInstance_win32;
+      WNDCLASS              vWindowClass_win32;
+      HWND                  vHWND_win32;
+      RECT                  vWindowRect_win32;
+      HDC                   vHDC_win32;
+      HGLRC                 vOpenGLContext_WGL;
+
+      static LRESULT CALLBACK initialWndProc ( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
+      static LRESULT CALLBACK staticWndProc ( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
+      LRESULT CALLBACK actualWndProc ( UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       
+      bool                  vWindowsCallbacksError_B;
+
+
+
+   public:
+      eContext();
+      
+      void swapBuffers() {}
+
+      int  createContext();
+
+      int  fullScreen ( ACTION _action, bool _allMonitors = false ) {return 1;}
+      int  enableVSync() {return 1;}
+      void destroyContext();
+      bool getHaveContext() { return true; }
+
       void makeContextCurrent()  {}
       void makeNOContexCurrent() {}
-      
-      bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) {return false;}
-      
+
+      bool setAttribute ( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) {return false;}
+
       std::vector<eDisplays> getDisplayResolutions() { return std::vector<eDisplays>(); }
 
-      bool setDisplaySizes( eDisplays const &_disp ) {return false;}
-      void setPrimary( eDisplays const &_disp ) {}
+      bool setDisplaySizes ( eDisplays const &_disp ) {return false;}
+      void setPrimary ( eDisplays const &_disp ) {}
 
       bool applyNewRandRSettings() {return false;}
-      
-      int  setFullScreenMonitor( eDisplays _disp ) {return 0;}
-      bool setDecoration( ACTION _action ) {return false;}
-      int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {return 0;}
+
+      int  setFullScreenMonitor ( eDisplays _disp ) {return 0;}
+      bool setDecoration ( ACTION _action ) {return false;}
+      int  changeWindowConfig ( unsigned int _width, unsigned int _height, int _posX, int _posY ) {return 0;}
       bool fullScreenMultiMonitor() {return false;}
 };
 
