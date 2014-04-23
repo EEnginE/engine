@@ -132,7 +132,7 @@ set(ENGINE_LINK
 )
 
 if( NOT ENGINE_LINK_SHARED )
-   set( DEF_GLEW_STATIC "-DGLEW_STATIC" )
+   set( DEF_GLEW_STATIC_GNU "-DGLEW_STATIC" )
 endif( NOT ENGINE_LINK_SHARED )
 
 if( WIN32 )
@@ -141,8 +141,59 @@ if( WIN32 )
    endif( ENGINE_BUILD_SHARED )
 endif( WIN32 )
 
-# Optionen
-add_definitions(-Wall -std=c++11 ${DEF_GLEW_STATIC} ) # -Winline -std=c++0x -O3
+
+########################################################################################
+############################################################################################################################
+#####                ################################################################################################################
+###  Compiler Options  #################################################################################################################
+#####                ################################################################################################################
+############################################################################################################################
+########################################################################################
+
+# Options GCC
+
+set( GNU_COMPILER_OPTIONS_DEBUG   "-Wall -std=c++11 ${DEF_GLEW_STATIC_GNU}" )
+set( GNU_COMPILER_OPTIONS_RELEASE "-Wall -std=c++11 ${DEF_GLEW_STATIC_GNU} -flto -O3" )
+
+if( DEFINED EXTRA_WARNINGS )
+   set( GNU_COMPILER_OPTIONS_DEBUG   "-Winline -Werror ${GNU_COMPILER_OPTIONS_DEBUG}" )
+   set( GNU_COMPILER_OPTIONS_RELEASE "-Winline -Werror ${GNU_COMPILER_OPTIONS_RELEASE}" )
+endif( DEFINED EXTRA_WARNINGS )
+
+
+# Options LLVM - TODO
+# Options ICC  - TODO
+# Options MSVC - TODO
+
+# Detect Compiler
+
+if( CMAKE_CXX_COMPILER_ID MATCHES GNU )
+   set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${GNU_COMPILER_OPTIONS_DEBUG}" )
+   set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${GNU_COMPILER_OPTIONS_RELEASE}" )
+
+elseif( CMAKE_CXX_COMPILER_ID MATCHES Clang )
+   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${CLANG_COMPILER_OPTIONS_DEBUG}" )
+   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CLANG_COMPILER_OPTIONS_RELEASE}" )
+   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )
+
+elseif( CMAKE_CXX_COMPILER_ID MATCHES Intel )
+   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${INTEL_COMPILER_OPTIONS_DEBUG}" )
+   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${INTEL_COMPILER_OPTIONS_RELEASE}" )
+   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )
+
+elseif( CMAKE_CXX_COMPILER_ID MATCHES MSVC )
+   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${MSVC_COMPILER_OPTIONS_DEBUG}" )
+   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_COMPILER_OPTIONS_RELEASE}" )
+   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )
+
+else()
+   message( WARNING "Unknown compiler ${CMAKE_CXX_COMPILER_ID}" )
+endif()
+
+add_definitions( ${COMPILER_OPTIONS} ) #  -std=c++0x -O3
+
+
+
 include_directories(
  ${Boost_INCLUDE_DIRS}
  ${GLEW_INCLUDE_DIRS}
