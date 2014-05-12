@@ -30,7 +30,7 @@ namespace e_engine {
  * \class e_engine::eSystem
  * \brief Class to get information about the user of the programm
  * 
- * This class stores information about the aktuall user
+ * This class stores information about the actual user
  * running the programm. 
  * 
  */
