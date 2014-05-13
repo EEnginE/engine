@@ -20,10 +20,6 @@ LOG_MACRO_PATH="src/log/macros.hpp"
 LOG_TYPES="a b c d e f g h i j k l m n o p q r s t u v w x y z"
 LOG_GEN_UNDEF=1
 
-## RSA config ##
-RSA_LOWER_LENGTH=256
-RSA_UPPER_LENGTH=65536
-
 ###########################
 ####  END Config Part  ####
 ###########################
@@ -464,13 +460,6 @@ $INC_WINDOWS_HPP
 EOF
 
 CLOC_EXEC="$(which cloc 2> /dev/null)"
-
-for I in $ARGV; do
-    if [ "$I" = "rsa" ]; then
-        ./etc/build.sh
-        ./etc/rsa_max $RSA_LOWER_LENGTH $RSA_UPPER_LENGTH 255 src/crypto/rsa/rsa_save_bits e_engine unsigned_int getSaveBlockSize 3 15 7
-    fi
-done
 
 if [ -n "$CLOC_EXEC" ]; then
     $CLOC_EXEC --not-match-d='([a-zA-Z_/]*\.[a-zA-Z\._]+|build)' ./ | tee temp_cloc.txt;
