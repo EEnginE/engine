@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.9)
 
 project(engine)
 
+# Set here the Version of this project
 set(CM_VERSION_MAJOR  0)
 set(CM_VERSION_MINOR  1)
 
@@ -16,43 +17,56 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 set( CMAKE_BUILD_TYPE DEBUG )
 
-# Output
+# Set the output directory of the libraries and executables after the build process
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
+
+# Generate engine.hpp from the engine.in.hpp (which was generated from gen_sources.sh)
 configure_file(
  "${PROJECT_SOURCE_DIR}/src/engine.in.hpp"
  "${PROJECT_SOURCE_DIR}/src/engine.hpp"
 )
 
 
+########################################################################################
+############################################################################################################################
+#####                                ################################################################################################
+###  Choose the low level graphic API  #################################################################################################
+#####                                ################################################################################################
+############################################################################################################################
+########################################################################################
 
 if( NOT DEFINED DISPLAY_SERVER )
    if( UNIX )
-      set( DISPLAY_SERVER UNIX_X11 )
+      set( DISPLAY_SERVER UNIX_X11 ) # The default display server on UNIX/LINUX is X11
    elseif( WIN32 )
-      set( DISPLAY_SERVER WINDOWS )
+      set( DISPLAY_SERVER WINDOWS )  # The default display server on Windows is the Win API
    endif( UNIX )
 endif( NOT DEFINED DISPLAY_SERVER )
 
+# Only the displayervers X11, Wayland and Mir are currently supported in UNIX/LINUX
 if( UNIX )
    if( NOT DISPLAY_SERVER MATCHES UNIX_X11 AND NOT DISPLAY_SERVER MATCHES UNIX_WAYLAND AND NOT DISPLAY_SERVER MATCHES UNIX_MIR )
        message( FATAL_ERROR "Display server '${DISPLAY_SERVER}' is not supported in UNIX (possible: UNIX_X11, UNIX_WAYLAND, UNIX_MIR)" )
    endif( NOT DISPLAY_SERVER MATCHES UNIX_X11 AND NOT DISPLAY_SERVER MATCHES UNIX_WAYLAND AND NOT DISPLAY_SERVER MATCHES UNIX_MIR )
 endif( UNIX )
 
+# Windows only supports Windows
 if( WIN32 )
    if( NOT DISPLAY_SERVER MATCHES WINDOWS )
        message( FATAL_ERROR "Display server '${DISPLAY_SERVER}' is not supported in Windwes (possible: WINDOWS)" )
    endif( NOT DISPLAY_SERVER MATCHES WINDOWS )
 endif( WIN32 )
 
+# These vars will be parsed in the defines.in.hpp by cmake
 set( CM_UNIX_X11     0 )
 set( CM_UNIX_WAYLAND 0 )
 set( CM_UNIX_MIR     0 )
 set( CM_WINDOWS      0 )
 
+# We currently support only Windows and Linux
 if( DISPLAY_SERVER MATCHES UNIX_X11 )
    set( CM_UNIX_X11 1 )
 elseif( DISPLAY_SERVER MATCHES WINDOWS )
@@ -61,18 +75,24 @@ else( DISPLAY_SERVER MATCHES UNIX_X11 )
    message( FATAL_ERROR "${DISPLAY_SERVER} is currently not implemented. " )
 endif( DISPLAY_SERVER MATCHES UNIX_X11 )
 
-
-
-
+# Generate defines.hpp
 configure_file(
  "${PROJECT_SOURCE_DIR}/src/defines.in.hpp"
  "${PROJECT_SOURCE_DIR}/src/defines.hpp"
 )
 
 
-set(CM_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+########################################################################################
+############################################################################################################################
+#####                    ############################################################################################################
+###  Find our dependences  #############################################################################################################
+#####                    ############################################################################################################
+############################################################################################################################
+########################################################################################
 
-
+if( NOT SET ENGINE_LINK_SHARED )
+   set( ENGINE_LINK_SHARED 1 )   # DEFAULT: link shared (.so / .dll)
+endif( NOT SET ENGINE_LINK_SHARED )
 
 # Begin STATIC ###
 if( ENGINE_LINK_SHARED )
@@ -154,8 +174,38 @@ endif( DEFINED EXTRA_WARNINGS )
 
 
 # Options LLVM - TODO
+
+set( CLANG_COMPILER_OPTIONS_DEBUG   "<insert here> ${DEF_GLEW_STATIC_GNU}" )
+set( CLANG_COMPILER_OPTIONS_RELEASE "<insert here> ${DEF_GLEW_STATIC_GNU}" )
+
+if( DEFINED EXTRA_WARNINGS )
+   set( CLANG_COMPILER_OPTIONS_DEBUG   "<insert here> ${CLANG_COMPILER_OPTIONS_DEBUG}" )
+   set( CLANG_COMPILER_OPTIONS_RELEASE "<insert here> ${CLANG_COMPILER_OPTIONS_RELEASE}" )
+endif( DEFINED EXTRA_WARNINGS )
+
+
 # Options ICC  - TODO
+
+set( INTEL_COMPILER_OPTIONS_DEBUG   "<insert here> ${DEF_GLEW_STATIC_GNU}" )
+set( INTEL_COMPILER_OPTIONS_RELEASE "<insert here> ${DEF_GLEW_STATIC_GNU}" )
+
+if( DEFINED EXTRA_WARNINGS )
+   set( INTEL_COMPILER_OPTIONS_DEBUG   "<insert here> ${INTEL_COMPILER_OPTIONS_DEBUG}" )
+   set( INTEL_COMPILER_OPTIONS_RELEASE "<insert here> ${INTEL_COMPILER_OPTIONS_RELEASE}" )
+endif( DEFINED EXTRA_WARNINGS )
+
+
 # Options MSVC - TODO
+
+set( MSVC_COMPILER_OPTIONS_DEBUG   "<insert here> ${DEF_GLEW_STATIC_GNU}" )
+set( MSVC_COMPILER_OPTIONS_RELEASE "<insert here> ${DEF_GLEW_STATIC_GNU}" )
+
+if( DEFINED EXTRA_WARNINGS )
+   set( MSVC_COMPILER_OPTIONS_DEBUG   "<insert here> ${MSVC_COMPILER_OPTIONS_DEBUG}" )
+   set( MSVC_COMPILER_OPTIONS_RELEASE "<insert here> ${MSVC_COMPILER_OPTIONS_RELEASE}" )
+endif( DEFINED EXTRA_WARNINGS )
+
+
 
 # Detect Compiler
 
@@ -164,28 +214,33 @@ if( CMAKE_CXX_COMPILER_ID MATCHES GNU )
    set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${GNU_COMPILER_OPTIONS_RELEASE}" )
 
 elseif( CMAKE_CXX_COMPILER_ID MATCHES Clang )
-   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${CLANG_COMPILER_OPTIONS_DEBUG}" )
-   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CLANG_COMPILER_OPTIONS_RELEASE}" )
-   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )
+   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${CLANG_COMPILER_OPTIONS_DEBUG}" )   # Uncomment this when done with LLVM/Clang
+   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CLANG_COMPILER_OPTIONS_RELEASE}" ) # Uncomment this when done with LLVM/Clang
+   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )           # Remove this when done with LLVM/Clang
 
 elseif( CMAKE_CXX_COMPILER_ID MATCHES Intel )
-   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${INTEL_COMPILER_OPTIONS_DEBUG}" )
-   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${INTEL_COMPILER_OPTIONS_RELEASE}" )
-   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )
+   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${INTEL_COMPILER_OPTIONS_DEBUG}" )   # Uncomment this when done with Intel
+   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${INTEL_COMPILER_OPTIONS_RELEASE}" ) # Uncomment this when done with Intel
+   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )           # Remove this when done with Intel
 
 elseif( CMAKE_CXX_COMPILER_ID MATCHES MSVC )
-   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${MSVC_COMPILER_OPTIONS_DEBUG}" )
-   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_COMPILER_OPTIONS_RELEASE}" )
-   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )
+   #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   ${MSVC_COMPILER_OPTIONS_DEBUG}" )    # Uncomment this when done with MSVC
+   #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_COMPILER_OPTIONS_RELEASE}" )  # Uncomment this when done with MSVC
+   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )           # Remove this when done with MSVC
 
 else()
    message( WARNING "Unknown compiler ${CMAKE_CXX_COMPILER_ID}" )
 endif()
 
-add_definitions( ${COMPILER_OPTIONS} ) #  -std=c++0x -O3
+########################################################################################
+############################################################################################################################
+#####                     ###########################################################################################################
+###  Now build and install  ############################################################################################################
+#####                     ###########################################################################################################
+############################################################################################################################
+########################################################################################
 
-
-
+# Include these directories by default (so you can use #include<lib.hpp> without path)
 include_directories(
  ${Boost_INCLUDE_DIRS}
  ${GLEW_INCLUDE_DIRS}
@@ -194,19 +249,25 @@ include_directories(
  ${X11_Xrandr_INCLUDE_PATH}
 )
 
-# ENGINE_SRC and ENGINE_INC
+# Get ENGINE_SRC and ENGINE_INC (automatically generated by gen_sources.sh)
 include(sources.cmake)
 
+if( NOT DEFINED ENGINE_BUILD_SHARED )
+   set( ENGINE_BUILD_SHARED 1 )          # DEFAULT: We create a shared library ( .so or a .dll )
+endif( NOT DEFINED ENGINE_BUILD_SHARED )
+
 if( ENGINE_BUILD_SHARED )
-   add_library( ${PROJECT_NAME} SHARED ${ENGINE_SRC} )
+   add_library( ${PROJECT_NAME} SHARED ${ENGINE_SRC} ) # Create the shared library
 else( ENGINE_BUILD_SHARED )
-   add_library( ${PROJECT_NAME} STATIC ${ENGINE_SRC} )
+   add_library( ${PROJECT_NAME} STATIC ${ENGINE_SRC} ) # Create the static library
 endif( ENGINE_BUILD_SHARED )
 
+# Windows also needs some linking...
 if( WIN32 AND ENGINE_BUILD_SHARED )
    target_link_libraries( ${PROJECT_NAME} ${ENGINE_LINK} )
 endif( WIN32 AND ENGINE_BUILD_SHARED )
 
+# Set some variables so that Cmake can do some fancy stuff with versions and filenames
 set_target_properties(
  ${PROJECT_NAME}
  PROPERTIES
@@ -214,13 +275,14 @@ set_target_properties(
   SOVERSION ${CM_VERSION_MAJOR}
 )
 
-
+# Now build the tests
 add_subdirectory(${PROJECT_SOURCE_DIR}/tests/)
 
-
+# Also install some usefull cmakefiles
 set(DEPENDENCES ${PROJECT_SOURCE_DIR}/cmake/FindEngine.cmake
-                ${PROJECT_SOURCE_DIR}/cmake/FindGMP.cmake)
+                ${PROJECT_SOURCE_DIR}/cmake/FindGLEW2.cmake)
 
+# The install configuaration
 install( FILES ${ENGINE_INC}      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/engine)
 install( FILES ${DEPENDENCES}     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/engine)
 install( 
