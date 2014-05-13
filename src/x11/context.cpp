@@ -31,7 +31,6 @@
 #include <GL/glxew.h>   // Must be included BEFORE e_context.hpp!!! (GLEW)
 #include "context.hpp"
 #include "log.hpp"
-#include "gmp.h"
 
 namespace e_engine {
 
@@ -135,7 +134,6 @@ int eContext::createContext() {
    POINT "X11:    " ADD 'B', 'C', vX11VersionMajor_I ADD 'B', 'C' , "." ADD 'B', 'C' , vX11VersionMinor_I
    POINT "GLEW:   " ADD 'B', 'C', glewGetString( GLEW_VERSION )
    POINT "RandR:  " ADD 'B', 'C', lRandRVersionString_str
-   POINT "GMP:    " ADD 'B', 'C', __GNU_MP_VERSION ADD 'B', 'C', "." ADD 'B', 'C', __GNU_MP_VERSION_MINOR ADD 'B', 'C', "." ADD 'B', 'C', __GNU_MP_VERSION_PATCHLEVEL
    END
 
    return 1;
