@@ -90,9 +90,9 @@ configure_file(
 ############################################################################################################################
 ########################################################################################
 
-if( NOT SET ENGINE_LINK_SHARED )
+if( NOT DEFINED ENGINE_LINK_SHARED )
    set( ENGINE_LINK_SHARED 1 )   # DEFAULT: link shared (.so / .dll)
-endif( NOT SET ENGINE_LINK_SHARED )
+endif( NOT DEFINED ENGINE_LINK_SHARED )
 
 # Begin STATIC ###
 if( ENGINE_LINK_SHARED )
