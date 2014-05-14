@@ -29,7 +29,12 @@
 #include "macros.hpp"
 #include "log_resources.hpp"
 
+#if BOOST_VERSION < 105000
+#define B_SLEEP( chrono_sleep, time ) {boost::posix_time::time_duration duration = boost::posix_time::chrono_sleep( time );\
+                                      boost::this_thread::sleep( duration );}
+#else
 #define B_SLEEP( chrono_sleep, time ) boost::this_thread::sleep_for( boost::chrono::chrono_sleep( time ) )
+#endif
 
 
 namespace e_engine {

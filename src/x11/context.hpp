@@ -39,8 +39,8 @@
 
 namespace e_engine {
 
-//typedef GLXContext( *glXCreateContextAttribsARBProc )( Display *, GLXFBConfig, GLXContext, bool, const int * );  // <= Old Style
-using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool, const int * );   // <= C++11 style (successfully  tested with GCC 4.8.2)
+typedef GLXContext( *glXCreateContextAttribsARBProc )( Display *, GLXFBConfig, GLXContext, bool, const int * );  // <= Old Style
+// using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool, const int * );   // <= C++11 style (doesnt work with older gcc versions)
 
 
 /*!

@@ -180,7 +180,14 @@ int eInit::quitMainLoopCall( ) {
    vMainLoopRunning_B = false;
 
    if ( ! vEventLoopHasFinished_B )
+#if BOOST_VERSION < 105000
+   {
+      boost::posix_time::time_duration duration = boost::posix_time::milliseconds( WinData.timeoutForMainLoopThread_mSec );
+      vEventLoop_BT.timed_join( duration );
+   }  
+#else
       vEventLoop_BT.try_join_for( boost::chrono::milliseconds( WinData.timeoutForMainLoopThread_mSec ) );
+#endif
 
    if ( ! vEventLoopHasFinished_B ) {
       vEventLoop_BT.interrupt();
@@ -191,7 +198,14 @@ int eInit::quitMainLoopCall( ) {
 
 
    if ( ! vRenderLoopHasFinished_B )
+#if BOOST_VERSION < 105000
+   {
+      boost::posix_time::time_duration duration = boost::posix_time::milliseconds( WinData.timeoutForMainLoopThread_mSec );
+      vRenderLoop_BT.timed_join( duration );
+   }  
+#else
       vRenderLoop_BT.try_join_for( boost::chrono::milliseconds( WinData.timeoutForMainLoopThread_mSec ) );
+#endif
 
    if ( ! vRenderLoopHasFinished_B ) {
       vRenderLoop_BT.interrupt();
