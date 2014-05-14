@@ -42,6 +42,7 @@
 
 
 3. Installation:
+Download from git server at this time only with invitation.
 
 $ git clone git@mprs-bartel.de:/git/engine.git
 $ ./gen_sources.sh
