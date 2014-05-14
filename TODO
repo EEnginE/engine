@@ -1,13 +1,13 @@
-        _____     ____        
-       |_   _|__ |  _ \  ___  
-         | |/ _ \| | | |/ _ \ 
+        _____     ____
+       |_   _|__ |  _ \  ___
+         | |/ _ \| | | |/ _ \
          | | (_) | |_| | (_) |
-         |_|\___/|____/ \___/ 
-        
+         |_|\___/|____/ \___/
+
 1. Debian/Ubuntu compatibility
       Descripton:
         Linking error under Debian/Ubuntu. Maybe a bug in CMake? Are the compiler options correct?
-      Error code:
+      Error code Debian shared:
         CMakeFiles/engine_test1.dir/main.cpp.o: In function `sleep_for':
         /usr/local/include/boost/thread/pthread/thread_data.hpp:235: undefined reference to `boost::this_thread::hiden::sleep_for(timespec const&)'
         CMakeFiles/engine_test1.dir/handler.cpp.o: In function `sleep_for':
@@ -25,12 +25,25 @@
         make[2]: *** [bin/engine_test1] Error 1
         make[1]: *** [tests/test1/CMakeFiles/engine_test1.dir/all] Error 2
         make: *** [all] Error 2
+
+      Error code Ubuntu shared:
+        Linking CXX executable ../../bin/engine_test1
+        ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
+        ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
+        collect2: ld gab 1 als Ende-Status zurück
+
+      Error code Ubuntu static:
+        Linking CXX executable ../../bin/engine_test1
+        ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
+        ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
+        collect2: ld gab 1 als Ende-Status zurück
+
       Editor:
         Free
 
 2. Clean Dependencies
       Description:
-        Maybe link some libraries static or provide shared objects of Glu/Boost(?) and so on.
+        Maybe link some libraries static or provide shared objects of GLEW/Boost(?) and so on.
       Editor:
         Free
 
