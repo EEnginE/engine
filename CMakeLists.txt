@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 2.8.7)
 
 project(engine)
 
@@ -120,9 +120,9 @@ find_package(Threads REQUIRED)
 
 if( UNIX )
    find_package(X11   REQUIRED)
-   find_package(Boost REQUIRED COMPONENTS system regex thread chrono filesystem date_time )
+   find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread chrono filesystem )
 elseif( WIN32 )
-   find_package(Boost REQUIRED COMPONENTS system regex thread_win32 chrono filesystem date_time )
+   find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread_win32 chrono filesystem )
 endif( UNIX )
 
 if( ENGINE_DEBUG )
@@ -164,8 +164,25 @@ endif( WIN32 )
 
 # Options GCC
 
-set( GNU_COMPILER_OPTIONS_DEBUG   "-Wall -std=c++11 ${DEF_GLEW_STATIC_GNU}" )
-set( GNU_COMPILER_OPTIONS_RELEASE "-Wall -std=c++11 ${DEF_GLEW_STATIC_GNU} -flto -O3" )
+# CMAKE_CXX_COMPILER_VERSION doesent work always defined, so this is needed
+if( CMAKE_CXX_COMPILER_ID MATCHES GNU )
+   if( NOT DEFINED CMAKE_CXX_COMPILER_VERSION )
+      execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_COMPILER_VERSION)
+   else( NOT DEFINED CMAKE_CXX_COMPILER_VERSION )
+      set( GCC_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION} )
+   endif( NOT DEFINED CMAKE_CXX_COMPILER_VERSION )
+endif( CMAKE_CXX_COMPILER_ID MATCHES GNU )
+
+set( GCC_ENABLE_CXX_11 "-std=c++11" )
+if( CMAKE_CXX_COMPILER_ID MATCHES GNU AND GCC_COMPILER_VERSION LESS 4.7 )
+   if( GCC_COMPILER_VERSION LESS 4.5 )
+      message( FATAL_ERROR "Your GCC compiler version is to old! You need at least GCC v4.5" )
+   endif( GCC_COMPILER_VERSION LESS 4.5 )
+   set( GCC_ENABLE_CXX_11 "-std=c++0x" )
+endif( CMAKE_CXX_COMPILER_ID MATCHES GNU AND GCC_COMPILER_VERSION LESS 4.7 )
+
+set( GNU_COMPILER_OPTIONS_DEBUG   "-Wall ${GCC_ENABLE_CXX_11} ${DEF_GLEW_STATIC_GNU}" )
+set( GNU_COMPILER_OPTIONS_RELEASE "-Wall ${GCC_ENABLE_CXX_11} ${DEF_GLEW_STATIC_GNU} -flto -O3" )
 
 if( DEFINED EXTRA_WARNINGS )
    set( GNU_COMPILER_OPTIONS_DEBUG   "-Winline -Werror ${GNU_COMPILER_OPTIONS_DEBUG}" )

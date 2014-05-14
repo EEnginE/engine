@@ -1,0 +1,75 @@
+           _____   _____            _
+          |  ___| |  ___|          (_)
+          | |__   | |__ _ __   __ _ _ _ __   ___
+          |  __|  |  __| '_ \ / _` | | '_ \ / _ \
+          | |___  | |__| | | | (_| | | | | |  __/
+          \____/  \____/_| |_|\__, |_|_| |_|\___|
+                               __/ |
+                              |___/
+
+
+1. Dependences
+
+ - Boost v1.48.0 or newer [http://www.boost.org/]
+ - The OpenGL headers (often in a mesa package)
+ - Linux/UNIX (at least one of those):
+   - X11 and it's headers (including RandR)
+   - Wayland and it's headers (not yet supported)
+   - Mir and it's headers (not yet supported)
+ - GLEW v1.6.0 or newer [http://glew.sourceforge.net/]
+ - CMake v2.8.9 or newer [http://www.cmake.org/]
+
+
+
+2. CMake options (optional):
+
+-DCMAKE_INSTALL_PREFIX=/Install/prefix/of/engine
+
+-DDISPLAY_SERVER=<which>
+  Possible options:
+   - UNIX_X11
+   - UNIX_WAYLAND # not yet supported
+   - UNIX_MIR     # not yet supported
+   - WINDOWS
+
+-DENGINE_LINK_SHARED=<1/0>
+  1: Link the engine and tests shared
+  0: Link the engine and tests static
+  
+-DENGINE_BUILD_SHARED=<1/0>
+  1: Build the engine shared
+  0: Build the engine static
+
+
+3. Installation:
+
+$ git clone git@mprs-bartel.de:/git/engine.git
+$ ./gen_sources.sh
+$ mkdir build
+$ cd build
+$ cmake <Additional CMake options> ..
+$ make
+# make install
+
+Alternatively, you can use ninja instead of make by adding -G Ninja to your cmake options.
+
+
+4. Troubleshooting:
+
+4.1 CMake can not find Boost:
+
+Try to set -DBOOST_ROOT=/To/the/path/of/the/boost/install/prefix
+
+
+
+4.2 CMake complains about an outdated Boost version even though the newest Version has
+    been compiled by myself:
+
+You can either remove your native boost installation or add -DBoost_NO_SYSTEM_PATHS=1 to
+your CMake options. You may also need to set your -DBOOST_ROOT as described above.
+
+
+4.3 CMake can not find GLEW:
+
+Try setting your GLEW root via -DGLEW_ROOT=/To/the/path/of/the/GLEW/install/prefix
+

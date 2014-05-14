@@ -372,8 +372,13 @@ bool eLog::stopLogLoop() {
       return false;
 
    vLogLoopRun_B = false;
-
-   vLogLoopThread_THREAD.try_join_for( boost::chrono::seconds( 30 ) );
+   
+#if BOOST_VERSION < 105000
+   boost::posix_time::time_duration duration = boost::posix_time::seconds( 10 );
+   vLogLoopThread_THREAD.timed_join( duration );
+#else
+   vLogLoopThread_THREAD.try_join_for( boost::chrono::seconds( 10 ) );
+#endif
 
    if ( vIsLogLoopRunning_B == true ) {
       vLogLoopThread_THREAD.interrupt(); // 1s should be more than enough, so something went wrong
