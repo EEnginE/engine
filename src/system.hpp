@@ -31,7 +31,7 @@ namespace e_engine {
  * \brief Class to get information about the user of the programm
  * 
  * This class stores information about the actual user
- * running the programm. 
+ * running the programm and the operating system.
  * 
  */
 class eSystem {

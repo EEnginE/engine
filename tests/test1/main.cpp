@@ -11,7 +11,6 @@ using namespace e_engine;
 
 #define KDEVELOP 0
 #define COLOR    1
-#define DO_RSA   0
 #define DO_SHA   1
 
 void hexPrint ( std::vector<unsigned char> const &_v ) {
@@ -169,40 +168,6 @@ int main ( int argc, char **argv ) {
 
    LOG.devInit();
    LOG.startLogLoop();
-#endif
-
-#if DO_RSA == 1
-   RSA myRsa1;
-   RSA myRsa2;
-
-   myRsa1.generateNewKeyPair ( 4096 );
-   myRsa2.generateNewKeyPair ( 4096 );
-
-   std::vector<unsigned char> signature;
-
-   std::string file1 = "FileToEncrypt";
-   std::string file2 = "FileToEncrypt_encrypted";
-   std::string file3 = "FileToEncrypt_decrypted";
-
-   iLOG "Encrypting " ADD file1 ADD "... please wait" END
-   int ret = RSA::encrypt ( myRsa1, myRsa2, file1, file2, signature );
-
-   if ( ret != 1 )
-      eLOG "Encryption Error: " ADD ret END;
-
-   myRsa1.exportKey ( "key_1", 3 );
-   myRsa2.exportKey ( "key_2", 3 );
-
-   myRsa1.reset();
-   myRsa2.reset();
-
-   myRsa1.importKey ( "key_1" );
-   myRsa2.importKey ( "key_2" );
-
-   iLOG "Decrypting " ADD file2 ADD "... please wait" END
-   ret = RSA::decrypt ( myRsa1, myRsa2, file2, file3, signature );
-   if ( ret != 1 )
-      eLOG "Decryption Error: " ADD ret END;
 #endif
 
 #if DO_SHA == 1

@@ -18,6 +18,13 @@ namespace e_engine {
  *
  * This class uses XRandR for positioning the displays and
  * for changing their resolution.
+ * 
+ * This class "only" checks and loads the configuration and applys it. This class
+ * gnerates eDisplays objects containing the display ID and some configurations.
+ * 
+ * If you want to change anything, you need to get those via getDisplayResolutions()
+ * and change them. Then you can feed them back tothis class. Some changes will only
+ * be made if you call applyNewRandRSettings().
  *
  * \todo Add rotation support
  * \todo Add subpixel order support -- e_engine_internal::_output::subpixel_order

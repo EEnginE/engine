@@ -54,6 +54,8 @@ namespace e_engine_internal {
 /*!
  * \struct e_engine::_eWindowData
  * \brief Structure for all important window informations
+ * 
+ * This is the main, global configuration and information sructure.
  *
  * This structure stores all information the classes eInit and
  * eContext needs. The constructor fills all values with data,
@@ -62,7 +64,7 @@ namespace e_engine_internal {
  * Variables like width, width and windowName should be changed
  * but the rest should just be OK like it is
  *
- * \note Only the object \c WinData will be used!
+ * \note Only the object \c WinData will be used! You should never create other instances of this structure
  *
  * \sa eInit eContext WinData
  */
