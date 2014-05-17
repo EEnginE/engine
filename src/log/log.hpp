@@ -54,30 +54,59 @@ const unsigned short int MAX_LOG_TYPES = 8;
  * \par Multithreading
  *
  * The output of \b one instance of this class is thread safe.
- * Every time you start the output the internal mutex will
- * be locked and after you end unlocked.
+ * This class prints everything in one seperated thread.
  *
  * \par Usage
  *
  * At first you really should change the standard log file
  * output to a file of your choise with the main config
- * structure \c WinData.config
+ * structure \c WinData.log
  *
- * To start a new entry in jour log you can either call the
- * commands \c start, \c add, \c end after each other or
- * connect them.
- *
- * Example 1: After each other
+ * To start a new entry in jour log you can call the commands
+ * \c start, \c add, \c end, \c nl, \c point connected like in Example 1.
+ * 
+ * | function | Macro   | Description                   |
+ * | :------: | :-----: |:----------------------------- |
+ * | start()  | ?LOG    | Starts a new log entry.       |
+ * | add()    | ADD     | Adds contents                 |
+ * | nl()     | NEWLINE | Adds a new line               |
+ * | point()  | POINT   | Adds a new pint in a new line |
+ * | end()    | END     | Ends the log entry            |
+ * 
+ * Those functions are (unless start()) actually defined in e_engine_internal::__eLogStoreHelper.
+ * 
+ * start() gets 2 arguments (actually 4 because the first one is a macro). The
+ * 1st one is the log type. It consists of a _ and a single capital letter. The
+ * letter defines the log type. There are some 3 predefined ones but you can add
+ * other by using 
+ * 
  * \code
- *    LOG.start(5,'I',"Start of the log ");
- *    LOG.add("number ");
- *    LOG.add(1);
- *    LOG.end();
+ * addType( the character, the long name (something like INFO), the color, if it should be printed bold )
+ * connectSlotWith( the character, your slot ( e_engine::eSlot ) with your log generating function )
  * \endcode
+ * 
+ * Prdefined modes are:
+ * 
+ * | Mode | Name    |
+ * | :--: | :-----: |
+ * | _I   | INFO    |
+ * | _W   | WARNING |
+ * | _E   | ERROR   |
+ * 
+ * You can also change the color by putting single chars ( e_engine::eCMDColor for more information )
+ * in front of the actuall log message.
+ * 
+ * Instead of using the functions directly, you can use the macros like in Example 2.
+ * 
  *
- * Example 2: Connected
+ * Example 1: Normal
  * \code
- *    LOG.start(5,'I',"Start of the log ")->add("number ")->add(1)->end();
+ *    LOG.start( _I, "Start of the log ")->add("number ")->add(1)->add( 'B', 'G', " I am colored" )->end();
+ * \endcode
+ * 
+ * Example 2: Macros
+ * \code
+ *    iLOG "Start of the log " ADD "number " ADD 1 ADD 'B', 'G', " I am colored" END
  * \endcode
  *
  * \warning \b ALWAYS run \c end() at the and of a log entry!
