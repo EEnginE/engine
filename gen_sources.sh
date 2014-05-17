@@ -10,6 +10,8 @@ ARGV=$*
 SOURCE_FILE="sources.cmake"
 INCLUDE_FILE="src/engine.in.hpp"
 
+VAR_FOR_CMAKE_ROOT="CMAKE_HOME_DIRECTORY"
+
 ## The platform dirs ##
 X11_DIR="src/x11"
 WINDOWS_DIR="src/windows"
@@ -150,18 +152,18 @@ for I in $TEMP_CPP; do
     ## Test X11 ##
     echo $I | grep $X11_DIR &> /dev/null
     if [ $? -eq 0 ]; then
-        X11_CPP="$X11_CPP $I"
+        X11_CPP="$X11_CPP \${$VAR_FOR_CMAKE_ROOT}/$I"
         continue
     fi
     
     ## Test Windows ##
     echo $I | grep $WINDOWS_DIR &> /dev/null
     if [ $? -eq 0 ]; then
-        WINDOWS_CPP="$WINDOWS_CPP $I"
+        WINDOWS_CPP="$WINDOWS_CPP \${$VAR_FOR_CMAKE_ROOT}/$I"
         continue
     fi
     
-    ALL_CPP="$ALL_CPP $I"
+    ALL_CPP="$ALL_CPP \${$VAR_FOR_CMAKE_ROOT}/$I"
 done
 
 
@@ -174,18 +176,18 @@ for I in $TEMP_HPP; do
     ## Test X11 ##
     echo $I | grep $X11_DIR &> /dev/null
     if [ $? -eq 0 ]; then
-        X11_HPP="$X11_HPP $I"
+        X11_HPP="$X11_HPP \${$VAR_FOR_CMAKE_ROOT}/$I"
         continue
     fi
     
     ## Test Windows ##
     echo $I | grep $WINDOWS_DIR &> /dev/null
     if [ $? -eq 0 ]; then
-        WINDOWS_HPP="$WINDOWS_HPP $I"
+        WINDOWS_HPP="$WINDOWS_HPP \${$VAR_FOR_CMAKE_ROOT}/$I"
         continue
     fi
     
-    ALL_HPP="$ALL_HPP $I"
+    ALL_HPP="$ALL_HPP \${$VAR_FOR_CMAKE_ROOT}/$I"
 done
 
 
