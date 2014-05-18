@@ -202,9 +202,8 @@ std::vector< eDisplays > eRandR::getDisplayResolutions() {
 
                // Clones
                for ( RROutput const & fClone : fCRTC.outputs ) {
-                  //if ( fClone != fOutput.id );
-                  // Found a clone
-                  lTempDisplay_eRRD.addClone( fClone );
+                  if ( fClone != fOutput.id )
+                     lTempDisplay_eRRD.addClone( fClone );
                }
 
                break;
@@ -363,6 +362,10 @@ int eRandR::getIndexOfDisplay( eDisplays const &_disp ) {
 
 }
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+
+
+
+
 
 
 
