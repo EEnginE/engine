@@ -989,7 +989,7 @@ wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int
    }
 
    wchar_t key_wchar = keysym2unicode( key );
-   if ( ! key_wchar < 0 ) {
+   if( !( key_wchar < 0 ) ) { // TODO: Richtig intepretiert? before: if(! key_wchar < 0)
       setKeyState( key_wchar, _key_state );
    }
    return key_wchar;

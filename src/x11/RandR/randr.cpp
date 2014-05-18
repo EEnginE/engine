@@ -202,7 +202,7 @@ std::vector< eDisplays > eRandR::getDisplayResolutions() {
 
                // Clones
                for ( RROutput const & fClone : fCRTC.outputs ) {
-                  if ( fClone != fOutput.id );
+                  //if ( fClone != fOutput.id );
                   // Found a clone
                   lTempDisplay_eRRD.addClone( fClone );
                }
