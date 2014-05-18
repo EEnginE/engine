@@ -6,8 +6,9 @@
 
 1. Debian/Ubuntu compatibility
       Descripton:
-        Linking error under Debian/Ubuntu. Maybe a bug in CMake? Are the compiler options correct?
-      Error code Debian shared:
+        Linking error with gcc(!) under Debian/Ubuntu. Maybe a bug in GCC? Are the compiler options correct?
+        Works with llvm under Debian!
+      Error code Debian shared: (Also boost error.)
         CMakeFiles/engine_test1.dir/main.cpp.o: In function `sleep_for':
         /usr/local/include/boost/thread/pthread/thread_data.hpp:235: undefined reference to `boost::this_thread::hiden::sleep_for(timespec const&)'
         CMakeFiles/engine_test1.dir/handler.cpp.o: In function `sleep_for':
