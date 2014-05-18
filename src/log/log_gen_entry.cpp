@@ -118,7 +118,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
       }
    }
 
-   else if ( ( ! _rawEntry.config.vColor_LCT == DISABLED ) && _rawEntry.data.vBold_B == true ) {
+   else if ( ( !( _rawEntry.config.vColor_LCT == DISABLED ) ) && _rawEntry.data.vBold_B == true ) {
       if ( _rawEntry.data.vNewColor_STR.empty() ) {
          lDefCol2_STR = lDefCol1_STR = eCMDColor::color( eCMDColor::BOLD, _rawEntry.data.vBasicColor_C );
       } else {
@@ -359,7 +359,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
    }
 
    if ( ( ( int )_rawEntry.config.vColumns_uI - ( int )lLeftL_uI - ( int )lRightL_uI ) < 0 &&
-         ! _rawEntry.config.vColumns_uI < 0 ) {
+         !( _rawEntry.config.vColumns_uI < 0 ) ) {
 
       lL_STR.clear();
       lR_STR.clear();

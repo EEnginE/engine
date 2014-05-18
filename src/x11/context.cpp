@@ -280,7 +280,7 @@ bool eContext::fullScreen( e_engine::ACTION _action, bool _allMonitors ) {
    if( !ret1 )
       return false;
    
-   if( _allMonitors && ! _action == C_REMOVE )
+   if( _allMonitors && ! ( _action == C_REMOVE ) )
       return fullScreenMultiMonitor();
    
    return true;
