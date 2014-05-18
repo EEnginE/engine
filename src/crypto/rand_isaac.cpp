@@ -117,7 +117,7 @@ void RandISAAC::mixUp( uint32_t _seed[256] ) {
 
 
 uint32_t RandISAAC::get() {
-   register uint32_t x, y;
+   uint32_t x, y;
 
    if ( !step ) {
       cc += 1;  /* cc just gets incremented once per 256 results */
