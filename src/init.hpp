@@ -51,7 +51,7 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  * This class handels the context with the eContext class. It
  * sets the Crt-C handle function and starts the main and eventLoop
  * loop. This should be after eWindowData the 1st class you generate
- * and you will do all window and curser config with it
+ * and you will do all window and curser config with it.
  *
  * \note Until now ther is no MS Windows or Mac support
  *
