@@ -23,22 +23,35 @@
 
 2. CMake options (optional):
 
--DCMAKE_INSTALL_PREFIX=/Install/prefix/of/engine
+ENGINE:
 
--DDISPLAY_SERVER=<which>
-  Possible options:
-   - UNIX_X11
-   - UNIX_WAYLAND # not yet supported
-   - UNIX_MIR     # not yet supported
-   - WINDOWS
+   -DCMAKE_INSTALL_PREFIX=/Install/prefix/of/engine
 
--DENGINE_LINK_SHARED=<1/0>
-  1: Link the engine and tests shared
-  0: Link the engine and tests static
-  
--DENGINE_BUILD_SHARED=<1/0>
-  1: Build the engine shared
-  0: Build the engine static
+   -DENGINE_VERBOSE=1
+     Turns on some special cmake output and verbose compiler messages
+
+   -DDISPLAY_SERVER=<which>
+     Possible options:
+      - UNIX_X11
+      - UNIX_WAYLAND # not yet supported
+      - UNIX_MIR     # not yet supported
+      - WINDOWS
+
+   -DENGINE_LINK_SHARED=<1/0>
+     1: Link the engine and tests shared
+     0: Link the engine and tests static
+
+   -DENGINE_BUILD_SHARED=<1/0>
+     1: Build the engine shared
+     0: Build the engine static
+
+
+BOOST:
+
+   -DBOOST_ROOT=/To/the/path/of/the/boost/install/prefix
+
+   -DBoost_NO_SYSTEM_PATHS=1
+      To tell CMake to only search boost in BOOST_ROOT
 
 
 3. Installation:
