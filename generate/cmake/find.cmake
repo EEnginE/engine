@@ -7,6 +7,13 @@
 ############################################################################################################################
 ########################################################################################
 
+if( NOT DEFINED GLEW_ROOT )
+   set( GLEW_ROOT ${CMAKE_HOME_DIRECTORY}/GLEW )
+   if( NOT DEFINED GLEW_USE_DEFAULT )
+      set( GLEW_NO_DEFAULT 1 )
+   endif( NOT DEFINED GLEW_USE_DEFAULT )
+endif( NOT DEFINED GLEW_ROOT )
+
 if( NOT DEFINED ENGINE_LINK_SHARED )
    set( ENGINE_LINK_SHARED 1 )   # DEFAULT: link shared (.so / .dll)
 endif( NOT DEFINED ENGINE_LINK_SHARED )

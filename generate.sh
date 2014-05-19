@@ -72,10 +72,17 @@ clean() {
     rm_save $SOURCE_FILE
     rm_save $INCLUDE_FILE
     rm_save $LOG_MACRO_PATH
+    rm_save tests/CMakeLists.txt
+    
+    TEMP=$( ls -d tests/*/ )
+    
+    for I in $TEMP; do
+       rm_save $I/CMakeLists.txt
+    done
     
     cd GLEW
     
-    make clean
+    make clean &> /dev/null
     
     cd ..
 }
@@ -147,8 +154,9 @@ echo ""
 echo ""
 echo "INFO: Initing and updating submodules"
 
-git submodule init
-git submodule update
+git submodule init    > /dev/null
+git submodule sync    > /dev/null
+git submodule update  > /dev/null
 
 if (( ARGC == 1 )); then
     case $1 in
