@@ -9,7 +9,7 @@
 #include <boost/lexical_cast.hpp>
 #include <sstream>
 #include "signal_slot.hpp"
-#include "window_data.hpp"  // Only for e_engine_internal::LOG_COLOR_TYPE and e_engine_internal::LOG_PRINT_TYPE
+#include "eWindowData.hpp"  // Only for e_engine_internal::LOG_COLOR_TYPE and e_engine_internal::LOG_PRINT_TYPE
 
 namespace e_engine {
 
