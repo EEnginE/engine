@@ -15,3 +15,5 @@
 /src/defines.hpp
 *config.h
 /.project
+
+.*.kate-swp
