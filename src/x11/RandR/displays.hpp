@@ -7,7 +7,7 @@
 #define E_RANDR_DISPLAY_HPP
 
 #include <X11/extensions/Xrandr.h>
-#include "displays_basic.hpp"
+#include "eDisplayBasic.hpp"
 
 namespace e_engine {
 
