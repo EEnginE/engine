@@ -7,7 +7,7 @@
  * \c GLEW is init. The other definitions are in file
  * e_context_window.cpp
  *
- * \sa e_context_window.cpp e_context.hpp e_init.hpp
+ * \sa e_context_window.cpp e_context.hpp e_eInit.hpp
  */
 /*
  *  E Engine
