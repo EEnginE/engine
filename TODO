@@ -53,3 +53,10 @@
         Lots of functions are not or too less commented.
       Editor:
         Free
+
+4. Segmentation Fault
+      Description:
+        src/x11/RandR/randr.cpp:353
+        Occured while pressing a.
+      Editor:
+        Free
