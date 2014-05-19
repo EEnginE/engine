@@ -1,10 +1,10 @@
 /*!
- * \file keyboard_basic.hpp
+ * \file eKeyboardBasic.hpp
  *
  * Basic class for setting keys
  */
 
-#include "keyboard_basic.hpp"
+#include "eKeyboardBasic.hpp"
 
 namespace e_engine {
 

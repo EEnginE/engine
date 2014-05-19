@@ -8,7 +8,7 @@
  * glx.h but don't reimplement them until \c GLEW is init,
  * what is impossible until a valid OpenGL context is created
  *
- * \sa e_context.hpp e_context.cpp e_init.hpp
+ * \sa e_context.hpp e_context.cpp e_eInit.hpp
  */
 /*
  *  E Engine

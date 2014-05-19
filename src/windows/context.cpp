@@ -5,7 +5,7 @@
  * This file contains the class \b eContext which creates
  * the window in Windows and the OpenGL context on it.
  *
- * \sa e_context.cpp e_init.cpp
+ * \sa e_context.cpp e_eInit.cpp
  */
 
 #include "context.hpp"

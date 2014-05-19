@@ -1,5 +1,5 @@
 /*!
- * \file keyboard_basic.hpp
+ * \file eKeyboardBasic.hpp
  *
  * Basic class for setting keys
  */

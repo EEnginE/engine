@@ -1,4 +1,4 @@
-#include "config.h"
+#include "config.hpp"
 #include "handler.hpp"
 #include <engine.hpp>
 
@@ -10,8 +10,8 @@ using namespace std;
 using namespace e_engine;
 
 #define KDEVELOP 0
-#define COLOR    1
-#define DO_SHA   1
+#define COLOR    0
+#define DO_SHA   0
 
 void hexPrint ( std::vector<unsigned char> const &_v ) {
    for ( unsigned char const & c : _v )
@@ -132,7 +132,7 @@ int main ( int argc, char **argv ) {
       }
 
       string temp;
-      temp += ( string ) INSTALL_PREFIX + "/share/engineTests/test1/colors_p";
+      temp += ( string ) INSTALL_PREFIX + "/share/engineTests/test1/data/shaders/colors_p";
 
       if ( argc == 2 ) {
          temp = ( string ) argv[1] + "/colors_p" ;
