@@ -1,0 +1,30 @@
+
+macro( testSources )
+    if( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/sources.cmake )
+        message( STATUS "Can not find sources.cmake ==> Running ${CMAKE_HOME_DIRECTORY}/generate.sh" )
+        execute_process( COMMAND ${CMAKE_HOME_DIRECTORY}/generate.sh )
+    endif( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/sources.cmake )
+    
+    include( sources.cmake )
+                
+    foreach( TO_TEST ${${CURRENT_BASENAME}_SRC} )
+        if( NOT EXISTS ${TO_TEST} )
+            message( STATUS "Can not find ${TO_TEST} ==> Running ${CMAKE_HOME_DIRECTORY}/generate.sh" )
+            execute_process( COMMAND ${CMAKE_HOME_DIRECTORY}/generate.sh )
+            break()
+        endif( NOT EXISTS ${TO_TEST} )
+    endforeach( TO_TEST ${${CURRENT_BASENAME}_SRC} )
+        
+    foreach( TO_TEST ${${CURRENT_BASENAME}_INC} )
+        if( NOT EXISTS ${TO_TEST} )
+            message( STATUS "Can not find ${TO_TEST} ==> Running ${CMAKE_HOME_DIRECTORY}/generate.sh" )
+            execute_process( COMMAND ${CMAKE_HOME_DIRECTORY}/generate.sh )
+            break()
+        endif( NOT EXISTS ${TO_TEST} )
+    endforeach( TO_TEST ${${CURRENT_BASENAME}_INC} )
+    
+    if( NOT EXISTS ${CMAKE_HOME_DIRECTORY}/src/log/macros.hpp )
+        message( STATUS "Can not find ${CMAKE_HOME_DIRECTORY}/src/log/macros.hpp ==> Running ${CMAKE_HOME_DIRECTORY}/generate.sh" )
+        execute_process( COMMAND ${CMAKE_HOME_DIRECTORY}/generate.sh )
+    endif( NOT EXISTS ${CMAKE_HOME_DIRECTORY}/src/log/macros.hpp )
+endmacro( testSources )

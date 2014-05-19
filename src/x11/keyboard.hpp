@@ -24,7 +24,7 @@
 #ifndef E_KEYSYM_TO_UNICODE_HPP
 #define E_KEYSYM_TO_UNICODE_HPP
 
-#include "keyboard_basic.hpp"
+#include "eKeyboardBasic.hpp"
 #include <X11/XKBlib.h>
 
 

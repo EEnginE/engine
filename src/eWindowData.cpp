@@ -1,6 +1,6 @@
-/// \file window_data.cpp
+/// \file eWindowData.cpp
 /// \brief \b Classes: \a eWindowData
-/// \sa e_window_data.hpp
+/// \sa e_eWindowData.hpp
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
@@ -27,7 +27,7 @@
 
 
 
-#include "window_data.hpp"
+#include "eWindowData.hpp"
 
 using std::string;
 

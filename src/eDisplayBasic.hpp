@@ -1,5 +1,5 @@
 /*!
- * \file displays_basic.hpp
+ * \file eDisplayBasic.hpp
  * \brief \b Classes: \a eDisplayBasic
  */
 

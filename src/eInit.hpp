@@ -1,6 +1,6 @@
-/// \file init.hpp
+/// \file eInit.hpp
 /// \brief \b Classes: \a eInit
-/// \sa e_init.cpp e_event.cpp
+/// \sa e_eInit.cpp e_event.cpp
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
@@ -34,7 +34,7 @@
 #include "context.hpp"
 #include "keyboard.hpp"
 #include "signal_slot.hpp"
-#include "window_data.hpp"
+#include "eWindowData.hpp"
 #include <boost/thread.hpp>
 
 
@@ -57,7 +57,7 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  *
  * \note Curser function are not implementet yet
  *
- * \sa eContext eWindowData e_init.cpp e_event.cpp
+ * \sa eContext eWindowData e_eInit.cpp e_event.cpp
  */
 class eInit : public eContext, public eKeyboard {
       typedef eSignal<void, eWinInfo>      _SIGNAL_;

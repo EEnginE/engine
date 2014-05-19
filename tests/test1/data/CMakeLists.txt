@@ -2,9 +2,7 @@
 
 cmake_minimum_required(VERSION 2.8.7 )
 
-set( CSD ${CMAKE_HOME_DIRECTORY}/tests/test1 )
-
-testSources()
+set( CSD ${CMAKE_HOME_DIRECTORY}/tests/test1/data/ )
 
 if( EXISTS ${CSD}/custom.cmake )
    include( ${CSD}/custom.cmake )
@@ -33,7 +31,7 @@ set_target_properties(
 )
 
 
-install( TARGETS test1 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
+install( TARGETS engine_test1 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
 
 if( EXISTS ${CSD}/data AND IS_DIRECTORY ${CSD}/data )
    install( DIRECTORY ${CSD}/data DESTINATION ${CMAKE_INSTALL_PREFIX}/share/engineTests/test1 )
