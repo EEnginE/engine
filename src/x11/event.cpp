@@ -1,7 +1,7 @@
 /*!
  * \file event.cpp
  * \brief \b Classes: \a eInit
- * \sa e_init.cpp e_init.hpp
+ * \sa e_eInit.cpp e_eInit.hpp
  */
 /*
  *  E Engine
@@ -21,7 +21,7 @@
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "init.hpp"
+#include "eInit.hpp"
 #include "log.hpp"
 
 /*

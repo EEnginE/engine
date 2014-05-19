@@ -1,6 +1,6 @@
-/// \file init.cpp
+/// \file eInit.cpp
 /// \brief \b Classes: \a eInit
-/// \sa e_event.cpp e_init.hpp
+/// \sa e_event.cpp e_eInit.hpp
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
@@ -22,8 +22,8 @@
 
 #include <csignal>
 
-#include "init.hpp"
-#include "system.hpp"
+#include "eInit.hpp"
+#include "eSystem.hpp"
 #include "log.hpp"
 
 namespace e_engine {

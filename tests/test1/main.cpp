@@ -10,8 +10,8 @@ using namespace std;
 using namespace e_engine;
 
 #define KDEVELOP 0
-#define COLOR    1
-#define DO_SHA   1
+#define COLOR    0
+#define DO_SHA   0
 
 void hexPrint ( std::vector<unsigned char> const &_v ) {
    for ( unsigned char const & c : _v )
