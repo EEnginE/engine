@@ -3,7 +3,7 @@
  * \brief \b Classes: \a eDisplayBasic
  */
 
-#include "displays_basic.hpp"
+#include "eDisplayBasic.hpp"
 
 namespace e_engine {
 
