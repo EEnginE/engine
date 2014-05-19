@@ -72,7 +72,7 @@ bool eContext::isExtensionSupported( const char *_extension ) {
  * best FB config, then creates the window and at last
  * it creates the \c OpenGL context and inits \c GLEW
  *
- * For that it runns basecly the private functions:
+ * For that it runs basically the private functions:
  * \code
 createDisplay();
 createFrameBuffer();
@@ -87,13 +87,13 @@ vRandR_eRR.init( vDisplay_X11, vWindow_X11, vRootWindow_X11 )
  * \param argc argc from the main() fnction
  * \param argv argv from the main() fnction
  *
- * \returns  1 -- All good
+ * \returns  1 -- Versions are compatible
  * \returns -1 -- Unable to connect to the X-Server
  * \returns -2 -- Need a newer GLX version
  * \returns -3 -- Unable to find any matching fbConfig
  * \returns -4 -- Failed to create a X11 Window
  * \returns  3 -- Failed to create a context
- * \returns  4 -- Feiled to init GLEW
+ * \returns  4 -- Failed to init GLEW
  */
 int eContext::createContext() {
    int lReturnValue_I;
@@ -122,7 +122,7 @@ int eContext::createContext() {
    glewExperimental = GL_TRUE;
    vHaveGLEW_B = true;
    if ( GLEW_OK != glewInit() ) {
-      eLOG "Failed to init GLEW. Abrobt. (return 4)" END
+      eLOG "Failed to init GLEW. Aborting. (return 4)" END
       vHaveGLEW_B = false;
       return 4;
    }
@@ -207,7 +207,7 @@ int eContext::enableVSync() {
       iLOG "VSync enabled" END
       return 1;
    } else {
-      wLOG "Exention GLX_SGI_swap_control not supported --> no VSync" END
+      wLOG "Extention GLX_SGI_swap_control not supported --> no VSync" END
       return 2;
    }
 }
@@ -234,7 +234,7 @@ bool eContext::setDecoration( e_engine::ACTION _action ) {
 
    Atom lAtomMwmHints_X11 = XInternAtom( vDisplay_X11, "_MOTIF_WM_HINTS", True );
    if ( ! lAtomMwmHints_X11 ) {
-      wLOG "Failed to create X11 Atom _MOTIF_WM_HINTS ==> Can not set / remove window border" END
+      wLOG "Failed to create X11 Atom _MOTIF_WM_HINTS ==> Cannot set / remove window border" END
       return false;
    }
 
@@ -321,7 +321,7 @@ bool eContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    switch ( _action ) {
       case C_REMOVE:   lMode_STR = "Removing";  break;
-      case C_ADD:      lMode_STR = "Enableing"; break;
+      case C_ADD:      lMode_STR = "Enabling";  break;
       case C_TOGGLE:   lMode_STR = "Toggling";  break;
       default: return -1;
    }
@@ -420,7 +420,7 @@ bool eContext::fullScreenMultiMonitor() {
       return false;
    }
 
-   iLOG "Successfully maped the fullscreen window to all monitors" END
+   iLOG "Successfully mapped the fullscreen window to all monitors" END
 
    return true;
 }
@@ -451,7 +451,7 @@ int eContext::setFullScreenMonitor( eDisplays _disp ) {
       return 2;
    }
 
-   iLOG "Successfully maped the fullscreen window to monitor " ADD lDisp_I END
+   iLOG "Successfully mapped the fullscreen window to monitor " ADD lDisp_I END
 
    return 1;
 }
