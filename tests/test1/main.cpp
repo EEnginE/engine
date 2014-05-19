@@ -1,4 +1,4 @@
-#include "config.h"
+#include "config.hpp"
 #include "handler.hpp"
 #include <engine.hpp>
 
@@ -132,7 +132,7 @@ int main ( int argc, char **argv ) {
       }
 
       string temp;
-      temp += ( string ) INSTALL_PREFIX + "/share/engineTests/test1/colors_p";
+      temp += ( string ) INSTALL_PREFIX + "/share/engineTests/test1/data/shaders/colors_p";
 
       if ( argc == 2 ) {
          temp = ( string ) argv[1] + "/colors_p" ;

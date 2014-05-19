@@ -1,0 +1,24 @@
+
+                         TEST MODULES
+                         ============
+
+
+To add a test module you only have to add a directory with c++ files.
+The CMakeLists.txt will be generated automatically.
+
+The new test will then have the name of its directory.
+
+If you want to install data, you can simply add a data dir in the new
+test. This data directory will be installed to:
+
+${CMAKE_INSTALL_PREFIX}/share/engineTests/<test Name>
+
+
+You can also have a config.in.hpp . This file will be automatically
+detected.
+
+If should need extra CMake stuff, put it in a custom.cmake.
+
+
+If you totaly dislike the automatically generated CMakeLists.txt
+you only need to add a MANUAL_CMAKE file.

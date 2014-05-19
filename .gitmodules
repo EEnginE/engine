@@ -1,3 +1,4 @@
 [submodule "GLEW"]
 	path = GLEW
 	url = git://github.com/nigels-com/glew.git
+	ignore = dirty
