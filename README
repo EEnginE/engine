@@ -44,6 +44,14 @@ ENGINE:
    -DENGINE_BUILD_SHARED=<1/0>
      1: Build the engine shared
      0: Build the engine static
+     
+     
+GLEW
+
+   -DGLEW_USE_DEFAULT=1
+     if you want to have your system GLEW
+     
+   -DGLEW_ROOT=/Path/to/GLEW/install/prefix
 
 
 BOOST:

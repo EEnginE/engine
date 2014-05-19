@@ -16,6 +16,7 @@ src/engine.hpp
 *config.hpp
 /.project
 /tests/CMakeLists.txt
+/tests/*/CMakeLists.txt
 /GLEW/*
 
 

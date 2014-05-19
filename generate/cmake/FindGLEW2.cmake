@@ -1,6 +1,7 @@
 # - Find the OpenGL Extension Wrangler Library (GLEW)
 #
-#  GLEW_ROOT - where GLEW is installed
+#  GLEW_ROOT       - where GLEW is installed
+#  GLEW_NO_DEFAULT - disable the default paths
 #
 # This module defines the following variables:
 #  GLEW_INCLUDE_DIRS - include directories for GLEW
@@ -22,8 +23,12 @@
 
 # Daniel Mensinger: Added GLEW_ROOT support
 
-find_path(GLEW_INCLUDE_DIR GL/glew.h PATHS ${GLEW_ROOT}/include )
-find_library(GLEW_LIBRARY NAMES GLEW glew32 glew glew32s PATHS ${GLEW_ROOT}/lib PATH_SUFFIXES lib64)
+if( GLEW_NO_DEFAULT )
+   set( USE_DEFAULT_GLEW_PATHS NO_DEFAULT_PATH )
+endif( GLEW_NO_DEFAULT )
+
+find_path(GLEW_INCLUDE_DIR GL/glew.h PATHS ${GLEW_ROOT}/include ${USE_DEFAULT_GLEW_PATHS})
+find_library(GLEW_LIBRARY NAMES GLEW glew32 glew glew32s PATHS ${GLEW_ROOT}/lib PATH_SUFFIXES lib64 ${USE_DEFAULT_GLEW_PATHS})
 
 set(GLEW_INCLUDE_DIRS ${GLEW_INCLUDE_DIR})
 set(GLEW_LIBRARIES ${GLEW_LIBRARY})

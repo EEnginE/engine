@@ -12,15 +12,15 @@ doGlew() {
     
     if [ -d lib -a ! $1 -eq 1 ]; then
         echo "INFO: GLEW: Nothing to do here"
-        cd $CD_TO_THIS_DIR
+        cd ..
         return
     fi
     
     echo "INFO: GLEW: Making extensions..."
-    make extensions
+    make extensions &> /dev/null
     
     echo "INFO: GLEW: building..."
-    make
+    make &> /dev/null
     
-    cd $CD_TO_THIS_DIR
+    cd ..
 }
