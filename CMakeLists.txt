@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 2.8.7)
 project(engine)
 
 # Set here the Version of this project
-set( CM_VERSION_MAJOR  0 )
-set( CM_VERSION_MINOR  1 )
+set( CM_VERSION_MAJOR    0 )
+set( CM_VERSION_MINOR    1 )
+set( CM_VERSION_SUBMINOR 0 )
 
 
 # START uninstall
@@ -150,7 +151,7 @@ if( ENGINE_VERBOSE )
    message( STATUS "      ETC" )
    message( STATUS "      ===" )
    message( STATUS "" )
-   message( STATUS "GIT commit:         ${CM_CURRENT_COMMIT}" )
+   message( STATUS "GIT commit:         ${CM_VERSION_GIT}" )
    message( STATUS "" )
    message( STATUS "Compiler (ID):      ${CMAKE_CXX_COMPILER_ID}" )
    message( STATUS "Compiler (Exec):    ${CMAKE_CXX_COMPILER}" )
