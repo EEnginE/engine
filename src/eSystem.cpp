@@ -18,9 +18,9 @@
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "system.hpp"
+#include "eSystem.hpp"
 #include "log.hpp"
-#include "window_data.hpp"
+#include "eWindowData.hpp"
 #include "defines.hpp"
 
 #if UNIX

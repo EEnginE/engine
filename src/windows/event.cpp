@@ -1,10 +1,10 @@
 /*!
  * \file event.cpp
  * \brief \b Classes: \a eInit
- * \sa e_init.cpp e_init.hpp
+ * \sa e_eInit.cpp e_eInit.hpp
  */
 
-#include "init.hpp"
+#include "eInit.hpp"
 
 namespace e_engine {
    
