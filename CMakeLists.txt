@@ -7,7 +7,6 @@ set( CM_VERSION_MAJOR    0 )
 set( CM_VERSION_MINOR    1 )
 set( CM_VERSION_SUBMINOR 0 )
 
-
 # START uninstall
 configure_file("${CMAKE_HOME_DIRECTORY}/generate/cmake/cmake_uninstall.cmake.in"
                "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -49,13 +48,11 @@ include( ${CMAKE_HOME_DIRECTORY}/generate/cmake/find.cmake )
 
 include( ${CMAKE_HOME_DIRECTORY}/generate/cmake/compiler.cmake )
 
+# Automatically testing if we need to run generate.sh
+include( ${CMAKE_HOME_DIRECTORY}/generate/cmake/testSources.cmake )
+testSources()
 
 
-# Generate engine.hpp from the engine.in.hpp (which was generated from gen_sources.sh)
-configure_file(
- "${CMAKE_HOME_DIRECTORY}/src/engine.in.hpp"
- "${CMAKE_HOME_DIRECTORY}/src/engine.hpp"
-)
 
 # Generate defines.hpp
 configure_file(
@@ -115,8 +112,8 @@ set_target_properties(
 add_subdirectory(${PROJECT_SOURCE_DIR}/tests/)
 
 # Also install some usefull cmakefiles
-set(DEPENDENCES ${PROJECT_SOURCE_DIR}/cmake/FindEngine.cmake
-                ${PROJECT_SOURCE_DIR}/cmake/FindGLEW2.cmake)
+set(DEPENDENCES ${PROJECT_SOURCE_DIR}/generate/cmake/FindEngine.cmake
+                ${PROJECT_SOURCE_DIR}/generate/cmake/FindGLEW2.cmake)
 
 # The install configuaration
 install( FILES ${ENGINE_INC}      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/engine)
