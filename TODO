@@ -57,6 +57,6 @@
 4. Segmentation Fault
       Description:
         src/x11/RandR/randr.cpp:353
-        Occured while pressing a.
+        Occured while pressing a. Still not fixed.
       Editor:
         Free
