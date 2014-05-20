@@ -350,7 +350,7 @@ int eRandR::getIndexOfDisplay( eDisplays const &_disp ) {
    
    
    for( unsigned int i = 0; i < vCRTC_V_RandR.size(); ++i ) {
-      if( vChangeCRTC_V_RandR[i].id == lCRTC_XRR )
+      if( vCRTC_V_RandR[i].id == lCRTC_XRR )
          return i; // The index
    }
    
