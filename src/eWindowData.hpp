@@ -96,6 +96,11 @@ struct _eWindowData {
       int          FBA_STENCIL;
       int          FBA_VISUAL_TYPE;
       //int         FBA_STEREO;
+      
+      int          FBA_DRAW_TO_WINDOW;
+      int          FBA_ACCELERATION;
+      int          FBA_OGL_SUPPORTED;
+      
 
       __eWindowData_FBA();
 

@@ -24,7 +24,7 @@ class eContext {
       PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
       HINSTANCE             vInstance_win32;
       WNDCLASS              vWindowClass_win32;
-      HWND                  vHWND_win32;
+      HWND                  vHWND_Window_win32;
       RECT                  vWindowRect_win32;
       HDC                   vHDC_win32;
       HGLRC                 vOpenGLContext_WGL;
@@ -34,6 +34,9 @@ class eContext {
       LRESULT CALLBACK actualWndProc ( UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       
       bool                  vWindowsCallbacksError_B;
+      
+      bool                  vHasContext_B;
+      bool                  vHasGLEW_B;
 
 
 
@@ -47,10 +50,10 @@ class eContext {
       int  fullScreen ( ACTION _action, bool _allMonitors = false ) {return 1;}
       int  enableVSync() {return 1;}
       void destroyContext();
-      bool getHaveContext() { return true; }
+      bool getHaveContext() { return vHasContext_B; }
 
-      void makeContextCurrent()  {}
-      void makeNOContexCurrent() {}
+      void makeContextCurrent()  { if( vHasContext_B ) wglMakeCurrent(vHDC_win32,vOpenGLContext_WGL); }
+      void makeNOContexCurrent() { wglMakeCurrent(NULL,NULL); }
 
       bool setAttribute ( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) {return false;}
 

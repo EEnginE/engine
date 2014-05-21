@@ -127,15 +127,16 @@ int eContext::createFrameBuffer() {
    LOG_ENTRY lEntry_LOG =
       iLOG "" S_COLOR 'O' , 'W'
 
-      ADD     "   |=========|========|=========|=======|=======================|"
+      ADD     "   |=========|========|=========|=======|=========|=======================|"
       NEWLINE "   |  " ADD 'B', 'W', "NUMBER" ADD " |   " ADD 'B', 'W', "ID"
       ADD     "   | "  ADD 'B', 'W', "Samples" ADD " | "   ADD 'B', 'W', "Depth"
+      ADD     " | "    ADD 'B', 'W', "Stencil"
       ADD     " |  "   ADD 'B', 'R', "R"
       ADD     "  -  "  ADD 'B', 'G', "G"
       ADD     "   - "  ADD 'B', 'B', "B"
       ADD     "  -  "  ADD 'B', 'C', "A"
       ADD     "  |"
-      NEWLINE "   |---------|--------|---------|-------|-----------------------|" NEWLINE
+      NEWLINE "   |---------|--------|---------|-------|---------|-----------------------|" NEWLINE
 
       _END_
    for ( i = 0; i < vNumOfFBConfigs_I; i++ ) {
@@ -143,9 +144,10 @@ int eContext::createFrameBuffer() {
       if ( temp ) {
          char lBuffer_C[5];
          std::snprintf ( lBuffer_C, 4, "%X", ( GLuint ) temp->visualid );
-         int samples, depth, r, g, b, a;
+         int samples, depth, stencil, r, g, b, a;
 
          glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,    &samples );
+         glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,    &stencil );
          glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_RED_SIZE,   &r );
          glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_GREEN_SIZE, &g );
          glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_BLUE_SIZE,  &b );
@@ -155,7 +157,8 @@ int eContext::createFrameBuffer() {
 
          lEntry_LOG _ADD "   |    " ADD numToSizeStringLeft ( i, 5, ' ' ) ADD "| "
          ADD "0x0" ADD StringLeft ( lBuffer_C, 4, ' ' )  ADD "|    "
-         ADD numToSizeStringLeft ( samples, 5, ' ' )     ADD "|   "  ADD numToSizeStringLeft ( depth, 4, ' ' ) ADD "|  "
+         ADD numToSizeStringLeft ( samples, 5, ' ' )     ADD "|   "  ADD numToSizeStringLeft ( depth, 4, ' ' ) ADD "|    "
+         ADD numToSizeStringLeft ( stencil, 5, ' ' )     ADD "|  "
          ADD 'O', 'R', numToSizeStringLeft ( r, 3, ' ' ) ADD "-  "
          ADD 'O', 'G', numToSizeStringLeft ( g, 3, ' ' ) ADD "-  "
          ADD 'O', 'B', numToSizeStringLeft ( b, 3, ' ' ) ADD "-  "
@@ -187,7 +190,7 @@ int eContext::createFrameBuffer() {
       }
       XFree ( temp );
    }
-   lEntry_LOG _ADD "   |=========|========|=========|=======|=======================|" NEWLINE NEWLINE END
+   lEntry_LOG _ADD "   |=========|========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
 
    vVisualInfo_X11 = glXGetVisualFromFBConfig ( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I] ); // Choose best fbconfig
 

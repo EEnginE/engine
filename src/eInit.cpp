@@ -87,7 +87,12 @@ int eInit::init() {
 
    if ( WinData.log.logFILE.logFileName.empty() ) {
       WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
+#if UNIX
       WinData.log.logFILE.logFileName += "/Log";
+#elif WINDOWS
+      WinData.log.logFILE.logFileName += "\\Log";
+      wLOG "Without this log Windows wont generate the LOG file correctly! TODO" END
+#endif
    }
 
    if ( WinData.log.logDefaultInit )

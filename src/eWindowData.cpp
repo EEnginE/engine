@@ -25,6 +25,10 @@
 #include <GL/glxew.h>
 #endif
 
+#if WINDOWS
+#include <GL/glew.h>
+#include <GL/wglext.h>
+#endif
 
 
 #include "eWindowData.hpp"
@@ -57,22 +61,28 @@ _eWindowData::__eWindowData_Config::__eWindowData_Config() {
 
 
 void _eWindowData::__eWindowData_FBA::reset() {
-#if  UNIX_X11
+#if  UNIX
    FBA_RENDER_TYPE           = GLX_RGBA_BIT;
    FBA_RENDERABLE            = GL_TRUE;
    FBA_DRAWABLE_TYPE         = GLX_WINDOW_BIT;
    FBA_DOUBLEBUFFER          = GL_TRUE;
-#endif // UNIX_X11
+#endif // UNIX
    FBA_RED                   = 8;  // 8
    FBA_GREEN                 = 8;  // 8
    FBA_BLUE                  = 8;  // 8
    FBA_ALPHA                 = 8;  // 8
    FBA_DEPTH                 = 24; // 24
    FBA_STENCIL               = 8;  // 8
-#if UNIX_X11
+#if UNIX
    FBA_VISUAL_TYPE           = GLX_TRUE_COLOR;
 #endif
    //FBA_STEREO                = GL_TRUE;
+   
+#if WINDOWS
+   FBA_DRAW_TO_WINDOW        = 1;
+   FBA_ACCELERATION          = WGL_FULL_ACCELERATION_ARB;
+   FBA_RENDER_TYPE           = WGL_TYPE_RGBA_ARB;
+#endif // WINDOWS
 }
 
 void _eWindowData::__eWindowData_Versions::reset() {

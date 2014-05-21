@@ -149,26 +149,9 @@ int main ( int argc, char **argv ) {
       B_SLEEP( seconds, 1 );
       start.closeWindow();
    }
-#if WINDOWS
-   WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
-   WinData.log.logFILE.logFileName += "\\Log";
-
-   LOG.devInit();
-   LOG.startLogLoop();
-#endif
-#else
-   WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
-
-#if UNIX
-   WinData.log.logFILE.logFileName += "/Log";
-#elif WINDOWS
-   WinData.log.logFILE.logFileName += "\\Log";
-
+   
 #endif
 
-   LOG.devInit();
-   LOG.startLogLoop();
-#endif
 
 #if DO_SHA == 1
    SHA_2 mySHA ( SHA2_384 );
@@ -176,8 +159,11 @@ int main ( int argc, char **argv ) {
 #endif
 
    iLOG "Credits: " ADD 'B', 'G', "Daniel ( Mense ) Mensinger" END
+   
+   B_SLEEP( seconds, 1 );
+   
+   start.shutdown();
 
-   LOG.stopLogLoop();
    return EXIT_SUCCESS;
 }
 
