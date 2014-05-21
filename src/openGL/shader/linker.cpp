@@ -26,6 +26,7 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include "log.hpp"
+#include <GL/glew.h>
 
 namespace e_engine {
 
@@ -33,7 +34,7 @@ using namespace e_engine_internal;
 
 eLinker::eLinker( std::string _path ) {
    path         = _path;
-   found_shadrs = 0;
+   found_shaders = 0;
    theProgram   = 0;
    is_linked    = false;
 
@@ -44,7 +45,7 @@ eLinker::eLinker( std::string _path ) {
 
 eLinker::eLinker( std::string _path, GLuint n, ... ) {
    path         = _path;
-   found_shadrs = 0;
+   found_shaders = 0;
    theProgram   = 0;
    is_linked    = false;
 
@@ -58,7 +59,7 @@ eLinker::eLinker( std::string _path, GLuint n, ... ) {
    for ( unsigned int i = 0; i < n; i++ ) {
       atributeObject attribute;
       attribute.index = va_arg( list, int );
-      attribute.name  = va_arg( list, char* );
+      attribute.name  = va_arg( list, char * );
       attributes.push_back( attribute );
    }
    va_end( list );
@@ -67,7 +68,7 @@ eLinker::eLinker( std::string _path, GLuint n, ... ) {
 /* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
 
-int eLinker::serch_shaders() {
+int eLinker::search_shaders() {
    std::string temp[3] = {path, path, path};
 
    temp[VERT] += ending[VERT];
@@ -79,51 +80,55 @@ int eLinker::serch_shaders() {
    boost::filesystem::path geom( temp[GEOM] );
 
    try {
-      if ( boost::filesystem::exists( vert ) ) {    // Look for the vertex-shadr
+      if ( boost::filesystem::exists( vert ) ) {    // Look for the vertex-shader
          if ( boost::filesystem::is_regular_file( vert ) ) {
             eShader s( temp[VERT], GL_VERTEX_SHADER );
             shaders.push_back( s );
-            found_shadrs++;
+            found_shaders++;
          }
       }
-      if ( boost::filesystem::exists( frag ) ) {    // Look for the fragment-shadr
+      if ( boost::filesystem::exists( frag ) ) {    // Look for the fragment-shader
          if ( boost::filesystem::is_regular_file( vert ) ) {
             eShader s( temp[FRAG], GL_FRAGMENT_SHADER );
             shaders.push_back( s );
-            found_shadrs++;
+            found_shaders++;
          }
       }
-      if ( boost::filesystem::exists( geom ) ) {    // Look for the geometry-shadr
+      if ( boost::filesystem::exists( geom ) ) {    // Look for the geometry-shader
          if ( boost::filesystem::is_regular_file( geom ) ) {
             eShader s( temp[GEOM], GL_GEOMETRY_SHADER );
             shaders.push_back( s );
-            found_shadrs++;
+            found_shaders++;
          }
       }
-   } catch ( const boost::filesystem::filesystem_error& ex ) {
+   } catch ( const boost::filesystem::filesystem_error &ex ) {
       eLOG ex.what() END
    } catch ( ... ) {
-      eLOG "Caught unknown exeption" END
+      eLOG "Caught unknown exception" END
    }
 
-   if ( found_shadrs == 0 ) {
+   if ( found_shaders == 0 ) {
       wLOG "Found 0 shader(s) WARNING!!!" END
    }
 
-   return found_shadrs;
+   return found_shaders;
 }
 
 /* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
-
-void eLinker::test_program() {
-   GLint status;
+/*!
+       * \brief Test if program is OK
+       * \returns 1 When successful
+       * \returns 5 When a shader linking error occured
+       */
+unsigned int eLinker::test_program() {
+   int status;
    glGetProgramiv( theProgram, GL_LINK_STATUS, &status );
    if ( status == GL_FALSE ) {
-      GLchar log[5000];
+      char log[5000];
       glGetProgramInfoLog( theProgram, 5000, NULL, log );
 
-      eLOG    "Linking failure:" 
+      eLOG    "Linking failure:"
       NEWLINE "###################################################################################" NEWLINE
       NEWLINE log NEWLINE
       NEWLINE "###################################################################################" END
@@ -131,43 +136,48 @@ void eLinker::test_program() {
 
       is_linked = false;
 
-      eError e( CLASS_eShader, ERROR_Shader, E_LINKING_FAILURE, "Error at linking the shaders" );
-      throw e;
+      //Return a shader linking error
+      return 5;
    }
+   return 1;
 }
 
 
-/*
- * Try to link the program with the compiled shaders and removes them.
+/*!
+ *
+ * \brief Search the shader files, compile them and link the program
+ *
+ * \param _theProgram The Program that will be created
+ * \returns 1 When successful
+ * \returns 2 When a file reading error occurs
+ * \returns 3 When a file not found error occurs
+ * \returns 4 When a shader compilation error occurs
+ * \returns 5 When a shader linking error occurs
  */
-GLuint eLinker::link() {
-   GLuint i;
+unsigned int eLinker::link( GLuint &_theProgram ) {
+   unsigned int i;
 
-   if ( serch_shaders() == 0 ) {
+   if ( search_shaders() == 0 ) {
       eLOG "Unable to find any shader file (throw - E_NOT_SUCH_A_FILE)" END
-      eError e( CLASS_eLinker, ERROR_InputOutput, E_NOT_SUCH_A_FILE, "Unable to find any shader file" );
-      throw e;
+      //Return a file not found error
+      return 3;
    }
 
-   try { // --- try
-      for ( i = 0; i < shaders.size(); i++ ) {
-         /// Compile shaders
-         shaders[i].compile();
+   for ( i = 0; i < shaders.size(); i++ ) {
+      /// Compile shaders
+      //Check for errors
+      GLuint dummy;
+      int errorCheck = shaders[i].compile( dummy );
+      if ( errorCheck != 1 ) {
+         if ( errorCheck == 2 ) {
+            eLOG "Failed to read file." END
+         } else if ( errorCheck == 4 ) {
+            eLOG "Failed to compile shader." END
+         }
+         //Return a shader linking error
+         return 5;
       }
-   } catch ( eError &e ) { // --- catch
-
-      // from eShader?
-      if ( e.getClassID() != CLASS_eShader && e.getErrorID() != ERROR_Shader ) {e.what();}
-
-      eLOG "Failed to link program. Abort. (throw - E_COMPILING_FAILURE)" END
-      eError eee( CLASS_eLinker, ERROR_Shader, E_COMPILING_FAILURE, "Failed to link Programm" );
-      eee.addError( e );
-      throw eee;
-
-   } catch ( ... ) {
-      wLOG "Received unknown exception! Continuing!" END
-   } // --- END catch
-
+   }
 
 
    /// Creating the program
@@ -193,35 +203,38 @@ GLuint eLinker::link() {
       shaders[i].deleteShader();
    }
 
-   /// Linking successfull?
-   test_program();
+   /// Linking successful? Returns a shader linking error if unsuccessful
+   if ( test_program() != 1 )
+      return 5;
+
 
    /// Output
-   LOG_ENTRY lEntry_LOG = iLOG "Programm with the " ADD found_shadrs ADD " shader(s) successfully linked" _END_
-   for ( unsigned int ii = 0; ii < found_shadrs; ii++ ) {
+   LOG_ENTRY lEntry_LOG = iLOG "Program with the " ADD found_shaders ADD " shader(s) successfully linked" _END_
+   for ( unsigned int ii = 0; ii < found_shaders; ii++ ) {
       lEntry_LOG _POINT shaders[ii].getFilename() _END_
    }
    lEntry_LOG _END
    is_linked = true;
-   return theProgram;
+   _theProgram = theProgram;
+   return 1;
 }
 
 /* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
 
 /*
- * Addsn attributes to the program when its linked.
+ * Adds attributes to the program when its linked.
  *
  * USE: <number of atrributes> , attributes: [int index, char* name]
  */
-void eLinker::setAttributes( GLuint n, ... ) {
+void eLinker::setAttributes( unsigned int n, ... ) {
    attributes.clear();
    va_list list;
    va_start( list, n );
    for ( unsigned int i = 0; i < n; i++ ) {
       atributeObject attribute;
       attribute.index = va_arg( list, int );
-      attribute.name  = va_arg( list, char* );
+      attribute.name  = va_arg( list, char * );
       attributes.push_back( attribute );
    }
    va_end( list );

@@ -4,28 +4,15 @@
          | | (_) | |_| | (_) |
          |_|\___/|____/ \___/
 
-1. Debian/Ubuntu compatibility
+1. Debian/Ubuntu gcc compatibility
       Descripton:
         Linking error with gcc(!) under Debian/Ubuntu. Maybe a bug in GCC? Are the compiler options correct?
         Works with llvm under Debian!
-      Error code Debian shared: (Also boost error.)
-        CMakeFiles/engine_test1.dir/main.cpp.o: In function `sleep_for':
-        /usr/local/include/boost/thread/pthread/thread_data.hpp:235: undefined reference to `boost::this_thread::hiden::sleep_for(timespec const&)'
-        CMakeFiles/engine_test1.dir/handler.cpp.o: In function `sleep_for':
-        /usr/local/include/boost/thread/pthread/thread_data.hpp:235: undefined reference to `boost::this_thread::hiden::sleep_for(timespec const&)'
+
+      Error code Debian shared:
         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
-        ../../lib/libengine.so.0.1: undefined reference to `boost::thread::do_try_join_until_noexcept(timespec const&, bool&)'
         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
-        ../../lib/libengine.so.0.1: undefined reference to `boost::filesystem::detail::rename(boost::filesystem::path const&, boost::filesystem::path const&, boost::system::error_code*)'
-        ../../lib/libengine.so.0.1: undefined reference to `boost::filesystem::detail::create_directory(boost::filesystem::path const&, boost::system::error_code*)'
-        ../../lib/libengine.so.0.1: undefined reference to `boost::thread::join_noexcept()'
-        ../../lib/libengine.so.0.1: undefined reference to `boost::filesystem::detail::status(boost::filesystem::path const&, boost::system::error_code*)'
-        ../../lib/libengine.so.0.1: undefined reference to `boost::thread::start_thread_noexcept()'
-        ../../lib/libengine.so.0.1: undefined reference to `boost::filesystem::detail::remove(boost::filesystem::path const&, boost::system::error_code*)'
         collect2: error: ld returned 1 exit status
-        make[2]: *** [bin/engine_test1] Error 1
-        make[1]: *** [tests/test1/CMakeFiles/engine_test1.dir/all] Error 2
-        make: *** [all] Error 2
 
       Error code Ubuntu shared:
         Linking CXX executable ../../bin/engine_test1

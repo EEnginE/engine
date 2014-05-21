@@ -1,20 +1,20 @@
-/// \fileshader.cpp 
+/// \fileshader.cpp
 /// \brief \b Classes: \a eShader
 /// \sa e_shader.hpp e_linker.hpp
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
- * 
+ *
  *  This library is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  *  This library is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
- * 
+ *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -81,11 +81,14 @@ bool eShader::read_shader() {
    return true;
 }
 
-/*
- * This looks for compiler errors
+/*!
+ * Checks for compiler errors
+ *
+ * \returns 1 When successful
+ * \returns 4 When a shader compilation error occurs
  */
-void eShader::test_shader() {
-   GLint test;
+unsigned int eShader::test_shader() {
+   int test;
    glGetShaderiv( theShader, GL_COMPILE_STATUS, &test );
    if ( test == GL_FALSE ) {
       char   log[5000];
@@ -100,29 +103,34 @@ void eShader::test_shader() {
       is_compiled = false;
       std::string temp = "Error at compiling the ";
       temp += shadertype_str + " shader " + filename;
-      eError e( CLASS_eShader, ERROR_Shader, E_COMPILING_FAILURE, temp );
-      throw e;
+
+      //Returns a shader compilation error
+      return 4;
+
    }
+   return 1;
 }
 
-/*
- * This runs read_shader and compile
+/*!
+ * This runs read_shader, compiles
  * the shader and returns it
  *
- * can throw an exception of type eError
+ * \param _shader The shader that will be created
+ * \returns 1 When successful
+ * \returns 2 When a file-reading error occurs
  */
-GLuint eShader::compile() {
+unsigned int eShader::compile( GLuint &_shader ) {
    data.clear();
    if ( read_shader() == false ) {
       eLOG "Error while reading source file '" ADD filename ADD "' (throw - E_CAN_NOT_READ_FILE)" END
       std::string temp = "Error while reading file ";
       temp += filename;
-      eError e( CLASS_eShader, ERROR_InputOutput, E_CAN_NOT_READ_FILE, temp );
-      return 0;
+      //Return the file-reading error
+      return 2;
    }            // reading...
 
    const GLcharARB *temp = data.c_str();
-   // create Shader
+   // Create Shader
    theShader = glCreateShader( shadertype );
    // Adding source
    glShaderSource( theShader, 1, &temp, NULL );
@@ -130,10 +138,9 @@ GLuint eShader::compile() {
    glCompileShader( theShader );
    data.clear();
 
-   // Errors? When yes throw;
-   test_shader();
 
    is_compiled = true;
-   return theShader;
+   _shader =  theShader;
+   return test_shader();
 }
 }
