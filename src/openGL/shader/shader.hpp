@@ -1,20 +1,20 @@
-/// \fileshader.hpp 
+/// \fileshader.hpp
 /// \brief \b Classes: \a eShader
 /// \sa e_shader.cpp e_linker.hpp
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
- * 
+ *
  *  This library is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  *  This library is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
- * 
+ *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,9 +22,8 @@
 
 #ifndef E_SHADER_HPP
 #define E_SHADER_HPP
-
-#include "error.hpp"
 #include <string>
+#include <GL/glew.h>
 
 namespace e_engine {
 
@@ -39,13 +38,13 @@ class eShader {
       std::string data;
       GLenum      shadertype;
       std::string shadertype_str;
-      GLuint      theShader;
+      unsigned int      theShader;
 
       bool        is_compiled;
 
       bool read_shader();
-     GLvoid test_shader();
-     GLvoid which_shader();
+      unsigned int test_shader();
+      void which_shader();
 
       eShader();
 
@@ -64,24 +63,16 @@ class eShader {
        * \param _shadertype The type of the shader
        * \returns Nothing
        */
-     GLvoid setFile( std::string _filename, GLenum _shadertype ) {
+      void setFile( std::string _filename, GLenum _shadertype ) {
          filename   = _filename; shadertype = _shadertype;
          which_shader();
       }
 
-      /*!
-       * \brief Compile the shader
-       * 
-       * This runs read_shader and compile
-       * the shader and returns it
-       *
-       * \throws eError When there is an error
-       * \returns The compiled shader
-       */
-      GLuint compile();
+
+      unsigned int compile( GLuint &_shader );
 
       //! Deletes the shader \returns Nothing
-     GLvoid deleteShader() {
+      void deleteShader() {
          if ( is_compiled ) {
             glDeleteShader( theShader );
             is_compiled = false;

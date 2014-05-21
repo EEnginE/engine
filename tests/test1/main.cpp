@@ -13,17 +13,17 @@ using namespace e_engine;
 #define COLOR    0
 #define DO_SHA   0
 
-void hexPrint ( std::vector<unsigned char> const &_v ) {
+void hexPrint( std::vector<unsigned char> const &_v ) {
    for ( unsigned char const & c : _v )
-      printf ( "%02X ", c );
-   printf ( "\n\n" );
-   fflush ( stdout );
+      printf( "%02X ", c );
+   printf( "\n\n" );
+   fflush( stdout );
 }
 
 // #undef  UNIX
 // #define UNIX 0
 
-int main ( int argc, char **argv ) {
+int main( int argc, char **argv ) {
    WinData.win.width           = 800;
    WinData.win.height          = 600;
    WinData.win.fullscreen      = false;
@@ -58,13 +58,13 @@ int main ( int argc, char **argv ) {
    g = 0;
    b = 0;
 
-   R = ( ( float ) myRand ( 10, ValChange ) / 1000 );
-   G = ( ( float ) myRand ( 10, ValChange ) / 1000 );
-   B = ( ( float ) myRand ( 10, ValChange ) / 1000 );
+   R = ( ( float ) myRand( 10, ValChange ) / 1000 );
+   G = ( ( float ) myRand( 10, ValChange ) / 1000 );
+   B = ( ( float ) myRand( 10, ValChange ) / 1000 );
 
-   rr = myRand ( 0, 1 ) ? true : false;
-   gg = myRand ( 0, 1 ) ? true : false;
-   bb = myRand ( 0, 1 ) ? true : false;
+   rr = myRand( 0, 1 ) ? true : false;
+   gg = myRand( 0, 1 ) ? true : false;
+   bb = myRand( 0, 1 ) ? true : false;
 
 
    iLOG "User Name:     " ADD SYSTEM.getUserName()          END
@@ -79,13 +79,13 @@ int main ( int argc, char **argv ) {
    MyHandler handeler;
 
    if ( start.init() == 1 ) {
-      
+
 #if UNIX
 
-      start.setRenderFunc ( render );
-      start.addWindowCloseSlot ( handeler.getSWindowClose() );
-      start.addResizeSlot ( handeler.getSResize() );
-      start.addKeySlot ( handeler.getSKey() );
+      start.setRenderFunc( render );
+      start.addWindowCloseSlot( handeler.getSWindowClose() );
+      start.addResizeSlot( handeler.getSResize() );
+      start.addKeySlot( handeler.getSKey() );
 
       vector<eDisplays> displays = start.getDisplayResolutions();
 
@@ -122,13 +122,13 @@ int main ( int argc, char **argv ) {
 
          displays[0].setNoClones();
          displays[1].setNoClones();
-         displays[1].setPositionAbsolute ( 0, 0 );
-         displays[0].setPositionRelative ( eDisplays::RIGHT_OFF, displays[1] );
-         iLOG start.setDisplaySizes ( displays[0] ) END
-         iLOG start.setDisplaySizes ( displays[1] ) END
-         start.setPrimary ( displays[1] );
+         displays[1].setPositionAbsolute( 0, 0 );
+         displays[0].setPositionRelative( eDisplays::RIGHT_OFF, displays[1] );
+         iLOG start.setDisplaySizes( displays[0] ) END
+         iLOG start.setDisplaySizes( displays[1] ) END
+         start.setPrimary( displays[1] );
          start.applyNewRandRSettings();
-         start.setPrimary ( displays[1] );
+         start.setPrimary( displays[1] );
       }
 
       string temp;
@@ -138,12 +138,10 @@ int main ( int argc, char **argv ) {
          temp = ( string ) argv[1] + "/colors_p" ;
       }
 
-      eLinker prog ( temp );
-      try {
-         prog.link();
-      } catch ( eError &e ) {
-         e.what();
-      }
+      eLinker prog( temp );
+      GLuint dummy;
+      prog.link( dummy );
+
       start.startMainLoop();
 #endif // UNIX
       B_SLEEP( seconds, 1 );
@@ -154,7 +152,7 @@ int main ( int argc, char **argv ) {
 
 
 #if DO_SHA == 1
-   SHA_2 mySHA ( SHA2_384 );
+   SHA_2 mySHA( SHA2_384 );
    mySHA.selftest();
 #endif
 
