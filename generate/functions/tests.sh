@@ -35,7 +35,7 @@ endif( EXISTS \${CSD}/config.in.hpp )
 
 include( sources.cmake )
 
-add_executable( $TEST_BASENAME \${TEST1_SRC} )
+add_executable( $TEST_BASENAME \${\${CURRENT_BASENAME}_SRC} )
 
 target_link_libraries(
  $TEST_BASENAME
