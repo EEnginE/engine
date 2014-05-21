@@ -128,6 +128,10 @@ int eContext::createContext() {
    }
 
    iLOG "Versions:"
+   POINT "Engine: " 
+      ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
+      ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
+      ADD 'B', 'C', E_VERSION_SUBMINOR ADD ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
    POINT "OpenGL: " ADD 'B', 'C', glGetString( GL_VERSION )
    POINT "GLSL:   " ADD 'B', 'C', glGetString( GL_SHADING_LANGUAGE_VERSION )
    POINT "GLX:    " ADD 'B', 'C', vGLXVersionMajor_I ADD 'B', 'C' , "." ADD 'B', 'C' , vGLXVersionMinor_I

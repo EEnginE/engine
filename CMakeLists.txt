@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 2.8.7)
 
 project(engine)
 
-# Set here the Version of this project
-set( CM_VERSION_MAJOR    0 )
-set( CM_VERSION_MINOR    1 )
-set( CM_VERSION_SUBMINOR 0 )
 
 # START uninstall
 configure_file("${CMAKE_HOME_DIRECTORY}/generate/cmake/cmake_uninstall.cmake.in"

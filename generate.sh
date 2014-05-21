@@ -73,11 +73,13 @@ clean() {
     rm_save $INCLUDE_FILE
     rm_save $LOG_MACRO_PATH
     rm_save tests/CMakeLists.txt
+    rm_save src/defines.hpp
     
     TEMP=$( ls -d tests/*/ )
     
     for I in $TEMP; do
        rm_save $I/CMakeLists.txt
+       rm_save $I/$SOURCE_FILE
     done
     
     cd GLEW
