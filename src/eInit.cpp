@@ -156,7 +156,10 @@ void eInit::handleSignal( int _signal ) {
  * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
  */
 int eInit::startMainLoop( bool _wait ) {
-   if ( ! getHaveContext() ) {return 0;}
+   if ( ! getHaveContext() ) {
+      wLOG "Can not start the main loop. Ther is no OpenGL context!" END
+      return 0;
+   }
    vMainLoopRunning_B = true;
    makeNOContexCurrent();
 

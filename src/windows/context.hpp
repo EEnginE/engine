@@ -43,7 +43,7 @@ class eContext {
    public:
       eContext();
       
-      void swapBuffers() {}
+      void swapBuffers() {SwapBuffers( vHDC_win32 );}
 
       int  createContext();
 
