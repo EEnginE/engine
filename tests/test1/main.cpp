@@ -79,10 +79,9 @@ int main( int argc, char **argv ) {
    MyHandler handeler;
 
    if ( start.init() == 1 ) {
-
+      start.setRenderFunc( render );
 #if UNIX
 
-      start.setRenderFunc( render );
       start.addWindowCloseSlot( handeler.getSWindowClose() );
       start.addResizeSlot( handeler.getSResize() );
       start.addKeySlot( handeler.getSKey() );
@@ -142,8 +141,8 @@ int main( int argc, char **argv ) {
       GLuint dummy;
       prog.link( dummy );
 
-      start.startMainLoop();
 #endif // UNIX
+      start.startMainLoop();
       B_SLEEP( seconds, 1 );
       start.closeWindow();
    }

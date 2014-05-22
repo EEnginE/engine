@@ -96,6 +96,7 @@ eContext::eContext() {
 
 // Temp wndProc
 LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+   iLOG "Temp WndProc called" END
    switch ( _uMsg ) {
       default:
          return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
@@ -228,19 +229,19 @@ int eContext::createContext() {
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
 
-//    int lPixelAttributes[] = {
-//       WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
-//       WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
-//       WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
-//       WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
-//       WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
-//       WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
-//       WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
-//       WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
-//       WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
-//       WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
-//       0
-//    };
+   int lPixelAttributes[] = {
+      WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
+      WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
+      WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
+      WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
+      WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
+      WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
+      WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
+      WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
+      WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
+      WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
+      0
+   };
 
    int lNumberOfPixelFormats_I = 10;
 
@@ -391,6 +392,8 @@ int eContext::createContext() {
       lAttributes_A_I[4] = 0;
    }
    
+   wglChoosePixelFormatARB(vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, (UINT*)&lNumberOfPixelFormats_I);
+   
    SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
 
    for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
@@ -422,6 +425,12 @@ int eContext::createContext() {
    WinData.versions.glMinorVersion = lAttributes_A_I[3];
    
    makeContextCurrent();
+   
+   ShowWindow( vHWND_Window_win32, SW_SHOW );
+   SetForegroundWindow( vHWND_Window_win32 );
+   SetFocus( vHWND_Window_win32 );
+   
+   iLOG "OpenGL context created" END
 
 
    vHasContext_B = true;
