@@ -491,7 +491,7 @@ int eContext::enableVSync() {
       return 0;
    
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
-      iLOG "Enable VSYNC: " ADD wglSwapIntervalEXT( 1 ) END
+      wglSwapIntervalEXT( 1 );
       iLOG "VSync enabled" END
       return 1;
    } else {
