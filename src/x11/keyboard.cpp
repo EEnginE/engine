@@ -22,9 +22,9 @@
  */
 
 /*
- * the keysymtab[] is automsatically generated do not edit it
+ * The keysymtab[] is automatically generated, do not edit it
  *
- * the function keysym2unicode and the idea is from the XTerm project
+ * The function keysym2unicode and the idea is from the XTerm project
  */
 
 #include "keyboard.hpp"

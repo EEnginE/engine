@@ -128,7 +128,7 @@ void eInit::handleSignal( int _signal ) {
 
    if ( _signal == SIGINT ) {
       if ( WinData.handleSIGINT == true ) {
-         wLOG "Received SIGINT (Crt-C) => Closing Window and exit(5);" END
+         wLOG "Received SIGINT (Crt-C) => Closing Window and exiting(5);" END
          _THIS->closeWindow( true );
          _THIS->destroyContext();
          _THIS->shutdown();
@@ -157,7 +157,7 @@ void eInit::handleSignal( int _signal ) {
  */
 int eInit::startMainLoop( bool _wait ) {
    if ( ! getHaveContext() ) {
-      wLOG "Can not start the main loop. Ther is no OpenGL context!" END
+      wLOG "Can not start the main loop. There is no OpenGL context!" END
       return 0;
    }
    vMainLoopRunning_B = true;
@@ -254,7 +254,7 @@ int eInit::closeWindow( bool _waitUntilClosed ) {
 
 
 void eInit::s_standardWindowClose( eWinInfo _info )  {
-   wLOG "Standart WindowClose slot! Closing the window!" END
+   wLOG "Standard WindowClose slot! Closing the window!" END
    _info.eInitPointer->closeWindow();
 }
 

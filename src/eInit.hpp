@@ -53,9 +53,9 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  * loop. This should be after eWindowData the 1st class you generate
  * and you will do all window and curser config with it.
  *
- * \note Until now ther is no MS Windows or Mac support
+ * \note Until now there is no MS Windows or Mac support
  *
- * \note Curser function are not implementet yet
+ * \note Cursor functions are not implemented yet
  *
  * \sa eContext eWindowData e_eInit.cpp e_event.cpp
  */
@@ -90,11 +90,11 @@ class eInit : public eContext, public eKeyboard {
       // Thread Functions --------------------------------------------------------- ###
       int  renderLoop();       //!< The render loop function
       int  eventLoop();        //!< The event loop function ( In PLATFORM/e_event.cpp )
-      int  quitMainLoopCall(); //!< The real function to quit the main loop
+      int  quitMainLoopCall(); //!< The actual function to quit the main loop
 
       // Signal handling ---------------------------------------------------------- ###
       static GLvoid handleSignal( int _signal ); //!< The signal handle function
-      GLvoid _setThisForHandleSignal();          //!< Unfortunately you can not pas this with signal()
+      GLvoid _setThisForHandleSignal();          //!< Unfortunately you can not pass this with signal()
 
       // Standart callbacks NEW --------------------------------------------------- ###
 
@@ -135,7 +135,7 @@ class eInit : public eContext, public eKeyboard {
       int    closeWindow( bool _waitUntilClosed = false );
 
 
-      // Standart callbacks NEW --------------------------------------------------- ###
+      // Standard callbacks NEW --------------------------------------------------- ###
       template<class __C>
       void addWindowCloseSlot( eSlot<void, __C, eWinInfo> *_slot ) {
          vWindowClose_SLOT.disconnectAll();
@@ -177,9 +177,9 @@ namespace e_engine_internal {
 
 /*!
  * \class __eInit_Pointer
- * \brief Need this vor the static signal Callback
+ * \brief Need this for the static signal Callback
  *
- * \todo remove this workaround / hack
+ * \todo Remove this workaround / hack
  *
  */
 class __eInit_Pointer {

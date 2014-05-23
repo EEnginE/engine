@@ -17,7 +17,7 @@ namespace e_engine {
  * \param  _b          Gamma blue value
  * \param  _brightness The brightness
  *
- * \returns Whether it was successfull (\a true) or not (\a false)
+ * \returns Whether it was successful (\a true) or not (\a false)
  *
  * \note This function will change gamma IMMEDIATELY; Calling applyNewSettings() will have no effect to this.
  *

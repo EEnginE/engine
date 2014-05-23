@@ -139,8 +139,8 @@ int eContext::createContext() {
    lWindowClass_TEMP_win32.hInstance     = lInstance_TEMP_win32;
    lWindowClass_TEMP_win32.hIcon         = NULL;  // We dont have a special icon
    lWindowClass_TEMP_win32.hCursor       = NULL;  // We dont have a special cursor
-   lWindowClass_TEMP_win32.hbrBackground = NULL;  // We dont need a backgrund
-   lWindowClass_TEMP_win32.lpszMenuName  = NULL;  // We dont want a menue
+   lWindowClass_TEMP_win32.hbrBackground = NULL;  // We dont need a background
+   lWindowClass_TEMP_win32.lpszMenuName  = NULL;  // We dont want a menu
    lWindowClass_TEMP_win32.lpszClassName = lClassName_TEMP_win32;
 
    if ( !RegisterClass( &lWindowClass_TEMP_win32 ) ) {
@@ -262,8 +262,8 @@ int eContext::createContext() {
                            vWindowRect_win32.right  - vWindowRect_win32.left,  // Width
                            vWindowRect_win32.bottom - vWindowRect_win32.top,   // Height
                            NULL,                                               // No parent window
-                           NULL,                                               // No menue
-                           vInstance_win32,                                    // The hinstance
+                           NULL,                                               // No menu
+                           vInstance_win32,                                    // The instance
                            this                                                // We dont want spacial window creation
 
                         );

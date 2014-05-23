@@ -14,8 +14,8 @@ namespace e_engine {
 /*!
 * \brief Contains information about the current Display
 *
-* Changes in objects of this class wont effect the current display
-* configuration. Se eRandR for mor details
+* Changes in objects of this class wont impact the current display
+* configuration. See eRandR for more details
 *
 * The only way to get a object of this class is calling eRandR::getDisplay()
 *

@@ -279,7 +279,7 @@ void eLog::stdLogStandard( e_engine::eLogEntry _e ) {
       return;
    }
 
-   _e.configure( DISABLED,                      // Impossible to schow colors in a Text File
+   _e.configure( DISABLED,                      // Impossible to show colors in a Text File
                  WinData.log.logFILE.Time,
                  WinData.log.logFILE.File,
                  WinData.log.logFILE.ErrorType,
@@ -339,7 +339,7 @@ void eLog::logLoop() {
             lLogTypeId_uI = vLogList_L_eLSH.front().getLogEntry( vLogTypes_V_eLT, lEntry_eLE );
             vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->sendSignal( lEntry_eLE );
          } catch ( ... ) {
-            // A new log entry in a crashing log loop fuction would be a bit sensless
+            // A new log entry in a crashing log loop fuction would be useless
             std::cerr << "Received unknown exeption in log Loop -- FILE: " << __FILE__ << " -- LINE: " << __LINE__ << std::endl;
             return;
          }
@@ -364,7 +364,7 @@ bool eLog::stopLogLoop() {
    // If stopLogLoop() is immediately called after startLogLoop() it can
    // generate strange errors because vIsLogLoopRunning_B can be false
    // when there was too litle time for the thread to check and set
-   // vIsLogLoopRunning_B. 10 milliseconds sleeping schould be enough
+   // vIsLogLoopRunning_B. 10 milliseconds sleeping should be enough
    // in this case.
    B_SLEEP( milliseconds, 10 );
 

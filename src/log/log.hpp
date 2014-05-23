@@ -59,10 +59,10 @@ const unsigned short int MAX_LOG_TYPES = 8;
  * \par Usage
  *
  * At first you really should change the standard log file
- * output to a file of your choise with the main config
+ * output to a file of your choice with the main config
  * structure \c WinData.log
  *
- * To start a new entry in jour log you can call the commands
+ * To start a new entry in your log you can call the commands
  * \c start, \c add, \c end, \c nl, \c point connected like in Example 1.
  * 
  * | function | Macro   | Description                   |
@@ -70,15 +70,16 @@ const unsigned short int MAX_LOG_TYPES = 8;
  * | start()  | ?LOG    | Starts a new log entry.       |
  * | add()    | ADD     | Adds contents                 |
  * | nl()     | NEWLINE | Adds a new line               |
- * | point()  | POINT   | Adds a new pint in a new line |
+ * | point()  | POINT   | Adds a new point in a new line|
  * | end()    | END     | Ends the log entry            |
  * 
- * Those functions are (unless start()) actually defined in e_engine_internal::__eLogStoreHelper.
+ * Those functions are ( with the exception of start() ) actually defined in e_engine_internal::__eLogStoreHelper.
  * 
- * start() gets 2 arguments (actually 4 because the first one is a macro). The
- * 1st one is the log type. It consists of a _ and a single capital letter. The
- * letter defines the log type. There are some 3 predefined ones but you can add
- * other by using 
+ * start() gets 2 arguments (actually 4, because the first one is a macro). 
+ * The 1st one is the log type. 
+ * It consists of a '_' and a single capital letter. 
+ * The letter defines the log type. 
+ * There are 3 predefined ones but you can add more by using 
  * 
  * \code
  * addType( the character, the long name (something like INFO), the color, if it should be printed bold )
@@ -94,7 +95,7 @@ const unsigned short int MAX_LOG_TYPES = 8;
  * | _E   | ERROR   |
  * 
  * You can also change the color by putting single chars ( e_engine::eCMDColor for more information )
- * in front of the actuall log message.
+ * in front of the actual log message.
  * 
  * Instead of using the functions directly, you can use the macros like in Example 2.
  * 
@@ -179,14 +180,15 @@ class eLog {
        *
        * When this function is called it locks the internal mutex first.
        * After that it calls \c printStart to produce a nice introduction
-       * for the following Log entry. At last it adds the 1st part of the log
+       * for the following Log entry. 
+       * At last it adds the 1st part of the log
        *
        * \param _id    The id of the mode for the string
        * \param _mode  The type of the output. Use the single character for this
        * \param _first The first part of log entry
        * \param _cmdOut Print to the commandline  \c Default: \a true
        * \param _logOut Write into log file       \c Default: \a true
-       * \returns The \c this pinter which is neaded for the connection
+       * \returns The \c this pinter which is needed for the connection
        */
       template<class T>
       inline e_engine_internal::__eLogStoreHelper *operator()( char _type, const char* _file, const int _line, T _text ) {
@@ -232,7 +234,7 @@ bool eLog::disconnectSlotWith( char _type, eSlot< void, __C, eLogEntry > &_slot 
 /*!
  * \brief The standard \c eLog object
  *
- * This is the standard \c eLog object which schould
+ * This is the standard \c eLog object which should
  * be used for \b all Logging operations
  */
 extern eLog LOG;

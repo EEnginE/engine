@@ -11,7 +11,7 @@ namespace e_engine {
 /*!
  * \brief Change one CRTC
  *
- * \returns -5 when the CRTC culd not be found
+ * \returns -5 when the CRTC could not be found
  * \returns 1 when everything went fine
  */
 int eRandR::changeCRTC( e_engine_internal::_crtc _changeToThis ) {
@@ -31,7 +31,7 @@ int eRandR::changeCRTC( e_engine_internal::_crtc _changeToThis ) {
    }
 
    if ( ! lCRTCInfoFound ) {
-      wLOG "Can not find CRTC " ADD lCRTC_XRR ADD " in the current CRTC --> return -5" END
+      wLOG "Cannot find CRTC " ADD lCRTC_XRR ADD " in the current CRTC --> return -5" END
       return -5;
    }
 

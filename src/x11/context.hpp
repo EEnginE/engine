@@ -44,10 +44,10 @@ typedef GLXContext( *glXCreateContextAttribsARBProc )( Display *, GLXFBConfig, G
 
 
 /*!
- * \brief Handels the 'user presses X button' event
+ * \brief Handles the 'user presses X button' event
  *
  * Without defining an event for the X button X11 will
- * force cloce the window and create much errors
+ * force close the window and cause errors
  */
 extern Atom atom_wmDeleteWindow;
 
@@ -56,15 +56,15 @@ extern Atom atom_wmDeleteWindow;
  * \brief The OpenGL context creation class
  *
  * This class creates the connection to the X-Server,
- * opens a window and creates an drawable OpenGL
+ * opens a window and creates a drawable OpenGL
  * context.
  *
  * \par GLEW chaos
  *
  * \par
  * The definitions of the functions executed before \c GLEW
- * is init are int the source file e_context_window.cpp and
- * the others in th file e_context.cpp because some functions
+ * is initiated are int the source file e_context_window.cpp and
+ * the others in the file e_context.cpp because some functions
  * need \c GLX extensions, which are in the file glxew.h. All
  * functions there will be init when glewInit(); is called.
  *
@@ -154,10 +154,10 @@ class eContext : public eRandR {
       void       getGLXVersion( int *_major, int *_minor );
 
       Display   *getDisplay()     { return  vDisplay_X11; }        //!< \brief Get the display pointer         \returns The display pointer
-      Window     getWindow()      { return  vWindow_X11; }         //!< \brief Get the window handel           \returns The window handle
-      GLXContext getContext()     { return  vOpenGLContext_GLX; }  //!< \brief Get the context handele         \returns The context handle
+      Window     getWindow()      { return  vWindow_X11; }         //!< \brief Get the window handle          \returns The window handle
+      GLXContext getContext()     { return  vOpenGLContext_GLX; }  //!< \brief Get the context handle         \returns The context handle
       bool       getHaveGLEW()    { return  vHaveGLEW_B; }         //!< \brief Check if GLEW is OK             \returns Whether GLEW is OK
-      bool       getHaveContext() { return  vHaveContext_B; }      //!< \brief Check if we havhe a OGL context \returns If there is a OpenGL context
+      bool       getHaveContext() { return  vHaveContext_B; }      //!< \brief Check if we have a OGL context \returns If there is a OpenGL context
 
       inline void swapBuffers() {glXSwapBuffers( vDisplay_X11, vWindow_X11 );} //!< Swaps the OGL buffers
 

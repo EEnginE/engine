@@ -37,7 +37,7 @@ class eLogType {
       bool        vBold_B;
 
 
-      _SIGNAL_    vSignal_eSIG;  //!< \warning The connections will nerver copy!
+      _SIGNAL_    vSignal_eSIG;  //!< \warning The connections will never copy!
 
       eLogType() {}
    public:
@@ -76,8 +76,8 @@ class __eLogStore {
        * \c vWhat_str
        * It also sets \c vColor_eCLO
        *
-       * \note This Template is based on stringstream what makes it slow. So it
-       * will only be used when when the faster \c boost::lexical_cast is not working
+       * \note This template is based on stringstream what makes it slow. So it
+       * will only be used when the faster \c boost::lexical_cast is not working
        */
       template<class T>
       __eLogStore( T                    _what, char _atrib, char _fg, char _bg ) : vAttrib_C( _atrib ), vFG_C( _fg ), vBG_C( _bg ), vType_e_LOT( STRING ) {

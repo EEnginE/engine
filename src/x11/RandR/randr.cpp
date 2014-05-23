@@ -44,9 +44,9 @@ eRandR::~eRandR() {
  * \brief Sets the standard values and checks if RandR is supported
  * \param _display The connection to the X-Server
  * \param _window  The Window
- * \warning !!! DO NOT CALL THIS METHODE !!!
+ * \warning !!! DO NOT CALL THIS METHOD !!!
  *
- * This methode is designed to be called from eContext::createDisplay().
+ * This method is designed to be called from eContext::createDisplay().
  * It is possible to call this manually with a own display and window
  * but it is NOT recommended
  */
@@ -80,10 +80,10 @@ bool eRandR::initRandR( Display *_display, Window _window, Window _root ) {
 
 /*!
  * \brief Ends RandR support
- * \warning !!! DO NOT CALL THIS METHODE !!!
+ * \warning !!! DO NOT CALL THIS METHOD !!!
  *
- * This methode is designed to be called from eContext::destroy() or
- * from the destructor of this class. Calling this methode will end
+ * This method is designed to be called from eContext::destroy() or
+ * from the destructor of this class. Calling this method will end
  * the RandR support.
  */
 void eRandR::endRandR() {
@@ -212,7 +212,7 @@ std::vector< eDisplays > eRandR::getDisplayResolutions() {
       }
 
       for ( e_engine_internal::_mode const & fMode : vMode_V_RandR ) {
-         // Is mode supported and / or prefered ?
+         // Is mode supported and / or preferred ?
          bool lModeSupported_B = false;
          bool lModePrefered_B  = false;
          for ( unsigned int j = 0; j < fOutput.modes.size(); ++j ) {
@@ -254,9 +254,9 @@ std::vector< eDisplays > eRandR::getDisplayResolutions() {
 // =========================================================================================================================
 
 /*!
- * \brief Make _disp to the primary display
+ * \brief Set _disp to the primary display
  *
- * \param _disp the display, becomming primary
+ * \param _disp The display that is to be set to primary
  *
  * \returns Nothing
  *
@@ -324,7 +324,7 @@ void eRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left, unsigned int &_
  * \returns The index of a eRandRDisplay
  * \returns -1 When the display is disabled
  * \returns -2 When the eRandRDisplay is out of date
- * \returns -10 When a impossible error happened
+ * \returns -10 When an impossible error happened
  */
 int eRandR::getIndexOfDisplay( eDisplays const &_disp ) {
    reload();
@@ -340,7 +340,7 @@ int eRandR::getIndexOfDisplay( eDisplays const &_disp ) {
       }
    }
    
-   // Invalid eRandRDisplay. (Schould never happen)
+   // Invalid eRandRDisplay. (Should never happen)
    if( ! lOutputFound )
       return -2;
    

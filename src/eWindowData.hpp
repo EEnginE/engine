@@ -58,11 +58,11 @@ namespace e_engine_internal {
  * This is the main, global configuration and information sructure.
  *
  * This structure stores all information the classes eInit and
- * eContext needs. The constructor fills all values with data,
+ * eContext need. 
+ * The constructor fills all values with data,
  * which let the classes work without problems.
  *
- * Variables like width, width and windowName should be changed
- * but the rest should just be OK like it is
+ * Only variables like height, width and windowName should be changed.
  *
  * \note Only the object \c WinData will be used! You should never create other instances of this structure
  *
@@ -196,7 +196,7 @@ struct _eWindowData {
 
       bool         useHistory;
 
-      int          width;                       //!< If width < 0, then the automatically determinated zize will be used
+      int          width;                       //!< If width < 0, then the automatically determined size will be used
 
       struct __eLogDataStandardOut {
          LOG_COLOR_TYPE colors;
@@ -235,17 +235,17 @@ struct _eWindowData {
    // =============================================================================
    
    struct __eWindowData_Config {
-      std::string appName;          //!< The name of the programm
+      std::string appName;          //!< The name of the program
       std::string configSubFolder;  //!< Sub folder in the main configuration folder ( clear for none )
       std::string logSubFolder;     //!< Sub folder in the main configuration folder ( clear for none ) ( changes will be ignored after the 1st log entry )
 
       bool useTimeAtCMD;            //!< Time on commandline when log entry starts. \c CLASSES: \a eLog
       bool useTimeAtLog;            //!< Time in logfile when log entry starts.     \c CLASSES: \a eLog
 
-      bool useCMDColor;             //!< Makes all functions off \a eCMD useless if set \c false
+      bool useCMDColor;             //!< Turns all functions off \a eCMD useless if set \c false
 
       /*!
-       * \brief \c UNIX main config path mode
+       * \brief \c UNIX Main config path mode
        *
        * On \c UNIX like systems there are 2 locations for the
        * main config dir.
