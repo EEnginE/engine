@@ -44,11 +44,11 @@ enum WINDOW_ATTRIBUTE {
    SKIP_TASKBAR,       //!< Removes the windoe from the taskbar
    SKIP_PAGER,         //!< Removes the window from the pager
    HIDDEN,             //!< This should hide it somehow
-   FULLSCREEN,         //!< This schould make the window fullscreen
-   ABOVE,              //!< This schould set the window above all other windows (always in the forderground)
-   BELOW,              //!< This schould set the window below all other windows (always in the background)
-   DEMANDS_ATTENTION,  //!< Tells the window manager to make the window borders blink or something like that -- stops usualy when the user clicks in the window
-   FOCUSED,            //!< Schould set the window focused
+   FULLSCREEN,         //!< This should make the window fullscreen
+   ABOVE,              //!< This should set the window above all other windows (always in the foreground)
+   BELOW,              //!< This should set the window below all other windows (always in the background)
+   DEMANDS_ATTENTION,  //!< Tells the window manager to make the window borders blink or something like that -- stops usually when the user clicks in the window
+   FOCUSED,            //!< Should set the window focused
    NONE                //!< Change nothing
 };
 

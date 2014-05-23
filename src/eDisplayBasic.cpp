@@ -22,7 +22,7 @@ void eDisplayBasic::setPositionAbsolute( unsigned int _posX, unsigned int _posY 
    vPosY_uI = _posY;
 }
 
-//! \brief Set the position relative to an other display
+//! \brief Set the position relative to another display
 void eDisplayBasic::setPositionRelative( eDisplayBasic::POSITON _where, eDisplayBasic &_disp ) {
    switch ( _where ) {
       case LEFT_OFF:

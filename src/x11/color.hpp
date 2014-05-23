@@ -47,14 +47,14 @@ namespace e_engine {
  *
  * \par Linux
  *
- * On UNIX like systems the terminal output collor is controlled
+ * On UNIX like systems the terminal output color is controlled
  * by escape sequences. It starts with the hexcode 0x1B followed
- * by an opening square bracket. Next there commes an integer which
- * defines the attribute. Then commes the next integers for there
- * foreground and the background colores. The numbers are separated
+ * by an opening square bracket. Next up there is an integer which
+ * defines the attribute. After that the next integers are for their
+ * foreground and the background colors. The numbers are separated
  * by a ';'. To signal the end a 'm' is used.
  *
- * So the possible formes are:
+ * The possible forms are:
  * \code
  * 0x1B[<Attribute>;<FG Color>;<BG Color>m
  * 0x1B[<Attribute>;<FG Color>m
@@ -64,7 +64,7 @@ namespace e_engine {
  *
  * \par Linux attribute list
  *
- * A list of the most important atrributes with the integer and theire
+ * A list of the most important attributes with the integer and their
  * associated character:
  *
  * \c Off         - \a 0  - \b 'O'
@@ -77,7 +77,7 @@ namespace e_engine {
  *
  * \par Linux foreground color list
  *
- * A list of all foreground colors with the integer and theire associated
+ * A list of all foreground colors with the integer and their associated
  * character:
  *
  * \c Black       - \a 30 - \b 'S'
@@ -92,7 +92,7 @@ namespace e_engine {
  *
  * \par Linux background color list
  *
- * A list of all background colors with the integer and theire associated
+ * A list of all background colors with the integer and their associated
  * character:
  *
  * \c Black       - \a 40 - \b 'S'
@@ -153,8 +153,8 @@ std::string eCMDColor::reset() {
 
 
 /*!
- * \brief Set a console Attribute
- * \param _a The Attribute integer
+ * \brief Set a console attribute
+ * \param _a The attribute integer
  * \returns An escape sequence for the attribute
  */
 std::string eCMDColor::color( GLuint _a1 ) {
@@ -171,7 +171,7 @@ std::string eCMDColor::color( GLuint _a1 ) {
 
 /*!
  * \brief Set a console attribute and the FG color
- * \param _a  The Attribute integer
+ * \param _a  The attribute integer
  * \param _fg The FG color integer
  * \returns An escape sequence for the attribute and the FG color
  */
@@ -190,7 +190,7 @@ std::string eCMDColor::color( GLuint _a1, GLuint _a2 ) {
 
 /*!
  * \brief Set a console attribute, the FG and BG color
- * \param _a  The Attribute integer
+ * \param _a  The attribute integer
  * \param _fg The FG color integer
  * \param _bg The BG color integer
  * \returns An escape sequence for the attribute the FG and BG color
@@ -211,8 +211,8 @@ std::string eCMDColor::color( GLuint _a1, GLuint _a2, GLuint _a3 ) {
 
 
 /*!
- * \brief Set a console Attribute
- * \param _a The Attribute character
+ * \brief Set a console attribute
+ * \param _a The attribute character
  * \returns An escape sequence for the attribute
  */
 std::string eCMDColor::color( GLchar _fg ) {
@@ -227,7 +227,7 @@ std::string eCMDColor::color( GLchar _fg ) {
 
 /*!
  * \brief Set a console attribute and the FG color
- * \param _a  The Attribute character
+ * \param _a  The attribute character
  * \param _fg The FG color character
  * \returns An escape sequence for the attribute and the FG color
  */
@@ -243,7 +243,7 @@ std::string eCMDColor::color( GLchar _a, GLchar _fg ) {
 
 /*!
  * \brief Set a console attribute, the FG and BG color
- * \param _a  The Attribute character
+ * \param _a  The attribute character
  * \param _fg The FG color character
  * \param _bg The BG color character
  * \returns An escape sequence for the attribute the FG and BG color
@@ -260,7 +260,7 @@ std::string eCMDColor::color( GLchar _a, GLchar _fg, GLchar _bg ) {
 
 /*!
  * \brief Set a console attribute, the FG and BG color
- * \param _a  The Attribute character
+ * \param _a  The attribute character
  * \param _fg The FG color character
  * \returns An escape sequence for the attribute the FG and BG color
  */
@@ -276,7 +276,7 @@ std::string eCMDColor::color( GLuint _a, GLchar _fg ) {
 
 /*!
  * \brief Set a console attribute, the FG and BG color
- * \param _a  The Attribute character
+ * \param _a  The attribute character
  * \param _fg The FG color character
  * \param _bg The BG color character
  * \returns An escape sequence for the attribute the FG and BG color

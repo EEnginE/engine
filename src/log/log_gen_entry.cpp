@@ -474,7 +474,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 
       if ( i == 0 && lMessage_VEC.size() > 1 ) {
          /*
-          * IMHO is a empty field the best solution
+          * IMHO, an empty field is the best solution
           * /
          boost::trim( lL_STR );
          boost::trim( lR_STR );

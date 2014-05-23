@@ -68,12 +68,13 @@ bool eContext::isExtensionSupported( const char *_extension ) {
 /*!
  * \brief Creates the window and the OpenGL context
  *
- * Creates a \c X11 connection first, then looks for then
- * best FB config, then creates the window and at last
- * it creates the \c OpenGL context and inits \c GLEW
+ * Creates a \c X11 connection first, then looks for the
+ * best FB config, creates the window, aswell as
+ * the \c OpenGL context and inits \c GLEW
  *
- * For that it runs basically the private functions:
+ * It uses the following private functions:
  * \code
+
 createDisplay();
 createFrameBuffer();
 createWindow();
@@ -82,7 +83,7 @@ createContext();
 vRandR_eRR.init( vDisplay_X11, vWindow_X11, vRootWindow_X11 )
  * \endcode
  *
- * Additionally it prints all version with \b LOG
+ * Additionally it prints all versions with \b LOG
  *
  * \param argc argc from the main() fnction
  * \param argv argv from the main() fnction
@@ -248,7 +249,7 @@ const long unsigned int MWM_HINTS_DECORATIONS = ( 1L << 1 );
 
 /*!
  * \brief Try to add or remove the window decoration
- * \warning A non X11 standard function is used! It may happen hothing
+ * \warning A non X11 standard function is used! Functionality may be restricted
  * \param _mode Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
  * \returns \c Success: \a true -- \c Failed: \a false
  */
@@ -293,7 +294,7 @@ bool eContext::setDecoration( e_engine::ACTION _action ) {
 
 
 /*!
- * \brief Change the full screen mode
+ * \brief Change the fullscreen mode
  * \param _mode        Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
  * \param _allMonitors \a true if the Fullscreen window should be mapped over all monitors
  * \returns \c Success: \a true -- \c Failed: \a false
@@ -426,7 +427,7 @@ bool eContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
 /*!
  * \brief Try to map the fullscreen window to all monitors
- * \returns \a true when succeeded and \a false when not
+ * \returns \a true when successful and \a false when not
  */
 bool eContext::fullScreenMultiMonitor() {
    if ( ! vHaveGLEW_B )

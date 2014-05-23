@@ -19,11 +19,11 @@ namespace e_engine {
  * This class uses XRandR for positioning the displays and
  * for changing their resolution.
  * 
- * This class "only" checks and loads the configuration and applys it. This class
- * gnerates eDisplays objects containing the display ID and some configurations.
+ * This class "only" checks and loads the configuration and applies it. This class
+ * generates eDisplays objects containing the display ID and some configurations.
  * 
  * If you want to change anything, you need to get those via getDisplayResolutions()
- * and change them. Then you can feed them back tothis class. Some changes will only
+ * and change them. Then you can feed them back to this class. Some changes will only
  * be made if you call applyNewRandRSettings().
  *
  * \todo Add rotation support
@@ -138,7 +138,7 @@ class eRandR {
  * \fn bool eRandR::isRandRSupported()
  * \brief Check if RandR is supported
  *
- * \returns \a true whan RandR is support and \a false when not.
+ * \returns \a true when RandR is support and \a false when not.
  */
 
 }

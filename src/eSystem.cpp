@@ -102,9 +102,9 @@ eSystem::eSystem() {
 /*!
  * \brief Get the main config dir path
  *
- * Serch for an existing main config dir and if it doesn't
- * exists  creates it. The settings from \c WinData.config
- * will be used.
+ * Search for an existing main config dir and if it doesn't
+ * exist,  creates it. 
+ * The settings from \c WinData.config will be used.
  *
  * \returns The main config dir path
  * \sa _eWindowData
@@ -145,7 +145,7 @@ std::string eSystem::getMainConfigDirPath() {
             dir1_noDir  = false;
          }
 
-         // If the $HOME/.cnfig dir doesn't exits use the $HOME location
+         // If the $HOME/.cnfig dir doesn't exist use the $HOME location
          if ( boost::filesystem::exists ( configDir ) ) {
             if ( boost::filesystem::is_directory ( configDir ) ) {
                dotConfigExists = true;
@@ -175,7 +175,7 @@ std::string eSystem::getMainConfigDirPath() {
             dotConfigExists = false;
          }
 
-         // Only $HOME/.NAME aleady exits
+         // Only $HOME/.NAME already exists
          if ( dir1_exists && ! dir2_exists ) {
             vMainConfigDir = dir1_str;
             return vMainConfigDir;
@@ -187,9 +187,9 @@ std::string eSystem::getMainConfigDirPath() {
             return vMainConfigDir;
          }
 
-         // Both already exists
+         // Both already exist
          if ( dir1_exists && dir2_exists ) {
-            // Chose the prefered
+            // Choose the preferred
             if ( WinData.config.unixPathType ) {
                vMainConfigDir = dir2_str;
                return vMainConfigDir;
@@ -199,11 +199,11 @@ std::string eSystem::getMainConfigDirPath() {
             }
          }
 
-         // No one already exists
+         // None already exists
 
-         // Chose the prefered path
+         // Choose the preferred path
          if ( WinData.config.unixPathType ) {
-            // There is no none directory file $HOME/.config/NAME
+            // There is no directory file $HOME/.config/NAME
             if ( ! dir2_noDir ) {
                boost::filesystem::create_directory ( dir2 );
                vMainConfigDir = dir2_str;
@@ -225,7 +225,7 @@ std::string eSystem::getMainConfigDirPath() {
                return vMainConfigDir;
             }
          } else {
-            // There is no none directory file $HOME/.NAME
+            // There is no directory file $HOME/.NAME
             if ( ! dir1_noDir ) {
                boost::filesystem::create_directory ( dir1 );
                vMainConfigDir = dir1_str;
@@ -262,13 +262,13 @@ std::string eSystem::getMainConfigDirPath() {
          }
 
          if ( ! boost::filesystem::exists ( dir1 ) ) {
-            wLOG "Failed to craete / select the main config dir " ADD vMainConfigDir END
+            wLOG "Failed to create / select the main config dir " ADD vMainConfigDir END
             vMainConfigDir.clear();
             return "";
          }
          
          if ( ! boost::filesystem::is_directory ( dir1 ) ) {
-            wLOG "Failed to craete / select the main config dir " ADD vMainConfigDir END
+            wLOG "Failed to create / select the main config dir " ADD vMainConfigDir END
             vMainConfigDir.clear();
             return "";
          }
@@ -286,9 +286,9 @@ std::string eSystem::getMainConfigDirPath() {
 /*!
  * \brief Get the log file dir
  *
- * Serch for an existing log file dir in the main config dir and
- * if it doesn't exists creates it. The settings from \c WinData.config
- * will be used.
+ * Search for an existing log file dir in the main config dir and
+ * if it doesn't exist, creates it. 
+ * The settings from \c WinData.config will be used.
  *
  * \returns The log file dir path
  * \sa _eWindowData
@@ -339,9 +339,9 @@ std::string eSystem::getLogFilePath() {
 /*!
  * \brief Get the log file dir
  *
- * Serch for an existing log file dir in the main config dir and
- * if it doesn't exists creates it. The settings from \c WinData.config
- * will be used.
+ * Search for an existing log file dir in the main config dir and
+ * if it doesn't exist, creates it. 
+ * The settings from \c WinData.config will be used.
  *
  * \returns The log file dir path
  * \sa _eWindowData

@@ -34,13 +34,13 @@ void eDisplays::addMode( RRMode _id, bool _prefered, unsigned int _width, unsign
  * If it is impossible to find any matching mode, the display will be
  * disabled
  *
- * \note This function will be automatically if you enable() a display
+ * \note This function will be automatically run if you enable() a display
  *       which was disabled before.
  *
  * \returns Nothing
  */
 void eDisplays::autoSelectBest() {
-   // Check if there is a prefered mode
+   // Check if there is a preferred mode
    for ( eDisplays::mode const & fMode : vModes_V_mode ) {
       if ( fMode.prefered ) {
          vModeToUse_XRR = fMode.id;
@@ -99,15 +99,15 @@ double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned
  * 
  * If _preferedRate == 0:
  *
- * If the function can find a prefered mode with the resolution, it will choose this mode else
- * the function will look for the mode, nearest to 60 Hz, 120 Hz, 240 Hz and 480 Hz.
- * Than it compares the differenses between all 4 modes. The mode with the least
- * differense will be chosen.
+ * If the function can find a preferred mode with the resolution, it will choose this mode,
+ * else the function will look for the mode, nearest to 60 Hz, 120 Hz, 240 Hz and 480 Hz.
+ * Then it compares the differences between all 4 modes. 
+ * The mode with the least difference will be chosen.
  * 
  * 
  * If _preferedRate > 0:
  * 
- * The function will look for the mode, nearest to _preferedRate. If the differense
+ * The function will look for the mode, nearest to _preferedRate. If the difference
  * between _preferedRate and the real value is greater than _maxDiff, the function
  * will fall back to the behavior from above.
  * 
@@ -116,7 +116,7 @@ double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned
  * \param _width        The width  the mode must have.
  * \param _height       The height the mode must have.
  * \param _preferedRate Choose the mode nearest to \a _preferedRate.
- * \param _maxDiff      The differense between \a _preferedRate and the best chosen rate must be less than \a _maxDiff
+ * \param _maxDiff      The difference between \a _preferedRate and the best chosen rate must be less than \a _maxDiff
  * 
  * \returns The rate of the chosen mode or 0 if no mode could be found.
  *          If _preferedRate failed but a mode with the "normal" behavior
@@ -334,7 +334,7 @@ bool eDisplays::select( unsigned int _width, unsigned int _height, double _rate 
    return false;
 }
 
-//! \brief Set this display as a clone off an other display
+//! \brief Set this display as a clone of another display
 void eDisplays::setCloneOf( const e_engine::eDisplays &_disp ) {
    for ( unsigned int i = 0; i < vClones_V_XRR.size(); ++i ) {
       if ( vClones_V_XRR[i] == _disp.vID_XRR ) {

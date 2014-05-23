@@ -2,11 +2,11 @@
  * \file context_window.cpp
  * \brief \b Classes: \a eContext
  *
- * In this file are the definitions of the context creation
- * class eContex, which does \b Not need \c GLEW. The
+ * This file contains the definitions of the context creation
+ * class eContext, which does \b Not need \c GLEW. The
  * includation of glxew.h would overwrite all functions from
- * glx.h but don't reimplement them until \c GLEW is init,
- * what is impossible until a valid OpenGL context is created
+ * glx.h but doesn't reimplement them until \c GLEW is initiated,
+ * which is impossible until a valid OpenGL context is created
  *
  * \sa e_context.hpp e_context.cpp e_eInit.hpp
  */
@@ -94,7 +94,7 @@ int eContext::createDisplay() {
    return 1;
 }
 
-// Look for maching fbconfigs ################################################################################################# ###
+// Look for matching fbconfigs ################################################################################################# ###
 int eContext::createFrameBuffer() {
    int fbAttributes[] = {
       GLX_RENDER_TYPE,      WinData.framebuffer.FBA_RENDER_TYPE,
@@ -268,7 +268,7 @@ int eContext::createWindow() {
             boost::regex lTypeRegex_EX ( "^_[A-Z_]+_" );
             const char  *lReplace_C = "";
 
-            // Aply window type
+            // Apply window type
             if ( ! XChangeProperty ( vDisplay_X11,
                                      vWindow_X11,
                                      lWindowType_atom,
@@ -306,7 +306,7 @@ int eContext::createWindow() {
    XSetWMHints ( vDisplay_X11,     vWindow_X11,  vWmHints_X11 );
    XSetNormalHints ( vDisplay_X11, vWindow_X11,  vSizeHints_X11 );
 
-   // When user press the [x] Button the window dont close
+   // When user presses the [x] Button the window doesnt close
    atom_wmDeleteWindow = XInternAtom ( vDisplay_X11, "WM_DELETE_WINDOW", True );
 
    if ( atom_wmDeleteWindow )
@@ -334,7 +334,7 @@ int eContext::createWindow() {
 }
 
 // Create OpenGL Context ###################################################################################################### ###
-// Error handle for the X-Server that it don't exits the program
+// Error handler for the X-Server so it doesn't exit the program
 static bool gContextErrorOccoured_B = false;
 static int contextERROR_HANDLE ( Display *dpy, XErrorEvent *event ) {
    gContextErrorOccoured_B = true;
@@ -365,7 +365,7 @@ int eContext::createOGLContext() {
    gContextErrorOccoured_B = false;
    int ( *oldHandler ) ( Display *, XErrorEvent * ) = XSetErrorHandler ( &contextERROR_HANDLE );
 
-   // Make the funktion pointer
+   // Make the function pointer
    glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
    glXCreateContextAttribsARB = ( glXCreateContextAttribsARBProc ) glXGetProcAddressARB ( ( GLubyte * ) "glXCreateContextAttribsARB" );
 
@@ -398,7 +398,7 @@ int eContext::createOGLContext() {
          // Errors ?
          XSync ( vDisplay_X11, false );
          if ( gContextErrorOccoured_B == true || !vOpenGLContext_GLX ) {
-            // Select the next lower vrsion
+            // Select the next lower version
             while (
                ( version_list[i][0] >= lAttributes_A_I[1] && version_list[i][1] >= lAttributes_A_I[3] ) &&
                ( version_list[i][0] != 0 || version_list[i][1] != 0 )

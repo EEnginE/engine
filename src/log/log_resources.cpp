@@ -28,7 +28,7 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
    _entry.data.vNewColor_STR     = testNewColor();
       
    if( _vLogTypes_V_eLT.empty() ) {
-      eLOG "No Log type found!! Please add at least one manualy or run 'eLog.devInit();', which will be run now to prevent other Errors" END
+      eLOG "No Log type found!! Please add at least one manually or run 'eLog.devInit();', which will be run now to prevent further Errors" END
       LOG.devInit();
    }
 

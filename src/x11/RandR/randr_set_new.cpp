@@ -227,7 +227,7 @@ bool eRandR::setDisplaySizes( e_engine::eDisplays const &_disp ) {
       return true;
    }
 
-   wLOG "Congratulations! It should be theoretically impossibel to reach the end of this function [ eRandR::setDisplaySizes(...); ]" END
+   wLOG "Congratulations! It should be theoretically impossible to reach the end of this function [ eRandR::setDisplaySizes(...); ]" END
 
    return false;
 }

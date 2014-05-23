@@ -10,7 +10,7 @@ namespace e_engine {
 
 
 /*!
- * \brief Applies the new RandR config set with
+ * \brief Applies the new RandR config set
  *
  * \returns true when everything went fine
  * \returns false when there was an error
@@ -43,7 +43,7 @@ bool eRandR::applyNewRandRSettings() {
          lTempAllCRTC_V_RandR.push_back( fCRTC );
    }
 
-   // We work now only with lTempAllCRTC_V_RandR
+   // We now work with lTempAllCRTC_V_RandR only
    vChangeCRTC_V_RandR.clear();
 
    // Add mising CRTCs
@@ -162,7 +162,7 @@ bool eRandR::applyNewRandRSettings() {
       );
    }
    
-   // We work now only with lTempAllCRTC_V_RandR
+   // We now work with lTempAllCRTC_V_RandR only
    vChangeCRTC_V_RandR.clear();
 
    printRandRStatus();

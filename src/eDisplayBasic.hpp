@@ -17,10 +17,10 @@ class eDisplayBasic {
        * \brief describes the position of one display relative to an other
        */
       enum POSITON {
-         LEFT_OFF,   //!< Place the display int the \a argument LEFT OFF the \a calling display
-         RIGHT_OFF,  //!< Place the \a calling display LEFT OFF the display int the \a argument
-         ABOVE,      //!< Place the display int the \a argument ABOVE the \a calling display
-         BELOW       //!< Place the \a calling display ABOVE the display int the \a argument
+         LEFT_OFF,   //!< Place the display in the \a argument LEFT OFF the \a calling display
+         RIGHT_OFF,  //!< Place the \a calling display LEFT OFF the display in the \a argument
+         ABOVE,      //!< Place the display in the \a argument ABOVE the \a calling display
+         BELOW       //!< Place the \a calling display ABOVE the display in the \a argument
       };
 
 

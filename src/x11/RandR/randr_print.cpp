@@ -12,11 +12,11 @@ namespace e_engine {
 namespace {
 
 /*!
- * \brief Fill a string with chars until he has a specific siz.
+ * \brief Fill a string with chars until it has a specific size.
  *
  * \param _str  [in] The string to resize
- * \param _size [in] The whished size
- * \param _fill [in] Fill it with theses chars
+ * \param _size [in] The wished size
+ * \param _fill [in] Fill it with these chars
  *
  * \returns The result
  */
@@ -143,7 +143,7 @@ void eRandR::printRandRStatus() {
          bool         lModePrefered_B = false;
          char         lAtrib_C        = 'O';
          char         lColor_C        = 'W';
-         unsigned int lModeCounter_uI = 0;      //< Needed for prefered check
+         unsigned int lModeCounter_uI = 0;      //< Needed for preferred check
 
          // Check if the mode is supported by the output
          for ( RRMode const & fTempMode : fOutput.modes ) {
@@ -197,7 +197,7 @@ void eRandR::printRandRStatus() {
             lModeFreq_str += '*';
          }
 
-         // This is the prefered mode
+         // This is the preferred mode
          if ( lModePrefered_B ) {
             lColor_C       = 'G';
             lModeFreq_str += '+';

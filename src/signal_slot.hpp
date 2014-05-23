@@ -108,7 +108,7 @@ class eSignal {
          if ( vShowCopyError_B )
             e_engine_internal::__eSigSlotLogFunctionClass::sigSlotLogFunktion
             ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (Constructor)", __FILE__, __LINE__ );
-         // signal = _e.signal; => Compiler ERROR: Can not coppy signal_TD objects
+         // signal = _e.signal; => Compiler ERROR: Can not copy signal_TD objects
       }
       eSignal &operator=( const eSignal &_e ) {
          vShowCopyError_B = _e.vShowCopyError_B;
@@ -117,7 +117,7 @@ class eSignal {
          if ( vShowCopyError_B )
             e_engine_internal::__eSigSlotLogFunctionClass::sigSlotLogFunktion
             ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (operator=)", __FILE__, __LINE__ );
-         // signal = _e.signal; => Compiler ERROR: Can not coppy signal_TD objects
+         // signal = _e.signal; => Compiler ERROR: Can not copy signal_TD objects
          return *this;
       }
 
@@ -132,8 +132,8 @@ class eSignal {
        * From the \c eSlot object we get a boost function pointer for
        * the member function pointer stored in th slot object and
        * say the boost signal to connect with this function pointer.
-       * The connection is finaly send to the slot object, where it will
-       * be stored.
+       * The connection is finally sent to the slot object, 
+       * where it will be stored.
        *
        * \param slot The \c eSlot object
        * \returns The conne object
@@ -152,12 +152,12 @@ class eSignal {
       /*!
        * \brief Send the signal
        *
-       * Send a signal, what causes that all functions connected to
-       * this signal will be executed and receive the user defined
-       * object \c atr as argument
+       * Sends a signal that causes all functions connected to
+       * this signal to be executed and receive the user defined
+       * object \c atr as an argument
        *
-       * \param atr What to all connected functions will be send
-       * \returns The return value of one fnction
+       * \param atr What needs to be sent to all connected functions
+       * \returns The return value of one function
        */
       __R operator()( __A _atr ) {
          return vSignal_SIG( _atr );
@@ -166,11 +166,11 @@ class eSignal {
       /*!
        * \brief Send the signal
        *
-       * Send a signal, what causes that all functions connected to
-       * this signal will be executed and receive the user defined
+       * Sends a signal that causes all functions connected to
+       * this signal to be executed and receive the user defined
        * object \c atr as argument
        *
-       * \param atr What to all connected functions will be send
+       * \param atr What needs to be sent to all connected functions
        * \returns The return value of one fnction
        */
       __R sendSignal( __A _atr ) {
@@ -180,7 +180,7 @@ class eSignal {
       /*!
        * \brief Break the connection
        *
-       * Says the \c eSlot object to break the connection it has stored
+       * Tells the \c eSlot object to break the connection it has stored
        *
        * \param slot The \c eSlot object which should break the connection
        * \returns \c SUCCES: \a true -- \c FAIL: \a false
@@ -305,13 +305,13 @@ class eSlot {
       /*!
        * \brief Connect with a \c eSignal object
        *
-       * This function checks if the slot is connectable and then tells
+       * This function checks if the slot can be connected to and then tells
        * the \c eSignal object to connect with \a this slot.
        *
        * \sa eSlot::connectWith
        *
        * \param signal The \c eSignal object
-       * \returns \c SUCCES: \a true -- \c FAIL: \a false
+       * \returns \c SUCCESS: \a true -- \c FAIL: \a false
        */
       bool connectWith( eSignal<__R, __A> *_signal ) {
          if ( !functionSet ) {
@@ -319,13 +319,13 @@ class eSlot {
             ( "SLOT Function Pointer is undefined! Do nothing!", __FILE__, __LINE__ );
             return false;
          }
-         _signal->connectWith( this ); // Sets the connection automatecally
+         _signal->connectWith( this ); // Sets the connection automatically
          return true;
       }
 
       /*!
        * \brief Break the connection
-       * \returns \c SUCCES: \a true -- \c FAIL: \a false
+       * \returns \c SUCCESS: \a true -- \c FAIL: \a false
        */
       bool disconnectSignal( eSignal<__R, __A> *_signal ) {
          bool lSuccess_B = false;
@@ -352,7 +352,7 @@ class eSlot {
          return true;
       }
 
-      //! Get is the slot is already connected  \returns Whether the slot is connected or not
+      //! Get if the slot is already connected  \returns Whether the slot is connected or not
 
       friend class eSignal<__R, __A>;
 };
