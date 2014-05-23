@@ -111,10 +111,6 @@ int eInit::init() {
       }
    }
 
-   if ( WinData.win.VSync == true ) {
-      enableVSync();
-   }
-
    return 1;
 }
 
@@ -231,9 +227,9 @@ int eInit::renderLoop( ) {
    vRenderLoopHasFinished_B = false;
    makeContextCurrent();  // Only ONE thread can have a context
    
-   disableVSync();
-   enableVSync();
-
+   if ( WinData.win.VSync == true )
+      enableVSync();
+   
    while ( vMainLoopRunning_B ) {
       fRender( this );
    }
