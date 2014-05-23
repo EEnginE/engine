@@ -194,6 +194,7 @@ int eContext::createContext() {
       return 7;
    }
 
+
    vHasGLEW_B = true;
    
    
@@ -265,7 +266,6 @@ int eContext::createContext() {
                            NULL,                                               // No menue
                            vInstance_win32,                                    // The hinstance
                            this                                                // We dont want spacial window creation
-
                         );
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
@@ -491,7 +491,7 @@ int eContext::enableVSync() {
       return 0;
    
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
-      wglSwapIntervalEXT( 1 );
+      iLOG "Enable VSYNC: " ADD wglSwapIntervalEXT( 1 ) END
       iLOG "VSync enabled" END
       return 1;
    } else {

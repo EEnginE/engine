@@ -230,6 +230,9 @@ int eInit::renderLoop( ) {
    iLOG "Render loop started" END
    vRenderLoopHasFinished_B = false;
    makeContextCurrent();  // Only ONE thread can have a context
+   
+   disableVSync();
+   enableVSync();
 
    while ( vMainLoopRunning_B ) {
       fRender( this );
