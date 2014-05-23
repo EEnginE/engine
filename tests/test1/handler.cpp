@@ -113,7 +113,7 @@ void render( eWinInfo info ) {
 
    counter1++;
 
-   if ( counter1 >= 5000 ) {
+   if ( counter1 >= 5000000 ) {
       info.eInitPointer->quitMainLoop();
    }
 }
