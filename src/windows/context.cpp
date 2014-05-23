@@ -119,27 +119,31 @@ int eContext::createContext() {
    if ( vHasContext_B )
       return 2;
 
-   LPCSTR lClassName_win32 = "OGL_CLASS";
+   vClassName_win32             = "OGL_CLASS";
+   LPCSTR lClassName_TEMP_win32 = "OGL_CLASS_TEMP";
 
    DWORD  lWinStyle = WS_OVERLAPPEDWINDOW;
    DWORD  lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
-   vInstance_win32 = GetModuleHandle( NULL );
+   
+   HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
+   WNDCLASS  lWindowClass_TEMP_win32;
+   RECT      lWindowRect_TEMP_win32;
+   HWND      lHWND_Window_TEMP_win32;
    
    
+   lWindowClass_TEMP_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
+   lWindowClass_TEMP_win32.lpfnWndProc   = &__WndProc;
+   lWindowClass_TEMP_win32.cbClsExtra    = 0; // We do not need this
+   lWindowClass_TEMP_win32.cbWndExtra    = sizeof( eContext * );
+   lWindowClass_TEMP_win32.hInstance     = lInstance_TEMP_win32;
+   lWindowClass_TEMP_win32.hIcon         = NULL;  // We dont have a special icon
+   lWindowClass_TEMP_win32.hCursor       = NULL;  // We dont have a special cursor
+   lWindowClass_TEMP_win32.hbrBackground = NULL;  // We dont need a backgrund
+   lWindowClass_TEMP_win32.lpszMenuName  = NULL;  // We dont want a menue
+   lWindowClass_TEMP_win32.lpszClassName = lClassName_TEMP_win32;
 
-   vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
-   vWindowClass_win32.lpfnWndProc   = &__WndProc;
-   vWindowClass_win32.cbClsExtra    = 0; // We do not need this
-   vWindowClass_win32.cbWndExtra    = sizeof( eContext * );
-   vWindowClass_win32.hInstance     = vInstance_win32;
-   vWindowClass_win32.hIcon         = NULL;  // We dont have a special icon
-   vWindowClass_win32.hCursor       = NULL;  // We dont have a special cursor
-   vWindowClass_win32.hbrBackground = NULL;  // We dont need a backgrund
-   vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menue
-   vWindowClass_win32.lpszClassName = lClassName_win32;
-
-   if ( !RegisterClass( &vWindowClass_win32 ) ) {
+   if ( !RegisterClass( &lWindowClass_TEMP_win32 ) ) {
       eLOG "Failed to register the (temporary) new class" END
       return -1;
    }
@@ -150,30 +154,30 @@ int eContext::createContext() {
    }
 
 
-   vWindowRect_win32.left   = WinData.win.posX;
-   vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
-   vWindowRect_win32.top    = WinData.win.posY;
-   vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+   lWindowRect_TEMP_win32.left   = WinData.win.posX;
+   lWindowRect_TEMP_win32.right  = WinData.win.posX + WinData.win.width;
+   lWindowRect_TEMP_win32.top    = WinData.win.posY;
+   lWindowRect_TEMP_win32.bottom = WinData.win.posY + WinData.win.height;
 
-   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
+   AdjustWindowRectEx( &lWindowRect_TEMP_win32, lWinStyle, false, lExtStyle );
 
-   vHWND_Window_win32 = CreateWindowEx(
+   lHWND_Window_TEMP_win32 = CreateWindowEx(
                            lExtStyle,                                          // Extended window style
-                           lClassName_win32,                                   // Window class name
+                           lClassName_TEMP_win32,                              // Window class name
                            WinData.config.appName.c_str(),                     // Window Name
                            lWinStyle,                                          // Window style
                            WinData.win.posX,                                   // X
                            WinData.win.posY,                                   // Y
-                           vWindowRect_win32.right  - vWindowRect_win32.left,  // Width
-                           vWindowRect_win32.bottom - vWindowRect_win32.top,   // Height
+                           lWindowRect_TEMP_win32.right  - lWindowRect_TEMP_win32.left,  // Width
+                           lWindowRect_TEMP_win32.bottom - lWindowRect_TEMP_win32.top,   // Height
                            NULL,                                               // No parent window
                            NULL,                                               // No menue
-                           vInstance_win32,                                    // The hinstance
+                           lInstance_TEMP_win32,                               // The hinstance
                            NULL                                                // We dont want spacial window creation
                         );
 
 
-   vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
+   vHDC_win32 = GetDC( lHWND_Window_TEMP_win32 );       // Get the device context
    SetPixelFormat( vHDC_win32, 1 , &vPixelFormat_PFD ); // Set a dummy Pixel format
    vOpenGLContext_WGL = wglCreateContext( vHDC_win32 ); // Create a simple OGL Context so that wa can access wgl
    wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL );    // Make the temporary context current
@@ -208,14 +212,16 @@ int eContext::createContext() {
    // Now destroy the temporary stuff
    wglMakeCurrent( NULL, NULL ); // No context
    wglDeleteContext( vOpenGLContext_WGL );
-   ReleaseDC( vHWND_Window_win32, vHDC_win32 );
-   DestroyWindow( vHWND_Window_win32 );
+   ReleaseDC( lHWND_Window_TEMP_win32, vHDC_win32 );
+   DestroyWindow( lHWND_Window_TEMP_win32 );
    
    
    //
    // Craeate the aktuall context
    //
    
+   
+   vInstance_win32 = GetModuleHandle( NULL );
    
    vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
    vWindowClass_win32.lpfnWndProc   = &eContext::initialWndProc;
@@ -226,7 +232,7 @@ int eContext::createContext() {
    vWindowClass_win32.hCursor       = NULL;  // We dont have a special cursor
    vWindowClass_win32.hbrBackground = NULL;  // We dont need a backgrund
    vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menue
-   vWindowClass_win32.lpszClassName = lClassName_win32;
+   vWindowClass_win32.lpszClassName = vClassName_win32;
    
    
    if ( !RegisterClass( &vWindowClass_win32 ) ) {
@@ -244,7 +250,7 @@ int eContext::createContext() {
    AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
    vHWND_Window_win32 = CreateWindowEx(
                            lExtStyle,                                          // Extended window style
-                           lClassName_win32,                                   // Window class name
+                           vClassName_win32,                                   // Window class name
                            WinData.config.appName.c_str(),                     // Window Name
                            lWinStyle,                                          // Window style
                            WinData.win.posX,                                   // X

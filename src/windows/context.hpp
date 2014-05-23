@@ -28,6 +28,7 @@ class eContext {
       RECT                  vWindowRect_win32;
       HDC                   vHDC_win32;
       HGLRC                 vOpenGLContext_WGL;
+      LPCSTR                vClassName_win32;
 
       static LRESULT CALLBACK initialWndProc ( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       static LRESULT CALLBACK staticWndProc ( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
