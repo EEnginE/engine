@@ -125,9 +125,10 @@ int eContext::createContext() {
    DWORD  lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
    vInstance_win32 = GetModuleHandle( NULL );
+   
+   
 
    vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
-//    vWindowClass_win32.lpfnWndProc   = &eContext::initialWndProc;
    vWindowClass_win32.lpfnWndProc   = &__WndProc;
    vWindowClass_win32.cbClsExtra    = 0; // We do not need this
    vWindowClass_win32.cbWndExtra    = sizeof( eContext * );
@@ -139,7 +140,7 @@ int eContext::createContext() {
    vWindowClass_win32.lpszClassName = lClassName_win32;
 
    if ( !RegisterClass( &vWindowClass_win32 ) ) {
-      eLOG "Failed to register the new class" END
+      eLOG "Failed to register the (temporary) new class" END
       return -1;
    }
 
@@ -182,18 +183,6 @@ int eContext::createContext() {
       return 6;
    }
 
-   vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
-   vWindowClass_win32.lpfnWndProc   = &eContext::initialWndProc;
-//    vWindowClass_win32.lpfnWndProc   = &__WndProc;
-   vWindowClass_win32.cbClsExtra    = 0; // We do not need this
-   vWindowClass_win32.cbWndExtra    = sizeof( eContext * );
-   vWindowClass_win32.hInstance     = vInstance_win32;
-   vWindowClass_win32.hIcon         = NULL;  // We dont have a special icon
-   vWindowClass_win32.hCursor       = NULL;  // We dont have a special cursor
-   vWindowClass_win32.hbrBackground = NULL;  // We dont need a backgrund
-   vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menue
-   vWindowClass_win32.lpszClassName = lClassName_win32;
-
    GLenum lGLEWReturn_ENUM = glewInit();
 
    if ( lGLEWReturn_ENUM != GLEW_OK ) {
@@ -202,12 +191,53 @@ int eContext::createContext() {
    }
 
    vHasGLEW_B = true;
+   
+   
+   iLOG "Versions:"
+   POINT "Engine: " 
+      ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
+      ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
+      ADD 'B', 'C', E_VERSION_SUBMINOR ADD ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
+   POINT "OpenGL: " ADD 'B', 'C', glGetString( GL_VERSION )
+   POINT "GLSL:   " ADD 'B', 'C', glGetString( GL_SHADING_LANGUAGE_VERSION )
+   POINT "GLEW:   " ADD 'B', 'C', glewGetString( GLEW_VERSION )
+   END
+   
+   
 
    // Now destroy the temporary stuff
    wglMakeCurrent( NULL, NULL ); // No context
    wglDeleteContext( vOpenGLContext_WGL );
    ReleaseDC( vHWND_Window_win32, vHDC_win32 );
    DestroyWindow( vHWND_Window_win32 );
+   
+   
+   //
+   // Craeate the aktuall context
+   //
+   
+   
+   vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
+   vWindowClass_win32.lpfnWndProc   = &eContext::initialWndProc;
+   vWindowClass_win32.cbClsExtra    = 0; // We do not need this
+   vWindowClass_win32.cbWndExtra    = sizeof( eContext * );
+   vWindowClass_win32.hInstance     = vInstance_win32;
+   vWindowClass_win32.hIcon         = NULL;  // We dont have a special icon
+   vWindowClass_win32.hCursor       = NULL;  // We dont have a special cursor
+   vWindowClass_win32.hbrBackground = NULL;  // We dont need a backgrund
+   vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menue
+   vWindowClass_win32.lpszClassName = lClassName_win32;
+   
+   
+   if ( !RegisterClass( &vWindowClass_win32 ) ) {
+      eLOG "Failed to register the (final) window class" END
+      return -1;
+   }
+
+   if ( vWindowsCallbacksError_B ) {
+      eLOG "Problems with window callback" END
+      return 5;
+   }
 
 
    // Now do the same agin, but this time with real stuff
@@ -350,7 +380,7 @@ int eContext::createContext() {
 
    lEntry_LOG _ADD "   |========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
 
-   iLOG "Selected PFD: " ADD lBestFBConfig_I END
+   iLOG "Selected Pixel format descriptor: " ADD lBestFBConfig_I END
 
    // Set new Error Handler
    GLushort version_list[][2] = {
