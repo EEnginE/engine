@@ -43,12 +43,13 @@ class eContext {
    public:
       eContext();
       
-      void swapBuffers() {SwapBuffers( vHDC_win32 );}
+      inline void swapBuffers() {SwapBuffers( vHDC_win32 );}
 
       int  createContext();
 
       int  fullScreen ( ACTION _action, bool _allMonitors = false ) {return 1;}
-      int  enableVSync() {return 1;}
+      int  enableVSync();
+      int  disableVSync();
       void destroyContext();
       bool getHaveContext() { return vHasContext_B; }
 

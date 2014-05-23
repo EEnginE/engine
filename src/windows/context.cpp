@@ -468,6 +468,48 @@ int eContext::createContext() {
    return 1;
 }
 
+
+/*!
+ * \brief Enables Vsync
+ * \returns 0 (No Window)
+ * \returns 1 ( \c SUCCESS )
+ * \returns 2 ( Extention not supported )
+ */
+int eContext::enableVSync() {
+   if( ! vHasGLEW_B )
+      return 0;
+   
+   if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
+      wglSwapIntervalEXT( 1 );
+      iLOG "VSync enabled" END
+      return 1;
+   } else {
+      wLOG "Extention WGL_EXT_swap_control not supported --> no VSync" END
+      return 2;
+   }
+}
+
+/*!
+ * \brief Disables Vsync
+ * \returns 0 (No Window)
+ * \returns 1 ( \c SUCCESS )
+ * \returns 2 ( Extention not supported )
+ */
+int eContext::disableVSync() {
+  if( ! vHasGLEW_B )
+      return 0;
+   
+   if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
+      wglSwapIntervalEXT( 0 );
+      iLOG "VSync disabled" END
+      return 1;
+   } else {
+      wLOG "Extention WGL_EXT_swap_control not supported --> no VSync" END
+      return 2;
+   }
+}
+
+
 void eContext::destroyContext() {
 
 }

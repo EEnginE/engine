@@ -216,6 +216,26 @@ int eContext::enableVSync() {
    }
 }
 
+/*!
+ * \brief Disables Vsync
+ * \returns 0 (No Window)
+ * \returns 1 ( \c SUCCESS )
+ * \returns 2 ( Extention not supported )
+ */
+int eContext::disableVSync() {
+  if( ! vHaveGLEW_B )
+      return 0;
+   
+   if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
+      glXSwapIntervalSGI( 0 );
+      iLOG "VSync disabled" END
+      return 1;
+   } else {
+      wLOG "Extention GLX_SGI_swap_control not supported --> no VSync" END
+      return 2;
+   }
+}
+
 struct MwmHints {
    unsigned long flags;
    unsigned long functions;
