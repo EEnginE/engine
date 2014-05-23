@@ -79,7 +79,7 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 }
 
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   iLOG "aergerg" END
+   iLOG "actuall WndProc called" END
    switch ( _uMsg ) {
       default:
          return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );
@@ -210,7 +210,7 @@ int eContext::createContext() {
    
 
    // Now destroy the temporary stuff
-   wglMakeCurrent( NULL, NULL ); // No context
+   makeNOContexCurrent(); // No context
    wglDeleteContext( vOpenGLContext_WGL );
    ReleaseDC( lHWND_Window_TEMP_win32, vHDC_win32 );
    DestroyWindow( lHWND_Window_TEMP_win32 );
@@ -245,6 +245,10 @@ int eContext::createContext() {
       return 5;
    }
 
+   vWindowRect_win32.left   = WinData.win.posX;
+   vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
+   vWindowRect_win32.top    = WinData.win.posY;
+   vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
 
    // Now do the same agin, but this time with real stuff
    AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
@@ -260,24 +264,24 @@ int eContext::createContext() {
                            NULL,                                               // No parent window
                            NULL,                                               // No menue
                            vInstance_win32,                                    // The hinstance
-                           NULL                                                // We dont want spacial window creation
+                           this                                                // We dont want spacial window creation
                         );
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
 
-   int lPixelAttributes[] = {
-      WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
-      WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
-      WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
-      WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
-      WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
-      WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
-      WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
-      WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
-      WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
-      WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
-      0
-   };
+//    int lPixelAttributes[] = {
+//       WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
+//       WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
+//       WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
+//       WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
+//       WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
+//       WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
+//       WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
+//       WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
+//       WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
+//       WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
+//       0
+//    };
 
    int lNumberOfPixelFormats_I = 10;
 
@@ -428,7 +432,7 @@ int eContext::createContext() {
       lAttributes_A_I[4] = 0;
    }
    
-   wglChoosePixelFormatARB(vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, (UINT*)&lNumberOfPixelFormats_I);
+//    wglChoosePixelFormatARB(vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, (UINT*)&lNumberOfPixelFormats_I);
    
    SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
 
@@ -502,7 +506,7 @@ int eContext::enableVSync() {
  * \returns 2 ( Extention not supported )
  */
 int eContext::disableVSync() {
-  if( ! vHasGLEW_B )
+   if( ! vHasGLEW_B )
       return 0;
    
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
@@ -517,7 +521,14 @@ int eContext::disableVSync() {
 
 
 void eContext::destroyContext() {
-
+   if( ! vHasContext_B ) 
+      return;
+   
+   wglDeleteContext( vOpenGLContext_WGL );
+   ReleaseDC( vHWND_Window_win32, vHDC_win32 );
+   DestroyWindow( vHWND_Window_win32 );
+   
+   vHasContext_B = false;
 }
 
 
