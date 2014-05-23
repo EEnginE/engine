@@ -107,14 +107,14 @@ LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lPar
 /*!
  * \brief Creates a Windows OpenGL context
  *
+ * \returns -1 when RegisterClass failed
  * \returns 1  on success
  * \returns 2  if there is already a context
- * \returns -1 when RegisterClass failed
  * \returns 5  if there was a windows callback error
  * \returns 6  if there was an error while creating the temporary context
- * \returns 7  if there was an error while initing GLEW
- * \returns 8  if there was no good pixelformatdescriptor
- */
+ * \returns 7  if there was an error while initiating GLEW
+ * \returns 8  if there was no good pixel format descriptor
+ */ 
 int eContext::createContext() {
    if ( vHasContext_B )
       return 2;
@@ -171,19 +171,19 @@ int eContext::createContext() {
                            lWindowRect_TEMP_win32.right  - lWindowRect_TEMP_win32.left,  // Width
                            lWindowRect_TEMP_win32.bottom - lWindowRect_TEMP_win32.top,   // Height
                            NULL,                                               // No parent window
-                           NULL,                                               // No menue
-                           lInstance_TEMP_win32,                               // The hinstance
-                           NULL                                                // We dont want spacial window creation
+                           NULL,                                               // No menu
+                           lInstance_TEMP_win32,                               // The instance
+                           NULL                                                // We dont want special window creation
                         );
 
 
    vHDC_win32 = GetDC( lHWND_Window_TEMP_win32 );       // Get the device context
    SetPixelFormat( vHDC_win32, 1 , &vPixelFormat_PFD ); // Set a dummy Pixel format
-   vOpenGLContext_WGL = wglCreateContext( vHDC_win32 ); // Create a simple OGL Context so that wa can access wgl
+   vOpenGLContext_WGL = wglCreateContext( vHDC_win32 ); // Create a simple OGL Context so that we can access windowsgl
    wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL );    // Make the temporary context current
 
    if ( vHDC_win32 == 0 ) {
-      eLOG "Failed to create a temporery OpenGL context! Unable to proceed!" END
+      eLOG "Failed to create a temporary OpenGL context! Unable to proceed!" END
       return 6;
    }
 
@@ -217,21 +217,21 @@ int eContext::createContext() {
    
    
    //
-   // Craeate the aktuall context
+   // Create the actual context
    //
    
    
    vInstance_win32 = GetModuleHandle( NULL );
    
-   vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
+   vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // We want a unique DC and redraw on window changes
    vWindowClass_win32.lpfnWndProc   = &eContext::initialWndProc;
    vWindowClass_win32.cbClsExtra    = 0; // We do not need this
    vWindowClass_win32.cbWndExtra    = sizeof( eContext * );
    vWindowClass_win32.hInstance     = vInstance_win32;
    vWindowClass_win32.hIcon         = NULL;  // We dont have a special icon
    vWindowClass_win32.hCursor       = NULL;  // We dont have a special cursor
-   vWindowClass_win32.hbrBackground = NULL;  // We dont need a backgrund
-   vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menue
+   vWindowClass_win32.hbrBackground = NULL;  // We dont need a background
+   vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menu
    vWindowClass_win32.lpszClassName = vClassName_win32;
    
    
@@ -250,7 +250,7 @@ int eContext::createContext() {
    vWindowRect_win32.top    = WinData.win.posY;
    vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
 
-   // Now do the same agin, but this time with real stuff
+   // Now do the same again, but this time create the actual window
    AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
    vHWND_Window_win32 = CreateWindowEx(
                            lExtStyle,                                          // Extended window style
@@ -265,6 +265,7 @@ int eContext::createContext() {
                            NULL,                                               // No menue
                            vInstance_win32,                                    // The hinstance
                            this                                                // We dont want spacial window creation
+
                         );
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
@@ -292,7 +293,7 @@ int eContext::createContext() {
       WGL_DOUBLE_BUFFER_ARB,
       WGL_SUPPORT_OPENGL_ARB,
       WGL_ACCELERATION_ARB,
-      // Sould be as big as possible
+      // Should be as big as possible
       WGL_DEPTH_BITS_ARB,
       WGL_STENCIL_BITS_ARB,
       WGL_RED_BITS_ARB,
@@ -384,7 +385,7 @@ int eContext::createContext() {
    }
    
    if( lBestFBConfig_I < 0 ) {
-      eLOG "No suitable Pixelformatdescriptor found!" END
+      eLOG "No suitable Pixel format descriptor found!" END
       return 8;
    }
 
@@ -422,9 +423,9 @@ int eContext::createContext() {
       ( WinData.versions.glMinorVersion != 0 && WinData.versions.glMajorVersion != 0 )
    ) {
       lAttributes_A_I[0] = 0;
-      iLOG "No OpenGL Context options --> selct the version automatically" END
+      iLOG "No OpenGL Context options --> select the version automatically" END
    } else {
-      iLOG "Try to use OpenGL version " ADD WinData.versions.glMajorVersion ADD '.' ADD WinData.versions.glMinorVersion END
+      iLOG "Trying to use OpenGL version " ADD WinData.versions.glMajorVersion ADD '.' ADD WinData.versions.glMinorVersion END
       lAttributes_A_I[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
       lAttributes_A_I[1] = WinData.versions.glMajorVersion;
       lAttributes_A_I[2] = WGL_CONTEXT_MINOR_VERSION_ARB;
@@ -441,14 +442,14 @@ int eContext::createContext() {
 
       // Errors ?
       if ( !vOpenGLContext_WGL ) {
-         // Select the next lower vrsion
+         // Select the next lower version
          while (
             ( version_list[i][0] >= lAttributes_A_I[1] && version_list[i][1] >= lAttributes_A_I[3] ) &&
             ( version_list[i][0] != 0 || version_list[i][1] != 0 )
          ) {i++;}
 
          wLOG "Failed to create an OpenGl version "   ADD lAttributes_A_I[1] ADD '.' ADD lAttributes_A_I[3]
-         ADD  " context. Try to fall back to OpenGl " ADD version_list[i][0] ADD '.' ADD version_list[i][1] END
+         ADD  "context. Try to fall back to OpenGl " ADD version_list[i][0] ADD '.' ADD version_list[i][1] END
 
 
          lAttributes_A_I[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
