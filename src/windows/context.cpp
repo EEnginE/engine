@@ -194,6 +194,7 @@ int eContext::createContext() {
       return 7;
    }
 
+
    vHasGLEW_B = true;
    
    
@@ -265,7 +266,6 @@ int eContext::createContext() {
                            NULL,                                               // No menu
                            vInstance_win32,                                    // The instance
                            this                                                // We dont want spacial window creation
-
                         );
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
