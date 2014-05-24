@@ -81,7 +81,7 @@ int main( int argc, char **argv ) {
     }
 
 
-   iLOG "Credits: " ADD 'B', 'G', "Daniel ( Hitler ) Mensinger" END
+   iLOG "Credits: " ADD 'B', 'G', "Daniel ( GOTT ) Mensinger" END
    
    B_SLEEP( seconds, 1 );
 
