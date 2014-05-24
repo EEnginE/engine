@@ -160,7 +160,9 @@ int eInit::startMainLoop( bool _wait ) {
    vMainLoopRunning_B = true;
    makeNOContexCurrent();
 
+#if UNIX_X11
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
+#endif
    vRenderLoop_BT = boost::thread( &eInit::renderLoop, this );
 
    if ( _wait ) {
@@ -184,6 +186,7 @@ GLvoid eInit::quitMainLoop() {
 int eInit::quitMainLoopCall( ) {
    vMainLoopRunning_B = false;
 
+#if UNIX_X11
    if ( ! vEventLoopHasFinished_B )
 #if BOOST_VERSION < 105000
    {
@@ -200,7 +203,8 @@ int eInit::quitMainLoopCall( ) {
       vEventLoopHasFinished_B = true;
    }
    iLOG "Event loop finished" END
-
+#endif
+   
 
    if ( ! vRenderLoopHasFinished_B )
 #if BOOST_VERSION < 105000

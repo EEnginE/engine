@@ -13,6 +13,7 @@
 
 #include "defines.hpp"
 #include "displays.hpp"
+#include "log.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -46,7 +47,7 @@ class eContext {
    public:
       eContext();
       
-      inline void swapBuffers() {SwapBuffers( vHDC_win32 );}
+      inline void swapBuffers() { SwapBuffers( vHDC_win32 ); }
 
       int  createContext();
 
