@@ -11,6 +11,8 @@
 
 namespace e_engine {
 
+namespace windows_win32 {
+
 class eKeyboard : public eKeyboardBasic {
    public:
       eKeyboard() {}
@@ -18,7 +20,9 @@ class eKeyboard : public eKeyboardBasic {
 
 };
 
-}
+} // windows_win32
+
+} // e_engine
 
 #endif
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

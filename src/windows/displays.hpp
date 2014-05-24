@@ -9,7 +9,8 @@
 #include "eDisplayBasic.hpp"
 
 namespace e_engine {
-   
+
+namespace windows_win32 {
 
 /*!
 * \brief Contains information about the current Display
@@ -83,7 +84,10 @@ class eDisplays : public eDisplayBasic {
  *
  * \returns Nothing
  */
-}
+
+} // windows_win32
+
+} // e_engine
 
 
 #endif // DISPLAYS_HPP

@@ -8,6 +8,7 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
 
 /*!
  * \brief Applies the new RandR config set
@@ -171,7 +172,9 @@ bool eRandR::applyNewRandRSettings() {
 }
 
 
-}
+} // unix_x11
+
+} // e_engine
 
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

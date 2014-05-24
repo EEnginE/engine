@@ -8,6 +8,7 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
 
 namespace {
 
@@ -216,5 +217,8 @@ void eRandR::printRandRStatus() {
 
 }
 
-}
+} // unix_x11
+
+} // e_engine
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

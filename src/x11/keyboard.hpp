@@ -30,6 +30,8 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
+
 /*!
  * \class e_engine::eKeys
  * \brief Stores information about the state of the keys
@@ -54,7 +56,9 @@ class eKeyboard : public eKeyboardBasic {
       virtual ~eKeyboard() {}
 };
 
-}
+} // unix_x11
+
+} // e_engine
 
 #endif // E_KEYSYM_TO_UNICODE_HPP
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

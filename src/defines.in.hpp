@@ -20,6 +20,17 @@
 #define UNIX         0
 #endif
 
+// Select the OS namespace
+#if UNIX_X11
+#define OS_NAMESPACE unix_x11
+#elif UNIX_WAYLAND
+#define OS_NAMESPACE unix_wayland
+#elif UNIX_MIR
+#define OS_NAMESPACE unix_mir
+#elif WINDOWS
+#define OS_NAMESPACE windows_win32
+#endif
+
 #define E_VERSION_MAJOR     @CM_VERSION_MAJOR@
 #define E_VERSION_MINOR     @CM_VERSION_MINOR@
 #define E_VERSION_SUBMINOR  @CM_VERSION_SUBMINOR@

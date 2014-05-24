@@ -9,6 +9,7 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
 
 /*!
  * \brief sets only some basic values.
@@ -262,7 +263,7 @@ std::vector< eDisplays > eRandR::getDisplayResolutions() {
  *
  * \note This function will change the primary display IMMEDIATELY; Calling applyNewSettings() will have no effect to this.
  */
-void eRandR::setPrimary( e_engine::eDisplays const &_disp ) {
+void eRandR::setPrimary( eDisplays const &_disp ) {
    if ( ! isRandRSupported() )
       return;
    XRRSetOutputPrimary( vDisplay_X11, vRootWindow_X11, _disp.getOutput() );
@@ -360,7 +361,9 @@ int eRandR::getIndexOfDisplay( eDisplays const &_disp ) {
 
 
 
-}
+} // unix_x11
+
+} // e_engine
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
 
 

@@ -6,7 +6,10 @@
 #include "randr.hpp"
 
 namespace e_engine {
-   
+
+namespace unix_x11 {
+
+
 bool eRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
    if ( ! vIsRandRSupported_B )
       return false;
@@ -179,5 +182,8 @@ bool eRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
    return true;
 }
 
-}
+} // unix_x11
+
+} // e_engine
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

@@ -19,6 +19,8 @@
 
 namespace e_engine {
 
+namespace windows_win32 {
+
 class eContext {
    private:
       PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
@@ -72,7 +74,9 @@ class eContext {
       bool fullScreenMultiMonitor() {return false;}
 };
 
-}
+} // windows_win32
+
+} // e_engine
 
 
 #endif // CONTEXT_HPP

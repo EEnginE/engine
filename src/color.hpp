@@ -28,9 +28,21 @@
 #include <GL/glew.h>
 #include <boost/lexical_cast.hpp>
 
-#ifdef __linux__
+#include "defines.hpp"
+
+#if UNIX
 #include <sys/ioctl.h>
 #include <stdio.h>
+#else
+
+#ifndef E_COLOR_DISABLED
+#define E_COLOR_DISABLED
+#endif
+
+#ifndef E_COLOR_NO_TERMTEST
+#define E_COLOR_NO_TERMTEST
+#endif
+
 #endif
 
 #if defined E_COLOR_NO_TERMTEST

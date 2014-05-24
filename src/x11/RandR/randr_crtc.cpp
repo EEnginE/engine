@@ -7,6 +7,8 @@
 #include "log.hpp"
 
 namespace e_engine {
+
+namespace unix_x11 {
    
 /*!
  * \brief Change one CRTC
@@ -107,4 +109,6 @@ int eRandR::changeCRTC( e_engine_internal::_crtc _changeToThis ) {
    return 1;
 }
 
-}
+} // unix_x11
+
+} // e_engine
