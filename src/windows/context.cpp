@@ -481,41 +481,83 @@ int eContext::createContext() {
 
 
 /*!
- * \brief Enables Vsync
- * \returns 0 (No Window)
- * \returns 1 ( \c SUCCESS )
- * \returns 2 ( Extention not supported )
+ * \brief Enables VSync
+ * \returns 0 No Window / OpenGL context
+ * \returns 1 \c SUCCESS
+ * \returns 2 Extention not supported
+ * \returns 3 wglewIsSupported (main VSync function) returned ERROR_INVALID_DATA
+ * \returns 4 wglewIsSupported (main VSync function) returned ERROR_DC_NOT_FOUND
+ * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
  */
 int eContext::enableVSync() {
-   if( ! vHasGLEW_B )
+   if( ! vHasContext_B )
       return 0;
    
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
-      wglSwapIntervalEXT( 1 );
-      iLOG "VSync enabled" END
+      if ( wglSwapIntervalEXT( 1 ) != TRUE ) {
+         switch ( GetLastError() ) {
+            case ERROR_INVALID_DATA:
+               wLOG    "VSync Error [WGL] ERROR_INVALID_DATA; 1 seams to be not a good value on this System"
+               NEWLINE "==> VSync NOT enabled" END
+               return 3;
+            case ERROR_DC_NOT_FOUND:
+               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
+               NEWLINE "==> VSync NOT enabled" END
+               return 4;
+            default:
+               wLOG    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
+               NEWLINE "==> VSync NOT enabled" END
+               return 5;
+         }
+      }
+
+      iLOG "VSync [WGL] enabled" END
       return 1;
+
    } else {
-      wLOG "Extention WGL_EXT_swap_control not supported --> no VSync" END
+      wLOG    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported"
+      NEWLINE "==> VSync NOT enabled" END
       return 2;
    }
 }
 
 /*!
- * \brief Disables Vsync
- * \returns 0 (No Window)
- * \returns 1 ( \c SUCCESS )
- * \returns 2 ( Extention not supported )
+ * \brief Disables VSync
+ * \returns 0 No Window / OpenGL context
+ * \returns 1 \c SUCCESS
+ * \returns 2 Extention not supported
+ * \returns 3 wglewIsSupported (main VSync function) returned ERROR_INVALID_DATA
+ * \returns 4 wglewIsSupported (main VSync function) returned ERROR_DC_NOT_FOUND
+ * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
  */
 int eContext::disableVSync() {
-   if( ! vHasGLEW_B )
+   if( ! vHasContext_B )
       return 0;
    
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
-      wglSwapIntervalEXT( 0 );
-      iLOG "VSync disabled" END
+      if ( wglSwapIntervalEXT( 0 ) != TRUE ) {
+         switch ( GetLastError() ) {
+            case ERROR_INVALID_DATA:
+               wLOG    "VSync Error [WGL] ERROR_INVALID_DATA; 0 seams to be not a good value on this System"
+               NEWLINE "==> VSync NOT disabled" END
+               return 3;
+            case ERROR_DC_NOT_FOUND:
+               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
+               NEWLINE "==> VSync NOT disabled" END
+               return 4;
+            default:
+               wLOG    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
+               NEWLINE "==> VSync NOT disabled" END
+               return 5;
+         }
+      }
+
+      iLOG "VSync [WGL] disabled" END
       return 1;
+
    } else {
-      wLOG "Extention WGL_EXT_swap_control not supported --> no VSync" END
+      wLOG    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported"
+      NEWLINE "==> VSync NOT disabled" END
       return 2;
    }
 }
