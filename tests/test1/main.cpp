@@ -82,10 +82,13 @@ int main( int argc, char **argv ) {
       start.setRenderFunc( render );
 #if UNIX
 
+      
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
 
+      iLOG "Test" END
+      
       vector<eDisplays> displays = start.getDisplayResolutions();
 
       iLOG "Displays: " ADD displays.size() END
