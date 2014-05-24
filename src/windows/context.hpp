@@ -54,8 +54,8 @@ class eContext {
       void destroyContext();
       bool getHaveContext() { return vHasContext_B; }
 
-      void makeContextCurrent()  { if( vHasContext_B ) wglMakeCurrent(vHDC_win32,vOpenGLContext_WGL); }
-      void makeNOContexCurrent() { wglMakeCurrent(NULL,NULL); }
+      bool makeContextCurrent(); 
+      bool makeNOContexCurrent();
 
       bool setAttribute ( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) {return false;}
 

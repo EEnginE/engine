@@ -93,7 +93,6 @@ int eInit::init() {
       WinData.log.logFILE.logFileName += "/Log";
 #elif WINDOWS
       WinData.log.logFILE.logFileName += "\\Log";
-      wLOG "Without this log Windows wont generate the LOG file correctly! TODO" END
 #endif
    }
 

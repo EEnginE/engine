@@ -581,20 +581,28 @@ void eContext::getGLXVersion( int *_major, int *_minor ) {
 
 /*!
  * \brief Make this context current
- * \returns Nothing
+ * \returns true on success
+ * \returns false when there was an error
  */
-void eContext::makeContextCurrent() {
-   if ( ! vHaveContext_B ) {return;}
-   glXMakeCurrent( vDisplay_X11, vWindow_X11, vOpenGLContext_GLX );
+bool eContext::makeContextCurrent() {
+   if ( ! vHaveContext_B ) {
+      eLOG "OpenGL context Error [GLX]; We do not have any context. Please create it with eInit::init() before you run this!" END
+      return false;
+   }
+   return glXMakeCurrent( vDisplay_X11, vWindow_X11, vOpenGLContext_GLX ) == True ? true : false;
 }
 
 /*!
  * \brief Make \b NO context current
- * \returns Nothing
+ * \returns true on success
+ * \returns false when there was an error
  */
-void eContext::makeNOContexCurrent()  {
-   if ( ! vHaveContext_B ) {return;}
-   glXMakeCurrent( vDisplay_X11, 0, 0 );
+bool eContext::makeNOContexCurrent()  {
+   if ( ! vHaveContext_B ) {
+      eLOG "OpenGL context Error [GLX]; We do not have any context. Please create it with eInit::init() before you run this!" END
+      return false;
+   }
+   return glXMakeCurrent( vDisplay_X11, 0, 0 ) == True ? true : false;
 }
 
 

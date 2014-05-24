@@ -96,7 +96,6 @@ eContext::eContext() {
 
 // Temp wndProc
 LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   iLOG "Temp WndProc called" END
    switch ( _uMsg ) {
       default:
          return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
@@ -114,7 +113,7 @@ LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lPar
  * \returns 6  if there was an error while creating the temporary context
  * \returns 7  if there was an error while initiating GLEW
  * \returns 8  if there was no good pixel format descriptor
- */ 
+ */
 int eContext::createContext() {
    if ( vHasContext_B )
       return 2;
@@ -125,13 +124,13 @@ int eContext::createContext() {
    DWORD  lWinStyle = WS_OVERLAPPEDWINDOW;
    DWORD  lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
-   
+
    HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
    WNDCLASS  lWindowClass_TEMP_win32;
    RECT      lWindowRect_TEMP_win32;
    HWND      lHWND_Window_TEMP_win32;
-   
-   
+
+
    lWindowClass_TEMP_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
    lWindowClass_TEMP_win32.lpfnWndProc   = &__WndProc;
    lWindowClass_TEMP_win32.cbClsExtra    = 0; // We do not need this
@@ -162,19 +161,19 @@ int eContext::createContext() {
    AdjustWindowRectEx( &lWindowRect_TEMP_win32, lWinStyle, false, lExtStyle );
 
    lHWND_Window_TEMP_win32 = CreateWindowEx(
-                           lExtStyle,                                          // Extended window style
-                           lClassName_TEMP_win32,                              // Window class name
-                           WinData.config.appName.c_str(),                     // Window Name
-                           lWinStyle,                                          // Window style
-                           WinData.win.posX,                                   // X
-                           WinData.win.posY,                                   // Y
-                           lWindowRect_TEMP_win32.right  - lWindowRect_TEMP_win32.left,  // Width
-                           lWindowRect_TEMP_win32.bottom - lWindowRect_TEMP_win32.top,   // Height
-                           NULL,                                               // No parent window
-                           NULL,                                               // No menu
-                           lInstance_TEMP_win32,                               // The instance
-                           NULL                                                // We dont want special window creation
-                        );
+                                lExtStyle,                                          // Extended window style
+                                lClassName_TEMP_win32,                              // Window class name
+                                WinData.config.appName.c_str(),                     // Window Name
+                                lWinStyle,                                          // Window style
+                                WinData.win.posX,                                   // X
+                                WinData.win.posY,                                   // Y
+                                lWindowRect_TEMP_win32.right  - lWindowRect_TEMP_win32.left,  // Width
+                                lWindowRect_TEMP_win32.bottom - lWindowRect_TEMP_win32.top,   // Height
+                                NULL,                                               // No parent window
+                                NULL,                                               // No menu
+                                lInstance_TEMP_win32,                               // The instance
+                                NULL                                                // We dont want special window creation
+                             );
 
 
    vHDC_win32 = GetDC( lHWND_Window_TEMP_win32 );       // Get the device context
@@ -196,34 +195,34 @@ int eContext::createContext() {
 
 
    vHasGLEW_B = true;
-   
-   
+
+
    iLOG "Versions:"
-   POINT "Engine: " 
-      ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
-      ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
-      ADD 'B', 'C', E_VERSION_SUBMINOR ADD ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
+   POINT "Engine: "
+   ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
+   ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
+   ADD 'B', 'C', E_VERSION_SUBMINOR ADD( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
    POINT "OpenGL: " ADD 'B', 'C', glGetString( GL_VERSION )
    POINT "GLSL:   " ADD 'B', 'C', glGetString( GL_SHADING_LANGUAGE_VERSION )
    POINT "GLEW:   " ADD 'B', 'C', glewGetString( GLEW_VERSION )
    END
-   
-   
+
+
 
    // Now destroy the temporary stuff
    makeNOContexCurrent(); // No context
    wglDeleteContext( vOpenGLContext_WGL );
    ReleaseDC( lHWND_Window_TEMP_win32, vHDC_win32 );
    DestroyWindow( lHWND_Window_TEMP_win32 );
-   
-   
+
+
    //
    // Create the actual context
    //
-   
-   
+
+
    vInstance_win32 = GetModuleHandle( NULL );
-   
+
    vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // We want a unique DC and redraw on window changes
    vWindowClass_win32.lpfnWndProc   = &eContext::initialWndProc;
    vWindowClass_win32.cbClsExtra    = 0; // We do not need this
@@ -234,8 +233,8 @@ int eContext::createContext() {
    vWindowClass_win32.hbrBackground = NULL;  // We dont need a background
    vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menu
    vWindowClass_win32.lpszClassName = vClassName_win32;
-   
-   
+
+
    if ( !RegisterClass( &vWindowClass_win32 ) ) {
       eLOG "Failed to register the (final) window class" END
       return -1;
@@ -301,10 +300,10 @@ int eContext::createContext() {
       WGL_BLUE_BITS_ARB,
       WGL_ALPHA_BITS_ARB,
       WGL_SAMPLES_ARB,
-      WGL_TRANSPARENT_RED_VALUE_ARB,
-      WGL_TRANSPARENT_GREEN_VALUE_ARB,
-      WGL_TRANSPARENT_BLUE_VALUE_ARB,
-      WGL_TRANSPARENT_ALPHA_VALUE_ARB,
+//       WGL_TRANSPARENT_RED_VALUE_ARB,    // I think we dont need those
+//       WGL_TRANSPARENT_GREEN_VALUE_ARB,
+//       WGL_TRANSPARENT_BLUE_VALUE_ARB,
+//       WGL_TRANSPARENT_ALPHA_VALUE_ARB,
    };
 
    wglGetPixelFormatAttribivARB( vHDC_win32, 1, 0, 1, lAttributesCount, &lNumberOfPixelFormats_I );
@@ -325,13 +324,13 @@ int eContext::createContext() {
       ADD     "  |"
       NEWLINE "   |--------|---------|-------|---------|-----------------------|" NEWLINE _END_
 
-      int lPixelFormat[15];
+      int lPixelFormat[11];
 
    int lBestSamples_I = 0, lBestDepth = 0, lBestR_I = 0, lBestG_I = 0, lBestB_I = 0, lBestA_I = 0, lBestStencil_I = 0;
    int lBestFBConfig_I = -1;
 
    for ( int i = 0; i < lNumberOfPixelFormats_I; ++i ) {
-      wglGetPixelFormatAttribivARB( vHDC_win32, i, 0, 15, lAttributes, lPixelFormat );
+      wglGetPixelFormatAttribivARB( vHDC_win32, i, 0, 11, lAttributes, lPixelFormat );
       if ( lPixelFormat[0] != 1 || lPixelFormat[1] != 1 || lPixelFormat[2] != 1 || lPixelFormat[3] != WinData.framebuffer.FBA_ACCELERATION )
          continue;
 
@@ -383,8 +382,8 @@ int eContext::createContext() {
          lBestStencil_I = stencil;
       }
    }
-   
-   if( lBestFBConfig_I < 0 ) {
+
+   if ( lBestFBConfig_I < 0 ) {
       eLOG "No suitable Pixel format descriptor found!" END
       return 8;
    }
@@ -395,22 +394,10 @@ int eContext::createContext() {
 
    // Set new Error Handler
    GLushort version_list[][2] = {
-      {4, 6},
-      {4, 5},
-      {4, 4},
-      {4, 3},
-      {4, 2},
-      {4, 1},
-      {3, 3},
-      {3, 2},
-      {3, 1},
-      {3, 0},
-      {2, 1},
-      {2, 0},
-      {1, 5},
-      {1, 4},
-      {1, 3},
-      {1, 2},
+      {4, 6}, {4, 5}, {4, 4}, {4, 3}, {4, 2}, {4, 1},
+      {3, 3}, {3, 2}, {3, 1}, {3, 0},
+      {2, 1}, {2, 0},
+      {1, 5}, {1, 4}, {1, 3}, {1, 2},
       {0, 0} // End marker
    };
 
@@ -432,9 +419,9 @@ int eContext::createContext() {
       lAttributes_A_I[3] = WinData.versions.glMinorVersion;
       lAttributes_A_I[4] = 0;
    }
-   
+
 //    wglChoosePixelFormatARB(vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, (UINT*)&lNumberOfPixelFormats_I);
-   
+
    SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
 
    for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
@@ -464,13 +451,13 @@ int eContext::createContext() {
    }
    WinData.versions.glMajorVersion = lAttributes_A_I[1];
    WinData.versions.glMinorVersion = lAttributes_A_I[3];
-   
+
    makeContextCurrent();
-   
+
    ShowWindow( vHWND_Window_win32, SW_SHOW );
    SetForegroundWindow( vHWND_Window_win32 );
    SetFocus( vHWND_Window_win32 );
-   
+
    iLOG "OpenGL context created" END
 
 
@@ -490,9 +477,9 @@ int eContext::createContext() {
  * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
  */
 int eContext::enableVSync() {
-   if( ! vHasContext_B )
+   if ( ! vHasContext_B )
       return 0;
-   
+
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
       if ( wglSwapIntervalEXT( 1 ) != TRUE ) {
          switch ( GetLastError() ) {
@@ -531,9 +518,9 @@ int eContext::enableVSync() {
  * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
  */
 int eContext::disableVSync() {
-   if( ! vHasContext_B )
+   if ( ! vHasContext_B )
       return 0;
-   
+
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
       if ( wglSwapIntervalEXT( 0 ) != TRUE ) {
          switch ( GetLastError() ) {
@@ -564,15 +551,43 @@ int eContext::disableVSync() {
 
 
 void eContext::destroyContext() {
-   if( ! vHasContext_B ) 
+   if ( ! vHasContext_B )
       return;
-   
+
    wglDeleteContext( vOpenGLContext_WGL );
    ReleaseDC( vHWND_Window_win32, vHDC_win32 );
    DestroyWindow( vHWND_Window_win32 );
-   
+
    vHasContext_B = false;
 }
+
+/*!
+ * \brief Make this context current
+ * \returns true on success
+ * \returns false when there was an error
+ */
+bool eContext::makeContextCurrent() {
+   if ( ! vHasContext_B ) {
+      eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with eInit::init() before you run this!" END
+      return false;
+   }
+   return wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL ) == TRUE ? true : false;
+}
+
+/*!
+ * \brief Make \b NO context current
+ * \returns true on success
+ * \returns false when there was an error
+ */
+bool eContext::makeNOContexCurrent() {
+   if ( ! vHasContext_B ) {
+      eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with eInit::init() before you run this!" END
+      return false;
+   }
+   return wglMakeCurrent( NULL, NULL ) == TRUE ? true : false;
+}
+
+
 
 
 }

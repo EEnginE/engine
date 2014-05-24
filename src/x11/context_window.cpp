@@ -343,22 +343,10 @@ static int contextERROR_HANDLE ( Display *dpy, XErrorEvent *event ) {
 int eContext::createOGLContext() {
 // Set new Error Handler
    GLushort version_list[][2] = {
-      {4, 6},
-      {4, 5},
-      {4, 4},
-      {4, 3},
-      {4, 2},
-      {4, 1},
-      {3, 3},
-      {3, 2},
-      {3, 1},
-      {3, 0},
-      {2, 1},
-      {2, 0},
-      {1, 5},
-      {1, 4},
-      {1, 3},
-      {1, 2},
+      {4, 6}, {4, 5}, {4, 4}, {4, 3}, {4, 2}, {4, 1},
+      {3, 3}, {3, 2}, {3, 1}, {3, 0},
+      {2, 1}, {2, 0},
+      {1, 5}, {1, 4}, {1, 3}, {1, 2},
       {0, 0} // End marker
    };
 
