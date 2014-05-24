@@ -80,7 +80,7 @@ eInit::eInit() {
  * \returns -3 -- Unable to find any matching fbConfig
  * \returns -4 -- Failed to create a X11 Window
  * \returns  3 -- Failed to create a context
- * \returns  4 -- Feiled to init GLEW
+ * \returns  4 -- Failed to init GLEW
  */
 int eInit::init() {
 
