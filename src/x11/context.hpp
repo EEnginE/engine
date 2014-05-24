@@ -122,7 +122,7 @@ class eContext : public eRandR {
 
       bool   isExtensionSupported( const char *_extension ); //!< Function checking if extension is supported
 
-      // TODO create a function for setting an icon
+      //! \todo create a function for setting an icon
 
       //bool createIconPixmap();  //! Does NOT work until now
       //void pixmaps2(unsigned int Width, unsigned int Height, const Uint8* Pixels);
@@ -162,8 +162,8 @@ class eContext : public eRandR {
       inline void swapBuffers() {glXSwapBuffers( vDisplay_X11, vWindow_X11 );} //!< Swaps the OGL buffers
 
 
-      void makeContextCurrent();
-      void makeNOContexCurrent();
+      bool makeContextCurrent();
+      bool makeNOContexCurrent();
 
 
       void destroyContext();
