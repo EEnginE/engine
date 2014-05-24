@@ -97,7 +97,7 @@ struct _mode {
    double                 syncFreq;             //!< The sync frequnece
 
    /*!
-    * \brief Only used for the STL list methode unique();
+    * \brief Only used for the STL list method unique();
     * 
     * \returns Whether the objects are equal or not.
     */
@@ -109,7 +109,7 @@ struct _mode {
    }
 
    /*!
-    * \brief Only used for the STL list methode sort();
+    * \brief Only used for the STL list method sort();
     * 
     * \returns Whether the object is greater than the other.
     */
