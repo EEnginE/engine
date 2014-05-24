@@ -43,7 +43,7 @@ void RandISAAC::init( uint32_t _seed ) {
       // Now mix a little bit
       lTime_ulI = ( lTV_tv.tv_sec * 1000 ) + ( lTV_tv.tv_usec / 1000 );
 #else
-      // Unfortunately we need to use this methode on other systems
+      // Unfortunately we need to use this method on other systems
       lTime_ulI = std::time( NULL ) * 1000;
 #endif // __liunx__
    }
@@ -99,7 +99,7 @@ void RandISAAC::mixUp( uint32_t _seed[256] ) {
       mm[i + 4] = e; mm[i + 5] = f; mm[i + 6] = g; mm[i + 7] = h;
    }
 
-   for ( i = 0; i < 256; i += 8 ) { // do a second pass to make all of the seed affect all of mm
+   for ( i = 0; i < 256; i += 8 ) { // do a second pass to make the seed affect all of mm
       a += mm[i  ]; b += mm[i + 1]; c += mm[i + 2]; d += mm[i + 3];
       e += mm[i + 4]; f += mm[i + 5]; g += mm[i + 6]; h += mm[i + 7];
 
@@ -110,7 +110,6 @@ void RandISAAC::mixUp( uint32_t _seed[256] ) {
    }
 
    // count and discard the first 256 numbers
-   //  not sure why, but the original algorithm did this.. so what the hell
    for ( unsigned int i = 0; i < 256; ++i )
       get();
 }
