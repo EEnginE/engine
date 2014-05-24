@@ -198,44 +198,81 @@ void eContext::destroyContext() {
 
 
 /*!
- * \brief Enables Vsync
- * \returns 0 (No Window)
- * \returns 1 ( \c SUCCESS )
- * \returns 2 ( Extention not supported )
+ * \brief Enables VSync
+ * \returns 0 No Window / OpenGL context
+ * \returns 1 \c SUCCESS
+ * \returns 2 Extention not supported
+ * \returns 3 glXSwapIntervalSGI (main VSync function) returned GLX_BAD_VALUE
+ * \returns 4 glXSwapIntervalSGI (main VSync function) returned GLX_BAD_CONTEXT
+ * \returns 5 glXSwapIntervalSGI (main VSync function) returned something unknown (!= 0)
  */
 int eContext::enableVSync() {
    if ( ! vHaveGLEW_B )
       return 0;
 
    if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
-      glXSwapIntervalSGI( 1 );
-      iLOG "VSync enabled" END
-      return 1;
+      switch( glXSwapIntervalSGI( 1 ) ) {
+         case 0: // Success
+            iLOG "VSync [GLX] enabled" END
+            return 1;
+         case GLX_BAD_VALUE:
+            wLOG    "VSync Error [GLX] GLX_BAD_VALUE; 1 seams to be not a good value on this System"
+            NEWLINE "==> VSync NOT enabled" END
+            return 3;
+         case GLX_BAD_CONTEXT:
+            wLOG    "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
+            NEWLINE "==> VSync NOT enabled" END
+            return 4;
+         default:
+            wLOG    "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
+            NEWLINE "==> VSync NOT enabled" END
+            return 5;
+      }
    } else {
-      wLOG "Extention GLX_SGI_swap_control not supported --> no VSync" END
+      wLOG    "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported"
+      NEWLINE "==> VSync NOT enabled" END
       return 2;
    }
 }
 
 /*!
- * \brief Disables Vsync
- * \returns 0 (No Window)
- * \returns 1 ( \c SUCCESS )
- * \returns 2 ( Extention not supported )
+ * \brief Disables VSync
+ * \returns 0 No Window / OpenGL context
+ * \returns 1 \c SUCCESS
+ * \returns 2 Extention not supported
+ * \returns 3 glXSwapIntervalSGI (main VSync function) returned GLX_BAD_VALUE
+ * \returns 4 glXSwapIntervalSGI (main VSync function) returned GLX_BAD_CONTEXT
+ * \returns 5 glXSwapIntervalSGI (main VSync function) returned something unknown (!= 0)
  */
 int eContext::disableVSync() {
-  if( ! vHaveGLEW_B )
+   if ( ! vHaveGLEW_B )
       return 0;
-   
+
    if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
-      glXSwapIntervalSGI( 0 );
-      iLOG "VSync disabled" END
-      return 1;
+      switch( glXSwapIntervalSGI( 0 ) ) {
+         case 0: // Success
+            iLOG "VSync [GLX] disabled" END
+            return 1;
+         case GLX_BAD_VALUE:
+            wLOG    "VSync Error [GLX] GLX_BAD_VALUE; 0 seams to be not a good value on this System"
+            NEWLINE "==> VSync NOT disabled" END
+            return 3;
+         case GLX_BAD_CONTEXT:
+            wLOG    "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
+            NEWLINE "==> VSync NOT disabled" END
+            return 4;
+         default:
+            wLOG    "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
+            NEWLINE "==> VSync NOT disabled" END
+            return 5;
+      }
    } else {
-      wLOG "Extention GLX_SGI_swap_control not supported --> no VSync" END
+      wLOG    "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported"
+      NEWLINE "==> VSync NOT disabled" END
       return 2;
    }
 }
+
 
 struct MwmHints {
    unsigned long flags;
