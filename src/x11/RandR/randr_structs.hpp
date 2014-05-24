@@ -1,5 +1,7 @@
-/// \file randr_structs.hpp
-/// \brief \b Structs: \a e_engine_internal::_crtc, \a e_engine_internal::_outpu , \a e_engine_internal::_mode , \a e_engine_internal::_config
+/*!
+ * \file x11/RandR/randr_structs.hpp
+ * \brief \b Structs: \a e_engine_internal::_crtc, \a e_engine_internal::_outpu , \a e_engine_internal::_mode , \a e_engine_internal::_config
+ */
 
 #ifndef E_RANDR_STRUCTS_HPP
 #define E_RANDR_STRUCTS_HPP

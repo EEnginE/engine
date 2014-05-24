@@ -73,8 +73,10 @@ engineHPP() {
 
 
 cat > $1 << EOF
-/// \file engine.hpp 
-/// \brief Includes all headder files from E Engine
+/*!
+ * \file engine.hpp
+ * \brief Includes all headder files from E Engine
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger

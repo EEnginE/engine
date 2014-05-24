@@ -1,5 +1,5 @@
 /*!
- * \file randr.hpp
+ * \file x11/RandR/randr.hpp
  * \brief \b Classes: \a eRandR
  */
 

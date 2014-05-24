@@ -1,6 +1,8 @@
-/// \fileshader.hpp
-/// \brief \b Classes: \a eShader
-/// \sa e_shader.cpp e_linker.hpp
+/*!
+ * \file shader.hpp
+ * \brief \b Classes: \a eShader
+ * \sa eLinker
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger

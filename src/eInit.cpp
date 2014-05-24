@@ -1,6 +1,8 @@
-/// \file eInit.cpp
-/// \brief \b Classes: \a eInit
-/// \sa e_event.cpp e_eInit.hpp
+/*!
+ * \file eInit.cpp
+ * \brief \b Classes: \a eInit
+ * \sa e_event.cpp e_eInit.hpp
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger

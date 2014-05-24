@@ -1,5 +1,7 @@
-/// \file signal_slot.hpp
-/// \brief \b Classes: \a eSignal, \a eSlot
+/*!
+ * \file signal_slot.hpp
+ * \brief \b Classes: \a eSignal, \a eSlot
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger

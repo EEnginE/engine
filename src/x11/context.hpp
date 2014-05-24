@@ -1,5 +1,5 @@
 /*! 
- * \file context.hpp
+ * \file x11/context.hpp
  * \brief \b Classes: \a eContext
  * 
  * This file contains the class \b eContext which creates

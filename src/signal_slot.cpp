@@ -1,3 +1,8 @@
+/*!
+ * \file signal_slot.cpp
+ * \brief \b Classes: \a eSignal, \a eSlot
+ */
+
 #include "signal_slot.hpp"
 #include "log.hpp"
 

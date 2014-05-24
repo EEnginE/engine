@@ -1,5 +1,5 @@
 /*!
- * \file displays.hpp
+ * \file x11/RandR/displays.hpp
  * \brief \b Classes: \a eDisplays
  */
 

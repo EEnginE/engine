@@ -1,5 +1,5 @@
 /*!
- * \file displays.hpp
+ * \file windows/displays.hpp
  * \brief \b Classes: \a eDisplays
  */
 
