@@ -58,6 +58,14 @@ int main( int argc, char **argv ) {
    g = 0;
    b = 0;
    double a = 0;
+   
+   WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
+   
+#if UNIX
+      WinData.log.logFILE.logFileName += "/Log";
+#elif WINDOWS
+      WinData.log.logFILE.logFileName += "\\Log";
+#endif
 
    LOG.devInit();
    LOG.startLogLoop();
@@ -67,22 +75,30 @@ int main( int argc, char **argv ) {
    iLOG "Home:          " ADD SYSTEM.getUserHomeDirectory() END
    iLOG "Main config:   " ADD SYSTEM.getMainConfigDirPath() END
    iLOG "Log File Path: " ADD SYSTEM.getLogFilePath()       END
-   
-   
-   
+
+
+
    windows_win32::eContext lec;
-   
+
    lec.createContext();
-   lec.enableVSync();   
-    while(1) {
-       glClearColor(r,g,b,a);
-       glClear(GL_COLOR_BUFFER_BIT);
-       lec.swapBuffers();
-    }
+   lec.enableVSync();
+   while ( 1 ) {
+      glClearColor( r, g, b, a );
+      glClear( GL_COLOR_BUFFER_BIT );
+      lec.swapBuffers();
+
+      MSG msg;
+
+      if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
+
+         TranslateMessage( &msg );
+         DispatchMessage( &msg );
+      }
+   }
 
 
    iLOG "Credits: " ADD 'B', 'G', "Daniel ( GOTT ) Mensinger" END
-   
+
    B_SLEEP( seconds, 1 );
 
    return EXIT_SUCCESS;
