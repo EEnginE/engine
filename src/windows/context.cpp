@@ -81,13 +81,13 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    iLOG "actuall WndProc called " ADD _uMsg ADD " : " ADD _wParam ADD " : " ADD _lParam END
    switch ( _uMsg ) {
-      case WM_SIZE: {                                                   // Resize The OpenGL Window
+      case WM_SIZE:                                                  // Resize The OpenGL Window
 //             ReSizeGLScene( LOWORD( lParam ), HIWORD( lParam ) );    // LoWord=Width, HiWord=Height
             return 0;                                               // Jump Back
-         }
       default:
          break;
    }
+     
    return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );
 }
 
@@ -125,7 +125,7 @@ int eContext::createContext() {
    vClassName_win32             = "OGL_CLASS";
    LPCSTR lClassName_TEMP_win32 = "OGL_CLASS_TEMP";
 
-   DWORD  lWinStyle = WS_OVERLAPPEDWINDOW;
+   DWORD  lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
    DWORD  lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
 
