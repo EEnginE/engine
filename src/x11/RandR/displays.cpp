@@ -1,5 +1,5 @@
 /*!
- * \file displays.cpp
+ * \file x11/RandR/displays.cpp
  * \brief \b Classes: \a eDisplays
  */
 

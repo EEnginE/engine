@@ -1,5 +1,5 @@
 /*!
- * \file keyboard.hpp
+ * \file windows/keyboard.hpp
  * \brief \b Classes: \a eKeys
  * \sa e_keycode_to_key.cpp
  */

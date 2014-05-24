@@ -1,5 +1,5 @@
 /*!
- * \file randr_reload.cpp
+ * \file x11/RandR/randr_reload.cpp
  * \brief \b Classes: \a eRandR
  */
 

@@ -1,6 +1,8 @@
-/// \file eWindowData.cpp
-/// \brief \b Classes: \a eWindowData
-/// \sa e_eWindowData.hpp
+/*!
+ * \file eWindowData.cpp
+ * \brief \b Classes: \a eWindowData
+ * \sa e_eWindowData.hpp
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger

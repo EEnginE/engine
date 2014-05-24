@@ -1,5 +1,5 @@
 /*!
- * \file keyboard.cpp
+ * \file x11/keyboard.cpp
  * \brief \b Classes: \a eKeys
  * \sa e_keycode_to_key.cpp
  */

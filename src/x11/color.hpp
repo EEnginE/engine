@@ -1,6 +1,8 @@
-/// \file color.hpp
-/// \brief \b Classes: \a eCMDColor
-/// \sa e_color.cpp
+/*!
+ * \file x11/color.hpp
+ * \brief \b Classes: \a eCMDColor
+ * \sa e_color.cpp
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger

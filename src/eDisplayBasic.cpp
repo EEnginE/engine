@@ -1,5 +1,5 @@
 /*!
- * \file displays_basic.cpp
+ * \file eDisplayBasic.cpp
  * \brief \b Classes: \a eDisplayBasic
  */
 

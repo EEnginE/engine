@@ -1,5 +1,7 @@
-/// \file eSystem.hpp
-/// \brief \b Classes: \a eSystem
+/*!
+ * \file eSystem.hpp
+ * \brief \b Classes: \a eSystem
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger

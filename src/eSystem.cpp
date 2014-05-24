@@ -1,5 +1,7 @@
-/// \file system.cpp
-/// \brief \b Classes: \a eSystem
+/*!
+ * \file eSystem.cpp
+ * \brief \b Classes: \a eSystem
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger

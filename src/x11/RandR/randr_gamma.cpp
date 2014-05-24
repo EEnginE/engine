@@ -1,5 +1,5 @@
 /*!
- * \file randr_gamma.cpp
+ * \file x11/RandR/randr_gamma.cpp
  * \brief \b Classes: \a eRandR
  */
 

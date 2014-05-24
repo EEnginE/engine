@@ -1,5 +1,5 @@
 /*!
- * \file randr_crtc.cpp
+ * \file x11/RandR/randr_crtc.cpp
  * \brief \b Classes: \a eRandR
  */
 

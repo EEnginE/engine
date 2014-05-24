@@ -1,5 +1,5 @@
 /*!
- * \file event.cpp
+ * \file x11/event.cpp
  * \brief \b Classes: \a eInit
  * \sa e_eInit.cpp e_eInit.hpp
  */
