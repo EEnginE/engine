@@ -10,10 +10,10 @@ namespace e_engine {
 
 // namespace windows_win32 {
 
-int eInit::eventLoop() {
+// int eInit::eventLoop() {
    //! \todo Move this in windows_win32
-   return 1;
-}
+//    return 1;
+// }
 
 // } // windows_win32
 

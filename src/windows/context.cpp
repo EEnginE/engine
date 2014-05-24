@@ -37,9 +37,7 @@ inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill )
 }
 
 LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   iLOG "Initial WndProc called" END
    if ( _uMsg == WM_NCCREATE ) {
-      iLOG "WM_NCCREATE" END
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
@@ -67,7 +65,6 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
 }
 
 LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   iLOG "static WndProc called" END
    LONG_PTR lUserData_win32 = GetWindowLongPtr( _hwnd, GWLP_USERDATA );
    eContext *this__ = reinterpret_cast<eContext *>( lUserData_win32 );
 
@@ -80,13 +77,18 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    return this__->actualWndProc( _uMsg, _wParam, _lParam );
 }
 
+
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   iLOG "actuall WndProc called" END
+   iLOG "actuall WndProc called " ADD _uMsg ADD " : " ADD _wParam ADD " : " ADD _lParam END
    switch ( _uMsg ) {
+      case WM_SIZE: {                                                   // Resize The OpenGL Window
+//             ReSizeGLScene( LOWORD( lParam ), HIWORD( lParam ) );    // LoWord=Width, HiWord=Height
+            return 0;                                               // Jump Back
+         }
       default:
-         return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );
+         break;
    }
-   return 0;
+   return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );
 }
 
 
@@ -100,9 +102,9 @@ eContext::eContext() {
 LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    switch ( _uMsg ) {
       default:
-         return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
+         break;
    }
-   return 0;
+   return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
 }
 
 /*!
@@ -212,7 +214,7 @@ int eContext::createContext() {
 
 
    // Now destroy the temporary stuff
-   makeNOContexCurrent(); // No context
+   wglMakeCurrent( NULL, NULL ); // No context
    wglDeleteContext( vOpenGLContext_WGL );
    ReleaseDC( lHWND_Window_TEMP_win32, vHDC_win32 );
    DestroyWindow( lHWND_Window_TEMP_win32 );
@@ -258,7 +260,7 @@ int eContext::createContext() {
                            lExtStyle,                                          // Extended window style
                            vClassName_win32,                                   // Window class name
                            WinData.config.appName.c_str(),                     // Window Name
-                           lWinStyle,                                          // Window style
+                           lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN ,     // Window style
                            WinData.win.posX,                                   // X
                            WinData.win.posY,                                   // Y
                            vWindowRect_win32.right  - vWindowRect_win32.left,  // Width
@@ -269,21 +271,10 @@ int eContext::createContext() {
                            this                                                // We dont want spacial window creation
                         );
 
+   ShowCursor( TRUE );
+
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
 
-//    int lPixelAttributes[] = {
-//       WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
-//       WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
-//       WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
-//       WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
-//       WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
-//       WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
-//       WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
-//       WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
-//       WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
-//       WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
-//       0
-//    };
 
    int lNumberOfPixelFormats_I = 10;
 
@@ -302,10 +293,6 @@ int eContext::createContext() {
       WGL_BLUE_BITS_ARB,
       WGL_ALPHA_BITS_ARB,
       WGL_SAMPLES_ARB,
-//       WGL_TRANSPARENT_RED_VALUE_ARB,    // I think we dont need those
-//       WGL_TRANSPARENT_GREEN_VALUE_ARB,
-//       WGL_TRANSPARENT_BLUE_VALUE_ARB,
-//       WGL_TRANSPARENT_ALPHA_VALUE_ARB,
    };
 
    wglGetPixelFormatAttribivARB( vHDC_win32, 1, 0, 1, lAttributesCount, &lNumberOfPixelFormats_I );
@@ -454,16 +441,19 @@ int eContext::createContext() {
    WinData.versions.glMajorVersion = lAttributes_A_I[1];
    WinData.versions.glMinorVersion = lAttributes_A_I[3];
 
+   vHasContext_B = true;
+
    makeContextCurrent();
 
    ShowWindow( vHWND_Window_win32, SW_SHOW );
    SetForegroundWindow( vHWND_Window_win32 );
    SetFocus( vHWND_Window_win32 );
-
+   
+   glClearColor( 0, 0, 0, 1 );
+   glClear( GL_COLOR_BUFFER_BIT );
+   swapBuffers();
+   
    iLOG "OpenGL context created" END
-
-
-   vHasContext_B = true;
 
    return 1;
 }
