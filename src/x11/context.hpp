@@ -39,6 +39,8 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
+
 typedef GLXContext( *glXCreateContextAttribsARBProc )( Display *, GLXFBConfig, GLXContext, bool, const int * );  // <= Old Style
 // using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool, const int * );   // <= C++11 style (doesnt work with older gcc versions)
 
@@ -183,11 +185,12 @@ class eContext : public eRandR {
 };
 
 
-}
+} // unix_x11
 
-
+} // e_engine
 
 
 
 #endif // E_CONTEXT_HPP
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+

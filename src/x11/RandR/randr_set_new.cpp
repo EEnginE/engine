@@ -8,6 +8,7 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
 
 e_engine_internal::_crtc eRandR::isOutputPossible( RROutput _id, RRCrtc _crtc ) {
    e_engine_internal::_crtc lTempCRTC_RandR;
@@ -37,7 +38,7 @@ e_engine_internal::_crtc eRandR::isOutputPossible( RROutput _id, RRCrtc _crtc ) 
  *
  * \note It is also possible to run setDisplaySizes() more than once without running applyNewSettings().
  */
-bool eRandR::setDisplaySizes( e_engine::eDisplays const &_disp ) {
+bool eRandR::setDisplaySizes( eDisplays const &_disp ) {
    if ( ! isRandRSupported() )
       return false;
 
@@ -232,5 +233,8 @@ bool eRandR::setDisplaySizes( e_engine::eDisplays const &_disp ) {
    return false;
 }
 
-}
+} // unix_x11
+
+} // e_engine
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

@@ -14,6 +14,8 @@
 
 namespace e_engine {
 
+namespace windows_win32 {
+
 namespace {
 
 template<class T>
@@ -590,6 +592,8 @@ bool eContext::makeNOContexCurrent() {
 
 
 
-}
+} // windows_win32
+
+} // e_engine
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

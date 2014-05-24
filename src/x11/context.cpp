@@ -34,6 +34,7 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
 
 bool eContext::isExtensionSupported( const char *_extension ) {
    const char *lExtList_CSTR = glXQueryExtensionsString( vDisplay_X11, vScreen_X11 );
@@ -607,5 +608,8 @@ bool eContext::makeNOContexCurrent()  {
 
 
 
-}
+} // unix_x11
+
+} // e_engine
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

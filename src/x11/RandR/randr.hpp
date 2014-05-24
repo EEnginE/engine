@@ -11,6 +11,7 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
 
 /*!
  * \class e_engine::eRandR
@@ -141,7 +142,9 @@ class eRandR {
  * \returns \a true when RandR is support and \a false when not.
  */
 
-}
+} // unix_x11
+
+} // e_engine
 
 #endif // E_RANDR_HPP
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

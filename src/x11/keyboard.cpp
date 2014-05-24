@@ -32,6 +32,8 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
+
 static struct codepair {
    unsigned short keysym;
    unsigned short ucs;
@@ -995,4 +997,6 @@ wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int
    return key_wchar;
 }
 
-}
+} // unix_x11
+
+} // e_engine

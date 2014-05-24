@@ -7,5 +7,9 @@
 #include "keyboard.hpp"
 
 namespace e_engine {
-   
-}
+
+namespace windows_win32 {
+
+} // windows_win32
+
+} // e_engine

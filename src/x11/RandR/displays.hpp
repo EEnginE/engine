@@ -11,6 +11,8 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
+
 class eRandR;
 
 /*!
@@ -86,7 +88,9 @@ class eDisplays : public eDisplayBasic {
  * \returns Nothing
  */
 
-}
+} // unix_x11
+
+} // e_engine
 
 #endif // E_RANDR_DISPLAY_HPP
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

@@ -7,6 +7,8 @@
 #include "log.hpp"
 
 namespace e_engine {
+   
+namespace unix_x11 {
 
 /*!
  * \brief Sets the gamma values
@@ -135,5 +137,8 @@ bool eRandR::setGamma( eDisplays const &_disp, float _r, float _g, float _b, flo
    return true;
 }
 
-}
+} // unix_x11
+
+} // e_engine
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

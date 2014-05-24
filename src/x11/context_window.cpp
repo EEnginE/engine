@@ -61,6 +61,8 @@ inline std::string numToSizeStringLeft ( T _val, unsigned int _size, char _fill 
 
 namespace e_engine {
 
+namespace unix_x11 {
+
 Atom atom_wmDeleteWindow;
 
 // Open a vDisplay_X11 ############################################################################################################# ###
@@ -426,7 +428,10 @@ int eContext::createOGLContext() {
 
    return 1;
 }
-}
+
+} // unix_x11
+
+} // e_engine
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; ;
 
 

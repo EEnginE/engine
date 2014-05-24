@@ -7,6 +7,8 @@
 
 namespace e_engine {
 
+namespace unix_x11 {
+
 
 // --- private ---
 void eDisplays::addClone( RROutput _clone ) {
@@ -335,7 +337,7 @@ bool eDisplays::select( unsigned int _width, unsigned int _height, double _rate 
 }
 
 //! \brief Set this display as a clone of another display
-void eDisplays::setCloneOf( const e_engine::eDisplays &_disp ) {
+void eDisplays::setCloneOf( const eDisplays &_disp ) {
    for ( unsigned int i = 0; i < vClones_V_XRR.size(); ++i ) {
       if ( vClones_V_XRR[i] == _disp.vID_XRR ) {
          return;
@@ -349,5 +351,8 @@ void eDisplays::setCloneOf( const e_engine::eDisplays &_disp ) {
 
 
 
-}
+} // unix_x11
+
+} // e_engine
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace e_engine;
+using namespace OS_NAMESPACE;
 
 extern GLfloat alpha;
 extern GLfloat r, g, b, R, G, B;

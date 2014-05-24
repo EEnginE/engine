@@ -62,7 +62,11 @@ static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
 
 namespace e_engine {
 
+// namespace unix_x11 {
+
+
 int eInit::eventLoop() {
+   //! \todo Move this in namespace unix_x11
    vEventLoopHasFinished_B = false;
    XEvent e;
    unsigned int key_state;
@@ -133,7 +137,7 @@ int eInit::eventLoop() {
 
             case ClientMessage:
                // Check if the User pressed the [x] button or ALT+F4 [etc.]
-               if( ( Atom ) e.xclient.data.l[0] == atom_wmDeleteWindow ) {
+               if( ( Atom ) e.xclient.data.l[0] == unix_x11::atom_wmDeleteWindow ) {
                   iLOG "User pressed the close button" END
                   eWinInfo tempInfo( this );
                   tempInfo.type = 10;
@@ -149,6 +153,8 @@ int eInit::eventLoop() {
    return 1;
 }
 
+// } // unix_x11
 
-}
+} // e_engine
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

@@ -25,11 +25,13 @@
 #ifndef E_INIT_HPP
 #define E_INIT_HPP
 
-#if defined __linux__
+#include "defines.hpp"
+
+#if UNIX
 #include <GL/glxew.h>
 #endif
 
-#if defined WIN32 || defined _WIN32
+#if WINDOWS
 #include <GL/glew.h>
 #endif
 
@@ -61,7 +63,7 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  *
  * \sa eContext eWindowData e_eInit.cpp e_event.cpp
  */
-class eInit : public eContext, public eKeyboard {
+class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       typedef eSignal<void, eWinInfo>      _SIGNAL_;
       typedef eSlot<void, eInit, eWinInfo> _SLOT_;
    private:
