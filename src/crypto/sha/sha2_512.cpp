@@ -194,10 +194,10 @@ void SHA_2::padd1024() {
 
 
    // ------------------
-   // - Add the zeroes -
+   // - Add the zeros -
    // ------------------
 
-   if ( lElementsInBuffer_uI < 112 ) { // There is enougth room fo the padding
+   if ( lElementsInBuffer_uI < 112 ) { // There is enough room for the padding
       // Fill with zeroes
       while ( ( vCurrentPos1024_A_IT - vBuffer1024_A_uC.begin() ) < 112 ) {
          *vCurrentPos1024_A_IT = 0;
@@ -212,7 +212,7 @@ void SHA_2::padd1024() {
       block( vBuffer1024_A_uC );
       vCurrentPos1024_A_IT = vBuffer1024_A_uC.begin();
 
-      // Fill with zeroes
+      // Fill with zeros
       while ( ( vCurrentPos1024_A_IT - vBuffer1024_A_uC.begin() ) < 112 ) {
          *vCurrentPos1024_A_IT = 0;
          ++vCurrentPos1024_A_IT;
@@ -222,7 +222,7 @@ void SHA_2::padd1024() {
 
 
    // -----------------------------
-   // - Appand the number of bits -
+   // - Append the number of bits -
    // -----------------------------
 
    vBuffer1024_A_uC[112] = v2 >> 56;

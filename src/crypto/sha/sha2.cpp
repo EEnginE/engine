@@ -40,7 +40,7 @@ SHA_2::SHA_2( HASH_FUNCTION _type ) {
  * \brief Fills the data in a buffer and calculates the hash when it's full
  *
  * \param _message What should be hashed
- * \returns false if the hash is already calculated or true if all ent fine
+ * \returns false if the hash is already calculated or true if all went fine
  */
 bool SHA_2::add( std::string const &_message ) {
    if ( vEnded_B )
@@ -77,7 +77,7 @@ bool SHA_2::add( std::string const &_message ) {
  * \brief Fills the data in a buffer and calculates the hash when it's full
  *
  * \param _binary What should be hashed
- * \returns false if the hash is already calculated or true if all ent fine
+ * \returns false if the hash is already calculated or true if all went fine
  */
 bool SHA_2::add( std::vector< unsigned char > const &_binary ) {
    if ( vEnded_B )
@@ -295,7 +295,7 @@ std::vector<unsigned char> SHA_2::end() {
 /*!
  * \brief Returns the hash as a string
  *
- * \param _space Puts after 8 chars a space when true (default false)
+ * \param _space Puts a space after 8 chars when true (default false)
  * \returns The hash as a string or an empty string when not already terminated
  */
 std::string SHA_2::get( bool _space ) {

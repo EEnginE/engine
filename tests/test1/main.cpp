@@ -76,15 +76,15 @@ int main( int argc, char **argv ) {
 
 #if ! KDEVELOP
    eInit start;
-   MyHandler handeler;
+   MyHandler handler;
 
    if ( start.init() == 1 ) {
       start.setRenderFunc( render );
 #if UNIX
 
-      start.addWindowCloseSlot( handeler.getSWindowClose() );
-      start.addResizeSlot( handeler.getSResize() );
-      start.addKeySlot( handeler.getSKey() );
+      start.addWindowCloseSlot( handler.getSWindowClose() );
+      start.addResizeSlot( handler.getSResize() );
+      start.addKeySlot( handler.getSKey() );
 
       vector<eDisplays> displays = start.getDisplayResolutions();
 
