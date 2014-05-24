@@ -41,7 +41,7 @@ inline uint32_t S1( uint32_t x ) {
 
 
 /*!
- * \brief calculates the hash for one block
+ * \brief Calculates the hash for one block
  *
  * This is the main hash function of the SHA 2 algorithm
  * ( 256 AND 224 bit )
@@ -167,7 +167,7 @@ void SHA_2::padd512() {
 
    uint32_t v1, v2, temp;
 
-   // vBlockCounter_ulI * 64 = number of bytes int the FULL blocks
+   // vBlockCounter_ulI * 64 = number of bytes in the FULL blocks
    temp = vBlockCounter_ulI;
    v1   = temp << 6;
    v2   = temp >> 26;
@@ -186,10 +186,10 @@ void SHA_2::padd512() {
 
 
    // ------------------
-   // - Add the zeroes -
+   // - Add the zeros -
    // ------------------
 
-   if ( lElementsInBuffer_uI < 56 ) { // There is enougth room fo the padding
+   if ( lElementsInBuffer_uI < 56 ) { // There is enough room for the padding
       // Fill with zeroes
       while ( ( vCurrentPos512_A_IT - vBuffer512_A_uC.begin() ) < 56 ) {
          *vCurrentPos512_A_IT = 0;
@@ -204,7 +204,7 @@ void SHA_2::padd512() {
       block( vBuffer512_A_uC );
       vCurrentPos512_A_IT = vBuffer512_A_uC.begin();
 
-      // Fill with zeroes
+      // Fill with zeros
       while ( ( vCurrentPos512_A_IT - vBuffer512_A_uC.begin() ) < 56 ) {
          *vCurrentPos512_A_IT = 0;
          ++vCurrentPos512_A_IT;
@@ -214,7 +214,7 @@ void SHA_2::padd512() {
 
 
    // -----------------------------
-   // - Appand the number of bits -
+   // - Append the number of bits -
    // -----------------------------
 
    vBuffer512_A_uC[56] = v2 >> 24;
