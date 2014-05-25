@@ -107,17 +107,10 @@ int eInit::init() {
 
 #if WINDOWS
    // Windows needs the PeekMessage call in the same thread, where the window is created
-
    boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
 
-   while ( vCreateWindowReturn_I == -1000 ) {
-      iLOG "WAIT: " ADD vCreateWindowReturn_I END
-      vCreateWindowCondition_BT.wait( lLock_BT );
-      iLOG "END_WAIT" END
-   }
-
-   iLOG "DONE WITH INIT" END
+   while ( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
 
    makeContextCurrent();
 #else
@@ -182,6 +175,8 @@ int eInit::startMainLoop( bool _wait ) {
    makeNOContextCurrent();
 
 #if UNIX_X11
+   vMainLoopRunning_B = true;
+   
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
 #elif WINDOWS
    { // Make sure lLockEvent_BT will be destroyed

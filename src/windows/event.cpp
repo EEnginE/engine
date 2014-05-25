@@ -25,8 +25,6 @@ int eInit::eventLoop() {
       vCreateWindowCondition_BT.notify_one();
    }
 
-   iLOG "SEND" END
-
 
    // Now wait until the main event loop is officially "started"
 
