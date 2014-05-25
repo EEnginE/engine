@@ -58,6 +58,10 @@ eInit::eInit() {
 
    vEventLoopHasFinished_B  = true;
    vRenderLoopHasFinished_B = true;
+   
+#if WINDOWS
+   vCreateWindowReturn_I    = -1000;
+#endif
 
    _setThisForHandleSignal();
 }
@@ -101,8 +105,23 @@ int eInit::init() {
 
    LOG.startLogLoop();
 
-   int ret = createContext();
-   if ( ret != 1 ) {return ret;}
+#if WINDOWS
+   // Windows needs the PeekMessage call in the same thread, where the window is created
+   
+   boost::unique_lock<boost::mutex> lLock_BT(vCreateWindowMutex_BT);
+   vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
+   
+   while( vCreateWindowReturn_I == -1000 ) {
+      iLOG "WAIT: " ADD vCreateWindowReturn_I END
+      vCreateWindowCondition_BT.wait(lLock_BT);
+      iLOG "END_WAIT" END
+   }
+   
+   iLOG "DONE WITH INIT" END
+#else
+   vCreateWindowReturn_I = createContext();
+#endif
+   if ( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
 
    standardRender( this ); // Fill the Window with black
 
@@ -160,9 +179,13 @@ int eInit::startMainLoop( bool _wait ) {
    vMainLoopRunning_B = true;
    makeNOContexCurrent();
 
-// #if UNIX_X11
+#if UNIX_X11
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
-// #endif
+#elif WINDOWS
+   
+   boost::lock_guard<boost::mutex> lLockEvent_BT(vStartEventMutex_BT);
+   vStartEventCondition_BT.notify_one();
+#endif
    vRenderLoop_BT = boost::thread( &eInit::renderLoop, this );
 
    if ( _wait ) {
@@ -253,6 +276,7 @@ int eInit::closeWindow( bool _waitUntilClosed ) {
       return 1;
    }
    destroyContext();
+   vCreateWindowReturn_I = -1000;
    return 1;
 }
 
