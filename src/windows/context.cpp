@@ -17,7 +17,7 @@ namespace e_engine {
 namespace windows_win32 {
 
 namespace e_engine_internal {
-   eWindowClassRigester CLASS_REGISTER;
+eWindowClassRegister CLASS_REGISTER;
 }
 
 namespace {
@@ -83,11 +83,35 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 
 
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   iLOG "actuall WndProc called " ADD _uMsg ADD " : " ADD _wParam ADD " : " ADD _lParam END
+   iLOG "Msg found: " ADD _uMsg ADD " : " ADD _wParam ADD " : " ADD _lParam END
    switch ( _uMsg ) {
-      case WM_SIZE:                                                  // Resize The OpenGL Window
-//             ReSizeGLScene( LOWORD( lParam ), HIWORD( lParam ) );    // LoWord=Width, HiWord=Height
-         return 0;                                               // Jump Back
+      case WM_SIZE://Window size was changed
+         iLOG "Resized " END
+         return 0;
+      case WM_MOVE://Window was moved
+         iLOG "Moved " END
+         return 0;
+      case WM_CLOSE: //Window is closed TODO: Doesnt work yet, add functionality
+         iLOG "Closed " END
+         return 0;
+      case WM_SETFOCUS: //Window has been focused
+         iLOG "Focus Set " END
+         return 0;
+      case WM_LBUTTONDOWN: //Leftbutton clicked
+         iLOG "Leftbutton clicked " END
+         return 0;
+      case WM_LBUTTONUP: //Leftbutton released
+         iLOG "Leftbutton released " END
+         return 0;
+      case WM_LBUTTONDBLCLK: //User Clicked Leftbutton twice TODO: Doesnt work
+         iLOG "Doubleclicked left button" END
+         return 0;
+      case WM_RBUTTONDOWN: //Rightbutton clicked
+         iLOG "Rightbutton clicked " END
+         return 0;
+      case WM_RBUTTONUP: //Rightbutton released
+         iLOG "Rightbutton released " END
+         return 0;
       default:
          break;
    }
@@ -155,7 +179,7 @@ int eContext::createContext() {
          eLOG "Failed to register the (temporary) new class" END
          return -1;
       }
-      
+
       e_engine_internal::CLASS_REGISTER.setC1();
    }
 
@@ -252,7 +276,7 @@ int eContext::createContext() {
          eLOG "Failed to register the (final) window class" END
          return -1;
       }
-      
+
       e_engine_internal::CLASS_REGISTER.setC2();
    }
 

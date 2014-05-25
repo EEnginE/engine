@@ -75,12 +75,12 @@ class eContext {
 
 namespace e_engine_internal {
    
-class eWindowClassRigester {
+class eWindowClassRegister {
 private:
    bool vClass1Registered;
    bool vClass2Registered;
 public:
-   eWindowClassRigester() : vClass1Registered(false), vClass2Registered(false) {}
+   eWindowClassRegister() : vClass1Registered(false), vClass2Registered(false) {}
    
    bool getC1() { return vClass1Registered; }
    bool getC2() { return vClass2Registered; }
@@ -92,7 +92,7 @@ private:
    friend class e_engine::windows_win32::eContext;
 };
 
-extern eWindowClassRigester CLASS_REGISTER;
+extern eWindowClassRegister CLASS_REGISTER;
 
 } // e_engine_internal
 
