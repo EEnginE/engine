@@ -41,9 +41,7 @@ class eContext {
       
       bool                  vHasContext_B;
       bool                  vHasGLEW_B;
-
-
-
+      
    public:
       eContext();
       
@@ -74,6 +72,29 @@ class eContext {
       int  changeWindowConfig ( unsigned int _width, unsigned int _height, int _posX, int _posY ) {return 0;}
       bool fullScreenMultiMonitor() {return false;}
 };
+
+namespace e_engine_internal {
+   
+class eWindowClassRigester {
+private:
+   bool vClass1Registered;
+   bool vClass2Registered;
+public:
+   eWindowClassRigester() : vClass1Registered(false), vClass2Registered(false) {}
+   
+   bool getC1() { return vClass1Registered; }
+   bool getC2() { return vClass2Registered; }
+   
+private:
+   void setC1() { vClass1Registered = true; }
+   void setC2() { vClass2Registered = true; }
+   
+   friend class e_engine::windows_win32::eContext;
+};
+
+extern eWindowClassRigester CLASS_REGISTER;
+
+} // e_engine_internal
 
 } // windows_win32
 

@@ -16,6 +16,10 @@ namespace e_engine {
 
 namespace windows_win32 {
 
+namespace e_engine_internal {
+   eWindowClassRigester CLASS_REGISTER;
+}
+
 namespace {
 
 template<class T>
@@ -43,12 +47,12 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
 
 
-      if ( this__->vHWND_Window_win32 != 0 ) {
-         // This function was already called -- this should never happen
-         eLOG "Internal Error: eContext::initialWndProc was already called!!" END
-         this__->destroyContext();
-         this__->vWindowsCallbacksError_B = true;
-      }
+//       if ( this__->vHWND_Window_win32 != 0 ) {
+//          // This function was already called -- this should never happen
+//          eLOG "Internal Error: eContext::initialWndProc was already called!!" END
+//          this__->destroyContext();
+//          this__->vWindowsCallbacksError_B = true;
+//       }
 
       this__->vHWND_Window_win32 = _hwnd;
       SetWindowLongPtr( _hwnd,
@@ -83,11 +87,11 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
    switch ( _uMsg ) {
       case WM_SIZE:                                                  // Resize The OpenGL Window
 //             ReSizeGLScene( LOWORD( lParam ), HIWORD( lParam ) );    // LoWord=Width, HiWord=Height
-            return 0;                                               // Jump Back
+         return 0;                                               // Jump Back
       default:
          break;
    }
-     
+
    return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );
 }
 
@@ -135,20 +139,24 @@ int eContext::createContext() {
    HWND      lHWND_Window_TEMP_win32;
 
 
-   lWindowClass_TEMP_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
-   lWindowClass_TEMP_win32.lpfnWndProc   = &__WndProc;
-   lWindowClass_TEMP_win32.cbClsExtra    = 0; // We do not need this
-   lWindowClass_TEMP_win32.cbWndExtra    = sizeof( eContext * );
-   lWindowClass_TEMP_win32.hInstance     = lInstance_TEMP_win32;
-   lWindowClass_TEMP_win32.hIcon         = NULL;  // We dont have a special icon
-   lWindowClass_TEMP_win32.hCursor       = NULL;  // We dont have a special cursor
-   lWindowClass_TEMP_win32.hbrBackground = NULL;  // We dont need a background
-   lWindowClass_TEMP_win32.lpszMenuName  = NULL;  // We dont want a menu
-   lWindowClass_TEMP_win32.lpszClassName = lClassName_TEMP_win32;
+   if ( !e_engine_internal::CLASS_REGISTER.getC1() ) {
+      lWindowClass_TEMP_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
+      lWindowClass_TEMP_win32.lpfnWndProc   = &__WndProc;
+      lWindowClass_TEMP_win32.cbClsExtra    = 0; // We do not need this
+      lWindowClass_TEMP_win32.cbWndExtra    = sizeof( eContext * );
+      lWindowClass_TEMP_win32.hInstance     = lInstance_TEMP_win32;
+      lWindowClass_TEMP_win32.hIcon         = NULL;  // We dont have a special icon
+      lWindowClass_TEMP_win32.hCursor       = NULL;  // We dont have a special cursor
+      lWindowClass_TEMP_win32.hbrBackground = NULL;  // We dont need a background
+      lWindowClass_TEMP_win32.lpszMenuName  = NULL;  // We dont want a menu
+      lWindowClass_TEMP_win32.lpszClassName = lClassName_TEMP_win32;
 
-   if ( !RegisterClass( &lWindowClass_TEMP_win32 ) ) {
-      eLOG "Failed to register the (temporary) new class" END
-      return -1;
+      if ( !RegisterClass( &lWindowClass_TEMP_win32 ) ) {
+         eLOG "Failed to register the (temporary) new class" END
+         return -1;
+      }
+      
+      e_engine_internal::CLASS_REGISTER.setC1();
    }
 
    if ( vWindowsCallbacksError_B ) {
@@ -227,21 +235,25 @@ int eContext::createContext() {
 
    vInstance_win32 = GetModuleHandle( NULL );
 
-   vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // We want a unique DC and redraw on window changes
-   vWindowClass_win32.lpfnWndProc   = &eContext::initialWndProc;
-   vWindowClass_win32.cbClsExtra    = 0; // We do not need this
-   vWindowClass_win32.cbWndExtra    = sizeof( eContext * );
-   vWindowClass_win32.hInstance     = vInstance_win32;
-   vWindowClass_win32.hIcon         = NULL;  // We dont have a special icon
-   vWindowClass_win32.hCursor       = NULL;  // We dont have a special cursor
-   vWindowClass_win32.hbrBackground = NULL;  // We dont need a background
-   vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menu
-   vWindowClass_win32.lpszClassName = vClassName_win32;
+   if ( !e_engine_internal::CLASS_REGISTER.getC2() ) {
+      vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // We want a unique DC and redraw on window changes
+      vWindowClass_win32.lpfnWndProc   = &eContext::initialWndProc;
+      vWindowClass_win32.cbClsExtra    = 0; // We do not need this
+      vWindowClass_win32.cbWndExtra    = sizeof( eContext * );
+      vWindowClass_win32.hInstance     = vInstance_win32;
+      vWindowClass_win32.hIcon         = NULL;  // We dont have a special icon
+      vWindowClass_win32.hCursor       = NULL;  // We dont have a special cursor
+      vWindowClass_win32.hbrBackground = NULL;  // We dont need a background
+      vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menu
+      vWindowClass_win32.lpszClassName = vClassName_win32;
 
 
-   if ( !RegisterClass( &vWindowClass_win32 ) ) {
-      eLOG "Failed to register the (final) window class" END
-      return -1;
+      if ( !RegisterClass( &vWindowClass_win32 ) ) {
+         eLOG "Failed to register the (final) window class" END
+         return -1;
+      }
+      
+      e_engine_internal::CLASS_REGISTER.setC2();
    }
 
    if ( vWindowsCallbacksError_B ) {
@@ -318,7 +330,7 @@ int eContext::createContext() {
    int lBestSamples_I = 0, lBestDepth = 0, lBestR_I = 0, lBestG_I = 0, lBestB_I = 0, lBestA_I = 0, lBestStencil_I = 0;
    int lBestFBConfig_I = -1;
 
-   for ( int i = 0; i < lNumberOfPixelFormats_I; ++i ) {
+   for ( int i = 1; i < lNumberOfPixelFormats_I; ++i ) {
       wglGetPixelFormatAttribivARB( vHDC_win32, i, 0, 11, lAttributes, lPixelFormat );
       if ( lPixelFormat[0] != 1 || lPixelFormat[1] != 1 || lPixelFormat[2] != 1 || lPixelFormat[3] != WinData.framebuffer.FBA_ACCELERATION )
          continue;
@@ -448,11 +460,11 @@ int eContext::createContext() {
    ShowWindow( vHWND_Window_win32, SW_SHOW );
    SetForegroundWindow( vHWND_Window_win32 );
    SetFocus( vHWND_Window_win32 );
-   
+
    glClearColor( 0, 0, 0, 1 );
    glClear( GL_COLOR_BUFFER_BIT );
    swapBuffers();
-   
+
    iLOG "OpenGL context created" END
 
    return 1;

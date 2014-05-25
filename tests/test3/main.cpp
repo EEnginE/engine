@@ -14,12 +14,52 @@ using namespace OS_NAMESPACE;
 #define COLOR    0
 #define DO_SHA   0
 
+
+
 void hexPrint( std::vector<unsigned char> const &_v ) {
    for ( unsigned char const & c : _v )
       printf( "%02X ", c );
    printf( "\n\n" );
    fflush( stdout );
 }
+
+class testT {
+   private:
+      boost::condition_variable lCond1;
+      boost::mutex              lMut1;
+      bool                      lDone;
+      
+//       eContext                  lEE;
+
+   public:
+      testT() : lDone(false) {}
+      
+      void testThreads() {
+         iLOG "T: Thread started" END
+//    B_SLEEP( seconds, 1 );
+         boost::lock_guard<boost::mutex> lLock_BT( lMut1 );
+         iLOG "T: Mutex locked" END
+         B_SLEEP( seconds, 1 );
+//          lEE.createContext();
+         lDone = true;
+         lCond1.notify_one();
+         iLOG "T: SEND" END
+      }
+
+      void run() {
+         iLOG "M: Done With Rendering" END
+         boost::unique_lock<boost::mutex> lLock_BT( lMut1 );
+         iLOG "M: Mutex Locked" END
+         boost::thread lTest_BT = boost::thread( &testT::testThreads, this );
+         iLOG "M: Thread started" END
+         B_SLEEP( seconds, 1 );
+         iLOG "M: Begin Wait" END
+
+         while ( !lDone ) lCond1.wait( lLock_BT );
+         
+//          lEE.destroyContext();
+      }
+};
 
 // #undef  UNIX
 // #define UNIX 0
@@ -58,13 +98,13 @@ int main( int argc, char **argv ) {
    g = 0;
    b = 0;
    double a = 0;
-   
+
    WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
-   
+
 #if UNIX
-      WinData.log.logFILE.logFileName += "/Log";
+   WinData.log.logFILE.logFileName += "/Log";
 #elif WINDOWS
-      WinData.log.logFILE.logFileName += "\\Log";
+   WinData.log.logFILE.logFileName += "\\Log";
 #endif
 
    LOG.devInit();
@@ -82,7 +122,7 @@ int main( int argc, char **argv ) {
 
    lec.createContext();
    lec.enableVSync();
-   while ( 1 ) {
+   for ( int i = 0; i < 120; ++i ) {
       glClearColor( r, g, b, a );
       glClear( GL_COLOR_BUFFER_BIT );
       lec.swapBuffers();
@@ -96,8 +136,16 @@ int main( int argc, char **argv ) {
       }
    }
 
+   lec.destroyContext();
 
-   iLOG "Credits: " ADD 'B', 'G', "Daniel ( GOTT ) Mensinger" END
+   testT ttt;
+   
+   ttt.run();
+
+
+
+
+   iLOG "Credits: " ADD 'B', 'G', "Daniel ( Mense ) Mensinger" END
 
    B_SLEEP( seconds, 1 );
 

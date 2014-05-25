@@ -90,6 +90,16 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       boost::thread     vEventLoop_BT;
       boost::thread     vRenderLoop_BT;
       boost::thread     vQuitMainLoop_BT;
+      
+#if WINDOWS
+      boost::mutex              vCreateWindowMutex_BT;
+      boost::condition_variable vCreateWindowCondition_BT;
+      
+      boost::mutex              vStartEventMutex_BT;
+      boost::condition_variable vStartEventCondition_BT;
+      
+      int                       vCreateWindowReturn_I;
+#endif
 
       // Thread Functions --------------------------------------------------------- ###
       int  renderLoop();       //!< The render loop function
