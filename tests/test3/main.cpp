@@ -37,18 +37,19 @@ class testT {
       void testThreads() {
          iLOG "T: Thread started" END
 //    B_SLEEP( seconds, 1 );
-         boost::lock_guard<boost::mutex> lLock_BT( lMut1 );
+         boost::mutex::scoped_lock lLock_BT( lMut1 );
          iLOG "T: Mutex locked" END
          B_SLEEP( seconds, 1 );
 //          lEE.createContext();
          lDone = true;
          lCond1.notify_one();
          iLOG "T: SEND" END
+         B_SLEEP( seconds, 10 );
       }
 
       void run() {
          iLOG "M: Done With Rendering" END
-         boost::unique_lock<boost::mutex> lLock_BT( lMut1 );
+         boost::mutex::scoped_lock lLock_BT( lMut1 );
          iLOG "M: Mutex Locked" END
          boost::thread lTest_BT = boost::thread( &testT::testThreads, this );
          iLOG "M: Thread started" END
@@ -118,7 +119,7 @@ int main( int argc, char **argv ) {
 
 
 
-   windows_win32::eContext lec;
+   OS_NAMESPACE::eContext lec;
 
    lec.createContext();
    lec.enableVSync();
@@ -126,7 +127,7 @@ int main( int argc, char **argv ) {
       glClearColor( r, g, b, a );
       glClear( GL_COLOR_BUFFER_BIT );
       lec.swapBuffers();
-
+#if WINDOWS
       MSG msg;
 
       if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
@@ -134,6 +135,7 @@ int main( int argc, char **argv ) {
          TranslateMessage( &msg );
          DispatchMessage( &msg );
       }
+#endif
    }
 
    lec.destroyContext();
