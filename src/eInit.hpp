@@ -91,14 +91,12 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       boost::thread     vRenderLoop_BT;
       boost::thread     vQuitMainLoop_BT;
       
+      int               vCreateWindowReturn_I;
+
+      
 #if WINDOWS
-      boost::mutex              vCreateWindowMutex_BT;
-      boost::condition_variable vCreateWindowCondition_BT;
-      
-      boost::mutex              vStartEventMutex_BT;
-      boost::condition_variable vStartEventCondition_BT;
-      
-      int                       vCreateWindowReturn_I;
+      boost::mutex      vCreateWindowMutex_BT;
+      boost::mutex      vStartEventMutex_BT;
 #endif
 
       // Thread Functions --------------------------------------------------------- ###

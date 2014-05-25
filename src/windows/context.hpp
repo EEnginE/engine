@@ -56,7 +56,7 @@ class eContext {
       bool getHaveContext() { return vHasContext_B; }
 
       bool makeContextCurrent(); 
-      bool makeNOContexCurrent();
+      bool makeNOContextCurrent();
 
       bool setAttribute ( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) {return false;}
 

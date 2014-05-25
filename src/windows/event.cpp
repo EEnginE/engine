@@ -15,19 +15,26 @@ namespace e_engine {
 int eInit::eventLoop() {
    //! \todo Move this in windows_win32
    
-   boost::lock_guard<boost::mutex> lLockWindow_BT(vCreateWindowMutex_BT);
-   vCreateWindowReturn_I = createContext();
-         
-   // Context created; continue with init();
-   vCreateWindowCondition_BT.notify_one();
+   vRenderLoopHasFinished_B = false;
    
-   iLOG "SEND" END
+   
+   vCreateWindowMutex_BT.lock();
+   vCreateWindowReturn_I = createContext();
+   makeNOContextCurrent();
+   vCreateWindowMutex_BT.unlock();
    
    
    // Now wait until the main event loop is officially "started"
    
-   boost::unique_lock<boost::mutex> lLockEvent_BT(vStartEventMutex_BT);
-   vStartEventCondition_BT.wait(lLockEvent_BT);
+   while( true ) {
+      vStartEventMutex_BT.lock();
+      if( vMainLoopRunning_B ) {
+         vStartEventMutex_BT.unlock();
+         break;
+      }
+      vStartEventMutex_BT.unlock();
+      B_SLEEP( milliseconds, 10 );
+   }
    
    iLOG "Event loop started" END
    
