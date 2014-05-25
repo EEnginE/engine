@@ -583,7 +583,7 @@ bool eContext::makeContextCurrent() {
  * \returns true on success
  * \returns false when there was an error
  */
-bool eContext::makeNOContexCurrent() {
+bool eContext::makeNOContextCurrent() {
    if ( ! vHasContext_B ) {
       eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with eInit::init() before you run this!" END
       return false;

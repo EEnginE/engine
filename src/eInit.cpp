@@ -45,7 +45,7 @@ eInit::eInit() {
    vResize_SLOT.setFunc( &eInit::s_standardResize, this );
    vKey_SLOT.setFunc( &eInit::s_standardKey, this );
    vMouse_SLOT.setFunc( &eInit::s_standardMouse, this );
-   
+
    addWindowCloseSlot( &vWindowClose_SLOT );
    addResizeSlot( &vResize_SLOT );
    addKeySlot( &vKey_SLOT );
@@ -58,7 +58,7 @@ eInit::eInit() {
 
    vEventLoopHasFinished_B  = true;
    vRenderLoopHasFinished_B = true;
-   
+
 #if WINDOWS
    vCreateWindowReturn_I    = -1000;
 #endif
@@ -107,17 +107,19 @@ int eInit::init() {
 
 #if WINDOWS
    // Windows needs the PeekMessage call in the same thread, where the window is created
-   
-   boost::unique_lock<boost::mutex> lLock_BT(vCreateWindowMutex_BT);
+
+   boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
-   
-   while( vCreateWindowReturn_I == -1000 ) {
+
+   while ( vCreateWindowReturn_I == -1000 ) {
       iLOG "WAIT: " ADD vCreateWindowReturn_I END
-      vCreateWindowCondition_BT.wait(lLock_BT);
+      vCreateWindowCondition_BT.wait( lLock_BT );
       iLOG "END_WAIT" END
    }
-   
+
    iLOG "DONE WITH INIT" END
+
+   makeContextCurrent();
 #else
    vCreateWindowReturn_I = createContext();
 #endif
@@ -177,14 +179,15 @@ int eInit::startMainLoop( bool _wait ) {
       return 0;
    }
    vMainLoopRunning_B = true;
-   makeNOContexCurrent();
+   makeNOContextCurrent();
 
 #if UNIX_X11
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
 #elif WINDOWS
-   
-   boost::lock_guard<boost::mutex> lLockEvent_BT(vStartEventMutex_BT);
-   vStartEventCondition_BT.notify_one();
+   { // Make sure lLockEvent_BT will be destroyed
+      boost::lock_guard<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+      vStartEventCondition_BT.notify_one();
+   }
 #endif
    vRenderLoop_BT = boost::thread( &eInit::renderLoop, this );
 
@@ -215,7 +218,7 @@ int eInit::quitMainLoopCall( ) {
    {
       boost::posix_time::time_duration duration = boost::posix_time::milliseconds( WinData.timeoutForMainLoopThread_mSec );
       vEventLoop_BT.timed_join( duration );
-   }  
+   }
 #else
       vEventLoop_BT.try_join_for( boost::chrono::milliseconds( WinData.timeoutForMainLoopThread_mSec ) );
 #endif
@@ -227,14 +230,14 @@ int eInit::quitMainLoopCall( ) {
    }
    iLOG "Event loop finished" END
 // #endif
-   
+
 
    if ( ! vRenderLoopHasFinished_B )
 #if BOOST_VERSION < 105000
    {
       boost::posix_time::time_duration duration = boost::posix_time::milliseconds( WinData.timeoutForMainLoopThread_mSec );
       vRenderLoop_BT.timed_join( duration );
-   }  
+   }
 #else
       vRenderLoop_BT.try_join_for( boost::chrono::milliseconds( WinData.timeoutForMainLoopThread_mSec ) );
 #endif
@@ -254,15 +257,15 @@ int eInit::renderLoop( ) {
    iLOG "Render loop started" END
    vRenderLoopHasFinished_B = false;
    makeContextCurrent();  // Only ONE thread can have a context
-   
+
    if ( WinData.win.VSync == true )
       enableVSync();
-   
+
    while ( vMainLoopRunning_B ) {
       fRender( this );
    }
 
-   makeNOContexCurrent();
+   makeNOContextCurrent();
    vRenderLoopHasFinished_B = true;
    return 0;
 }

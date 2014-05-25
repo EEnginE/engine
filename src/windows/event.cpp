@@ -14,23 +14,27 @@ namespace e_engine {
 
 int eInit::eventLoop() {
    //! \todo Move this in windows_win32
-   
-   boost::lock_guard<boost::mutex> lLockWindow_BT(vCreateWindowMutex_BT);
-   vCreateWindowReturn_I = createContext();
-         
-   // Context created; continue with init();
-   vCreateWindowCondition_BT.notify_one();
-   
+   vEventLoopHasFinished_B = false;
+
+   { // Make sure lLockWindow_BT will be destroyed
+      boost::lock_guard<boost::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
+      vCreateWindowReturn_I = createContext();
+      makeNOContextCurrent();
+      
+      // Context created; continue with init();
+      vCreateWindowCondition_BT.notify_one();
+   }
+
    iLOG "SEND" END
-   
-   
+
+
    // Now wait until the main event loop is officially "started"
-   
-   boost::unique_lock<boost::mutex> lLockEvent_BT(vStartEventMutex_BT);
-   vStartEventCondition_BT.wait(lLockEvent_BT);
-   
+
+   boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+   vStartEventCondition_BT.wait( lLockEvent_BT );
+
    iLOG "Event loop started" END
-   
+
    MSG msg;
 
    while ( vMainLoopRunning_B ) {
@@ -39,7 +43,7 @@ int eInit::eventLoop() {
          TranslateMessage( &msg );
          DispatchMessage( &msg );
       }
-      
+
       B_SLEEP( milliseconds, 10 );
    }
 
