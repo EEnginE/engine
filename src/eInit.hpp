@@ -37,8 +37,6 @@
 
 #include "context.hpp"
 #include "keyboard.hpp"
-#include "signal_slot.hpp"
-#include "eWindowData.hpp"
 #include <boost/thread.hpp>
 
 
@@ -64,20 +62,8 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  * \sa eContext eWindowData e_eInit.cpp e_event.cpp
  */
 class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
-      typedef eSignal<void, eWinInfo>      _SIGNAL_;
-      typedef eSlot<void, eInit, eWinInfo> _SLOT_;
    private:
       RENDER_FUNC       fRender;
-
-      _SIGNAL_          vWindowClose_SIG;  //!< The signal for Window close
-      _SIGNAL_          vResize_SIG;       //!< The signal for Resize
-      _SIGNAL_          vKey_SIG;          //!< The signal for Key
-      _SIGNAL_          vMouse_SIG;        //!< The signal for Mouse
-
-      _SLOT_            vWindowClose_SLOT;    //!< The standard slot for Window close
-      _SLOT_            vResize_SLOT;         //!< The standard slot for Resize
-      _SLOT_            vKey_SLOT;            //!< The standard slot for Key
-      _SLOT_            vMouse_SLOT;          //!< The standard slot for Mouse
 
       bool              vMainLoopRunning_B;
       bool              vBoolCloseWindow_B;
@@ -148,36 +134,7 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
        * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
        */
       int    closeWindow( bool _waitUntilClosed = false );
-
-
-      // Standard callbacks NEW --------------------------------------------------- ###
-      template<class __C>
-      void addWindowCloseSlot( eSlot<void, __C, eWinInfo> *_slot ) {
-         vWindowClose_SLOT.disconnectAll();
-         _slot->connectWith( &vWindowClose_SIG );
-      }
-      template<class __C>
-      void addResizeSlot( eSlot<void, __C, eWinInfo> *_slot ) {
-         vResize_SLOT.disconnectAll();
-         _slot->connectWith( &vResize_SIG );
-      }
-      template<class __C>
-      void addKeySlot( eSlot<void, __C, eWinInfo> *_slot ) {
-         vKey_SLOT.disconnectAll();
-         _slot->connectWith( &vKey_SIG );
-      }
-      template<class __C>
-      void addMouseSlot( eSlot<void, __C, eWinInfo> *_slot ) {
-         vMouse_SLOT.disconnectAll();
-         _slot->connectWith( &vMouse_SIG );
-      }
       
-      void removeAllSlots();
-
-      template<class __C> inline bool removeWindowCloseSlot( eSlot<void, __C, eWinInfo> *_slot ) {return vWindowClose_SIG.disconnect( _slot );}
-      template<class __C> inline bool removeResizeSlot( eSlot<void, __C, eWinInfo> *_slot )      {return vResize_SIG.disconnect( _slot );}
-      template<class __C> inline bool removeKeySlot( eSlot<void, __C, eWinInfo> *_slot )         {return vKey_SIG.disconnect( _slot );}
-      template<class __C> inline bool removeMouseSlot( eSlot<void, __C, eWinInfo> *_slot )       {return vMouse_SIG.disconnect( _slot );}
 
       GLvoid setRenderFunc( RENDER_FUNC _f )            {fRender = _f;}
 };
