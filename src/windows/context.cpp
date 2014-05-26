@@ -4,6 +4,9 @@
  *
  * This file contains the class \b eContext which creates
  * the window in Windows and the OpenGL context on it.
+ * 
+ * Please note that the actualWndProc, the method for resolving
+ * the window events is located within event.cpp
  *
  * \sa e_context.cpp e_eInit.cpp
  */
@@ -38,85 +41,6 @@ inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill )
    return lResult_STR;
 }
 
-}
-
-LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   if ( _uMsg == WM_NCCREATE ) {
-      LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
-      void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
-      eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
-
-
-//       if ( this__->vHWND_Window_win32 != 0 ) {
-//          // This function was already called -- this should never happen
-//          eLOG "Internal Error: eContext::initialWndProc was already called!!" END
-//          this__->destroyContext();
-//          this__->vWindowsCallbacksError_B = true;
-//       }
-
-      this__->vHWND_Window_win32 = _hwnd;
-      SetWindowLongPtr( _hwnd,
-                        GWLP_USERDATA,
-                        reinterpret_cast<LONG_PTR>( this__ ) );
-      SetWindowLongPtr( _hwnd,
-                        GWLP_WNDPROC,
-                        reinterpret_cast<LONG_PTR>( &eContext::staticWndProc ) );
-      return this__->actualWndProc( _uMsg, _wParam, _lParam );
-   }
-   // if it isn't WM_NCCREATE, do something sensible and wait until
-   //   WM_NCCREATE is sent
-   return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
-}
-
-LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   LONG_PTR lUserData_win32 = GetWindowLongPtr( _hwnd, GWLP_USERDATA );
-   eContext *this__ = reinterpret_cast<eContext *>( lUserData_win32 );
-
-   if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
-      eLOG "Bad Windows callback error" END
-      this__->destroyContext();
-      this__->vWindowsCallbacksError_B = true;
-   }
-
-   return this__->actualWndProc( _uMsg, _wParam, _lParam );
-}
-
-
-LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   iLOG "Msg found: " ADD _uMsg ADD " : " ADD _wParam ADD " : " ADD _lParam END
-   switch ( _uMsg ) {
-      case WM_SIZE://Window size was changed
-         iLOG "Resized " END
-         return 0;
-      case WM_MOVE://Window was moved
-         iLOG "Moved " END
-         return 0;
-      case WM_CLOSE: //Window is closed TODO: Doesnt work yet, add functionality
-         iLOG "Closed " END
-         return 0;
-      case WM_SETFOCUS: //Window has been focused
-         iLOG "Focus Set " END
-         return 0;
-      case WM_LBUTTONDOWN: //Leftbutton clicked
-         iLOG "Leftbutton clicked " END
-         return 0;
-      case WM_LBUTTONUP: //Leftbutton released
-         iLOG "Leftbutton released " END
-         return 0;
-      case WM_LBUTTONDBLCLK: //User Clicked Leftbutton twice TODO: Doesnt work
-         iLOG "Doubleclicked left button" END
-         return 0;
-      case WM_RBUTTONDOWN: //Rightbutton clicked
-         iLOG "Rightbutton clicked " END
-         return 0;
-      case WM_RBUTTONUP: //Rightbutton released
-         iLOG "Rightbutton released " END
-         return 0;
-      default:
-         break;
-   }
-
-   return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );
 }
 
 
