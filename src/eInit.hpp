@@ -35,8 +35,8 @@
 #include <GL/glew.h>
 #endif
 
-#include "context.hpp"
-#include "keyboard.hpp"
+#include "windows/context.hpp"
+#include "windows/keyboard.hpp"
 #include <boost/thread.hpp>
 
 
@@ -159,7 +159,6 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
 //    #########################
 // ######## BEGIN DOXYGEN ########
 //    #########################
-
 
 
 namespace e_engine_internal {

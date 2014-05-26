@@ -300,6 +300,7 @@ void eInit::s_standardWindowClose( eWinInfo _info )  {
    _info.eInitPointer->closeWindow();
 }
 
+
 void eInit::pauseMainLoop() {
    if( ! vMainLoopRunning_B )
       return;
@@ -329,7 +330,6 @@ void eInit::continueMainLoop() {
    
    iLOG "Loops unpaused" END
 }
-
 
 
 
