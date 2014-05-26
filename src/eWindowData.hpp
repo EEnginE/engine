@@ -153,8 +153,9 @@ struct _eWindowData {
       int          posX;      //!< The posX   ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
       int          posY;      //!< The posY   ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
 
-      bool         fullscreen; //!< Fullscreen? ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
-      bool         VSync;      //!< VSync?      ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
+      bool         fullscreen;       //!< Fullscreen?          ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
+      bool         VSync;            //!< VSync?               ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
+      bool         windowDecoration; //!< Has a window border? ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
 
       WINDOW_TYPE  winType;
 

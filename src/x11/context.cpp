@@ -324,6 +324,12 @@ bool eContext::setDecoration( e_engine::ACTION _action ) {
       wLOG "Failed to set XChangeProperty( ..., _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,...); ==> Can not set / remove window border " END
       return false;
    }
+   
+   switch( _action ) {
+      case C_ADD:    WinData.win.windowDecoration = true;  break;
+      case C_REMOVE: WinData.win.windowDecoration = false; break;
+      case C_TOGGLE: WinData.win.windowDecoration = !WinData.win.windowDecoration; break;
+   }
 
    iLOG "Successfully " ADD( _action == C_REMOVE ) ? "removed window decoration" : "added window decoration" END
 
@@ -373,6 +379,11 @@ bool eContext::maximize( e_engine::ACTION _action ) {
 bool eContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 ) {
    if ( ! vHaveGLEW_B )
       return false;
+   
+   if ( _type1 == _type2 ) {
+      eLOG "Changing the same attribute at the same time makes completely no sense. ==> Do nothing" END
+      return false;
+   }
 
    Atom lAtomNetWmStateState1_X11;
    Atom lAtomNetWmStateState2_X11;
@@ -456,6 +467,14 @@ bool eContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       ) {
       wLOG lMode_STR ADD ' ' ADD lState1_str ADD " and " ADD lState2_str ADD " mode FAILED" END
       return false;
+   }
+   
+   if( _type1 == FULLSCREEN || _type2 == FULLSCREEN ) {
+      switch( _action ) {
+         case C_ADD:    WinData.win.fullscreen = true;  break;
+         case C_REMOVE: WinData.win.fullscreen = false; break;
+         case C_TOGGLE: WinData.win.fullscreen = !WinData.win.fullscreen; break;
+      }
    }
 
    iLOG lMode_STR ADD ' ' ADD lState1_str ADD " and " ADD lState2_str ADD " mode SUCCEEDED" END
@@ -598,7 +617,7 @@ bool eContext::makeContextCurrent() {
  * \returns true on success
  * \returns false when there was an error
  */
-bool eContext::makeNOContexCurrent()  {
+bool eContext::makeNOContextCurrent()  {
    if ( ! vHaveContext_B ) {
       eLOG "OpenGL context Error [GLX]; We do not have any context. Please create it with eInit::init() before you run this!" END
       return false;

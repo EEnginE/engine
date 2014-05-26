@@ -77,6 +77,20 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       boost::thread     vRenderLoop_BT;
       boost::thread     vQuitMainLoop_BT;
       
+      boost::mutex      vMainLoopMutex_BT;
+      boost::mutex      vEventLoopMutex_BT;
+      
+      boost::condition_variable vMainLoopWait_BT;
+      boost::condition_variable vEventLoopWait_BT;
+      
+      bool              vMainLoopPaused_B;
+      bool              vEventLoopPaused_B;
+      
+      bool              vMainLoopISPaused_B;
+      bool              vEventLoopISPaused_B;
+      
+      bool              vLoopsPaused_B;
+      
       int               vCreateWindowReturn_I;
 
       
@@ -117,7 +131,7 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
 
       //! The standard Mouse function
       GLvoid s_standardMouse( eWinInfo _info ) {}
-
+      
    public:
       eInit();
       ~eInit() {closeWindow();shutdown();}
@@ -127,6 +141,9 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       int    startMainLoop( bool _wait = true );
 
       void   quitMainLoop();
+      
+      void   pauseMainLoop();
+      void   continueMainLoop();
 
       /*!
        * \brief Quit the main loop and close the window

@@ -53,6 +53,12 @@ eInit::eInit() {
 
    vMainLoopRunning_B    = false;
    vBoolCloseWindow_B    = false;
+   
+   vMainLoopPaused_B       = false;
+   vEventLoopHasFinished_B = false;
+   vMainLoopISPaused_B     = false;
+   vEventLoopISPaused_B    = false;
+   vLoopsPaused_B          = false;
 
    fRender               = standardRender;
 
@@ -176,10 +182,11 @@ int eInit::startMainLoop( bool _wait ) {
 
 #if UNIX_X11
    vMainLoopRunning_B = true;
-   
+
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
 #elif WINDOWS
-   { // Make sure lLockEvent_BT will be destroyed
+   {
+      // Make sure lLockEvent_BT will be destroyed
       boost::lock_guard<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
       vStartEventCondition_BT.notify_one();
    }
@@ -257,6 +264,15 @@ int eInit::renderLoop( ) {
       enableVSync();
 
    while ( vMainLoopRunning_B ) {
+      if( vLoopsPaused_B ) {
+         boost::unique_lock<boost::mutex> lLock_BT( vMainLoopMutex_BT );
+         makeNOContextCurrent();
+         vMainLoopISPaused_B = true;
+         while( vMainLoopPaused_B ) vMainLoopWait_BT.wait(lLock_BT);
+         vMainLoopISPaused_B = false;
+         makeContextCurrent();
+      }
+      
       fRender( this );
    }
 
@@ -283,6 +299,37 @@ void eInit::s_standardWindowClose( eWinInfo _info )  {
    wLOG "Standard WindowClose slot! Closing the window!" END
    _info.eInitPointer->closeWindow();
 }
+
+void eInit::pauseMainLoop() {
+   if( ! vMainLoopRunning_B )
+      return;
+   
+   vMainLoopPaused_B  = true;
+   vEventLoopPaused_B = true;
+   
+   vLoopsPaused_B = true;
+   
+   while( !vMainLoopISPaused_B && !vEventLoopISPaused_B )
+      B_SLEEP( milliseconds, 10 );
+   
+   iLOG "Loops paused" END
+}
+
+void eInit::continueMainLoop() {
+   vLoopsPaused_B = false;
+   
+   boost::lock_guard<boost::mutex> lLockMain_BT( vMainLoopMutex_BT );
+   vMainLoopPaused_B = false;
+   vMainLoopWait_BT.notify_one();
+   
+   boost::lock_guard<boost::mutex> lLockEvent_BT( vEventLoopMutex_BT );
+   vEventLoopPaused_B = false;
+   vEventLoopWait_BT.notify_one();
+   
+   
+   iLOG "Loops unpaused" END
+}
+
 
 
 

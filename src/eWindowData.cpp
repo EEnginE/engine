@@ -104,6 +104,7 @@ void _eWindowData::__eWindowData_Window::reset() {
 
    fullscreen                = false;
    VSync                     = true;
+   windowDecoration          = true;
    
    winType                   = NORMAL;
 
