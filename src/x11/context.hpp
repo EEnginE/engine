@@ -31,6 +31,7 @@
 
 #include "randr.hpp"
 #include "defines.hpp"
+#include "eInitEventBasic.hpp"
 #include <GL/glew.h>
 // WARNING Can not include <glxew.h> because it would overwrite all <glx.h> macros
 //         which dont work before calling glewInit();
@@ -86,7 +87,7 @@ extern Atom atom_wmDeleteWindow;
  * functions and in the other file ( e_context.cpp ) the
  * rest of the functions.
  */
-class eContext : public eRandR {
+class eContext : public eRandR, public eInitEventBasic {
    private:
 
       // X11 variables
@@ -135,6 +136,8 @@ class eContext : public eRandR {
       int createOGLContext();     //!< Creates the OpenGL context             \returns \c SUCCESS: \a 1 -- \c ERRORS: \a 3
       
       bool sendX11Event( std::string _atom, GLint64 _l0 = 0, GLint64 _l1 = 0, GLint64 _l2 = 0, GLint64 _l3 = 0, GLint64 _l4 = 0 );
+      
+      virtual void makeEInitEventBasicAbstract() {}
 
    public:
       eContext() {
