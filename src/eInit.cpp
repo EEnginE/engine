@@ -284,6 +284,9 @@ void eInit::s_standardWindowClose( eWinInfo _info )  {
    _info.eInitPointer->closeWindow();
 }
 
+eInit *eInit::getPointerOfFirstEInit() {
+   return e_engine_internal::__eInit_Pointer_OBJ.get();
+}
 
 
 }
