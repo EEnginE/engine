@@ -30,7 +30,8 @@ int eInit::eventLoop() {
 
    boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
    vStartEventCondition_BT.wait( lLockEvent_BT );
-
+   
+   
    iLOG "Event loop started" END
 
    MSG msg;
@@ -40,6 +41,9 @@ int eInit::eventLoop() {
 
          TranslateMessage( &msg );
          DispatchMessage( &msg );
+         
+         setDecoration( C_REMOVE );
+
       }
 
       B_SLEEP( milliseconds, 10 );

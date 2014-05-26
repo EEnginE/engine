@@ -71,7 +71,7 @@ class eContext : public eInitEventBasic {
       bool applyNewRandRSettings() {return false;}
 
       int  setFullScreenMonitor( eDisplays _disp ) {return 0;}
-      bool setDecoration( ACTION _action ) {return false;}
+      bool setDecoration( ACTION _action );
       int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {return 0;}
       bool fullScreenMultiMonitor() {return false;}
 };

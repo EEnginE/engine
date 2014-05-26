@@ -46,14 +46,6 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
 
-
-//       if ( this__->vHWND_Window_win32 != 0 ) {
-//          // This function was already called -- this should never happen
-//          eLOG "Internal Error: eContext::initialWndProc was already called!!" END
-//          this__->destroyContext();
-//          this__->vWindowsCallbacksError_B = true;
-//       }
-
       this__->vHWND_Window_win32 = _hwnd;
       SetWindowLongPtr( _hwnd,
                         GWLP_USERDATA,
@@ -83,7 +75,7 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 
 
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   iLOG "Msg found: " ADD _uMsg ADD " : " ADD _wParam ADD " : " ADD _lParam END
+//    iLOG "Msg found: " ADD _uMsg ADD " : " ADD _wParam ADD " : " ADD _lParam END
    switch ( _uMsg ) {
       case WM_SIZE://Window size was changed
          iLOG "Resized " END
@@ -614,6 +606,67 @@ bool eContext::makeNOContextCurrent() {
    }
    return wglMakeCurrent( NULL, NULL ) == TRUE ? true : false;
 }
+
+bool eContext::setDecoration( ACTION _action ) {
+   LONG lCurrentLong_win32 = GetClassLong( vHWND_Window_win32, GWL_STYLE );
+   bool lHasCurrentlyABorder_B = false;
+
+   if ( lCurrentLong_win32 & WS_CAPTION || lCurrentLong_win32 & WS_THICKFRAME )
+      lHasCurrentlyABorder_B = true;
+   else
+      lHasCurrentlyABorder_B = true;
+
+   switch ( _action ) {
+      case C_ADD:
+         if ( lHasCurrentlyABorder_B ) {
+            iLOG "The Window has already a decoration. Nothing todo here" END
+            return true;
+         }
+         iLOG "Adding window border" END
+         lCurrentLong_win32 |= WS_CAPTION;
+         break;
+      case C_REMOVE:
+         if ( !lHasCurrentlyABorder_B ) {
+            iLOG "The Window has already not a decoration. Nothing todo here" END
+            return true;
+         }
+         iLOG "Removing window border" END
+         lCurrentLong_win32 = WS_POPUP;
+         break;
+
+      case C_TOGGLE:
+         if ( lHasCurrentlyABorder_B ) {
+            iLOG "Removing window border" END
+            lCurrentLong_win32 = WS_POPUP;
+         } else {
+            iLOG "Adding window border" END
+            lCurrentLong_win32 |= WS_CAPTION;
+         }
+
+         break;
+
+      default:
+         eLOG "This message is theoretically totaly impossible! [bool eContext::setDecoration( ACTION _action )]" END
+         return false;
+   }
+
+   if( SetClassLong( vHWND_Window_win32, GWL_STYLE, lCurrentLong_win32 ) == 0 ) {
+      eLOG "ERROR" END
+   }
+
+// //    LONG lExStyle = GetWindowLong( vHWND_Window_win32, GWL_EXSTYLE );
+//    lExStyle &= ~( WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE );
+//    SetWindowLong( vHWND_Window_win32, GWL_EXSTYLE, lExStyle );
+
+   ShowWindow( vHWND_Window_win32, SW_SHOW );
+   SetForegroundWindow( vHWND_Window_win32 );
+   SetFocus( vHWND_Window_win32 );
+
+   SetWindowPos( vHWND_Window_win32, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER );
+
+   return true;
+}
+
 
 
 

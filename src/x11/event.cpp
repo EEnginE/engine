@@ -38,7 +38,7 @@
 static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
    result.tv_sec  = a.tv_sec  + b.tv_sec;
    result.tv_usec = a.tv_usec + b.tv_usec;
-   while( result.tv_usec >= 1000000 ) {
+   while ( result.tv_usec >= 1000000 ) {
       result.tv_sec++;
       result.tv_usec -= 1000000;
    }
@@ -54,7 +54,7 @@ static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
 static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
    result.tv_sec  = a.tv_sec  - b.tv_sec;
    result.tv_usec = a.tv_usec - b.tv_usec;
-   while( result.tv_usec < 0 ) {
+   while ( result.tv_usec < 0 ) {
       result.tv_sec--;
       result.tv_usec += 1000000;
    }
@@ -89,12 +89,19 @@ int eInit::eventLoop() {
    addTimeval( tv, periode, tv );
 
 
-   while( vMainLoopRunning_B ) {
+   while ( vMainLoopRunning_B ) {
+      if ( vLoopsPaused_B ) {
+         boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
+         vEventLoopISPaused_B = true;
+         while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
+         vEventLoopISPaused_B = false;
+      }
+
       FD_ZERO( &in_fds );
       FD_SET( x11_fd, &in_fds );
 
       // Wait for X Event
-      if( select( x11_fd + 1, &in_fds, NULL, NULL, &tv_select ) ) {
+      if ( select( x11_fd + 1, &in_fds, NULL, NULL, &tv_select ) ) {
          // Event
          gettimeofday( &tv_select, NULL );
          subTimeval( tv, tv_select, tv_select );
@@ -106,13 +113,13 @@ int eInit::eventLoop() {
          addTimeval( tv, periode, tv );
       }
 
-      while( XPending( getDisplay() ) > 0 && getHaveContext() ) {
+      while ( XPending( getDisplay() ) > 0 && getHaveContext() ) {
          XNextEvent( getDisplay(), &e );
          key_state = E_KEY_PRESSED;
-         switch( e.type ) {
+         switch ( e.type ) {
 
             case ConfigureNotify:
-               if( e.xconfigure.width   != ( int ) WinData.win.width  || e.xconfigure.height != ( int ) WinData.win.height ||
+               if ( e.xconfigure.width   != ( int ) WinData.win.width  || e.xconfigure.height != ( int ) WinData.win.height ||
                      e.xconfigure.x      != WinData.win.posX        || e.xconfigure.y      != WinData.win.posY ) {
 
                   eWinInfo tempInfo( this );
@@ -137,7 +144,7 @@ int eInit::eventLoop() {
 
             case ClientMessage:
                // Check if the User pressed the [x] button or ALT+F4 [etc.]
-               if( ( Atom ) e.xclient.data.l[0] == unix_x11::atom_wmDeleteWindow ) {
+               if ( ( Atom ) e.xclient.data.l[0] == unix_x11::atom_wmDeleteWindow ) {
                   iLOG "User pressed the close button" END
                   eWinInfo tempInfo( this );
                   tempInfo.type = 10;

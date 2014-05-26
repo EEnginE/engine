@@ -42,6 +42,13 @@ void MyHandler::key( eWinInfo info ) {
          case L's':              info.eInitPointer->fullScreenMultiMonitor(); break;
          case L'a':              if ( vDisp_RandR.size() > 0 ) info.eInitPointer->setFullScreenMonitor( vDisp_RandR[0] ); break;
          case L'd':              if ( vDisp_RandR.size() > 1 ) info.eInitPointer->setFullScreenMonitor( vDisp_RandR[1] ); break;
+         case L'p':
+            iLOG "Pausing" END
+            info.eInitPointer->pauseMainLoop();
+            B_SLEEP( seconds, 5 );
+            iLOG "Unpausing" END
+            info.eInitPointer->continueMainLoop();
+            break;
          case L'q':
          case L'Q':
          case E_KEY_ESCAPE:      info.eInitPointer->closeWindow(); break;

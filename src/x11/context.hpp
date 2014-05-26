@@ -168,7 +168,7 @@ class eContext : public eRandR, public eInitEventBasic {
 
 
       bool makeContextCurrent();
-      bool makeNOContexCurrent();
+      bool makeNOContextCurrent();
 
 
       void destroyContext();
