@@ -23,6 +23,11 @@ void hexPrint( std::vector<unsigned char> const &_v ) {
 // #undef  UNIX
 // #define UNIX 0
 
+void temp( eInit *_init ) {
+   B_SLEEP( seconds, 3 );
+   _init->restart();
+}
+
 int main( int argc, char **argv ) {
    WinData.win.width           = 800;
    WinData.win.height          = 600;
@@ -145,6 +150,7 @@ int main( int argc, char **argv ) {
       prog.link( dummy );
 
 #endif // UNIX
+      boost::thread ttt = boost::thread( temp, &start );
       start.startMainLoop();
       B_SLEEP( seconds, 1 );
       start.closeWindow();

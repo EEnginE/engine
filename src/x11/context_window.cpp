@@ -42,18 +42,18 @@
 namespace {
 
 template<class T>
-inline std::string StringLeft ( T _val, unsigned int _size, char _fill ) {
+inline std::string StringLeft( T _val, unsigned int _size, char _fill ) {
    std::string lResult_STR =  _val;
    if ( _size > lResult_STR.size() )
-      lResult_STR.append ( ( _size - lResult_STR.size() ), _fill );
+      lResult_STR.append( ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;
 }
 
 template<class T>
-inline std::string numToSizeStringLeft ( T _val, unsigned int _size, char _fill ) {
+inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill ) {
    std::string lResult_STR = boost::lexical_cast<std::string> ( _val );
    if ( _size > lResult_STR.size() )
-      lResult_STR.append ( ( _size - lResult_STR.size() ), _fill );
+      lResult_STR.append( ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;
 }
 
@@ -70,18 +70,18 @@ int eContext::createDisplay() {
    // Needed for XSetWMProperties
    vSizeHints_X11  = XAllocSizeHints();
    vWmHints_X11    = XAllocWMHints();
-   vDisplay_X11    = XOpenDisplay ( NULL );
+   vDisplay_X11    = XOpenDisplay( NULL );
    if ( vDisplay_X11 == 0 ) {
       eLOG "Can not connect to the X-Server. Abort. (return -1)" END
       return -1;
    }
    vDisplayCreated_B  = true;
 
-   vX11VersionMajor_I = ProtocolVersion ( vDisplay_X11 );
-   vX11VersionMinor_I = ProtocolRevision ( vDisplay_X11 );
-   vScreen_X11        = DefaultScreen ( vDisplay_X11 );
+   vX11VersionMajor_I = ProtocolVersion( vDisplay_X11 );
+   vX11VersionMinor_I = ProtocolRevision( vDisplay_X11 );
+   vScreen_X11        = DefaultScreen( vDisplay_X11 );
    // GLX version test
-   if ( !glXQueryVersion ( vDisplay_X11, &vGLXVersionMajor_I, &vGLXVersionMinor_I ) || ( vGLXVersionMajor_I < WinData.versions.minGlxMajorVer )
+   if ( !glXQueryVersion( vDisplay_X11, &vGLXVersionMajor_I, &vGLXVersionMinor_I ) || ( vGLXVersionMajor_I < WinData.versions.minGlxMajorVer )
          || ( vGLXVersionMajor_I == WinData.versions.minGlxMajorVer && vGLXVersionMinor_I < WinData.versions.minGlxMinorVer ) ) {
 
 
@@ -115,7 +115,7 @@ int eContext::createFrameBuffer() {
    };
 
    // Get the config
-   vFBConfig_GLX = glXChooseFBConfig ( vDisplay_X11, vScreen_X11, fbAttributes, &vNumOfFBConfigs_I );
+   vFBConfig_GLX = glXChooseFBConfig( vDisplay_X11, vScreen_X11, fbAttributes, &vNumOfFBConfigs_I );
    if ( vNumOfFBConfigs_I == 0 ) {
       eLOG "No matching framebufferconfig found. Abort. (return -3)" END
       return -3;
@@ -142,29 +142,29 @@ int eContext::createFrameBuffer() {
 
       _END_
    for ( i = 0; i < vNumOfFBConfigs_I; i++ ) {
-      XVisualInfo *temp = glXGetVisualFromFBConfig ( vDisplay_X11, vFBConfig_GLX[i] );
+      XVisualInfo *temp = glXGetVisualFromFBConfig( vDisplay_X11, vFBConfig_GLX[i] );
       if ( temp ) {
          char lBuffer_C[5];
-         std::snprintf ( lBuffer_C, 4, "%X", ( GLuint ) temp->visualid );
+         std::snprintf( lBuffer_C, 4, "%X", ( GLuint ) temp->visualid );
          int samples, depth, stencil, r, g, b, a;
 
-         glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,    &samples );
-         glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,    &stencil );
-         glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_RED_SIZE,   &r );
-         glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_GREEN_SIZE, &g );
-         glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_BLUE_SIZE,  &b );
-         glXGetFBConfigAttrib ( vDisplay_X11, vFBConfig_GLX[i], GLX_ALPHA_SIZE, &a );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,    &samples );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,    &stencil );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_RED_SIZE,   &r );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_GREEN_SIZE, &g );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_BLUE_SIZE,  &b );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_ALPHA_SIZE, &a );
          // glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_DEPTH_SIZE, &depth ); This returns the depth SIZE and NOT the depth
          depth = temp->depth;
 
-         lEntry_LOG _ADD "   |    " ADD numToSizeStringLeft ( i, 5, ' ' ) ADD "| "
-         ADD "0x0" ADD StringLeft ( lBuffer_C, 4, ' ' )  ADD "|    "
-         ADD numToSizeStringLeft ( samples, 5, ' ' )     ADD "|   "  ADD numToSizeStringLeft ( depth, 4, ' ' ) ADD "|    "
-         ADD numToSizeStringLeft ( stencil, 5, ' ' )     ADD "|  "
-         ADD 'O', 'R', numToSizeStringLeft ( r, 3, ' ' ) ADD "-  "
-         ADD 'O', 'G', numToSizeStringLeft ( g, 3, ' ' ) ADD "-  "
-         ADD 'O', 'B', numToSizeStringLeft ( b, 3, ' ' ) ADD "-  "
-         ADD 'O', 'C', numToSizeStringLeft ( a, 3, ' ' ) ADD "|" NEWLINE _END_
+         lEntry_LOG _ADD "   |    " ADD numToSizeStringLeft( i, 5, ' ' ) ADD "| "
+         ADD "0x0" ADD StringLeft( lBuffer_C, 4, ' ' )  ADD "|    "
+         ADD numToSizeStringLeft( samples, 5, ' ' )     ADD "|   "  ADD numToSizeStringLeft( depth, 4, ' ' ) ADD "|    "
+         ADD numToSizeStringLeft( stencil, 5, ' ' )     ADD "|  "
+         ADD 'O', 'R', numToSizeStringLeft( r, 3, ' ' ) ADD "-  "
+         ADD 'O', 'G', numToSizeStringLeft( g, 3, ' ' ) ADD "-  "
+         ADD 'O', 'B', numToSizeStringLeft( b, 3, ' ' ) ADD "-  "
+         ADD 'O', 'C', numToSizeStringLeft( a, 3, ' ' ) ADD "|" NEWLINE _END_
          if ( samples > lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I && b >= lBestB_I && a >= lBestA_I ) {
             vBestFBConfig_I = i;
             lBestSamples_I = samples;
@@ -190,18 +190,18 @@ int eContext::createFrameBuffer() {
             lBestA_I = a;
          }
       }
-      XFree ( temp );
+      XFree( temp );
    }
    lEntry_LOG _ADD "   |=========|========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
 
-   vVisualInfo_X11 = glXGetVisualFromFBConfig ( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I] ); // Choose best fbconfig
+   vVisualInfo_X11 = glXGetVisualFromFBConfig( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I] );  // Choose best fbconfig
 
    char lBuffer_C[5];
-   std::snprintf ( lBuffer_C, 4, "%X", ( GLuint ) vVisualInfo_X11->visualid );
+   std::snprintf( lBuffer_C, 4, "%X", ( GLuint ) vVisualInfo_X11->visualid );
 
    iLOG "Use framebufferconfig " ADD vBestFBConfig_I ADD " ( 0x0" ADD lBuffer_C ADD " )" END
 
-   vRootWindow_X11 = RootWindow ( vDisplay_X11, vVisualInfo_X11->screen );
+   vRootWindow_X11 = RootWindow( vDisplay_X11, vVisualInfo_X11->screen );
 
    return 1;
 }
@@ -216,21 +216,21 @@ int eContext::createWindow() {
    vWindowAttributes_X11.border_pixel      = 0;
    vWindowAttributes_X11.bit_gravity       = NorthWestGravity;
    vWindowAttributes_X11.background_pixmap = None ;
-   vWindowAttributes_X11.colormap = vColorMap_X11   = XCreateColormap ( vDisplay_X11, vRootWindow_X11, vVisualInfo_X11->visual, AllocNone );
+   vWindowAttributes_X11.colormap = vColorMap_X11   = XCreateColormap( vDisplay_X11, vRootWindow_X11, vVisualInfo_X11->visual, AllocNone );
    vWindowMask_X11 = CWBitGravity | CWEventMask | CWColormap | CWBorderPixel | CWBackPixmap;
 
    vColorMapCreated_B = true;
 
-   vWindow_X11 = XCreateWindow ( vDisplay_X11,                                    // Display
-                                 vRootWindow_X11,                                  // Root window
-                                 WinData.win.posX, WinData.win.posY,          // X, Y
-                                 WinData.win.width, WinData.win.height,       // Width, Height
-                                 0,                                           // Border width
-                                 vVisualInfo_X11->depth,                           // Depth
-                                 InputOutput,                                 // Type of the window
-                                 vVisualInfo_X11->visual,                          // Visual of the window
-                                 vWindowMask_X11,                                  // Window mask
-                                 &vWindowAttributes_X11 );                         // Window attributes structure
+   vWindow_X11 = XCreateWindow( vDisplay_X11,                                     // Display
+                                vRootWindow_X11,                                  // Root window
+                                WinData.win.posX, WinData.win.posY,          // X, Y
+                                WinData.win.width, WinData.win.height,       // Width, Height
+                                0,                                           // Border width
+                                vVisualInfo_X11->depth,                           // Depth
+                                InputOutput,                                 // Type of the window
+                                vVisualInfo_X11->visual,                          // Visual of the window
+                                vWindowMask_X11,                                  // Window mask
+                                &vWindowAttributes_X11 );                         // Window attributes structure
    if ( vWindow_X11 == 0 ) {
       eLOG "Failed to create a Window. Abort. (return -4)" END
       return -4;
@@ -256,8 +256,8 @@ int eContext::createWindow() {
    }
 
    // The Atoms needed
-   Atom lWindowType_atom      = XInternAtom ( vDisplay_X11, "_NET_WM_WINDOW_TYPE", True );
-   Atom lWhichWindowType_atom = XInternAtom ( vDisplay_X11, lWindowType_str.c_str(), True );
+   Atom lWindowType_atom      = XInternAtom( vDisplay_X11, "_NET_WM_WINDOW_TYPE", True );
+   Atom lWhichWindowType_atom = XInternAtom( vDisplay_X11, lWindowType_str.c_str(), True );
 
    if ( ! lWindowType_atom )
       wLOG "Failed to create X11 Atom _NET_WM_WINDOW_TYPE" END
@@ -267,30 +267,30 @@ int eContext::createWindow() {
 
 
          if ( lWindowType_atom && lWhichWindowType_atom ) {
-            boost::regex lTypeRegex_EX ( "^_[A-Z_]+_" );
+            boost::regex lTypeRegex_EX( "^_[A-Z_]+_" );
             const char  *lReplace_C = "";
 
             // Apply window type
-            if ( ! XChangeProperty ( vDisplay_X11,
-                                     vWindow_X11,
-                                     lWindowType_atom,
-                                     XA_ATOM,
-                                     32,
-                                     PropModeReplace,
-                                     ( unsigned char * ) &lWhichWindowType_atom,
-                                     1 )
+            if ( ! XChangeProperty( vDisplay_X11,
+                                    vWindow_X11,
+                                    lWindowType_atom,
+                                    XA_ATOM,
+                                    32,
+                                    PropModeReplace,
+                                    ( unsigned char * ) &lWhichWindowType_atom,
+                                    1 )
                ) {
-               wLOG "Failed to set the window type to " ADD boost::regex_replace ( lWindowType_str, lTypeRegex_EX, lReplace_C )
+               wLOG "Failed to set the window type to " ADD boost::regex_replace( lWindowType_str, lTypeRegex_EX, lReplace_C )
                ADD  " ( XChangeProperty( ..., _NET_WM_WINDOW_TYPE, " ADD lWindowType_str ADD ", ...);" END
             } else {
-               iLOG "Successfully set the Window type to " ADD boost::regex_replace ( lWindowType_str, lTypeRegex_EX, lReplace_C ) END
+               iLOG "Successfully set the Window type to " ADD boost::regex_replace( lWindowType_str, lTypeRegex_EX, lReplace_C ) END
             }
          }
 
    char *lWinNameTemp_CSTR = ( char * ) WinData.win.windowName.c_str();
    char *lIcoNameTemp_CSTR = ( char * ) WinData.win.iconName.c_str();
-   XStringListToTextProperty ( &lWinNameTemp_CSTR, 1, &vWindowNameTP_X11 );
-   XStringListToTextProperty ( &lIcoNameTemp_CSTR, 1, &vWindowIconTP_X11 );
+   XStringListToTextProperty( &lWinNameTemp_CSTR, 1, &vWindowNameTP_X11 );
+   XStringListToTextProperty( &lIcoNameTemp_CSTR, 1, &vWindowIconTP_X11 );
 
    vSizeHints_X11->flags       = PPosition | PSize | PMinSize;// | IconPixmapHint | IconMaskHint;
    vSizeHints_X11->min_width   = WinData.win.minWidth;
@@ -303,34 +303,34 @@ int eContext::createWindow() {
 
    //createIconPixmap();
 
-   XSetWMName ( vDisplay_X11,      vWindow_X11, &vWindowNameTP_X11 );
-   XSetWMIconName ( vDisplay_X11,  vWindow_X11, &vWindowIconTP_X11 );
-   XSetWMHints ( vDisplay_X11,     vWindow_X11,  vWmHints_X11 );
-   XSetNormalHints ( vDisplay_X11, vWindow_X11,  vSizeHints_X11 );
+   XSetWMName( vDisplay_X11,      vWindow_X11, &vWindowNameTP_X11 );
+   XSetWMIconName( vDisplay_X11,  vWindow_X11, &vWindowIconTP_X11 );
+   XSetWMHints( vDisplay_X11,     vWindow_X11,  vWmHints_X11 );
+   XSetNormalHints( vDisplay_X11, vWindow_X11,  vSizeHints_X11 );
 
    // When user presses the [x] Button the window doesnt close
-   atom_wmDeleteWindow = XInternAtom ( vDisplay_X11, "WM_DELETE_WINDOW", True );
+   atom_wmDeleteWindow = XInternAtom( vDisplay_X11, "WM_DELETE_WINDOW", True );
 
    if ( atom_wmDeleteWindow )
-      XSetWMProtocols ( vDisplay_X11, vWindow_X11, &atom_wmDeleteWindow, 1 );
+      XSetWMProtocols( vDisplay_X11, vWindow_X11, &atom_wmDeleteWindow, 1 );
    else
       wLOG "Failed to create X11 Atom WM_DELETE_WINDOW" END
 
-      XMapWindow ( vDisplay_X11, vWindow_X11 );
+      XMapWindow( vDisplay_X11, vWindow_X11 );
 
 
    vWindowCreated_B = true;
 
-   XFree ( vWmHints_X11 );
-   XFree ( vVisualInfo_X11 ); // Not needed anymore
+   XFree( vWmHints_X11 );
+   XFree( vVisualInfo_X11 );  // Not needed anymore
 
    for ( ;; ) {         // Wait until window is mapped
       XEvent e;
-      XNextEvent ( vDisplay_X11, &e );
+      XNextEvent( vDisplay_X11, &e );
       if ( e.type == MapNotify ) break;
    }
 
-   XFlush ( vDisplay_X11 );
+   XFlush( vDisplay_X11 );
 
    return 1;
 }
@@ -338,7 +338,7 @@ int eContext::createWindow() {
 // Create OpenGL Context ###################################################################################################### ###
 // Error handler for the X-Server so it doesn't exit the program
 static bool gContextErrorOccoured_B = false;
-static int contextERROR_HANDLE ( Display *dpy, XErrorEvent *event ) {
+static int contextERROR_HANDLE( Display *dpy, XErrorEvent *event ) {
    gContextErrorOccoured_B = true;
    return 0;
 }
@@ -352,23 +352,26 @@ int eContext::createOGLContext() {
       {0, 0} // End marker
    };
 
+   if ( ! vHaveGLEW_B ) {
+      // Make the function pointer
+      glXCreateContextAttribsARB = 0;
+      glXCreateContextAttribsARB = ( glXCreateContextAttribsARBProc ) glXGetProcAddressARB( ( GLubyte * ) "glXCreateContextAttribsARB" );
+   }
+
    gContextErrorOccoured_B = false;
-   int ( *oldHandler ) ( Display *, XErrorEvent * ) = XSetErrorHandler ( &contextERROR_HANDLE );
+   int ( *oldHandler )( Display *, XErrorEvent * ) = XSetErrorHandler( &contextERROR_HANDLE );
 
-   // Make the function pointer
-   glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
-   glXCreateContextAttribsARB = ( glXCreateContextAttribsARBProc ) glXGetProcAddressARB ( ( GLubyte * ) "glXCreateContextAttribsARB" );
-
-   if ( !isExtensionSupported ( "GLX_ARB_create_context" ) || !glXCreateContextAttribsARB ) {
+   if ( !isExtensionSupported( "GLX_ARB_create_context" ) || !glXCreateContextAttribsARB ) {
       // Extension not supported:
       wLOG "glXCreateContextAttribsARB not found => Fall back to old-style context creation" END
 
-      vOpenGLContext_GLX = glXCreateNewContext ( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_RGBA_TYPE, 0, true );
+      vOpenGLContext_GLX = glXCreateNewContext( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_RGBA_TYPE, 0, true );
    } else {
+
       // Extension supported:
       GLint lAttributes_A_I[5];
-      if ( 
-         ( WinData.versions.glMinorVersion  < 0 || WinData.versions.glMajorVersion  < 0 ) && 
+      if (
+         ( WinData.versions.glMinorVersion  < 0 || WinData.versions.glMajorVersion  < 0 ) &&
          ( WinData.versions.glMinorVersion != 0 && WinData.versions.glMajorVersion != 0 )
       ) {
          lAttributes_A_I[0] = 0;
@@ -379,21 +382,21 @@ int eContext::createOGLContext() {
          lAttributes_A_I[1] = WinData.versions.glMajorVersion;
          lAttributes_A_I[2] = GLX_CONTEXT_MINOR_VERSION_ARB;
          lAttributes_A_I[3] = WinData.versions.glMinorVersion;
-         lAttributes_A_I[4] = 0;         
+         lAttributes_A_I[4] = 0;
       }
 
       for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
-         vOpenGLContext_GLX = glXCreateContextAttribsARB ( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], 0, true, lAttributes_A_I );
-         
+         vOpenGLContext_GLX = glXCreateContextAttribsARB( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], 0, true, lAttributes_A_I );
+
          // Errors ?
-         XSync ( vDisplay_X11, false );
+         XSync( vDisplay_X11, false );
          if ( gContextErrorOccoured_B == true || !vOpenGLContext_GLX ) {
             // Select the next lower version
             while (
                ( version_list[i][0] >= lAttributes_A_I[1] && version_list[i][1] >= lAttributes_A_I[3] ) &&
                ( version_list[i][0] != 0 || version_list[i][1] != 0 )
             ) {i++;}
-            
+
             wLOG "Failed to create an OpenGl version "   ADD lAttributes_A_I[1] ADD '.' ADD lAttributes_A_I[3]
             ADD  " context. Try to fall back to OpenGl " ADD version_list[i][0] ADD '.' ADD version_list[i][1] END
 
@@ -409,22 +412,20 @@ int eContext::createOGLContext() {
             break;
          }
       }
-      WinData.versions.glMajorVersion = lAttributes_A_I[1];
-      WinData.versions.glMinorVersion = lAttributes_A_I[3];
    }
 
-   XSync ( vDisplay_X11, false );
+   XSync( vDisplay_X11, false );
    if ( gContextErrorOccoured_B == true || !vOpenGLContext_GLX ) {
       eLOG "Failed to create a context. Abrobt. (return 3)" END
       return 3;
    }
-   XSetErrorHandler ( oldHandler );
-   glXMakeCurrent ( vDisplay_X11, vWindow_X11, vOpenGLContext_GLX );
-   XFlush ( vDisplay_X11 );
+   XSetErrorHandler( oldHandler );
+   glXMakeCurrent( vDisplay_X11, vWindow_X11, vOpenGLContext_GLX );
+   XFlush( vDisplay_X11 );
 
    vHaveContext_B = true;
 
-   XFree ( vFBConfig_GLX );   // Framebufferconfig is not need anymore
+   XFree( vFBConfig_GLX );    // Framebufferconfig is not need anymore
 
    return 1;
 }

@@ -126,12 +126,6 @@ int eInit::init() {
 
    standardRender( this ); // Fill the Window with black
 
-   if ( WinData.win.fullscreen == true ) {
-      if ( fullScreen( C_ADD ) == 1 ) {
-         WinData.win.fullscreen = true;
-      }
-   }
-
    return 1;
 }
 
@@ -269,7 +263,9 @@ int eInit::renderLoop( ) {
          makeNOContextCurrent();
          vMainLoopISPaused_B = true;
          while( vMainLoopPaused_B ) vMainLoopWait_BT.wait(lLock_BT);
+         while( !getHaveContext() ) B_SLEEP( milliseconds, 10 );
          vMainLoopISPaused_B = false;
+         B_SLEEP(seconds,1);
          makeContextCurrent();
       }
       
@@ -330,6 +326,30 @@ void eInit::continueMainLoop() {
    
    iLOG "Loops unpaused" END
 }
+
+/*!
+ * \brief Recreates the Window / OpenGL context
+ * 
+ * Does nothing when the main loop is not running
+ * 
+ * \returns Nothing
+ */
+void eInit::restart() {
+   if( !vMainLoopRunning_B )
+      return;
+   
+   pauseMainLoop();
+   destroyContext();
+#if UNIX
+   createContext();
+   standardRender( eWinInfo(this) );
+   makeNOContextCurrent();
+#elif WINDOWS
+   setWindowRecreate();
+#endif
+   continueMainLoop();
+}
+
 
 
 

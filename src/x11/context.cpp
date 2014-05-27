@@ -120,20 +120,22 @@ int eContext::createContext() {
    }
 
 
-   // Init GLEW
-   glewExperimental = GL_TRUE;
-   vHaveGLEW_B = true;
-   if ( GLEW_OK != glewInit() ) {
-      eLOG "Failed to init GLEW. Aborting. (return 4)" END
-      vHaveGLEW_B = false;
-      return 4;
+   if ( ! vHaveGLEW_B ) {
+      // Init GLEW
+      glewExperimental = GL_TRUE;
+      vHaveGLEW_B = true;
+      if ( GLEW_OK != glewInit() ) {
+         eLOG "Failed to init GLEW. Aborting. (return 4)" END
+         vHaveGLEW_B = false;
+         return 4;
+      }
    }
 
    iLOG "Versions:"
-   POINT "Engine: " 
-      ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
-      ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
-      ADD 'B', 'C', E_VERSION_SUBMINOR ADD ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
+   POINT "Engine: "
+   ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
+   ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
+   ADD 'B', 'C', E_VERSION_SUBMINOR ADD( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
    POINT "OpenGL: " ADD 'B', 'C', glGetString( GL_VERSION )
    POINT "GLSL:   " ADD 'B', 'C', glGetString( GL_SHADING_LANGUAGE_VERSION )
    POINT "GLX:    " ADD 'B', 'C', vGLXVersionMajor_I ADD 'B', 'C' , "." ADD 'B', 'C' , vGLXVersionMinor_I
@@ -141,6 +143,16 @@ int eContext::createContext() {
    POINT "GLEW:   " ADD 'B', 'C', glewGetString( GLEW_VERSION )
    POINT "RandR:  " ADD 'B', 'C', lRandRVersionString_str
    END
+   
+   if ( WinData.win.fullscreen == true ) {
+      fullScreen( C_ADD );
+   }
+   
+   if ( WinData.win.windowDecoration == true ) {
+      setDecoration( C_ADD );
+   } else {
+      setDecoration( C_REMOVE );
+   }
 
    return 1;
 }
@@ -212,7 +224,7 @@ int eContext::enableVSync() {
       return 0;
 
    if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
-      switch( glXSwapIntervalSGI( 1 ) ) {
+      switch ( glXSwapIntervalSGI( 1 ) ) {
          case 0: // Success
             iLOG "VSync [GLX] enabled" END
             return 1;
@@ -250,7 +262,7 @@ int eContext::disableVSync() {
       return 0;
 
    if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
-      switch( glXSwapIntervalSGI( 0 ) ) {
+      switch ( glXSwapIntervalSGI( 0 ) ) {
          case 0: // Success
             iLOG "VSync [GLX] disabled" END
             return 1;
@@ -324,8 +336,8 @@ bool eContext::setDecoration( e_engine::ACTION _action ) {
       wLOG "Failed to set XChangeProperty( ..., _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,...); ==> Can not set / remove window border " END
       return false;
    }
-   
-   switch( _action ) {
+
+   switch ( _action ) {
       case C_ADD:    WinData.win.windowDecoration = true;  break;
       case C_REMOVE: WinData.win.windowDecoration = false; break;
       case C_TOGGLE: WinData.win.windowDecoration = !WinData.win.windowDecoration; break;
@@ -345,13 +357,13 @@ bool eContext::setDecoration( e_engine::ACTION _action ) {
  */
 bool eContext::fullScreen( e_engine::ACTION _action, bool _allMonitors ) {
    bool ret1 = setAttribute( _action, FULLSCREEN );
-   
-   if( !ret1 )
+
+   if ( !ret1 )
       return false;
-   
-   if( _allMonitors && ! ( _action == C_REMOVE ) )
+
+   if ( _allMonitors && !( _action == C_REMOVE ) )
       return fullScreenMultiMonitor();
-   
+
    return true;
 }
 
@@ -379,7 +391,7 @@ bool eContext::maximize( e_engine::ACTION _action ) {
 bool eContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 ) {
    if ( ! vHaveGLEW_B )
       return false;
-   
+
    if ( _type1 == _type2 ) {
       eLOG "Changing the same attribute at the same time makes completely no sense. ==> Do nothing" END
       return false;
@@ -468,9 +480,9 @@ bool eContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       wLOG lMode_STR ADD ' ' ADD lState1_str ADD " and " ADD lState2_str ADD " mode FAILED" END
       return false;
    }
-   
-   if( _type1 == FULLSCREEN || _type2 == FULLSCREEN ) {
-      switch( _action ) {
+
+   if ( _type1 == FULLSCREEN || _type2 == FULLSCREEN ) {
+      switch ( _action ) {
          case C_ADD:    WinData.win.fullscreen = true;  break;
          case C_REMOVE: WinData.win.fullscreen = false; break;
          case C_TOGGLE: WinData.win.fullscreen = !WinData.win.fullscreen; break;
@@ -510,9 +522,9 @@ bool eContext::fullScreenMultiMonitor() {
 
 /*!
  * \brief Try to map the fullscreen window to display _disp
- * 
+ *
  * \param _disp The display where the fullscreen window should be
- * 
+ *
  * \returns 1 when succeeded
  * \returns 2 when sending the X11 event failed
  * \returns the result of eRandR::getIndexOfDisplay() when there was a failure

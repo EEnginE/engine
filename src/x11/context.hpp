@@ -107,6 +107,8 @@ class eContext : public eRandR, public eInitEventBasic {
       GLXContext           vOpenGLContext_GLX;        //!< The context handle
       GLXFBConfig          *vFBConfig_GLX;            //!< The framebuffer handle
       int                  vNumOfFBConfigs_I;         //!< Number of found matching framebuffer configs
+      
+      glXCreateContextAttribsARBProc glXCreateContextAttribsARB; //! The context creation function pointer
 
       int    vBestFBConfig_I;
 
