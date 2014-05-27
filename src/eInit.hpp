@@ -144,6 +144,8 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       
       void   pauseMainLoop();
       void   continueMainLoop();
+      
+      void   restart();
 
       /*!
        * \brief Quit the main loop and close the window

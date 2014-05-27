@@ -11,57 +11,78 @@
 
 namespace e_engine {
 
+namespace {
+
+}
+
 int eInit::eventLoop() {
    //! \todo Move this in windows_win32
    vEventLoopHasFinished_B = false;
 
-   {
-      // Make sure lLockWindow_BT will be destroyed
-      boost::lock_guard<boost::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
-      vCreateWindowReturn_I = createContext();
-      makeNOContextCurrent();
+   do {
 
-      // Context created; continue with init();
-      vCreateWindowCondition_BT.notify_one();
-   }
+      {
+         // Make sure lLockWindow_BT will be destroyed
+         std::cout << "AAA" << std::endl;
+         boost::lock_guard<boost::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
+         std::cout << "BBB" << std::endl;
+         vCreateWindowReturn_I = createContext();
+         std::cout << "CCC" << std::endl;
+         makeNOContextCurrent();
+         std::cout << "DDD" << std::endl;
 
-
-   // Now wait until the main event loop is officially "started"
-
-   boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
-   vStartEventCondition_BT.wait( lLockEvent_BT );
-   
-   
-   iLOG "Event loop started" END
-
-   MSG msg;
-
-   while ( vMainLoopRunning_B ) {
-      if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
-
-         TranslateMessage( &msg );
-         DispatchMessage( &msg );
-         
-         setDecoration( C_REMOVE );
-
+         // Context created; continue with init();
+         vCreateWindowCondition_BT.notify_one();
       }
 
-      B_SLEEP( milliseconds, 10 );
-   }
+
+      // Now wait until the main event loop is officially "started"
+
+      boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+      vStartEventCondition_BT.wait( lLockEvent_BT );
+
+
+      iLOG "Event loop started" END
+
+      MSG msg;
+
+      while ( vMainLoopRunning_B ) {
+         if ( vLoopsPaused_B ) {
+            boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
+            vEventLoopISPaused_B = true;
+            while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
+            vEventLoopISPaused_B = false;
+
+            // Jump back to create context
+            if ( vWindowRecreate_B || ! getHaveContext() )
+               break;
+
+         }
+         if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
+
+            TranslateMessage( &msg );
+            DispatchMessage( &msg );
+         }
+
+         B_SLEEP( milliseconds, 10 );
+      }
+   } while ( vMainLoopRunning_B );
 
    vEventLoopHasFinished_B = true;
    return 1;
 }
 
 namespace windows_win32 {
-   
-   using namespace e_engine;
-   
-   LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+
+using namespace e_engine;
+
+LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    if ( _uMsg == WM_NCCREATE ) {
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
+      
+      iLOG "Initial WndProc: set the class pointer" END
 
 
 //       if ( this__->vHWND_Window_win32 != 0 ) {
@@ -71,26 +92,25 @@ namespace windows_win32 {
 //          this__->vWindowsCallbacksError_B = true;
 //       }
 
-      this__->vHWND_Window_win32 = _hwnd;
       SetWindowLongPtr( _hwnd,
                         GWLP_USERDATA,
                         reinterpret_cast<LONG_PTR>( this__ ) );
       SetWindowLongPtr( _hwnd,
                         GWLP_WNDPROC,
                         reinterpret_cast<LONG_PTR>( &eContext::staticWndProc ) );
-      eWinInfo _tempInfo ( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
-      return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo);
+      eWinInfo _tempInfo( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
+      return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
    }
    // if it isn't WM_NCCREATE, do something sensible and wait until
    //   WM_NCCREATE is sent
-   return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam);
+   return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
 }
 
 LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    LONG_PTR lUserData_win32 = GetWindowLongPtr( _hwnd, GWLP_USERDATA );
    eContext *this__ = reinterpret_cast<eContext *>( lUserData_win32 );
-   eWinInfo _tempInfo ( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
-   
+   eWinInfo _tempInfo( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
+
    if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
       eLOG "Bad Windows callback error" END
       this__->destroyContext();
@@ -99,16 +119,16 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 
    return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
-   
-   
+
+
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo ) {
    unsigned int key_state = E_KEY_PRESSED;
-   
-   if(_tempInfo.eInitPointer == 0) {
+
+   if ( _tempInfo.eInitPointer == 0 ) {
       eLOG "eInit-pointer is not yet initialized" END
       return 0;
    }
-   
+
    switch ( _uMsg ) {
       case WM_SIZE://Window size was changed
          iLOG "Resized " END
@@ -141,17 +161,17 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          key_state = E_KEY_RELEASED;
       case WM_KEYDOWN: //Key pressed
          iLOG "Key pressed: " ADD( char ) _wParam END
-          _tempInfo.eKey.state = key_state;
-          _tempInfo.eKey.key   = _wParam; // TODO: Process _wParam first
-          vKey_SIG.sendSignal( _tempInfo );
+         _tempInfo.eKey.state = key_state;
+         _tempInfo.eKey.key   = _wParam; // TODO: Process _wParam first
+         vKey_SIG.sendSignal( _tempInfo );
          return 0;
 //       case WM_MOUSEMOVE:
 //          iLOG "Mouse moved: " END
 //          return 0;
       default:
-         printf( "Found Event: 0x" );
-         printf( "%04x", _uMsg );
-         printf( "\n" );
+         char lStr_CSTR[6];
+         snprintf( lStr_CSTR, 5, "%04x", _uMsg );
+         iLOG "Found Event: 0x" ADD lStr_CSTR END
          break;
    }
 

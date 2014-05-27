@@ -4,7 +4,7 @@
  *
  * This file contains the class \b eContext which creates
  * the window in Windows and the OpenGL context on it.
- * 
+ *
  * Please note that the actualWndProc, the method for resolving
  * the window events is located within event.cpp
  *
@@ -48,6 +48,8 @@ eContext::eContext() {
    vWindowsCallbacksError_B = false;
    vHasContext_B            = false;
    vHasGLEW_B               = false;
+
+   vWindowRecreate_B        = false;
 }
 
 // Temp wndProc
@@ -146,26 +148,15 @@ int eContext::createContext() {
       return 6;
    }
 
-   GLenum lGLEWReturn_ENUM = glewInit();
-
-   if ( lGLEWReturn_ENUM != GLEW_OK ) {
-      eLOG "Failed to init GLEW. Unable to proceed!" END
-      return 7;
+   if ( ! vHasGLEW_B ) {
+      GLenum lGLEWReturn_ENUM = glewInit();
+      if ( lGLEWReturn_ENUM != GLEW_OK ) {
+         eLOG "Failed to init GLEW. Unable to proceed!" END
+         return 7;
+      }
+      vHasGLEW_B = true;
    }
 
-
-   vHasGLEW_B = true;
-
-
-   iLOG "Versions:"
-   POINT "Engine: "
-   ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
-   ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
-   ADD 'B', 'C', E_VERSION_SUBMINOR ADD( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
-   POINT "OpenGL: " ADD 'B', 'C', glGetString( GL_VERSION )
-   POINT "GLSL:   " ADD 'B', 'C', glGetString( GL_SHADING_LANGUAGE_VERSION )
-   POINT "GLEW:   " ADD 'B', 'C', glewGetString( GLEW_VERSION )
-   END
 
 
 
@@ -236,7 +227,21 @@ int eContext::createContext() {
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
 
 
-   int lNumberOfPixelFormats_I = 10;
+   int lNumberOfPixelFormats_I = -10;
+   
+   int lPixelAttributes[] = {
+      WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
+      WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
+      WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
+      WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
+      WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
+      WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
+      WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
+      WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
+      WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
+      WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
+      0
+   };
 
    int lAttributesCount[] = { WGL_NUMBER_PIXEL_FORMATS_ARB };
    int lAttributes[] = {
@@ -338,8 +343,12 @@ int eContext::createContext() {
    }
 
    lEntry_LOG _ADD "   |========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
-
+   
+   wglChoosePixelFormatARB( vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, ( UINT * )&lNumberOfPixelFormats_I );
    iLOG "Selected Pixel format descriptor: " ADD lBestFBConfig_I END
+
+   SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
+   
 
    // Set new Error Handler
    GLushort version_list[][2] = {
@@ -367,11 +376,7 @@ int eContext::createContext() {
       lAttributes_A_I[2] = WGL_CONTEXT_MINOR_VERSION_ARB;
       lAttributes_A_I[3] = WinData.versions.glMinorVersion;
       lAttributes_A_I[4] = 0;
-   }
-
-//    wglChoosePixelFormatARB(vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, (UINT*)&lNumberOfPixelFormats_I);
-
-   SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
+   }   
 
    for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
       vOpenGLContext_WGL = wglCreateContextAttribsARB( vHDC_win32, 0, lAttributes_A_I );
@@ -385,7 +390,7 @@ int eContext::createContext() {
          ) {i++;}
 
          wLOG "Failed to create an OpenGl version "   ADD lAttributes_A_I[1] ADD '.' ADD lAttributes_A_I[3]
-         ADD  "context. Try to fall back to OpenGl " ADD version_list[i][0] ADD '.' ADD version_list[i][1] END
+         ADD  " context. Try to fall back to OpenGl " ADD version_list[i][0] ADD '.' ADD version_list[i][1] END
 
 
          lAttributes_A_I[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
@@ -398,13 +403,9 @@ int eContext::createContext() {
          break;
       }
    }
-   WinData.versions.glMajorVersion = lAttributes_A_I[1];
-   WinData.versions.glMinorVersion = lAttributes_A_I[3];
 
-   vHasContext_B = true;
 
-   makeContextCurrent();
-
+   wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL );
    ShowWindow( vHWND_Window_win32, SW_SHOW );
    SetForegroundWindow( vHWND_Window_win32 );
    SetFocus( vHWND_Window_win32 );
@@ -413,7 +414,21 @@ int eContext::createContext() {
    glClear( GL_COLOR_BUFFER_BIT );
    swapBuffers();
 
+
+   iLOG "Versions:"
+   POINT "Engine: "
+   ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
+   ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
+   ADD 'B', 'C', E_VERSION_SUBMINOR ADD( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
+   POINT "OpenGL: " ADD 'B', 'C', glGetString( GL_VERSION )
+   POINT "GLSL:   " ADD 'B', 'C', glGetString( GL_SHADING_LANGUAGE_VERSION )
+   POINT "GLEW:   " ADD 'B', 'C', glewGetString( GLEW_VERSION )
+   END
+
+
    iLOG "OpenGL context created" END
+   
+   vHasContext_B = true;
 
    return 1;
 }
@@ -582,7 +597,7 @@ bool eContext::setDecoration( ACTION _action ) {
          return false;
    }
 
-   if( SetClassLong( vHWND_Window_win32, GWL_STYLE, lCurrentLong_win32 ) == 0 ) {
+   if ( SetClassLong( vHWND_Window_win32, GWL_STYLE, lCurrentLong_win32 ) == 0 ) {
       eLOG "ERROR" END
    }
 
@@ -595,6 +610,8 @@ bool eContext::setDecoration( ACTION _action ) {
    SetFocus( vHWND_Window_win32 );
 
    SetWindowPos( vHWND_Window_win32, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER );
+
+   setWindowRecreate();
 
    return true;
 }
