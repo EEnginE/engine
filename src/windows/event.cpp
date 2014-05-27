@@ -82,8 +82,6 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
       
-      iLOG "Initial WndProc: set the class pointer" END
-
 
 //       if ( this__->vHWND_Window_win32 != 0 ) {
 //          // This function was already called -- this should never happen
@@ -92,6 +90,7 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
 //          this__->vWindowsCallbacksError_B = true;
 //       }
 
+      this__->vHWND_Window_win32 = _hwnd;
       SetWindowLongPtr( _hwnd,
                         GWLP_USERDATA,
                         reinterpret_cast<LONG_PTR>( this__ ) );
