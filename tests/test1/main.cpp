@@ -1,3 +1,4 @@
+
 #include "config.hpp"
 #include "handler.hpp"
 #include <engine.hpp>
@@ -24,7 +25,7 @@ void hexPrint( std::vector<unsigned char> const &_v ) {
 // #define UNIX 0
 
 void temp( eInit *_init ) {
-   B_SLEEP( seconds, 3 );
+   B_SLEEP( seconds, 5 );
    _init->restart();
 }
 
@@ -63,9 +64,9 @@ int main( int argc, char **argv ) {
    g = 0;
    b = 0;
 
-   R = ( ( float ) myRand( 10, ValChange ) / 50000 );
-   G = ( ( float ) myRand( 10, ValChange ) / 50000 );
-   B = ( ( float ) myRand( 10, ValChange ) / 50000 );
+   R = ( ( float ) myRand( 10, ValChange ) / 5000 );
+   G = ( ( float ) myRand( 10, ValChange ) / 5000 );
+   B = ( ( float ) myRand( 10, ValChange ) / 5000 );
 
    rr = myRand( 0, 1 ) ? true : false;
    gg = myRand( 0, 1 ) ? true : false;
@@ -150,7 +151,10 @@ int main( int argc, char **argv ) {
       prog.link( dummy );
 
 #endif // UNIX
+      
+#if WINDOWS
       boost::thread ttt = boost::thread( temp, &start );
+#endif
       start.startMainLoop();
       B_SLEEP( seconds, 1 );
       start.closeWindow();

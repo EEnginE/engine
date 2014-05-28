@@ -59,16 +59,16 @@ eInit::eInit() {
    vMainLoopISPaused_B     = false;
    vEventLoopISPaused_B    = false;
    vLoopsPaused_B          = false;
-   
-   vContinueWithEventLoop_B = false;
 
    fRender               = standardRender;
 
    vEventLoopHasFinished_B  = true;
    vRenderLoopHasFinished_B = true;
 
-#if WINDOWS
    vCreateWindowReturn_I    = -1000;
+
+#if WINDOWS
+   vContinueWithEventLoop_B = false;
 #endif
 
    _setThisForHandleSignal();
@@ -195,7 +195,7 @@ int eInit::startMainLoop( bool _wait ) {
       vRenderLoop_BT.join();
    }
 
-   makeContextCurrent();   // Only ONE thread can have a context
+   if( getHaveContext() ) makeContextCurrent();   // Only ONE thread can have a context
 
    if ( vBoolCloseWindow_B ) {destroyContext();} // eInit::closeWindow() called?
 
@@ -210,9 +210,12 @@ GLvoid eInit::quitMainLoop() {
 
 int eInit::quitMainLoopCall( ) {
    vMainLoopRunning_B = false;
+   
+#if WINDOWS
    vContinueWithEventLoop_B = false;
+#endif
 
-// #if UNIX_X11
+#if ! WINDOWS
    if ( ! vEventLoopHasFinished_B )
 #if BOOST_VERSION < 105000
    {
@@ -229,7 +232,7 @@ int eInit::quitMainLoopCall( ) {
       vEventLoopHasFinished_B = true;
    }
    iLOG "Event loop finished" END
-// #endif
+#endif
 
 
    if ( ! vRenderLoopHasFinished_B )
@@ -267,16 +270,15 @@ int eInit::renderLoop( ) {
          makeNOContextCurrent();
          vMainLoopISPaused_B = true;
          while ( vMainLoopPaused_B ) vMainLoopWait_BT.wait( lLock_BT );
-         while ( !getHaveContext() ) B_SLEEP( milliseconds, 10 );
+         while ( !getHaveContext() || vWindowRecreate_B ) B_SLEEP( milliseconds, 10 );
          vMainLoopISPaused_B = false;
-         B_SLEEP( seconds, 1 );
          makeContextCurrent();
       }
 
       fRender( this );
    }
 
-   makeNOContextCurrent();
+   if( getHaveContext() ) makeNOContextCurrent();
    vRenderLoopHasFinished_B = true;
    return 0;
 }
@@ -343,21 +345,21 @@ void eInit::restart() {
       return;
 
    pauseMainLoop();
+   vWindowRecreate_B = true;
    destroyContext();
 #if UNIX
    createContext();
    standardRender( eWinInfo( this ) );
    makeNOContextCurrent();
 #elif WINDOWS
-   setWindowRecreate();
+   vWindowRecreate_B = true;
 #endif
    continueMainLoop();
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
    vEventLoop_BT.join();
-   vEventLoop_BT = boost::thread( &eInit::eventLoop, this );
-   
+
    boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
 
@@ -370,6 +372,13 @@ void eInit::restart() {
       vStartEventCondition_BT.notify_one();
    }
 #endif
+
+   vWindowRecreate_B = false;
+}
+
+void eInit::restartIfNeeded() {
+   if ( vWindowRecreate_B )
+      restart();
 }
 
 

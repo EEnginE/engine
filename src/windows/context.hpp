@@ -47,7 +47,9 @@ class eContext : public eInitEventBasic {
 
    protected:
       bool                  vWindowRecreate_B;
-      void setWindowRecreate() { vWindowRecreate_B = true; }
+      
+      bool                  vWindowsDestroy_B;
+      bool                  vWindowsNCDestrox_B;
       
       HWND getHWND_win32() {return vHWND_Window_win32;}
 
