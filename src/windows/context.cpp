@@ -31,10 +31,10 @@ eContext::eContext() {
    vHasGLEW_B               = false;
 
    vWindowRecreate_B        = false;
-   
+
    vWindowsDestroy_B        = false;
    vWindowsNCDestrox_B      = false;
-   
+
    vHWND_Window_win32       = 0;
    vHDC_win32               = 0;
    vInstance_win32          = 0;
@@ -130,17 +130,17 @@ void eContext::destroyContext() {
       return;
 
    iLOG "Destroying everything" END
-   
+
    wglDeleteContext( vOpenGLContext_WGL );
    ReleaseDC( vHWND_Window_win32, vHDC_win32 );
    /*
     * DestroyWindow( vHWND_Window_win32 );
-    * 
+    *
     * Wont work herer because:
-    * 
+    *
     *  1. Windows
     *  2. Must be called in the thread were the window was created
-    * 
+    *
     */
 
    vHasContext_B = false;
@@ -198,6 +198,33 @@ bool eContext::setDecoration( ACTION _action ) {
 
    return true;
 }
+
+int eContext::fullScreen( ACTION _action, bool _allMonitors ) {
+   bool lWinDataOld_B = WinData.win.fullscreen;
+
+   switch ( _action ) {
+      case C_ADD:
+         WinData.win.fullscreen = true;
+         break;
+      case C_REMOVE:
+         WinData.win.fullscreen = false;
+         break;
+
+      case C_TOGGLE:
+         WinData.win.fullscreen = !WinData.win.fullscreen;
+         break;
+
+      default:
+         eLOG "This message is theoretically totaly impossible! [bool eContext::setDecoration( ACTION _action )]" END
+         return false;
+   }
+
+   if ( lWinDataOld_B != WinData.win.fullscreen )
+      vWindowRecreate_B = true;
+
+   return 1;
+}
+
 
 
 

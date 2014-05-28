@@ -60,7 +60,7 @@ class eContext : public eInitEventBasic {
 
       int  createContext();
 
-      int  fullScreen( ACTION _action, bool _allMonitors = false ) {return 1;}
+      int  fullScreen( ACTION _action, bool _allMonitors = false );
       int  enableVSync();
       int  disableVSync();
       void destroyContext();

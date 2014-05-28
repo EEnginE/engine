@@ -27,6 +27,7 @@ void hexPrint( std::vector<unsigned char> const &_v ) {
 void temp( eInit *_init ) {
    B_SLEEP( seconds, 5 );
    _init->setDecoration( C_REMOVE );
+   _init->fullScreen( C_ADD );
    _init->restartIfNeeded();
 }
 
