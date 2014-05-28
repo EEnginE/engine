@@ -19,54 +19,47 @@ int eInit::eventLoop() {
    //! \todo Move this in windows_win32
    vEventLoopHasFinished_B = false;
 
-   do {
+   {
+      // Make sure lLockWindow_BT will be destroyed
+      boost::lock_guard<boost::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
+      vCreateWindowReturn_I = createContext();
+      makeNOContextCurrent();
 
-      {
-         // Make sure lLockWindow_BT will be destroyed
-         std::cout << "AAA" << std::endl;
-         boost::lock_guard<boost::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
-         std::cout << "BBB" << std::endl;
-         vCreateWindowReturn_I = createContext();
-         std::cout << "CCC" << std::endl;
-         makeNOContextCurrent();
-         std::cout << "DDD" << std::endl;
+      // Context created; continue with init();
+      vCreateWindowCondition_BT.notify_one();
+   }
 
-         // Context created; continue with init();
-         vCreateWindowCondition_BT.notify_one();
+
+   // Now wait until the main event loop is officially "started"
+
+   boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+   while( !vContinueWithEventLoop_B ) vStartEventCondition_BT.wait( lLockEvent_BT );
+
+
+   iLOG "Event loop started" END
+
+   MSG msg;
+
+   while ( vMainLoopRunning_B ) {
+      if ( vLoopsPaused_B ) {
+         boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
+         vEventLoopISPaused_B = true;
+         while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
+         vEventLoopISPaused_B = false;
+
+         // Jump back to create context
+         if ( vWindowRecreate_B || ! getHaveContext() )
+            break;
+
+      }
+      if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
+
+         TranslateMessage( &msg );
+         DispatchMessage( &msg );
       }
 
-
-      // Now wait until the main event loop is officially "started"
-
-      boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
-      vStartEventCondition_BT.wait( lLockEvent_BT );
-
-
-      iLOG "Event loop started" END
-
-      MSG msg;
-
-      while ( vMainLoopRunning_B ) {
-         if ( vLoopsPaused_B ) {
-            boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
-            vEventLoopISPaused_B = true;
-            while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
-            vEventLoopISPaused_B = false;
-
-            // Jump back to create context
-            if ( vWindowRecreate_B || ! getHaveContext() )
-               break;
-
-         }
-         if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
-
-            TranslateMessage( &msg );
-            DispatchMessage( &msg );
-         }
-
-         B_SLEEP( milliseconds, 10 );
-      }
-   } while ( vMainLoopRunning_B );
+      B_SLEEP( milliseconds, 10 );
+   }
 
    vEventLoopHasFinished_B = true;
    return 1;
@@ -81,7 +74,7 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
-      
+
 
 //       if ( this__->vHWND_Window_win32 != 0 ) {
 //          // This function was already called -- this should never happen
@@ -112,8 +105,8 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 
    if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
       eLOG "Bad Windows callback error" END
-      this__->destroyContext();
-      this__->vWindowsCallbacksError_B = true;
+//       this__->destroyContext();
+//       this__->vWindowsCallbacksError_B = true;
    }
 
    return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );

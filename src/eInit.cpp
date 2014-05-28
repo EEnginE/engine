@@ -53,12 +53,14 @@ eInit::eInit() {
 
    vMainLoopRunning_B    = false;
    vBoolCloseWindow_B    = false;
-   
+
    vMainLoopPaused_B       = false;
    vEventLoopHasFinished_B = false;
    vMainLoopISPaused_B     = false;
    vEventLoopISPaused_B    = false;
    vLoopsPaused_B          = false;
+   
+   vContinueWithEventLoop_B = false;
 
    fRender               = standardRender;
 
@@ -182,6 +184,7 @@ int eInit::startMainLoop( bool _wait ) {
    {
       // Make sure lLockEvent_BT will be destroyed
       boost::lock_guard<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+      vContinueWithEventLoop_B = true;
       vStartEventCondition_BT.notify_one();
    }
 #endif
@@ -207,6 +210,7 @@ GLvoid eInit::quitMainLoop() {
 
 int eInit::quitMainLoopCall( ) {
    vMainLoopRunning_B = false;
+   vContinueWithEventLoop_B = false;
 
 // #if UNIX_X11
    if ( ! vEventLoopHasFinished_B )
@@ -258,17 +262,17 @@ int eInit::renderLoop( ) {
       enableVSync();
 
    while ( vMainLoopRunning_B ) {
-      if( vLoopsPaused_B ) {
+      if ( vLoopsPaused_B ) {
          boost::unique_lock<boost::mutex> lLock_BT( vMainLoopMutex_BT );
          makeNOContextCurrent();
          vMainLoopISPaused_B = true;
-         while( vMainLoopPaused_B ) vMainLoopWait_BT.wait(lLock_BT);
-         while( !getHaveContext() ) B_SLEEP( milliseconds, 10 );
+         while ( vMainLoopPaused_B ) vMainLoopWait_BT.wait( lLock_BT );
+         while ( !getHaveContext() ) B_SLEEP( milliseconds, 10 );
          vMainLoopISPaused_B = false;
-         B_SLEEP(seconds,1);
+         B_SLEEP( seconds, 1 );
          makeContextCurrent();
       }
-      
+
       fRender( this );
    }
 
@@ -298,56 +302,74 @@ void eInit::s_standardWindowClose( eWinInfo _info )  {
 
 
 void eInit::pauseMainLoop() {
-   if( ! vMainLoopRunning_B )
+   if ( ! vMainLoopRunning_B )
       return;
-   
+
    vMainLoopPaused_B  = true;
    vEventLoopPaused_B = true;
-   
+
    vLoopsPaused_B = true;
-   
-   while( !vMainLoopISPaused_B && !vEventLoopISPaused_B )
+
+   while ( !vMainLoopISPaused_B && !vEventLoopISPaused_B )
       B_SLEEP( milliseconds, 10 );
-   
+
    iLOG "Loops paused" END
 }
 
 void eInit::continueMainLoop() {
    vLoopsPaused_B = false;
-   
+
    boost::lock_guard<boost::mutex> lLockMain_BT( vMainLoopMutex_BT );
    vMainLoopPaused_B = false;
    vMainLoopWait_BT.notify_one();
-   
+
    boost::lock_guard<boost::mutex> lLockEvent_BT( vEventLoopMutex_BT );
    vEventLoopPaused_B = false;
    vEventLoopWait_BT.notify_one();
-   
-   
+
+
    iLOG "Loops unpaused" END
 }
 
 /*!
  * \brief Recreates the Window / OpenGL context
- * 
+ *
  * Does nothing when the main loop is not running
- * 
+ *
  * \returns Nothing
  */
 void eInit::restart() {
-   if( !vMainLoopRunning_B )
+   if ( !vMainLoopRunning_B )
       return;
-   
+
    pauseMainLoop();
    destroyContext();
 #if UNIX
    createContext();
-   standardRender( eWinInfo(this) );
+   standardRender( eWinInfo( this ) );
    makeNOContextCurrent();
 #elif WINDOWS
    setWindowRecreate();
 #endif
    continueMainLoop();
+
+#if WINDOWS
+   vContinueWithEventLoop_B = false;
+   vEventLoop_BT.join();
+   vEventLoop_BT = boost::thread( &eInit::eventLoop, this );
+   
+   boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
+   vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
+
+   while ( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
+
+   {
+      // Make sure lLockEvent_BT will be destroyed
+      boost::lock_guard<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+      vContinueWithEventLoop_B = true;
+      vStartEventCondition_BT.notify_one();
+   }
+#endif
 }
 
 

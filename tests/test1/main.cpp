@@ -63,9 +63,9 @@ int main( int argc, char **argv ) {
    g = 0;
    b = 0;
 
-   R = ( ( float ) myRand( 10, ValChange ) / 5000 );
-   G = ( ( float ) myRand( 10, ValChange ) / 5000 );
-   B = ( ( float ) myRand( 10, ValChange ) / 5000 );
+   R = ( ( float ) myRand( 10, ValChange ) / 50000 );
+   G = ( ( float ) myRand( 10, ValChange ) / 50000 );
+   B = ( ( float ) myRand( 10, ValChange ) / 50000 );
 
    rr = myRand( 0, 1 ) ? true : false;
    gg = myRand( 0, 1 ) ? true : false;
