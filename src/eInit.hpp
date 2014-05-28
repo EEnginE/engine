@@ -35,8 +35,8 @@
 #include <GL/glew.h>
 #endif
 
-#include "windows/context.hpp"
-#include "windows/keyboard.hpp"
+#include "context.hpp"
+#include "keyboard.hpp"
 #include <boost/thread.hpp>
 
 
@@ -100,7 +100,7 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       
       boost::mutex              vStartEventMutex_BT;
       boost::condition_variable vStartEventCondition_BT;
-      bool                      vContinueWithEventLoop_B;
+      bool                      vContinueWithEventLoop_B;     
 #endif
 
       // Thread Functions --------------------------------------------------------- ###
@@ -147,6 +147,7 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       void   continueMainLoop();
       
       void   restart();
+      void   restartIfNeeded();
 
       /*!
        * \brief Quit the main loop and close the window

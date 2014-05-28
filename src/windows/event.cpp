@@ -17,7 +17,13 @@ namespace {
 
 int eInit::eventLoop() {
    //! \todo Move this in windows_win32
+   if( ! vEventLoopHasFinished_B )
+      return -1;
+   
    vEventLoopHasFinished_B = false;
+
+   vWindowsDestroy_B   = false;
+   vWindowsNCDestrox_B = false;
 
    {
       // Make sure lLockWindow_BT will be destroyed
@@ -33,34 +39,39 @@ int eInit::eventLoop() {
    // Now wait until the main event loop is officially "started"
 
    boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
-   while( !vContinueWithEventLoop_B ) vStartEventCondition_BT.wait( lLockEvent_BT );
+   while ( !vContinueWithEventLoop_B ) vStartEventCondition_BT.wait( lLockEvent_BT );
 
 
    iLOG "Event loop started" END
 
    MSG msg;
 
-   while ( vMainLoopRunning_B ) {
+//    while ( ( vMainLoopRunning_B && !vWindowRecreate_B ) || ( vMainLoopRunning_B || ( vWindowRecreate_B && ! ( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) ) ) {
+   while ( !( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) {
+      if ( !getHaveContext() )
+         DestroyWindow( getHWND_win32() );
+
       if ( vLoopsPaused_B ) {
          boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
          vEventLoopISPaused_B = true;
          while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
          vEventLoopISPaused_B = false;
-
-         // Jump back to create context
-         if ( vWindowRecreate_B || ! getHaveContext() )
-            break;
-
       }
-      if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
-
+      while ( PeekMessage( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
          TranslateMessage( &msg );
          DispatchMessage( &msg );
       }
 
-      B_SLEEP( milliseconds, 10 );
+      B_SLEEP( milliseconds, 5 );
    }
 
+   // Proccess the last messages
+   while ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
+      TranslateMessage( &msg );
+      DispatchMessage( &msg );
+   }
+
+   iLOG "Event loop finished!" END
    vEventLoopHasFinished_B = true;
    return 1;
 }
@@ -75,13 +86,6 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
 
-
-//       if ( this__->vHWND_Window_win32 != 0 ) {
-//          // This function was already called -- this should never happen
-//          eLOG "Internal Error: eContext::initialWndProc was already called!!" END
-//          this__->destroyContext();
-//          this__->vWindowsCallbacksError_B = true;
-//       }
 
       this__->vHWND_Window_win32 = _hwnd;
       SetWindowLongPtr( _hwnd,
@@ -103,13 +107,10 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    eContext *this__ = reinterpret_cast<eContext *>( lUserData_win32 );
    eWinInfo _tempInfo( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
 
-   if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
+   if ( ! this__ || _hwnd != this__->vHWND_Window_win32 )
       eLOG "Bad Windows callback error" END
-//       this__->destroyContext();
-//       this__->vWindowsCallbacksError_B = true;
-   }
 
-   return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
+      return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
 
 
@@ -130,6 +131,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          return 0;
       case WM_CLOSE: //Window is closed TODO: Doesnt work yet, add functionality
          iLOG "Closed " END
+         vWindowClose_SIG.sendSignal( _tempInfo );
          return 0;
       case WM_SETFOCUS: //Window has been focused
          iLOG "Focus Set " END
@@ -160,6 +162,14 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
 //       case WM_MOUSEMOVE:
 //          iLOG "Mouse moved: " END
 //          return 0;
+      case WM_DESTROY:
+         iLOG "Window Destroyed WM_DESTROY" END
+         vWindowsDestroy_B   = true;
+         break;
+      case  WM_NCDESTROY:
+         iLOG "Window Destroyed WM_NCDESTROY" END
+         vWindowsNCDestrox_B = true;
+         break;
       default:
          char lStr_CSTR[6];
          snprintf( lStr_CSTR, 5, "%04x", _uMsg );
