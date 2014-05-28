@@ -70,8 +70,17 @@ int eContext::createContext() {
    vClassName_win32             = "OGL_CLASS";
    LPCSTR lClassName_TEMP_win32 = "OGL_CLASS_TEMP";
 
-   DWORD  lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-   DWORD  lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+   DWORD  lWinStyle;
+   DWORD  lExtStyle;
+
+   if ( WinData.win.windowDecoration && ! WinData.win.fullscreen ) {
+      lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+      lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+   } else {
+      lWinStyle = WS_POPUP;
+      lExtStyle = WS_EX_APPWINDOW;
+   }
+
 
 
    HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
@@ -220,20 +229,6 @@ int eContext::createContext() {
 
    int lNumberOfPixelFormats_I = -10;
 
-   int lPixelAttributes[] = {
-      WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
-      WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
-      WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
-      WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
-      WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
-      WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
-      WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
-      WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
-      WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
-      WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
-      0
-   };
-
    int lAttributesCount[] = { WGL_NUMBER_PIXEL_FORMATS_ARB };
    int lAttributes[] = {
       // Must be true
@@ -335,7 +330,6 @@ int eContext::createContext() {
 
    lEntry_LOG _ADD "   |========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
 
-   wglChoosePixelFormatARB( vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, ( UINT * )&lNumberOfPixelFormats_I );
    iLOG "Selected Pixel format descriptor: " ADD lBestFBConfig_I END
 
    SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
