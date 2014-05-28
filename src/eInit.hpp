@@ -100,6 +100,7 @@ class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
       
       boost::mutex              vStartEventMutex_BT;
       boost::condition_variable vStartEventCondition_BT;
+      bool                      vContinueWithEventLoop_B;
 #endif
 
       // Thread Functions --------------------------------------------------------- ###

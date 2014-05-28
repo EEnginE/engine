@@ -67,7 +67,6 @@ inline void color( float _r, float _g, float _b, eInit *i ) {
    glClearColor( _r, _g, _b, alpha );
    glClear( GL_COLOR_BUFFER_BIT );
    i->swapBuffers();
-   B_SLEEP( milliseconds, 1 );
    //E_CLOCK.sleepUsec( 25000 );
 }
 
