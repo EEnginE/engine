@@ -81,8 +81,6 @@ int eContext::createContext() {
       lExtStyle = WS_EX_APPWINDOW;
    }
 
-
-
    HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
    WNDCLASS  lWindowClass_TEMP_win32;
    RECT      lWindowRect_TEMP_win32;
@@ -158,8 +156,6 @@ int eContext::createContext() {
    }
 
 
-
-
    // Now destroy the temporary stuff
    wglMakeCurrent( NULL, NULL ); // No context
    wglDeleteContext( vOpenGLContext_WGL );
@@ -199,11 +195,31 @@ int eContext::createContext() {
       eLOG "Problems with window callback" END
       return 5;
    }
+   
+   
+   if ( WinData.win.fullscreen ) {
+      HWND lDesktopHWND_win32 = GetDesktopWindow();
 
-   vWindowRect_win32.left   = WinData.win.posX;
-   vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
-   vWindowRect_win32.top    = WinData.win.posY;
-   vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+      if ( GetWindowRect( lDesktopHWND_win32, &vWindowRect_win32 ) == 0 ) {
+         vWindowRect_win32.left   = WinData.win.posX;
+         vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
+         vWindowRect_win32.top    = WinData.win.posY;
+         vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+         wLOG "Fullscreen failed" END
+      }
+   } else {
+      vWindowRect_win32.left   = WinData.win.posX;
+      vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
+      vWindowRect_win32.top    = WinData.win.posY;
+      vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+   }
+   
+   WinData.win.posX   = vWindowRect_win32.left;
+   WinData.win.posY   = vWindowRect_win32.top;
+   WinData.win.width  = vWindowRect_win32.right  - vWindowRect_win32.left;
+   WinData.win.height = vWindowRect_win32.bottom - vWindowRect_win32.top;
+
+   iLOG "Width: " ADD WinData.win.width ADD " Height: " ADD WinData.win.height END
 
    // Now do the same again, but this time create the actual window
    AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
@@ -214,8 +230,8 @@ int eContext::createContext() {
                            lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN ,     // Window style
                            WinData.win.posX,                                   // X
                            WinData.win.posY,                                   // Y
-                           vWindowRect_win32.right  - vWindowRect_win32.left,  // Width
-                           vWindowRect_win32.bottom - vWindowRect_win32.top,   // Height
+                           WinData.win.width,                                  // Width
+                           WinData.win.height,                                 // Height
                            NULL,                                               // No parent window
                            NULL,                                               // No menu
                            vInstance_win32,                                    // The instance
