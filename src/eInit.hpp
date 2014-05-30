@@ -36,7 +36,6 @@
 #endif
 
 #include "context.hpp"
-#include "keyboard.hpp"
 #include <boost/thread.hpp>
 
 
@@ -61,7 +60,7 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  *
  * \sa eContext eWindowData e_eInit.cpp e_event.cpp
  */
-class eInit : public OS_NAMESPACE::eContext, public OS_NAMESPACE::eKeyboard {
+class eInit : public OS_NAMESPACE::eContext {
    private:
       RENDER_FUNC       fRender;
 

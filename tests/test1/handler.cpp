@@ -14,6 +14,9 @@ void MyHandler::key( eWinInfo info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.eInitPointer->getDisplayResolutions();
 
+   
+         iLOG "Key pressed: '" ADD (char) info.eKey.key ADD "'" END
+         
    if ( info.eKey.state == E_KEY_PRESSED ) {
       switch ( info.eKey.key ) {
          case E_KEY_F1:          info.eInitPointer->setAttribute( C_TOGGLE, MODAL ); break;

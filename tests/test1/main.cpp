@@ -153,10 +153,12 @@ int main( int argc, char **argv ) {
       prog.link( dummy );
 
 #endif // UNIX
+
       
 #if WINDOWS
       boost::thread ttt = boost::thread( temp, &start );
-#endif
+#endif //!\todo Merged
+      
       start.startMainLoop();
       B_SLEEP( seconds, 1 );
       start.closeWindow();
