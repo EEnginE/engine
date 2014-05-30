@@ -20,8 +20,8 @@ namespace e_engine {
 
 
 template<class T>
-inline std::string numToSizeString( T _val, unsigned int _size, char _fill ) {
-   std::string lResult_STR = boost::lexical_cast<std::string>( _val );
+inline std::wstring numToSizeString( T _val, unsigned int _size, wchar_t _fill ) {
+   std::wstring lResult_STR = boost::lexical_cast<std::wstring>( _val );
    if ( _size > lResult_STR.size() )
       lResult_STR.insert( 0, ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;
@@ -97,9 +97,9 @@ void testLogSize( eLogEntry &_rawEntry, unsigned int _maxTypeStringLength ) {
 
 
 void eLog::generateEntry( eLogEntry &_rawEntry ) {
-   std::string lDefCol1_STR = "";    // Default color escape sequence string -- Shown  when REDUCED
-   std::string lDefCol2_STR = "";    // Default color escape sequence string -- Hidden when REDUCED
-   std::string lResetColl_STR = "";  // Default color reset escape sequence
+   std::wstring lDefCol1_STR = L"";    // Default color escape sequence string -- Shown  when REDUCED
+   std::wstring lDefCol2_STR = L"";    // Default color escape sequence string -- Hidden when REDUCED
+   std::wstring lResetColl_STR = L"";  // Default color reset escape sequence
 
 #if  ! UNIX
    _rawEntry.config.vColor_LCT = DISABLED;
@@ -152,24 +152,24 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
       ltemp_TM = std::localtime( &_rawEntry.data.vTime_lI );
 
       if ( _rawEntry.config.vTime_LPT == LEFT_FULL || _rawEntry.config.vTime_LPT == RIGHT_FULL ) {
-         _rawEntry.temp.vTime_STR += numToSizeString( ltemp_TM->tm_year + 1900, 4, '0' ) + '-' +
-                                     numToSizeString( ltemp_TM->tm_mon  + 1,    2, '0' ) + '-' +
-                                     numToSizeString( ltemp_TM->tm_mday,        2, '0' ) + ' ';
+         _rawEntry.temp.vTime_STR += numToSizeString( ltemp_TM->tm_year + 1900, 4, L'0' ) + L'-' +
+                                     numToSizeString( ltemp_TM->tm_mon  + 1,    2, L'0' ) + L'-' +
+                                     numToSizeString( ltemp_TM->tm_mday,        2, L'0' ) + L' ';
       }
 
-      _rawEntry.temp.vTime_STR += numToSizeString( ltemp_TM->tm_hour, 2, '0' ) + ':' +
-                                  numToSizeString( ltemp_TM->tm_min,  2, '0' ) + ':' +
-                                  numToSizeString( ltemp_TM->tm_sec,  2, '0' ) + lResetColl_STR;
+      _rawEntry.temp.vTime_STR += numToSizeString( ltemp_TM->tm_hour, 2, L'0' ) + L':' +
+                                  numToSizeString( ltemp_TM->tm_min,  2, L'0' ) + L':' +
+                                  numToSizeString( ltemp_TM->tm_sec,  2, L'0' ) + lResetColl_STR;
    }
 
 
 // ========= Generate The File Entry ==============================================================================================================
 
    if ( _rawEntry.config.vFile_LPT != OFF ) {
-      boost::regex lReplace_EX( "^(/)?(.+/)*" );
-      const char  *lReplaceChar = "";
+      boost::wregex lReplace_EX( L"^(/)?(.+/)*" );
+      const wchar_t  *lReplaceChar = L"";
 
-      std::string lFilename_STR = boost::to_upper_copy( boost::regex_replace( _rawEntry.data.vFilename_STR, lReplace_EX, lReplaceChar ) );
+      std::wstring lFilename_STR = boost::to_upper_copy( boost::regex_replace( _rawEntry.data.vFilename_STR, lReplace_EX, lReplaceChar ) );
 
       if ( lFilename_STR.size() > WinData.log.maxFilenameSize ) {
          lFilename_STR.resize( WinData.log.maxFilenameSize );
@@ -188,15 +188,15 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 #if UNIX
          if ( _rawEntry.config.vColor_LCT == FULL || ( _rawEntry.data.vBold_B == true && _rawEntry.config.vColor_LCT != DISABLED ) ) {
             _rawEntry.temp.vFile_STR += eCMDColor::color( eCMDColor::BOLD, eCMDColor::MAGENTA ) +
-                                        ':' +
+                                        L':' +
                                         eCMDColor::color( eCMDColor::BOLD, eCMDColor::GREEN ) +
-                                        numToSizeString( _rawEntry.data.vLine_I, 4, '0' ) +      // More than 9999 lines of code are very rare
+                                        numToSizeString( _rawEntry.data.vLine_I, 4, L'0' ) +      // More than 9999 lines of code are very rare
                                         lResetColl_STR;
          } else {
-            _rawEntry.temp.vFile_STR += ':' + numToSizeString( _rawEntry.data.vLine_I, 4, '0' ); // More than 9999 lines of code are very rare
+            _rawEntry.temp.vFile_STR += L':' + numToSizeString( _rawEntry.data.vLine_I, 4, L'0' ); // More than 9999 lines of code are very rare
          }
 #else
-         _rawEntry.temp.vFile_STR += ':' + numToSizeString( _rawEntry.data.vLine_I, 4, '0' ); // More than 9999 lines of code are very rare
+         _rawEntry.temp.vFile_STR += L':' + numToSizeString( _rawEntry.data.vLine_I, 4, L'0' ); // More than 9999 lines of code are very rare
 #endif
       }
 
@@ -209,25 +209,25 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
                                       lResetColl_STR;
 
 
-   } else _rawEntry.temp.vErrorType_STR = "";
+   } else _rawEntry.temp.vErrorType_STR = L"";
 
 
 // ========= Prepare Variables ====================================================================================================================
-   boost::regex lRmExcape_REGEX( "\x1b\\[[0-9;]+m" );
-   const char *lRegexReplace_CSTR = "";
+   boost::wregex lRmExcape_REGEX( L"\x1b\\[[0-9;]+m" );
+   const wchar_t *lRegexReplace_CSTR = L"";
 
-   std::string BR_OPEN  = "[";
-   std::string BR_CLOSE = "]";
+   std::wstring BR_OPEN  = L"[";
+   std::wstring BR_CLOSE = L"]";
 
 #if UNIX
    if ( _rawEntry.config.vColor_LCT == FULL || ( _rawEntry.config.vColor_LCT == REDUCED && _rawEntry.data.vBold_B ) ) {
-      BR_OPEN  = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + '[';
-      BR_CLOSE = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + ']' + eCMDColor::RESET;
+      BR_OPEN  = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + L'[';
+      BR_CLOSE = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + L']' + eCMDColor::RESET;
    }
 #endif
 
-   std::string lL_STR = "";
-   std::string lR_STR = "";
+   std::wstring lL_STR = L"";
+   std::wstring lR_STR = L"";
 
    unsigned int lErrTypeL_uI;
    unsigned int lFileL_uI;
@@ -238,7 +238,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
    unsigned int lErrorTypeUpdatedStringLength_uI = vMaxTypeStringLength_usI;
 
    std::vector<unsigned int> lColorPossitions_uI;
-   std::vector<std::string> lMessage_VEC;
+   std::vector<std::wstring> lMessage_VEC;
 
    unsigned int lMaxFileSize  = WinData.log.maxFilenameSize +
                           ( ( _rawEntry.config.vFile_LPT == LEFT_FULL || _rawEntry.config.vFile_LPT == RIGHT_FULL ) ? 5 : 0 );
@@ -295,7 +295,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 
    if ( lErrTypeD_I == -1 ) {
       if ( lTimeD_I == -1 ) {
-         lL_STR += ' ';
+         lL_STR += L' ';
       }
       // Place the string as much in the center as possible
       unsigned int lFillBeforeString = ( lErrorTypeUpdatedStringLength_uI / 2 ) - ( lErrTypeL_uI / 2 );
@@ -307,13 +307,13 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 
    if ( lFileD_I == -1 ) {
       if ( lErrTypeD_I == -1 ) {
-         lL_STR += ' ';
+         lL_STR += L' ';
       } else if ( lTimeD_I == -1 ) {
-         lL_STR += ' ';
+         lL_STR += L' ';
       }
-      lL_STR.append( ( ( lMaxFileSize / 2 ) - ( lFileL_uI / 2 ) ) , ' ' );
+      lL_STR.append( ( ( lMaxFileSize / 2 ) - ( lFileL_uI / 2 ) ) , L' ' );
       lL_STR += _rawEntry.temp.vFile_STR;
-      lL_STR.append( lMaxFileSize - ( ( ( lMaxFileSize / 2 ) - ( lFileL_uI / 2 ) ) + lFileL_uI ) , ' ' );
+      lL_STR.append( lMaxFileSize - ( ( ( lMaxFileSize / 2 ) - ( lFileL_uI / 2 ) ) + lFileL_uI ) , L' ' );
    }
 
 
@@ -337,11 +337,11 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 
    if ( lFileD_I == 1 ) {
       if ( lErrTypeD_I == 1 ) {
-         lR_STR += ' ';
+         lR_STR += L' ';
       } else if ( lTimeD_I == 1 ) {
-         lR_STR += ' ';
+         lR_STR += L' ';
       }
-      lR_STR.append( ( ( lMaxFileSize + 1 ) - lFileL_uI ) , ' ' );
+      lR_STR.append( ( ( lMaxFileSize + 1 ) - lFileL_uI ) , L' ' );
       lR_STR += _rawEntry.temp.vFile_STR;
    }
 
@@ -374,13 +374,13 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 
 
 // ========= Generate The Message Strings =========================================================================================================
-   std::string  lTempMessageString_STR;
+   std::wstring  lTempMessageString_STR;
    unsigned int lOldSize_uI = 0;
-   std::string  lTempColor_STR = lDefCol2_STR;
+   std::wstring  lTempColor_STR = lDefCol2_STR;
 
    for ( unsigned int i = 0; i < _rawEntry.data.vLogEntries_V_eLS.size(); ++i ) {
-      std::string lTemp_STR = _rawEntry.data.vLogEntries_V_eLS[i].getString();
-      std::string lColorTemp_STR = "";
+      std::wstring lTemp_STR = _rawEntry.data.vLogEntries_V_eLS[i].getString();
+      std::wstring lColorTemp_STR = L"";
 
       if ( _rawEntry.data.vLogEntries_V_eLS[i].getType() == e_engine_internal::NEW_LINE ) {
          lMessage_VEC.push_back( ( lTempMessageString_STR + lResetColl_STR ) );
@@ -398,9 +398,9 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
             lTempColor_STR = eCMDColor::color( eCMDColor::OFF, eCMDColor::CYAN );
 #endif
 
-         lTempMessageString_STR = "  " +
+         lTempMessageString_STR = L"  " +
                                   lTempColor_STR +
-                                  "- ";
+                                  L"- ";
          lOldSize_uI = 4;
          continue;
       }
@@ -459,18 +459,18 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 #if UNIX
       if ( isatty( fileno( stdout ) ) != 0 && _rawEntry.config.vColor_LCT != DISABLED ) {
          // Clear the current line
-         _rawEntry.vResultStrin_STR += "\x1B[2K\x1b[0G";
+         _rawEntry.vResultStrin_STR += L"\x1B[2K\x1b[0G";
       }
 #endif // __linux__
 
       _rawEntry.vResultStrin_STR += lL_STR + lMessage_VEC[i];
       if ( _rawEntry.config.vColumns_uI > 0 )
-         _rawEntry.vResultStrin_STR.append( ( lMaxMessageSize_uI - lTempMessageSize_uI ) , ' ' );
+         _rawEntry.vResultStrin_STR.append( ( lMaxMessageSize_uI - lTempMessageSize_uI ) , L' ' );
 
       else
-         _rawEntry.vResultStrin_STR += "  ";
+         _rawEntry.vResultStrin_STR += L"  ";
 
-      _rawEntry.vResultStrin_STR += lR_STR + lResetColl_STR + '\n';
+      _rawEntry.vResultStrin_STR += lR_STR + lResetColl_STR + L'\n';
 
       if ( i == 0 && lMessage_VEC.size() > 1 ) {
          /*
@@ -509,8 +509,8 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
          lL_STR.clear();
          lR_STR.clear();
 
-         lL_STR.append( lLeftL_uI,  ' ' );
-         lR_STR.append( lRightL_uI, ' ' );
+         lL_STR.append( lLeftL_uI,  L' ' );
+         lR_STR.append( lRightL_uI, L' ' );
          /* */
 
 
