@@ -1,5 +1,5 @@
 /*!
- * \file windows/context.cpp
+ * \file windows/context_window.cpp
  * \brief \b Classes: \a eContext
  *
  * This file contains the class \b eContext which creates
@@ -11,39 +11,31 @@
  * \sa e_context.cpp e_eInit.cpp
  */
 
+
 #include "context.hpp"
-#include "log.hpp"
-#include <windows.h>
+
+namespace e_engine {
+
+namespace windows_win32 {
 
 namespace {
- 
-   template<class T>
-   inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill ) {
+
+template<class T>
+inline std::string StringLeft( T _val, unsigned int _size, char _fill ) {
+   std::string lResult_STR =  _val;
+   if ( _size > lResult_STR.size() )
+      lResult_STR.append( ( _size - lResult_STR.size() ), _fill );
+   return lResult_STR;
+}
+
+template<class T>
+inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill ) {
    std::string lResult_STR = boost::lexical_cast<std::string> ( _val );
    if ( _size > lResult_STR.size() )
       lResult_STR.append( ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;
 }
 
-   
-}
-
-namespace e_engine {
-
-namespace windows_win32 {
-
-namespace e_engine_internal {
-eWindowClassRegister CLASS_REGISTER;
-}
-
-
-
-eContext::eContext() {
-   vWindowsCallbacksError_B = false;
-   vHasContext_B            = false;
-   vHasGLEW_B               = false;
-
-   vWindowRecreate_B        = false;
 }
 
 // Temp wndProc
@@ -70,12 +62,24 @@ int eContext::createContext() {
    if ( vHasContext_B )
       return 2;
 
-   vClassName_win32             =  L"OGL_CLASS";
+   vHWND_Window_win32 = 0;
+   vHDC_win32         = 0;
+   vInstance_win32    = 0;
+   vOpenGLContext_WGL = 0;
+
+   vClassName_win32             = "OGL_CLASS";
    LPCSTR lClassName_TEMP_win32 = "OGL_CLASS_TEMP";
 
-   DWORD  lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-   DWORD  lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+   DWORD  lWinStyle;
+   DWORD  lExtStyle;
 
+   if ( WinData.win.windowDecoration && ! WinData.win.fullscreen ) {
+      lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+      lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+   } else {
+      lWinStyle = WS_POPUP;
+      lExtStyle = WS_EX_APPWINDOW;
+   }
 
    HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
    WNDCLASS  lWindowClass_TEMP_win32;
@@ -114,21 +118,21 @@ int eContext::createContext() {
    lWindowRect_TEMP_win32.top    = WinData.win.posY;
    lWindowRect_TEMP_win32.bottom = WinData.win.posY + WinData.win.height;
 
-   AdjustWindowRectEx( &lWindowRect_TEMP_win32, lWinStyle, false, lExtStyle );
+   AdjustWindowRectEx( &lWindowRect_TEMP_win32, WS_OVERLAPPEDWINDOW, false, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE );
 
    lHWND_Window_TEMP_win32 = CreateWindowEx(
-                                lExtStyle,                                          // Extended window style
-                                lClassName_TEMP_win32,                              // Window class name
-                                WinData.config.appName.c_str(),                     // Window Name
-                                lWinStyle,                                          // Window style
-                                WinData.win.posX,                                   // X
-                                WinData.win.posY,                                   // Y
-                                lWindowRect_TEMP_win32.right  - lWindowRect_TEMP_win32.left,  // Width
-                                lWindowRect_TEMP_win32.bottom - lWindowRect_TEMP_win32.top,   // Height
-                                NULL,                                               // No parent window
-                                NULL,                                               // No menu
-                                lInstance_TEMP_win32,                               // The instance
-                                NULL                                                // We dont want special window creation
+                                WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, // Extended window style
+                                lClassName_TEMP_win32,              // Window class name
+                                WinData.config.appName.c_str(),     // Window Name
+                                WS_OVERLAPPEDWINDOW,                // Window style
+                                0,                                  // X
+                                0,                                  // Y
+                                800,                                // Width
+                                600,                                // Height
+                                NULL,                               // No parent window
+                                NULL,                               // No menu
+                                lInstance_TEMP_win32,               // The instance
+                                NULL                                // We dont want special window creation
                              );
 
 
@@ -150,8 +154,6 @@ int eContext::createContext() {
       }
       vHasGLEW_B = true;
    }
-
-
 
 
    // Now destroy the temporary stuff
@@ -181,11 +183,10 @@ int eContext::createContext() {
       vWindowClass_win32.lpszClassName = vClassName_win32;
 
 
-      if(RegisterClassW( &vWindowClass_win32 ) == 0) {
-         eLOG "Failed to register the (final) window class " ADD GetLastError() END
+      if ( !RegisterClass( &vWindowClass_win32 ) ) {
+         eLOG "Failed to register the (final) window class" END
          return -1;
       }
-      
 
       e_engine_internal::CLASS_REGISTER.setC2();
    }
@@ -194,58 +195,55 @@ int eContext::createContext() {
       eLOG "Problems with window callback" END
       return 5;
    }
-
-   vWindowRect_win32.left   = WinData.win.posX;
-   vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
-   vWindowRect_win32.top    = WinData.win.posY;
-   vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
    
+   
+   if ( WinData.win.fullscreen ) {
+      HWND lDesktopHWND_win32 = GetDesktopWindow();
+
+      if ( GetWindowRect( lDesktopHWND_win32, &vWindowRect_win32 ) == 0 ) {
+         vWindowRect_win32.left   = WinData.win.posX;
+         vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
+         vWindowRect_win32.top    = WinData.win.posY;
+         vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+         wLOG "Fullscreen failed" END
+      }
+   } else {
+      vWindowRect_win32.left   = WinData.win.posX;
+      vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
+      vWindowRect_win32.top    = WinData.win.posY;
+      vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+   }
+   
+   WinData.win.posX   = vWindowRect_win32.left;
+   WinData.win.posY   = vWindowRect_win32.top;
+   WinData.win.width  = vWindowRect_win32.right  - vWindowRect_win32.left;
+   WinData.win.height = vWindowRect_win32.bottom - vWindowRect_win32.top;
+
+   iLOG "Width: " ADD WinData.win.width ADD " Height: " ADD WinData.win.height END
 
    // Now do the same again, but this time create the actual window
-   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle ); 
-   vHWND_Window_win32 = CreateWindowExW( //The W  is required for it to be a Unicode window
+   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
+   vHWND_Window_win32 = CreateWindowEx(
                            lExtStyle,                                          // Extended window style
                            vClassName_win32,                                   // Window class name
-                           (LPCWSTR) WinData.config.appName.c_str(),           // Window Name
+                           WinData.config.appName.c_str(),                     // Window Name
                            lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN ,     // Window style
                            WinData.win.posX,                                   // X
                            WinData.win.posY,                                   // Y
-                           vWindowRect_win32.right  - vWindowRect_win32.left,  // Width
-                           vWindowRect_win32.bottom - vWindowRect_win32.top,   // Height
+                           WinData.win.width,                                  // Width
+                           WinData.win.height,                                 // Height
                            NULL,                                               // No parent window
                            NULL,                                               // No menu
                            vInstance_win32,                                    // The instance
                            this                                                // We dont want spacial window creation
                         );
 
-   /*!
-    *\todo: Changed the vClassName_win32 and Windowname into a LPCWSTR, 
-    * Changed the vWindowClass_win32 into a WNDCLASSW, 
-    * used CreateWindowExW and RegisterClassW( &vWindowClass_win32 )
-    * See http://technet.microsoft.com/en-ca/dd319108%28v=vs.90%29.aspx
-    */
-   
-   
    ShowCursor( TRUE );
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
 
 
    int lNumberOfPixelFormats_I = -10;
-   
-   int lPixelAttributes[] = {
-      WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
-      WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
-      WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
-      WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
-      WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
-      WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
-      WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
-      WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
-      WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
-      WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
-      0
-   };
 
    int lAttributesCount[] = { WGL_NUMBER_PIXEL_FORMATS_ARB };
    int lAttributes[] = {
@@ -347,12 +345,11 @@ int eContext::createContext() {
    }
 
    lEntry_LOG _ADD "   |========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
-   
-   wglChoosePixelFormatARB( vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, ( UINT * )&lNumberOfPixelFormats_I );
+
    iLOG "Selected Pixel format descriptor: " ADD lBestFBConfig_I END
 
    SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
-   
+
 
    // Set new Error Handler
    GLushort version_list[][2] = {
@@ -380,7 +377,7 @@ int eContext::createContext() {
       lAttributes_A_I[2] = WGL_CONTEXT_MINOR_VERSION_ARB;
       lAttributes_A_I[3] = WinData.versions.glMinorVersion;
       lAttributes_A_I[4] = 0;
-   }   
+   }
 
    for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
       vOpenGLContext_WGL = wglCreateContextAttribsARB( vHDC_win32, 0, lAttributes_A_I );
@@ -431,209 +428,11 @@ int eContext::createContext() {
 
 
    iLOG "OpenGL context created" END
-   
+
    vHasContext_B = true;
 
    return 1;
-
-//    vWindowsDestroy_B        = false;
-//    vWindowsNCDestrox_B      = false;
-// 
-//    vHWND_Window_win32       = 0;
-//    vHDC_win32               = 0;
-//    vInstance_win32          = 0;
-//    vOpenGLContext_WGL       = 0;
-   //!\todo Merged
 }
-
-
-/*!
- * \brief Enables VSync
- * \returns 0 No Window / OpenGL context
- * \returns 1 \c SUCCESS
- * \returns 2 Extention not supported
- * \returns 3 wglewIsSupported (main VSync function) returned ERROR_INVALID_DATA
- * \returns 4 wglewIsSupported (main VSync function) returned ERROR_DC_NOT_FOUND
- * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
- */
-int eContext::enableVSync() {
-   if ( ! vHasContext_B )
-      return 0;
-
-   if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
-      if ( wglSwapIntervalEXT( 1 ) != TRUE ) {
-         switch ( GetLastError() ) {
-            case ERROR_INVALID_DATA:
-               wLOG    "VSync Error [WGL] ERROR_INVALID_DATA; 1 seams to be not a good value on this System"
-               NEWLINE "==> VSync NOT enabled" END
-               return 3;
-            case ERROR_DC_NOT_FOUND:
-               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
-               NEWLINE "==> VSync NOT enabled" END
-               return 4;
-            default:
-               wLOG    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
-               NEWLINE "==> VSync NOT enabled" END
-               return 5;
-         }
-      }
-
-      iLOG "VSync [WGL] enabled" END
-      return 1;
-
-   } else {
-      wLOG    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported"
-      NEWLINE "==> VSync NOT enabled" END
-      return 2;
-   }
-}
-
-/*!
- * \brief Disables VSync
- * \returns 0 No Window / OpenGL context
- * \returns 1 \c SUCCESS
- * \returns 2 Extention not supported
- * \returns 3 wglewIsSupported (main VSync function) returned ERROR_INVALID_DATA
- * \returns 4 wglewIsSupported (main VSync function) returned ERROR_DC_NOT_FOUND
- * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
- */
-int eContext::disableVSync() {
-   if ( ! vHasContext_B )
-      return 0;
-
-   if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
-      if ( wglSwapIntervalEXT( 0 ) != TRUE ) {
-         switch ( GetLastError() ) {
-            case ERROR_INVALID_DATA:
-               wLOG    "VSync Error [WGL] ERROR_INVALID_DATA; 0 seams to be not a good value on this System"
-               NEWLINE "==> VSync NOT disabled" END
-               return 3;
-            case ERROR_DC_NOT_FOUND:
-               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
-               NEWLINE "==> VSync NOT disabled" END
-               return 4;
-            default:
-               wLOG    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
-               NEWLINE "==> VSync NOT disabled" END
-               return 5;
-         }
-      }
-
-      iLOG "VSync [WGL] disabled" END
-      return 1;
-
-   } else {
-      wLOG    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported"
-      NEWLINE "==> VSync NOT disabled" END
-      return 2;
-   }
-}
-
-
-void eContext::destroyContext() {
-   if ( ! vHasContext_B )
-      return;
-
-   iLOG "Destroying everything" END
-
-   wglDeleteContext( vOpenGLContext_WGL );
-   ReleaseDC( vHWND_Window_win32, vHDC_win32 );
-   /*
-    * DestroyWindow( vHWND_Window_win32 );
-    *
-    * Wont work herer because:
-    *
-    *  1. Windows
-    *  2. Must be called in the thread were the window was created
-    *
-    */
-
-   vHasContext_B = false;
-}
-
-/*!
- * \brief Make this context current
- * \returns true on success
- * \returns false when there was an error
- */
-bool eContext::makeContextCurrent() {
-   if ( ! vHasContext_B ) {
-      eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with eInit::init() before you run this!" END
-      return false;
-   }
-   return wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL ) == TRUE ? true : false;
-}
-
-/*!
- * \brief Make \b NO context current
- * \returns true on success
- * \returns false when there was an error
- */
-bool eContext::makeNOContextCurrent() {
-   if ( ! vHasContext_B ) {
-      eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with eInit::init() before you run this!" END
-      return false;
-   }
-   return wglMakeCurrent( NULL, NULL ) == TRUE ? true : false;
-}
-
-
-bool eContext::setDecoration( ACTION _action ) {
-   bool lWinDataOld_B = WinData.win.windowDecoration;
-
-   switch ( _action ) {
-      case C_ADD:
-         WinData.win.windowDecoration = true;
-         break;
-      case C_REMOVE:
-         WinData.win.windowDecoration = false;
-         break;
-
-      case C_TOGGLE:
-         WinData.win.windowDecoration = !WinData.win.windowDecoration;
-         break;
-
-      default:
-         eLOG "This message is theoretically totaly impossible! [bool eContext::setDecoration( ACTION _action )]" END
-         return false;
-   }
-
-   if ( lWinDataOld_B != WinData.win.windowDecoration )
-      vWindowRecreate_B = true;
-
-   return true;
-}
-
-int eContext::fullScreen( ACTION _action, bool _allMonitors ) {
-   bool lWinDataOld_B = WinData.win.fullscreen;
-
-   switch ( _action ) {
-      case C_ADD:
-         WinData.win.fullscreen = true;
-         break;
-      case C_REMOVE:
-         WinData.win.fullscreen = false;
-         break;
-
-      case C_TOGGLE:
-         WinData.win.fullscreen = !WinData.win.fullscreen;
-         break;
-
-      default:
-         eLOG "This message is theoretically totaly impossible! [bool eContext::setDecoration( ACTION _action )]" END
-         return false;
-   }
-
-   if ( lWinDataOld_B != WinData.win.fullscreen )
-      vWindowRecreate_B = true;
-
-   return 1;
-}
-
-
-
-
-
 
 } // windows_win32
 

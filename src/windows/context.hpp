@@ -48,7 +48,9 @@ class eContext : public eInitEventBasic, public eKeyboard {
 
    protected:
       bool                  vWindowRecreate_B;
-      void setWindowRecreate() { vWindowRecreate_B = true; }
+      
+      bool                  vWindowsDestroy_B;
+      bool                  vWindowsNCDestrox_B;
       
       HWND getHWND_win32() {return vHWND_Window_win32;}
 
@@ -59,7 +61,7 @@ class eContext : public eInitEventBasic, public eKeyboard {
 
       int  createContext();
 
-      int  fullScreen( ACTION _action, bool _allMonitors = false ) {return 1;}
+      int  fullScreen( ACTION _action, bool _allMonitors = false );
       int  enableVSync();
       int  disableVSync();
       void destroyContext();
