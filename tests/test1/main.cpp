@@ -150,7 +150,7 @@ int main( int argc, char **argv ) {
       prog.link( dummy );
 
 #endif // UNIX
-      boost::thread ttt = boost::thread( temp, &start );
+      //boost::thread ttt = boost::thread( temp, &start );
       start.startMainLoop();
       B_SLEEP( seconds, 1 );
       start.closeWindow();

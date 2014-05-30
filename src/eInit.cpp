@@ -60,8 +60,6 @@ eInit::eInit() {
    vEventLoopISPaused_B    = false;
    vLoopsPaused_B          = false;
    
-   vContinueWithEventLoop_B = false;
-
    fRender               = standardRender;
 
    vEventLoopHasFinished_B  = true;
@@ -210,7 +208,6 @@ GLvoid eInit::quitMainLoop() {
 
 int eInit::quitMainLoopCall( ) {
    vMainLoopRunning_B = false;
-   vContinueWithEventLoop_B = false;
 
 // #if UNIX_X11
    if ( ! vEventLoopHasFinished_B )
