@@ -15,6 +15,7 @@
 #include "displays.hpp"
 #include "log.hpp"
 #include "eInitEventBasic.hpp"
+#include "windows/keyboard.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -23,21 +24,21 @@ namespace e_engine {
 
 namespace windows_win32 {
 
-class eContext : public eInitEventBasic {
+class eContext : public eInitEventBasic, public eKeyboard {
    private:
       PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
       HINSTANCE             vInstance_win32;
-      WNDCLASS              vWindowClass_win32;
+      WNDCLASSW             vWindowClass_win32;
       HWND                  vHWND_Window_win32;
       RECT                  vWindowRect_win32;
       HDC                   vHDC_win32;
       HGLRC                 vOpenGLContext_WGL;
-      LPCSTR                vClassName_win32;
+      LPCWSTR               vClassName_win32;
 
       static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       LRESULT CALLBACK        actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo );
-
+      
       bool                  vWindowsCallbacksError_B;
 
       bool                  vHasContext_B;

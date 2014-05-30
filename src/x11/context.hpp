@@ -32,6 +32,7 @@
 #include "randr.hpp"
 #include "defines.hpp"
 #include "eInitEventBasic.hpp"
+#include "x11/keyboard.hpp"
 #include <GL/glew.h>
 // WARNING Can not include <glxew.h> because it would overwrite all <glx.h> macros
 //         which dont work before calling glewInit();
@@ -87,7 +88,7 @@ extern Atom atom_wmDeleteWindow;
  * functions and in the other file ( e_context.cpp ) the
  * rest of the functions.
  */
-class eContext : public eRandR, public eInitEventBasic {
+class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
    private:
 
       // X11 variables

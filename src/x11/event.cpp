@@ -62,7 +62,7 @@ static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
 
 namespace e_engine {
 
-// namespace unix_x11 {
+ //namespace unix_x11 {
 
 
 int eInit::eventLoop() {
@@ -160,7 +160,7 @@ int eInit::eventLoop() {
    return 1;
 }
 
-// } // unix_x11
+ //} // unix_x11
 
 } // e_engine
 
