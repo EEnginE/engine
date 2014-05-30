@@ -76,7 +76,7 @@ int eContext::createContext() {
    if ( vHasContext_B )
       return 2;
 
-   vClassName_win32             = "OGL_CLASS";
+   vClassName_win32             =  L"OGL_CLASS";
    LPCSTR lClassName_TEMP_win32 = "OGL_CLASS_TEMP";
 
    DWORD  lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
@@ -187,10 +187,11 @@ int eContext::createContext() {
       vWindowClass_win32.lpszClassName = vClassName_win32;
 
 
-      if ( !RegisterClass( &vWindowClass_win32 ) ) {
-         eLOG "Failed to register the (final) window class" END
+      if(RegisterClassW( &vWindowClass_win32 ) == 0) {
+         eLOG "Failed to register the (final) window class " ADD GetLastError() END
          return -1;
       }
+      
 
       e_engine_internal::CLASS_REGISTER.setC2();
    }
@@ -204,13 +205,14 @@ int eContext::createContext() {
    vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
    vWindowRect_win32.top    = WinData.win.posY;
    vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+   
 
    // Now do the same again, but this time create the actual window
-   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
-   vHWND_Window_win32 = CreateWindowEx(
+   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle ); 
+   vHWND_Window_win32 = CreateWindowExW( //The W  is required for it to be a Unicode window
                            lExtStyle,                                          // Extended window style
                            vClassName_win32,                                   // Window class name
-                           WinData.config.appName.c_str(),                     // Window Name
+                           (LPCWSTR) WinData.config.appName.c_str(),           // Window Name
                            lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN ,     // Window style
                            WinData.win.posX,                                   // X
                            WinData.win.posY,                                   // Y
@@ -222,6 +224,14 @@ int eContext::createContext() {
                            this                                                // We dont want spacial window creation
                         );
 
+   /*!
+    *\todo: Changed the vClassName_win32 and Windowname into a LPCWSTR, 
+    * Changed the vWindowClass_win32 into a WNDCLASSW, 
+    * used CreateWindowExW and RegisterClassW( &vWindowClass_win32 )
+    * See http://technet.microsoft.com/en-ca/dd319108%28v=vs.90%29.aspx
+    */
+   
+   
    ShowCursor( TRUE );
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context

@@ -11,9 +11,8 @@
 
 namespace e_engine {
 
-namespace {
+HWND hwnd;
 
-}
 
 int eInit::eventLoop() {
    //! \todo Move this in windows_win32
@@ -33,7 +32,7 @@ int eInit::eventLoop() {
    // Now wait until the main event loop is officially "started"
 
    boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
-   while( !vContinueWithEventLoop_B ) vStartEventCondition_BT.wait( lLockEvent_BT );
+   while ( !vContinueWithEventLoop_B ) vStartEventCondition_BT.wait( lLockEvent_BT );
 
 
    iLOG "Event loop started" END
@@ -67,14 +66,13 @@ int eInit::eventLoop() {
 
 namespace windows_win32 {
 
-using namespace e_engine;
-
 LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    if ( _uMsg == WM_NCCREATE ) {
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
 
+      hwnd = _hwnd;
 
 //       if ( this__->vHWND_Window_win32 != 0 ) {
 //          // This function was already called -- this should never happen
@@ -84,6 +82,7 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
 //       }
 
       this__->vHWND_Window_win32 = _hwnd;
+
       SetWindowLongPtr( _hwnd,
                         GWLP_USERDATA,
                         reinterpret_cast<LONG_PTR>( this__ ) );
@@ -103,6 +102,8 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    eContext *this__ = reinterpret_cast<eContext *>( lUserData_win32 );
    eWinInfo _tempInfo( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
 
+
+
    if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
       eLOG "Bad Windows callback error" END
 //       this__->destroyContext();
@@ -111,7 +112,6 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 
    return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
-
 
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo ) {
    unsigned int key_state = E_KEY_PRESSED;
@@ -124,12 +124,34 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
    switch ( _uMsg ) {
       case WM_SIZE://Window size was changed
          iLOG "Resized " END
+         _tempInfo.eResize.width = _lParam & 0xFFFF; // Get the low order word as a width
+         _tempInfo.eResize.height = _lParam >> 16; // Get the high order word as a height
+         vResize_SIG.sendSignal( _tempInfo );
+         iLOG "The window was resized to width " ADD _tempInfo.eResize.width ADD " and height " ADD _tempInfo.eResize.height END
          return 0;
       case WM_MOVE://Window was moved
-         iLOG "Moved " END
+         _tempInfo.eResize.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
+         _tempInfo.eResize.posY = _lParam >> 16; // Get the high order word as the y-Position
+         iLOG "The window was moved to x" ADD _tempInfo.eResize.posX ADD " and y" ADD _tempInfo.eResize.posY END
+         vResize_SIG.sendSignal( _tempInfo );
          return 0;
-      case WM_CLOSE: //Window is closed TODO: Doesnt work yet, add functionality
-         iLOG "Closed " END
+      case WM_MOUSEMOVE: //Mouse moved, see http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
+         _tempInfo.eMouse.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
+         _tempInfo.eMouse.posY = _lParam >> 16; // Get the high order word as the y-Position
+//_tempInfo.eMouse.state =
+
+         iLOG "The mouse was moved to x" ADD _tempInfo.eMouse.posX ADD " and y" ADD _tempInfo.eMouse.posY END
+
+         //!\todo Check if the coords are right, see the article above
+
+         //!\todo Is a mousestate necessary? Only gives information if mouse is moved while mousebuttons are held
+         //May also be solved by logging the individual mousebuttons
+
+         vKey_SIG.sendSignal( _tempInfo );
+         return 0;
+      case WM_CLOSE:
+         _tempInfo.type = 10;
+         vWindowClose_SIG.sendSignal( _tempInfo );
          return 0;
       case WM_SETFOCUS: //Window has been focused
          iLOG "Focus Set " END
@@ -140,7 +162,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_LBUTTONUP: //Leftbutton released
          iLOG "Leftbutton released " END
          return 0;
-      case WM_LBUTTONDBLCLK: //User Clicked Leftbutton twice TODO: Doesnt work
+      case WM_LBUTTONDBLCLK: //!User Clicked Leftbutton twice \todo Doesnt work
          iLOG "Doubleclicked left button" END
          return 0;
       case WM_RBUTTONDOWN: //Rightbutton clicked
@@ -149,17 +171,21 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_RBUTTONUP: //Rightbutton released
          iLOG "Rightbutton released " END
          return 0;
+      case WM_CHAR:
+         //This returns the actual key the user has typed in
+         //It is only used if a key associated to a character, not a function key, was pressed
+         //!\note Unicode should be supported by this, as it is a Unicode window, cannot be checked because the visual output (cmd/terminal) does not support unicode
+         //!\todo Handle this output for text messages/text inputs
+         return 0;
       case WM_KEYUP:
          key_state = E_KEY_RELEASED;
       case WM_KEYDOWN: //Key pressed
-         iLOG "Key pressed: " ADD( char ) _wParam END
          _tempInfo.eKey.state = key_state;
-         _tempInfo.eKey.key   = _wParam; // TODO: Process _wParam first
+         _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
          vKey_SIG.sendSignal( _tempInfo );
+         //iLOG MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR) END
+         //The above returns 0 when a function key is pressed, may be useful
          return 0;
-//       case WM_MOUSEMOVE:
-//          iLOG "Mouse moved: " END
-//          return 0;
       default:
          char lStr_CSTR[6];
          snprintf( lStr_CSTR, 5, "%04x", _uMsg );
