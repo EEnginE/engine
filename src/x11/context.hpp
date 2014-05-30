@@ -1,10 +1,10 @@
-/*! 
+/*!
  * \file x11/context.hpp
  * \brief \b Classes: \a eContext
- * 
+ *
  * This file contains the class \b eContext which creates
  * the window and the OpenGL context on it.
- * 
+ *
  * \sa e_context.cpp e_eInit.cpp
  */
 /*
@@ -108,7 +108,7 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       GLXContext           vOpenGLContext_GLX;        //!< The context handle
       GLXFBConfig          *vFBConfig_GLX;            //!< The framebuffer handle
       int                  vNumOfFBConfigs_I;         //!< Number of found matching framebuffer configs
-      
+
       glXCreateContextAttribsARBProc glXCreateContextAttribsARB; //! The context creation function pointer
 
       int    vBestFBConfig_I;
@@ -137,10 +137,13 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       int createFrameBuffer();    //!< Looks for the best FB config           \returns \c SUCCESS: \a 1 -- \c ERRORS: \a -3
       int createWindow();         //!< Creates the Window                     \returns \c SUCCESS: \a 1 -- \c ERRORS: \a -4
       int createOGLContext();     //!< Creates the OpenGL context             \returns \c SUCCESS: \a 1 -- \c ERRORS: \a 3
-      
+
       bool sendX11Event( std::string _atom, GLint64 _l0 = 0, GLint64 _l1 = 0, GLint64 _l2 = 0, GLint64 _l3 = 0, GLint64 _l4 = 0 );
-      
+
       virtual void makeEInitEventBasicAbstract() {}
+
+   protected:
+      bool vWindowRecreate_B;
 
    public:
       eContext() {
@@ -152,6 +155,7 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
          vDisplayCreated_B      = false;
          vWindowCreated_B       = false;
          vColorMapCreated_B     = false;
+         vWindowRecreate_B      = false;
       }
       virtual ~eContext() {destroyContext();}
 

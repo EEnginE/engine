@@ -99,7 +99,7 @@ class eInit : public OS_NAMESPACE::eContext {
       
       boost::mutex              vStartEventMutex_BT;
       boost::condition_variable vStartEventCondition_BT;
-      bool                      vContinueWithEventLoop_B;
+      bool                      vContinueWithEventLoop_B;     
 #endif
 
       // Thread Functions --------------------------------------------------------- ###
@@ -146,6 +146,7 @@ class eInit : public OS_NAMESPACE::eContext {
       void   continueMainLoop();
       
       void   restart();
+      void   restartIfNeeded();
 
       /*!
        * \brief Quit the main loop and close the window

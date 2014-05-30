@@ -638,7 +638,6 @@ bool eContext::makeNOContextCurrent()  {
 }
 
 
-
 } // unix_x11
 
 } // e_engine

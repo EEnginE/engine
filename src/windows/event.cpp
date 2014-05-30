@@ -11,12 +11,20 @@
 
 namespace e_engine {
 
-HWND hwnd;
+   namespace {
+      
+   }
 
 
 int eInit::eventLoop() {
    //! \todo Move this in windows_win32
+   if( ! vEventLoopHasFinished_B )
+      return -1;
+   
    vEventLoopHasFinished_B = false;
+
+   vWindowsDestroy_B   = false;
+   vWindowsNCDestrox_B = false;
 
    {
       // Make sure lLockWindow_BT will be destroyed
@@ -39,27 +47,32 @@ int eInit::eventLoop() {
 
    MSG msg;
 
-   while ( vMainLoopRunning_B ) {
+//    while ( ( vMainLoopRunning_B && !vWindowRecreate_B ) || ( vMainLoopRunning_B || ( vWindowRecreate_B && ! ( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) ) ) {
+   while ( !( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) {
+      if ( !getHaveContext() )
+         DestroyWindow( getHWND_win32() );
+
       if ( vLoopsPaused_B ) {
          boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
          vEventLoopISPaused_B = true;
          while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
          vEventLoopISPaused_B = false;
-
-         // Jump back to create context
-         if ( vWindowRecreate_B || ! getHaveContext() )
-            break;
-
       }
-      if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
-
+      while ( PeekMessage( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
          TranslateMessage( &msg );
          DispatchMessage( &msg );
       }
 
-      B_SLEEP( milliseconds, 10 );
+      B_SLEEP( milliseconds, 5 );
    }
 
+   // Proccess the last messages
+   while ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
+      TranslateMessage( &msg );
+      DispatchMessage( &msg );
+   }
+
+   iLOG "Event loop finished!" END
    vEventLoopHasFinished_B = true;
    return 1;
 }
@@ -71,15 +84,6 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       eContext *this__ = reinterpret_cast<eContext *>( lCreateParam_win32 );
-
-      hwnd = _hwnd;
-
-//       if ( this__->vHWND_Window_win32 != 0 ) {
-//          // This function was already called -- this should never happen
-//          eLOG "Internal Error: eContext::initialWndProc was already called!!" END
-//          this__->destroyContext();
-//          this__->vWindowsCallbacksError_B = true;
-//       }
 
       this__->vHWND_Window_win32 = _hwnd;
 
@@ -102,15 +106,11 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    eContext *this__ = reinterpret_cast<eContext *>( lUserData_win32 );
    eWinInfo _tempInfo( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
 
-
-
    if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
       eLOG "Bad Windows callback error" END
-//       this__->destroyContext();
-//       this__->vWindowsCallbacksError_B = true;
    }
 
-   return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
+      return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
 
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo ) {
@@ -138,7 +138,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_MOUSEMOVE: //Mouse moved, see http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
          _tempInfo.eMouse.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.eMouse.posY = _lParam >> 16; // Get the high order word as the y-Position
-//_tempInfo.eMouse.state =
+         //_tempInfo.eMouse.state =
 
          iLOG "The mouse was moved to x" ADD _tempInfo.eMouse.posX ADD " and y" ADD _tempInfo.eMouse.posY END
 
@@ -168,7 +168,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_RBUTTONDOWN: //Rightbutton clicked
          iLOG "Rightbutton clicked " END
          return 0;
-      case WM_RBUTTONUP: //Rightbutton released
+      case WM_RBUTTONUP:   //Rightbutton released
          iLOG "Rightbutton released " END
          return 0;
       case WM_CHAR:
@@ -176,16 +176,26 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          //It is only used if a key associated to a character, not a function key, was pressed
          //!\note Unicode should be supported by this, as it is a Unicode window, cannot be checked because the visual output (cmd/terminal) does not support unicode
          //!\todo Handle this output for text messages/text inputs
+         iLOG "Key translated as: " ADD (char) _wParam END
          return 0;
       case WM_KEYUP:
          key_state = E_KEY_RELEASED;
+         iLOG "Key pressed: " ADD (char) _wParam END
       case WM_KEYDOWN: //Key pressed
          _tempInfo.eKey.state = key_state;
          _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
          vKey_SIG.sendSignal( _tempInfo );
-         //iLOG MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR) END
+         //MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR)
          //The above returns 0 when a function key is pressed, may be useful
          return 0;
+      case WM_DESTROY:
+         iLOG "Window Destroyed WM_DESTROY" END
+         vWindowsDestroy_B   = true;
+         break;
+      case  WM_NCDESTROY:
+         iLOG "Window Destroyed WM_NCDESTROY" END
+         vWindowsNCDestrox_B = true;
+         break;
       default:
          char lStr_CSTR[6];
          snprintf( lStr_CSTR, 5, "%04x", _uMsg );
