@@ -24,7 +24,7 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
    _entry.data.vFilename_STR     = vRawFilename_STR;
    _entry.data.vLine_I           = vLogLine_I;
    _entry.data.vTime_lI          = vTime_lI;
-   _entry.data.vType_STR         = "UNKNOWN";
+   _entry.data.vType_STR         = L"UNKNOWN";
    _entry.data.vNewColor_STR     = testNewColor();
       
    if( _vLogTypes_V_eLT.empty() ) {
@@ -41,20 +41,20 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
       }
    }
 
-   std::string ltemp_STR = "WARNING!! Log type '";
+   std::wstring ltemp_STR = L"WARNING!! Log type '";
    ltemp_STR += vType_C;
-   ltemp_STR += "' not Found";
+   ltemp_STR += L"' not Found";
    
    vElements_V_eLS.push_back( e_engine_internal::__eLogStore( ltemp_STR, 'B', 'R', '-' ) );
 
    return 0;
 }
 
-std::string __eLogStoreHelper::testNewColor()  {
+std::wstring __eLogStoreHelper::testNewColor()  {
 #if UNIX
-if ( vFG_C != '-' ) {
-      if ( vAttrib_C != '-' ) {
-         if ( vBG_C != '-' ) {
+if ( vFG_C != L'-' ) {
+      if ( vAttrib_C != L'-' ) {
+         if ( vBG_C != L'-' ) {
             return eCMDColor::color( vAttrib_C, vFG_C, vBG_C );
          }
          return eCMDColor::color( vAttrib_C, vFG_C );
@@ -62,7 +62,7 @@ if ( vFG_C != '-' ) {
       return eCMDColor::color( vFG_C );
    }
 #endif
-   return "";
+   return L"";
 }
 
 

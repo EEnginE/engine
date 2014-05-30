@@ -123,7 +123,7 @@ class eLog {
       std::vector<e_engine_internal::eLogType> vLogTypes_V_eLT;
       std::string                              vLogFileName_str;
       std::string                              vLogFielFullPath_str;
-      std::ofstream                            vLogFileOutput_OS;
+      std::wofstream                           vLogFileOutput_OS;
 
       bool vLogLoopRun_B;
       bool vIsLogLoopRunning_B;
@@ -161,7 +161,7 @@ class eLog {
 
       void devInit();
 
-      void addType( char _type, std::string _name, char _color, bool _bold );
+      void addType( char _type, std::wstring _name, char _color, bool _bold );
 
       void generateEntry( eLogEntry &_rawEntry );
 

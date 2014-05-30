@@ -80,9 +80,9 @@ eLog::eLog() {
 }
 
 void eLog::devInit() {
-   addType( 'E', "Error",   'R', true );
-   addType( 'W', "Warning", 'Y', false );
-   addType( 'I', "Info",    'G', false );
+   addType( 'E', L"Error",   'R', true );
+   addType( 'W', L"Warning", 'Y', false );
+   addType( 'I', L"Info",    'G', false );
 
    connectSlotWith( 'I', vStdOut_eSLOT );
 
@@ -117,7 +117,7 @@ void eLog::devInit() {
  * \param _bold  Is this error type important
  * \returns Nothing
  */
-void eLog::addType( char _type, std::string _name, char _color, bool _bold ) {
+void eLog::addType( char _type, std::wstring _name, char _color, bool _bold ) {
    vLogTypes_V_eLT.push_back( e_engine_internal::eLogType( _type, _name, _color, _bold ) );
    if ( _name.size() > vMaxTypeStringLength_usI )
       vMaxTypeStringLength_usI = _name.size();
@@ -233,12 +233,12 @@ void eLog::stdOutStandard( e_engine::eLogEntry _e ) {
 
    generateEntry( _e );
 
-   std::cout << _e.vResultStrin_STR;
+   wprintf( _e.vResultStrin_STR.c_str() );
 }
 
 
 void eLog::stdErrStandard( eLogEntry _e ) {
-#ifdef WIN32
+#ifdef WINDOWS
    // Sorry, no Color support for Windows
    _e.config.vColor_LCT = DISABLED;
 #endif
@@ -264,7 +264,7 @@ void eLog::stdErrStandard( eLogEntry _e ) {
 
    generateEntry( _e );
 
-   std::cerr << _e.vResultStrin_STR;
+   fwprintf( stdout, _e.vResultStrin_STR.c_str() );
 }
 
 void eLog::stdLogStandard( e_engine::eLogEntry _e ) {
