@@ -14,9 +14,10 @@ void MyHandler::key( eWinInfo info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.eInitPointer->getDisplayResolutions();
 
-   
-         iLOG "Key pressed: '" ADD (char) info.eKey.key ADD "'" END
-         
+   char lHex_CSTR[6];
+   snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
+   iLOG "Key " ADD info.eKey.state == E_KEY_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
+
    if ( info.eKey.state == E_KEY_PRESSED ) {
       switch ( info.eKey.key ) {
          case E_KEY_F1:          info.eInitPointer->setAttribute( C_TOGGLE, MODAL ); break;
@@ -129,3 +130,4 @@ void render( eWinInfo info ) {
 }
 
 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

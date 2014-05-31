@@ -98,7 +98,7 @@ int eInit::init() {
 
    signal( SIGINT, handleSignal );
    signal( SIGTERM, handleSignal );
-
+   
    if ( WinData.log.logFILE.logFileName.empty() ) {
       WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
 #if UNIX
@@ -107,10 +107,10 @@ int eInit::init() {
       WinData.log.logFILE.logFileName += "\\Log";
 #endif
    }
-
+   
    if ( WinData.log.logDefaultInit )
       LOG.devInit();
-
+   
    LOG.startLogLoop();
 
 #if WINDOWS
@@ -124,8 +124,9 @@ int eInit::init() {
 #else
    vCreateWindowReturn_I = createContext();
 #endif
+      
    if ( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
-
+   
    standardRender( this ); // Fill the Window with black
 
    return 1;
@@ -260,10 +261,10 @@ int eInit::renderLoop( ) {
    iLOG "Render loop started" END
    vRenderLoopHasFinished_B = false;
    makeContextCurrent();  // Only ONE thread can have a context
-
+   
    if ( WinData.win.VSync == true )
       enableVSync();
-
+   
    while ( vMainLoopRunning_B ) {
       if ( vLoopsPaused_B ) {
          boost::unique_lock<boost::mutex> lLock_BT( vMainLoopMutex_BT );
@@ -274,10 +275,10 @@ int eInit::renderLoop( ) {
          vMainLoopISPaused_B = false;
          makeContextCurrent();
       }
-
+      
       fRender( this );
    }
-
+   
    if( getHaveContext() ) makeNOContextCurrent();
    vRenderLoopHasFinished_B = true;
    return 0;
@@ -289,6 +290,9 @@ int eInit::closeWindow( bool _waitUntilClosed ) {
       vBoolCloseWindow_B = true;
       quitMainLoop();
       if ( _waitUntilClosed ) {vQuitMainLoop_BT.join();}
+#if WINDOWS
+      destroyContext();
+#endif
       return 1;
    }
    destroyContext();
@@ -351,8 +355,6 @@ void eInit::restart() {
    createContext();
    standardRender( eWinInfo( this ) );
    makeNOContextCurrent();
-#elif WINDOWS
-   vWindowRecreate_B = true;
 #endif
    continueMainLoop();
 

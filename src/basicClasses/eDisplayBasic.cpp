@@ -45,11 +45,34 @@ void eDisplayBasic::setPositionRelative( eDisplayBasic::POSITON _where, eDisplay
 }
 
 
-//! \brief Returns the selected position via references
+/*!
+ * \brief Returns the selected position via references
+ * 
+ * \param[out] _posX Position X in Pixels
+ * \param[out] _posY Position Y in Pixels
+ * 
+ * \returns Nothing
+ */
 void eDisplayBasic::getSelectedPosition( int &_posX, int &_posY ) const {
    _posX = vPosX_uI;
    _posY = vPosY_uI;
 }
+
+/*!
+ * \brief Get the current width, height, and rate
+ * 
+ * \param[out] _width  The current width
+ * \param[out] _height The current height
+ * \param[out] _rate   The currnet rate
+ * 
+ * \returns Nothing
+ */
+void eDisplayBasic::getCurrentResolution( unsigned int &_width, unsigned int &_height, double &_rate ) const {
+   _width  = vCurrentWidth_uI;
+   _height = vCurrentHeight_uI;
+   _rate   = vCurrentRate_D;
+}
+
 
 
 }

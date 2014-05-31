@@ -12,10 +12,9 @@
 #define CONTEXT_HPP
 
 #include "defines.hpp"
-#include "displays.hpp"
-#include "log.hpp"
 #include "eInitEventBasic.hpp"
-#include "windows/keyboard.hpp"
+#include "keyboard.hpp"
+#include "eRandR_win32.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -24,7 +23,8 @@ namespace e_engine {
 
 namespace windows_win32 {
 
-class eContext : public eInitEventBasic, public eKeyboard {
+
+class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
    private:
       PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
       HINSTANCE             vInstance_win32;
@@ -48,14 +48,15 @@ class eContext : public eInitEventBasic, public eKeyboard {
 
    protected:
       bool                  vWindowRecreate_B;
-      
+
       bool                  vWindowsDestroy_B;
       bool                  vWindowsNCDestrox_B;
-      
+
       HWND getHWND_win32() {return vHWND_Window_win32;}
 
    public:
       eContext();
+      virtual ~eContext() {if ( vHasContext_B ) destroyContext();}
 
       inline void swapBuffers() { SwapBuffers( vHDC_win32 ); }
 
@@ -71,13 +72,7 @@ class eContext : public eInitEventBasic, public eKeyboard {
       bool makeNOContextCurrent();
 
       bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) {return false;}
-
-      std::vector<eDisplays> getDisplayResolutions() { return std::vector<eDisplays>(); }
-
-      bool setDisplaySizes( eDisplays const &_disp ) {return false;}
-      void setPrimary( eDisplays const &_disp ) {}
-
-      bool applyNewRandRSettings() {return false;}
+      
 
       int  setFullScreenMonitor( eDisplays _disp ) {return 0;}
       bool setDecoration( ACTION _action );

@@ -24,6 +24,8 @@
 #include "eInit.hpp"
 #include "log.hpp"
 
+#include <X11/XKBlib.h>
+
 /*
  * From class eInit (e_init.h)
  */
@@ -62,7 +64,7 @@ static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
 
 namespace e_engine {
 
- //namespace unix_x11 {
+//namespace unix_x11 {
 
 
 int eInit::eventLoop() {
@@ -88,6 +90,11 @@ int eInit::eventLoop() {
    gettimeofday( &tv, 0 );
    addTimeval( tv, periode, tv );
 
+   // Fix autotype keyrelease
+   int lAutoRepeatTempReturn_B;
+   if ( ! XkbSetDetectableAutoRepeat( getDisplay(), 1, &lAutoRepeatTempReturn_B ) ) {
+      wLOG "Failed to better handle autorepeat (when holdink key down)" END
+   }
 
    while ( vMainLoopRunning_B ) {
       if ( vLoopsPaused_B ) {
@@ -132,7 +139,21 @@ int eInit::eventLoop() {
                }
                break;
 
-            case KeyRelease: key_state = E_KEY_RELEASED;
+            case KeyRelease:
+               key_state = E_KEY_RELEASED;
+               if ( XEventsQueued( getDisplay(), QueuedAfterReading ) ) {
+                  XEvent lNextEvent_X11;
+                  XPeekEvent( getDisplay(), &lNextEvent_X11 );
+
+                  if (
+                     lNextEvent_X11.type == KeyPress &&
+//                      lNextEvent_X11.xkey.time == e.xkey.time &&
+                     lNextEvent_X11.xkey.keycode == e.xkey.keycode
+                  ) {
+                     // Key wasnt released (autorepeat)
+                     break;
+                  }
+               }
             case KeyPress: {
                   eWinInfo tempInfo( this );
                   tempInfo.eKey.state = key_state;
@@ -160,7 +181,7 @@ int eInit::eventLoop() {
    return 1;
 }
 
- //} // unix_x11
+//} // unix_x11
 
 } // e_engine
 

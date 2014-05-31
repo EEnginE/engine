@@ -13,6 +13,7 @@
 
 
 #include "context.hpp"
+#include "log.hpp"
 
 namespace e_engine {
 
@@ -61,25 +62,18 @@ LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lPar
 int eContext::createContext() {
    if ( vHasContext_B )
       return 2;
+   
+   vHWND_Window_win32       = 0;
+   vHDC_win32               = 0;
+   vInstance_win32          = 0;
+   vOpenGLContext_WGL       = 0;
 
-   vHWND_Window_win32 = 0;
-   vHDC_win32         = 0;
-   vInstance_win32    = 0;
-   vOpenGLContext_WGL = 0;
-
-   vClassName_win32             = "OGL_CLASS";
+   vClassName_win32             =  L"OGL_CLASS";
    LPCSTR lClassName_TEMP_win32 = "OGL_CLASS_TEMP";
 
-   DWORD  lWinStyle;
-   DWORD  lExtStyle;
+   DWORD  lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+   DWORD  lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
-   if ( WinData.win.windowDecoration && ! WinData.win.fullscreen ) {
-      lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-      lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-   } else {
-      lWinStyle = WS_POPUP;
-      lExtStyle = WS_EX_APPWINDOW;
-   }
 
    HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
    WNDCLASS  lWindowClass_TEMP_win32;
@@ -118,21 +112,21 @@ int eContext::createContext() {
    lWindowRect_TEMP_win32.top    = WinData.win.posY;
    lWindowRect_TEMP_win32.bottom = WinData.win.posY + WinData.win.height;
 
-   AdjustWindowRectEx( &lWindowRect_TEMP_win32, WS_OVERLAPPEDWINDOW, false, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE );
+   AdjustWindowRectEx( &lWindowRect_TEMP_win32, lWinStyle, false, lExtStyle );
 
    lHWND_Window_TEMP_win32 = CreateWindowEx(
-                                WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, // Extended window style
-                                lClassName_TEMP_win32,              // Window class name
-                                WinData.config.appName.c_str(),     // Window Name
-                                WS_OVERLAPPEDWINDOW,                // Window style
-                                0,                                  // X
-                                0,                                  // Y
-                                800,                                // Width
-                                600,                                // Height
-                                NULL,                               // No parent window
-                                NULL,                               // No menu
-                                lInstance_TEMP_win32,               // The instance
-                                NULL                                // We dont want special window creation
+                                lExtStyle,                                          // Extended window style
+                                lClassName_TEMP_win32,                              // Window class name
+                                WinData.config.appName.c_str(),                     // Window Name
+                                lWinStyle,                                          // Window style
+                                WinData.win.posX,                                   // X
+                                WinData.win.posY,                                   // Y
+                                lWindowRect_TEMP_win32.right  - lWindowRect_TEMP_win32.left,  // Width
+                                lWindowRect_TEMP_win32.bottom - lWindowRect_TEMP_win32.top,   // Height
+                                NULL,                                               // No parent window
+                                NULL,                                               // No menu
+                                lInstance_TEMP_win32,                               // The instance
+                                NULL                                                // We dont want special window creation
                              );
 
 
@@ -154,6 +148,8 @@ int eContext::createContext() {
       }
       vHasGLEW_B = true;
    }
+
+
 
 
    // Now destroy the temporary stuff
@@ -183,10 +179,11 @@ int eContext::createContext() {
       vWindowClass_win32.lpszClassName = vClassName_win32;
 
 
-      if ( !RegisterClass( &vWindowClass_win32 ) ) {
-         eLOG "Failed to register the (final) window class" END
+      if(RegisterClassW( &vWindowClass_win32 ) == 0) {
+         eLOG "Failed to register the (final) window class " ADD GetLastError() END
          return -1;
       }
+      
 
       e_engine_internal::CLASS_REGISTER.setC2();
    }
@@ -195,55 +192,58 @@ int eContext::createContext() {
       eLOG "Problems with window callback" END
       return 5;
    }
-   
-   
-   if ( WinData.win.fullscreen ) {
-      HWND lDesktopHWND_win32 = GetDesktopWindow();
 
-      if ( GetWindowRect( lDesktopHWND_win32, &vWindowRect_win32 ) == 0 ) {
-         vWindowRect_win32.left   = WinData.win.posX;
-         vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
-         vWindowRect_win32.top    = WinData.win.posY;
-         vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
-         wLOG "Fullscreen failed" END
-      }
-   } else {
-      vWindowRect_win32.left   = WinData.win.posX;
-      vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
-      vWindowRect_win32.top    = WinData.win.posY;
-      vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
-   }
+   vWindowRect_win32.left   = WinData.win.posX;
+   vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
+   vWindowRect_win32.top    = WinData.win.posY;
+   vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
    
-   WinData.win.posX   = vWindowRect_win32.left;
-   WinData.win.posY   = vWindowRect_win32.top;
-   WinData.win.width  = vWindowRect_win32.right  - vWindowRect_win32.left;
-   WinData.win.height = vWindowRect_win32.bottom - vWindowRect_win32.top;
-
-   iLOG "Width: " ADD WinData.win.width ADD " Height: " ADD WinData.win.height END
 
    // Now do the same again, but this time create the actual window
-   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
-   vHWND_Window_win32 = CreateWindowEx(
+   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle ); 
+   vHWND_Window_win32 = CreateWindowExW( //The W  is required for it to be a Unicode window
                            lExtStyle,                                          // Extended window style
                            vClassName_win32,                                   // Window class name
-                           WinData.config.appName.c_str(),                     // Window Name
+                           (LPCWSTR) WinData.config.appName.c_str(),           // Window Name
                            lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN ,     // Window style
                            WinData.win.posX,                                   // X
                            WinData.win.posY,                                   // Y
-                           WinData.win.width,                                  // Width
-                           WinData.win.height,                                 // Height
+                           vWindowRect_win32.right  - vWindowRect_win32.left,  // Width
+                           vWindowRect_win32.bottom - vWindowRect_win32.top,   // Height
                            NULL,                                               // No parent window
                            NULL,                                               // No menu
                            vInstance_win32,                                    // The instance
                            this                                                // We dont want spacial window creation
                         );
 
+   /*!
+    *\todo: Changed the vClassName_win32 and Windowname into a LPCWSTR, 
+    * Changed the vWindowClass_win32 into a WNDCLASSW, 
+    * used CreateWindowExW and RegisterClassW( &vWindowClass_win32 )
+    * See http://technet.microsoft.com/en-ca/dd319108%28v=vs.90%29.aspx
+    */
+   
+   
    ShowCursor( TRUE );
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
 
 
    int lNumberOfPixelFormats_I = -10;
+   
+   int lPixelAttributes[] = {
+      WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
+      WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
+      WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
+      WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
+      WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
+      WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
+      WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
+      WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
+      WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
+      WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
+      0
+   };
 
    int lAttributesCount[] = { WGL_NUMBER_PIXEL_FORMATS_ARB };
    int lAttributes[] = {
@@ -345,11 +345,12 @@ int eContext::createContext() {
    }
 
    lEntry_LOG _ADD "   |========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
-
+   
+   wglChoosePixelFormatARB( vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, ( UINT * )&lNumberOfPixelFormats_I );
    iLOG "Selected Pixel format descriptor: " ADD lBestFBConfig_I END
 
    SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
-
+   
 
    // Set new Error Handler
    GLushort version_list[][2] = {
@@ -377,7 +378,7 @@ int eContext::createContext() {
       lAttributes_A_I[2] = WGL_CONTEXT_MINOR_VERSION_ARB;
       lAttributes_A_I[3] = WinData.versions.glMinorVersion;
       lAttributes_A_I[4] = 0;
-   }
+   }   
 
    for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
       vOpenGLContext_WGL = wglCreateContextAttribsARB( vHDC_win32, 0, lAttributes_A_I );
@@ -428,11 +429,17 @@ int eContext::createContext() {
 
 
    iLOG "OpenGL context created" END
-
+   
    vHasContext_B = true;
+   
+   vWindowsDestroy_B        = false;
+   vWindowsNCDestrox_B      = false;
 
    return 1;
+   //!\todo Merged
 }
+
+
 
 } // windows_win32
 

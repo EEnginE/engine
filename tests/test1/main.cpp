@@ -24,7 +24,7 @@ void hexPrint( std::vector<unsigned char> const &_v ) {
 // #undef  UNIX
 // #define UNIX 0
 
-void temp( eInit *_init ) {
+void ftemp( eInit *_init ) {
    B_SLEEP( seconds, 5 );
    _init->setDecoration( C_REMOVE );
    _init->fullScreen( C_ADD );
@@ -32,6 +32,7 @@ void temp( eInit *_init ) {
 }
 
 int main( int argc, char **argv ) {
+   B_SLEEP( milliseconds, 1 ); // Why does this crash without this?
    WinData.win.width           = 800;
    WinData.win.height          = 600;
    WinData.win.fullscreen      = false;
@@ -57,6 +58,9 @@ int main( int argc, char **argv ) {
    WinData.log.logERR.File     = RIGHT_FULL;
    WinData.log.logFILE.File    = RIGHT_FULL;
    WinData.win.restoreOldScreenRes = false;
+   
+   WinData.versions.glMajorVersion = 4;
+   WinData.versions.glMinorVersion = 6;
 
    RandISAAC myRand;
 
@@ -81,22 +85,18 @@ int main( int argc, char **argv ) {
    iLOG "Main config:   " ADD SYSTEM.getMainConfigDirPath() END
    iLOG "Log File Path: " ADD SYSTEM.getLogFilePath()       END
 
-
 #if ! KDEVELOP
    eInit start;
    MyHandler handler;
 
    if ( start.init() == 1 ) {
       start.setRenderFunc( render );
-#if UNIX
-
-      
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
 
       iLOG "Test" END
-      
+
       vector<eDisplays> displays = start.getDisplayResolutions();
 
       iLOG "Displays: " ADD displays.size() END
@@ -147,23 +147,16 @@ int main( int argc, char **argv ) {
       if ( argc == 2 ) {
          temp = ( string ) argv[1] + "/colors_p" ;
       }
-
+      
       eLinker prog( temp );
       GLuint dummy;
       prog.link( dummy );
 
-#endif // UNIX
-
-      
-#if WINDOWS
-      boost::thread ttt = boost::thread( temp, &start );
-#endif //!\todo Merged
-      
       start.startMainLoop();
       B_SLEEP( seconds, 1 );
       start.closeWindow();
    }
-   
+
 #endif
 
 
@@ -173,9 +166,9 @@ int main( int argc, char **argv ) {
 #endif
 
    iLOG "Credits: " ADD 'B', 'G', "Daniel ( Mense ) Mensinger" END
-   
+
    B_SLEEP( seconds, 1 );
-   
+
    start.shutdown();
 
    return EXIT_SUCCESS;

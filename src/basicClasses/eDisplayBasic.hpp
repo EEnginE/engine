@@ -40,13 +40,14 @@ class eDisplayBasic {
       };
       
       bool                  vEnabled_B;
+      bool                  vIsPrimary_B;
 
       std::string           vName_str;
       unsigned int          vCurrentWidth_uI;
       unsigned int          vCurrentHeight_uI;
       unsigned int          vPosX_uI;
       unsigned int          vPosY_uI;
-
+      
       double                vCurrentRate_D;
       
       void setCurrentSizeAndPosition( unsigned int _width, unsigned int _height, unsigned int _posX, unsigned int _posY, unsigned int _rate );
@@ -61,6 +62,9 @@ class eDisplayBasic {
       void setPositionRelative( e_engine::eDisplayBasic::POSITON _where, e_engine::eDisplayBasic &_disp );
       
       void getSelectedPosition( int &_posX, int &_posY ) const;
+      void getCurrentResolution( unsigned int &_width, unsigned int &_height, double &_rate ) const;
+      
+      bool getIsPrimary() const { return vIsPrimary_B; }
       
       std::string getName() const { return vName_str; }
 };
