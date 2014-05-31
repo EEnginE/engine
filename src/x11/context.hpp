@@ -156,6 +156,8 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
          vWindowCreated_B       = false;
          vColorMapCreated_B     = false;
          vWindowRecreate_B      = false;
+         
+         XInitThreads();
       }
       virtual ~eContext() {destroyContext();}
 

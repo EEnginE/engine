@@ -102,7 +102,7 @@ void eLog::devInit() {
       connectSlotWith( 'I', vStdLog_eSLOT );
       connectSlotWith( 'W', vStdLog_eSLOT );
       connectSlotWith( 'E', vStdLog_eSLOT );
-      
+
       iLOG "LOGFILE:    ---  " ADD vLogFielFullPath_str ADD "  ---" END
    } else {
       wLOG "Unable to open log file \"" ADD vLogFielFullPath_str ADD "\" ==> No Log file output" END
@@ -354,6 +354,14 @@ bool eLog::startLogLoop() {
    if ( vIsLogLoopRunning_B == true )
       return false;
 
+   // Slow output fix 
+   if ( setvbuf( stdout, 0, _IOLBF, 4096 ) != 0 ) {
+      wLOG "Can not set Windows output buffer [stdout]" END
+   }
+   if ( setvbuf( stderr, 0, _IOLBF, 4096 ) != 0 ) {
+      wLOG "Can not set Windows output buffer [stderr]" END
+   }
+
    vLogLoopRun_B = true;
    vLogLoopThread_THREAD = boost::thread( &eLog::logLoop, this );
 
@@ -372,12 +380,12 @@ bool eLog::stopLogLoop() {
       return false;
 
    vLogLoopRun_B = false;
-   
+
 #if BOOST_VERSION < 105000
-   boost::posix_time::time_duration duration = boost::posix_time::seconds( 10 );
+   boost::posix_time::time_duration duration = boost::posix_time::seconds( 60 );
    vLogLoopThread_THREAD.timed_join( duration );
 #else
-   vLogLoopThread_THREAD.try_join_for( boost::chrono::seconds( 10 ) );
+   vLogLoopThread_THREAD.try_join_for( boost::chrono::seconds( 60 ) );
 #endif
 
    if ( vIsLogLoopRunning_B == true ) {

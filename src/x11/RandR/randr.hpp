@@ -66,6 +66,8 @@ class eRandR {
 
    protected:
       void endRandR();
+      
+      bool initRandR( Display *_display, Window _window, Window _root );
 
 
    public:
@@ -79,12 +81,10 @@ class eRandR {
       void getMostLeftRightTopBottomCRTC( unsigned int &_left, unsigned int &_right, unsigned int &_top, unsigned int &_bottom );
       int  getIndexOfDisplay( eDisplays const &_disp );
 
-      bool initRandR( Display *_display, Window _window, Window _root );
-
       std::vector<eDisplays> getDisplayResolutions();
 
       bool setDisplaySizes( eDisplays const &_disp );
-      void setPrimary( eDisplays const &_disp );
+      bool setPrimary( eDisplays const &_disp );
 
       bool applyNewRandRSettings();
 

@@ -259,14 +259,15 @@ std::vector< eDisplays > eRandR::getDisplayResolutions() {
  *
  * \param _disp The display that is to be set to primary
  *
- * \returns Nothing
+ * \returns true if everything went fine
  *
  * \note This function will change the primary display IMMEDIATELY; Calling applyNewSettings() will have no effect to this.
  */
-void eRandR::setPrimary( eDisplays const &_disp ) {
+bool eRandR::setPrimary( eDisplays const &_disp ) {
    if ( ! isRandRSupported() )
-      return;
+      return false;
    XRRSetOutputPrimary( vDisplay_X11, vRootWindow_X11, _disp.getOutput() );
+   return true;
 }
 
 

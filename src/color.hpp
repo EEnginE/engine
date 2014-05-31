@@ -48,7 +48,7 @@
 #if defined E_COLOR_NO_TERMTEST
 #define __IOCTL_TERMTEST__
 #else
-#define __IOCTL_TERMTEST__ if ( isatty( fileno( stdout ) ) == 0 ) return "";
+#define __IOCTL_TERMTEST__ if ( isatty( fileno( stdout ) ) == 0 ) return L"";
 #endif
 
 namespace e_engine {
@@ -136,32 +136,32 @@ struct eCMDColor {
    static const GLuint CYAN       = 36;
    static const GLuint WHITE      = 37;
 
-   static const std::string RESET;
+   static const std::wstring RESET;
    
-   static inline std::string reset();         
+   static inline std::wstring reset();         
 
-   static inline std::string color( GLuint _a1 );
-   static inline std::string color( GLuint _a1 , GLuint _a2 );
-   static inline std::string color( GLuint _a1 , GLuint _a2 , GLuint _a3 );
+   static inline std::wstring color( GLuint _a1 );
+   static inline std::wstring color( GLuint _a1 , GLuint _a2 );
+   static inline std::wstring color( GLuint _a1 , GLuint _a2 , GLuint _a3 );
 
-   static inline std::string color( GLchar _fg );
-   static inline std::string color( GLchar _a, GLchar _fg );
-   static inline std::string color( GLchar _a, GLchar _fg , GLchar _bg );
+   static inline std::wstring color( GLchar _fg );
+   static inline std::wstring color( GLchar _a, GLchar _fg );
+   static inline std::wstring color( GLchar _a, GLchar _fg , GLchar _bg );
 
-   static inline std::string color( GLuint _a, GLchar _fg );
-   static inline std::string color( GLuint _a, GLchar _fg , GLchar _bg );
+   static inline std::wstring color( GLuint _a, GLchar _fg );
+   static inline std::wstring color( GLuint _a, GLchar _fg , GLchar _bg );
 
    static inline GLuint charToColorId( GLchar _c );
    static inline GLuint charToAtributeId( GLchar _c );
 };
 
-std::string eCMDColor::reset() {
+std::wstring eCMDColor::reset() {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
    return RESET;
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -171,15 +171,15 @@ std::string eCMDColor::reset() {
  * \param _a The attribute integer
  * \returns An escape sequence for the attribute
  */
-std::string eCMDColor::color( GLuint _a1 ) {
+std::wstring eCMDColor::color( GLuint _a1 ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
-   std::string temp = "\x1b[" +
-                      boost::lexical_cast<std::string>( _a1 ) + 'm';
+   std::wstring temp = L"\x1b[" +
+                       boost::lexical_cast<std::wstring>( _a1 ) + L'm';
    return temp;
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -189,16 +189,16 @@ std::string eCMDColor::color( GLuint _a1 ) {
  * \param _fg The FG color integer
  * \returns An escape sequence for the attribute and the FG color
  */
-std::string eCMDColor::color( GLuint _a1, GLuint _a2 ) {
+std::wstring eCMDColor::color( GLuint _a1, GLuint _a2 ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
-   std::string temp = "\x1b[" +
-                      boost::lexical_cast<std::string>( _a1 )  + ';' +
-                      boost::lexical_cast<std::string>( _a2 ) + 'm';
+   std::wstring temp = L"\x1b[" +
+                       boost::lexical_cast<std::wstring>( _a1 ) + L';' +
+                       boost::lexical_cast<std::wstring>( _a2 ) + L'm';
    return temp;
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -209,17 +209,17 @@ std::string eCMDColor::color( GLuint _a1, GLuint _a2 ) {
  * \param _bg The BG color integer
  * \returns An escape sequence for the attribute the FG and BG color
  */
-std::string eCMDColor::color( GLuint _a1, GLuint _a2, GLuint _a3 ) {
+std::wstring eCMDColor::color( GLuint _a1, GLuint _a2, GLuint _a3 ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
-   std::string temp = "\x1b[" +
-                      boost::lexical_cast<std::string>( _a1 )  + ';' +
-                      boost::lexical_cast<std::string>( _a2 ) + ';' +
-                      boost::lexical_cast<std::string>( _a3 ) + 'm';
+   std::wstring temp = L"\x1b[" +
+                       boost::lexical_cast<std::wstring>( _a1 ) + L';' +
+                       boost::lexical_cast<std::wstring>( _a2 ) + L';' +
+                       boost::lexical_cast<std::wstring>( _a3 ) + L'm';
    return temp;
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -229,13 +229,13 @@ std::string eCMDColor::color( GLuint _a1, GLuint _a2, GLuint _a3 ) {
  * \param _a The attribute character
  * \returns An escape sequence for the attribute
  */
-std::string eCMDColor::color( GLchar _fg ) {
+std::wstring eCMDColor::color( GLchar _fg ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
    return color( charToColorId( _fg ) );
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -245,13 +245,13 @@ std::string eCMDColor::color( GLchar _fg ) {
  * \param _fg The FG color character
  * \returns An escape sequence for the attribute and the FG color
  */
-std::string eCMDColor::color( GLchar _a, GLchar _fg ) {
+std::wstring eCMDColor::color( GLchar _a, GLchar _fg ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
    return color( charToAtributeId( _a ), charToColorId( _fg ) );
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -262,13 +262,13 @@ std::string eCMDColor::color( GLchar _a, GLchar _fg ) {
  * \param _bg The BG color character
  * \returns An escape sequence for the attribute the FG and BG color
  */
-std::string eCMDColor::color( GLchar _a, GLchar _fg, GLchar _bg ) {
+std::wstring eCMDColor::color( GLchar _a, GLchar _fg, GLchar _bg ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
    return color( charToAtributeId( _a ), charToColorId( _fg ), charToColorId( _bg ) + 10 );
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -278,13 +278,13 @@ std::string eCMDColor::color( GLchar _a, GLchar _fg, GLchar _bg ) {
  * \param _fg The FG color character
  * \returns An escape sequence for the attribute the FG and BG color
  */
-std::string eCMDColor::color( GLuint _a, GLchar _fg ) {
+std::wstring eCMDColor::color( GLuint _a, GLchar _fg ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
    return color( _a, charToColorId( _fg ) );
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -295,13 +295,13 @@ std::string eCMDColor::color( GLuint _a, GLchar _fg ) {
  * \param _bg The BG color character
  * \returns An escape sequence for the attribute the FG and BG color
  */
-std::string eCMDColor::color( GLuint _a, GLchar _fg, GLchar _bg ) {
+std::wstring eCMDColor::color( GLuint _a, GLchar _fg, GLchar _bg ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
    return color( _a, charToColorId( _fg ), charToColorId( _bg ) + 10 );
 #else // E_COLOR_DISABLED
-   return "";
+   return L"";
 #endif // E_COLOR_DISABLED
 }
 
