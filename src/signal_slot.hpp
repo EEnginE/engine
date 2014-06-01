@@ -27,6 +27,7 @@
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 #include <vector>
+#include "defines.hpp"
 
 namespace e_engine {
 
@@ -46,7 +47,7 @@ namespace e_engine_internal {
  */
 class __eSigSlotLogFunctionClass {
    public:
-      static void sigSlotLogFunktion( std::string _errStr, const char* _file, const int _line );
+      static void sigSlotLogFunktion( std::string _errStr, const char *_file, const int _line, const char *_function );
 };
 
 
@@ -109,7 +110,7 @@ class eSignal {
          e_engine_internal::__eSigSlotConnection::increment();
          if ( vShowCopyError_B )
             e_engine_internal::__eSigSlotLogFunctionClass::sigSlotLogFunktion
-            ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (Constructor)", __FILE__, __LINE__ );
+            ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (Constructor)", __FILE__, __LINE__, LOG_FUNCTION_NAME );
          // signal = _e.signal; => Compiler ERROR: Can not copy signal_TD objects
       }
       eSignal &operator=( const eSignal &_e ) {
@@ -118,7 +119,7 @@ class eSignal {
          e_engine_internal::__eSigSlotConnection::increment();
          if ( vShowCopyError_B )
             e_engine_internal::__eSigSlotLogFunctionClass::sigSlotLogFunktion
-            ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (operator=)", __FILE__, __LINE__ );
+            ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (operator=)", __FILE__, __LINE__, LOG_FUNCTION_NAME );
          // signal = _e.signal; => Compiler ERROR: Can not copy signal_TD objects
          return *this;
       }
@@ -238,7 +239,7 @@ class eSlot {
          for ( size_t i = 0; i < vConnections_eCON.size(); ++i ) {
             if ( vConnections_eCON[i].getSignalId() == _signalID ) {
                e_engine_internal::__eSigSlotLogFunctionClass::sigSlotLogFunktion
-               ( "The Signal is already connected => Ignore", __FILE__, __LINE__ );
+               ( "The Signal is already connected => Ignore", __FILE__, __LINE__, LOG_FUNCTION_NAME );
                return true;
             }
          }
@@ -318,7 +319,7 @@ class eSlot {
       bool connectWith( eSignal<__R, __A> *_signal ) {
          if ( !functionSet ) {
             e_engine_internal::__eSigSlotLogFunctionClass::sigSlotLogFunktion
-            ( "SLOT Function Pointer is undefined! Do nothing!", __FILE__, __LINE__ );
+            ( "SLOT Function Pointer is undefined! Do nothing!", __FILE__, __LINE__, LOG_FUNCTION_NAME );
             return false;
          }
          _signal->connectWith( this ); // Sets the connection automatically

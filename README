@@ -45,6 +45,7 @@ ENGINE:
      1: Build the engine shared
      0: Build the engine static
      
+   -DEXTRA_CXX_FLAGS=<Extra CXX compiler options>
      
 GLEW
 
@@ -94,4 +95,12 @@ your CMake options. You may also need to set your -DBOOST_ROOT as described abov
 4.3 CMake can not find GLEW:
 
 Try setting your GLEW root via -DGLEW_ROOT=/To/the/path/of/the/GLEW/install/prefix
+
+
+4.4 I crosscompiled the project on Linux and want to test the result with WINE but
+    WINE crashes immediately.
+
+Wine doesnt like boost::wregex because a function is unimplemented. You can use 
+-DEXTRA_CXX_FLAGS=-DUGLY_WINE_WORKAROUND to solve the problem or use the latest
+WINE version.
 

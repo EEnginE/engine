@@ -52,15 +52,17 @@ int main( int argc, char **argv ) {
 
    WinData.log.width           = 175;
 #endif
-   WinData.log.logOUT.Time     = LEFT_FULL;
+   WinData.log.logOUT.Time     = LEFT_REDUCED;
    WinData.log.logOUT.File     = RIGHT_FULL;
-   WinData.log.logERR.Time     = LEFT_FULL;
+   WinData.log.logERR.Time     = LEFT_REDUCED;
    WinData.log.logERR.File     = RIGHT_FULL;
    WinData.log.logFILE.File    = RIGHT_FULL;
    WinData.win.restoreOldScreenRes = false;
    
    WinData.versions.glMajorVersion = 4;
    WinData.versions.glMinorVersion = 6;
+   
+//    WinData.log.waitUntilLogEntryPrinted = true;
 
    RandISAAC myRand;
 
@@ -84,6 +86,7 @@ int main( int argc, char **argv ) {
    iLOG "Home:          " ADD SYSTEM.getUserHomeDirectory() END
    iLOG "Main config:   " ADD SYSTEM.getMainConfigDirPath() END
    iLOG "Log File Path: " ADD SYSTEM.getLogFilePath()       END
+   
 
 #if ! KDEVELOP
    eInit start;
