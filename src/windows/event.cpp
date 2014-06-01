@@ -11,16 +11,20 @@
 
 namespace e_engine {
 
-   namespace {
-      
-   }
+namespace {
+
+}
+
+typedef unsigned       int Uint32;
+typedef unsigned short int Uint16;
+
 
 
 int eInit::eventLoop() {
    //! \todo Move this in windows_win32
-   if( ! vEventLoopHasFinished_B )
+   if ( ! vEventLoopHasFinished_B )
       return -1;
-   
+
    vEventLoopHasFinished_B = false;
 
    vWindowsDestroy_B   = false;
@@ -58,18 +62,18 @@ int eInit::eventLoop() {
          while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
          vEventLoopISPaused_B = false;
       }
-      while ( PeekMessage( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
+      while ( PeekMessageW( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
          TranslateMessage( &msg );
-         DispatchMessage( &msg );
+         DispatchMessageW( &msg );
       }
 
       B_SLEEP( milliseconds, 5 );
    }
 
    // Proccess the last messages
-   while ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
+   while ( PeekMessageW( &msg, NULL, 0, 0, PM_REMOVE ) ) {
       TranslateMessage( &msg );
-      DispatchMessage( &msg );
+      DispatchMessageW( &msg );
    }
 
    iLOG "Event loop finished!" END
@@ -87,12 +91,12 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
 
       this__->vHWND_Window_win32 = _hwnd;
 
-      SetWindowLongPtr( _hwnd,
-                        GWLP_USERDATA,
-                        reinterpret_cast<LONG_PTR>( this__ ) );
-      SetWindowLongPtr( _hwnd,
-                        GWLP_WNDPROC,
-                        reinterpret_cast<LONG_PTR>( &eContext::staticWndProc ) );
+      SetWindowLongPtrW( _hwnd,
+                         GWLP_USERDATA,
+                         reinterpret_cast<LONG_PTR>( this__ ) );
+      SetWindowLongPtrW( _hwnd,
+                         GWLP_WNDPROC,
+                         reinterpret_cast<LONG_PTR>( &eContext::staticWndProc ) );
       eWinInfo _tempInfo( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
       return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
    }
@@ -102,7 +106,7 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
 }
 
 LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   LONG_PTR lUserData_win32 = GetWindowLongPtr( _hwnd, GWLP_USERDATA );
+   LONG_PTR lUserData_win32 = GetWindowLongPtrW( _hwnd, GWLP_USERDATA );
    eContext *this__ = reinterpret_cast<eContext *>( lUserData_win32 );
    eWinInfo _tempInfo( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
 
@@ -110,7 +114,7 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
       eLOG "Bad Windows callback error" END
    }
 
-      return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
+   return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
 
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo ) {
@@ -147,7 +151,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          //!\todo Is a mousestate necessary? Only gives information if mouse is moved while mousebuttons are held
          //May also be solved by logging the individual mousebuttons
 
-         vKey_SIG.sendSignal( _tempInfo );
+         vMouse_SIG.sendSignal( _tempInfo );
          return 0;
       case WM_CLOSE:
          _tempInfo.type = 10;
@@ -171,18 +175,28 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_RBUTTONUP:   //Rightbutton released
          iLOG "Rightbutton released " END
          return 0;
+      case WM_SYSCHAR:
       case WM_CHAR:
          //This returns the actual key the user has typed in
          //It is only used if a key associated to a character, not a function key, was pressed
          //!\note Unicode should be supported by this, as it is a Unicode window, cannot be checked because the visual output (cmd/terminal) does not support unicode
          //!\todo Handle this output for text messages/text inputs
-         iLOG "Key translated as: " ADD (char) _wParam END
+
+
+         iLOG "Key translated as: " ADD( unsigned int ) _wParam END
          return 0;
+      case WM_UNICHAR:
+         iLOG _wParam END
+         if ( _wParam == UNICODE_NOCHAR ) {
+            return TRUE;
+         }
+         return FALSE;
       case WM_KEYUP:
          key_state = E_KEY_RELEASED;
-         iLOG "Key pressed: " ADD (char) _wParam END
+         //iLOG "Key pressed: " ADD (char) _wParam END
       case WM_KEYDOWN: //Key pressed
          _tempInfo.eKey.state = key_state;
+         iLOG "TESTING: " END
          _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
          vKey_SIG.sendSignal( _tempInfo );
          //MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR)

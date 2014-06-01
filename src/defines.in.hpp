@@ -81,6 +81,8 @@ enum ACTION {
 #define E_KEY_SPACE        32
 #define E_KEY_SPECIAL      256
 
+#define E_MOUSE_BUTTON     0
+
 #define E_KEY_BACKSPACE    ( E_KEY_SPECIAL + 1 )
 #define E_KEY_TAB          ( E_KEY_SPECIAL + 2 )
 #define E_KEY_CLEAR        ( E_KEY_SPECIAL + 3 )
@@ -162,6 +164,14 @@ enum ACTION {
 
 #define E_KEY_ENTER        E_KEY_RETURN
 #define _E_KEY_LAST        E_KEY_KP_NUM_LOCK
+
+//Mouse
+#define E_MOUSE_LEFT      ( E_MOUSE_BUTTON + 0 )
+#define E_MOUSE_MIDDLE    ( E_MOUSE_BUTTON + 1 )
+#define E_MOUSE_RIGHT     ( E_MOUSE_BUTTON + 2 )
+#define E_MOUSE_X         ( E_MOUSE_BUTTON + 3 )
+
+#define _E_MOUSE_LAST     E_MOUSE_X
 
 #define E_KEY_PRESSED      1
 #define E_KEY_RELEASED     0

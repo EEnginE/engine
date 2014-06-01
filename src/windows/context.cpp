@@ -141,7 +141,7 @@ void eContext::destroyContext() {
    /*
     * DestroyWindow( vHWND_Window_win32 );
     *
-    * Wont work herer because:
+    * Wont work here because:
     *
     *  1. Windows
     *  2. Must be called in the thread were the window was created
@@ -194,7 +194,7 @@ bool eContext::setDecoration( ACTION _action ) {
          break;
 
       default:
-         eLOG "This message is theoretically totaly impossible! [bool eContext::setDecoration( ACTION _action )]" END
+         eLOG "This message is theoretically totally impossible! [bool eContext::setDecoration( ACTION _action )]" END
          return false;
    }
 
@@ -220,7 +220,7 @@ int eContext::fullScreen( ACTION _action, bool _allMonitors ) {
          break;
 
       default:
-         eLOG "This message is theoretically totaly impossible! [bool eContext::setDecoration( ACTION _action )]" END
+         eLOG "This message is theoretically totally impossible! [bool eContext::setDecoration( ACTION _action )]" END
          return false;
    }
 

@@ -234,6 +234,7 @@ void eLog::stdOutStandard( e_engine::eLogEntry _e ) {
    generateEntry( _e );
 
    wprintf( _e.vResultStrin_STR.c_str() );
+   fflush(stdout);
 }
 
 
@@ -264,7 +265,8 @@ void eLog::stdErrStandard( eLogEntry _e ) {
 
    generateEntry( _e );
 
-   fwprintf( stdout, _e.vResultStrin_STR.c_str() );
+   fwprintf( stderr, _e.vResultStrin_STR.c_str() );
+   fflush(stderr);
 }
 
 void eLog::stdLogStandard( e_engine::eLogEntry _e ) {
