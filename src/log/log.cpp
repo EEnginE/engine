@@ -234,6 +234,7 @@ void eLog::stdOutStandard( e_engine::eLogEntry _e ) {
    generateEntry( _e );
 
    wprintf( _e.vResultStrin_STR.c_str() );
+   fflush( stdout );
 }
 
 
@@ -264,7 +265,8 @@ void eLog::stdErrStandard( eLogEntry _e ) {
 
    generateEntry( _e );
 
-   fwprintf( stdout, _e.vResultStrin_STR.c_str() );
+   fwprintf( stderr, _e.vResultStrin_STR.c_str() );
+   fflush( stderr );
 }
 
 void eLog::stdLogStandard( e_engine::eLogEntry _e ) {
@@ -323,21 +325,18 @@ void eLog::logLoop() {
       // Killing the CPU is not our Task
       B_SLEEP( milliseconds, 25 );
 
-
       while ( ! vLogList_L_eLSH.empty() ) {
-
          for ( unsigned int i = 0; i < 100 && ! vLogList_L_eLSH.front().getIsComplete(); ++i )
             B_SLEEP( milliseconds, 50 );
-
          // All in all we have 5 seconds to complete a log entry
          if ( ! vLogList_L_eLSH.front().getIsComplete() ) {
             vLogList_L_eLSH.front().add( 'B', 'R', "  <== [eLog] Forgotten '->end();' ?" )->end();
          }
 
-
          try {
             lLogTypeId_uI = vLogList_L_eLSH.front().getLogEntry( vLogTypes_V_eLT, lEntry_eLE );
             vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->sendSignal( lEntry_eLE );
+            vLogList_L_eLSH.front().endLogWaitAndSetPrinted();
          } catch ( ... ) {
             // A new log entry in a crashing log loop fuction would be useless
             std::cerr << "Received unknown exeption in log Loop -- FILE: " << __FILE__ << " -- LINE: " << __LINE__ << std::endl;

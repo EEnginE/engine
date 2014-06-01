@@ -188,6 +188,7 @@ struct _eWindowData {
       char         standardTimeColor;
 
       unsigned int maxFilenameSize;
+      unsigned int maxFunctionNameSize;
 
       bool         standardShowTime;
       bool         standardShowFile;
@@ -198,6 +199,8 @@ struct _eWindowData {
       bool         logDefaultInit;
 
       bool         useHistory;
+      
+      bool         waitUntilLogEntryPrinted;
 
       int          width;                       //!< If width < 0, then the automatically determined size will be used
 

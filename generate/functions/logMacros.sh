@@ -89,14 +89,14 @@ generateLogMacros() {
     echo "" >> $MACRO_DEFINE_PATH
 
     for I in $TYPES; do
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',__FILE__,__LINE__" $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
     done
     unset I
 
     echo "" >> $MACRO_DEFINE_PATH
 
     for I in $TYPES; do
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',__FILE__,__LINE__," $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME," $DO_UNDEF
     done
     unset I
 

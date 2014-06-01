@@ -39,6 +39,20 @@
 #define E_INSTALL_PREFIX   "@CMAKE_INSTALL_PREFIX@"
 
 
+
+// Detect compiler function macro
+#if defined __clang__
+// #define LOG_FUNCTION_NAME __PRETTY_FUNCTION__ // A bit to long ...
+#define LOG_FUNCTION_NAME __func__
+#elif defined __GNUC__
+// #define LOG_FUNCTION_NAME __PRETTY_FUNCTION__ // A bit to long ...
+#define LOG_FUNCTION_NAME __func__
+#else
+// This is int the C++11 standard, so every compiler should / must have this
+#define LOG_FUNCTION_NAME __func__
+#endif
+
+
 namespace e_engine {
    
 

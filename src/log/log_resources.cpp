@@ -1,6 +1,6 @@
 /*!
  * \file log_resources.cpp
- * \brief \b Classes: \a eLogType, \a __eLogStore, \a eLogEntry, \a __eLogStoreHelper 
+ * \brief \b Classes: \a eLogType, \a __eLogStore, \a eLogEntry, \a __eLogStoreHelper
  */
 
 #include "log_resources.hpp"
@@ -19,15 +19,35 @@ namespace e_engine {
 namespace e_engine_internal {
 
 
+__eLogStoreHelper::__eLogStoreHelper( wchar_t _type, std::string _rawFilename, int _logLine, std::string _functionName, bool _wait )  {
+   std::time( &vTime_lI );
+   vType_C              = _type;
+   vRawFilename_STR     = std::wstring( _rawFilename.begin(), _rawFilename.end() );
+   vLogLine_I           = _logLine;
+
+   vFunctionName_STR    = std::wstring( _functionName.begin(), _functionName.end() );
+
+   vComplete_B          = false;
+
+   vAttrib_C            = '-';
+   vFG_C                = '-';
+   vBG_C                = '-';
+   vIsPrinted_B         = false;
+   vEndFinished_B       = false;
+   vWaitForLogPrinted_B = _wait;
+}
+
+
 unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_internal::eLogType > &_vLogTypes_V_eLT, e_engine::eLogEntry &_entry ) {
    _entry.data.vLogEntries_V_eLS = vElements_V_eLS;
    _entry.data.vFilename_STR     = vRawFilename_STR;
+   _entry.data.vFunctionName_STR = vFunctionName_STR;
    _entry.data.vLine_I           = vLogLine_I;
    _entry.data.vTime_lI          = vTime_lI;
    _entry.data.vType_STR         = L"UNKNOWN";
    _entry.data.vNewColor_STR     = testNewColor();
-      
-   if( _vLogTypes_V_eLT.empty() ) {
+
+   if ( _vLogTypes_V_eLT.empty() ) {
       eLOG "No Log type found!! Please add at least one manually or run 'eLog.devInit();', which will be run now to prevent further Errors" END
       LOG.devInit();
    }
@@ -44,7 +64,7 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
    std::wstring ltemp_STR = L"WARNING!! Log type '";
    ltemp_STR += vType_C;
    ltemp_STR += L"' not Found";
-   
+
    vElements_V_eLS.push_back( e_engine_internal::__eLogStore( ltemp_STR, 'B', 'R', '-' ) );
 
    return 0;
@@ -52,7 +72,7 @@ unsigned int __eLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
 
 std::wstring __eLogStoreHelper::testNewColor()  {
 #if UNIX
-if ( vFG_C != L'-' ) {
+   if ( vFG_C != L'-' ) {
       if ( vAttrib_C != L'-' ) {
          if ( vBG_C != L'-' ) {
             return eCMDColor::color( vAttrib_C, vFG_C, vBG_C );
