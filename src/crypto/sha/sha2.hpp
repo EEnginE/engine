@@ -9,7 +9,6 @@
 #include <string>
 #include <array>
 #include <vector>
-#include <boost/concept_check.hpp>
 
 namespace e_engine {
 

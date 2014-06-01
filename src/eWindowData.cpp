@@ -120,6 +120,7 @@ void _eWindowData::__eLogData_Config::reset() {
    standardTimeColor        = 'M';
    
    maxFilenameSize          = 20;
+   maxFunctionNameSize      = 25;
    
    standardShowTime         = true;
    standardShowFile         = true;
@@ -130,6 +131,8 @@ void _eWindowData::__eLogData_Config::reset() {
    logDefaultInit           = true;
    
    useHistory               = true;
+   
+   waitUntilLogEntryPrinted = false;
    
    width                    = -1;
    
