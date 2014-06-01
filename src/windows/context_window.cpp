@@ -436,7 +436,6 @@ int eContext::createContext() {
    vWindowsNCDestrox_B      = false;
 
    return 1;
-   //!\todo Merged
 }
 
 
