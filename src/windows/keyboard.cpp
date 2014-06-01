@@ -5,7 +5,6 @@
  */
 
 #include "keyboard.hpp"
-#include "log.hpp"
 
 namespace e_engine {
 
@@ -17,7 +16,7 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
 
    switch ( _charToCheck ) {
          //Check for special keys, see http://msdn.microsoft.com/en-us/library/ms927178.aspx
-         //!Note that these keys are not sorted after their actual value, they are built similiar to the keyboard.cpp in X11 \todo Change?
+         //Note that these keys are not sorted after their actual value, they are built similiar to the keyboard.cpp in X11 \todo Change?
          //!\todo Clean up this code
 
       case VK_BACK:              setKeyState( E_KEY_BACKSPACE,   _key_state );  return E_KEY_BACKSPACE;
@@ -116,13 +115,8 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
       case VK_NUMPAD8:              setKeyState( E_KEY_KP_8,        _key_state );  return E_KEY_KP_8;
       case VK_NUMPAD9:              setKeyState( E_KEY_KP_9,        _key_state );  return E_KEY_KP_9;
 
-//       case 0xba: setKeyState( 0xba, _key_state); return 'ü';
-//       case 0xc0: setKeyState( 0xc0, _key_state); return 'ö';
-//       case 0xde: setKeyState( 0xde, _key_state); return 'ä';
-
       default:
-         setKeyState( _charToCheck, _key_state );
-         return _charToCheck; //Return the key associated to the press, independent of the actual message
+         return 0; //Return 0 to skip sending a signal
    }
 
 

@@ -15,11 +15,6 @@ namespace {
 
 }
 
-typedef unsigned       int Uint32;
-typedef unsigned short int Uint16;
-
-
-
 int eInit::eventLoop() {
    //! \todo Move this in windows_win32
    if ( ! vEventLoopHasFinished_B )
@@ -100,7 +95,7 @@ LRESULT CALLBACK eContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       eWinInfo _tempInfo( e_engine::e_engine_internal::__eInit_Pointer_OBJ.get() );
       return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
    }
-   // if it isn't WM_NCCREATE, do something sensible and wait until
+   // if it isn't WM_NCCREATE, do something useful and wait until
    //   WM_NCCREATE is sent
    return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
 }
@@ -177,28 +172,31 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          return 0;
       case WM_SYSCHAR:
       case WM_CHAR:
-         //This returns the actual key the user has typed in
+         //This returns the actual key the user has typed in after modifiers
          //It is only used if a key associated to a character, not a function key, was pressed
-         //!\note Unicode should be supported by this, as it is a Unicode window, cannot be checked because the visual output (cmd/terminal) does not support unicode
+         //Unicode characters are supported by this aswell
+         
          //!\todo Handle this output for text messages/text inputs
-
-
-         iLOG "Key translated as: " ADD( unsigned int ) _wParam END
+         
+         if(_wParam > 32) { //Check if the Char is an actual character; Enter, Backspace and others are excluded as they are already handled in WM_KEYDOWN
+         _tempInfo.eKey.state = E_KEY_PRESSED; //!\todo Use GetKeyState() to later handle the key, as it is never released in this switch-case
+         _tempInfo.eKey.key   = _wParam;
+         vKey_SIG.sendSignal( _tempInfo );
+         }
          return 0;
-      case WM_UNICHAR:
-         iLOG _wParam END
+      case WM_UNICHAR: //Gives other programs the information that Unicode is supported by this
          if ( _wParam == UNICODE_NOCHAR ) {
             return TRUE;
          }
          return FALSE;
       case WM_KEYUP:
          key_state = E_KEY_RELEASED;
-         //iLOG "Key pressed: " ADD (char) _wParam END
-      case WM_KEYDOWN: //Key pressed
          _tempInfo.eKey.state = key_state;
-         iLOG "TESTING: " END
          _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
+         
+         if(_tempInfo.eKey.key != 0) // Dont send the signal if a character was found
          vKey_SIG.sendSignal( _tempInfo );
+         
          //MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR)
          //The above returns 0 when a function key is pressed, may be useful
          return 0;
