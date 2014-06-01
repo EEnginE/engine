@@ -24,10 +24,9 @@
 #define E_LOG_HPP
 
 #include <fstream>
-#include <boost/thread.hpp>
 #include <boost/chrono.hpp>
-#include "macros.hpp"
 #include "log_resources.hpp"
+#include "macros.hpp"
 
 #if BOOST_VERSION < 105000
 #define B_SLEEP( chrono_sleep, time ) {boost::posix_time::time_duration duration = boost::posix_time::chrono_sleep( time );\
@@ -35,6 +34,7 @@
 #else
 #define B_SLEEP( chrono_sleep, time ) boost::this_thread::sleep_for( boost::chrono::chrono_sleep( time ) )
 #endif
+
 
 
 namespace e_engine {
@@ -124,6 +124,8 @@ class eLog {
       std::string                              vLogFileName_str;
       std::string                              vLogFielFullPath_str;
       std::wofstream                           vLogFileOutput_OS;
+      
+      boost::mutex vLogMutex_BT;
 
       bool vLogLoopRun_B;
       bool vIsLogLoopRunning_B;
@@ -175,37 +177,21 @@ class eLog {
       bool stopLogLoop();
 
 
-      /*!
-       * \brief Only runs the \c start member function
-       *
-       * When this function is called it locks the internal mutex first.
-       * After that it calls \c printStart to produce a nice introduction
-       * for the following Log entry. 
-       * At last it adds the 1st part of the log
-       *
-       * \param _id    The id of the mode for the string
-       * \param _mode  The type of the output. Use the single character for this
-       * \param _first The first part of log entry
-       * \param _cmdOut Print to the commandline  \c Default: \a true
-       * \param _logOut Write into log file       \c Default: \a true
-       * \returns The \c this pinter which is needed for the connection
-       */
       template<class T>
-      inline e_engine_internal::__eLogStoreHelper *operator()( char _type, const char* _file, const int _line, T _text ) {
-         return start( _type, _file, _line, _text );
+      inline e_engine_internal::__eLogStoreHelper *operator()( char _type, const char* _file, const int _line, const char* _function, T _text ) {
+         return start( _type, _file, _line, _function, _text );
       }
-      
-      
-      std::string getLogFileFullPath() {return vLogFielFullPath_str;}
-
 
       template<class T>
-      inline e_engine_internal::__eLogStoreHelper *start( char _type, const char* _file, const int _line, T _text ) {
-         e_engine_internal::__eLogStoreHelper temp( _type, _file, _line );
-         temp.add( _text );
-         vLogList_L_eLSH.push_back( temp );
+      inline e_engine_internal::__eLogStoreHelper *start( char _type, const char* _file, const int _line, const char* _function, T _text ) {
+         boost::lock_guard<boost::mutex> vLockGuard_BT( vLogMutex_BT );
+         bool lDoWaitForPrint_B = WinData.log.waitUntilLogEntryPrinted && vLogLoopRun_B ? true : false;
+         vLogList_L_eLSH.emplace_back( _type, _file, _line, _function, lDoWaitForPrint_B );
+         vLogList_L_eLSH.back().add( _text );
          return &vLogList_L_eLSH.back();
       }
+      
+      std::string getLogFileFullPath() {return vLogFielFullPath_str;}
 
 };
 
@@ -228,6 +214,23 @@ bool eLog::disconnectSlotWith( char _type, eSlot< void, __C, eLogEntry > &_slot 
    }
    return false;
 }
+
+/*!
+ * \fn eLog::operator()
+ * \brief Only runs the \c start member function
+ *
+ * When this function is called it locks the internal mutex first.
+ * After that it calls \c printStart to produce a nice introduction
+ * for the following Log entry. 
+ * At last it adds the 1st part of the log
+ *
+ * \param _id    The id of the mode for the string
+ * \param _mode  The type of the output. Use the single character for this
+ * \param _first The first part of log entry
+ * \param _cmdOut Print to the commandline  \c Default: \a true
+ * \param _logOut Write into log file       \c Default: \a true
+ * \returns The \c this pinter which is needed for the connection
+ */
 
 
 

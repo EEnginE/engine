@@ -1,15 +1,15 @@
 /*!
  * \file log_resources.hpp
- * \brief \b Classes: \a eLogType, \a __eLogStore, \a eLogEntry, \a __eLogStoreHelper 
+ * \brief \b Classes: \a eLogType, \a __eLogStore, \a eLogEntry, \a __eLogStoreHelper
  */
 
 #ifndef E_LOG_STRUCTS_HPP
 #define E_LOG_STRUCTS_HPP
 
-#include <boost/lexical_cast.hpp>
-#include <sstream>
 #include "signal_slot.hpp"
 #include "eWindowData.hpp"  // Only for e_engine_internal::LOG_COLOR_TYPE and e_engine_internal::LOG_PRINT_TYPE
+#include <boost/lexical_cast.hpp>
+#include <boost/thread.hpp>
 
 namespace e_engine {
 
@@ -86,22 +86,22 @@ class __eLogStore {
 
       __eLogStore( std::wstring         _what, char _atrib, char _fg, char _bg ) : vAttrib_C( _atrib ), vFG_C( _fg ), vBG_C( _bg ), vType_e_LOT( STRING )
       { vWhat_STR = _what; }
-      
+
       __eLogStore( std::string          _what, char _atrib, char _fg, char _bg ) : vAttrib_C( _atrib ), vFG_C( _fg ), vBG_C( _bg ), vType_e_LOT( STRING )
       { vWhat_STR = std::wstring( _what.begin(), _what.end() ); }
 
       __eLogStore( const wchar_t       *_what, char _atrib, char _fg, char _bg ) : vAttrib_C( _atrib ), vFG_C( _fg ), vBG_C( _bg ), vType_e_LOT( STRING )
       { vWhat_STR = _what; }
-            
+
       __eLogStore( wchar_t             *_what, char _atrib, char _fg, char _bg ) : vAttrib_C( _atrib ), vFG_C( _fg ), vBG_C( _bg ), vType_e_LOT( STRING )
       { vWhat_STR = _what; }
-      
+
       __eLogStore( wchar_t              _what, char _atrib, char _fg, char _bg ) : vAttrib_C( _atrib ), vFG_C( _fg ), vBG_C( _bg ), vType_e_LOT( STRING )
       { vWhat_STR = _what; }
-      
+
       __eLogStore( const char          *_what, char _atrib, char _fg, char _bg ) : vAttrib_C( _atrib ), vFG_C( _fg ), vBG_C( _bg ), vType_e_LOT( STRING )
       { std::string lTemp_str = _what; vWhat_STR = std::wstring( lTemp_str.begin(), lTemp_str.end() ); }
-            
+
       __eLogStore( char                *_what, char _atrib, char _fg, char _bg ) : vAttrib_C( _atrib ), vFG_C( _fg ), vBG_C( _bg ), vType_e_LOT( STRING )
       { std::string lTemp_str = _what; vWhat_STR = std::wstring( lTemp_str.begin(), lTemp_str.end() ); }
 
@@ -132,6 +132,7 @@ struct eLogEntry {
    struct __rawData {
       std::vector<e_engine_internal::__eLogStore> vLogEntries_V_eLS;
       std::wstring                                vFilename_STR;
+      std::wstring                                vFunctionName_STR;
       std::wstring                                vType_STR;
       char                                        vBasicColor_C;
       bool                                        vBold_B;
@@ -162,27 +163,31 @@ namespace e_engine_internal {
 
 class __eLogStoreHelper {
    private:
-      bool                     vComplete_B;
-      std::vector<__eLogStore> vElements_V_eLS;
-      char                     vType_C;
-      std::time_t              vTime_lI;
-      std::wstring             vRawFilename_STR;
-      std::wstring             vLogFilename_STR;
-      int                      vLogLine_I;
-      
-      char                     vAttrib_C;
-      char                     vFG_C;
-      char                     vBG_C;
+      bool                      vComplete_B;
+      std::vector<__eLogStore>  vElements_V_eLS;
+      char                      vType_C;
+      std::time_t               vTime_lI;
+      std::wstring              vRawFilename_STR;
+      std::wstring              vLogFilename_STR;
+      int                       vLogLine_I;
+      std::wstring              vFunctionName_STR;
+
+      boost::condition_variable vWaitUntilThisIsPrinted_BT;
+      boost::mutex              vWaitMutex_BT;
+      bool                      vWaitForLogPrinted_B;
+      bool                      vIsPrinted_B;
+
+      boost::condition_variable vWaitUntilEndFinisched_BT;
+      boost::mutex              vWaitEndMutex_BT;
+      bool                      vEndFinished_B;
+
+      char                      vAttrib_C;
+      char                      vFG_C;
+      char                      vBG_C;
 
       std::wstring testNewColor();
    public:
-      __eLogStoreHelper( wchar_t _type, std::string _rawFilename, int _logLine )
-         : vComplete_B( false ), vType_C( _type ), vRawFilename_STR( _rawFilename.begin(), _rawFilename.end() ), vLogLine_I( _logLine ) {
-            std::time( &vTime_lI );
-            vAttrib_C = '-';
-            vFG_C     = '-';
-            vBG_C     = '-';
-         }
+      __eLogStoreHelper( wchar_t _type, std::string _rawFilename, int _logLine, std::string _functionName, bool _wait );
 
       template<class T>
       inline __eLogStoreHelper *add( T _what ) {
@@ -208,69 +213,69 @@ class __eLogStoreHelper {
          return this;
       }
 
-      
+
 
       inline __eLogStoreHelper *nl() {
          vElements_V_eLS.push_back( NEW_LINE );
          return this;
       }
-      
+
       template<class T>
       inline __eLogStoreHelper *nl( T _what ) {
          vElements_V_eLS.push_back( NEW_LINE );
          vElements_V_eLS.push_back( __eLogStore( _what, '-', '-', '-' ) );
          return this;
       }
-      
+
       template<class T>
       inline __eLogStoreHelper *nl( char _fg, T _what ) {
          vElements_V_eLS.push_back( NEW_LINE );
          vElements_V_eLS.push_back( __eLogStore( _what, '-', _fg, '-' ) );
          return this;
       }
-      
+
       template<class T>
       inline __eLogStoreHelper *nl( char _atrib, char _fg, T _what ) {
          vElements_V_eLS.push_back( NEW_LINE );
          vElements_V_eLS.push_back( __eLogStore( _what, _atrib, _fg, '-' ) );
          return this;
       }
-      
+
       template<class T>
       inline __eLogStoreHelper *nl( char _atrib, char _fg, char _bg, T _what ) {
          vElements_V_eLS.push_back( NEW_LINE );
          vElements_V_eLS.push_back( __eLogStore( _what, _atrib, _fg, _bg ) );
          return this;
       }
-      
-      
-      
+
+
+
       inline __eLogStoreHelper *point() {
          vElements_V_eLS.push_back( NEW_POINT );
          return this;
       }
-      
+
       template<class T>
       inline __eLogStoreHelper *point( T _what ) {
          vElements_V_eLS.push_back( NEW_POINT );
          vElements_V_eLS.push_back( __eLogStore( _what, '-', '-', '-' ) );
          return this;
       }
-      
+
       template<class T>
       inline __eLogStoreHelper *point( char _fg, T _what ) {
          vElements_V_eLS.push_back( NEW_POINT );
          vElements_V_eLS.push_back( __eLogStore( _what, '-', _fg, '-' ) );
          return this;
       }
-      
+
       template<class T>
       inline __eLogStoreHelper *point( char _atrib, char _fg, T _what ) {
          vElements_V_eLS.push_back( NEW_POINT );
          vElements_V_eLS.push_back( __eLogStore( _what, _atrib, _fg, '-' ) );
          return this;
       }
-      
+
       template<class T>
       inline __eLogStoreHelper *point( char _atrib, char _fg, char _bg, T _what ) {
          vElements_V_eLS.push_back( NEW_POINT );
@@ -278,22 +283,30 @@ class __eLogStoreHelper {
          return this;
       }
 
-      inline void end() { vComplete_B = true; }
-      
+      inline void end() {
+         vComplete_B = true;
+         if ( vWaitForLogPrinted_B ) {
+            boost::unique_lock<boost::mutex> lLock_BT( vWaitMutex_BT );
+            while ( ! vIsPrinted_B ) vWaitUntilThisIsPrinted_BT.wait( lLock_BT );
+         }
+         vEndFinished_B = true;
+         vWaitUntilEndFinisched_BT.notify_one();
+      }
+
       inline __eLogStoreHelper *setColor( char _fg ) {
          vAttrib_C = '-';
          vFG_C     = _fg;
          vBG_C     = '-';
          return this;
       }
-      
+
       inline __eLogStoreHelper *setColor( char _atrib, char _fg ) {
          vAttrib_C = _atrib;
          vFG_C     = _fg;
          vBG_C     = '-';
          return this;
       }
-      
+
       inline __eLogStoreHelper *setColor( char _atrib, char _fg, char _bg ) {
          vAttrib_C = _atrib;
          vFG_C     = _fg;
@@ -305,15 +318,26 @@ class __eLogStoreHelper {
          return vElements_V_eLS.at( _i );
       }
 
-      inline bool getIsComplete() const      { return vComplete_B; }
-      inline size_t getElementsSize() const  { return vElements_V_eLS.size(); }
-      unsigned int getLogEntry( std::vector< e_engine::e_engine_internal::eLogType >& _vLogTypes_V_eLT, e_engine::eLogEntry& _entry );
+      inline bool   getIsComplete()   const   { return vComplete_B; }
+      inline bool   getIsPrinted()    const   { return vIsPrinted_B; }
+      inline size_t getElementsSize() const   { return vElements_V_eLS.size(); }
+      unsigned int  getLogEntry( std::vector< e_engine::e_engine_internal::eLogType > &_vLogTypes_V_eLT, e_engine::eLogEntry &_entry );
+
+      inline void   endLogWaitAndSetPrinted() {
+         vIsPrinted_B = true;
+         if ( ! vWaitForLogPrinted_B )
+            return;
+         vWaitUntilThisIsPrinted_BT.notify_one();
+
+         boost::unique_lock<boost::mutex> lLockWait_BT( vWaitEndMutex_BT );
+         while ( ! vEndFinished_B ) vWaitUntilEndFinisched_BT.wait( lLockWait_BT );
+      }
 };
 
 
 }
 
-typedef e_engine_internal::__eLogStoreHelper* LOG_ENTRY;
+typedef e_engine_internal::__eLogStoreHelper *LOG_ENTRY;
 
 }
 

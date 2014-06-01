@@ -11,9 +11,9 @@
  * \sa e_context.cpp e_eInit.cpp
  */
 
+#include <windows.h>
 #include "context.hpp"
 #include "log.hpp"
-#include <windows.h>
 
 namespace {
  
