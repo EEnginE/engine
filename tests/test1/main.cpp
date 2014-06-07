@@ -168,7 +168,11 @@ int main( int argc, char **argv ) {
    mySHA.selftest();
 #endif
 
-   iLOG "Credits: " ADD 'B', 'G', "Daniel ( Mense ) Mensinger" END
+//    iLOG "Credits: "
+//    POINT "Daniel ( Mense ) Mensinger"
+//    POINT "Dennis Schunder"
+//    POINT "Silas Bartel"
+//    END
 
    B_SLEEP( seconds, 1 );
 

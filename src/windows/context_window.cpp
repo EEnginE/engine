@@ -13,7 +13,6 @@
 
 
 #include "context.hpp"
-#include "log.hpp"
 
 namespace e_engine {
 
@@ -71,8 +70,16 @@ int eContext::createContext() {
    vClassName_win32             =  L"OGL_CLASS";
    LPCSTR lClassName_TEMP_win32 = "OGL_CLASS_TEMP";
 
-   DWORD  lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-   DWORD  lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+   DWORD  lWinStyle;
+   DWORD  lExtStyle;
+
+   if ( WinData.win.windowDecoration && ! WinData.win.fullscreen ) {
+      lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+      lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+   } else {
+      lWinStyle = WS_POPUP;
+      lExtStyle = WS_EX_APPWINDOW;
+   }
 
 
    HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
@@ -107,26 +114,26 @@ int eContext::createContext() {
    }
 
 
-   lWindowRect_TEMP_win32.left   = WinData.win.posX;
-   lWindowRect_TEMP_win32.right  = WinData.win.posX + WinData.win.width;
-   lWindowRect_TEMP_win32.top    = WinData.win.posY;
-   lWindowRect_TEMP_win32.bottom = WinData.win.posY + WinData.win.height;
+   lWindowRect_TEMP_win32.left   = 0;
+   lWindowRect_TEMP_win32.right  = 640;
+   lWindowRect_TEMP_win32.top    = 0;
+   lWindowRect_TEMP_win32.bottom = 480;
 
    AdjustWindowRectEx( &lWindowRect_TEMP_win32, lWinStyle, false, lExtStyle );
 
    lHWND_Window_TEMP_win32 = CreateWindowEx(
-                                lExtStyle,                                          // Extended window style
-                                lClassName_TEMP_win32,                              // Window class name
-                                WinData.config.appName.c_str(),                     // Window Name
-                                lWinStyle,                                          // Window style
-                                WinData.win.posX,                                   // X
-                                WinData.win.posY,                                   // Y
-                                lWindowRect_TEMP_win32.right  - lWindowRect_TEMP_win32.left,  // Width
-                                lWindowRect_TEMP_win32.bottom - lWindowRect_TEMP_win32.top,   // Height
-                                NULL,                                               // No parent window
-                                NULL,                                               // No menu
-                                lInstance_TEMP_win32,                               // The instance
-                                NULL                                                // We dont want special window creation
+                                lExtStyle,                      // Extended window style
+                                lClassName_TEMP_win32,          // Window class name
+                                WinData.config.appName.c_str(), // Window Name
+                                lWinStyle,                      // Window style
+                                0,                              // X
+                                0,                              // Y
+                                640,                            // Width
+                                480,                            // Height
+                                NULL,                           // No parent window
+                                NULL,                           // No menu
+                                lInstance_TEMP_win32,           // The instance
+                                NULL                            // We dont want special window creation
                              );
 
 
@@ -193,10 +200,27 @@ int eContext::createContext() {
       return 5;
    }
 
-   vWindowRect_win32.left   = WinData.win.posX;
-   vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
-   vWindowRect_win32.top    = WinData.win.posY;
-   vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+   if ( WinData.win.fullscreen ) {
+      HWND lDesktopHWND_win32 = GetDesktopWindow();
+
+      if ( GetWindowRect( lDesktopHWND_win32, &vWindowRect_win32 ) == 0 ) {
+         vWindowRect_win32.left   = WinData.win.posX;
+         vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
+         vWindowRect_win32.top    = WinData.win.posY;
+         vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+         wLOG "Fullscreen failed" END
+      }
+   } else {
+      vWindowRect_win32.left   = WinData.win.posX;
+      vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
+      vWindowRect_win32.top    = WinData.win.posY;
+      vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
+   }
+   
+   WinData.win.posX   = vWindowRect_win32.left;
+   WinData.win.posY   = vWindowRect_win32.top;
+   WinData.win.width  = vWindowRect_win32.right  - vWindowRect_win32.left;
+   WinData.win.height = vWindowRect_win32.bottom - vWindowRect_win32.top;
    
 
    // Now do the same again, but this time create the actual window
@@ -208,8 +232,8 @@ int eContext::createContext() {
                            lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN ,     // Window style
                            WinData.win.posX,                                   // X
                            WinData.win.posY,                                   // Y
-                           vWindowRect_win32.right  - vWindowRect_win32.left,  // Width
-                           vWindowRect_win32.bottom - vWindowRect_win32.top,   // Height
+                           WinData.win.width,                                  // Width
+                           WinData.win.height,                                 // Height
                            NULL,                                               // No parent window
                            NULL,                                               // No menu
                            vInstance_win32,                                    // The instance
@@ -231,20 +255,6 @@ int eContext::createContext() {
 
    int lNumberOfPixelFormats_I = -10;
    
-   int lPixelAttributes[] = {
-      WGL_DRAW_TO_WINDOW_ARB,     WinData.framebuffer.FBA_DRAW_TO_WINDOW,
-      WGL_DEPTH_BITS_ARB,         WinData.framebuffer.FBA_DEPTH,
-      WGL_STENCIL_BITS_ARB,       WinData.framebuffer.FBA_STENCIL,
-      WGL_RED_BITS_ARB,           WinData.framebuffer.FBA_RED,
-      WGL_GREEN_BITS_ARB,         WinData.framebuffer.FBA_GREEN,
-      WGL_BLUE_BITS_ARB,          WinData.framebuffer.FBA_BLUE,
-      WGL_ALPHA_BITS_ARB,         WinData.framebuffer.FBA_ALPHA,
-      WGL_ACCELERATION_ARB,       WinData.framebuffer.FBA_ACCELERATION,
-      WGL_SWAP_LAYER_BUFFERS_ARB, WinData.framebuffer.FBA_DOUBLEBUFFER,
-      WGL_SUPPORT_OPENGL_ARB,     WinData.framebuffer.FBA_OGL_SUPPORTED,
-      0
-   };
-
    int lAttributesCount[] = { WGL_NUMBER_PIXEL_FORMATS_ARB };
    int lAttributes[] = {
       // Must be true
@@ -346,7 +356,6 @@ int eContext::createContext() {
 
    lEntry_LOG _ADD "   |========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
    
-   wglChoosePixelFormatARB( vHDC_win32, &lPixelAttributes[0], NULL, 1, &lBestFBConfig_I, ( UINT * )&lNumberOfPixelFormats_I );
    iLOG "Selected Pixel format descriptor: " ADD lBestFBConfig_I END
 
    SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );

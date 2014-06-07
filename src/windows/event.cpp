@@ -189,8 +189,8 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
             return TRUE;
          }
          return FALSE;
-      case WM_KEYUP:
-         key_state = E_KEY_RELEASED;
+      case WM_KEYUP:   key_state = E_KEY_RELEASED;
+      case WM_KEYDOWN: 
          _tempInfo.eKey.state = key_state;
          _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
          

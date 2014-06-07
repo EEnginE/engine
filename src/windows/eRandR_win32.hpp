@@ -61,6 +61,14 @@ class eRandR_win32 {
  * \param[out] _vMinor Minor version
  */
 
+/*!
+ * \fn eRandR_win32::getScreenResolution
+ * \brief Get the current screen resolution
+ *
+ * \param[out] _width  The current width
+ * \param[out] _height The current height
+ */
+
 } // windows_win32
 
 } // e_engine

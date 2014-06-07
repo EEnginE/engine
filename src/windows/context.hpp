@@ -15,6 +15,7 @@
 #include "eInitEventBasic.hpp"
 #include "keyboard.hpp"
 #include "eRandR_win32.hpp"
+#include "log.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -43,6 +44,8 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
 
       bool                  vHasContext_B;
       bool                  vHasGLEW_B;
+      
+      bool                  vAThreadOwnsTheOpenGLContext_B;
 
       virtual void makeEInitEventBasicAbstract() {}
 
@@ -58,7 +61,13 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       eContext();
       virtual ~eContext() {if ( vHasContext_B ) destroyContext();}
 
-      inline void swapBuffers() { SwapBuffers( vHDC_win32 ); }
+      inline void swapBuffers() {
+         if( wglGetCurrentContext() == NULL ) {
+            wLOG "No OpenGL context current!" END
+            return;
+         }
+         SwapBuffers( vHDC_win32 );
+      }
 
       int  createContext();
 

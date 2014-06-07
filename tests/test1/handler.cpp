@@ -35,18 +35,18 @@ void MyHandler::key( eWinInfo info ) {
             B_SLEEP( seconds, 5 );
             info.eInitPointer->setAttribute( C_TOGGLE, DEMANDS_ATTENTION ); break;
          case L'm':              info.eInitPointer->setAttribute( C_TOGGLE, MAXIMIZED_HORZ, MAXIMIZED_VERT ); break;
-         case E_KEY_KP_SUBTRACT: info.eInitPointer->setDecoration( e_engine::C_REMOVE ); break;
-         case E_KEY_KP_ADD:      info.eInitPointer->setDecoration( e_engine::C_ADD ); break;
-         case E_KEY_KP_MULTIPLY: info.eInitPointer->setDecoration( e_engine::C_TOGGLE ); break;
+         case E_KEY_KP_SUBTRACT: info.eInitPointer->setDecoration( e_engine::C_REMOVE ); info.eInitPointer->restartIfNeeded( true ); break;
+         case E_KEY_KP_ADD:      info.eInitPointer->setDecoration( e_engine::C_ADD );    info.eInitPointer->restartIfNeeded( true ); break;
+         case E_KEY_KP_MULTIPLY: info.eInitPointer->setDecoration( e_engine::C_TOGGLE ); info.eInitPointer->restartIfNeeded( true ); break;
          case L't':              if ( ( alpha - 0.1 ) < 0 ) alpha = 0; else alpha -= 0.01; break;
          case L'T':              if ( ( alpha + 0.1 ) > 1 ) alpha = 1; else alpha += 0.01; break;
          case L'o':              info.eInitPointer->changeWindowConfig( 800, 600, 10, 10 ); break;
          case L'F':
-         case L'f':              info.eInitPointer->fullScreen( e_engine::C_TOGGLE ); break;
+         case L'f':              info.eInitPointer->fullScreen( e_engine::C_TOGGLE ); info.eInitPointer->restartIfNeeded( true ); break;
          case L's':              info.eInitPointer->fullScreenMultiMonitor(); break;
          case L'a':              if ( vDisp_RandR.size() > 0 ) info.eInitPointer->setFullScreenMonitor( vDisp_RandR[0] ); break;
          case L'd':              if ( vDisp_RandR.size() > 1 ) info.eInitPointer->setFullScreenMonitor( vDisp_RandR[1] ); break;
-         case L'r':              info.eInitPointer->restart(); break;
+         case L'r':              info.eInitPointer->restart( true ); break;
          case L'p':
             iLOG "Pausing" END
             info.eInitPointer->pauseMainLoop();

@@ -13,7 +13,6 @@
 
 #include <windows.h>
 #include "context.hpp"
-#include "log.hpp"
 
 namespace {
  
@@ -39,11 +38,12 @@ eWindowClassRegister CLASS_REGISTER;
 
 
 eContext::eContext() {
-   vWindowsCallbacksError_B = false;
-   vHasContext_B            = false;
-   vHasGLEW_B               = false;
+   vWindowsCallbacksError_B       = false;
+   vHasContext_B                  = false;
+   vHasGLEW_B                     = false;
 
-   vWindowRecreate_B        = false;
+   vWindowRecreate_B              = false;
+   vAThreadOwnsTheOpenGLContext_B = false;
 }
 
 
@@ -146,6 +146,7 @@ void eContext::destroyContext() {
     *  1. Windows
     *  2. Must be called in the thread were the window was created
     *
+    * The rest is done in the event loop.
     */
 
    vHasContext_B = false;
@@ -161,7 +162,15 @@ bool eContext::makeContextCurrent() {
       eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with eInit::init() before you run this!" END
       return false;
    }
-   return wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL ) == TRUE ? true : false;
+   if( vAThreadOwnsTheOpenGLContext_B ) {
+      eLOG "The OpenGL Context is already in use in an other or this thread! Can not make it currnet now!" END
+      return false;
+   }
+   bool lReturnVal_B = wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL ) == TRUE ? true : false;
+   if( lReturnVal_B )
+      vAThreadOwnsTheOpenGLContext_B = true;
+   
+   return lReturnVal_B;
 }
 
 /*!
@@ -174,7 +183,11 @@ bool eContext::makeNOContextCurrent() {
       eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with eInit::init() before you run this!" END
       return false;
    }
-   return wglMakeCurrent( NULL, NULL ) == TRUE ? true : false;
+   bool lReturnVal_B = wglMakeCurrent( NULL, NULL ) == TRUE ? true : false;
+   if( lReturnVal_B )
+      vAThreadOwnsTheOpenGLContext_B = false;
+   
+   return lReturnVal_B;
 }
 
 
@@ -224,8 +237,10 @@ int eContext::fullScreen( ACTION _action, bool _allMonitors ) {
          return false;
    }
 
-   if ( lWinDataOld_B != WinData.win.fullscreen )
+   if ( lWinDataOld_B != WinData.win.fullscreen ) {
+      iLOG "Fullscreen ( " ADD WinData.win.fullscreen ? "enabled" : "disabled" ADD " ) needs window restart!" END
       vWindowRecreate_B = true;
+   }
 
    return 1;
 }

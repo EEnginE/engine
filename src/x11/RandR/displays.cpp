@@ -50,8 +50,9 @@ void eDisplays::autoSelectBest() {
       }
    }
 
-   unsigned int lMaxWidth_uI  = 0;
-   unsigned int lMaxHeight_uI = 0;
+   unsigned int lMaxWidth_uI  = 0; //!< Max currently found width
+   unsigned int lMaxHeight_uI = 0; //!< Max currently found height
+   
    for ( eDisplays::mode const & fMode : vModes_V_mode ) {
       if ( ( lMaxWidth_uI < fMode.width ) && ( lMaxHeight_uI < fMode.height ) ) {
          vCurrentWidth_uI  = lMaxWidth_uI  = fMode.width;
@@ -68,7 +69,19 @@ void eDisplays::autoSelectBest() {
 
 
 
-// --- private ---
+/*!
+ * \brief Finds the display frequency most close to _rate with the _width and _height
+ * 
+ * [private]
+ * 
+ * \param[in]  _rate   Find the most closest display frequency to this rate 
+ * \param[in]  _width  The display mut have this width
+ * \param[in]  _height The display mut have this height
+ * \param[out] _mode   The found mode
+ * \param[out] _diff   The difference between _rate and the final display frequency
+ * 
+ * \returns the display frequency closest to _rate
+ */
 double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, RRMode &_mode, double &_diff ) const {
    _diff = 1000000;
    double lRate_D = -1;
@@ -84,12 +97,10 @@ double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned
                _mode   = fMode.id;
                lRate_D = fMode.rate;
             }
-         } else {
-            if ( ( fMode.rate - _rate ) < _diff ) {
-               _diff   = ( fMode.rate - _rate );
-               _mode   = fMode.id;
-               lRate_D = fMode.rate;
-            }
+         } else if ( ( fMode.rate - _rate ) < _diff ) {
+            _diff   = ( fMode.rate - _rate );
+            _mode   = fMode.id;
+            lRate_D = fMode.rate;
          }
       }
    }
@@ -98,28 +109,28 @@ double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned
 
 /*!
  * \brief Selects the best mode for the resolution _width x _height
- * 
+ *
  * If _preferedRate == 0:
  *
  * If the function can find a preferred mode with the resolution, it will choose this mode,
  * else the function will look for the mode, nearest to 60 Hz, 120 Hz, 240 Hz and 480 Hz.
- * Then it compares the differences between all 4 modes. 
+ * Then it compares the differences between all 4 modes.
  * The mode with the least difference will be chosen.
- * 
- * 
+ *
+ *
  * If _preferedRate > 0:
- * 
+ *
  * The function will look for the mode, nearest to _preferedRate. If the difference
  * between _preferedRate and the real value is greater than _maxDiff, the function
  * will fall back to the behavior from above.
- * 
+ *
  * \warning If _preferedRate and/or _maxDiff are < 0 they will be multiplied with -1!!
- * 
+ *
  * \param _width        The width  the mode must have.
  * \param _height       The height the mode must have.
  * \param _preferedRate Choose the mode nearest to \a _preferedRate.
  * \param _maxDiff      The difference between \a _preferedRate and the best chosen rate must be less than \a _maxDiff
- * 
+ *
  * \returns The rate of the chosen mode or 0 if no mode could be found.
  *          If _preferedRate failed but a mode with the "normal" behavior
  *          was found, the rate will be negative.
@@ -130,7 +141,7 @@ double eDisplays::autoSelectBySize( unsigned int _width, unsigned int _height, d
    double lMinDiffTo240Hz_D;
    double lMinDiffTo480Hz_D;
    double lMinDiffToPref_D;
-   
+
    double lRate60Hz_D;
    double lRate120Hz_D;
    double lRate240Hz_D;
@@ -145,21 +156,21 @@ double eDisplays::autoSelectBySize( unsigned int _width, unsigned int _height, d
 
    bool     lFoundOneSizeMatch      = false;
    bool     lFindPreferedRateFailed = false;
-   
-   if( _preferedRate < 0 )
+
+   if ( _preferedRate < 0 )
       _preferedRate *= -1;
-   
-   if( _maxDiff < 0 )
+
+   if ( _maxDiff < 0 )
       _maxDiff *= -1;
-   
-   if( _preferedRate != 0 ) {
+
+   if ( _preferedRate != 0 ) {
       lRatePref_D = findNearestFreqTo( _preferedRate, _width, _height, lPref_XRR, lMinDiffToPref_D );
-      
+
       // No mode for this size
-      if( lRatePref_D < 0 )
+      if ( lRatePref_D < 0 )
          return 0;
-      
-      if( lMinDiffToPref_D > _maxDiff ) {
+
+      if ( lMinDiffToPref_D > _maxDiff ) {
          lFindPreferedRateFailed = true;
       } else {
          vModeToUse_XRR = lPref_XRR;
@@ -187,9 +198,9 @@ double eDisplays::autoSelectBySize( unsigned int _width, unsigned int _height, d
    lRate120Hz_D = findNearestFreqTo( ( double )120, _width, _height, l120Hz_XRR, lMinDiffTo120Hz_D );
    lRate240Hz_D = findNearestFreqTo( ( double )240, _width, _height, l240Hz_XRR, lMinDiffTo240Hz_D );
    lRate480Hz_D = findNearestFreqTo( ( double )480, _width, _height, l480Hz_XRR, lMinDiffTo480Hz_D );
-   
+
    // No mode for this size
-   if( lRate60Hz_D < 0 || lRate120Hz_D < 0 || lRate240Hz_D < 0 || lRate480Hz_D < 0 )
+   if ( lRate60Hz_D < 0 || lRate120Hz_D < 0 || lRate240Hz_D < 0 || lRate480Hz_D < 0 )
       return 0;
 
    if ( lMinDiffTo60Hz_D == ( double )0       ||
