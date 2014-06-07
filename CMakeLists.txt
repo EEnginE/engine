@@ -56,6 +56,12 @@ configure_file(
  "${CMAKE_HOME_DIRECTORY}/src/defines.hpp"
 )
 
+# Generate Doxyfile
+configure_file(
+ "${CMAKE_HOME_DIRECTORY}/Doxyfile.in"
+ "${CMAKE_HOME_DIRECTORY}/Doxyfile"
+)
+
 
 
 

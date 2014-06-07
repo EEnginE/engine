@@ -27,15 +27,15 @@
 
 #include "defines.hpp"
 
-#if UNIX
+#if UNIX_X11
 #include <GL/glxew.h>
-#endif
+#include "x11/context.hpp"
 
-#if WINDOWS
+#elif WINDOWS
 #include <GL/glew.h>
+#include "windows/context.hpp"
 #endif
 
-#include "context.hpp"
 #include <boost/thread.hpp>
 
 
@@ -60,7 +60,11 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  *
  * \sa eContext eWindowData e_eInit.cpp e_event.cpp
  */
-class eInit : public OS_NAMESPACE::eContext {
+#if UNIX_X11
+class eInit : public unix_x11::eContext {
+#elif WINDOWS
+class eInit : public windows_win32::eContext {
+#endif
    private:
       RENDER_FUNC       fRender;
 
