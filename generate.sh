@@ -74,6 +74,7 @@ clean() {
     rm_save $LOG_MACRO_PATH
     rm_save tests/CMakeLists.txt
     rm_save src/defines.hpp
+    rm_save Doxyfile
     
     TEMP=$( ls -d tests/*/ )
     

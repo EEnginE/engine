@@ -1,4 +1,5 @@
 /doxygen/
+/Doxyfile
 *.kdev4
 .kdev_include_paths
 /build*
