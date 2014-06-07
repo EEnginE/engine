@@ -185,7 +185,7 @@ class eLog {
       template<class T>
       inline e_engine_internal::__eLogStoreHelper *start( char _type, const char* _file, const int _line, const char* _function, T _text ) {
          boost::lock_guard<boost::mutex> vLockGuard_BT( vLogMutex_BT );
-         bool lDoWaitForPrint_B = WinData.log.waitUntilLogEntryPrinted && vLogLoopRun_B ? true : false;
+         bool lDoWaitForPrint_B = WinData.log.waitUntilLogEntryPrinted && vIsLogLoopRunning_B ? true : false;
          vLogList_L_eLSH.emplace_back( _type, _file, _line, _function, lDoWaitForPrint_B );
          vLogList_L_eLSH.back().add( _text );
          return &vLogList_L_eLSH.back();
