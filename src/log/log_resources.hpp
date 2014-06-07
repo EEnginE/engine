@@ -285,10 +285,13 @@ class __eLogStoreHelper {
 
       inline void end() {
          vComplete_B = true;
-         if ( vWaitForLogPrinted_B ) {
+         if ( !vWaitForLogPrinted_B )
+            return;
+         {
             boost::unique_lock<boost::mutex> lLock_BT( vWaitMutex_BT );
             while ( ! vIsPrinted_B ) vWaitUntilThisIsPrinted_BT.wait( lLock_BT );
          }
+         boost::lock_guard<boost::mutex> lLockWait_BT( vWaitEndMutex_BT );
          vEndFinished_B = true;
          vWaitUntilEndFinisched_BT.notify_one();
       }
@@ -324,11 +327,15 @@ class __eLogStoreHelper {
       unsigned int  getLogEntry( std::vector< e_engine::e_engine_internal::eLogType > &_vLogTypes_V_eLT, e_engine::eLogEntry &_entry );
 
       inline void   endLogWaitAndSetPrinted() {
-         vIsPrinted_B = true;
-         if ( ! vWaitForLogPrinted_B )
+         if ( ! vWaitForLogPrinted_B ) {
+            vIsPrinted_B = true;
             return;
-         vWaitUntilThisIsPrinted_BT.notify_one();
-
+         }
+         {
+            boost::lock_guard<boost::mutex> lLockWait_BT( vWaitMutex_BT );
+            vIsPrinted_B = true;
+            vWaitUntilThisIsPrinted_BT.notify_one();
+         }
          boost::unique_lock<boost::mutex> lLockWait_BT( vWaitEndMutex_BT );
          while ( ! vEndFinished_B ) vWaitUntilEndFinisched_BT.wait( lLockWait_BT );
       }
