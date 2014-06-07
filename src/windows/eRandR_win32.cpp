@@ -36,12 +36,8 @@ void eRandR_win32::reload() {
    DEVMODE lSettings_win32 = {0};
    lSettings_win32.dmSize = sizeof( DEVMODE );
    
-   iLOG "Begin reload" END
-
    for ( DWORD lDeviceNum_win32 = 0; EnumDisplayDevices( NULL, lDeviceNum_win32, &lDisplayDevice_win32, 0 ); ++lDeviceNum_win32 ) {
       
-      iLOG "DEV: " ADD lDeviceNum_win32 END
-
       DISPLAY_DEVICE lDisplayDeviceTemp_win32;
       lDisplayDeviceTemp_win32.cb = sizeof( DISPLAY_DEVICE );
 
@@ -50,7 +46,6 @@ void eRandR_win32::reload() {
          EnumDisplayDevices( lDisplayDevice_win32.DeviceName, lDisplayNum_win32, &lDisplayDeviceTemp_win32, 0 );
          ++lDisplayNum_win32
       ) {
-         iLOG "DISP: " ADD lDisplayNum_win32 END
          bool lIsEnabled_B = false;
          bool lIsPrimary_B = false;
 
@@ -63,9 +58,6 @@ void eRandR_win32::reload() {
          eDisplays lTempDisplay( lDisplayDevice_win32.DeviceName, lIsEnabled_B, lIsPrimary_B );
 
          lTempDisplay.setDisplayDevice( lDisplayDeviceTemp_win32 );
-         
-         iLOG "lDisplayDevice_win32 " ADD lDisplayDevice_win32.DeviceName END
-         iLOG "lDisplayDeviceTemp_win32" ADD lDisplayDeviceTemp_win32.DeviceName END
 
          EnumDisplaySettings( lDisplayDevice_win32.DeviceName, ENUM_CURRENT_SETTINGS, &lSettings_win32 );
          lTempDisplay.setCurrentSettings( lSettings_win32 );
@@ -78,10 +70,8 @@ void eRandR_win32::reload() {
          );
 
 
-         for ( DWORD lModeNum_win32 = 0; EnumDisplaySettings( lDisplayDevice_win32.DeviceName, lModeNum_win32, &lSettings_win32 ); lModeNum_win32++ ) {
+         for ( DWORD lModeNum_win32 = 0; EnumDisplaySettings( lDisplayDevice_win32.DeviceName, lModeNum_win32, &lSettings_win32 ); lModeNum_win32++ )
             lTempDisplay.addMode( lSettings_win32 );
-            iLOG "MODE: " ADD lModeNum_win32 END
-         }
 
          vCurrentConfig_eD.push_back( lTempDisplay );
       }
@@ -106,7 +96,10 @@ void eRandR_win32::getMostLeftRightTopBottomCRTC( unsigned int &_left, unsigned 
    _bottom = 0;
 }
 
-
+/*!
+ * \brief Prints the possible RandR resolutions
+ * \returns Nothing
+ */
 void eRandR_win32::printRandRStatus() {
    iLOG "PRINT: NUM: " ADD vCurrentConfig_eD.size() END
    for ( eDisplays const & d : vCurrentConfig_eD ) {
@@ -130,8 +123,6 @@ void eRandR_win32::printRandRStatus() {
          NEWLINE "DM_PELSWIDTH          " ADD D.dmFields &DM_PELSWIDTH          ? 1 : 0 ADD ": " ADD D.dmPelsWidth
          NEWLINE "DM_PELSHEIGHT         " ADD D.dmFields &DM_PELSHEIGHT         ? 1 : 0 ADD ": " ADD D.dmPelsHeight
          NEWLINE "DM_DISPLAYFREQUENCY   " ADD D.dmFields &DM_DISPLAYFREQUENCY   ? 1 : 0 ADD ": " ADD D.dmDisplayFrequency
-         NEWLINE "DM_COLOR              " ADD D.dmFields &DM_COLOR              ? 1 : 0 ADD ": " ADD D.dmColor
-         NEWLINE "DM_DUPLEX             " ADD D.dmFields &DM_DUPLEX             ? 1 : 0 ADD ": " ADD D.dmDuplex
          NEWLINE "DM_ORIENTATION        " ADD D.dmFields &DM_ORIENTATION        ? 1 : 0 ADD ": " ADD D.dmOrientation
          NEWLINE " "
          END
@@ -194,7 +185,11 @@ bool eRandR_win32::setPrimary( const eDisplays &_disp ) {
    }
 }
 
-
+/*!
+ * \brief Resets every display to its defaults
+ * 
+ * \returns true
+ */
 bool eRandR_win32::restoreScreenDefaults() {
    ChangeDisplaySettings( NULL, 0 );
    

@@ -32,7 +32,7 @@ class eDisplays : public eDisplayBasic {
       std::vector<DEVMODE>     vModes_V_win32;                 //!< all possible modes
       DEVMODE                  vCurrentSettings_win32;         //!< The current display settings
       DEVMODE                  vSelectedDisplaySettings_win32; //!< The selected display settings
-      DISPLAY_DEVICE           vDisplayDevice_win32;
+      DISPLAY_DEVICE           vDisplayDevice_win32;           //!< The Winapi display device (stores information about the display)
 
       eDisplays() {}
       eDisplays( std::string _name, bool _enabled, bool _isPrimary ) {vEnabled_B = _enabled; vName_str = _name; vIsPrimary_B = _isPrimary;}
@@ -41,7 +41,7 @@ class eDisplays : public eDisplayBasic {
 
       bool   getIsEnabled() const { return vEnabled_B; }
 
-      double findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, double &_diff ) const;
+      double findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, DEVMODE &_mode, double &_diff ) const;
 
       void   setPrimary() { vIsPrimary_B = true; }
       void   setCurrentSettings( DEVMODE _current ) { vCurrentSettings_win32 = _current; }

@@ -272,8 +272,14 @@ int eInit::renderLoop( ) {
          vMainLoopISPaused_B = true;
          while ( vMainLoopPaused_B ) vMainLoopWait_BT.wait( lLock_BT );
          while ( !getHaveContext() || vWindowRecreate_B ) B_SLEEP( milliseconds, 10 );
+#if WINDOWS
+         B_SLEEP( milliseconds, 100 ); //!< \todo Remove this workaround for Windows (problem with eContext::makeContextCurrent)
+#endif
          vMainLoopISPaused_B = false;
-         makeContextCurrent();
+         if( ! makeContextCurrent() ) {
+            eLOG "Failed to make context current ==> quit render loop" END
+            return -1;
+         }
       }
       
       fRender( this );
@@ -316,7 +322,7 @@ void eInit::pauseMainLoop() {
 
    vLoopsPaused_B = true;
 
-   while ( !vMainLoopISPaused_B && !vEventLoopISPaused_B )
+   while ( !vMainLoopISPaused_B || !vEventLoopISPaused_B )
       B_SLEEP( milliseconds, 10 );
 
    iLOG "Loops paused" END
@@ -325,14 +331,13 @@ void eInit::pauseMainLoop() {
 void eInit::continueMainLoop() {
    vLoopsPaused_B = false;
 
-   boost::lock_guard<boost::mutex> lLockMain_BT( vMainLoopMutex_BT );
-   vMainLoopPaused_B = false;
-   vMainLoopWait_BT.notify_one();
-
    boost::lock_guard<boost::mutex> lLockEvent_BT( vEventLoopMutex_BT );
    vEventLoopPaused_B = false;
    vEventLoopWait_BT.notify_one();
-
+   
+   boost::lock_guard<boost::mutex> lLockMain_BT( vMainLoopMutex_BT );
+   vMainLoopPaused_B = false;
+   vMainLoopWait_BT.notify_one();
 
    iLOG "Loops unpaused" END
 }
@@ -342,11 +347,22 @@ void eInit::continueMainLoop() {
  *
  * Does nothing when the main loop is not running
  *
+ * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default: false)
+ * 
+ * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
+ *          there are some problems with Windows and the event loop.
+ * 
  * \returns Nothing
  */
-void eInit::restart() {
+void eInit::restart( bool _runInNewThread ) {
    if ( !vMainLoopRunning_B )
       return;
+   
+   // Calling restart in the eventloop can cause some problems
+   if( _runInNewThread ) {
+      vRestartThread_BT = boost::thread( &eInit::restart, this, false );
+      return;
+   }
 
    pauseMainLoop();
    vWindowRecreate_B = true;
@@ -360,7 +376,10 @@ void eInit::restart() {
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
-   vEventLoop_BT.join();
+   if( vEventLoop_BT.joinable() )
+      vEventLoop_BT.join();
+   else
+      eLOG "Failed to join the event loop" END
 
    boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
@@ -378,9 +397,22 @@ void eInit::restart() {
    vWindowRecreate_B = false;
 }
 
-void eInit::restartIfNeeded() {
+/*!
+ * \brief Recreates the window / OpenGL context if needed
+ * 
+ * Does nothing when the main loop is not running
+ * (runs eInit::restart)
+ *
+ * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default: false)
+ * 
+ * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
+ *          there are some problems with Windows and the event loop.
+ * 
+ * \returns Nothing
+ */
+void eInit::restartIfNeeded( bool _runInNewThread ) {
    if ( vWindowRecreate_B )
-      restart();
+      restart( _runInNewThread );
 }
 
 
