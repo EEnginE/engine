@@ -31,26 +31,30 @@ class eDisplayBasic {
       };
 
    protected:
+      //! \brief Basic mode class for storing mode information
       struct mode_basic {
-         bool         prefered;
+         bool         prefered; //!< Is this mode prefered (only ONE mode schould have this true)
 
-         unsigned int width;
-         unsigned int height;
-         double       rate;
+         unsigned int width;    //!< The Width of this mode
+         unsigned int height;   //!< The height of this mode
+         double       rate;     //!< The display redraw frequency of this mode
       };
       
-      bool                  vEnabled_B;
-      bool                  vIsPrimary_B;
+      bool            vEnabled_B;          //!< Is the display enabbled
+      bool            vIsPrimary_B;        //!< Is this the primary display? Onl one eDisplay schould have this true
+      bool            vPositionChanged_B;  //!< Has the user changed the positon of this display
 
-      std::string           vName_str;
-      unsigned int          vCurrentWidth_uI;
-      unsigned int          vCurrentHeight_uI;
-      unsigned int          vPosX_uI;
-      unsigned int          vPosY_uI;
+      std::string     vName_str;           //!< The name of this display
+      unsigned int    vCurrentWidth_uI;    //!< The current width, without the changes the user made
+      unsigned int    vCurrentHeight_uI;   //!< The current height, without the changes the user made
+      unsigned int    vPosX_uI;            //!< The position (X) of the display WITH the userchanges
+      unsigned int    vPosY_uI;            //!< The position (Y) of the display WITH the userchanges
       
-      double                vCurrentRate_D;
+      double          vCurrentRate_D;      //!< The current display frequency, without the changes the user made
       
       void setCurrentSizeAndPosition( unsigned int _width, unsigned int _height, unsigned int _posX, unsigned int _posY, unsigned int _rate );
+      
+      eDisplayBasic() : vPositionChanged_B(false) {}
 
    public:
       virtual ~eDisplayBasic() {}

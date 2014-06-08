@@ -18,8 +18,9 @@ void eDisplayBasic::setCurrentSizeAndPosition( unsigned int _width, unsigned int
 
 //! \brief Set the absolute position of this display
 void eDisplayBasic::setPositionAbsolute( unsigned int _posX, unsigned int _posY ) {
-   vPosX_uI = _posX;
-   vPosY_uI = _posY;
+   vPosX_uI           = _posX;
+   vPosY_uI           = _posY;
+   vPositionChanged_B = true;
 }
 
 //! \brief Set the position relative to another display
@@ -42,6 +43,7 @@ void eDisplayBasic::setPositionRelative( eDisplayBasic::POSITON _where, eDisplay
          vPosY_uI       = _disp.vPosY_uI + _disp.vCurrentHeight_uI;
          break;
    }
+   vPositionChanged_B = true;
 }
 
 

@@ -5,6 +5,7 @@
 
 #include "eRandR_win32.hpp"
 #include "log.hpp"
+#include "eWindowData.hpp"
 #include <windows.h>
 
 namespace e_engine {
@@ -12,11 +13,13 @@ namespace e_engine {
 namespace windows_win32 {
 
 eRandR_win32::eRandR_win32() {
+   vDisplaysToChange_eD.clear();
    reload();
 }
 
 /*!
  * \brief get the current settins
+ * \returns Nothing
  */
 void eRandR_win32::reload() {
    HWND lDesktopHWND_win32 = GetDesktopWindow();
@@ -35,9 +38,9 @@ void eRandR_win32::reload() {
 
    DEVMODE lSettings_win32 = {0};
    lSettings_win32.dmSize = sizeof( DEVMODE );
-   
+
    for ( DWORD lDeviceNum_win32 = 0; EnumDisplayDevices( NULL, lDeviceNum_win32, &lDisplayDevice_win32, 0 ); ++lDeviceNum_win32 ) {
-      
+
       DISPLAY_DEVICE lDisplayDeviceTemp_win32;
       lDisplayDeviceTemp_win32.cb = sizeof( DISPLAY_DEVICE );
 
@@ -148,7 +151,7 @@ bool eRandR_win32::setPrimary( const eDisplays &_disp ) {
 
    switch ( ChangeDisplaySettingsEx( _disp.getDisplayDevice().DeviceName, &lNotReallyNeeded, NULL, CDS_SET_PRIMARY, NULL ) ) {
       case DISP_CHANGE_SUCCESSFUL :
-         iLOG "Successfully set the primary display" END
+         iLOG "Successfully set the primary display to " ADD _disp.getDisplayDevice().DeviceName END
          return true;
 
       case DISP_CHANGE_BADDUALVIEW :
@@ -186,26 +189,121 @@ bool eRandR_win32::setPrimary( const eDisplays &_disp ) {
 }
 
 /*!
+ * \brief Sets the Display config
+ *
+ * \param[in] _disp The new display config
+ * \returns true
+ */
+bool eRandR_win32::setDisplaySizes( const eDisplays &_disp ) {
+   vDisplaysToChange_eD.push_back( _disp );
+   return true;
+}
+
+/*!
+ * \brief Applies the settings set with setDisplaySizes
+ * \returns true is everything went fine and false if not
+ */
+bool eRandR_win32::applyNewRandRSettings() {
+   vPreviousConfig_eD = vCurrentConfig_eD;
+
+   bool lRetrunValue_B = false;
+
+   for ( eDisplays const & disp : vDisplaysToChange_eD ) {
+      DEVMODE lDevmodeToChange_win32 = disp.getSelectedDevmode();
+
+      iLOG "Change " ADD disp.getDisplayDevice().DeviceName ADD " to: " ADD lDevmodeToChange_win32.dmPelsWidth ADD "x" ADD lDevmodeToChange_win32.dmPelsHeight END
+      switch (
+         ChangeDisplaySettingsEx(
+            disp.getDisplayDevice().DeviceName,
+            &lDevmodeToChange_win32,
+            NULL,
+            0,
+            NULL )
+      ) {
+         case DISP_CHANGE_SUCCESSFUL :
+            iLOG "Successfully changed display " ADD disp.getDisplayDevice().DeviceName ADD "  [applyNewRandRSettings]" END
+            lRetrunValue_B = true;
+            break;
+
+         case DISP_CHANGE_BADDUALVIEW :
+            wLOG "ChangeDisplaySettingsEx returned DISP_CHANGE_BADDUALVIEW [applyNewRandRSettings]" END
+            break;
+
+         case DISP_CHANGE_BADFLAGS :
+            wLOG "ChangeDisplaySettingsEx returned DISP_CHANGE_BADFLAGS [applyNewRandRSettings]" END
+            break;
+
+         case DISP_CHANGE_BADMODE :
+            wLOG "ChangeDisplaySettingsEx returned DISP_CHANGE_BADMODE [applyNewRandRSettings]" END
+            break;
+
+         case DISP_CHANGE_BADPARAM :
+            wLOG "ChangeDisplaySettingsEx returned DISP_CHANGE_BADPARAM [applyNewRandRSettings]" END
+            break;
+
+         case DISP_CHANGE_FAILED :
+            wLOG "ChangeDisplaySettingsEx returned DISP_CHANGE_FAILED [applyNewRandRSettings]" END
+            break;
+
+         case DISP_CHANGE_NOTUPDATED :
+            wLOG "ChangeDisplaySettingsEx returned DISP_CHANGE_NOTUPDATED [applyNewRandRSettings]" END
+            break;
+
+         case DISP_CHANGE_RESTART :
+            wLOG "ChangeDisplaySettingsEx returned DISP_CHANGE_FAILED [applyNewRandRSettings] (You need to restart yout PC because you have Windows)" END
+            break;
+
+         default:
+            eLOG "ChangeDisplaySettingsEx returned a unknown error [applyNewRandRSettings]" END
+            break;
+      }
+   }
+
+   vDisplaysToChange_eD.clear();
+
+   reload();
+   return lRetrunValue_B;
+}
+
+
+/*!
  * \brief Resets every display to its defaults
- * 
+ *
  * \returns true
  */
 bool eRandR_win32::restoreScreenDefaults() {
+   vPreviousConfig_eD = vCurrentConfig_eD;
    ChangeDisplaySettings( NULL, 0 );
-   
+
    reload();
 
    return true;
 }
 
+/*!
+ * \brief Restore the latest screen config
+ * 
+ * \returns true
+ */
 bool eRandR_win32::restoreScreenLatest() {
+   vDisplaysToChange_eD = vPreviousConfig_eD;
+   applyNewRandRSettings();
    return false;
 }
 
+/*!
+ * \brief Gamma is under Windows not supported
+ * \todo Find a solution with gamma
+ * \returns false
+ */
 bool eRandR_win32::setGamma( const eDisplays &_disp, float _r, float _g, float _b, float _brightness ) {
    return false;
 }
 
+eRandR_win32::~eRandR_win32() {
+   if ( WinData.win.restoreOldScreenRes )
+      restoreScreenDefaults();
+}
 
 
 
@@ -213,4 +311,5 @@ bool eRandR_win32::setGamma( const eDisplays &_disp, float _r, float _g, float _
 
 } // e_engine
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+
 

@@ -16,15 +16,16 @@ class eRandR_win32 {
    private:
       unsigned int vScreenWidth_uI;
       unsigned int vScreenHeight_uI;
-      
+
       std::vector<eDisplays> vCurrentConfig_eD;
       std::vector<eDisplays> vPreviousConfig_eD;
-      
+      std::vector<eDisplays> vDisplaysToChange_eD;
+
       void reload();
 
    public:
       eRandR_win32();
-      virtual ~eRandR_win32() {}
+      virtual ~eRandR_win32();
 
       void printRandRStatus();
 
@@ -35,10 +36,10 @@ class eRandR_win32 {
 
       std::vector<eDisplays> getDisplayResolutions() { return vCurrentConfig_eD; }
 
-      bool setDisplaySizes( eDisplays const &_disp ) {return false;}
+      bool setDisplaySizes( eDisplays const &_disp );
       bool setPrimary( const e_engine::windows_win32::eDisplays &_disp );
 
-      bool applyNewRandRSettings() {return false;}
+      bool applyNewRandRSettings();
 
       bool restoreScreenDefaults();
       bool restoreScreenLatest();

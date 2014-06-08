@@ -61,7 +61,7 @@ LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lPar
 int eContext::createContext() {
    if ( vHasContext_B )
       return 2;
-   
+
    vHWND_Window_win32       = 0;
    vHDC_win32               = 0;
    vInstance_win32          = 0;
@@ -186,11 +186,11 @@ int eContext::createContext() {
       vWindowClass_win32.lpszClassName = vClassName_win32;
 
 
-      if(RegisterClassW( &vWindowClass_win32 ) == 0) {
+      if ( RegisterClassW( &vWindowClass_win32 ) == 0 ) {
          eLOG "Failed to register the (final) window class " ADD GetLastError() END
          return -1;
       }
-      
+
 
       e_engine_internal::CLASS_REGISTER.setC2();
    }
@@ -216,45 +216,46 @@ int eContext::createContext() {
       vWindowRect_win32.top    = WinData.win.posY;
       vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
    }
-   
+
    WinData.win.posX   = vWindowRect_win32.left;
    WinData.win.posY   = vWindowRect_win32.top;
    WinData.win.width  = vWindowRect_win32.right  - vWindowRect_win32.left;
    WinData.win.height = vWindowRect_win32.bottom - vWindowRect_win32.top;
-   
 
    // Now do the same again, but this time create the actual window
-   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle ); 
+   AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
+   std::wstring lWindowName_wstr( WinData.config.appName.begin(), WinData.config.appName.end() );
+   iLOG "Window Name: " ADD lWindowName_wstr END
    vHWND_Window_win32 = CreateWindowExW( //The W  is required for it to be a Unicode window
-                           lExtStyle,                                          // Extended window style
-                           vClassName_win32,                                   // Window class name
-                           (LPCWSTR) WinData.config.appName.c_str(),           // Window Name
-                           lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN ,     // Window style
-                           WinData.win.posX,                                   // X
-                           WinData.win.posY,                                   // Y
-                           WinData.win.width,                                  // Width
-                           WinData.win.height,                                 // Height
-                           NULL,                                               // No parent window
-                           NULL,                                               // No menu
-                           vInstance_win32,                                    // The instance
-                           this                                                // We dont want spacial window creation
+                           lExtStyle,                                     // Extended window style
+                           vClassName_win32,                              // Window class name
+                           lWindowName_wstr.c_str(),                      // Window Name (converted to a wide string)
+                           lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, // Window style
+                           WinData.win.posX,                              // X
+                           WinData.win.posY,                              // Y
+                           WinData.win.width,                             // Width
+                           WinData.win.height,                            // Height
+                           NULL,                                          // No parent window
+                           NULL,                                          // No menu
+                           vInstance_win32,                               // The instance
+                           this                                           // We dont want spacial window creation
                         );
 
    /*!
-    *\todo: Changed the vClassName_win32 and Windowname into a LPCWSTR, 
-    * Changed the vWindowClass_win32 into a WNDCLASSW, 
+    *\todo: Changed the vClassName_win32 and Windowname into a LPCWSTR,
+    * Changed the vWindowClass_win32 into a WNDCLASSW,
     * used CreateWindowExW and RegisterClassW( &vWindowClass_win32 )
     * See http://technet.microsoft.com/en-ca/dd319108%28v=vs.90%29.aspx
     */
-   
-   
+
+
    ShowCursor( TRUE );
 
    vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
 
 
    int lNumberOfPixelFormats_I = -10;
-   
+
    int lAttributesCount[] = { WGL_NUMBER_PIXEL_FORMATS_ARB };
    int lAttributes[] = {
       // Must be true
@@ -355,11 +356,11 @@ int eContext::createContext() {
    }
 
    lEntry_LOG _ADD "   |========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
-   
+
    iLOG "Selected Pixel format descriptor: " ADD lBestFBConfig_I END
 
    SetPixelFormat( vHDC_win32, lBestFBConfig_I, &vPixelFormat_PFD );
-   
+
 
    // Set new Error Handler
    GLushort version_list[][2] = {
@@ -387,7 +388,7 @@ int eContext::createContext() {
       lAttributes_A_I[2] = WGL_CONTEXT_MINOR_VERSION_ARB;
       lAttributes_A_I[3] = WinData.versions.glMinorVersion;
       lAttributes_A_I[4] = 0;
-   }   
+   }
 
    for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
       vOpenGLContext_WGL = wglCreateContextAttribsARB( vHDC_win32, 0, lAttributes_A_I );
@@ -438,9 +439,9 @@ int eContext::createContext() {
 
 
    iLOG "OpenGL context created" END
-   
+
    vHasContext_B = true;
-   
+
    vWindowsDestroy_B        = false;
    vWindowsNCDestrox_B      = false;
 

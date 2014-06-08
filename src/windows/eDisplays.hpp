@@ -44,9 +44,21 @@ class eDisplays : public eDisplayBasic {
       double findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, DEVMODE &_mode, double &_diff ) const;
 
       void   setPrimary() { vIsPrimary_B = true; }
-      void   setCurrentSettings( DEVMODE _current ) { vCurrentSettings_win32 = _current; }
+      void   setCurrentSettings( DEVMODE _current ) { vSelectedDisplaySettings_win32 = vCurrentSettings_win32 = _current; }
       void   setDisplayDevice( DISPLAY_DEVICE _device ) {vDisplayDevice_win32 = _device;}
+      void   getSelectedDevmodeOptions(
+         DWORD &_width,
+         DWORD &_height,
+         DWORD &_rate,
+         DWORD &_bitsPerPel,
+         LONG  &_posX,
+         LONG  &_posY,
+         DWORD &_fields
+      ) const;
+      DEVMODE getSelectedDevmode() const;
       DISPLAY_DEVICE getDisplayDevice() const {return vDisplayDevice_win32;}
+      
+      int getMaxBitsPerPelFromResolutionAndFreq( unsigned int _width, unsigned int _height, double _rate ) const;
 
    public:
       virtual ~eDisplays() {}
