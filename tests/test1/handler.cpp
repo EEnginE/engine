@@ -17,6 +17,8 @@ void MyHandler::key( eWinInfo info ) {
    char lHex_CSTR[6];
    snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
    iLOG "Key " ADD info.eKey.state == E_KEY_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
+   
+   vector<eDisplays> displays;
 
    if ( info.eKey.state == E_KEY_PRESSED ) {
       switch ( info.eKey.key ) {
@@ -53,6 +55,12 @@ void MyHandler::key( eWinInfo info ) {
             B_SLEEP( seconds, 5 );
             iLOG "Unpausing" END
             info.eInitPointer->continueMainLoop();
+            break;
+         case L'b':
+            displays = info.eInitPointer->getDisplayResolutions();
+            displays[0].autoSelectBySize( 1280, 1024, 60 );
+            info.eInitPointer->setDisplaySizes( displays[0] );
+            info.eInitPointer->applyNewRandRSettings();
             break;
          case L'q':
          case L'Q':

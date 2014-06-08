@@ -35,7 +35,7 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       HDC                   vHDC_win32;
       HGLRC                 vOpenGLContext_WGL;
       LPCWSTR               vClassName_win32;
-
+      
       static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       LRESULT CALLBACK        actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo );
@@ -47,6 +47,8 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       
       bool                  vAThreadOwnsTheOpenGLContext_B;
 
+      bool                  setWindowState( UINT _flags, HWND _pos = (HWND)1000 );
+      
       virtual void makeEInitEventBasicAbstract() {}
 
    protected:
@@ -80,34 +82,65 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       bool makeContextCurrent();
       bool makeNOContextCurrent();
 
-      bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) {return false;}
+      bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
       
 
       int  setFullScreenMonitor( eDisplays _disp ) {return 0;}
       bool setDecoration( ACTION _action );
-      int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {return 0;}
+      int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
       bool fullScreenMultiMonitor() {return false;}
 };
 
+/*!
+ * \fn eContext::setFullScreenMonitor
+ * \brief Not supported with Windows
+ * 
+ * \note Does Nothing
+ * 
+ * \todo Support more than one fullscreen monitor in Windows
+ * 
+ * \returns 0
+ */
+
+/*!
+ * \fn eContext::fullScreenMultiMonitor
+ * \brief Not supported with Windows
+ * 
+ * \note Does Nothing
+ * 
+ * \todo Support more than one fullscreen monitor in Windows
+ * 
+ * \returns false
+ */
+
 namespace e_engine_internal {
 
+/*!
+ * \brief Stores information about WIN32 window classes
+ * 
+ * Window classes are registered globaly for one application.
+ * Registering them more than once leads to errors. This class
+ * stores if a window class is registered.
+ */
 class eWindowClassRegister {
    private:
-      bool vClass1Registered;
-      bool vClass2Registered;
+      bool vClass1Registered; //!< Is the temporary window class registered (used for the temporary OpenGL context)
+      bool vClass2Registered; //!< Is the final window class registered (the "real" window class)
    public:
+      //! Both window classes are not registered when the application starts
       eWindowClassRegister() : vClass1Registered( false ), vClass2Registered( false ) {}
 
-      bool getC1() { return vClass1Registered; }
-      bool getC2() { return vClass2Registered; }
+      bool getC1() { return vClass1Registered; } //!< Is the temporary window class already registered?
+      bool getC2() { return vClass2Registered; } //!< Is the final window class already registered?
 
    private:
-      void setC1() { vClass1Registered = true; }
-      void setC2() { vClass2Registered = true; }
+      void setC1() { vClass1Registered = true; } //!< Set the temporary window class as registered (only windows_win32::eContext can do this)
+      void setC2() { vClass2Registered = true; } //!< Set the final window class as registered (only windows_win32::eContext can do this)
 
       friend class e_engine::windows_win32::eContext;
 };
 
+//! Global object that stores the state of the window classes
 extern eWindowClassRegister CLASS_REGISTER;
 
 } // e_engine_internal

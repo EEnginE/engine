@@ -384,7 +384,7 @@ bool eContext::maximize( e_engine::ACTION _action ) {
  * \param _type1  The first thing to change
  * \param _type2  The second thing to change (Default: NONE)
  *
- * \returns \c Success: \a true -- \c Failed: \a false
+ * \returns \c Success: \a true -- <c>Failed / not supported:</c> \a false
  *
  * \sa e_engine::ACTION, e_engine::WINDOW_ATTRIBUTE
  */

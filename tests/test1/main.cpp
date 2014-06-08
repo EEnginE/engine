@@ -63,6 +63,7 @@ int main( int argc, char **argv ) {
    WinData.versions.glMinorVersion = 6;
    
 //    WinData.log.waitUntilLogEntryPrinted = true;
+//    WinData.log.logFILE.logFileName = "./log";
 
    RandISAAC myRand;
 
@@ -174,7 +175,7 @@ int main( int argc, char **argv ) {
 //    POINT "Silas Bartel"
 //    END
 
-   B_SLEEP( seconds, 1 );
+//    B_SLEEP( seconds, 1 );
 
    start.shutdown();
 

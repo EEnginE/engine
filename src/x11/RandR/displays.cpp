@@ -126,10 +126,10 @@ double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned
  *
  * \warning If _preferedRate and/or _maxDiff are < 0 they will be multiplied with -1!!
  *
- * \param _width        The width  the mode must have.
- * \param _height       The height the mode must have.
- * \param _preferedRate Choose the mode nearest to \a _preferedRate.
- * \param _maxDiff      The difference between \a _preferedRate and the best chosen rate must be less than \a _maxDiff
+ * \param[in] _width        The width  the mode must have.
+ * \param[in] _height       The height the mode must have.
+ * \param[in] _preferedRate Choose the mode nearest to \a _preferedRate.
+ * \param[in] _maxDiff      The difference between \a _preferedRate and the best chosen rate must be less than \a _maxDiff
  *
  * \returns The rate of the chosen mode or 0 if no mode could be found.
  *          If _preferedRate failed but a mode with the "normal" behavior
@@ -246,7 +246,10 @@ double eDisplays::autoSelectBySize( unsigned int _width, unsigned int _height, d
    return 0;
 }
 
-//! \brief Disables the display
+/*!
+ * \brief Disables the display
+ * \returns Nothing
+ */
 void eDisplays::disable() {
    vEnabled_B = false;
    vCurrentWidth_uI  = 0;
@@ -255,14 +258,24 @@ void eDisplays::disable() {
    vModeToUse_XRR    = None;
 }
 
-//! \brief Enables the display and runs autoSelectBest() if necessary.
+/*!
+ * \brief Enables the display and runs autoSelectBest() if necessary.
+ * \returns Nothing
+ */
 void eDisplays::enable() {
    vEnabled_B = true;
    if ( vModeToUse_XRR == None )
       autoSelectBest();
 }
 
-//! \brief Returns a vector with all possible rates for the resolution
+/*!
+ * \brief Returns a vector with all possible rates for the resolution
+ * 
+ * \param[in] _width  The width of the resolution
+ * \param[in] _height The height of the resolution
+ * 
+ * \returns A vector with all possible rates for the resolution
+ */
 std::vector< double > eDisplays::getPossibleRates( unsigned int _width, unsigned int _height ) const {
    std::vector<double> lTempRates;
 
@@ -275,7 +288,10 @@ std::vector< double > eDisplays::getPossibleRates( unsigned int _width, unsigned
    return lTempRates;
 }
 
-//! \brief Returns a vector with all possible resolutions
+/*!
+ * \brief Returns a vector with all possible resolutions
+ * \returns a vector with all possible resolutions
+ */
 std::vector<eDisplayBasic::res> eDisplays::getPossibleResolutions() const {
    std::vector<eDisplayBasic::res> lTempSizes_V;
    for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
@@ -303,7 +319,15 @@ std::vector<eDisplayBasic::res> eDisplays::getPossibleResolutions() const {
 }
 
 
-//! \brief Returns the resolution and rate via references
+/*!
+ * \brief Returns the resolution and rate via references
+ * 
+ * \param[out] _width  The width of the selected resolution
+ * \param[out] _height The height of the selected resolution
+ * \param[out] _rate   The rate of the selected mode
+ * 
+ * \returns Nothing
+ */
 void eDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) const {
    if ( vModeToUse_XRR == None ) {
       _width  = 0;
@@ -322,7 +346,14 @@ void eDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, dou
    }
 }
 
-//! \brief Checks if the resolution is supported
+/*!
+ * \brief Checks if the resolution is supported
+ * 
+ * \param[in] _width  The width to check
+ * \param[in] _height The height to check
+ * 
+ * \returns true if the resolution is supported and false if not
+ */
 bool eDisplays::isSizeSupported( unsigned int _width, unsigned int _height ) const {
    for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
       if ( _width == vModes_V_mode[i].width && _height == vModes_V_mode[i].height ) {
@@ -332,7 +363,15 @@ bool eDisplays::isSizeSupported( unsigned int _width, unsigned int _height ) con
    return false;
 }
 
-//! \brief Select the mode with this resolution and rate
+/*!
+ * \brief Select the mode with this resolution and rate
+ * 
+ * \param[in] _width  The width for the new mode
+ * \param[in] _height The height for the new mode
+ * \param[in] _rate   The rate for the new mode
+ * 
+ * \returns true if the mode was found and false if not
+ */
 bool eDisplays::select( unsigned int _width, unsigned int _height, double _rate ) {
    for ( unsigned int i = 0; vModes_V_mode.size(); ++i ) {
       if ( _width == vModes_V_mode[i].width && _height == vModes_V_mode[i].height && _rate == vModes_V_mode[i].rate ) {
@@ -347,7 +386,13 @@ bool eDisplays::select( unsigned int _width, unsigned int _height, double _rate 
    return false;
 }
 
-//! \brief Set this display as a clone of another display
+/*!
+ * \brief Set this display as a clone of another display
+ * 
+ * \param[in] _disp The display to set clone off
+ * 
+ * \returns Nothing
+ */
 void eDisplays::setCloneOf( const eDisplays &_disp ) {
    for ( unsigned int i = 0; i < vClones_V_XRR.size(); ++i ) {
       if ( vClones_V_XRR[i] == _disp.vID_XRR ) {
