@@ -10,17 +10,23 @@ GLfloat r, g, b, R, G, B;
 bool    rr, gg, bb;
 int counter1 = 0;
 
+void MyHandler::mouse( eWinInfo info) {
+   
+      iLOG "Button " ADD info.eMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eMouse.button ADD "'" END
+   
+}
+
 void MyHandler::key( eWinInfo info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.eInitPointer->getDisplayResolutions();
 
    char lHex_CSTR[6];
    snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
-   iLOG "Key " ADD info.eKey.state == E_KEY_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
+   iLOG "Key " ADD info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
    
    vector<eDisplays> displays;
 
-   if ( info.eKey.state == E_KEY_PRESSED ) {
+   if ( info.eKey.state == E_PRESSED ) {
       switch ( info.eKey.key ) {
          case E_KEY_F1:          info.eInitPointer->setAttribute( C_TOGGLE, MODAL ); break;
          case E_KEY_F2:          info.eInitPointer->setAttribute( C_TOGGLE, STICKY ); break;
@@ -72,7 +78,7 @@ void MyHandler::key( eWinInfo info ) {
          case L'Q':
          case E_KEY_ESCAPE:      info.eInitPointer->closeWindow(); break;
          case L'u':
-            if ( info.eInitPointer->getKeyState( E_KEY_BACKSPACE ) == E_KEY_PRESSED ) {
+            if ( info.eInitPointer->getKeyState( E_KEY_BACKSPACE ) == E_PRESSED ) {
                iLOG "JAAAAA" END;
             }
             break;

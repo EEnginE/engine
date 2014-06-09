@@ -10,7 +10,7 @@ namespace e_engine {
 
 eKeyboardBasic::eKeyboardBasic()  {
    for ( unsigned short int i = 0; i < ( _E_KEY_LAST + 1 ); i++ )
-      key_state[i] = E_KEY_RELEASED;
+      key_state[i] = E_RELEASED;
 }
 
 }

@@ -38,7 +38,7 @@ class MyHandler {
          info.eInitPointer->closeWindow();
       }
       void key( eWinInfo info );
-      void mouse( eWinInfo info ) {}
+      void mouse( eWinInfo info );
       void resize( eWinInfo info ) {
          iLOG "Window resized" END
       }

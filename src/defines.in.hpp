@@ -89,9 +89,12 @@ enum ACTION {
 
 }
 
+//Global
+#define E_UNKNOWN      -1
+#define E_PRESSED      1
+#define E_RELEASED     0
 
 // Keys
-#define E_KEY_UNKNOWN      -1
 #define E_KEY_SPACE        32
 #define E_KEY_SPECIAL      256
 
@@ -180,15 +183,20 @@ enum ACTION {
 #define _E_KEY_LAST        E_KEY_KP_NUM_LOCK
 
 //Mouse
-#define E_MOUSE_LEFT      ( E_MOUSE_BUTTON + 0 )
-#define E_MOUSE_MIDDLE    ( E_MOUSE_BUTTON + 1 )
-#define E_MOUSE_RIGHT     ( E_MOUSE_BUTTON + 2 )
-#define E_MOUSE_X         ( E_MOUSE_BUTTON + 3 )
 
-#define _E_MOUSE_LAST     E_MOUSE_X
+enum E_BUTTON {
+         E_MOUSE_UNKNOWN = -1,
+         E_MOUSE_LEFT,
+         E_MOUSE_MIDDLE,
+         E_MOUSE_RIGHT,
+         E_MOUSE_1,
+         E_MOUSE_2,
+         E_MOUSE_3,
+         E_MOUSE_4,
+         E_MOUSE_5,
+         E_MOUSE_6
+      };
 
-#define E_KEY_PRESSED      1
-#define E_KEY_RELEASED     0
 
 #endif // DEFINES_HPP
 

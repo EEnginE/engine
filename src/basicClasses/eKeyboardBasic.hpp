@@ -24,7 +24,7 @@ class eKeyboardBasic {
        * \returns Nothing
        */
       void setKeyState( wchar_t _key, unsigned short int _state ) {
-         if ( _key < 0 ) {_state = E_KEY_UNKNOWN; return;}
+         if ( _key < 0 ) {_state = E_UNKNOWN; return;}
          key_state[( unsigned int )_key] = _state;
       }
 
@@ -38,7 +38,7 @@ class eKeyboardBasic {
        * \returns The key state
        */
       unsigned short int getKeyState( wchar_t _key ) {
-         if ( _key < 0 || _key > _E_KEY_LAST ) {return E_KEY_UNKNOWN;}
+         if ( _key < 0 || _key > _E_KEY_LAST ) {return E_UNKNOWN;}
          return key_state[( unsigned int )_key];
       }
 };

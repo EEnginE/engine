@@ -58,10 +58,10 @@ int main( int argc, char **argv ) {
    WinData.log.logERR.File     = RIGHT_FULL;
    WinData.log.logFILE.File    = RIGHT_FULL;
    WinData.win.restoreOldScreenRes = true;
-   
+
    WinData.versions.glMajorVersion = 4;
    WinData.versions.glMinorVersion = 6;
-   
+
 //    WinData.log.waitUntilLogEntryPrinted = true;
 //    WinData.log.logFILE.logFileName = "./log";
 
@@ -87,7 +87,7 @@ int main( int argc, char **argv ) {
    iLOG "Home:          " ADD SYSTEM.getUserHomeDirectory() END
    iLOG "Main config:   " ADD SYSTEM.getMainConfigDirPath() END
    iLOG "Log File Path: " ADD SYSTEM.getLogFilePath()       END
-   
+
 
 #if ! KDEVELOP
    eInit start;
@@ -98,6 +98,7 @@ int main( int argc, char **argv ) {
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
+      start.addMouseSlot( handler.getSMouse() );
 
       iLOG "Test" END
 
@@ -151,7 +152,7 @@ int main( int argc, char **argv ) {
       if ( argc == 2 ) {
          temp = ( string ) argv[1] + "/colors_p" ;
       }
-      
+
       eLinker prog( temp );
       GLuint dummy;
       prog.link( dummy );
