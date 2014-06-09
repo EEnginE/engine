@@ -185,17 +185,21 @@ enum ACTION {
 //Mouse
 
 enum E_BUTTON {
-         E_MOUSE_UNKNOWN = -1,
-         E_MOUSE_LEFT,
+         E_MOUSE_LEFT = 0,
          E_MOUSE_MIDDLE,
          E_MOUSE_RIGHT,
+         E_MOUSE_WHEEL_UP,
+         E_MOUSE_WHEEL_DOWN,
          E_MOUSE_1,
          E_MOUSE_2,
          E_MOUSE_3,
          E_MOUSE_4,
          E_MOUSE_5,
-         E_MOUSE_6
+         E_MOUSE_6,
+         E_MOUSE_MOVE,
+         E_MOUSE_UNKNOWN,
       };
+
 
 
 #endif // DEFINES_HPP
