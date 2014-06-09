@@ -34,20 +34,20 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       HDC                   vHDC_win32;
       HGLRC                 vOpenGLContext_WGL;
       LPCWSTR               vClassName_win32;
-      
+
       static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       LRESULT CALLBACK        actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo );
-      
+
       bool                  vWindowsCallbacksError_B;
 
       bool                  vHasContext_B;
       bool                  vHasGLEW_B;
-      
+
       bool                  vAThreadOwnsTheOpenGLContext_B;
 
-      bool                  setWindowState( UINT _flags, HWND _pos = (HWND)1000 );
-      
+      bool                  setWindowState( UINT _flags, HWND _pos = ( HWND )1000 );
+
       virtual void makeEInitEventBasicAbstract() {}
 
    protected:
@@ -76,36 +76,43 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       bool makeNOContextCurrent();
 
       bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
-      
+
 
       int  setFullScreenMonitor( eDisplays _disp ) {return 0;}
       bool setDecoration( ACTION _action );
       int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
       bool fullScreenMultiMonitor() {return false;}
-      
-      bool grabMouse(); //!< \todo Add implementation
-      bool freeMouse(); //!< \todo Add implementation
+
+      bool grabMouse();               //!< \todo Add implementation
+      bool freeMouse();               //!< \todo Add implementation
+      bool getIsMouseGrabbed() const; //!< \todo Add implementation
+
+      bool moveMouse( unsigned int _posX, unsigned int _posY ); //!< \todo Add implementation
+
+      bool hideMouseCursor();         //!< \todo Add implementation
+      bool showMouseCursor();         //!< \todo Add implementation
+      bool getIsCursorHidden() const; //!< \todo Add implementation
 };
 
 /*!
  * \fn eContext::setFullScreenMonitor
  * \brief Not supported with Windows
- * 
+ *
  * \note Does Nothing
- * 
+ *
  * \todo Support more than one fullscreen monitor in Windows
- * 
+ *
  * \returns 0
  */
 
 /*!
  * \fn eContext::fullScreenMultiMonitor
  * \brief Not supported with Windows
- * 
+ *
  * \note Does Nothing
- * 
+ *
  * \todo Support more than one fullscreen monitor in Windows
- * 
+ *
  * \returns false
  */
 
@@ -113,7 +120,7 @@ namespace e_engine_internal {
 
 /*!
  * \brief Stores information about WIN32 window classes
- * 
+ *
  * Window classes are registered globaly for one application.
  * Registering them more than once leads to errors. This class
  * stores if a window class is registered.

@@ -659,28 +659,28 @@ bool eContext::makeNOContextCurrent()  {
 
 /*!
  * \brief Grabs the mous pointer (and the keyboard)
- * 
+ *
  * \note You can only grab the mouse if she is ungrabbed
- * 
- * \returns true if successfull and false if not 
+ *
+ * \returns true if successfull and false if not
  */
 bool eContext::grabMouse() {
-   if( vIsMouseGrabbed_B ) {
+   if ( vIsMouseGrabbed_B ) {
       wLOG "Mouse is already grabbed" END
       return false;
    }
-   
+
    int lReturn_I =
       XGrabPointer(
-         vDisplay_X11,
-         vWindow_X11,
-         False,
-         0,
-         GrabModeAsync,
-         GrabModeAsync,
-         vWindow_X11,
-         None,
-         CurrentTime
+         vDisplay_X11,    // Our connection to the X server
+         vWindow_X11,     // The window owning the grab
+         False,           // Send some additionally events
+         0,               // We dont need a special event mask
+         GrabModeAsync,   // Mouse grabbing schould be async (easyer for us)
+         GrabModeAsync,   // Key grabbing schould be async (easyer for us)
+         vWindow_X11,     // Lock the coursor in this window
+         None,            // Use the default window coursor icon
+         CurrentTime      // X11 needs a time
       );
 
    if ( lReturn_I != GrabSuccess ) {
@@ -694,18 +694,18 @@ bool eContext::grabMouse() {
 
 /*!
  * \brief Ungrabs the mous pointer (and the keyboard)
- * 
+ *
  * \note You can only ungrab the mouse if she is grabbed
- * 
- * \returns true if successfull and false if not 
+ *
+ * \returns true if successfull and false if not
  */
 bool eContext::freeMouse() {
-   if( !vIsMouseGrabbed_B ) {
+   if ( !vIsMouseGrabbed_B ) {
       wLOG "Mouse is not grabbed" END
       return false;
    }
-      
-   
+
+
    if ( XUngrabPointer( vDisplay_X11, CurrentTime ) == 0 ) {
       wLOG "Failed to ungrab the mouse" END
       return false;
@@ -713,6 +713,111 @@ bool eContext::freeMouse() {
    vIsMouseGrabbed_B = false;
    return true;
 }
+
+/*!
+ * \brief Sets the mouse position
+ *
+ * \param[in] _posX The x coordinate in our window
+ * \param[in] _posY The y coordinate in our window
+ *
+ * \note _posX and _posY must be inside our window
+ *
+ * \returns true if successfull and false if not
+ */
+bool eContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
+   if ( _posX > WinData.win.width || _posY > WinData.win.height ) {
+      wLOG "_posX amd/or _posY outside the window" END
+      return false;
+   }
+
+   XWarpPointer(
+      vDisplay_X11,  // Our connection to the X server
+      None,          // Move it from this window (unknown)...
+      vWindow_X11,   // ...to our window
+      0,             // We dont...
+      0,             // ...have any...
+      0,             // ...inforamtion about...
+      0,             // ...the source window!
+      _posX,         // Posx in our window
+      _posY          // Posy in our window
+   );
+
+   return false;
+}
+
+/*!
+ * \brief Get if the mouse is grabbed
+ * \returns if the mouse is grabbed
+ */
+bool eContext::getIsMouseGrabbed() const {
+   return vIsMouseGrabbed_B;
+}
+
+
+/*!
+ * \brief Hides the cursor
+ * \returns true if successfull and false if not
+ */
+bool eContext::hideMouseCursor() {
+   if( vIsCursorHidden_B ) {
+      wLOG "Cursor is already hidden" END
+      return false;
+   }
+   
+   Pixmap   lNoMouseCursorPixmap_X11;
+   Colormap lColorMap_X11;
+   Cursor   lTransparrentCursor_X11;
+   XColor   lBlackColor_X11, lDummyColor_X11;
+   char     lNoRealData_C[] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+   lColorMap_X11 = DefaultColormap( vDisplay_X11, DefaultScreen( vDisplay_X11 ) );
+
+   XAllocNamedColor( vDisplay_X11, lColorMap_X11, "black", &lBlackColor_X11, &lDummyColor_X11 );
+   lNoMouseCursorPixmap_X11 = XCreateBitmapFromData( vDisplay_X11, vWindow_X11, lNoRealData_C, 8, 8 );
+
+   lTransparrentCursor_X11  = XCreatePixmapCursor(
+                                 vDisplay_X11,
+                                 lNoMouseCursorPixmap_X11,
+                                 lNoMouseCursorPixmap_X11,
+                                 &lBlackColor_X11,
+                                 &lBlackColor_X11,
+                                 0,
+                                 0
+                              );
+
+   XDefineCursor( vDisplay_X11, vWindow_X11, lTransparrentCursor_X11 );
+   XFreeCursor( vDisplay_X11, lTransparrentCursor_X11 );
+   if ( lNoMouseCursorPixmap_X11 != None )
+      XFreePixmap( vDisplay_X11, lNoMouseCursorPixmap_X11 );
+   XFreeColors( vDisplay_X11, lColorMap_X11, &lBlackColor_X11.pixel, 1, 0 );
+   
+   vIsCursorHidden_B = true;
+   return true;
+}
+
+/*!
+ * \brief shows the cursor
+ * \returns true if successfull and false if not
+ */
+bool eContext::showMouseCursor() {
+   if ( !vIsCursorHidden_B ) {
+      wLOG "Cursor is already visible" END
+      return false;
+   }
+   
+   XUndefineCursor( vDisplay_X11, vWindow_X11 );
+   vIsCursorHidden_B = false;
+   return true;
+}
+
+/*!
+ * \brief Get if the cursor is hidden
+ * \returns if the cursor is hidden
+ */
+bool eContext::getIsCursorHidden() const {
+   return vIsCursorHidden_B;
+}
+
 
 
 
