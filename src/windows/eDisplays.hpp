@@ -29,34 +29,26 @@ class eRandR_win32;
 class eDisplays : public eDisplayBasic {
    private:
       //! \brief internal structure for storing important mode information.
-      std::vector<DEVMODE>     vModes_V_win32;                 //!< all possible modes
-      DEVMODE                  vCurrentSettings_win32;         //!< The current display settings
-      DEVMODE                  vSelectedDisplaySettings_win32; //!< The selected display settings
-      DISPLAY_DEVICE           vDisplayDevice_win32;           //!< The Winapi display device (stores information about the display)
+      std::vector<DEVMODEW>     vModes_V_win32;                 //!< all possible modes
+      DEVMODEW                  vCurrentSettings_win32;         //!< The current display settings
+      DEVMODEW                  vSelectedDisplaySettings_win32; //!< The selected display settings
+      DISPLAY_DEVICEW           vDisplayDevice_win32;           //!< The Winapi display device (stores information about the display)
 
       eDisplays() {}
-      eDisplays( std::string _name, bool _enabled, bool _isPrimary ) {vEnabled_B = _enabled; vName_str = _name; vIsPrimary_B = _isPrimary;}
+      eDisplays( std::wstring _name, bool _enabled, bool _isPrimary );
 
-      void addMode( DEVMODE _mode ) { vModes_V_win32.push_back( _mode ); }
+      //! \brief Add a new DEVMODEW to the internal mode list
+      void addMode( DEVMODEW _mode ) { vModes_V_win32.push_back( _mode ); }
 
-      bool   getIsEnabled() const { return vEnabled_B; }
+      double findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, DEVMODEW &_mode, double &_diff ) const;
 
-      double findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, DEVMODE &_mode, double &_diff ) const;
-
-      void   setPrimary() { vIsPrimary_B = true; }
-      void   setCurrentSettings( DEVMODE _current ) { vSelectedDisplaySettings_win32 = vCurrentSettings_win32 = _current; }
-      void   setDisplayDevice( DISPLAY_DEVICE _device ) {vDisplayDevice_win32 = _device;}
-      void   getSelectedDevmodeOptions(
-         DWORD &_width,
-         DWORD &_height,
-         DWORD &_rate,
-         DWORD &_bitsPerPel,
-         LONG  &_posX,
-         LONG  &_posY,
-         DWORD &_fields
-      ) const;
-      DEVMODE getSelectedDevmode() const;
-      DISPLAY_DEVICE getDisplayDevice() const {return vDisplayDevice_win32;}
+      //! \brief Sets the current settings (DEVMODEW)
+      void   setCurrentSettings( DEVMODEW _current ) { vSelectedDisplaySettings_win32 = vCurrentSettings_win32 = _current; }
+      //! \brief Set the display device (needed for the disply ID)
+      void   setDisplayDevice( DISPLAY_DEVICEW _device ) {vDisplayDevice_win32 = _device;}
+      DEVMODEW getSelectedDevmode() const;
+      //! \brief Get the display device (needed for the disply ID)
+      DISPLAY_DEVICEW getDisplayDevice() const {return vDisplayDevice_win32;}
       
       int getMaxBitsPerPelFromResolutionAndFreq( unsigned int _width, unsigned int _height, double _rate ) const;
 

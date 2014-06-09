@@ -57,7 +57,7 @@ int main( int argc, char **argv ) {
    WinData.log.logERR.Time     = LEFT_REDUCED;
    WinData.log.logERR.File     = RIGHT_FULL;
    WinData.log.logFILE.File    = RIGHT_FULL;
-   WinData.win.restoreOldScreenRes = false;
+   WinData.win.restoreOldScreenRes = true;
    
    WinData.versions.glMajorVersion = 4;
    WinData.versions.glMinorVersion = 6;
