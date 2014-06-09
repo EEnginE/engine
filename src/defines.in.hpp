@@ -197,6 +197,8 @@ enum E_BUTTON {
          E_MOUSE_5,
          E_MOUSE_6,
          E_MOUSE_MOVE,
+         E_MOUSE_LEAVE,
+         E_MOUSE_ENTER,
          E_MOUSE_UNKNOWN
       };
 
