@@ -28,6 +28,8 @@ class eKeyboard : public eKeyboardBasic {
    public:
       eKeyboard() {}
       virtual ~eKeyboard() {}
+      
+      unsigned short int getKeyState(wchar_t _key);
 
       
 

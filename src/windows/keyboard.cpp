@@ -10,6 +10,15 @@ namespace e_engine {
 
 namespace windows_win32 {
 
+short unsigned int eKeyboard::getKeyState( wchar_t _key ) {
+
+   if ( _key > E_KEY_BACKSPACE && _key < _E_KEY_LAST ) 
+      return getKeyStateArray( _key );
+
+   return GetKeyState( _key );
+}
+
+
 wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _key_state ) {
 
    wchar_t _charToCheck = ( wchar_t ) _wparam; //Convert _wparam to a wide char
