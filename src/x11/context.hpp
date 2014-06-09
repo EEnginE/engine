@@ -108,10 +108,11 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       GLXContext           vOpenGLContext_GLX;        //!< The context handle
       GLXFBConfig          *vFBConfig_GLX;            //!< The framebuffer handle
       int                  vNumOfFBConfigs_I;         //!< Number of found matching framebuffer configs
+      long int             vEventMask_lI;             //!< The X11 event mask (needed to recieve events)
 
       glXCreateContextAttribsARBProc glXCreateContextAttribsARB; //! The context creation function pointer
 
-      int    vBestFBConfig_I;
+      int    vBestFBConfig_I;       //!< The Integer ID of the best FB config we have found
 
       bool   vWindowHasBorder_B;
 
@@ -125,6 +126,8 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       int    vGLXVersionMinor_I;
       int    vX11VersionMajor_I;
       int    vX11VersionMinor_I;
+      
+      bool   vIsMouseGrabbed_B;
 
       bool   isExtensionSupported( const char *_extension ); //!< Function checking if extension is supported
 
@@ -146,19 +149,7 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       bool vWindowRecreate_B;
 
    public:
-      eContext() {
-         vNumOfFBConfigs_I      = 0;
-         vDisplay_X11           = NULL;
-         vWindow_X11            = 0;
-         vWindowHasBorder_B     = true;
-         vHaveContext_B         = false;
-         vDisplayCreated_B      = false;
-         vWindowCreated_B       = false;
-         vColorMapCreated_B     = false;
-         vWindowRecreate_B      = false;
-         
-         XInitThreads();
-      }
+      eContext();
       virtual ~eContext() {destroyContext();}
 
       int createContext();
@@ -194,6 +185,9 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       int  setFullScreenMonitor( eDisplays _disp );
       bool maximize( ACTION _action );
       bool setDecoration( ACTION _action );
+      
+      bool grabMouse();
+      bool freeMouse();
 };
 
 

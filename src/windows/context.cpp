@@ -13,6 +13,7 @@
 
 #include <windows.h>
 #include "context.hpp"
+#include "log.hpp"
 
 namespace {
 
