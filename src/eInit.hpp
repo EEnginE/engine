@@ -36,6 +36,7 @@
 #include "windows/context.hpp"
 #endif
 
+#include "log.hpp"
 #include <boost/thread.hpp>
 
 
@@ -136,6 +137,11 @@ class eInit : public windows_win32::eContext {
 
       //! The standard Mouse function
       GLvoid s_standardMouse( eWinInfo _info ) {}
+      
+      //! The standard Mouse function
+      GLvoid s_standardFocus( eWinInfo _info ) {
+         iLOG "Focus " ADD _info.eFocus.hasFocus ? "got" : "lost" END
+      }
       
    public:
       eInit();
