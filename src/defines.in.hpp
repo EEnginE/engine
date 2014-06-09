@@ -98,8 +98,6 @@ enum ACTION {
 #define E_KEY_SPACE        32
 #define E_KEY_SPECIAL      256
 
-#define E_MOUSE_BUTTON     0
-
 #define E_KEY_BACKSPACE    ( E_KEY_SPECIAL + 1 )
 #define E_KEY_TAB          ( E_KEY_SPECIAL + 2 )
 #define E_KEY_CLEAR        ( E_KEY_SPECIAL + 3 )

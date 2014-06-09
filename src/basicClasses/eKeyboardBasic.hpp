@@ -27,20 +27,22 @@ class eKeyboardBasic {
          if ( _key < 0 ) {_state = E_UNKNOWN; return;}
          key_state[( unsigned int )_key] = _state;
       }
-
-   public:
-      eKeyboardBasic();
-      virtual ~eKeyboardBasic() {}
-
+      
       /*!
        * \brief Get the key state
        * \param _key The key
        * \returns The key state
        */
-      unsigned short int getKeyState( wchar_t _key ) {
+      unsigned short int getKeyStateArray( wchar_t _key ) {
          if ( _key < 0 || _key > _E_KEY_LAST ) {return E_UNKNOWN;}
          return key_state[( unsigned int )_key];
       }
+
+   public:
+      eKeyboardBasic();
+      virtual ~eKeyboardBasic() {}
+
+      
 };
 
 }
