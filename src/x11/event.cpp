@@ -184,17 +184,42 @@ int eInit::eventLoop() {
                   eWinInfo tempInfo( this );
 
                   tempInfo.eMouse.button = E_MOUSE_MOVE;
-                  tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
-                  tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
+                  WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
+                  WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
                   tempInfo.eMouse.state  = E_PRESSED;
+                  
+                  WinData.win.mouseIsInWindow = true;
 
                   vMouse_SIG.sendSignal( tempInfo );
                }
                break;
-               break;
 
-            case EnterNotify:
-            case LeaveNotify:
+            case EnterNotify: {
+                  eWinInfo tempInfo( this );
+
+                  tempInfo.eMouse.button = E_MOUSE_ENTER;
+                  WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
+                  WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
+                  tempInfo.eMouse.state  = E_PRESSED;
+                  
+                  WinData.win.mouseIsInWindow = true;
+
+                  vMouse_SIG.sendSignal( tempInfo );
+               }
+               break;
+               
+            case LeaveNotify: {
+                  eWinInfo tempInfo( this );
+
+                  tempInfo.eMouse.button = E_MOUSE_LEAVE;
+                  WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
+                  WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
+                  tempInfo.eMouse.state  = E_PRESSED;
+                  
+                  WinData.win.mouseIsInWindow = false;
+
+                  vMouse_SIG.sendSignal( tempInfo );
+               }
                break;
 
 

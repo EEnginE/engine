@@ -101,6 +101,11 @@ void _eWindowData::__eWindowData_Window::reset() {
    minHeight                 = 50;
    posX                      = 0;
    posY                      = 0;
+   
+   mousePosX                 = 0;
+   mousePosY                 = 0;
+   
+   mouseIsInWindow           = false;
 
    fullscreen                = false;
    VSync                     = true;
