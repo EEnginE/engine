@@ -124,22 +124,28 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
    switch ( _uMsg ) {
       case WM_SIZE://Window size was changed
          iLOG "Resized " END
-         _tempInfo.eResize.width = _lParam & 0xFFFF; // Get the low order word as a width
-         _tempInfo.eResize.height = _lParam >> 16; // Get the high order word as a height
+         _tempInfo.eResize.width  = WinData.win.width  = _lParam & 0xFFFF; // Get the low order word as a width
+         _tempInfo.eResize.height = WinData.win.height = _lParam >> 16; // Get the high order word as a height
+         _tempInfo.eResize.posX   = WinData.win.posX; 
+         _tempInfo.eResize.posY   = WinData.win.posY;
          vResize_SIG.sendSignal( _tempInfo );
          iLOG "The window was resized to width " ADD _tempInfo.eResize.width ADD " and height " ADD _tempInfo.eResize.height END
          return 0;
       case WM_MOVE://Window was moved
-         _tempInfo.eResize.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
-         _tempInfo.eResize.posY = _lParam >> 16; // Get the high order word as the y-Position
+         _tempInfo.eResize.posX   = WinData.win.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
+         _tempInfo.eResize.posY   = WinData.win.posY = _lParam >> 16; // Get the high order word as the y-Position
+         _tempInfo.eResize.width  = WinData.win.width; 
+         _tempInfo.eResize.height = WinData.win.height;
          iLOG "The window was moved to x" ADD _tempInfo.eResize.posX ADD " and y" ADD _tempInfo.eResize.posY END
          vResize_SIG.sendSignal( _tempInfo );
          return 0;
+         
       case WM_MOUSEMOVE: //Mouse moved, see http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
-         _tempInfo.eMouse.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
-         _tempInfo.eMouse.posY = _lParam >> 16; // Get the high order word as the y-Position
-         //_tempInfo.eMouse.state =
-
+         _tempInfo.eMouse.posX   = WinData.win.mousePosX = _lParam & 0xFFFF; // Get the low order word as the x-Position
+         _tempInfo.eMouse.posY   = WinData.win.mousePosY = _lParam >> 16; // Get the high order word as the y-Position
+         _tempInfo.eMouse.button = E_MOUSE_MOVE;  
+         _tempInfo.eMouse.state  = E_PRESSED;
+          
          iLOG "The mouse was moved to x" ADD _tempInfo.eMouse.posX ADD " and y" ADD _tempInfo.eMouse.posY END
 
          //!\todo Check if the coords are right, see the article above
@@ -158,6 +164,8 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_LBUTTONUP:
          key_state = E_RELEASED;
       case WM_LBUTTONDOWN:
+         _tempInfo.eMouse.posX   = WinData.win.mousePosX;
+         _tempInfo.eMouse.posY   = WinData.win.mousePosY;
          _tempInfo.eMouse.state  = key_state;
          _tempInfo.eMouse.button = E_MOUSE_LEFT;
          
@@ -168,6 +176,8 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_MBUTTONUP:
          key_state = E_RELEASED;
       case WM_MBUTTONDOWN:
+         _tempInfo.eMouse.posX   = WinData.win.mousePosX;
+         _tempInfo.eMouse.posY   = WinData.win.mousePosY;
          _tempInfo.eMouse.state  = key_state;
          _tempInfo.eMouse.button = E_MOUSE_MIDDLE;
          vMouse_SIG.sendSignal( _tempInfo );
@@ -176,6 +186,8 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_RBUTTONUP:
          key_state = E_RELEASED;
       case WM_RBUTTONDOWN:
+         _tempInfo.eMouse.posX   = WinData.win.mousePosX;
+         _tempInfo.eMouse.posY   = WinData.win.mousePosY;
          _tempInfo.eMouse.state  = key_state;
          _tempInfo.eMouse.button = E_MOUSE_RIGHT;
          vMouse_SIG.sendSignal( _tempInfo );
@@ -184,6 +196,8 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_XBUTTONUP:
          key_state = E_RELEASED;
       case WM_XBUTTONDOWN:
+         _tempInfo.eMouse.posX   = WinData.win.mousePosX;
+         _tempInfo.eMouse.posY   = WinData.win.mousePosY;
          _tempInfo.eMouse.state  = key_state;
          switch ( _wParam >> 16 ) {
             case XBUTTON1:

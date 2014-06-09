@@ -152,6 +152,9 @@ struct _eWindowData {
       unsigned int minHeight; //!< The min height of the window                       \c CLASSES: \a eInit, \a eContext
       int          posX;      //!< The posX   ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
       int          posY;      //!< The posY   ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
+      
+      int          mousePosX;      //!< The mouse posX   ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
+      int          mousePosY;      //!< The mouse posY   ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
 
       bool         fullscreen;       //!< Fullscreen?          ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
       bool         VSync;            //!< VSync?               ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit

@@ -238,7 +238,7 @@ bool eContext::setWindowState( UINT _flags, HWND _pos ) {
  * \param[in] _type2  The second thing to change (Default: NONE)
  *
  * \returns \c Success: \a true -- <c>Failed / not supported:</c> \a false
- * 
+ *
  * \warning Only C_ADD supported; C_REMOVE and C_TOGGLE are treated as C_ADD
  *
  * \sa e_engine::ACTION, e_engine::WINDOW_ATTRIBUTE
@@ -461,16 +461,120 @@ int eContext::fullScreen( ACTION _action, bool _allMonitors ) {
    return 1;
 }
 
-bool eContext::freeMouse() {
-return true;
-}
 
+
+/*!
+ * \brief Grabs the mouse pointer (and the keyboard)
+ *
+ * \note You can only grab the mouse if it is not already grabbed by this window
+ *
+ * \returns true if successful and false if not
+ */
 bool eContext::grabMouse() {
-return true;
+   if ( vIsMouseGrabbed_B ) {
+      wLOG "Mouse is already grabbed" END
+      return false;
+   }
+   SetCapture( vHWND_Window_win32 );
+   vIsMouseGrabbed_B = true;
+   return true;
+}
+
+bool eContext::freeMouse() {
+   if ( !vIsMouseGrabbed_B ) {
+      wLOG "Mouse is not grabbed" END
+      return false;
+   }
+   int result = ReleaseCapture();
+   if ( result == 0 ) {
+      wLOG "Error while freeing mouse: " ADD GetLastError() END
+      return false;
+   }
+   vIsMouseGrabbed_B = false;
+   return true;
 }
 
 
+/*!
+ * \brief Get if the mouse is grabbed
+ * \returns if the mouse is grabbed
+ */
+bool eContext::getIsMouseGrabbed() const {
+   return vIsMouseGrabbed_B;
+}
 
+/*!
+ * \brief Sets the mouse position
+ *
+ * \param[in] _posX The x coordinate in our window
+ * \param[in] _posY The y coordinate in our window
+ *
+ * \note _posX and _posY must be inside our window
+ *
+ * \returns true if successful and false if not
+ */
+bool eContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
+   if ( _posX > WinData.win.width || _posY > WinData.win.height ) {
+      wLOG "_posX and/or _posY outside the window" END
+      return false;
+   }
+   
+   int result = SetCursorPos(WinData.win.posX + _posY, WinData.win.posY + _posY);
+   
+   if ( result == 0 ) {
+      wLOG "Error while setting mouse position: " ADD GetLastError() END
+      return false;
+   }
+
+   return false;
+}
+
+
+/*!
+ * \brief Hides the cursor
+ * \returns true if successful and false if not
+ */
+bool eContext::hideMouseCursor() {
+   if( vIsCursorHidden_B ) {
+      wLOG "Cursor is already hidden" END
+      return false;
+   }
+   
+   int showValue = ShowCursor(false);
+   while(showValue > -1) {
+    showValue = ShowCursor(false);  
+   }
+   
+   vIsCursorHidden_B = true;
+   return true;
+}
+
+/*!
+ * \brief Shows the cursor
+ * \returns true if successful and false if not
+ */
+bool eContext::showMouseCursor() {
+   if ( !vIsCursorHidden_B ) {
+      wLOG "Cursor is already visible" END
+      return false;
+   }
+   
+   int showValue = ShowCursor(true);
+   while(showValue < 0) {
+    showValue = ShowCursor(true);  
+   }
+   
+   vIsCursorHidden_B = false;
+   return true;
+}
+
+/*!
+ * \brief Get if the cursor is hidden
+ * \returns true if the cursor is hidden
+ */
+bool eContext::getIsCursorHidden() const {
+   return vIsCursorHidden_B;
+}
 
 
 

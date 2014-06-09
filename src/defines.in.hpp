@@ -194,7 +194,8 @@ enum E_BUTTON {
          E_MOUSE_3,
          E_MOUSE_4,
          E_MOUSE_5,
-         E_MOUSE_6
+         E_MOUSE_6,
+         E_MOUSE_MOVE
       };
 
 
