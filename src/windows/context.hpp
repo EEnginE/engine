@@ -43,6 +43,10 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
 
       bool                  vHasContext_B;
       bool                  vHasGLEW_B;
+      
+      
+      bool                  vIsMouseGrabbed_B;
+      bool                  vIsCursorHidden_B;
 
       bool                  vAThreadOwnsTheOpenGLContext_B;
 

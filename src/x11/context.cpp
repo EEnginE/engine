@@ -658,11 +658,11 @@ bool eContext::makeNOContextCurrent()  {
 }
 
 /*!
- * \brief Grabs the mous pointer (and the keyboard)
+ * \brief Grabs the mouse pointer (and the keyboard)
  *
- * \note You can only grab the mouse if she is ungrabbed
+ * \note You can only grab the mouse if the mouse is ungrabbed
  *
- * \returns true if successfull and false if not
+ * \returns true if successful and false if not
  */
 bool eContext::grabMouse() {
    if ( vIsMouseGrabbed_B ) {
@@ -693,11 +693,11 @@ bool eContext::grabMouse() {
 
 
 /*!
- * \brief Ungrabs the mous pointer (and the keyboard)
+ * \brief Ungrabs the mouse pointer (and the keyboard)
  *
- * \note You can only ungrab the mouse if she is grabbed
+ * \note You can only ungrab the mouse if it is grabbed
  *
- * \returns true if successfull and false if not
+ * \returns true if successful and false if not
  */
 bool eContext::freeMouse() {
    if ( !vIsMouseGrabbed_B ) {
@@ -722,24 +722,24 @@ bool eContext::freeMouse() {
  *
  * \note _posX and _posY must be inside our window
  *
- * \returns true if successfull and false if not
+ * \returns true if successful and false if not
  */
 bool eContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
    if ( _posX > WinData.win.width || _posY > WinData.win.height ) {
-      wLOG "_posX amd/or _posY outside the window" END
+      wLOG "_posX and/or _posY outside the window" END
       return false;
    }
 
    XWarpPointer(
       vDisplay_X11,  // Our connection to the X server
       None,          // Move it from this window (unknown)...
-      vWindow_X11,   // ...to our window
+      vWindow_X11,   // ...to the window
       0,             // We dont...
       0,             // ...have any...
-      0,             // ...inforamtion about...
+      0,             // ...information about...
       0,             // ...the source window!
-      _posX,         // Posx in our window
-      _posY          // Posy in our window
+      _posX,         // Posx in the window
+      _posY          // Posy in the window
    );
 
    return false;
@@ -756,7 +756,7 @@ bool eContext::getIsMouseGrabbed() const {
 
 /*!
  * \brief Hides the cursor
- * \returns true if successfull and false if not
+ * \returns true if successful and false if not
  */
 bool eContext::hideMouseCursor() {
    if( vIsCursorHidden_B ) {
@@ -796,8 +796,8 @@ bool eContext::hideMouseCursor() {
 }
 
 /*!
- * \brief shows the cursor
- * \returns true if successfull and false if not
+ * \brief Shows the cursor
+ * \returns true if successful and false if not
  */
 bool eContext::showMouseCursor() {
    if ( !vIsCursorHidden_B ) {
@@ -812,7 +812,7 @@ bool eContext::showMouseCursor() {
 
 /*!
  * \brief Get if the cursor is hidden
- * \returns if the cursor is hidden
+ * \returns true if the cursor is hidden
  */
 bool eContext::getIsCursorHidden() const {
    return vIsCursorHidden_B;
