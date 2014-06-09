@@ -123,8 +123,8 @@ int eInit::eventLoop() {
       while ( XPending( getDisplay() ) > 0 && getHaveContext() ) {
 
          XNextEvent( getDisplay(), &lEvent_X11 );
-         lKeyState_uI    = E_KEY_PRESSED;
-         lButtonState_uI = E_KEY_PRESSED;
+         lKeyState_uI    = E_PRESSED;
+         lButtonState_uI = E_PRESSED;
          char lEvent_CSTR[6];
          snprintf( lEvent_CSTR, 5, "%04X", lEvent_X11.type );
          switch ( lEvent_X11.type ) {
@@ -143,25 +143,7 @@ int eInit::eventLoop() {
                }
                break;
 
-<<<<<<< HEAD
-            case KeyRelease:
-               key_state = E_RELEASED;
-               if ( XEventsQueued( getDisplay(), QueuedAfterReading ) ) {
-                  XEvent lNextEvent_X11;
-                  XPeekEvent( getDisplay(), &lNextEvent_X11 );
-
-                  if (
-                     lNextEvent_X11.type == KeyPress &&
-//                      lNextEvent_X11.xkey.time == e.xkey.time &&
-                     lNextEvent_X11.xkey.keycode == e.xkey.keycode
-                  ) {
-                     // Key wasnt released (autorepeat)
-                     break;
-                  }
-               }
-=======
-            case KeyRelease: lKeyState_uI = E_KEY_RELEASED;
->>>>>>> c8402331fffaf4fb7f923da4616cb900ca303954
+            case KeyRelease: lKeyState_uI = E_RELEASED;
             case KeyPress: {
                   eWinInfo tempInfo( this );
                   tempInfo.eKey.state = lKeyState_uI;
@@ -170,7 +152,7 @@ int eInit::eventLoop() {
                }
                break;
                
-            case ButtonRelease: lButtonState_uI = E_KEY_RELEASED;
+            case ButtonRelease: lButtonState_uI = E_RELEASED;
             case ButtonPress:
                break;
 
