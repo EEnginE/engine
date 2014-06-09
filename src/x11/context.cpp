@@ -79,7 +79,8 @@ eContext::eContext() {
    vIsMouseGrabbed_B      = false;
    vEventMask_lI          = KeyPressMask           | KeyReleaseMask       | ButtonPressMask     | ButtonReleaseMask   |
                             PointerMotionMask      | ButtonMotionMask     | ExposureMask        | StructureNotifyMask |
-                            SubstructureNotifyMask | VisibilityChangeMask | EnterWindowMask     | LeaveWindowMask;
+                            SubstructureNotifyMask | VisibilityChangeMask | EnterWindowMask     | LeaveWindowMask     |
+                            FocusChangeMask;
 
    XInitThreads();
 }
