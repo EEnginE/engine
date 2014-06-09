@@ -187,7 +187,7 @@ int eInit::eventLoop() {
                   WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
                   WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
                   tempInfo.eMouse.state  = E_PRESSED;
-                  
+
                   WinData.win.mouseIsInWindow = true;
 
                   vMouse_SIG.sendSignal( tempInfo );
@@ -201,13 +201,13 @@ int eInit::eventLoop() {
                   WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
                   WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
                   tempInfo.eMouse.state  = E_PRESSED;
-                  
+
                   WinData.win.mouseIsInWindow = true;
 
                   vMouse_SIG.sendSignal( tempInfo );
                }
                break;
-               
+
             case LeaveNotify: {
                   eWinInfo tempInfo( this );
 
@@ -215,10 +215,24 @@ int eInit::eventLoop() {
                   WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
                   WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
                   tempInfo.eMouse.state  = E_PRESSED;
-                  
+
                   WinData.win.mouseIsInWindow = false;
 
                   vMouse_SIG.sendSignal( tempInfo );
+               }
+               break;
+
+            case FocusIn: {
+                  eWinInfo tempInfo( this );
+                  WinData.win.windowHasFocus = tempInfo.eFocus.hasFocus = true;
+                  vFocus_SIG.sendSignal( tempInfo );
+               }
+               break;
+
+            case FocusOut: {
+                  eWinInfo tempInfo( this );
+                  WinData.win.windowHasFocus = tempInfo.eFocus.hasFocus = false;
+                  vFocus_SIG.sendSignal( tempInfo );
                }
                break;
 
