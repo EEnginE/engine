@@ -151,15 +151,48 @@ int eInit::eventLoop() {
                   vKey_SIG.sendSignal( tempInfo );
                }
                break;
-               
+
             case ButtonRelease: lButtonState_uI = E_RELEASED;
-            case ButtonPress:
+            case ButtonPress: {
+                  eWinInfo tempInfo( this );
+                  tempInfo.eMouse.state = lButtonState_uI;
+                  tempInfo.eMouse.posX  = lEvent_X11.xbutton.x;
+                  tempInfo.eMouse.posY  = lEvent_X11.xbutton.y;
+
+                  switch ( lEvent_X11.xbutton.button ) {
+                     case Button1: tempInfo.eMouse.button = E_MOUSE_LEFT;       break;
+                     case Button2: tempInfo.eMouse.button = E_MOUSE_MIDDLE;     break;
+                     case Button3: tempInfo.eMouse.button = E_MOUSE_RIGHT;      break;
+                     case Button4: tempInfo.eMouse.button = E_MOUSE_WHEEL_UP;   break;
+                     case Button5: tempInfo.eMouse.button = E_MOUSE_WHEEL_DOWN; break;
+                     case 6:       tempInfo.eMouse.button = E_MOUSE_1;          break;
+                     case 7:       tempInfo.eMouse.button = E_MOUSE_2;          break;
+                     case 8:       tempInfo.eMouse.button = E_MOUSE_3;          break;
+                     case 9:       tempInfo.eMouse.button = E_MOUSE_4;          break;
+                     case 10:      tempInfo.eMouse.button = E_MOUSE_5;          break;
+                     default:
+                        tempInfo.eMouse.button = E_MOUSE_UNKNOWN;
+                        wLOG "Unknown mouse button: " ADD lEvent_X11.xbutton.button END
+                  }
+
+                  vMouse_SIG.sendSignal( tempInfo );
+               }
                break;
 
 
-            case MotionNotify:
+            case MotionNotify: {
+                  eWinInfo tempInfo( this );
+
+                  tempInfo.eMouse.button = E_MOUSE_MOVE;
+                  tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
+                  tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
+                  tempInfo.eMouse.state  = E_PRESSED;
+
+                  vMouse_SIG.sendSignal( tempInfo );
+               }
                break;
-               
+               break;
+
             case EnterNotify:
             case LeaveNotify:
                break;
