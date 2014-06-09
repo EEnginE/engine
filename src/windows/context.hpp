@@ -15,7 +15,6 @@
 #include "eInitEventBasic.hpp"
 #include "keyboard.hpp"
 #include "eRandR_win32.hpp"
-#include "log.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -63,13 +62,7 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       eContext();
       virtual ~eContext() {if ( vHasContext_B ) destroyContext();}
 
-      inline void swapBuffers() {
-         if( wglGetCurrentContext() == NULL ) {
-            wLOG "No OpenGL context current!" END
-            return;
-         }
-         SwapBuffers( vHDC_win32 );
-      }
+      inline void swapBuffers() {SwapBuffers( vHDC_win32 );}
 
       int  createContext();
 
@@ -89,6 +82,9 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       bool setDecoration( ACTION _action );
       int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
       bool fullScreenMultiMonitor() {return false;}
+      
+      bool grabMouse(); //!< \todo Add implementation
+      bool freeMouse(); //!< \todo Add implementation
 };
 
 /*!

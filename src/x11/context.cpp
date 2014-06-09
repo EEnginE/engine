@@ -66,6 +66,26 @@ bool eContext::isExtensionSupported( const char *_extension ) {
    return false;
 }
 
+eContext::eContext() {
+   vNumOfFBConfigs_I      = 0;
+   vDisplay_X11           = NULL;
+   vWindow_X11            = 0;
+   vWindowHasBorder_B     = true;
+   vHaveContext_B         = false;
+   vDisplayCreated_B      = false;
+   vWindowCreated_B       = false;
+   vColorMapCreated_B     = false;
+   vWindowRecreate_B      = false;
+   vIsMouseGrabbed_B      = false;
+   vEventMask_lI          = KeyPressMask           | KeyReleaseMask       | ButtonPressMask     | ButtonReleaseMask   |
+                            PointerMotionMask      | ButtonMotionMask     | ExposureMask        | StructureNotifyMask |
+                            SubstructureNotifyMask | VisibilityChangeMask | EnterWindowMask     | LeaveWindowMask;
+
+   XInitThreads();
+}
+
+
+
 /*!
  * \brief Creates the window and the OpenGL context
  *
@@ -143,11 +163,11 @@ int eContext::createContext() {
    POINT "GLEW:   " ADD 'B', 'C', glewGetString( GLEW_VERSION )
    POINT "RandR:  " ADD 'B', 'C', lRandRVersionString_str
    END
-   
+
    if ( WinData.win.fullscreen == true ) {
       fullScreen( C_ADD );
    }
-   
+
    if ( WinData.win.windowDecoration == true ) {
       setDecoration( C_ADD );
    } else {
@@ -636,6 +656,65 @@ bool eContext::makeNOContextCurrent()  {
    }
    return glXMakeCurrent( vDisplay_X11, 0, 0 ) == True ? true : false;
 }
+
+/*!
+ * \brief Grabs the mous pointer (and the keyboard)
+ * 
+ * \note You can only grab the mouse if she is ungrabbed
+ * 
+ * \returns true if successfull and false if not 
+ */
+bool eContext::grabMouse() {
+   if( vIsMouseGrabbed_B ) {
+      wLOG "Mouse is already grabbed" END
+      return false;
+   }
+   
+   int lReturn_I =
+      XGrabPointer(
+         vDisplay_X11,
+         vWindow_X11,
+         False,
+         0,
+         GrabModeAsync,
+         GrabModeAsync,
+         vWindow_X11,
+         None,
+         CurrentTime
+      );
+
+   if ( lReturn_I != GrabSuccess ) {
+      wLOG "Failed to grab the mouse" END
+      return false;
+   }
+   vIsMouseGrabbed_B = true;
+   return true;
+}
+
+
+/*!
+ * \brief Ungrabs the mous pointer (and the keyboard)
+ * 
+ * \note You can only ungrab the mouse if she is grabbed
+ * 
+ * \returns true if successfull and false if not 
+ */
+bool eContext::freeMouse() {
+   if( !vIsMouseGrabbed_B ) {
+      wLOG "Mouse is not grabbed" END
+      return false;
+   }
+      
+   
+   if ( XUngrabPointer( vDisplay_X11, CurrentTime ) == 0 ) {
+      wLOG "Failed to ungrab the mouse" END
+      return false;
+   }
+   vIsMouseGrabbed_B = false;
+   return true;
+}
+
+
 
 
 } // unix_x11

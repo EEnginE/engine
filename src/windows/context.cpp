@@ -13,6 +13,7 @@
 
 #include <windows.h>
 #include "context.hpp"
+#include "log.hpp"
 
 namespace {
 
@@ -459,6 +460,15 @@ int eContext::fullScreen( ACTION _action, bool _allMonitors ) {
 
    return 1;
 }
+
+bool eContext::freeMouse() {
+return true;
+}
+
+bool eContext::grabMouse() {
+return true;
+}
+
 
 
 

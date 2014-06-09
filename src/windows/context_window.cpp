@@ -13,6 +13,7 @@
 
 
 #include "context.hpp"
+#include "log.hpp"
 
 namespace e_engine {
 

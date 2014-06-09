@@ -32,7 +32,6 @@
 #include "x11/context.hpp"
 
 #elif WINDOWS
-#include <GL/glew.h>
 #include "windows/context.hpp"
 #endif
 
