@@ -128,6 +128,7 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       int    vX11VersionMinor_I;
       
       bool   vIsMouseGrabbed_B;
+      bool   vIsCursorHidden_B;
 
       bool   isExtensionSupported( const char *_extension ); //!< Function checking if extension is supported
 
@@ -188,6 +189,13 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       
       bool grabMouse();
       bool freeMouse();
+      bool getIsMouseGrabbed() const;
+      
+      bool moveMouse( unsigned int _posX, unsigned int _posY );
+      
+      bool hideMouseCursor();
+      bool showMouseCursor();
+      bool getIsCursorHidden() const;
 };
 
 

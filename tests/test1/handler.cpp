@@ -71,6 +71,9 @@ void MyHandler::key( eWinInfo info ) {
          case L'q':
          case L'g': info.eInitPointer->grabMouse(); break;
          case L'G': info.eInitPointer->freeMouse(); break;
+         case L'w': info.eInitPointer->moveMouse( WinData.win.width / 2, WinData.win.height / 2 ); break;
+         case L'c': info.eInitPointer->hideMouseCursor(); break;
+         case L'C': info.eInitPointer->showMouseCursor(); break;
          case L'Q':
          case E_KEY_ESCAPE:      info.eInitPointer->closeWindow(); break;
          case L'u':
