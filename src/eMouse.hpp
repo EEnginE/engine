@@ -13,7 +13,7 @@ namespace e_engine {
 
 class eMouse {
    private:
-      unsigned short int button_state[E_MOUSE_6 + 1];
+      unsigned short int button_state[E_MOUSE_UNKNOWN];
 
    protected:
 
@@ -38,7 +38,7 @@ class eMouse {
        * \returns The mouse button state
        */
       unsigned short int getMousebuttonState( wchar_t _button ) {
-         if ( _button < 0 || _button > E_MOUSE_6 ) {return E_UNKNOWN;}
+         if ( _button < 0 || _button > E_MOUSE_UNKNOWN ) {return E_UNKNOWN;}
          return button_state[( unsigned int )_button];
       }
 };

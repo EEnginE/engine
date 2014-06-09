@@ -30,6 +30,7 @@
 #if UNIX_X11
 #include <GL/glxew.h>
 #include "x11/context.hpp"
+#include "eMouse.hpp"
 
 #elif WINDOWS
 #include "windows/context.hpp"
@@ -60,7 +61,7 @@ typedef GLvoid( *RENDER_FUNC )( eWinInfo info );
  * \sa eContext eWindowData e_eInit.cpp e_event.cpp
  */
 #if UNIX_X11
-class eInit : public unix_x11::eContext {
+class eInit : public unix_x11::eContext, public eMouse {
 #elif WINDOWS
 class eInit : public windows_win32::eContext {
 #endif
