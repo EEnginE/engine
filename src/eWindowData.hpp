@@ -157,6 +157,7 @@ struct _eWindowData {
       unsigned int mousePosY; //!< The mouse posY   ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
       
       bool         mouseIsInWindow; //!< Is the mouse in the window? ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
+      bool         windowHasFocus;  //!< Has our window the focus?   ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
       
       
 
@@ -339,31 +340,32 @@ struct eWinInfo {
       int       state;
       E_BUTTON button;
    } eMouse;
+   
+   struct _eFocus {
+      bool hasFocus;
+   } eFocus ;
+   
+   void reset() {
+      type            = 0;
+      eResize.posX    = 0;
+      eResize.posY    = 0;
+      eResize.height  = 0;
+      eResize.width   = 0;
+      eKey.state      = 0;
+      eKey.key        = 0;
+      eMouse.posX     = 0;
+      eMouse.posY     = 0;
+      eMouse.state    = 0;
+      eFocus.hasFocus = false;
+   }
+   
    eWinInfo() {
-      type = 0;
       eInitPointer = NULL;
-      eResize.posX = 0;
-      eResize.posY = 0;
-      eResize.height = 0;
-      eResize.width = 0;
-      eKey.state = 0;
-      eKey.key = 0;
-      eMouse.posX = 0;
-      eMouse.posY = 0;
-      eMouse.state = 0;
+      reset();
    }
    eWinInfo( eInit *_ptr ) {
-      type = 0;
       eInitPointer = _ptr;
-      eResize.posX = 0;
-      eResize.posY = 0;
-      eResize.height = 0;
-      eResize.width = 0;
-      eKey.state = 0;
-      eKey.key = 0;
-      eMouse.posX = 0;
-      eMouse.posY = 0;
-      eMouse.state = 0;
+      reset();
    }
 };
 

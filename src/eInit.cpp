@@ -45,11 +45,13 @@ eInit::eInit() {
    vResize_SLOT.setFunc( &eInit::s_standardResize, this );
    vKey_SLOT.setFunc( &eInit::s_standardKey, this );
    vMouse_SLOT.setFunc( &eInit::s_standardMouse, this );
+   vFocus_SLOT.setFunc( &eInit::s_standardFocus, this );
 
    addWindowCloseSlot( &vWindowClose_SLOT );
    addResizeSlot( &vResize_SLOT );
    addKeySlot( &vKey_SLOT );
    addMouseSlot( &vMouse_SLOT );
+   addFocusSlot( &vFocus_SLOT );
 
    vMainLoopRunning_B    = false;
    vBoolCloseWindow_B    = false;

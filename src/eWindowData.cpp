@@ -106,6 +106,7 @@ void _eWindowData::__eWindowData_Window::reset() {
    mousePosY                 = 0;
    
    mouseIsInWindow           = false;
+   windowHasFocus            = true;
 
    fullscreen                = false;
    VSync                     = true;

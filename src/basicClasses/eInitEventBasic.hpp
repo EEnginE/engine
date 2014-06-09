@@ -26,11 +26,13 @@ class eInitEventBasic {
       _SIGNAL_ vResize_SIG;          //!< The signal for Resize
       _SIGNAL_ vKey_SIG;             //!< The signal for Key
       _SIGNAL_ vMouse_SIG;           //!< The signal for Mouse
+      _SIGNAL_ vFocus_SIG;           //!< The signal for focus change
 
       _SLOT_   vWindowClose_SLOT;    //!< The standard slot for Window close
       _SLOT_   vResize_SLOT;         //!< The standard slot for Resize
       _SLOT_   vKey_SLOT;            //!< The standard slot for Key
       _SLOT_   vMouse_SLOT;          //!< The standard slot for Mouse
+      _SLOT_   vFocus_SLOT;          //!< The standard slot for focus change
 
    public:
 
@@ -59,6 +61,12 @@ class eInitEventBasic {
          vMouse_SLOT.disconnectAll();
          _slot->connectWith( &vMouse_SIG );
       }
+      
+      template<class __C>
+      void addFocusSlot( eSlot<void, __C, eWinInfo> *_slot ) {
+         vFocus_SLOT.disconnectAll();
+         _slot->connectWith( &vFocus_SIG );
+      }
 
       void removeAllSlots();
 
@@ -66,6 +74,7 @@ class eInitEventBasic {
       template<class __C> bool removeResizeSlot( eSlot<void, __C, eWinInfo> *_slot )      {return vResize_SIG.disconnect( _slot );}
       template<class __C> bool removeKeySlot( eSlot<void, __C, eWinInfo> *_slot )         {return vKey_SIG.disconnect( _slot );}
       template<class __C> bool removeMouseSlot( eSlot<void, __C, eWinInfo> *_slot )       {return vMouse_SIG.disconnect( _slot );}
+      template<class __C> bool removeFocusSlot( eSlot<void, __C, eWinInfo> *_slot )       {return vFocus_SIG.disconnect( _slot );}
 };
 
 /*!
