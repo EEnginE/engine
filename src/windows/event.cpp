@@ -113,7 +113,8 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 }
 
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo ) {
-   unsigned int key_state = E_KEY_PRESSED;
+   unsigned int key_state = E_PRESSED;
+   
 
    if ( _tempInfo.eInitPointer == 0 ) {
       eLOG "eInit-pointer is not yet initialized" END
@@ -143,9 +144,6 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
 
          //!\todo Check if the coords are right, see the article above
 
-         //!\todo Is a mousestate necessary? Only gives information if mouse is moved while mousebuttons are held
-         //May also be solved by logging the individual mousebuttons
-
          vMouse_SIG.sendSignal( _tempInfo );
          return 0;
       case WM_CLOSE:
@@ -155,33 +153,66 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_SETFOCUS: //Window has been focused
          iLOG "Focus Set " END
          return 0;
-      case WM_LBUTTONDOWN: //Leftbutton clicked
-         iLOG "Leftbutton clicked " END
+
+
+      case WM_LBUTTONUP:
+         key_state = E_RELEASED;
+      case WM_LBUTTONDOWN:
+         _tempInfo.eMouse.state  = key_state;
+         _tempInfo.eMouse.button = E_MOUSE_LEFT;
+         
+         iLOG "Clicked " ADD _tempInfo.eMouse.button END
+         vMouse_SIG.sendSignal( _tempInfo );
          return 0;
-      case WM_LBUTTONUP: //Leftbutton released
-         iLOG "Leftbutton released " END
+
+      case WM_MBUTTONUP:
+         key_state = E_RELEASED;
+      case WM_MBUTTONDOWN:
+         _tempInfo.eMouse.state  = key_state;
+         _tempInfo.eMouse.button = E_MOUSE_MIDDLE;
+         vMouse_SIG.sendSignal( _tempInfo );
          return 0;
-      case WM_LBUTTONDBLCLK: //!User Clicked Leftbutton twice \todo Doesnt work
-         iLOG "Doubleclicked left button" END
+
+      case WM_RBUTTONUP:
+         key_state = E_RELEASED;
+      case WM_RBUTTONDOWN:
+         _tempInfo.eMouse.state  = key_state;
+         _tempInfo.eMouse.button = E_MOUSE_RIGHT;
+         vMouse_SIG.sendSignal( _tempInfo );
          return 0;
-      case WM_RBUTTONDOWN: //Rightbutton clicked
-         iLOG "Rightbutton clicked " END
+
+      case WM_XBUTTONUP:
+         key_state = E_RELEASED;
+      case WM_XBUTTONDOWN:
+         _tempInfo.eMouse.state  = key_state;
+         switch ( _wParam >> 16 ) {
+            case XBUTTON1:
+               _tempInfo.eMouse.button = E_MOUSE_1;
+               break;
+            case XBUTTON2:
+               _tempInfo.eMouse.button = E_MOUSE_2;
+               break;
+            default:
+               iLOG "Found unhandled X-Button" END
+               _tempInfo.eMouse.button = E_MOUSE_UNKNOWN;
+               break;
+         }
+         vMouse_SIG.sendSignal( _tempInfo );
          return 0;
-      case WM_RBUTTONUP:   //Rightbutton released
-         iLOG "Rightbutton released " END
-         return 0;
+
+
       case WM_SYSCHAR:
       case WM_CHAR:
          //This returns the actual key the user has typed in after modifiers
          //It is only used if a key associated to a character, not a function key, was pressed
          //Unicode characters are supported by this aswell
-         
+
          //!\todo Handle this output for text messages/text inputs
-         
-         if(_wParam > 32) { //Check if the Char is an actual character; Enter, Backspace and others are excluded as they are already handled in WM_KEYDOWN
-         _tempInfo.eKey.state = E_KEY_PRESSED; //!\todo Use GetKeyState() to later handle the key, as it is never released in this switch-case
-         _tempInfo.eKey.key   = _wParam;
-         vKey_SIG.sendSignal( _tempInfo );
+
+         if ( _wParam > 32 ) { //Check if the Char is an actual character; Enter, Backspace and others are excluded as they are already handled in WM_KEYDOWN
+            _tempInfo.eKey.state = E_PRESSED; //!\todo Use GetKeyState() to later handle the key, as it is never released in this switch-case
+            _tempInfo.eKey.key   = _wParam;
+            vKey_SIG.sendSignal( _tempInfo );
          }
          return 0;
       case WM_UNICHAR: //Gives other programs the information that Unicode is supported by this
@@ -189,14 +220,14 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
             return TRUE;
          }
          return FALSE;
-      case WM_KEYUP:   key_state = E_KEY_RELEASED;
-      case WM_KEYDOWN: 
+      case WM_KEYUP:   key_state = E_RELEASED;
+      case WM_KEYDOWN:
          _tempInfo.eKey.state = key_state;
          _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
-         
-         if(_tempInfo.eKey.key != 0) // Dont send the signal if a character was found
-         vKey_SIG.sendSignal( _tempInfo );
-         
+
+         if ( _tempInfo.eKey.key != 0 ) // Dont send the signal if a character was found
+            vKey_SIG.sendSignal( _tempInfo );
+
          //MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR)
          //The above returns 0 when a function key is pressed, may be useful
          return 0;

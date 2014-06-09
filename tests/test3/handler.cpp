@@ -14,7 +14,7 @@ void MyHandler::key( eWinInfo info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.eInitPointer->getDisplayResolutions();
 
-   if ( info.eKey.state == E_KEY_PRESSED ) {
+   if ( info.eKey.state == E_PRESSED ) {
       switch ( info.eKey.key ) {
          case E_KEY_F1:          info.eInitPointer->setAttribute( C_TOGGLE, MODAL ); break;
          case E_KEY_F2:          info.eInitPointer->setAttribute( C_TOGGLE, STICKY ); break;
@@ -46,7 +46,7 @@ void MyHandler::key( eWinInfo info ) {
          case L'Q':
          case E_KEY_ESCAPE:      info.eInitPointer->closeWindow(); break;
          case L'u':
-            if ( info.eInitPointer->getKeyState( E_KEY_BACKSPACE ) == E_KEY_PRESSED ) {
+            if ( info.eInitPointer->getKeyState( E_KEY_BACKSPACE ) == E_PRESSED ) {
                iLOG "JAAAAA" END;
             }
             break;

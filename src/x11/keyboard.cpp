@@ -856,7 +856,7 @@ wchar_t eKeyboard::keysym2unicode( KeySym keysym ) {
    }
 
    /* no matching Unicode value found */
-   return E_KEY_UNKNOWN;
+   return E_UNKNOWN;
 }
 
 wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int _key_state, Display* _display ) {
@@ -875,10 +875,10 @@ wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int
       default: level1 = 0; level2 = 0; break;
    }
    level2_temp = level2;
-   if ( ( getKeyState( E_KEY_L_SHIFT ) == E_KEY_PRESSED ) && ( level2 == 1 ) ) {level2_temp = 0;}
-   else if ( ( getKeyState( E_KEY_L_SHIFT ) == E_KEY_PRESSED ) && ( level2 == 0 ) ) {level2_temp = 1;}
-   else if ( ( getKeyState( E_KEY_R_SHIFT ) == E_KEY_PRESSED ) && ( level2 == 1 ) ) {level2_temp = 0;}
-   else if ( ( getKeyState( E_KEY_R_SHIFT ) == E_KEY_PRESSED ) && ( level2 == 0 ) ) {level2_temp = 1;}
+   if ( ( getKeyState( E_KEY_L_SHIFT ) == E_PRESSED ) && ( level2 == 1 ) ) {level2_temp = 0;}
+   else if ( ( getKeyState( E_KEY_L_SHIFT ) == E_PRESSED ) && ( level2 == 0 ) ) {level2_temp = 1;}
+   else if ( ( getKeyState( E_KEY_R_SHIFT ) == E_PRESSED ) && ( level2 == 1 ) ) {level2_temp = 0;}
+   else if ( ( getKeyState( E_KEY_R_SHIFT ) == E_PRESSED ) && ( level2 == 0 ) ) {level2_temp = 1;}
    level2 = level2_temp;
 
    if ( level1 == 1 ) {

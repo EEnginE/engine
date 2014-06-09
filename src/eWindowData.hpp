@@ -56,11 +56,11 @@ namespace e_engine_internal {
 /*!
  * \struct e_engine::_eWindowData
  * \brief Structure for all important window informations
- * 
+ *
  * This is the main, global configuration and information sructure.
  *
  * This structure stores all information the classes eInit and
- * eContext need. 
+ * eContext need.
  * The constructor fills all values with data,
  * which let the classes work without problems.
  *
@@ -76,7 +76,7 @@ struct _eWindowData {
    bool         handleSIGTERM;
 
    long int     timeoutForMainLoopThread_mSec;
-   
+
    // =============================================================================
    // ==================================================================================================================
    // =======           ================================================================================================================
@@ -98,11 +98,11 @@ struct _eWindowData {
       int          FBA_STENCIL;
       int          FBA_VISUAL_TYPE;
       //int         FBA_STEREO;
-      
+
       int          FBA_DRAW_TO_WINDOW;
       int          FBA_ACCELERATION;
       int          FBA_OGL_SUPPORTED;
-      
+
 
       __eWindowData_FBA();
 
@@ -112,7 +112,7 @@ struct _eWindowData {
        */
       void reset();
    } framebuffer;
-   
+
    // =============================================================================
    // ==================================================================================================================
    // =======        ===================================================================================================================
@@ -136,7 +136,7 @@ struct _eWindowData {
       void reset();
    } versions;
 
-   
+
    // =============================================================================
    // ==================================================================================================================
    // =======      =====================================================================================================================
@@ -144,7 +144,7 @@ struct _eWindowData {
    // =======      =====================================================================================================================
    // ==================================================================================================================
    // =============================================================================
-   
+
    struct __eWindowData_Window {
       unsigned int width;     //!< The width  ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
       unsigned int height;    //!< The height ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
@@ -174,8 +174,8 @@ struct _eWindowData {
        */
       void reset();
    } win;
-   
-   
+
+
    // =============================================================================
    // ==================================================================================================================
    // =======   ========================================================================================================================
@@ -199,7 +199,7 @@ struct _eWindowData {
       bool         logDefaultInit;
 
       bool         useHistory;
-      
+
       bool         waitUntilLogEntryPrinted;
 
       int          width;                       //!< If width < 0, then the automatically determined size will be used
@@ -239,7 +239,7 @@ struct _eWindowData {
    // =======      =====================================================================================================================
    // ==================================================================================================================
    // =============================================================================
-   
+
    struct __eWindowData_Config {
       std::string appName;          //!< The name of the program
       std::string configSubFolder;  //!< Sub folder in the main configuration folder ( clear for none )
@@ -327,9 +327,10 @@ struct eWinInfo {
     * \brief The mouse part
     */
    struct _eMouse {
-      int posX;
-      int posY;
-      int state;
+      int       posX;
+      int       posY;
+      int       state;
+      E_BUTTON button;
    } eMouse;
    eWinInfo() {
       type = 0;

@@ -122,7 +122,7 @@ int eInit::eventLoop() {
 
       while ( XPending( getDisplay() ) > 0 && getHaveContext() ) {
          XNextEvent( getDisplay(), &e );
-         key_state = E_KEY_PRESSED;
+         key_state = E_PRESSED;
          switch ( e.type ) {
 
             case ConfigureNotify:
@@ -140,7 +140,7 @@ int eInit::eventLoop() {
                break;
 
             case KeyRelease:
-               key_state = E_KEY_RELEASED;
+               key_state = E_RELEASED;
                if ( XEventsQueued( getDisplay(), QueuedAfterReading ) ) {
                   XEvent lNextEvent_X11;
                   XPeekEvent( getDisplay(), &lNextEvent_X11 );
