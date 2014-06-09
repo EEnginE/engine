@@ -114,7 +114,7 @@ LRESULT CALLBACK eContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 
 LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, eWinInfo _tempInfo ) {
    unsigned int key_state = E_PRESSED;
-   
+
 
    if ( _tempInfo.eInitPointer == 0 ) {
       eLOG "eInit-pointer is not yet initialized" END
@@ -126,7 +126,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          iLOG "Resized " END
          _tempInfo.eResize.width  = WinData.win.width  = _lParam & 0xFFFF; // Get the low order word as a width
          _tempInfo.eResize.height = WinData.win.height = _lParam >> 16; // Get the high order word as a height
-         _tempInfo.eResize.posX   = WinData.win.posX; 
+         _tempInfo.eResize.posX   = WinData.win.posX;
          _tempInfo.eResize.posY   = WinData.win.posY;
          vResize_SIG.sendSignal( _tempInfo );
          iLOG "The window was resized to width " ADD _tempInfo.eResize.width ADD " and height " ADD _tempInfo.eResize.height END
@@ -134,18 +134,18 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_MOVE://Window was moved
          _tempInfo.eResize.posX   = WinData.win.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.eResize.posY   = WinData.win.posY = _lParam >> 16; // Get the high order word as the y-Position
-         _tempInfo.eResize.width  = WinData.win.width; 
+         _tempInfo.eResize.width  = WinData.win.width;
          _tempInfo.eResize.height = WinData.win.height;
          iLOG "The window was moved to x" ADD _tempInfo.eResize.posX ADD " and y" ADD _tempInfo.eResize.posY END
          vResize_SIG.sendSignal( _tempInfo );
          return 0;
-         
+
       case WM_MOUSEMOVE: //Mouse moved, see http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
          _tempInfo.eMouse.posX   = WinData.win.mousePosX = _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.eMouse.posY   = WinData.win.mousePosY = _lParam >> 16; // Get the high order word as the y-Position
-         _tempInfo.eMouse.button = E_MOUSE_MOVE;  
+         _tempInfo.eMouse.button = E_MOUSE_MOVE;
          _tempInfo.eMouse.state  = E_PRESSED;
-          
+
          iLOG "The mouse was moved to x" ADD _tempInfo.eMouse.posX ADD " and y" ADD _tempInfo.eMouse.posY END
 
          //!\todo Check if the coords are right, see the article above
@@ -168,7 +168,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.eMouse.posY   = WinData.win.mousePosY;
          _tempInfo.eMouse.state  = key_state;
          _tempInfo.eMouse.button = E_MOUSE_LEFT;
-         
+
          iLOG "Clicked " ADD _tempInfo.eMouse.button END
          vMouse_SIG.sendSignal( _tempInfo );
          return 0;
@@ -214,7 +214,18 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          vMouse_SIG.sendSignal( _tempInfo );
          return 0;
 
+      case WM_MOUSEWHEEL:
+         _tempInfo.eMouse.posX   = WinData.win.mousePosX;
+         _tempInfo.eMouse.posY   = WinData.win.mousePosY;
+         _tempInfo.eMouse.state  = E_PRESSED;
 
+         if ( ( _wParam >> 16 ) >= 0 )
+            _tempInfo.eMouse.button = E_MOUSE_WHEEL_UP;
+         else
+            _tempInfo.eMouse.button = E_MOUSE_WHEEL_DOWN;
+
+         vMouse_SIG.sendSignal( _tempInfo );
+         return 0;
       case WM_SYSCHAR:
       case WM_CHAR:
          //This returns the actual key the user has typed in after modifiers
