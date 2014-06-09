@@ -58,7 +58,13 @@ void MyHandler::key( eWinInfo info ) {
             break;
          case L'b':
             displays = info.eInitPointer->getDisplayResolutions();
-            displays[0].autoSelectBySize( 1280, 1024, 60 );
+            displays[0].autoSelectBySize( 1024, 768, 60 );
+            info.eInitPointer->setDisplaySizes( displays[0] );
+            info.eInitPointer->applyNewRandRSettings();
+            break;
+         case L'n':
+            displays = info.eInitPointer->getDisplayResolutions();
+            displays[0].disable();
             info.eInitPointer->setDisplaySizes( displays[0] );
             info.eInitPointer->applyNewRandRSettings();
             break;

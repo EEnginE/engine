@@ -19,6 +19,7 @@ class eRandR_win32 {
 
       std::vector<eDisplays> vCurrentConfig_eD;
       std::vector<eDisplays> vPreviousConfig_eD;
+      std::vector<eDisplays> vDefaultConfig_eD;
       std::vector<eDisplays> vDisplaysToChange_eD;
 
       void reload();

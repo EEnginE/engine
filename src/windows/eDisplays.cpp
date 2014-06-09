@@ -10,6 +10,15 @@ namespace e_engine {
 
 namespace windows_win32 {
 
+
+eDisplays::eDisplays( std::wstring _name, bool _enabled, bool _isPrimary ) {
+   vEnabled_B = _enabled;
+   vName_str = std::string( _name.begin(), _name.end() );
+   vIsPrimary_B = _isPrimary;
+}
+
+
+
 /*!
  * \brief Selects the best mode for this display
  *
@@ -27,7 +36,7 @@ void eDisplays::autoSelectBest() {
    unsigned int lMaxWidth_uI  = 0; //!< Max currently found width
    unsigned int lMaxHeight_uI = 0; //!< Max currently found height
 
-   for ( DEVMODE const & fMode : vModes_V_win32 ) {
+   for ( DEVMODEW const & fMode : vModes_V_win32 ) {
       if ( ( lMaxWidth_uI < fMode.dmPelsWidth ) && ( lMaxHeight_uI < fMode.dmPelsHeight ) ) {
          vCurrentWidth_uI  = lMaxWidth_uI  = fMode.dmPelsWidth;
          vCurrentHeight_uI = lMaxHeight_uI = fMode.dmPelsHeight;
@@ -81,11 +90,11 @@ double eDisplays::autoSelectBySize( unsigned int _width, unsigned int _height, d
    double lRate480Hz_D;
    double lRatePref_D;
 
-   DEVMODE l60Hz_win32;
-   DEVMODE l120Hz_win32;
-   DEVMODE l240Hz_win32;
-   DEVMODE l480Hz_win32;
-   DEVMODE lPref_win32;
+   DEVMODEW l60Hz_win32;
+   DEVMODEW l120Hz_win32;
+   DEVMODEW l240Hz_win32;
+   DEVMODEW l480Hz_win32;
+   DEVMODEW lPref_win32;
 
    bool     lFoundOneSizeMatch      = false;
    bool     lFindPreferedRateFailed = false;
@@ -199,10 +208,10 @@ void eDisplays::enable() {
  * \returns the display frequency closest to _rate
  * \returns -1 when there was no mode found for this resolution
  */
-double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, DEVMODE &_mode, double &_diff ) const {
+double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, DEVMODEW &_mode, double &_diff ) const {
    _diff = 1000000;
    double lRate_D = -1;
-   for ( DEVMODE const & fMode : vModes_V_win32 ) {
+   for ( DEVMODEW const & fMode : vModes_V_win32 ) {
       if ( _width == fMode.dmPelsWidth && _height == fMode.dmPelsHeight ) {
          if ( _rate == fMode.dmDisplayFrequency ) {
             _diff = 0;
@@ -226,7 +235,7 @@ double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned
 
 /*!
  * \brief Returns the supported resolutions of a display
- * *
+ *
  * \param _width The width of the resolution to check
  * \param _height The height of the resolution to check
  *
@@ -235,7 +244,7 @@ double eDisplays::findNearestFreqTo( double _rate, unsigned int _width, unsigned
 std::vector< double > eDisplays::getPossibleRates( unsigned int _width, unsigned int _height ) const {
    std::vector<double> lRates_V_D;
 
-   for ( DEVMODE const & d : vModes_V_win32 ) {
+   for ( DEVMODEW const & d : vModes_V_win32 ) {
       if ( d.dmPelsWidth == _width && d.dmPelsHeight == _height ) {
          bool lRateAlreadyFound_B = false;
          for ( double const & rate : lRates_V_D ) {
@@ -262,7 +271,7 @@ std::vector< double > eDisplays::getPossibleRates( unsigned int _width, unsigned
  */
 std::vector< eDisplayBasic::res > eDisplays::getPossibleResolutions() const {
    std::vector<eDisplayBasic::res> lTempRes;
-   for ( DEVMODE const & d : vModes_V_win32 ) {
+   for ( DEVMODEW const & d : vModes_V_win32 ) {
       bool lHasAlreadyResFound = false;
 
       // Check if already res found
@@ -311,7 +320,7 @@ void eDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, dou
 bool eDisplays::isSizeSupported( unsigned int _width, unsigned int _height ) const {
    bool lFoundResolution_B = false;
 
-   for ( DEVMODE const & d : vModes_V_win32 ) {
+   for ( DEVMODEW const & d : vModes_V_win32 ) {
       if ( _width == d.dmPelsWidth && _height == d.dmPelsHeight ) {
          lFoundResolution_B = true;
          break;
@@ -334,7 +343,7 @@ bool eDisplays::select( unsigned int _width, unsigned int _height, double _rate 
    if ( !isSizeSupported( _width, _height ) )
       return false;
 
-   for ( DEVMODE const & dMode : vModes_V_win32 ) {
+   for ( DEVMODEW const & dMode : vModes_V_win32 ) {
       if ( dMode.dmPelsWidth == _width && dMode.dmPelsHeight == _height && dMode.dmDisplayFrequency == _rate ) {
          // Found
          vSelectedDisplaySettings_win32 = dMode;
@@ -361,7 +370,7 @@ int eDisplays::getMaxBitsPerPelFromResolutionAndFreq( unsigned int _width, unsig
       return -1;
 
    unsigned int lMaxBitsPerPel_uI = 0;
-   for ( DEVMODE const & dMode : vModes_V_win32 ) {
+   for ( DEVMODEW const & dMode : vModes_V_win32 ) {
       if ( dMode.dmPelsWidth != _width || dMode.dmPelsHeight != _height || dMode.dmDisplayFrequency != _rate )
          continue;
 
@@ -373,59 +382,32 @@ int eDisplays::getMaxBitsPerPelFromResolutionAndFreq( unsigned int _width, unsig
 /*!
  * \brief Get the selected display mode
  *
- * Also preperes the DEVMODE for usage
+ * Also preperes the DEVMODEW for usage
  *
  * \returns The selected display mode
  */
-void eDisplays::getSelectedDevmodeOptions(
-   DWORD &_width,
-   DWORD &_height,
-   DWORD &_rate,
-   DWORD &_bitsPerPel,
-   LONG  &_posX,
-   LONG  &_posY,
-   DWORD &_fields
-) const {
-   _width      = vSelectedDisplaySettings_win32.dmPelsWidth;
-   _height     = vSelectedDisplaySettings_win32.dmPelsHeight;
-   _rate       = vSelectedDisplaySettings_win32.dmDisplayFrequency;
-   _posX       = 0;
-   _posY       = 0;
-   _fields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
-
-   _bitsPerPel = getMaxBitsPerPelFromResolutionAndFreq(
-                    vSelectedDisplaySettings_win32.dmPelsWidth,
-                    vSelectedDisplaySettings_win32.dmPelsHeight,
-                    vSelectedDisplaySettings_win32.dmDisplayFrequency
-                 );
-
-   if ( vPositionChanged_B ) {
-      _fields |= DM_POSITION;
-      _posX    = vPosX_uI;
-      _posY    = vPosY_uI;
-   }
-}
-
-/*!
- * \brief Get the selected display mode
- *
- * Also preperes the DEVMODE for usage
- *
- * \returns The selected display mode
- */
-DEVMODE eDisplays::getSelectedDevmode() const {
-   DEVMODE lTempDevmode_win32 = vSelectedDisplaySettings_win32;
-
-   lTempDevmode_win32.dmSize     = sizeof( lTempDevmode_win32 );
-
-   lTempDevmode_win32.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
+DEVMODEW eDisplays::getSelectedDevmode() const {
+   DEVMODEW lTempDevmode_win32 = vSelectedDisplaySettings_win32;
    
+   // Get the mximum
+   lTempDevmode_win32.dmBitsPerPel = getMaxBitsPerPelFromResolutionAndFreq(
+                                        vSelectedDisplaySettings_win32.dmPelsWidth,
+                                        vSelectedDisplaySettings_win32.dmPelsHeight,
+                                        vSelectedDisplaySettings_win32.dmDisplayFrequency
+                                     );
+
    if ( vPositionChanged_B ) {
       lTempDevmode_win32.dmFields    |= DM_POSITION;
       lTempDevmode_win32.dmPosition.x = vPosX_uI;
       lTempDevmode_win32.dmPosition.y = vPosY_uI;
    }
    
+   if( ! vEnabled_B )
+      memset( &lTempDevmode_win32, 0, sizeof( lTempDevmode_win32 ) );
+   
+   lTempDevmode_win32.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
+   lTempDevmode_win32.dmSize   = sizeof( lTempDevmode_win32 );
+
    return lTempDevmode_win32;
 }
 

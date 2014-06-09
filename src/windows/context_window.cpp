@@ -210,6 +210,8 @@ int eContext::createContext() {
          vWindowRect_win32.bottom = WinData.win.posY + WinData.win.height;
          wLOG "Fullscreen failed" END
       }
+      
+      ChangeDisplaySettings( NULL, CDS_FULLSCREEN );
    } else {
       vWindowRect_win32.left   = WinData.win.posX;
       vWindowRect_win32.right  = WinData.win.posX + WinData.win.width;
