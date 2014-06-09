@@ -208,10 +208,7 @@ int eContext::createFrameBuffer() {
 
 // Create the X-Window ######################################################################################################## ###
 int eContext::createWindow() {
-   vWindowAttributes_X11.event_mask        =
-      KeyPressMask           | KeyReleaseMask       | ButtonPressMask     | ButtonReleaseMask   |
-      PointerMotionMask      | ButtonMotionMask     | ExposureMask        | StructureNotifyMask |
-      SubstructureNotifyMask | VisibilityChangeMask | EnterWindowMask     | LeaveWindowMask;
+   vWindowAttributes_X11.event_mask        = vEventMask_lI;
 
    vWindowAttributes_X11.border_pixel      = 0;
    vWindowAttributes_X11.bit_gravity       = NorthWestGravity;

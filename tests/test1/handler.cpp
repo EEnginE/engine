@@ -56,19 +56,21 @@ void MyHandler::key( eWinInfo info ) {
             iLOG "Unpausing" END
             info.eInitPointer->continueMainLoop();
             break;
-         case L'b':
+         case L'B':
             displays = info.eInitPointer->getDisplayResolutions();
             displays[0].autoSelectBySize( 1024, 768, 60 );
             info.eInitPointer->setDisplaySizes( displays[0] );
             info.eInitPointer->applyNewRandRSettings();
             break;
-         case L'n':
+         case L'N':
             displays = info.eInitPointer->getDisplayResolutions();
             displays[0].disable();
             info.eInitPointer->setDisplaySizes( displays[0] );
             info.eInitPointer->applyNewRandRSettings();
             break;
          case L'q':
+         case L'g': info.eInitPointer->grabMouse(); break;
+         case L'G': info.eInitPointer->freeMouse(); break;
          case L'Q':
          case E_KEY_ESCAPE:      info.eInitPointer->closeWindow(); break;
          case L'u':

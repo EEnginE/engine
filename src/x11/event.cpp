@@ -70,8 +70,8 @@ namespace e_engine {
 int eInit::eventLoop() {
    //! \todo Move this in namespace unix_x11
    vEventLoopHasFinished_B = false;
-   XEvent e;
-   unsigned int key_state;
+   XEvent lEvent_X11;
+   unsigned int lKeyState_uI, lButtonState_uI;
    timeval tv_select, tv, periode;
 
    iLOG "Event loop started" END
@@ -121,51 +121,52 @@ int eInit::eventLoop() {
       }
 
       while ( XPending( getDisplay() ) > 0 && getHaveContext() ) {
-         XNextEvent( getDisplay(), &e );
-         key_state = E_KEY_PRESSED;
-         switch ( e.type ) {
+         XNextEvent( getDisplay(), &lEvent_X11 );
+         lKeyState_uI    = E_KEY_PRESSED;
+         lButtonState_uI = E_KEY_PRESSED;
+         char lEvent_CSTR[6];
+         snprintf( lEvent_CSTR, 5, "%04X", lEvent_X11.type );
+         switch ( lEvent_X11.type ) {
 
             case ConfigureNotify:
-               if ( e.xconfigure.width   != ( int ) WinData.win.width  || e.xconfigure.height != ( int ) WinData.win.height ||
-                     e.xconfigure.x      != WinData.win.posX        || e.xconfigure.y      != WinData.win.posY ) {
+               if ( lEvent_X11.xconfigure.width   != ( int ) WinData.win.width  || lEvent_X11.xconfigure.height != ( int ) WinData.win.height ||
+                     lEvent_X11.xconfigure.x      != WinData.win.posX        || lEvent_X11.xconfigure.y      != WinData.win.posY ) {
 
                   eWinInfo tempInfo( this );
-                  tempInfo.eResize.width  = WinData.win.width  = e.xconfigure.width;
-                  tempInfo.eResize.height = WinData.win.height = e.xconfigure.height;
-                  tempInfo.eResize.posX   = WinData.win.posX   = e.xconfigure.x;
-                  tempInfo.eResize.posY   = WinData.win.posY   = e.xconfigure.y;
+                  tempInfo.eResize.width  = WinData.win.width  = lEvent_X11.xconfigure.width;
+                  tempInfo.eResize.height = WinData.win.height = lEvent_X11.xconfigure.height;
+                  tempInfo.eResize.posX   = WinData.win.posX   = lEvent_X11.xconfigure.x;
+                  tempInfo.eResize.posY   = WinData.win.posY   = lEvent_X11.xconfigure.y;
 
                   vResize_SIG.sendSignal( tempInfo );
                }
                break;
 
-            case KeyRelease:
-               key_state = E_KEY_RELEASED;
-               if ( XEventsQueued( getDisplay(), QueuedAfterReading ) ) {
-                  XEvent lNextEvent_X11;
-                  XPeekEvent( getDisplay(), &lNextEvent_X11 );
-
-                  if (
-                     lNextEvent_X11.type == KeyPress &&
-//                      lNextEvent_X11.xkey.time == e.xkey.time &&
-                     lNextEvent_X11.xkey.keycode == e.xkey.keycode
-                  ) {
-                     // Key wasnt released (autorepeat)
-                     break;
-                  }
-               }
+            case KeyRelease: lKeyState_uI = E_KEY_RELEASED;
             case KeyPress: {
                   eWinInfo tempInfo( this );
-                  tempInfo.eKey.state = key_state;
-                  tempInfo.eKey.key = processX11KeyInput( e.xkey, key_state, getDisplay() );
+                  tempInfo.eKey.state = lKeyState_uI;
+                  tempInfo.eKey.key = processX11KeyInput( lEvent_X11.xkey, lKeyState_uI, getDisplay() );
                   vKey_SIG.sendSignal( tempInfo );
                }
+               break;
+               
+            case ButtonRelease: lButtonState_uI = E_KEY_RELEASED;
+            case ButtonPress:
+               break;
+
+
+            case MotionNotify:
+               break;
+               
+            case EnterNotify:
+            case LeaveNotify:
                break;
 
 
             case ClientMessage:
                // Check if the User pressed the [x] button or ALT+F4 [etc.]
-               if ( ( Atom ) e.xclient.data.l[0] == unix_x11::atom_wmDeleteWindow ) {
+               if ( ( Atom ) lEvent_X11.xclient.data.l[0] == unix_x11::atom_wmDeleteWindow ) {
                   iLOG "User pressed the close button" END
                   eWinInfo tempInfo( this );
                   tempInfo.type = 10;
@@ -173,7 +174,11 @@ int eInit::eventLoop() {
                }
                break;
 
-            default: break;
+            default:
+
+               iLOG "Found Event: 0x" ADD lEvent_CSTR END
+
+               break;
          }
       }
    }
