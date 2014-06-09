@@ -87,15 +87,15 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
       bool fullScreenMultiMonitor() {return false;}
 
-      bool grabMouse();               //!< \todo Add implementation
-      bool freeMouse();               //!< \todo Add implementation
-      bool getIsMouseGrabbed() const; //!< \todo Add implementation
+      bool grabMouse();              
+      bool freeMouse();               
+      bool getIsMouseGrabbed() const; 
 
-      bool moveMouse( unsigned int _posX, unsigned int _posY ); //!< \todo Add implementation
+      bool moveMouse( unsigned int _posX, unsigned int _posY ); 
 
-      bool hideMouseCursor();         //!< \todo Add implementation
-      bool showMouseCursor();         //!< \todo Add implementation
-      bool getIsCursorHidden() const; //!< \todo Add implementation
+      bool hideMouseCursor();         
+      bool showMouseCursor();         
+      bool getIsCursorHidden() const; 
 };
 
 /*!
