@@ -121,18 +121,13 @@ int eInit::eventLoop() {
       }
 
       while ( XPending( getDisplay() ) > 0 && getHaveContext() ) {
-<<<<<<< HEAD
-         XNextEvent( getDisplay(), &e );
-         key_state = E_PRESSED;
-         switch ( e.type ) {
-=======
+
          XNextEvent( getDisplay(), &lEvent_X11 );
          lKeyState_uI    = E_KEY_PRESSED;
          lButtonState_uI = E_KEY_PRESSED;
          char lEvent_CSTR[6];
          snprintf( lEvent_CSTR, 5, "%04X", lEvent_X11.type );
          switch ( lEvent_X11.type ) {
->>>>>>> c8402331fffaf4fb7f923da4616cb900ca303954
 
             case ConfigureNotify:
                if ( lEvent_X11.xconfigure.width   != ( int ) WinData.win.width  || lEvent_X11.xconfigure.height != ( int ) WinData.win.height ||
