@@ -532,7 +532,7 @@ bool eContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
       return false;
    }
    
-   int result = SetCursorPos(WinData.win.posX + _posY, WinData.win.posY + _posY);
+   int result = SetCursorPos(WinData.win.posX + _posX, WinData.win.posY + _posY);
    
    if ( result == 0 ) {
       wLOG "Error while setting mouse position: " ADD GetLastError() END

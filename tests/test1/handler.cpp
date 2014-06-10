@@ -10,11 +10,10 @@ GLfloat r, g, b, R, G, B;
 bool    rr, gg, bb;
 int counter1 = 0;
 
-void MyHandler::mouse( eWinInfo info) {
-   
+void MyHandler::mouse( eWinInfo info ) {
+   if ( info.eMouse.button <= E_MOUSE_6 ) // We dont want move events and etc.
       iLOG "Button " ADD info.eMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eMouse.button ADD "'" END
-   
-}
+   }
 
 void MyHandler::key( eWinInfo info ) {
    if ( vDisp_RandR.empty() )
@@ -23,7 +22,7 @@ void MyHandler::key( eWinInfo info ) {
    char lHex_CSTR[6];
    snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
    iLOG "Key " ADD info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
-   
+
    vector<eDisplays> displays;
 
    if ( info.eKey.state == E_PRESSED ) {
@@ -83,9 +82,11 @@ void MyHandler::key( eWinInfo info ) {
          case L'Q':
          case E_KEY_ESCAPE:      info.eInitPointer->closeWindow(); break;
          case L'u':
-            if ( info.eInitPointer->getKeyState( E_KEY_BACKSPACE ) == E_PRESSED ) {
+            if ( info.eInitPointer->getKeyState( L'n' ) == E_PRESSED ) {
                iLOG "JAAAAA" END;
             }
+            iLOG "info.eInitPointer->getKeyState( L'u' ): " ADD info.eInitPointer->getKeyState( L'u' ) END
+            iLOG "info.eInitPointer->getKeyState( L'n' ): " ADD info.eInitPointer->getKeyState( L'n' ) END
             break;
       }
    }

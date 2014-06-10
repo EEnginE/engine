@@ -11,14 +11,11 @@ namespace e_engine {
 namespace windows_win32 {
 
 short unsigned int eKeyboard::getKeyState( wchar_t _key ) {
-
    if ( _key >= E_KEY_BACKSPACE && _key <= E_KEY_KP_NUM_LOCK )
-      //if(MapVirtualKey(_key, MAPVK_VK_TO_CHAR) == 0)
       return getKeyStateArray( _key );
 
-   short result = GetKeyState( _key ) >> 16;
-   if ( result == -1 ) result *= -1; // If the Key is pressed, GetKeyState will return -1
-   return result;
+   // If the Key is pressed, GetKeyState will return -1
+   return ( GetKeyState( _key ) >> 16 ) == -1 ? E_PRESSED : E_RELEASED;
 }
 
 
@@ -72,8 +69,8 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
       case VK_F23:               setKeyState( E_KEY_F23,         _key_state );  return E_KEY_F23;
       case VK_F24:               setKeyState( E_KEY_F24,         _key_state );  return E_KEY_F24;
 
-    //Nonexistant under windows:
-    //case VK_F25:               setKeyState( E_KEY_F25,         _key_state );  return E_KEY_F25;
+         //Nonexistant under windows:
+         //case VK_F25:               setKeyState( E_KEY_F25,         _key_state );  return E_KEY_F25;
 
       case VK_UP:                setKeyState( E_KEY_UP,          _key_state );  return E_KEY_UP;
       case VK_DOWN:              setKeyState( E_KEY_DOWN,        _key_state );  return E_KEY_DOWN;
@@ -138,3 +135,4 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
 } // windows_win32
 
 } // e_engine
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

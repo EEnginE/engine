@@ -122,22 +122,20 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
    }
 
    switch ( _uMsg ) {
-      
+
       case WM_SIZE:
          _tempInfo.eResize.width  = WinData.win.width  = _lParam & 0xFFFF; // Get the low order word as a width
          _tempInfo.eResize.height = WinData.win.height = _lParam >> 16; // Get the high order word as a height
          _tempInfo.eResize.posX   = WinData.win.posX;
          _tempInfo.eResize.posY   = WinData.win.posY;
          vResize_SIG.sendSignal( _tempInfo );
-         iLOG "The window was resized to width " ADD _tempInfo.eResize.width ADD " and height " ADD _tempInfo.eResize.height END
          return 0;
-         
+
       case WM_MOVE:
          _tempInfo.eResize.posX   = WinData.win.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.eResize.posY   = WinData.win.posY = _lParam >> 16; // Get the high order word as the y-Position
          _tempInfo.eResize.width  = WinData.win.width;
          _tempInfo.eResize.height = WinData.win.height;
-         iLOG "The window was moved to x" ADD _tempInfo.eResize.posX ADD " and y" ADD _tempInfo.eResize.posY END
          vResize_SIG.sendSignal( _tempInfo );
          return 0;
 
@@ -147,25 +145,23 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.eMouse.button = E_MOUSE_MOVE;
          _tempInfo.eMouse.state  = E_PRESSED;
 
-         iLOG "The mouse was moved to x" ADD _tempInfo.eMouse.posX ADD " and y" ADD _tempInfo.eMouse.posY END
-
          //!\todo Check if the coords are right, see the article above
 
          vMouse_SIG.sendSignal( _tempInfo );
          return 0;
-         
+
       case WM_CLOSE:
          _tempInfo.type = 10;
          vWindowClose_SIG.sendSignal( _tempInfo );
          return 0;
-         
+
       case WM_SETFOCUS:
          _tempInfo.eFocus.hasFocus = WinData.win.windowHasFocus = true;
-         vFocus_SIG.sendSignal(_tempInfo);
+         vFocus_SIG.sendSignal( _tempInfo );
          return 0;
       case WM_KILLFOCUS:
          _tempInfo.eFocus.hasFocus = WinData.win.windowHasFocus = false;
-         vFocus_SIG.sendSignal(_tempInfo);
+         vFocus_SIG.sendSignal( _tempInfo );
          return 0;
 
 
@@ -225,7 +221,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.eMouse.posY   = WinData.win.mousePosY;
          _tempInfo.eMouse.state  = E_PRESSED;
 
-         if ( ( _wParam >> 16 ) >= 0 )
+         if ( ( ( short signed )( _wParam >> 16 ) ) >= 0 )
             _tempInfo.eMouse.button = E_MOUSE_WHEEL_UP;
          else
             _tempInfo.eMouse.button = E_MOUSE_WHEEL_DOWN;
@@ -270,11 +266,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          iLOG "Window Destroyed WM_NCDESTROY" END
          vWindowsNCDestrox_B = true;
          break;
-      default:
-         char lStr_CSTR[6];
-         snprintf( lStr_CSTR, 5, "%04x", _uMsg );
-         iLOG "Found Event: 0x" ADD lStr_CSTR END
-         break;
+      default: break;
    }
 
    return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );
