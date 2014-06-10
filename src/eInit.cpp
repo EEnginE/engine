@@ -93,24 +93,7 @@ eInit::eInit() {
  * Use eInit::addFocusSlot( eInit::getAdvancedGrabControlSlot() );
  */
 GLvoid eInit::s_advancedGrabControl( eWinInfo _info ) {
-   iLOG "TYPE " ADD getIsMouseGrabbed() END
-   if ( _info.type == E_EVENT_RESIZE) {
-      iLOG "Worked " ADD getIsMouseGrabbed() END
-   }
-   if ( (_info.type == E_EVENT_RESIZE) && getIsMouseGrabbed() ) {
-      iLOG "BEFORE " ADD getIsMouseGrabbed() END
-      freeMouse();
-      iLOG "AFTER " ADD getIsMouseGrabbed() END
-      if ( ! grabMouse() ) {
-         for ( unsigned short int i = 0; i < 25; ++i ) {
-            iLOG "Try Grab " ADD i + 1 ADD " of 25" END
-            if ( grabMouse() )
-               break; // Grab success
-            B_SLEEP( milliseconds, 100 );
-         }
-      }
-   }
-   if ( _info.type == E_EVENT_FOCUS && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
+   if ( (_info.type == E_EVENT_FOCUS) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
       // Focus restored
       vWasMouseGrabbed_B = false;
       if ( ! grabMouse() ) {
@@ -126,7 +109,7 @@ GLvoid eInit::s_advancedGrabControl( eWinInfo _info ) {
       }
       return;
    }
-   if ( !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
+   if ( (_info.type == E_EVENT_FOCUS) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
       // Focus lost
       vWasMouseGrabbed_B = true;
       freeMouse();
