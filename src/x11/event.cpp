@@ -134,6 +134,7 @@ int eInit::eventLoop() {
                      lEvent_X11.xconfigure.x      != WinData.win.posX        || lEvent_X11.xconfigure.y      != WinData.win.posY ) {
 
                   eWinInfo tempInfo( this );
+                  tempInfo.type           = E_EVENT_RESIZE;
                   tempInfo.eResize.width  = WinData.win.width  = lEvent_X11.xconfigure.width;
                   tempInfo.eResize.height = WinData.win.height = lEvent_X11.xconfigure.height;
                   tempInfo.eResize.posX   = WinData.win.posX   = lEvent_X11.xconfigure.x;
@@ -146,8 +147,9 @@ int eInit::eventLoop() {
             case KeyRelease: lKeyState_uI = E_RELEASED;
             case KeyPress: {
                   eWinInfo tempInfo( this );
+                  tempInfo.type       = E_EVENT_KEY;
                   tempInfo.eKey.state = lKeyState_uI;
-                  tempInfo.eKey.key = processX11KeyInput( lEvent_X11.xkey, lKeyState_uI, getDisplay() );
+                  tempInfo.eKey.key   = processX11KeyInput( lEvent_X11.xkey, lKeyState_uI, getDisplay() );
                   vKey_SIG.sendSignal( tempInfo );
                }
                break;
@@ -155,6 +157,7 @@ int eInit::eventLoop() {
             case ButtonRelease: lButtonState_uI = E_RELEASED;
             case ButtonPress: {
                   eWinInfo tempInfo( this );
+                  tempInfo.type         = E_EVENT_MOUSE;
                   tempInfo.eMouse.state = lButtonState_uI;
                   tempInfo.eMouse.posX  = lEvent_X11.xbutton.x;
                   tempInfo.eMouse.posY  = lEvent_X11.xbutton.y;
@@ -184,6 +187,7 @@ int eInit::eventLoop() {
                   eWinInfo tempInfo( this );
 
                   tempInfo.eMouse.button = E_MOUSE_MOVE;
+                  tempInfo.type          = E_EVENT_MOUSE;
                   WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
                   WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
                   tempInfo.eMouse.state  = E_PRESSED;
@@ -198,6 +202,7 @@ int eInit::eventLoop() {
                   eWinInfo tempInfo( this );
 
                   tempInfo.eMouse.button = E_MOUSE_ENTER;
+                  tempInfo.type          = E_EVENT_MOUSE;
                   WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
                   WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
                   tempInfo.eMouse.state  = E_PRESSED;
@@ -212,6 +217,7 @@ int eInit::eventLoop() {
                   eWinInfo tempInfo( this );
 
                   tempInfo.eMouse.button = E_MOUSE_LEAVE;
+                  tempInfo.type          = E_EVENT_MOUSE;
                   WinData.win.mousePosX  = tempInfo.eMouse.posX   = lEvent_X11.xmotion.x;
                   WinData.win.mousePosY  = tempInfo.eMouse.posY   = lEvent_X11.xmotion.y;
                   tempInfo.eMouse.state  = E_PRESSED;
@@ -224,6 +230,7 @@ int eInit::eventLoop() {
 
             case FocusIn: {
                   eWinInfo tempInfo( this );
+                  tempInfo.type = E_EVENT_FOCUS;
                   WinData.win.windowHasFocus = tempInfo.eFocus.hasFocus = true;
                   vFocus_SIG.sendSignal( tempInfo );
                }
@@ -231,6 +238,7 @@ int eInit::eventLoop() {
 
             case FocusOut: {
                   eWinInfo tempInfo( this );
+                  tempInfo.type = E_EVENT_FOCUS;
                   WinData.win.windowHasFocus = tempInfo.eFocus.hasFocus = false;
                   vFocus_SIG.sendSignal( tempInfo );
                }
@@ -242,7 +250,7 @@ int eInit::eventLoop() {
                if ( ( Atom ) lEvent_X11.xclient.data.l[0] == unix_x11::atom_wmDeleteWindow ) {
                   iLOG "User pressed the close button" END
                   eWinInfo tempInfo( this );
-                  tempInfo.type = 10;
+                  tempInfo.type = E_EVENT_WINDOWCLOSE;
                   vWindowClose_SIG.sendSignal( tempInfo );
                }
                break;
