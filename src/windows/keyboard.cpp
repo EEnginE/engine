@@ -12,10 +12,13 @@ namespace windows_win32 {
 
 short unsigned int eKeyboard::getKeyState( wchar_t _key ) {
 
-   if ( _key > E_KEY_BACKSPACE && _key < _E_KEY_LAST ) 
+   if ( _key >= E_KEY_BACKSPACE && _key <= E_KEY_KP_NUM_LOCK )
+      //if(MapVirtualKey(_key, MAPVK_VK_TO_CHAR) == 0)
       return getKeyStateArray( _key );
 
-   return GetKeyState( _key );
+   short result = GetKeyState( _key ) >> 16;
+   if ( result == -1 ) result *= -1; // If the Key is pressed, GetKeyState will return -1
+   return result;
 }
 
 
@@ -25,8 +28,6 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
 
    switch ( _charToCheck ) {
          //Check for special keys, see http://msdn.microsoft.com/en-us/library/ms927178.aspx
-         //Note that these keys are not sorted after their actual value, they are built similiar to the keyboard.cpp in X11 \todo Change?
-         //!\todo Clean up this code
 
       case VK_BACK:              setKeyState( E_KEY_BACKSPACE,   _key_state );  return E_KEY_BACKSPACE;
       case VK_TAB:               setKeyState( E_KEY_TAB,         _key_state );  return E_KEY_TAB;
@@ -71,8 +72,8 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
       case VK_F23:               setKeyState( E_KEY_F23,         _key_state );  return E_KEY_F23;
       case VK_F24:               setKeyState( E_KEY_F24,         _key_state );  return E_KEY_F24;
 
-         //Nonexistant under windows:
-         //case VK_F25:               setKeyState( E_KEY_F25,         _key_state );  return E_KEY_F25;
+    //Nonexistant under windows:
+    //case VK_F25:               setKeyState( E_KEY_F25,         _key_state );  return E_KEY_F25;
 
       case VK_UP:                setKeyState( E_KEY_UP,          _key_state );  return E_KEY_UP;
       case VK_DOWN:              setKeyState( E_KEY_DOWN,        _key_state );  return E_KEY_DOWN;
@@ -80,12 +81,12 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
       case VK_RIGHT:             setKeyState( E_KEY_RIGHT,       _key_state );  return E_KEY_RIGHT;
 
       case VK_SHIFT:
-      case VK_LSHIFT:           setKeyState( E_KEY_L_SHIFT,     _key_state );  return E_KEY_L_SHIFT;
-      case VK_RSHIFT:           setKeyState( E_KEY_R_SHIFT,     _key_state );  return E_KEY_R_SHIFT;
+      case VK_LSHIFT:            setKeyState( E_KEY_L_SHIFT,     _key_state );  return E_KEY_L_SHIFT;
+      case VK_RSHIFT:            setKeyState( E_KEY_R_SHIFT,     _key_state );  return E_KEY_R_SHIFT;
 
       case VK_CONTROL:
-      case VK_LCONTROL:         setKeyState( E_KEY_L_CTRL,      _key_state );  return E_KEY_L_CTRL;
-      case VK_RCONTROL:         setKeyState( E_KEY_R_CTRL,      _key_state );  return E_KEY_R_CTRL;
+      case VK_LCONTROL:          setKeyState( E_KEY_L_CTRL,      _key_state );  return E_KEY_L_CTRL;
+      case VK_RCONTROL:          setKeyState( E_KEY_R_CTRL,      _key_state );  return E_KEY_R_CTRL;
 
       case VK_MENU:
       case VK_LMENU:             setKeyState( E_KEY_L_ALT,       _key_state );  return E_KEY_L_ALT;
@@ -93,19 +94,19 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
 
       case VK_APPS:              setKeyState( E_KEY_MENU,        _key_state );  return E_KEY_MENU;
 
-      case VK_LWIN:           setKeyState( E_KEY_L_SUPER,     _key_state );  return E_KEY_L_SUPER;
-      case VK_RWIN:           setKeyState( E_KEY_R_SUPER,     _key_state );  return E_KEY_R_SUPER;
+      case VK_LWIN:              setKeyState( E_KEY_L_SUPER,     _key_state );  return E_KEY_L_SUPER;
+      case VK_RWIN:              setKeyState( E_KEY_R_SUPER,     _key_state );  return E_KEY_R_SUPER;
 
       case VK_HOME:              setKeyState( E_KEY_HOME,        _key_state );  return E_KEY_HOME;
       case VK_INSERT:            setKeyState( E_KEY_INSERT,      _key_state );  return E_KEY_INSERT;
-      case VK_PRIOR :           setKeyState( E_KEY_PAGE_UP,     _key_state );  return E_KEY_PAGE_UP;
-      case VK_NEXT:         setKeyState( E_KEY_PAGE_DOWN,   _key_state );  return E_KEY_PAGE_DOWN;
+      case VK_PRIOR :            setKeyState( E_KEY_PAGE_UP,     _key_state );  return E_KEY_PAGE_UP;
+      case VK_NEXT:              setKeyState( E_KEY_PAGE_DOWN,   _key_state );  return E_KEY_PAGE_DOWN;
       case VK_END:               setKeyState( E_KEY_END,         _key_state );  return E_KEY_END;
 
-      case VK_DIVIDE:         setKeyState( E_KEY_KP_DIVIDE,   _key_state );  return E_KEY_KP_DIVIDE;
-      case VK_MULTIPLY:       setKeyState( E_KEY_KP_MULTIPLY, _key_state );  return E_KEY_KP_MULTIPLY;
-      case VK_SUBTRACT:       setKeyState( E_KEY_KP_SUBTRACT, _key_state );  return E_KEY_KP_SUBTRACT;
-      case VK_ADD:            setKeyState( E_KEY_KP_ADD,      _key_state );  return E_KEY_KP_ADD;
+      case VK_DIVIDE:            setKeyState( E_KEY_KP_DIVIDE,   _key_state );  return E_KEY_KP_DIVIDE;
+      case VK_MULTIPLY:          setKeyState( E_KEY_KP_MULTIPLY, _key_state );  return E_KEY_KP_MULTIPLY;
+      case VK_SUBTRACT:          setKeyState( E_KEY_KP_SUBTRACT, _key_state );  return E_KEY_KP_SUBTRACT;
+      case VK_ADD:               setKeyState( E_KEY_KP_ADD,      _key_state );  return E_KEY_KP_ADD;
 
          //Nonexistant under windows
          //case XK_KP_Equal:          setKeyState( E_KEY_KP_EQUAL,    _key_state );  return E_KEY_KP_EQUAL;
@@ -130,7 +131,7 @@ wchar_t eKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
 
 
 
-   return _charToCheck; //!\todo: Can never be reached, better way of returning value here?
+   return _charToCheck;
 }
 
 
