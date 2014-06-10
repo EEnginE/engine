@@ -374,9 +374,24 @@ void eInit::s_standardWindowClose( eWinInfo _info )  {
 }
 
 
-void eInit::pauseMainLoop() {
+/*!
+ * \brief Paused the main loop
+ * 
+ * \param[in] _runInNewThread set this to true if wish to run the pause in e new thread (default: false)
+ *
+ * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
+ *          there are some problems with Windows and the event loop.
+ * 
+ * \returns Nothing
+ */
+void eInit::pauseMainLoop( bool _runInNewThread ) {
    if ( ! vMainLoopRunning_B )
       return;
+
+   if ( _runInNewThread ) {
+      vPauseThread_BT = boost::thread( &eInit::pauseMainLoop, this, false );
+      return;
+   }
 
    vMainLoopPaused_B  = true;
    vEventLoopPaused_B = true;
@@ -389,6 +404,10 @@ void eInit::pauseMainLoop() {
    iLOG "Loops paused" END
 }
 
+/*!
+ * \brief Continues a paused main loop
+ * \returns Nothing
+ */
 void eInit::continueMainLoop() {
    vLoopsPaused_B = false;
 
