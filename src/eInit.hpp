@@ -80,7 +80,9 @@ class eInit : public windows_win32::eContext {
       boost::thread     vEventLoop_BT;
       boost::thread     vRenderLoop_BT;
       boost::thread     vQuitMainLoop_BT;
+      
       boost::thread     vRestartThread_BT;
+      boost::thread     vPauseThread_BT;
       
       boost::mutex      vMainLoopMutex_BT;
       boost::mutex      vEventLoopMutex_BT;
@@ -157,7 +159,7 @@ class eInit : public windows_win32::eContext {
 
       void   quitMainLoop();
       
-      void   pauseMainLoop();
+      void   pauseMainLoop( bool _runInNewThread = false );
       void   continueMainLoop();
       
       void   restart( bool _runInNewThread = false );

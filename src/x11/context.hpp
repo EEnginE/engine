@@ -126,7 +126,7 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       int    vGLXVersionMinor_I;
       int    vX11VersionMajor_I;
       int    vX11VersionMinor_I;
-      
+
       bool   vIsMouseGrabbed_B;
       bool   vIsCursorHidden_B;
 
@@ -186,13 +186,13 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       int  setFullScreenMonitor( eDisplays _disp );
       bool maximize( ACTION _action );
       bool setDecoration( ACTION _action );
-      
+
       bool grabMouse();
       bool freeMouse();
       bool getIsMouseGrabbed()  const;
-      
+
       bool moveMouse( unsigned int _posX, unsigned int _posY );
-      
+
       bool hideMouseCursor();
       bool showMouseCursor();
       bool getIsCursorHidden() const;
