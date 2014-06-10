@@ -495,6 +495,7 @@ bool eContext::grabMouse() {
       return false;
    }
    vIsMouseGrabbed_B = true;
+   iLOG "Mouse grabbed" END
    return true;
 }
 
@@ -508,6 +509,7 @@ bool eContext::freeMouse() {
       return false;
    }
    vIsMouseGrabbed_B = false;
+   iLOG "Mouse ungrabbed" END
    return true;
 }
 
@@ -564,6 +566,7 @@ bool eContext::hideMouseCursor() {
    }
    
    vIsCursorHidden_B = true;
+   iLOG "Cursor hidden" END
    return true;
 }
 
@@ -583,6 +586,7 @@ bool eContext::showMouseCursor() {
    }
    
    vIsCursorHidden_B = false;
+   iLOG "Cursor visible" END
    return true;
 }
 
