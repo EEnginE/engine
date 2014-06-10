@@ -145,7 +145,7 @@ class eInit : public windows_win32::eContext {
          iLOG "Focus " ADD _info.eFocus.hasFocus ? "got" : "lost" END
       }
       
-      GLvoid s_advandedGrabbControl( eWinInfo _info );
+      GLvoid s_advancedGrabControl( eWinInfo _info );
       
    public:
       eInit();

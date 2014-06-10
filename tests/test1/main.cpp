@@ -61,7 +61,7 @@ int main( int argc, char **argv ) {
    WinData.win.restoreOldScreenRes = true;
    
    WinData.versions.glMajorVersion = 4;
-   WinData.versions.glMinorVersion = 6;
+   WinData.versions.glMinorVersion = 4;
 
 //    WinData.log.waitUntilLogEntryPrinted = true;
 //    WinData.log.logFILE.logFileName = "./log";
@@ -100,7 +100,8 @@ int main( int argc, char **argv ) {
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
       start.addMouseSlot( handler.getSMouse() );
-      start.addFocusSlot( start.getAdvancedGrabbControlSlot() );
+      start.addFocusSlot( start.getAdvancedGrabControlSlot() );
+      start.addResizeSlot( start.getAdvancedGrabControlSlot() );
 
       iLOG "Test" END
 

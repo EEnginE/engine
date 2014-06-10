@@ -34,7 +34,7 @@ class eInitEventBasic {
       _SLOT_   vMouse_SLOT;          //!< The standard slot for Mouse
       _SLOT_   vFocus_SLOT;          //!< The standard slot for focus change
 
-      _SLOT_   vGrabControll_SLOT;   //!< Slot for grab controll \sa eInit::s_advandedGrabbControl
+      _SLOT_   vGrabControl_SLOT;   //!< Slot for grab control \sa eInit::s_advancedGrabControl
 
    public:
 
@@ -72,7 +72,7 @@ class eInitEventBasic {
 
       void removeAllSlots();
 
-      _SLOT_ *getAdvancedGrabbControlSlot() {return &vGrabControll_SLOT;}
+      _SLOT_ *getAdvancedGrabControlSlot() {return &vGrabControl_SLOT;}
 
       template<class __C> bool removeWindowCloseSlot( eSlot<void, __C, eWinInfo> *_slot ) {return vWindowClose_SIG.disconnect( _slot );}
       template<class __C> bool removeResizeSlot( eSlot<void, __C, eWinInfo> *_slot )      {return vResize_SIG.disconnect( _slot );}
@@ -127,12 +127,12 @@ class eInitEventBasic {
 
 
 /*!
- * \fn void eInitEventBasic::getAdvancedGrabbControlSlot
+ * \fn void eInitEventBasic::getAdvancedGrabControlSlot
  * \brief Returns the slot for the advanced grabb controll
  *
  * \returns The adress of the slot
- * 
- * \sa eInit::s_advandedGrabbControl
+ *
+ * \sa eInit::s_advancedGrabControl
  */
 
 
