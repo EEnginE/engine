@@ -96,6 +96,8 @@ class eInit : public windows_win32::eContext {
       
       bool              vLoopsPaused_B;
       
+      bool              vWasMouseGrabbed_B;
+      
       int               vCreateWindowReturn_I;
 
       
@@ -142,6 +144,8 @@ class eInit : public windows_win32::eContext {
       GLvoid s_standardFocus( eWinInfo _info ) {
          iLOG "Focus " ADD _info.eFocus.hasFocus ? "got" : "lost" END
       }
+      
+      GLvoid s_advandedGrabbControl( eWinInfo _info );
       
    public:
       eInit();

@@ -189,7 +189,7 @@ class eContext : public eRandR, public eInitEventBasic, public eKeyboard {
       
       bool grabMouse();
       bool freeMouse();
-      bool getIsMouseGrabbed() const;
+      bool getIsMouseGrabbed()  const;
       
       bool moveMouse( unsigned int _posX, unsigned int _posY );
       

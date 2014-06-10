@@ -15,7 +15,7 @@ short unsigned int eKeyboard::getKeyState( wchar_t _key ) {
       return getKeyStateArray( _key );
 
    // If the Key is pressed, GetKeyState will return -1
-   return ( GetKeyState( _key ) >> 16 ) == -1 ? E_PRESSED : E_RELEASED;
+   return ( GetKeyState( VkKeyScan( _key ) ) >> 16 == -1 || GetKeyState( VkKeyScan( _key ) ) >> 16 == 1 ) ? E_PRESSED : E_RELEASED;
 }
 
 

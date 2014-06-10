@@ -34,6 +34,8 @@ class eInitEventBasic {
       _SLOT_   vMouse_SLOT;          //!< The standard slot for Mouse
       _SLOT_   vFocus_SLOT;          //!< The standard slot for focus change
 
+      _SLOT_   vGrabControll_SLOT;   //!< Slot for grab controll \sa eInit::s_advandedGrabbControl
+
    public:
 
       virtual ~eInitEventBasic();
@@ -61,7 +63,7 @@ class eInitEventBasic {
          vMouse_SLOT.disconnectAll();
          _slot->connectWith( &vMouse_SIG );
       }
-      
+
       template<class __C>
       void addFocusSlot( eSlot<void, __C, eWinInfo> *_slot ) {
          vFocus_SLOT.disconnectAll();
@@ -69,6 +71,8 @@ class eInitEventBasic {
       }
 
       void removeAllSlots();
+
+      _SLOT_ *getAdvancedGrabbControlSlot() {return &vGrabControll_SLOT;}
 
       template<class __C> bool removeWindowCloseSlot( eSlot<void, __C, eWinInfo> *_slot ) {return vWindowClose_SIG.disconnect( _slot );}
       template<class __C> bool removeResizeSlot( eSlot<void, __C, eWinInfo> *_slot )      {return vResize_SIG.disconnect( _slot );}
@@ -80,10 +84,10 @@ class eInitEventBasic {
 /*!
  * \fn void eInitEventBasic::makeEInitEventBasicAbstract
  * \brief PRIVATE constructor
- * 
+ *
  * This function only exists, so that you can never have an
  * instance of this class.
- * 
+ *
  * You will also never need an instance of this class
  */
 
@@ -119,6 +123,16 @@ class eInitEventBasic {
  *
  * \param[in] _slot The Slot for the event
  * \returns Nothing
+ */
+
+
+/*!
+ * \fn void eInitEventBasic::getAdvancedGrabbControlSlot
+ * \brief Returns the slot for the advanced grabb controll
+ *
+ * \returns The adress of the slot
+ * 
+ * \sa eInit::s_advandedGrabbControl
  */
 
 
