@@ -48,6 +48,7 @@ enum WINDOW_TYPE    {
    DND,
    NORMAL
 };
+enum EVENT_TYPE { E_EVENT_UNKNOWN, E_EVENT_KEY, E_EVENT_FOCUS, E_EVENT_MOUSE, E_EVENT_WINDOWCLOSE, E_EVENT_RESIZE };
 
 namespace e_engine_internal {
 
@@ -307,7 +308,7 @@ class eInit;
  * \sa eInit eSignal eSlot
  */
 struct eWinInfo {
-   int   type;
+   EVENT_TYPE     type;
    eInit *eInitPointer;
 
    /*!
@@ -346,7 +347,7 @@ struct eWinInfo {
    } eFocus ;
    
    void reset() {
-      type            = 0;
+      type            = E_EVENT_UNKNOWN;
       eResize.posX    = 0;
       eResize.posY    = 0;
       eResize.height  = 0;

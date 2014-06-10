@@ -47,7 +47,7 @@ eInit::eInit() {
    vMouse_SLOT.setFunc( &eInit::s_standardMouse, this );
    vFocus_SLOT.setFunc( &eInit::s_standardFocus, this );
 
-   vGrabControll_SLOT.setFunc( &eInit::s_advandedGrabbControl, this );
+   vGrabControl_SLOT.setFunc( &eInit::s_advancedGrabControl, this );
 
    addWindowCloseSlot( &vWindowClose_SLOT );
    addResizeSlot( &vResize_SLOT );
@@ -90,14 +90,31 @@ eInit::eInit() {
  * This function makes sure that when focus was lost, the mouse will
  * be ungrabbed and when focus is restored that it will be locked again.
  *
- * Use eInit::addFocusSlot( eInit::getAdvancedGrabbControlSlot() );
+ * Use eInit::addFocusSlot( eInit::getAdvancedGrabControlSlot() );
  */
-GLvoid eInit::s_advandedGrabbControl( eWinInfo _info ) {
-   if ( _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
+GLvoid eInit::s_advancedGrabControl( eWinInfo _info ) {
+   iLOG "TYPE " ADD getIsMouseGrabbed() END
+   if ( _info.type == E_EVENT_RESIZE) {
+      iLOG "Worked " ADD getIsMouseGrabbed() END
+   }
+   if ( (_info.type == E_EVENT_RESIZE) && getIsMouseGrabbed() ) {
+      iLOG "BEFORE " ADD getIsMouseGrabbed() END
+      freeMouse();
+      iLOG "AFTER " ADD getIsMouseGrabbed() END
+      if ( ! grabMouse() ) {
+         for ( unsigned short int i = 0; i < 25; ++i ) {
+            iLOG "Try Grab " ADD i + 1 ADD " of 25" END
+            if ( grabMouse() )
+               break; // Grab success
+            B_SLEEP( milliseconds, 100 );
+         }
+      }
+   }
+   if ( _info.type == E_EVENT_FOCUS && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
       // Focus restored
       vWasMouseGrabbed_B = false;
       if ( ! grabMouse() ) {
-         // Cannot grab again when X11 not handled some events
+         // Cannot grab again when X11 has not handled some events
 
          for ( unsigned short int i = 0; i < 25; ++i ) {
             iLOG "Try Grab " ADD i + 1 ADD " of 25" END
