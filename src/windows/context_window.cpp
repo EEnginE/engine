@@ -180,10 +180,10 @@ int eContext::createContext() {
       vWindowClass_win32.cbClsExtra    = 0; // We do not need this
       vWindowClass_win32.cbWndExtra    = sizeof( eContext * );
       vWindowClass_win32.hInstance     = vInstance_win32;
-      vWindowClass_win32.hIcon         = NULL;  // We dont have a special icon
-      vWindowClass_win32.hCursor       = NULL;  // We dont have a special cursor
-      vWindowClass_win32.hbrBackground = NULL;  // We dont need a background
-      vWindowClass_win32.lpszMenuName  = NULL;  // We dont want a menu
+      vWindowClass_win32.hIcon         = NULL;                         // We dont have a special icon
+      vWindowClass_win32.hCursor       = LoadCursor(NULL, IDC_ARROW);  // Take the default mouse cursor
+      vWindowClass_win32.hbrBackground = NULL;                         // We dont need a background
+      vWindowClass_win32.lpszMenuName  = NULL;                         // We dont want a menu
       vWindowClass_win32.lpszClassName = vClassName_win32;
 
 
