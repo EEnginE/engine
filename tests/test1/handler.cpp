@@ -57,7 +57,7 @@ void MyHandler::key( eWinInfo info ) {
          case L'r':              info.eInitPointer->restart( true ); break;
          case L'p':
             iLOG "Pausing" END
-            info.eInitPointer->pauseMainLoop();
+            info.eInitPointer->pauseMainLoop( true );
             B_SLEEP( seconds, 5 );
             iLOG "Unpausing" END
             info.eInitPointer->continueMainLoop();

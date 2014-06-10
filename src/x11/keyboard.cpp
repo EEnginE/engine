@@ -6,17 +6,17 @@
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
- * 
+ *
  *  This library is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  *  This library is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
- * 
+ *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -859,7 +859,7 @@ wchar_t eKeyboard::keysym2unicode( KeySym keysym ) {
    return E_UNKNOWN;
 }
 
-wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int _key_state, Display* _display ) {
+wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int _key_state, Display *_display ) {
    KeySym key;
    unsigned int level1 = 0, level2 = 0, level2_temp;
 
@@ -991,7 +991,7 @@ wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int
    }
 
    wchar_t key_wchar = keysym2unicode( key );
-   if( !( key_wchar < 0 ) ) { // TODO: Richtig intepretiert? before: if(! key_wchar < 0)
+   if ( !( key_wchar < 0 ) ) { // TODO: Richtig intepretiert? before: if(! key_wchar < 0)
       setKeyState( key_wchar, _key_state );
    }
    return key_wchar;
@@ -1000,3 +1000,4 @@ wchar_t eKeyboard::processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int
 } // unix_x11
 
 } // e_engine
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

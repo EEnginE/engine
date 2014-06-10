@@ -54,7 +54,7 @@ class eKeyboard : public eKeyboardBasic {
    public:
       eKeyboard() {}
       virtual ~eKeyboard() {}
-      
+
       inline unsigned short int getKeyState( wchar_t _key ) { return getKeyStateArray( _key ); }
 };
 

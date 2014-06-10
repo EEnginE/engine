@@ -692,6 +692,7 @@ bool eContext::grabMouse() {
       return false;
    }
    vIsMouseGrabbed_B = true;
+   iLOG "Mouse grabbed" END
    return true;
 }
 
@@ -715,6 +716,7 @@ bool eContext::freeMouse() {
       return false;
    }
    vIsMouseGrabbed_B = false;
+   iLOG "Mouse ungrabbed" END
    return true;
 }
 
@@ -796,6 +798,8 @@ bool eContext::hideMouseCursor() {
       XFreePixmap( vDisplay_X11, lNoMouseCursorPixmap_X11 );
    XFreeColors( vDisplay_X11, lColorMap_X11, &lBlackColor_X11.pixel, 1, 0 );
    
+   iLOG "Cursor hidden" END
+   
    vIsCursorHidden_B = true;
    return true;
 }
@@ -812,6 +816,7 @@ bool eContext::showMouseCursor() {
    
    XUndefineCursor( vDisplay_X11, vWindow_X11 );
    vIsCursorHidden_B = false;
+   iLOG "Cursor visible" END
    return true;
 }
 
