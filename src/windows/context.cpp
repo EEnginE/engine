@@ -482,13 +482,13 @@ bool eContext::grabMouse() {
    
    RECT bounds; // The Rectangle that the Cursor will be forced to be in
    
-   GetWindowRect(vHWND_Window_win32, &bounds);
+   //GetWindowRect(vHWND_Window_win32, &bounds);
    
    //The following allows for more customization
-//    bounds.left   = WinData.win.posX;
-//    bounds.top    = WinData.win.posY;
-//    bounds.right  = WinData.win.posX + WinData.win.width;
-//    bounds.bottom = WinData.win.posY + WinData.win.height;
+    bounds.left   = WinData.win.posX;
+    bounds.top    = WinData.win.posY;
+    bounds.right  = WinData.win.posX + WinData.win.width;
+    bounds.bottom = WinData.win.posY + WinData.win.height;
    
    if(ClipCursor( &bounds ) == 0) {
       wLOG "Error while grabbing mouse: " ADD GetLastError() END

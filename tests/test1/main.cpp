@@ -101,7 +101,6 @@ int main( int argc, char **argv ) {
       start.addKeySlot( handler.getSKey() );
       start.addMouseSlot( handler.getSMouse() );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
-      start.addResizeSlot( start.getAdvancedGrabControlSlot() );
 
       iLOG "Test" END
 
