@@ -47,25 +47,29 @@ eInit::eInit() {
    vMouse_SLOT.setFunc( &eInit::s_standardMouse, this );
    vFocus_SLOT.setFunc( &eInit::s_standardFocus, this );
 
+   vGrabControll_SLOT.setFunc( &eInit::s_advandedGrabbControl, this );
+
    addWindowCloseSlot( &vWindowClose_SLOT );
    addResizeSlot( &vResize_SLOT );
    addKeySlot( &vKey_SLOT );
    addMouseSlot( &vMouse_SLOT );
    addFocusSlot( &vFocus_SLOT );
 
-   vMainLoopRunning_B    = false;
-   vBoolCloseWindow_B    = false;
+   vMainLoopRunning_B       = false;
+   vBoolCloseWindow_B       = false;
 
-   vMainLoopPaused_B       = false;
-   vEventLoopHasFinished_B = false;
-   vMainLoopISPaused_B     = false;
-   vEventLoopISPaused_B    = false;
-   vLoopsPaused_B          = false;
-   
-   fRender               = standardRender;
+   vMainLoopPaused_B        = false;
+   vEventLoopHasFinished_B  = false;
+   vMainLoopISPaused_B      = false;
+   vEventLoopISPaused_B     = false;
+   vLoopsPaused_B           = false;
+
+   fRender                  = standardRender;
 
    vEventLoopHasFinished_B  = true;
    vRenderLoopHasFinished_B = true;
+
+   vWasMouseGrabbed_B       = false;
 
    vCreateWindowReturn_I    = -1000;
 
@@ -75,6 +79,44 @@ eInit::eInit() {
 
    _setThisForHandleSignal();
 }
+
+
+/*!
+ * \brief Handle focus change events when mouse is grabbed
+ *
+ * When the mouse is grabbed and focus is lost (Alt+tab), various
+ * bad things can happen.
+ *
+ * This function makes sure that when focus was lost, the mouse will
+ * be ungrabbed and when focus is restored that it will be locked again.
+ *
+ * Use eInit::addFocusSlot( eInit::getAdvancedGrabbControlSlot() );
+ */
+GLvoid eInit::s_advandedGrabbControl( eWinInfo _info ) {
+   if ( _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
+      // Focus restored
+      vWasMouseGrabbed_B = false;
+      if ( ! grabMouse() ) {
+         // Cannot grab again when X11 not handled some events
+
+         for ( unsigned short int i = 0; i < 25; ++i ) {
+            iLOG "Try Grab " ADD i + 1 ADD " of 25" END
+            if ( grabMouse() )
+               break; // Grab success
+            B_SLEEP( milliseconds, 100 );
+         }
+
+      }
+      return;
+   }
+   if ( !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
+      // Focus lost
+      vWasMouseGrabbed_B = true;
+      freeMouse();
+      return;
+   }
+}
+
 
 /*!
  * \brief Creates the window and the OpenGL context
@@ -100,7 +142,7 @@ int eInit::init() {
 
    signal( SIGINT, handleSignal );
    signal( SIGTERM, handleSignal );
-   
+
    if ( WinData.log.logFILE.logFileName.empty() ) {
       WinData.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
 #if UNIX
@@ -109,10 +151,10 @@ int eInit::init() {
       WinData.log.logFILE.logFileName += "\\Log";
 #endif
    }
-   
+
    if ( WinData.log.logDefaultInit )
       LOG.devInit();
-   
+
    LOG.startLogLoop();
 
 #if WINDOWS
@@ -126,9 +168,9 @@ int eInit::init() {
 #else
    vCreateWindowReturn_I = createContext();
 #endif
-      
+
    if ( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
-   
+
    standardRender( this ); // Fill the Window with black
 
    return 1;
@@ -198,7 +240,7 @@ int eInit::startMainLoop( bool _wait ) {
       vRenderLoop_BT.join();
    }
 
-   if( getHaveContext() ) makeContextCurrent();   // Only ONE thread can have a context
+   if ( getHaveContext() ) makeContextCurrent();  // Only ONE thread can have a context
 
    if ( vBoolCloseWindow_B ) {destroyContext();} // eInit::closeWindow() called?
 
@@ -263,10 +305,10 @@ int eInit::renderLoop( ) {
    iLOG "Render loop started" END
    vRenderLoopHasFinished_B = false;
    makeContextCurrent();  // Only ONE thread can have a context
-   
+
    if ( WinData.win.VSync == true )
       enableVSync();
-   
+
    while ( vMainLoopRunning_B ) {
       if ( vLoopsPaused_B ) {
          boost::unique_lock<boost::mutex> lLock_BT( vMainLoopMutex_BT );
@@ -278,16 +320,16 @@ int eInit::renderLoop( ) {
          B_SLEEP( milliseconds, 100 ); //!< \todo Remove this workaround for Windows (problem with eContext::makeContextCurrent)
 #endif
          vMainLoopISPaused_B = false;
-         if( ! makeContextCurrent() ) {
+         if ( ! makeContextCurrent() ) {
             eLOG "Failed to make context current ==> quit render loop" END
             return -1;
          }
       }
-      
+
       fRender( this );
    }
-   
-   if( getHaveContext() ) makeNOContextCurrent();
+
+   if ( getHaveContext() ) makeNOContextCurrent();
    vRenderLoopHasFinished_B = true;
    return 0;
 }
@@ -336,7 +378,7 @@ void eInit::continueMainLoop() {
    boost::lock_guard<boost::mutex> lLockEvent_BT( vEventLoopMutex_BT );
    vEventLoopPaused_B = false;
    vEventLoopWait_BT.notify_one();
-   
+
    boost::lock_guard<boost::mutex> lLockMain_BT( vMainLoopMutex_BT );
    vMainLoopPaused_B = false;
    vMainLoopWait_BT.notify_one();
@@ -350,18 +392,18 @@ void eInit::continueMainLoop() {
  * Does nothing when the main loop is not running
  *
  * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default: false)
- * 
+ *
  * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
  *          there are some problems with Windows and the event loop.
- * 
+ *
  * \returns Nothing
  */
 void eInit::restart( bool _runInNewThread ) {
    if ( !vMainLoopRunning_B )
       return;
-   
+
    // Calling restart in the eventloop can cause some problems
-   if( _runInNewThread ) {
+   if ( _runInNewThread ) {
       vRestartThread_BT = boost::thread( &eInit::restart, this, false );
       return;
    }
@@ -378,12 +420,12 @@ void eInit::restart( bool _runInNewThread ) {
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
-   if( vEventLoop_BT.joinable() )
+   if ( vEventLoop_BT.joinable() )
       vEventLoop_BT.join();
    else
       eLOG "Failed to join the event loop" END
 
-   boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
+      boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
    vEventLoop_BT  = boost::thread( &eInit::eventLoop, this );
 
    while ( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
@@ -401,15 +443,15 @@ void eInit::restart( bool _runInNewThread ) {
 
 /*!
  * \brief Recreates the window / OpenGL context if needed
- * 
+ *
  * Does nothing when the main loop is not running
  * (runs eInit::restart)
  *
  * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default: false)
- * 
+ *
  * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
  *          there are some problems with Windows and the event loop.
- * 
+ *
  * \returns Nothing
  */
 void eInit::restartIfNeeded( bool _runInNewThread ) {

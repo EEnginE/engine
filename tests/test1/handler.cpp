@@ -13,6 +13,7 @@ int counter1 = 0;
 void MyHandler::mouse( eWinInfo info ) {
    if ( info.eMouse.button <= E_MOUSE_6 ) // We dont want move events and etc.
       iLOG "Button " ADD info.eMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eMouse.button ADD "'" END
+
    }
 
 void MyHandler::key( eWinInfo info ) {
@@ -85,8 +86,6 @@ void MyHandler::key( eWinInfo info ) {
             if ( info.eInitPointer->getKeyState( L'n' ) == E_PRESSED ) {
                iLOG "JAAAAA" END;
             }
-            iLOG "info.eInitPointer->getKeyState( L'u' ): " ADD info.eInitPointer->getKeyState( L'u' ) END
-            iLOG "info.eInitPointer->getKeyState( L'n' ): " ADD info.eInitPointer->getKeyState( L'n' ) END
             break;
       }
    }

@@ -63,7 +63,7 @@ int main( int argc, char **argv ) {
    WinData.versions.glMajorVersion = 4;
    WinData.versions.glMinorVersion = 6;
 
-   WinData.log.waitUntilLogEntryPrinted = true;
+//    WinData.log.waitUntilLogEntryPrinted = true;
 //    WinData.log.logFILE.logFileName = "./log";
 
    RandISAAC myRand;
@@ -100,6 +100,7 @@ int main( int argc, char **argv ) {
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
       start.addMouseSlot( handler.getSMouse() );
+      start.addFocusSlot( start.getAdvancedGrabbControlSlot() );
 
       iLOG "Test" END
 

@@ -61,7 +61,7 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
       bool                  vWindowsNCDestrox_B;
 
       HWND getHWND_win32() {return vHWND_Window_win32;}
-
+      
    public:
       eContext();
       virtual ~eContext() {if ( vHasContext_B ) destroyContext();}
@@ -89,7 +89,7 @@ class eContext : public eInitEventBasic, public eKeyboard, public eRandR_win32 {
 
       bool grabMouse();              
       bool freeMouse();               
-      bool getIsMouseGrabbed() const; 
+      bool getIsMouseGrabbed()  const; 
 
       bool moveMouse( unsigned int _posX, unsigned int _posY ); 
 

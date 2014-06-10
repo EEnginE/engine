@@ -673,15 +673,18 @@ bool eContext::grabMouse() {
 
    int lReturn_I =
       XGrabPointer(
-         vDisplay_X11,    // Our connection to the X server
-         vWindow_X11,     // The window owning the grab
-         False,           // Send some additional events
-         0,               // We dont need a special event mask
-         GrabModeAsync,   // Mouse grabbing should be async (easier for us)
-         GrabModeAsync,   // Key grabbing should be async (easier for us)
-         vWindow_X11,     // Lock the cursor in this window
-         None,            // Use the default window cursor icon
-         CurrentTime      // X11 needs a time
+         vDisplay_X11,       // Our connection to the X server
+         vWindow_X11,        // The window owning the grab
+         False,              // Send some additional events
+         ButtonPressMask   |
+         ButtonReleaseMask |
+         PointerMotionMask |
+         ButtonMotionMask,   // We dont need a special event mask
+         GrabModeAsync,      // Mouse grabbing should be async (easier for us)
+         GrabModeAsync,      // Key grabbing should be async (easier for us)
+         vWindow_X11,        // Lock the cursor in this window
+         None,               // Use the default window cursor icon
+         CurrentTime         // X11 needs a time
       );
 
    if ( lReturn_I != GrabSuccess ) {
@@ -753,6 +756,7 @@ bool eContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
 bool eContext::getIsMouseGrabbed() const {
    return vIsMouseGrabbed_B;
 }
+
 
 
 /*!

@@ -42,6 +42,10 @@ eContext::eContext() {
    vWindowsCallbacksError_B       = false;
    vHasContext_B                  = false;
    vHasGLEW_B                     = false;
+   
+   vIsCursorHidden_B              = false;
+   vIsMouseGrabbed_B              = false;
+   
 
    vWindowRecreate_B              = false;
    vAThreadOwnsTheOpenGLContext_B = false;
@@ -515,6 +519,7 @@ bool eContext::freeMouse() {
 bool eContext::getIsMouseGrabbed() const {
    return vIsMouseGrabbed_B;
 }
+
 
 /*!
  * \brief Sets the mouse position
