@@ -675,12 +675,12 @@ bool eContext::grabMouse() {
       XGrabPointer(
          vDisplay_X11,    // Our connection to the X server
          vWindow_X11,     // The window owning the grab
-         False,           // Send some additionally events
+         False,           // Send some additional events
          0,               // We dont need a special event mask
-         GrabModeAsync,   // Mouse grabbing schould be async (easyer for us)
-         GrabModeAsync,   // Key grabbing schould be async (easyer for us)
-         vWindow_X11,     // Lock the coursor in this window
-         None,            // Use the default window coursor icon
+         GrabModeAsync,   // Mouse grabbing should be async (easier for us)
+         GrabModeAsync,   // Key grabbing should be async (easier for us)
+         vWindow_X11,     // Lock the cursor in this window
+         None,            // Use the default window cursor icon
          CurrentTime      // X11 needs a time
       );
 

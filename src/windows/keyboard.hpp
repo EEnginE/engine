@@ -9,6 +9,7 @@
 
 #include <windows.h>
 #include "eKeyboardBasic.hpp"
+#include "log.hpp"
 
 namespace e_engine {
 

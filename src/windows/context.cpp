@@ -475,7 +475,21 @@ bool eContext::grabMouse() {
       wLOG "Mouse is already grabbed" END
       return false;
    }
-   SetCapture( vHWND_Window_win32 );
+   
+   RECT bounds; // The Rectangle that the Cursor will be forced to be in
+   
+   GetWindowRect(vHWND_Window_win32, &bounds);
+   
+   //The following allows for more customization
+//    bounds.left   = WinData.win.posX;
+//    bounds.top    = WinData.win.posY;
+//    bounds.right  = WinData.win.posX + WinData.win.width;
+//    bounds.bottom = WinData.win.posY + WinData.win.height;
+   
+   if(ClipCursor( &bounds ) == 0) {
+      wLOG "Error while grabbing mouse: " ADD GetLastError() END
+      return false;
+   }
    vIsMouseGrabbed_B = true;
    return true;
 }
@@ -485,8 +499,7 @@ bool eContext::freeMouse() {
       wLOG "Mouse is not grabbed" END
       return false;
    }
-   int result = ReleaseCapture();
-   if ( result == 0 ) {
+   if ( ClipCursor(NULL) == 0 ) { //Reset the bounds
       wLOG "Error while freeing mouse: " ADD GetLastError() END
       return false;
    }

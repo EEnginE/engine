@@ -122,8 +122,8 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
    }
 
    switch ( _uMsg ) {
-      case WM_SIZE://Window size was changed
-         iLOG "Resized " END
+      
+      case WM_SIZE:
          _tempInfo.eResize.width  = WinData.win.width  = _lParam & 0xFFFF; // Get the low order word as a width
          _tempInfo.eResize.height = WinData.win.height = _lParam >> 16; // Get the high order word as a height
          _tempInfo.eResize.posX   = WinData.win.posX;
@@ -131,7 +131,8 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          vResize_SIG.sendSignal( _tempInfo );
          iLOG "The window was resized to width " ADD _tempInfo.eResize.width ADD " and height " ADD _tempInfo.eResize.height END
          return 0;
-      case WM_MOVE://Window was moved
+         
+      case WM_MOVE:
          _tempInfo.eResize.posX   = WinData.win.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.eResize.posY   = WinData.win.posY = _lParam >> 16; // Get the high order word as the y-Position
          _tempInfo.eResize.width  = WinData.win.width;
@@ -152,12 +153,19 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
 
          vMouse_SIG.sendSignal( _tempInfo );
          return 0;
+         
       case WM_CLOSE:
          _tempInfo.type = 10;
          vWindowClose_SIG.sendSignal( _tempInfo );
          return 0;
-      case WM_SETFOCUS: //Window has been focused
-         iLOG "Focus Set " END
+         
+      case WM_SETFOCUS:
+         _tempInfo.eFocus.hasFocus = WinData.win.windowHasFocus = true;
+         vFocus_SIG.sendSignal(_tempInfo);
+         return 0;
+      case WM_KILLFOCUS:
+         _tempInfo.eFocus.hasFocus = WinData.win.windowHasFocus = false;
+         vFocus_SIG.sendSignal(_tempInfo);
          return 0;
 
 
@@ -168,8 +176,6 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.eMouse.posY   = WinData.win.mousePosY;
          _tempInfo.eMouse.state  = key_state;
          _tempInfo.eMouse.button = E_MOUSE_LEFT;
-
-         iLOG "Clicked " ADD _tempInfo.eMouse.button END
          vMouse_SIG.sendSignal( _tempInfo );
          return 0;
 
@@ -235,7 +241,7 @@ LRESULT CALLBACK eContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          //!\todo Handle this output for text messages/text inputs
 
          if ( _wParam > 32 ) { //Check if the Char is an actual character; Enter, Backspace and others are excluded as they are already handled in WM_KEYDOWN
-            _tempInfo.eKey.state = E_PRESSED; //!\todo Use GetKeyState() to later handle the key, as it is never released in this switch-case
+            _tempInfo.eKey.state = E_PRESSED;
             _tempInfo.eKey.key   = _wParam;
             vKey_SIG.sendSignal( _tempInfo );
          }
