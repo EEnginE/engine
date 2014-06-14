@@ -100,7 +100,9 @@ Try setting your GLEW root via -DGLEW_ROOT=/To/the/path/of/the/GLEW/install/pref
 4.4 I crosscompiled the project on Linux and want to test the result with WINE but
     WINE crashes immediately.
 
-Wine doesnt like boost::wregex because a function is unimplemented. You can use 
--DEXTRA_CXX_FLAGS=-DUGLY_WINE_WORKAROUND to solve the problem or use the latest
-WINE version.
+Wine doesnt like boost::wregex because a function was unimplemented. Try to update your WINE
+version. 
+BUG: http://bugs.winehq.org/show_bug.cgi?id=36617
+
+You can alos try add -DEXTRA_CXX_FLAGS=-DUGLY_WINE_WORKAROUND to your cmake options
 

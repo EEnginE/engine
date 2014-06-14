@@ -166,22 +166,10 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 // ========= Generate The File Entry ==============================================================================================================
 
    if ( _rawEntry.config.vFile_LPT != OFF ) {
-#if defined UGLY_WINE_WORKAROUND
-      boost::regex lReplace_EX( "^(/)?(.+/)*" );
-      const char  *lReplaceChar = "";
-
-      std::string  lTempFilename_STR = boost::to_upper_copy( boost::regex_replace(
-                                          std::string( _rawEntry.data.vFilename_STR.begin(), _rawEntry.data.vFilename_STR.end() ),
-                                          lReplace_EX,
-                                          lReplaceChar
-                                       ) );
-      std::wstring lFilename_STR = std::wstring( lTempFilename_STR.begin(), lTempFilename_STR.end() );
-#else
       boost::wregex lReplace_EX( L"^(/)?(.+/)*" );
       const wchar_t  *lReplaceChar = L"";
 
       std::wstring lFilename_STR = boost::to_upper_copy( boost::regex_replace( _rawEntry.data.vFilename_STR, lReplace_EX, lReplaceChar ) );
-#endif
 
       if ( lFilename_STR.size() > WinData.log.maxFilenameSize )
          lFilename_STR.resize( WinData.log.maxFilenameSize );
@@ -242,13 +230,8 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 
 // ========= Prepare Variables ====================================================================================================================
 
-#if defined UGLY_WINE_WORKAROUND
-   boost::regex lRmExcape_REGEX( "\x1b\\[[0-9;]+m" );
-   const char  *lRegexReplace_CSTR = "";
-#else
    boost::wregex lRmExcape_REGEX( L"\x1b\\[[0-9;]+m" );
    const wchar_t *lRegexReplace_CSTR = L"";
-#endif
 
    std::wstring BR_OPEN  = L"[";
    std::wstring BR_CLOSE = L"]";
@@ -314,13 +297,8 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
 
    // Get Size information (without escape sequences)
    if ( _rawEntry.config.vColor_LCT != DISABLED ) {
-#if defined UGLY_WINE_WORKAROUND
-      lErrTypeL_uI = boost::regex_replace( std::string( _rawEntry.temp.vErrorType_STR.begin(), _rawEntry.temp.vErrorType_STR.end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-      lFileL_uI    = boost::regex_replace( std::string( _rawEntry.temp.vFile_STR.begin(),      _rawEntry.temp.vFile_STR.end() ),      lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-#else
       lErrTypeL_uI = boost::regex_replace( _rawEntry.temp.vErrorType_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
       lFileL_uI    = boost::regex_replace( _rawEntry.temp.vFile_STR,      lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-#endif
    } else {
       lErrTypeL_uI = _rawEntry.temp.vErrorType_STR.size();
       lFileL_uI    = _rawEntry.temp.vFile_STR.size();
@@ -391,13 +369,8 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
    unsigned int lMaxMessageSize_uI = 100000;
 
    if ( _rawEntry.config.vColor_LCT != DISABLED ) {
-#if defined UGLY_WINE_WORKAROUND
-      lLeftL_uI  = boost::regex_replace( std::string( lL_STR.begin(), lL_STR.end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-      lRightL_uI = boost::regex_replace( std::string( lR_STR.begin(), lR_STR.end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-#else
       lLeftL_uI  = boost::regex_replace( lL_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
       lRightL_uI = boost::regex_replace( lR_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-#endif
    } else {
       lLeftL_uI  = lL_STR.size();
       lRightL_uI = lR_STR.size();
@@ -497,11 +470,7 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
    for ( unsigned int i = 0; i < lMessage_VEC.size(); ++i ) {
       unsigned int lTempMessageSize_uI;
       if ( _rawEntry.config.vColor_LCT != DISABLED )
-#if defined UGLY_WINE_WORKAROUND
-         lTempMessageSize_uI = boost::regex_replace( std::string( lMessage_VEC[i].begin(), lMessage_VEC[i].end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-#else
          lTempMessageSize_uI = boost::regex_replace( lMessage_VEC[i], lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-#endif
       else
          lTempMessageSize_uI = lMessage_VEC[i].size();
 
@@ -532,13 +501,8 @@ void eLog::generateEntry( eLogEntry &_rawEntry ) {
          GLuint lRightNewL_uI;
 
          if ( _rawEntry.config.vColor_LCT != DISABLED ) {
-         #if defined UGLY_WINE_WORKAROUND
-            lLeftNewL_uI  = boost::regex_replace( std::string( lL_STR.begin(), lL_STR.end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-            lRightNewL_uI = boost::regex_replace( std::string( lR_STR.begin(), lR_STR.end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-         #else
             lLeftNewL_uI  = boost::regex_replace( lL_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
             lRightNewL_uI = boost::regex_replace( lR_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-         #endif
          } else {
             lLeftNewL_uI  = lL_STR.size();
             lRightNewL_uI = lR_STR.size();
