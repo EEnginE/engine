@@ -40,7 +40,8 @@ add_executable( $TEST_BASENAME \${\${CURRENT_BASENAME}_SRC} )
 target_link_libraries(
  $TEST_BASENAME
 
- \${PROJECT_NAME}
+ \${PROJECT_NAME}_init
+ \${PROJECT_NAME}_render
  \${PROJECT_NAME}_utils
  \${ENGINE_LINK}
 )
