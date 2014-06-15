@@ -10,13 +10,17 @@ ARGV=$*
 SOURCE_FILE="sources.cmake"
 INCLUDE_FILE="engine.hpp"
 
-BASENAME_ENGINE="ENGINE"
-ENGINE_LIB="engine"
-ENGINE_SRC="engine.cmake"
-
 UTILS_LIB="utils"
 UTILS_SRC="utils.cmake"
 BASENAME_UTILS="UTILS"
+
+INIT_LIB="init"
+INIT_SRC="init.cmake"
+BASENAME_INIT="INIT"
+
+RENDER_LIB="render"
+RENDER_SRC="render.cmake"
+BASENAME_RENDER="RENDER"
 
 TESTS_DIR="tests"
 
@@ -76,7 +80,8 @@ rm_save() {
 clean() {
     echo "INFO: Cleaning"
     
-    rm_save $ENGINE_SRC
+    rm_save $INIT_SRC
+    rm_save $RENDER_SRC
     rm_save $UTILS_SRC
     
     rm_save $INCLUDE_FILE
@@ -102,7 +107,8 @@ clean() {
 
 standard() {
     generateLogMacros $LOG_MACRO_PATH "$LOG_TYPES" $LOG_GEN_UNDEF
-    finSources        $ENGINE_LIB $ENGINE_SRC $X11 $WAYLAND $MIR $WINDOWS $BASENAME_ENGINE
+    finSources        $INIT_LIB   $INIT_SRC   $X11 $WAYLAND $MIR $WINDOWS $BASENAME_INIT
+    finSources        $RENDER_LIB $RENDER_SRC $X11 $WAYLAND $MIR $WINDOWS $BASENAME_RENDER
     finSources        $UTILS_LIB  $UTILS_SRC  $X11 $WAYLAND $MIR $WINDOWS $BASENAME_UTILS
     engineHPP         $INCLUDE_FILE
     tests
