@@ -10,7 +10,7 @@ engineHPP() {
     
     echo "INFO: Generating file $1..."
 
-    for I in $ALL_HPP; do
+    for I in $ALL_ALL_HPP; do
         echo $I | grep -E $REGEX_HPP_2 &> /dev/null
         if [ $? -ne 0 ]; then
             continue
@@ -22,7 +22,7 @@ engineHPP() {
         INC_ALL_HPP="${INC_ALL_HPP}$(echo -e "\n#include \"$(basename $I)\"")"
     done
 
-    for I in $X11_HPP; do
+    for I in $ALL_X11_HPP; do
         echo $I | grep -E $REGEX_HPP_2 &> /dev/null
         if [ $? -ne 0 ]; then
             continue
@@ -34,7 +34,7 @@ engineHPP() {
         INC_X11_HPP="${INC_X11_HPP}$(echo -e "\n#include \"$(basename $I)\"")"
     done
 
-    for I in $WAYLAND_HPP; do
+    for I in $ALL_WAYLAND_HPP; do
         echo $I | grep -E $REGEX_HPP_2 &> /dev/null
         if [ $? -ne 0 ]; then
         continue
@@ -46,7 +46,7 @@ engineHPP() {
         INC_WAYLAND_HPP="${INC_WAYLAND_HPP}$(echo -e "\n#include \"$(basename $I)\"")"
     done
 
-    for I in $MIR_HPP; do
+    for I in $ALL_MIR_HPP; do
         echo $I | grep -E $REGEX_HPP_2 &> /dev/null
         if [ $? -ne 0 ]; then
             continue
@@ -58,7 +58,7 @@ engineHPP() {
         INC_MIR_HPP="${INC_MIR_HPP}$(echo -e "\n#include \"$(basename $I)\"")"
     done
 
-    for I in $WINDOWS_HPP; do
+    for I in $ALL_WINDOWS_HPP; do
         echo $I | grep -E $REGEX_HPP_2 &> /dev/null
         if [ $? -ne 0 ]; then
             continue
