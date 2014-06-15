@@ -10,13 +10,13 @@ GLfloat r, g, b, R, G, B;
 bool    rr, gg, bb;
 int counter1 = 0;
 
-void MyHandler::mouse( eWinInfo info ) {
+void MyHandler::mouse( eEventInfo info ) {
    if ( info.eMouse.button <= E_MOUSE_6 ) // We dont want move events and etc.
       iLOG "Button " ADD info.eMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eMouse.button ADD "'" END
 
    }
 
-void MyHandler::key( eWinInfo info ) {
+void MyHandler::key( eEventInfo info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.eInitPointer->getDisplayResolutions();
 
@@ -77,7 +77,7 @@ void MyHandler::key( eWinInfo info ) {
          case L'q':
          case L'g': info.eInitPointer->grabMouse(); break;
          case L'G': info.eInitPointer->freeMouse(); break;
-         case L'w': info.eInitPointer->moveMouse( WinData.win.width / 2, WinData.win.height / 2 ); break;
+         case L'w': info.eInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 ); break;
          case L'c': info.eInitPointer->hideMouseCursor(); break;
          case L'C': info.eInitPointer->showMouseCursor(); break;
          case L'Q':
@@ -101,7 +101,7 @@ inline void color( float _r, float _g, float _b, eInit *i ) {
 
 
 
-void render( eWinInfo info ) {
+void render( eEventInfo info ) {
 
    color( r, g, b, info.eInitPointer );
 

@@ -8,13 +8,20 @@ ARGV=$*
 ###########################
 
 SOURCE_FILE="sources.cmake"
-INCLUDE_FILE="src/engine.hpp"
+INCLUDE_FILE="engine.hpp"
+
+BASENAME_ENGINE="ENGINE"
+ENGINE_LIB="engine"
+ENGINE_SRC="engine.cmake"
+
+UTILS_LIB="utils"
+UTILS_SRC="utils.cmake"
+BASENAME_UTILS="UTILS"
 
 TESTS_DIR="tests"
 
-VAR_FOR_CMAKE_ROOT="CMAKE_HOME_DIRECTORY"
+VAR_FOR_CMAKE_ROOT="PROJECT_SOURCE_DIR"
 
-BASENAME_ENGINE="ENGINE"
 
 ## The platform dirs ##
 X11="x11"
@@ -24,7 +31,7 @@ WINDOWS="windows"
 
 
 ## Log macro config ##
-LOG_MACRO_PATH="src/log/macros.hpp"
+LOG_MACRO_PATH="utils/log/uMacros.hpp"
 LOG_TYPES="a b c d e f g h i j k l m n o p q r s t u v w x y z"
 LOG_GEN_UNDEF=1
 
@@ -69,11 +76,13 @@ rm_save() {
 clean() {
     echo "INFO: Cleaning"
     
-    rm_save $SOURCE_FILE
+    rm_save $ENGINE_SRC
+    rm_save $UTILS_SRC
+    
     rm_save $INCLUDE_FILE
     rm_save $LOG_MACRO_PATH
     rm_save tests/CMakeLists.txt
-    rm_save src/defines.hpp
+    rm_save defines.hpp
     rm_save Doxyfile
     
     TEMP=$( ls -d tests/*/ )
@@ -93,7 +102,8 @@ clean() {
 
 standard() {
     generateLogMacros $LOG_MACRO_PATH "$LOG_TYPES" $LOG_GEN_UNDEF
-    finSources        src $SOURCE_FILE $X11 $WAYLAND $MIR $WINDOWS $BASENAME_ENGINE
+    finSources        $ENGINE_LIB $ENGINE_SRC $X11 $WAYLAND $MIR $WINDOWS $BASENAME_ENGINE
+    finSources        $UTILS_LIB  $UTILS_SRC  $X11 $WAYLAND $MIR $WINDOWS $BASENAME_UTILS
     engineHPP         $INCLUDE_FILE
     tests
 }

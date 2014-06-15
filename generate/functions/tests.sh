@@ -41,6 +41,7 @@ target_link_libraries(
  $TEST_BASENAME
 
  \${PROJECT_NAME}
+ \${PROJECT_NAME}_utils
  \${ENGINE_LINK}
 )
 

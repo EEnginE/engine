@@ -18,7 +18,7 @@ extern bool    rr, gg, bb;
 extern int counter1;
 
 class MyHandler {
-      typedef eSlot<void, MyHandler, eWinInfo> _SLOT_;
+      typedef uSlot<void, MyHandler, eEventInfo> _SLOT_;
    private:
       vector<eDisplays> vDisp_RandR;
 
@@ -33,13 +33,13 @@ class MyHandler {
          slotKey.setFunc( &MyHandler::key, this );
          slotMouse.setFunc( &MyHandler::mouse, this );
       }
-      void windowClose( eWinInfo info ) {
+      void windowClose( eEventInfo info ) {
          iLOG "User closed window" END
          info.eInitPointer->closeWindow();
       }
-      void key( eWinInfo info );
-      void mouse( eWinInfo info );
-      void resize( eWinInfo info ) {
+      void key( eEventInfo info );
+      void mouse( eEventInfo info );
+      void resize( eEventInfo info ) {
          iLOG "Window resized" END
       }
 
@@ -50,7 +50,7 @@ class MyHandler {
 };
 
 
-void render( eWinInfo info );
+void render( eEventInfo info );
 
 
 #endif // HANDLER_HPP

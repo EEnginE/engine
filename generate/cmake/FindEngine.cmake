@@ -37,7 +37,7 @@ find_path(
 
 find_library(
  ENGINE_LIBRARY
- NAMES engine
+ NAMES engine utils
  PATHS 
   ${ENGINE_PREFIX}/lib
   ${CMAKE_INSTALL_PREFIX}/lib

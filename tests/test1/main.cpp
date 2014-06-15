@@ -33,40 +33,40 @@ void ftemp( eInit *_init ) {
 
 int main( int argc, char **argv ) {
    B_SLEEP( milliseconds, 1 ); // Why does this crash without this?
-   WinData.win.width           = 800;
-   WinData.win.height          = 600;
-   WinData.win.fullscreen      = false;
-   WinData.win.windowName      = "Engine Test";
-   WinData.win.iconName        = "ICON is missing";
-   WinData.win.xlibWindowName  = "My icon";
-   //WinData.win.winType         = e_engine::TOOLBAR;
-   WinData.useAutoOpenGLVersion();
-   WinData.config.appName      = "E Engine";
+   GlobConf.win.width           = 800;
+   GlobConf.win.height          = 600;
+   GlobConf.win.fullscreen      = false;
+   GlobConf.win.windowName      = "Engine Test";
+   GlobConf.win.iconName        = "ICON is missing";
+   GlobConf.win.xlibWindowName  = "My icon";
+   //GlobConf.win.winType         = e_engine::TOOLBAR;
+   GlobConf.useAutoOpenGLVersion();
+   GlobConf.config.appName      = "E Engine";
 
 #if ! KDEVELOP || COLOR
-   WinData.log.logOUT.colors   = FULL;
-   WinData.log.logERR.colors   = FULL;
+   GlobConf.log.logOUT.colors   = FULL;
+   GlobConf.log.logERR.colors   = FULL;
 #else
-   WinData.log.logOUT.colors   = DISABLED;
-   WinData.log.logERR.colors   = DISABLED;
+   GlobConf.log.logOUT.colors   = DISABLED;
+   GlobConf.log.logERR.colors   = DISABLED;
 
-   WinData.log.width           = 175;
+   GlobConf.log.width           = 175;
 #endif
-   WinData.log.logOUT.Time     = LEFT_REDUCED;
-   WinData.log.logOUT.File     = RIGHT_FULL;
-   WinData.log.logERR.Time     = LEFT_REDUCED;
-   WinData.log.logERR.File     = RIGHT_FULL;
-   WinData.log.logFILE.File    = RIGHT_FULL;
+   GlobConf.log.logOUT.Time     = LEFT_REDUCED;
+   GlobConf.log.logOUT.File     = RIGHT_FULL;
+   GlobConf.log.logERR.Time     = LEFT_REDUCED;
+   GlobConf.log.logERR.File     = RIGHT_FULL;
+   GlobConf.log.logFILE.File    = RIGHT_FULL;
    
-   WinData.win.restoreOldScreenRes = true;
+   GlobConf.win.restoreOldScreenRes = true;
    
-   WinData.versions.glMajorVersion = 4;
-   WinData.versions.glMinorVersion = 4;
+   GlobConf.versions.glMajorVersion = 4;
+   GlobConf.versions.glMinorVersion = 4;
 
-//    WinData.log.waitUntilLogEntryPrinted = true;
-//    WinData.log.logFILE.logFileName = "./log";
+//    GlobConf.log.waitUntilLogEntryPrinted = true;
+//    GlobConf.log.logFILE.logFileName = "./log";
 
-   RandISAAC myRand;
+   uRandomISAAC myRand;
 
    const int ValChange = 50;
 
@@ -99,7 +99,7 @@ int main( int argc, char **argv ) {
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
-      start.addMouseSlot( handler.getSMouse() );
+      start.addMousuSlot( handler.getSMouse() );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
 
       iLOG "Test" END
@@ -168,7 +168,7 @@ int main( int argc, char **argv ) {
 
 
 #if DO_SHA == 1
-   SHA_2 mySHA( SHA2_384 );
+   uSHA_2 mySHA( SHA2_384 );
    mySHA.selftest();
 #endif
 

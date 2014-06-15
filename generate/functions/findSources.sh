@@ -196,22 +196,25 @@ finSources() {
 ########################################################################################
 
 
-    ALL_CPP=$(     echo "$ALL_CPP"     | sed "s/ /\n/g" | sort | uniq )
-    ALL_HPP=$(     echo "$ALL_HPP"     | sed "s/ /\n/g" | sort | uniq )
+    ALL_CPP=$(             echo "$ALL_CPP"                              | sed "s/ /\n/g" | sort | uniq )
+    ALL_HPP=$(             echo "$ALL_HPP"                              | sed "s/ /\n/g" | sort | uniq )
+    ALL_ALL_HPP=$(         echo "$ALL_ALL_HPP $ALL_HPP"                 | sed "s/ /\n/g" | sort | uniq )
 
-    X11_CPP=$(     echo "$X11_CPP"     | sed "s/ /\n/g" | sort | uniq )
-    X11_HPP=$(     echo "$X11_HPP"     | sed "s/ /\n/g" | sort | uniq )
+    X11_CPP=$(             echo "$X11_CPP"                              | sed "s/ /\n/g" | sort | uniq )
+    X11_HPP=$(             echo "$X11_HPP"                              | sed "s/ /\n/g" | sort | uniq )
+    ALL_X11_HPP=$(         echo "$ALL_X11_HPP $X11_HPP"                 | sed "s/ /\n/g" | sort | uniq )
     
-    WAYLAND_CPP=$( echo "$WAYLAND_CPP" | sed "s/ /\n/g" | sort | uniq )
-    WAYLAND_HPP=$( echo "$WAYLAND_HPP" | sed "s/ /\n/g" | sort | uniq )
+    WAYLAND_CPP=$(         echo "$WAYLAND_CPP"                          | sed "s/ /\n/g" | sort | uniq )
+    WAYLAND_HPP=$(         echo "$WAYLAND_HPP"                          | sed "s/ /\n/g" | sort | uniq )
+    ALL_WAYLAND_HPP_HPP=$( echo "$ALL_WAYLAND_HPP_HPP $WAYLAND_HPP_HPP" | sed "s/ /\n/g" | sort | uniq )
     
-    MIR_CPP=$(     echo "$MIR_CPP"     | sed "s/ /\n/g" | sort | uniq )
-    MIR_HPP=$(     echo "$MIR_HPP"     | sed "s/ /\n/g" | sort | uniq )
+    MIR_CPP=$(             echo "$MIR_CPP"                              | sed "s/ /\n/g" | sort | uniq )
+    MIR_HPP=$(             echo "$MIR_HPP"                              | sed "s/ /\n/g" | sort | uniq )
+    ALL_MIR_HPP=$(         echo "$ALL_MIR_HPP $MIR_HPP"                 | sed "s/ /\n/g" | sort | uniq )
 
-    WINDOWS_CPP=$( echo "$WINDOWS_CPP" | sed "s/ /\n/g" | sort | uniq )
-    WINDOWS_HPP=$( echo "$WINDOWS_HPP" | sed "s/ /\n/g" | sort | uniq )
-
-
+    WINDOWS_CPP=$(         echo "$WINDOWS_CPP"                          | sed "s/ /\n/g" | sort | uniq )
+    WINDOWS_HPP=$(         echo "$WINDOWS_HPP"                          | sed "s/ /\n/g" | sort | uniq )
+    ALL_WINDOWS_HPP=$(     echo "$ALL_WINDOWS_HPP $WINDOWS_HPP"         | sed "s/ /\n/g" | sort | uniq )
 
 
 
