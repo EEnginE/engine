@@ -25,5 +25,6 @@ sources.cmake
 /tests/*/CMakeLists.txt
 /GLEW/*
 
+FindEngine.cmake
 
 .*.kate-swp
