@@ -57,8 +57,8 @@ namespace e_engine {
 
 
 /*!
-* \brief Attributes for eContext::NET_WM_STATE()
-* \sa eContext::NET_WM_STATE()
+* \brief Attributes for iContext::NET_WM_STATE()
+* \sa iContext::NET_WM_STATE()
 */
 enum WINDOW_ATTRIBUTE {
    MODAL,              //!< Sets the window modal
@@ -78,8 +78,8 @@ enum WINDOW_ATTRIBUTE {
 };
 
 /*!
- * \brief Actions for eContext::NET_WM_STATE()
- * \sa eContext::NET_WM_STATE()
+ * \brief Actions for iContext::NET_WM_STATE()
+ * \sa iContext::NET_WM_STATE()
  */
 enum ACTION {
    C_REMOVE = 0, //!< Remove the attribute
