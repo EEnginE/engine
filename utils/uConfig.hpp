@@ -59,8 +59,8 @@ namespace e_engine_internal {
  *
  * This is the main, global configuration and information sructure.
  *
- * This structure stores all information the classes eInit and
- * eContext need.
+ * This structure stores all information the classes iInit and
+ * iContext need.
  * The constructor fills all values with data,
  * which let the classes work without problems.
  *
@@ -68,7 +68,7 @@ namespace e_engine_internal {
  *
  * \note Only the object \c GlobConf will be used! You should never create other instances of this structure
  *
- * \sa eInit eContext GlobConf
+ * \sa iInit iContext GlobConf
  */
 struct _uConfig {
 
@@ -146,31 +146,31 @@ struct _uConfig {
    // =============================================================================
 
    struct __uConfig_Window {
-      unsigned int width;     //!< The width  ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
-      unsigned int height;    //!< The height ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
-      unsigned int minWidth;  //!< The min width of the window                        \c CLASSES: \a eInit, \a eContext
-      unsigned int minHeight; //!< The min height of the window                       \c CLASSES: \a eInit, \a eContext
-      int          posX;      //!< The posX   ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
-      int          posY;      //!< The posY   ( will be updated when window changed ) \c CLASSES: \a eInit, \a eContext
+      unsigned int width;     //!< The width  ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
+      unsigned int height;    //!< The height ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
+      unsigned int minWidth;  //!< The min width of the window                        \c CLASSES: \a iInit, \a iContext
+      unsigned int minHeight; //!< The min height of the window                       \c CLASSES: \a iInit, \a iContext
+      int          posX;      //!< The posX   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
+      int          posY;      //!< The posY   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
       
-      unsigned int mousePosX; //!< The mouse posX   ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
-      unsigned int mousePosY; //!< The mouse posY   ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
+      unsigned int mousePosX; //!< The mouse posX   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
+      unsigned int mousePosY; //!< The mouse posY   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
       
-      bool         mouseIsInWindow; //!< Is the mouse in the window? ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
-      bool         windowHasFocus;  //!< Has our window the focus?   ( will be updated when mouse moved ) \c CLASSES: \a eInit, \a eContext
+      bool         mouseIsInWindow; //!< Is the mouse in the window? ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
+      bool         windowHasFocus;  //!< Has our window the focus?   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
       
       
 
-      bool         fullscreen;       //!< Fullscreen?          ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
-      bool         VSync;            //!< VSync?               ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
-      bool         windowDecoration; //!< Has a window border? ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit
+      bool         fullscreen;       //!< Fullscreen?          ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit
+      bool         VSync;            //!< VSync?               ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit
+      bool         windowDecoration; //!< Has a window border? ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit
 
       WINDOW_TYPE  winType;
 
-      std::string  windowName;      //!< Name of the window ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit, \a eContext
-      std::string  xlibWindowName;  //!< Name of the window ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit, \a eContext
-      std::string  iconName;        //!< Name of the window ( changes will be ignored after eInit::init() called ) \c CLASSES: \a eInit, \a eContext
-      //std::string  iconPath;       //!< Name of the window ( changes will be ignored after eInit::init() called )
+      std::string  windowName;      //!< Name of the window ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit, \a iContext
+      std::string  xlibWindowName;  //!< Name of the window ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit, \a iContext
+      std::string  iconName;        //!< Name of the window ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit, \a iContext
+      //std::string  iconPath;       //!< Name of the window ( changes will be ignored after iInit::init() called )
 
       bool         restoreOldScreenRes;
 

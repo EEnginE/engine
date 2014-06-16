@@ -24,7 +24,7 @@ void hexPrint( std::vector<unsigned char> const &_v ) {
 // #undef  UNIX
 // #define UNIX 0
 
-void ftemp( eInit *_init ) {
+void ftemp( iInit *_init ) {
    B_SLEEP( seconds, 5 );
    _init->setDecoration( C_REMOVE );
    _init->fullScreen( C_ADD );
@@ -91,7 +91,7 @@ int main( int argc, char **argv ) {
 
 
 #if ! KDEVELOP
-   eInit start;
+   iInit start;
    MyHandler handler;
 
    if ( start.init() == 1 ) {
@@ -104,7 +104,7 @@ int main( int argc, char **argv ) {
 
       iLOG "Test" END
 
-      vector<eDisplays> displays = start.getDisplayResolutions();
+      vector<iDisplays> displays = start.getDisplayResolutions();
 
       iLOG "Displays: " ADD displays.size() END
 
@@ -140,7 +140,7 @@ int main( int argc, char **argv ) {
          displays[0].setNoClones();
          displays[1].setNoClones();
          displays[1].setPositionAbsolute( 0, 0 );
-         displays[0].setPositionRelative( eDisplays::RIGHT_OFF, displays[1] );
+         displays[0].setPositionRelative( iDisplays::RIGHT_OFF, displays[1] );
          iLOG start.setDisplaySizes( displays[0] ) END
          iLOG start.setDisplaySizes( displays[1] ) END
          start.setPrimary( displays[1] );
@@ -155,7 +155,7 @@ int main( int argc, char **argv ) {
          temp = ( string ) argv[1] + "/colors_p" ;
       }
 
-      eLinker prog( temp );
+      rLinker prog( temp );
       GLuint dummy;
       prog.link( dummy );
 
