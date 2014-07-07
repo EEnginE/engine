@@ -4,11 +4,19 @@
  */
 
 #include "handler.hpp"
+#include "config.hpp"
 
 GLfloat alpha = 1;
 GLfloat r, g, b, R, G, B;
 bool    rr, gg, bb;
 int counter1 = 0;
+MyHandler *_HANDLER_ = NULL;
+
+MyHandler::~MyHandler() {
+   glDeleteBuffers( 1, &vVertexbuffer );
+   glDeleteVertexArrays( 1, &vVertexArrayID );
+}
+
 
 void MyHandler::mouse( iEventInfo info ) {
    if ( info.iMouse.button <= E_MOUSE_6 ) // We dont want move events and etc.
@@ -153,6 +161,61 @@ void render( iEventInfo info ) {
       info.iInitPointer->quitMainLoop();
    }
 }
+
+static const GLfloat g_vertex_buffer_data[] = {
+   -1.0f, -1.0f, 0.0f,
+   1.0f, -1.0f, 0.0f,
+   0.0f,  1.0f, 0.0f,
+};
+
+void MyHandler::initGL() {
+   glGenVertexArrays( 1, &vVertexArrayID );
+   glBindVertexArray( vVertexArrayID );
+   
+   string temp = ( string ) INSTALL_PREFIX + "/share/engineTests/test1/data/shaders/triangle1";
+   vProgram.setShaders( temp );
+   vProgram.link( vShaderProgram );
+
+// Generate 1 buffer, put the resulting identifier in vertexbuffer
+   glGenBuffers( 1, &vVertexbuffer );
+
+// The following commands will talk about our 'vVertexbuffer' buffer
+   glBindBuffer( GL_ARRAY_BUFFER, vVertexbuffer );
+
+// Give our vertices to OpenGL.
+   glBufferData( GL_ARRAY_BUFFER, sizeof( g_vertex_buffer_data ), g_vertex_buffer_data, GL_STATIC_DRAW );
+   glClearColor( 0.0f, 0.0f, 0.4f, 1.0f );
+
+}
+
+void MyHandler::doRenderTriangle( iInit *_init ) {
+   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+   glEnableVertexAttribArray( 0 );
+   glUseProgram( vShaderProgram );
+   glBindBuffer( GL_ARRAY_BUFFER, vVertexbuffer );
+   glVertexAttribPointer(
+      0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+      3,                  // size
+      GL_FLOAT,           // type
+      GL_FALSE,           // normalized?
+      0,                  // stride
+      ( void * )0         // array buffer offset
+   );
+
+// Draw the triangle !
+   glDrawArrays( GL_TRIANGLES, 0, 3 ); // Starting from vertex 0; 3 vertices total -> 1 triangle
+
+   glDisableVertexAttribArray( 0 );
+   _init->swapBuffers();
+}
+
+
+void renderTriangle( iEventInfo info ) {
+   if ( _HANDLER_ == NULL )
+      return;
+   _HANDLER_->doRenderTriangle( info.iInitPointer );
+}
+
 
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

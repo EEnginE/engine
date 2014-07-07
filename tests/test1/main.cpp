@@ -63,7 +63,7 @@ int main( int argc, char **argv ) {
    GlobConf.versions.glMajorVersion = 4;
    GlobConf.versions.glMinorVersion = 4;
 
-//    GlobConf.log.waitUntilLogEntryPrinted = true;
+   GlobConf.log.waitUntilLogEntryPrinted = true;
 //    GlobConf.log.logFILE.logFileName = "./log";
 
    uRandomISAAC myRand;
@@ -95,12 +95,13 @@ int main( int argc, char **argv ) {
    MyHandler handler;
 
    if ( start.init() == 1 ) {
-      start.setRenderFunc( render );
+      start.setRenderFunc( renderTriangle );
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
       start.addMousuSlot( handler.getSMouse() );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
+      
 
       iLOG "Test" END
 
@@ -158,6 +159,9 @@ int main( int argc, char **argv ) {
       rLinker prog( temp );
       GLuint dummy;
       prog.link( dummy );
+      
+      _HANDLER_ = &handler;
+      handler.initGL();
 
       start.startMainLoop();
       B_SLEEP( seconds, 1 );

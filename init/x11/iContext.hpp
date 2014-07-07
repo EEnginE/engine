@@ -43,8 +43,8 @@ namespace e_engine {
 
 namespace unix_x11 {
 
-typedef GLXContext( *glXCreatiContextAttribsARBProc )( Display *, GLXFBConfig, GLXContext, bool, const int * );  // <= Old Style
-// using glXCreatiContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool, const int * );   // <= C++11 style (doesnt work with older gcc versions)
+typedef GLXContext( *glXCreateContextAttribsARBProc )( Display *, GLXFBConfig, GLXContext, bool, const int * );  // <= Old Style
+// using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool, const int * );   // <= C++11 style (doesnt work with older gcc versions)
 
 
 /*!
@@ -110,7 +110,7 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       int                  vNumOfFBConfigs_I;         //!< Number of found matching framebuffer configs
       long int             vEventMask_lI;             //!< The X11 event mask (needed to recieve events)
 
-      glXCreatiContextAttribsARBProc glXCreatiContextAttribsARB; //! The context creation function pointer
+      glXCreateContextAttribsARBProc glXCreateContextAttribsARB; //! The context creation function pointer
 
       int    vBestFBConfig_I;       //!< The Integer ID of the best FB config we have found
 
