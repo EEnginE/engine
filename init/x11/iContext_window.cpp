@@ -351,16 +351,16 @@ int iContext::createOGLContext() {
 
    if ( ! vHaveGLEW_B ) {
       // Make the function pointer
-      glXCreatiContextAttribsARB = 0;
-      glXCreatiContextAttribsARB = ( glXCreatiContextAttribsARBProc ) glXGetProcAddressARB( ( GLubyte * ) "glXCreatiContextAttribsARB" );
+      glXCreateContextAttribsARB = 0;
+      glXCreateContextAttribsARB = ( glXCreateContextAttribsARBProc ) glXGetProcAddressARB( ( GLubyte * ) "glXCreateContextAttribsARB" );
    }
 
    gContextErrorOccoured_B = false;
    int ( *oldHandler )( Display *, XErrorEvent * ) = XSetErrorHandler( &contextERROR_HANDLE );
 
-   if ( !isExtensionSupported( "GLX_ARB_create_context" ) || !glXCreatiContextAttribsARB ) {
+   if ( !isExtensionSupported( "GLX_ARB_create_context" ) || !glXCreateContextAttribsARB ) {
       // Extension not supported:
-      wLOG "glXCreatiContextAttribsARB not found => Fall back to old-style context creation" END
+      wLOG "glXCreateContextAttribsARB not found => Fall back to old-style context creation" END
 
       vOpenGLContext_GLX = glXCreateNewContext( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_RGBA_TYPE, 0, true );
    } else {
@@ -383,7 +383,7 @@ int iContext::createOGLContext() {
       }
 
       for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
-         vOpenGLContext_GLX = glXCreatiContextAttribsARB( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], 0, true, lAttributes_A_I );
+         vOpenGLContext_GLX = glXCreateContextAttribsARB( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], 0, true, lAttributes_A_I );
 
          // Errors ?
          XSync( vDisplay_X11, false );

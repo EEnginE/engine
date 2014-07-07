@@ -22,6 +22,12 @@ class MyHandler {
    private:
       vector<iDisplays> vDisp_RandR;
 
+      GLuint vVertexArrayID;
+      GLuint vVertexbuffer;
+      
+      GLuint vShaderProgram;
+      
+      rLinker vProgram;
    public:
       _SLOT_ slotWindowClose;
       _SLOT_ slotResize;
@@ -33,6 +39,7 @@ class MyHandler {
          slotKey.setFunc( &MyHandler::key, this );
          slotMouse.setFunc( &MyHandler::mouse, this );
       }
+      ~MyHandler();
       void windowClose( iEventInfo info ) {
          iLOG "User closed window" END
          info.iInitPointer->closeWindow();
@@ -42,6 +49,9 @@ class MyHandler {
       void resize( iEventInfo info ) {
          iLOG "Window resized" END
       }
+      
+      void initGL();
+      void doRenderTriangle( iInit *_init );
 
       _SLOT_ *getSWindowClose() {return &slotWindowClose;}
       _SLOT_ *getSResize()      {return &slotResize;}
@@ -49,8 +59,10 @@ class MyHandler {
       _SLOT_ *getSMouse()       {return &slotMouse;}
 };
 
+extern MyHandler *_HANDLER_;
 
 void render( iEventInfo info );
+void renderTriangle( iEventInfo info );
 
 
 #endif // HANDLER_HPP

@@ -68,8 +68,6 @@ class rLinker {
 
       unsigned int test_program();
 
-      rLinker() {}
-
    public:
       static const short int VERT     = 0;
       static const short int FRAG     = 1;
@@ -78,6 +76,7 @@ class rLinker {
       static const GLushort  PROGRAM_FILES_EXP = 0; // the shader source files are set explicit
       static const GLushort  PROGRAM_FILE_PATH = 1; // search the shader files with the ending
 
+      rLinker();
       rLinker( std::string _path );
       rLinker( std::string _path, GLuint n, ... );
       ~rLinker() {
@@ -91,7 +90,6 @@ class rLinker {
        */
       GLvoid   setShaders( std::string _path ) {
          path = _path;
-         search_shaders();
       }
 
       /*!
@@ -122,6 +120,7 @@ class rLinker {
 
 
       unsigned int link( GLuint &_theProgram );
+      unsigned int link();
 
       void   deleteProgram() {
          glDeleteProgram( theProgram );   //!< Deletes the programm   \returns Nothing

@@ -34,26 +34,38 @@ namespace e_engine {
 
 using namespace e_engine_internal;
 
-rLinker::rLinker( std::string _path ) {
-   path         = _path;
+rLinker::rLinker() {
+   path          = "";
    found_shaders = 0;
-   theProgram   = 0;
-   is_linked    = false;
+   theProgram    = 0;
+   is_linked     = false;
 
-   ending[VERT] = VERT_END;
-   ending[FRAG] = FRAG_END;
-   ending[GEOM] = GEOM_END;
+   ending[VERT]  = VERT_END;
+   ending[FRAG]  = FRAG_END;
+   ending[GEOM]  = GEOM_END;
+}
+
+
+rLinker::rLinker( std::string _path ) {
+   path          = _path;
+   found_shaders = 0;
+   theProgram    = 0;
+   is_linked     = false;
+
+   ending[VERT]  = VERT_END;
+   ending[FRAG]  = FRAG_END;
+   ending[GEOM]  = GEOM_END;
 }
 
 rLinker::rLinker( std::string _path, GLuint n, ... ) {
-   path         = _path;
+   path          = _path;
    found_shaders = 0;
-   theProgram   = 0;
-   is_linked    = false;
+   theProgram    = 0;
+   is_linked     = false;
 
-   ending[VERT] = VERT_END;
-   ending[FRAG] = FRAG_END;
-   ending[GEOM] = GEOM_END;
+   ending[VERT]  = VERT_END;
+   ending[FRAG]  = FRAG_END;
+   ending[GEOM]  = GEOM_END;
 
    attributes.clear();
    va_list list;
@@ -155,12 +167,35 @@ unsigned int rLinker::test_program() {
  * \returns 3 When a file not found error occurs
  * \returns 4 When a shader compilation error occurs
  * \returns 5 When a shader linking error occurs
+ * \returns 6 When the shaders were not set
  */
 unsigned int rLinker::link( GLuint &_theProgram ) {
+   unsigned int lRet_uI = link();
+   _theProgram = theProgram;
+   return lRet_uI;
+}
+
+/*!
+ *
+ * \brief Search the shader files, compile them and link the program
+ *
+ * \returns 1 When successful
+ * \returns 2 When a file reading error occurs
+ * \returns 3 When a file not found error occurs
+ * \returns 4 When a shader compilation error occurs
+ * \returns 5 When a shader linking error occurs
+ * \returns 6 When the shaders were not set
+ */
+unsigned int rLinker::link() {
    unsigned int i;
+   
+   if ( path.empty() ) {
+      eLOG "No shaders set for compilation" END
+      return 6;
+   }
 
    if ( search_shaders() == 0 ) {
-      eLOG "Unable to find any shader file (throw - E_NOT_SUCH_A_FILE)" END
+      eLOG "Unable to find any shader file" END
       //Return a file not found error
       return 3;
    }
@@ -182,7 +217,7 @@ unsigned int rLinker::link( GLuint &_theProgram ) {
    }
 
 
-   /// Creating the program
+   /// Createng the program
    theProgram = glCreateProgram();
 
    /// Adding shaders
@@ -217,9 +252,9 @@ unsigned int rLinker::link( GLuint &_theProgram ) {
    }
    lEntry_LOG _END
    is_linked = true;
-   _theProgram = theProgram;
    return 1;
 }
+
 
 /* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
