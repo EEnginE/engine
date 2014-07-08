@@ -33,6 +33,14 @@ void ftemp( iInit *_init ) {
 
 int main( int argc, char **argv ) {
    B_SLEEP( milliseconds, 1 ); // Why does this crash without this?
+
+   string lShaderRoot_str = ( string ) INSTALL_PREFIX + "/share/engineTests/test1/data/shaders/";
+   
+   if ( argc == 2 ) {
+      lShaderRoot_str = ( string ) argv[1] ;
+   }
+
+
    GlobConf.win.width           = 800;
    GlobConf.win.height          = 600;
    GlobConf.win.fullscreen      = false;
@@ -57,9 +65,9 @@ int main( int argc, char **argv ) {
    GlobConf.log.logERR.Time     = LEFT_REDUCED;
    GlobConf.log.logERR.File     = RIGHT_FULL;
    GlobConf.log.logFILE.File    = RIGHT_FULL;
-   
+
    GlobConf.win.restoreOldScreenRes = true;
-   
+
    GlobConf.versions.glMajorVersion = 4;
    GlobConf.versions.glMinorVersion = 4;
 
@@ -92,7 +100,7 @@ int main( int argc, char **argv ) {
 
 #if ! KDEVELOP
    iInit start;
-   MyHandler handler;
+   MyHandler handler( lShaderRoot_str );
 
    if ( start.init() == 1 ) {
       start.setRenderFunc( renderTriangle );
@@ -101,7 +109,7 @@ int main( int argc, char **argv ) {
       start.addKeySlot( handler.getSKey() );
       start.addMousuSlot( handler.getSMouse() );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
-      
+
 
       iLOG "Test" END
 
@@ -150,16 +158,12 @@ int main( int argc, char **argv ) {
       }
 
       string temp;
-      temp += ( string ) INSTALL_PREFIX + "/share/engineTests/test1/data/shaders/colors_p";
-
-      if ( argc == 2 ) {
-         temp = ( string ) argv[1] + "/colors_p" ;
-      }
+      temp += lShaderRoot_str + "/colors_p";
 
       rLinker prog( temp );
       GLuint dummy;
       prog.link( dummy );
-      
+
       _HANDLER_ = &handler;
       handler.initGL();
 

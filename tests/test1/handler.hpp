@@ -28,16 +28,19 @@ class MyHandler {
       GLuint vShaderProgram;
       
       rLinker vProgram;
+      string  vShaderRoot_str;
    public:
       _SLOT_ slotWindowClose;
       _SLOT_ slotResize;
       _SLOT_ slotKey;
       _SLOT_ slotMouse;
-      MyHandler() {
+      MyHandler( string _shaderRoot ) {
          slotWindowClose.setFunc( &MyHandler::windowClose, this );
          slotResize.setFunc( &MyHandler::resize, this );
          slotKey.setFunc( &MyHandler::key, this );
          slotMouse.setFunc( &MyHandler::mouse, this );
+         
+         vShaderRoot_str = _shaderRoot;
       }
       ~MyHandler();
       void windowClose( iEventInfo info ) {

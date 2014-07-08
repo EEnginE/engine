@@ -14,11 +14,6 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/generate/cmake )
 
 
-# Only set CMAKE_BUILD_TYPE when not defined
-if( "${CMAKE_BUILD_TYPE}" MATCHES "" )
-   set( CMAKE_BUILD_TYPE DEBUG )
-endif( "${CMAKE_BUILD_TYPE}" MATCHES "" )
-
 # Set the output directory of the libraries and executables after the build process
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
@@ -32,6 +27,22 @@ include( ${PROJECT_SOURCE_DIR}/generate/cmake/git.cmake )           # Get the pr
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/find.cmake )          # Find our dependences
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/compiler.cmake )      # Compiler Options
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/newLib.cmake )        # Get access to function "newLib"
+
+# Only set CMAKE_BUILD_TYPE when not defined
+if( "${CMAKE_BUILD_TYPE}" MATCHES "" )
+   set( CMAKE_BUILD_TYPE DEBUG )
+   
+   # Is this tagged ==> Release?
+   if( "${CM_COMMIT_IS_TAGGED}" MATCHES "1" )
+      set( CMAKE_BUILD_TYPE RELEASE )
+   endif( "${CM_COMMIT_IS_TAGGED}" MATCHES "1" )
+endif( "${CMAKE_BUILD_TYPE}" MATCHES "" )
+
+set( DEBUG_LOGGING 0 )
+
+if( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
+   set( DEBUG_LOGGING 1 )
+endif( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
 
 
 # Generate defines.hpp

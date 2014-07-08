@@ -38,6 +38,8 @@
 #define E_VERSION_GIT      "@CM_VERSION_GIT@"
 #define E_INSTALL_PREFIX   "@CMAKE_INSTALL_PREFIX@"
 
+#define E_DEBUG_LOGGING     @DEBUG_LOGGING@
+
 
 
 // Detect compiler function macro

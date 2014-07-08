@@ -172,7 +172,7 @@ void MyHandler::initGL() {
    glGenVertexArrays( 1, &vVertexArrayID );
    glBindVertexArray( vVertexArrayID );
    
-   string temp = ( string ) INSTALL_PREFIX + "/share/engineTests/test1/data/shaders/triangle1";
+   string temp = vShaderRoot_str + "/triangle1";
    vProgram.setShaders( temp );
    vProgram.link( vShaderProgram );
 

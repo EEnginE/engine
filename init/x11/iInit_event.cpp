@@ -119,7 +119,7 @@ int iInit::eventLoop() {
          addTimeval( tv, periode, tv );
       }
 
-      while ( XPending( getDisplay() ) > 0 && getHaviContext() ) {
+      while ( XPending( getDisplay() ) > 0 && getHaveContext() ) {
 
          XNextEvent( getDisplay(), &lEvent_X11 );
          lKeyState_uI    = E_PRESSED;

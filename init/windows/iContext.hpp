@@ -68,13 +68,13 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
 
       inline void swapBuffers() {SwapBuffers( vHDC_win32 );}
 
-      int  creatiContext();
+      int  createContext();
 
       int  fullScreen( ACTION _action, bool _allMonitors = false );
       int  enableVSync();
       int  disableVSync();
       void destroyContext();
-      bool getHaviContext() { return vHasContext_B; }
+      bool getHaveContext() { return vHasContext_B; }
 
       bool makiContextCurrent();
       bool makeNOContextCurrent();

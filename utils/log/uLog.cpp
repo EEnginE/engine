@@ -83,8 +83,10 @@ void uLog::devInit() {
    addType( 'E', L"Error",   'R', true );
    addType( 'W', L"Warning", 'Y', false );
    addType( 'I', L"Info",    'G', false );
+   addType( 'D', L"Debug",   'W', false );
 
    connectSlotWith( 'I', vStdOut_eSLOT );
+   connectSlotWith( 'D', vStdOut_eSLOT );
 
    // What shall we do with warnings?
    if ( GlobConf.log.standardWarningsToStdErr ) {
@@ -100,6 +102,7 @@ void uLog::devInit() {
 
    if ( vLogFileOutput_OS.is_open() ) {
       connectSlotWith( 'I', vStdLog_eSLOT );
+      connectSlotWith( 'D', vStdLog_eSLOT );
       connectSlotWith( 'W', vStdLog_eSLOT );
       connectSlotWith( 'E', vStdLog_eSLOT );
 

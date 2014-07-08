@@ -57,7 +57,7 @@ LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lPar
  * \returns 7  if there was an error while initiating GLEW
  * \returns 8  if there was no good pixel format descriptor
  */
-int iContext::creatiContext() {
+int iContext::createContext() {
    if ( vHasContext_B )
       return 2;
 
