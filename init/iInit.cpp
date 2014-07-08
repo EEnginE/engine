@@ -166,7 +166,7 @@ int iInit::init() {
 
    makiContextCurrent();
 #else
-   vCreateWindowReturn_I = creatiContext();
+   vCreateWindowReturn_I = createContext();
 #endif
 
    if ( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
@@ -214,7 +214,7 @@ void iInit::handluSignal( int _signal ) {
  * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
  */
 int iInit::startMainLoop( bool _wait ) {
-   if ( ! getHaviContext() ) {
+   if ( ! getHaveContext() ) {
       wLOG "Can not start the main loop. There is no OpenGL context!" END
       return 0;
    }
@@ -240,7 +240,7 @@ int iInit::startMainLoop( bool _wait ) {
       vRenderLoop_BT.join();
    }
 
-   if ( getHaviContext() ) makiContextCurrent();  // Only ONE thread can have a context
+   if ( getHaveContext() ) makiContextCurrent();  // Only ONE thread can have a context
 
    if ( vBoolCloseWindow_B ) {destroyContext();} // iInit::closeWindow() called?
 
@@ -315,7 +315,7 @@ int iInit::renderLoop( ) {
          makeNOContextCurrent();
          vMainLoopISPaused_B = true;
          while ( vMainLoopPaused_B ) vMainLoopWait_BT.wait( lLock_BT );
-         while ( !getHaviContext() || vWindowRecreate_B ) B_SLEEP( milliseconds, 10 );
+         while ( !getHaveContext() || vWindowRecreate_B ) B_SLEEP( milliseconds, 10 );
 #if WINDOWS
          B_SLEEP( milliseconds, 100 ); //!< \todo Remove this workaround for Windows (problem with iContext::makiContextCurrent)
 #endif
@@ -329,13 +329,13 @@ int iInit::renderLoop( ) {
       fRender( this );
    }
 
-   if ( getHaviContext() ) makeNOContextCurrent();
+   if ( getHaveContext() ) makeNOContextCurrent();
    vRenderLoopHasFinished_B = true;
    return 0;
 }
 
 int iInit::closeWindow( bool _waitUntilClosed ) {
-   if ( ! getHaviContext() ) {return 0;}
+   if ( ! getHaveContext() ) {return 0;}
    if ( vMainLoopRunning_B ) {
       vBoolCloseWindow_B = true;
       quitMainLoop();
@@ -431,7 +431,7 @@ void iInit::restart( bool _runInNewThread ) {
    vWindowRecreate_B = true;
    destroyContext();
 #if UNIX
-   creatiContext();
+   createContext();
    standardRender( iEventInfo( this ) );
    makeNOContextCurrent();
 #endif

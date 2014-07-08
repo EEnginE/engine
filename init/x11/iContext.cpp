@@ -71,7 +71,8 @@ iContext::iContext() {
    vDisplay_X11           = NULL;
    vWindow_X11            = 0;
    vWindowHasBorder_B     = true;
-   vHaviContext_B         = false;
+   vHaveContext_B         = false;
+   vHaveGLEW_B            = false;
    vDisplayCreated_B      = false;
    vWindowCreated_B       = false;
    vColorMapCreated_B     = false;
@@ -100,7 +101,7 @@ iContext::iContext() {
 createDisplay();
 createFrameBuffer();
 createWindow();
-creatiContext();
+createContext();
 
 vRandR_eRR.init( vDisplay_X11, vWindow_X11, vRootWindow_X11 )
  * \endcode
@@ -118,7 +119,7 @@ vRandR_eRR.init( vDisplay_X11, vWindow_X11, vRootWindow_X11 )
  * \returns  3 -- Failed to create a context
  * \returns  4 -- Failed to init GLEW
  */
-int iContext::creatiContext() {
+int iContext::createContext() {
    int lReturnValue_I;
    std::string lRandRVersionString_str;
 
@@ -207,10 +208,10 @@ int iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int
  */
 void iContext::destroyContext() {
    endRandR();
-   if ( vHaviContext_B == true ) {
+   if ( vHaveContext_B == true ) {
       glXMakeCurrent( vDisplay_X11, 0, 0 );
       glXDestroyContext( vDisplay_X11, vOpenGLContext_GLX );
-      vHaviContext_B = false;
+      vHaveContext_B = false;
    }
    if ( vWindowCreated_B == true ) {
       XDestroyWindow( vDisplay_X11, vWindow_X11 );
@@ -227,7 +228,7 @@ void iContext::destroyContext() {
       vDisplay_X11 = NULL;
       iLOG "Everything destroyed" END
    }
-   vHaviContext_B = false;
+   vHaveContext_B = false;
 }
 
 
@@ -638,7 +639,7 @@ void iContext::getGLXVersion( int *_major, int *_minor ) {
  * \returns false when there was an error
  */
 bool iContext::makiContextCurrent() {
-   if ( ! vHaviContext_B ) {
+   if ( ! vHaveContext_B ) {
       eLOG "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" END
       return false;
    }
@@ -651,7 +652,7 @@ bool iContext::makiContextCurrent() {
  * \returns false when there was an error
  */
 bool iContext::makeNOContextCurrent()  {
-   if ( ! vHaviContext_B ) {
+   if ( ! vHaveContext_B ) {
       eLOG "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" END
       return false;
    }

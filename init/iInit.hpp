@@ -72,8 +72,6 @@ class iInit : public windows_win32::iContext {
       bool              vMainLoopRunning_B;
       bool              vBoolCloseWindow_B;
 
-      bool              vHaveGLEW_B;
-
       bool              vEventLoopHasFinished_B;
       bool              vRenderLoopHasFinished_B;
 

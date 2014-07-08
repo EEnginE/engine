@@ -116,7 +116,7 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
 
       bool   vWindowHasBorder_B;
 
-      bool   vHaviContext_B;
+      bool   vHaveContext_B;
       bool   vWindowCreated_B;
       bool   vColorMapCreated_B;
       bool   vDisplayCreated_B;
@@ -153,7 +153,7 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       iContext();
       virtual ~iContext() {destroyContext();}
 
-      int creatiContext();
+      int createContext();
 
 
       void       getX11Version( int *_major, int *_minor );
@@ -163,7 +163,7 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       Window     getWindow()      { return  vWindow_X11; }         //!< \brief Get the window handle          \returns The window handle
       GLXContext getContext()     { return  vOpenGLContext_GLX; }  //!< \brief Get the context handle         \returns The context handle
       bool       getHaveGLEW()    { return  vHaveGLEW_B; }         //!< \brief Check if GLEW is OK             \returns Whether GLEW is OK
-      bool       getHaviContext() { return  vHaviContext_B; }      //!< \brief Check if we have a OGL context \returns If there is a OpenGL context
+      bool       getHaveContext() { return  vHaveContext_B; }      //!< \brief Check if we have a OGL context \returns If there is a OpenGL context
 
       inline void swapBuffers() {glXSwapBuffers( vDisplay_X11, vWindow_X11 );} //!< Swaps the OGL buffers
 

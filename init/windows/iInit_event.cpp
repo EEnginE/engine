@@ -28,7 +28,7 @@ int iInit::eventLoop() {
    {
       // Make sure lLockWindow_BT will be destroyed
       boost::lock_guard<boost::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
-      vCreateWindowReturn_I = creatiContext();
+      vCreateWindowReturn_I = createContext();
       makeNOContextCurrent();
 
       // Context created; continue with init();
@@ -48,7 +48,7 @@ int iInit::eventLoop() {
 
 //    while ( ( vMainLoopRunning_B && !vWindowRecreate_B ) || ( vMainLoopRunning_B || ( vWindowRecreate_B && ! ( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) ) ) {
    while ( !( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) {
-      if ( !getHaviContext() )
+      if ( !getHaveContext() )
          DestroyWindow( getHWND_win32() );
 
       if ( vLoopsPaused_B ) {

@@ -148,12 +148,12 @@ int iContext::createFrameBuffer() {
          std::snprintf( lBuffer_C, 4, "%X", ( GLuint ) temp->visualid );
          int samples, depth, stencil, r, g, b, a;
 
-         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,    &samples );
-         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,    &stencil );
-         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_RED_SIZE,   &r );
-         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_GREEN_SIZE, &g );
-         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_BLUE_SIZE,  &b );
-         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_ALPHA_SIZE, &a );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES,      &samples );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_STENCIL_SIZE, &stencil );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_RED_SIZE,     &r );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_GREEN_SIZE,   &g );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_BLUE_SIZE,    &b );
+         glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_ALPHA_SIZE,   &a );
          // glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_DEPTH_SIZE, &depth ); This returns the depth SIZE and NOT the depth
          depth = temp->depth;
 
@@ -193,6 +193,32 @@ int iContext::createFrameBuffer() {
       XFree( temp );
    }
    lEntry_LOG _ADD "   |=========|========|=========|=======|=========|=======================|" NEWLINE NEWLINE END
+   
+#if E_DEBUG_LOGGING
+   
+   int lFBAttribs_A_I[8];
+   
+   glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_X_RENDERABLE,  &lFBAttribs_A_I[0] );
+   glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_DOUBLEBUFFER,  &lFBAttribs_A_I[1] );
+   glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_RENDER_TYPE,   &lFBAttribs_A_I[2] );
+   glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_X_VISUAL_TYPE, &lFBAttribs_A_I[3] );
+   glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_CONFIG_CAVEAT, &lFBAttribs_A_I[4] );
+   glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_DRAWABLE_TYPE, &lFBAttribs_A_I[5] );
+   glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_STEREO,        &lFBAttribs_A_I[6] );
+   glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_LEVEL,         &lFBAttribs_A_I[7] );
+   
+   dLOG    "Adiditional framebuffer info:  (should be) [would be REALY helpful to be] {MUST BE}"
+   NEWLINE "  - GLX_X_RENDERABLE   {" ADD GL_TRUE        ADD "}      - " ADD lFBAttribs_A_I[0]
+   NEWLINE "  - GLX_DOUBLEBUFFER   {" ADD GL_TRUE        ADD "}      - " ADD lFBAttribs_A_I[1]
+   NEWLINE "  - GLX_RENDER_TYPE    [" ADD GLX_RGBA_BIT   ADD "]      - " ADD lFBAttribs_A_I[2]
+   NEWLINE "  - GLX_X_VISUAL_TYPE  [" ADD GLX_TRUE_COLOR ADD "]  - " ADD lFBAttribs_A_I[3]
+   NEWLINE "  - GLX_CONFIG_CAVEAT  [" ADD GLX_NONE       ADD "]  - " ADD lFBAttribs_A_I[4] ADD "  ( " ADD GLX_NON_CONFORMANT_CONFIG ADD " - GLX_NON_CONFORMANT_CONFIG is also OK )"
+   NEWLINE "  - GLX_DRAWABLE_TYPE  (" ADD GLX_WINDOW_BIT ADD ")      - " ADD lFBAttribs_A_I[5]
+   NEWLINE "  - GLX_STEREO          " ADD " "            ADD "       - " ADD lFBAttribs_A_I[6]
+   NEWLINE "  - GLX_LEVEL           " ADD " "            ADD "       - " ADD lFBAttribs_A_I[7]
+   END
+   
+#endif // E_DEBUG_LOGGING
 
    vVisualInfo_X11 = glXGetVisualFromFBConfig( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I] );  // Choose best fbconfig
 
@@ -420,7 +446,7 @@ int iContext::createOGLContext() {
    glXMakeCurrent( vDisplay_X11, vWindow_X11, vOpenGLContext_GLX );
    XFlush( vDisplay_X11 );
 
-   vHaviContext_B = true;
+   vHaveContext_B = true;
 
    XFree( vFBConfig_GLX );    // Framebufferconfig is not need anymore
 
