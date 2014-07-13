@@ -35,7 +35,7 @@ int main( int argc, char **argv ) {
    B_SLEEP( milliseconds, 1 ); // Why does this crash without this?
 
    string lShaderRoot_str = ( string ) INSTALL_PREFIX + "/share/engineTests/test1/data/shaders/";
-   
+
    if ( argc == 2 ) {
       lShaderRoot_str = ( string ) argv[1] ;
    }
@@ -71,7 +71,7 @@ int main( int argc, char **argv ) {
    GlobConf.versions.glMajorVersion = 4;
    GlobConf.versions.glMinorVersion = 4;
 
-   GlobConf.log.waitUntilLogEntryPrinted = true;
+//    GlobConf.log.waitUntilLogEntryPrinted = true;
 //    GlobConf.log.logFILE.logFileName = "./log";
 
    uRandomISAAC myRand;
@@ -168,10 +168,13 @@ int main( int argc, char **argv ) {
       handler.initGL();
 
       start.startMainLoop();
-      B_SLEEP( seconds, 1 );
       start.closeWindow();
    }
-
+   
+   rLoader_3D_f_OBJ data1( (string)INSTALL_PREFIX + (string)"/share/engineTests/test1/data/mesh.obj" );
+      
+   data1.load();
+   
 #endif
 
 
@@ -187,6 +190,8 @@ int main( int argc, char **argv ) {
 //    END
 
 //    B_SLEEP( seconds, 1 );
+   
+   B_SLEEP( seconds, 1 );
 
    start.shutdown();
 
