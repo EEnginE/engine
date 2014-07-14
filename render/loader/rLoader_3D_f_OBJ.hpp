@@ -40,6 +40,9 @@ class rLoader_3D_f_OBJ {
       
       bool        getIsLoaded() const;
       std::string getFilePath() const;
+      
+      std::vector<GLfloat> *getRawVertexData();
+      std::vector<GLuint> *getRawIndexData();
             
       friend struct functions::functionCalls;
 };

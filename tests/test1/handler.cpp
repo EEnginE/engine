@@ -6,6 +6,8 @@
 #include "handler.hpp"
 #include "config.hpp"
 
+#include <GL/glew.h>
+
 GLfloat alpha = 1;
 GLfloat r, g, b, R, G, B;
 bool    rr, gg, bb;
@@ -13,8 +15,13 @@ int counter1 = 0;
 MyHandler *_HANDLER_ = NULL;
 
 MyHandler::~MyHandler() {
-   glDeleteBuffers( 1, &vVertexbuffer );
-   glDeleteVertexArrays( 1, &vVertexArrayID );
+   glDeleteBuffers( 1, &vVertexBufferObject );
+   glDeleteBuffers( 1, &vIndexBufferObject );
+   
+   glDeleteVertexArrays( 1, &vVertexArray );
+
+   delete[] vVertexData;
+   delete[] vIndexData;
 }
 
 
@@ -162,48 +169,61 @@ void render( iEventInfo info ) {
    }
 }
 
-static const GLfloat g_vertex_buffer_data[] = {
+GLfloat Vertexes[] = {
    -1.0f, -1.0f, 0.0f,
+   0.0f, -1.0f, 1.0f,
    1.0f, -1.0f, 0.0f,
-   0.0f,  1.0f, 0.0f,
+   0.0f, 1.0f, 0.0f
 };
 
+
+GLuint Indices[] = {
+   0, 3, 1,
+   1, 3, 2,
+   2, 3, 0,
+   0, 1, 2
+};
+
+
 void MyHandler::initGL() {
-   glGenVertexArrays( 1, &vVertexArrayID );
-   glBindVertexArray( vVertexArrayID );
-   
+   data1.setFile( ( string )INSTALL_PREFIX + ( string )"/share/engineTests/test1/data/mesh.obj" );
+   data1.load();
+
+   glGenVertexArrays( 1, &vVertexArray );
+   glBindVertexArray( vVertexArray );
+
+   glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
+
+
    string temp = vShaderRoot_str + "/triangle1";
    vProgram.setShaders( temp );
    vProgram.link( vShaderProgram );
+   
+   {
+      glGenBuffers( 1, &vVertexBufferObject );
+      glBindBuffer( GL_ARRAY_BUFFER,         vVertexBufferObject );
+      glBufferData( GL_ARRAY_BUFFER,         sizeof( GLfloat ) * data1.getRawVertexData()->size(), &data1.getRawVertexData()->at(0), GL_STATIC_DRAW );
+   }
 
-// Generate 1 buffer, put the resulting identifier in vertexbuffer
-   glGenBuffers( 1, &vVertexbuffer );
+   {
+      glGenBuffers( 1, &vIndexBufferObject );
+      glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObject );
+      glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint ) * data1.getRawIndexData()->size(),   &data1.getRawIndexData()->at(0), GL_STATIC_DRAW );
+   }
 
-// The following commands will talk about our 'vVertexbuffer' buffer
-   glBindBuffer( GL_ARRAY_BUFFER, vVertexbuffer );
-
-// Give our vertices to OpenGL.
-   glBufferData( GL_ARRAY_BUFFER, sizeof( g_vertex_buffer_data ), g_vertex_buffer_data, GL_STATIC_DRAW );
-   glClearColor( 0.0f, 0.0f, 0.4f, 1.0f );
 
 }
 
 void MyHandler::doRenderTriangle( iInit *_init ) {
-   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-   glEnableVertexAttribArray( 0 );
-   glUseProgram( vShaderProgram );
-   glBindBuffer( GL_ARRAY_BUFFER, vVertexbuffer );
-   glVertexAttribPointer(
-      0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-      3,                  // size
-      GL_FLOAT,           // type
-      GL_FALSE,           // normalized?
-      0,                  // stride
-      ( void * )0         // array buffer offset
-   );
+   glClear( GL_COLOR_BUFFER_BIT );
 
-// Draw the triangle !
-   glDrawArrays( GL_TRIANGLES, 0, 3 ); // Starting from vertex 0; 3 vertices total -> 1 triangle
+   glUseProgram( vShaderProgram );
+   glEnableVertexAttribArray( 0 );
+   glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObject );
+   glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+   glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObject );
+
+   glDrawElements( GL_TRIANGLES, data1.getRawIndexData()->size(), GL_UNSIGNED_INT, 0 );
 
    glDisableVertexAttribArray( 0 );
    _init->swapBuffers();
