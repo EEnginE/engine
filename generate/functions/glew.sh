@@ -10,6 +10,9 @@ doGlew() {
     
     cd GLEW
     
+    git checkout master &> /dev/null
+    git pull            &> /dev/null
+    
     if [ -d lib -a ! $1 -eq 1 ]; then
         echo "INFO: GLEW: Nothing to do here"
         cd ..
