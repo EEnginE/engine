@@ -110,7 +110,6 @@ int main( int argc, char **argv ) {
       start.addMousuSlot( handler.getSMouse() );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
 
-
       iLOG "Test" END
 
       vector<iDisplays> displays = start.getDisplayResolutions();
@@ -166,15 +165,12 @@ int main( int argc, char **argv ) {
 
       _HANDLER_ = &handler;
       handler.initGL();
+      handler.doRenderTriangle( &start );
 
       start.startMainLoop();
       start.closeWindow();
    }
-   
-   rLoader_3D_f_OBJ data1( (string)INSTALL_PREFIX + (string)"/share/engineTests/test1/data/mesh.obj" );
       
-   data1.load();
-   
 #endif
 
 

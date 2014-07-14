@@ -38,6 +38,23 @@ std::string rLoader_3D_f_OBJ::getFilePath() const {
    return vFilePath_str;
 }
 
+/*!
+ * \brief get the raw vertex data pointer
+ * \returns if the raw vertex data pointer
+ */
+std::vector< GLfloat > *rLoader_3D_f_OBJ::getRawVertexData() {
+   return &vVertexData;
+}
+
+/*!
+ * \brief get the raw vertex index pointer
+ * \returns if the raw vertex index pointer
+ */
+std::vector< GLuint > *rLoader_3D_f_OBJ::getRawIndexData() {
+   return &vIndexData;
+}
+
+
 
 /*!
  * \brief sets the file to load
@@ -196,9 +213,9 @@ struct objGrammar_float : qi::grammar<Iterator> {
  * \returns 5 if already loaded
  */
 int rLoader_3D_f_OBJ::load() {
-   if( vIsDataLoaded_B )
+   if ( vIsDataLoaded_B )
       return 5;
-   
+
    boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
 
    if ( ! boost::filesystem::exists( lFilePath_BFS ) ) {
@@ -236,7 +253,7 @@ int rLoader_3D_f_OBJ::load() {
       eLOG "Failed to parse '" ADD vFilePath_str ADD "'" END
       return 4;
    }
-   
+
    vIsDataLoaded_B = true;
 
    return 1;

@@ -22,13 +22,20 @@ class MyHandler {
    private:
       vector<iDisplays> vDisp_RandR;
 
-      GLuint vVertexArrayID;
-      GLuint vVertexbuffer;
+      GLuint vVertexArray;
+      
+      GLuint vVertexBufferObject;
+      GLuint vIndexBufferObject;
       
       GLuint vShaderProgram;
       
       rLinker vProgram;
       string  vShaderRoot_str;
+      
+      GLfloat *vVertexData;
+      GLuint  *vIndexData;
+      
+      rLoader_3D_f_OBJ data1;
    public:
       _SLOT_ slotWindowClose;
       _SLOT_ slotResize;

@@ -1,14 +1,11 @@
 #version 330
 
-// Ouput data
-out vec4 color;
+in vec4 Color;
 
+out vec4 FragColor;
 
 void main()
 {
-
-// Output color = red
-color = vec4(1,0,0,1);
-
+    FragColor = Color;
 }
 
