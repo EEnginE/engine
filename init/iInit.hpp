@@ -67,51 +67,47 @@ class iInit : public unix_x11::iContext, public iMouse {
 class iInit : public windows_win32::iContext {
 #endif
    private:
-      RENDER_FUNC       fRender;
-
       bool              vMainLoopRunning_B;
       bool              vBoolCloseWindow_B;
 
       bool              vEventLoopHasFinished_B;
-      bool              vRenderLoopHasFinished_B;
 
       boost::thread     vEventLoop_BT;
-      boost::thread     vRenderLoop_BT;
       boost::thread     vQuitMainLoop_BT;
-      
+
       boost::thread     vRestartThread_BT;
       boost::thread     vPauseThread_BT;
-      
-      boost::mutex      vMainLoopMutex_BT;
+
       boost::mutex      vEventLoopMutex_BT;
-      
-      boost::condition_variable vMainLoopWait_BT;
+
       boost::condition_variable vEventLoopWait_BT;
-      
-      bool              vMainLoopPaused_B;
+
       bool              vEventLoopPaused_B;
-      
-      bool              vMainLoopISPaused_B;
       bool              vEventLoopISPaused_B;
-      
-      bool              vLoopsPaused_B;
-      
+
       bool              vWasMouseGrabbed_B;
-      
+
       int               vCreateWindowReturn_I;
 
-      
+      bool              vAreRenderLoopSignalsConnected_B;
+
+      uSignal<void, bool> vStartRenderLoopSignal_SIG;
+      uSignal<void>       vStopRenderLoopSignal_SIG;
+
+      uSignal<void>       vPauseRenderLoop_SIG;
+      uSignal<void>       vContinueRenderLoop_SIG;
+
+
 #if WINDOWS
       boost::mutex              vCreateWindowMutex_BT;
       boost::condition_variable vCreateWindowCondition_BT;
-      
+
       boost::mutex              vStartEventMutex_BT;
       boost::condition_variable vStartEventCondition_BT;
       bool                      vContinueWithEventLoop_B;
 #endif
 
       // Thread Functions --------------------------------------------------------- ###
-      int  renderLoop();       //!< The render loop function
       int  eventLoop();        //!< The event loop function ( In PLATFORM/e_event.cpp )
       int  quitMainLoopCall(); //!< The actual function to quit the main loop
 
@@ -139,27 +135,27 @@ class iInit : public windows_win32::iContext {
 
       //! The standard Mouse function
       GLvoid s_standardMouse( iEventInfo _info ) {}
-      
+
       //! The standard Mouse function
       GLvoid s_standardFocus( iEventInfo _info ) {
          iLOG "Focus " ADD _info.eFocus.hasFocus ? "got" : "lost" END
       }
-      
+
       GLvoid s_advancedGrabControl( iEventInfo _info );
-      
+
    public:
       iInit();
-      ~iInit() {closeWindow();shutdown();}
+      ~iInit() {closeWindow(); shutdown();}
 
       int    init();
       int    shutdown();
       int    startMainLoop( bool _wait = true );
 
       void   quitMainLoop();
-      
+
       void   pauseMainLoop( bool _runInNewThread = false );
       void   continueMainLoop();
-      
+
       void   restart( bool _runInNewThread = false );
       void   restartIfNeeded( bool _runInNewThread = false );
 
@@ -170,8 +166,16 @@ class iInit : public windows_win32::iContext {
        */
       int    closeWindow( bool _waitUntilClosed = false );
       
+      template<class __C>
+      void   addRenderSlots( uSlot<void, __C, bool> *_start, uSlot<void, __C> *_stop, uSlot<void, __C> *_pause, uSlot<void, __C> *_continue ) {
+         vStartRenderLoopSignal_SIG.connectWith( _start );
+         vStopRenderLoopSignal_SIG.connectWith( _stop );
+         vPauseRenderLoop_SIG.connectWith( _pause );
+         vContinueRenderLoop_SIG.connectWith( _continue );
+                  
+         vAreRenderLoopSignalsConnected_B = true;
+      }
 
-      GLvoid setRenderFunc( RENDER_FUNC _f )            {fRender = _f;}
 };
 
 //    #########################

@@ -19,9 +19,6 @@ MyHandler::~MyHandler() {
    glDeleteBuffers( 1, &vIndexBufferObject );
    
    glDeleteVertexArrays( 1, &vVertexArray );
-
-   delete[] vVertexData;
-   delete[] vIndexData;
 }
 
 
@@ -116,9 +113,9 @@ inline void color( float _r, float _g, float _b, iInit *i ) {
 
 
 
-void render( iEventInfo info ) {
+void render( iInit *_init ) {
 
-   color( r, g, b, info.iInitPointer );
+   color( r, g, b, _init );
 
    if ( rr ) {
       if ( r + R > 1 ) {
@@ -165,7 +162,7 @@ void render( iEventInfo info ) {
    counter1++;
 
    if ( counter1 >= 5000000 ) {
-      info.iInitPointer->quitMainLoop();
+      _init->quitMainLoop();
    }
 }
 
@@ -230,10 +227,10 @@ void MyHandler::doRenderTriangle( iInit *_init ) {
 }
 
 
-void renderTriangle( iEventInfo info ) {
+void renderTriangle( iInit * _init ) {
    if ( _HANDLER_ == NULL )
       return;
-   _HANDLER_->doRenderTriangle( info.iInitPointer );
+   _HANDLER_->doRenderTriangle( _init );
 }
 
 

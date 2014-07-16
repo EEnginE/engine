@@ -96,7 +96,7 @@ int iInit::eventLoop() {
    }
 
    while ( vMainLoopRunning_B ) {
-      if ( vLoopsPaused_B ) {
+      if ( vEventLoopPaused_B ) {
          boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
          vEventLoopISPaused_B = true;
          while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );

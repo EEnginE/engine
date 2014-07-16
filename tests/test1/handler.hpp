@@ -31,10 +31,7 @@ class MyHandler {
       
       rLinker vProgram;
       string  vShaderRoot_str;
-      
-      GLfloat *vVertexData;
-      GLuint  *vIndexData;
-      
+            
       rLoader_3D_f_OBJ data1;
    public:
       _SLOT_ slotWindowClose;
@@ -71,8 +68,8 @@ class MyHandler {
 
 extern MyHandler *_HANDLER_;
 
-void render( iEventInfo info );
-void renderTriangle( iEventInfo info );
+void render( iInit * _init );
+void renderTriangle( iInit * _init );
 
 
 #endif // HANDLER_HPP

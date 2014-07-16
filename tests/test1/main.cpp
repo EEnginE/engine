@@ -31,6 +31,7 @@ void ftemp( iInit *_init ) {
    _init->restartIfNeeded();
 }
 
+
 int main( int argc, char **argv ) {
    B_SLEEP( milliseconds, 1 ); // Why does this crash without this?
 
@@ -39,6 +40,7 @@ int main( int argc, char **argv ) {
    if ( argc == 2 ) {
       lShaderRoot_str = ( string ) argv[1] ;
    }
+
 
 
    GlobConf.win.width           = 800;
@@ -73,7 +75,7 @@ int main( int argc, char **argv ) {
 
 //    GlobConf.log.waitUntilLogEntryPrinted = true;
 //    GlobConf.log.logFILE.logFileName = "./log";
-
+   
    uRandomISAAC myRand;
 
    const int ValChange = 50;
@@ -98,12 +100,14 @@ int main( int argc, char **argv ) {
    iLOG "Log File Path: " ADD SYSTEM.getLogFilePath()       END
 
 
-#if ! KDEVELOP
+// #if ! KDEVELOP
    iInit start;
    MyHandler handler( lShaderRoot_str );
 
    if ( start.init() == 1 ) {
-      start.setRenderFunc( renderTriangle );
+      rWorld myWorld;
+      myWorld.setRenderFunc( renderTriangle );
+      myWorld.setInitObj( &start );
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
@@ -170,8 +174,8 @@ int main( int argc, char **argv ) {
       start.startMainLoop();
       start.closeWindow();
    }
-      
-#endif
+
+// #endif
 
 
 #if DO_SHA == 1
@@ -186,7 +190,7 @@ int main( int argc, char **argv ) {
 //    END
 
 //    B_SLEEP( seconds, 1 );
-   
+
    B_SLEEP( seconds, 1 );
 
    start.shutdown();
