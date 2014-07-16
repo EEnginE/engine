@@ -168,7 +168,7 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       inline void swapBuffers() {glXSwapBuffers( vDisplay_X11, vWindow_X11 );} //!< Swaps the OGL buffers
 
 
-      bool makiContextCurrent();
+      bool makeContextCurrent();
       bool makeNOContextCurrent();
 
 

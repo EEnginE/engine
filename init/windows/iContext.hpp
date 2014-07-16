@@ -76,7 +76,7 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
       void destroyContext();
       bool getHaveContext() { return vHasContext_B; }
 
-      bool makiContextCurrent();
+      bool makeContextCurrent();
       bool makeNOContextCurrent();
 
       bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );

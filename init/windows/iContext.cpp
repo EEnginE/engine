@@ -73,7 +73,7 @@ int iContext::enableVSync() {
                NEWLINE "==> VSync NOT enabled" END
                return 3;
             case ERROR_DC_NOT_FOUND:
-               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makiContextCurrent() to fix this"
+               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
                NEWLINE "==> VSync NOT enabled" END
                return 4;
             default:
@@ -114,7 +114,7 @@ int iContext::disableVSync() {
                NEWLINE "==> VSync NOT disabled" END
                return 3;
             case ERROR_DC_NOT_FOUND:
-               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makiContextCurrent() to fix this"
+               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
                NEWLINE "==> VSync NOT disabled" END
                return 4;
             default:
@@ -162,7 +162,7 @@ void iContext::destroyContext() {
  * \returns true on success
  * \returns false when there was an error
  */
-bool iContext::makiContextCurrent() {
+bool iContext::makeContextCurrent() {
    if ( ! vHasContext_B ) {
       eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with iInit::init() before you run this!" END
       return false;

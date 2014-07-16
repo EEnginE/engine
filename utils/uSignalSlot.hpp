@@ -24,17 +24,33 @@
 #ifndef U_SGNAL_SLOT_HPP
 #define U_SGNAL_SLOT_HPP
 
-#include <boost/bind.hpp>
+#include <functional>
+
+
+// This stuff is needed for our std::bind stuff so that we can use "Variadic templates"
+// More information https://stackoverflow.com/questions/21192659/variadic-templates-and-stdbind
+template<int...>           struct int_sequence                                                            {};
+template<int N, int... Is> struct make_int_sequence           : make_int_sequence < N - 1, N - 1, Is... > {};
+template<int... Is>        struct make_int_sequence<0, Is...> : int_sequence<Is...>                       {};
+template<int>              struct placeholder_template                                                    {};
+
+
+namespace std {
+template<int N> struct is_placeholder< placeholder_template<N> > : integral_constant < int, N + 1 >       {};
+}
+
+
 #include <boost/signals2.hpp>
 #include <vector>
+
 #include "defines.hpp"
 
 namespace e_engine {
 
-template<class __R, class __C, class __A>
+template<class __R, class __C, class... __A>
 class uSlot;
 
-template<class __R, class __A>
+template<class __R, class... __A>
 class uSignal;
 
 
@@ -83,10 +99,10 @@ class __uSigSlotConnection {
  *
  * \sa uSlot
  */
-template<class __R, class __A>
+template<class __R, class... __A>
 class uSignal {
-      typedef typename boost::signals2::signal<__R( __A )>            signal_TD;
-      typedef typename boost::signals2::signal<__R( __A )>::slot_type slotType_TD;
+      typedef typename boost::signals2::signal<__R( __A... )>            signal_TD;
+      typedef typename boost::signals2::signal<__R( __A... )>::slot_type slotType_TD;
       typedef typename boost::signals2::connection                    connection_TD;
    private:
 
@@ -135,14 +151,14 @@ class uSignal {
        * From the \c uSlot object we get a boost function pointer for
        * the member function pointer stored in th slot object and
        * say the boost signal to connect with this function pointer.
-       * The connection is finally sent to the slot object, 
+       * The connection is finally sent to the slot object,
        * where it will be stored.
        *
        * \param slot The \c uSlot object
        * \returns The conne object
        */
       template<class __C>
-      bool connectWith( uSlot<__R, __C, __A> *slot ) {
+      bool connectWith( uSlot<__R, __C, __A...> *slot ) {
          if ( slot->testIfAlreadyConnected( vThisSignalId_uI ) )
             return false;
 
@@ -162,8 +178,8 @@ class uSignal {
        * \param atr What needs to be sent to all connected functions
        * \returns The return value of one function
        */
-      __R operator()( __A _atr ) {
-         return vSignal_SIG( _atr );
+      __R operator()( __A... _atr ) {
+         return vSignal_SIG( _atr... );
       }
 
       /*!
@@ -176,8 +192,8 @@ class uSignal {
        * \param atr What needs to be sent to all connected functions
        * \returns The return value of one fnction
        */
-      __R sendSignal( __A _atr ) {
-         return vSignal_SIG( _atr );
+      __R sendSignal( __A... _atr ) {
+         return vSignal_SIG( _atr... );
       }
 
       /*!
@@ -189,7 +205,7 @@ class uSignal {
        * \returns \c SUCCES: \a true -- \c FAIL: \a false
        */
       template<class __C>
-      bool disconnect( uSlot<__R, __C, __A> *slot ) {
+      bool disconnect( uSlot<__R, __C, __A...> *slot ) {
          return slot->disconnectSignal( this );
       }
 
@@ -205,6 +221,7 @@ class uSignal {
 };
 
 
+
 /*!
  * \class e_engine::uSlot
  * \brief Class to manage slots
@@ -214,11 +231,12 @@ class uSignal {
  *
  * \sa uSignal
  */
-template<class __R, class __C, class __A>
+template<class __R, class __C, class... __A>
 class uSlot {
-      typedef typename boost::signals2::signal<__R( __A )>            signal_TD;
-      typedef typename boost::signals2::signal<__R( __A )>::slot_type slotType_TD;
+      typedef typename boost::signals2::signal<__R( __A... )>            signal_TD;
+      typedef typename boost::signals2::signal<__R( __A... )>::slot_type slotType_TD;
       typedef typename boost::signals2::connection                    connection_TD;
+//       typedef __R( __C::*CALL_TYPE )( __A... _arg );
    private:
       //! The signal connection
       std::vector<e_engine_internal::__uSigSlotConnection> vConnections_eCON;
@@ -227,13 +245,19 @@ class uSlot {
       __C *classObjPointer;
 
       //! This is the member function pointer
-      __R( __C::*CALL )( __A _arg );
+      __R( __C::*CALL )( __A... _arg );
 
       bool functionSet;
 
-      slotType_TD getSlotType() {
-         return boost::bind( CALL, classObjPointer, _1 );
+      template<int... Is>
+      slotType_TD bindHelper( __R( __C::*CLASS_2 )( __A... ), int_sequence<Is...> ) {
+         return std::bind( CLASS_2, classObjPointer, placeholder_template<Is> {} ... );
       }
+
+      slotType_TD getSlotType() {
+         return bindHelper( CALL, make_int_sequence< sizeof...( __A ) > {} );
+      }
+
 
       inline bool testIfAlreadyConnected( unsigned int _signalID ) {
          for ( size_t i = 0; i < vConnections_eCON.size(); ++i ) {
@@ -276,7 +300,7 @@ class uSlot {
        * \param _CALL The function pointer
        * \param _obj  Object pointer, which is needed to call the function pointer
        */
-      uSlot( __R( __C::*_CALL )( __A _arg ), __C *_obj ) {
+      uSlot( __R( __C::*_CALL )( __A... _arg ), __C *_obj ) {
          CALL            = _CALL;
          classObjPointer = _obj;
          functionSet     = true;
@@ -299,7 +323,7 @@ class uSlot {
        * \param _obj  Object pointer, which is needed to call the function pointer
        * \returns Nothing
        */
-      inline void setFunc( __R( __C::*_CALL )( __A _arg ), __C *_obj ) {
+      inline void setFunc( __R( __C::*_CALL )( __A... _arg ), __C *_obj ) {
          CALL            = _CALL;
          classObjPointer = _obj;
          functionSet     = true;
@@ -316,7 +340,7 @@ class uSlot {
        * \param signal The \c uSignal object
        * \returns \c SUCCESS: \a true -- \c FAIL: \a false
        */
-      bool connectWith( uSignal<__R, __A> *_signal ) {
+      bool connectWith( uSignal<__R, __A...> *_signal ) {
          if ( !functionSet ) {
             e_engine_internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
             ( "SLOT Function Pointer is undefined! Do nothing!", __FILE__, __LINE__, LOG_FUNCTION_NAME );
@@ -330,7 +354,7 @@ class uSlot {
        * \brief Break the connection
        * \returns \c SUCCESS: \a true -- \c FAIL: \a false
        */
-      bool disconnectSignal( uSignal<__R, __A> *_signal ) {
+      bool disconnectSignal( uSignal<__R, __A...> *_signal ) {
          bool lSuccess_B = false;
          for ( size_t i = 0; i < vConnections_eCON.size(); ++i ) {
             if ( vConnections_eCON[i].getSignalId() == _signal->getSignalId() ) {
@@ -357,7 +381,7 @@ class uSlot {
 
       //! Get if the slot is already connected  \returns Whether the slot is connected or not
 
-      friend class uSignal<__R, __A>;
+      friend class uSignal<__R, __A...>;
 };
 
 }

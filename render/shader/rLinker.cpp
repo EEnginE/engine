@@ -195,7 +195,7 @@ unsigned int rLinker::link() {
    }
 
    if ( search_shaders() == 0 ) {
-      eLOG "Unable to find any shader file" END
+      eLOG "Unable to find any shader file ( Path: " ADD path ADD " )" END
       //Return a file not found error
       return 3;
    }

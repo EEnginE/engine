@@ -58,20 +58,16 @@ iInit::iInit() {
    vMainLoopRunning_B       = false;
    vBoolCloseWindow_B       = false;
 
-   vMainLoopPaused_B        = false;
    vEventLoopHasFinished_B  = false;
-   vMainLoopISPaused_B      = false;
    vEventLoopISPaused_B     = false;
-   vLoopsPaused_B           = false;
-
-   fRender                  = standardRender;
 
    vEventLoopHasFinished_B  = true;
-   vRenderLoopHasFinished_B = true;
 
    vWasMouseGrabbed_B       = false;
 
    vCreateWindowReturn_I    = -1000;
+   
+   vAreRenderLoopSignalsConnected_B = false;
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
@@ -93,7 +89,7 @@ iInit::iInit() {
  * Use iInit::addFocusSlot( iInit::getAdvancedGrabControlSlot() );
  */
 GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
-   if ( (_info.type == E_EVENT_FOCUS) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
+   if ( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
       // Focus restored
       vWasMouseGrabbed_B = false;
       if ( ! grabMouse() ) {
@@ -109,7 +105,7 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
       }
       return;
    }
-   if ( (_info.type == E_EVENT_FOCUS) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
+   if ( ( _info.type == E_EVENT_FOCUS ) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
       // Focus lost
       vWasMouseGrabbed_B = true;
       freiMouse();
@@ -164,7 +160,7 @@ int iInit::init() {
 
    while ( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
 
-   makiContextCurrent();
+   makeContextCurrent();
 #else
    vCreateWindowReturn_I = createContext();
 #endif
@@ -219,11 +215,13 @@ int iInit::startMainLoop( bool _wait ) {
       return 0;
    }
    vMainLoopRunning_B = true;
-   makeNOContextCurrent();
+   
+   if( !vAreRenderLoopSignalsConnected_B ) {
+      eLOG "iInit is not yet connected with a render system!" END
+      return 0;
+   }
 
 #if UNIX_X11
-   vMainLoopRunning_B = true;
-
    vEventLoop_BT  = boost::thread( &iInit::eventLoop, this );
 #elif WINDOWS
    {
@@ -233,14 +231,13 @@ int iInit::startMainLoop( bool _wait ) {
       vStartEventCondition_BT.notify_one();
    }
 #endif
-   vRenderLoop_BT = boost::thread( &iInit::renderLoop, this );
 
    if ( _wait ) {
+      vStartRenderLoopSignal_SIG( true );
       vEventLoop_BT.join();
-      vRenderLoop_BT.join();
-   }
-
-   if ( getHaveContext() ) makiContextCurrent();  // Only ONE thread can have a context
+   } else {
+      vStartRenderLoopSignal_SIG( false );
+   }   
 
    if ( vBoolCloseWindow_B ) {destroyContext();} // iInit::closeWindow() called?
 
@@ -279,60 +276,12 @@ int iInit::quitMainLoopCall( ) {
    iLOG "Event loop finished" END
 #endif
 
-
-   if ( ! vRenderLoopHasFinished_B )
-#if BOOST_VERSION < 105000
-   {
-      boost::posix_time::time_duration duration = boost::posix_time::milliseconds( GlobConf.timeoutForMainLoopThread_mSec );
-      vRenderLoop_BT.timed_join( duration );
-   }
-#else
-      vRenderLoop_BT.try_join_for( boost::chrono::milliseconds( GlobConf.timeoutForMainLoopThread_mSec ) );
-#endif
-
-   if ( ! vRenderLoopHasFinished_B ) {
-      vRenderLoop_BT.interrupt();
-      wLOG "Render Loop Timeout reached  -->  kill the thread" END
-      vRenderLoopHasFinished_B = true;
-   }
-
-   iLOG "Render loop finished" END
+   vStopRenderLoopSignal_SIG();
+  
 
    return 1;
 }
 
-int iInit::renderLoop( ) {
-   iLOG "Render loop started" END
-   vRenderLoopHasFinished_B = false;
-   makiContextCurrent();  // Only ONE thread can have a context
-
-   if ( GlobConf.win.VSync == true )
-      enableVSync();
-
-   while ( vMainLoopRunning_B ) {
-      if ( vLoopsPaused_B ) {
-         boost::unique_lock<boost::mutex> lLock_BT( vMainLoopMutex_BT );
-         makeNOContextCurrent();
-         vMainLoopISPaused_B = true;
-         while ( vMainLoopPaused_B ) vMainLoopWait_BT.wait( lLock_BT );
-         while ( !getHaveContext() || vWindowRecreate_B ) B_SLEEP( milliseconds, 10 );
-#if WINDOWS
-         B_SLEEP( milliseconds, 100 ); //!< \todo Remove this workaround for Windows (problem with iContext::makiContextCurrent)
-#endif
-         vMainLoopISPaused_B = false;
-         if ( ! makiContextCurrent() ) {
-            eLOG "Failed to make context current ==> quit render loop" END
-            return -1;
-         }
-      }
-
-      fRender( this );
-   }
-
-   if ( getHaveContext() ) makeNOContextCurrent();
-   vRenderLoopHasFinished_B = true;
-   return 0;
-}
 
 int iInit::closeWindow( bool _waitUntilClosed ) {
    if ( ! getHaveContext() ) {return 0;}
@@ -359,12 +308,12 @@ void iInit::s_standardWindowClose( iEventInfo _info )  {
 
 /*!
  * \brief Paused the main loop
- * 
+ *
  * \param[in] _runInNewThread set this to true if wish to run the pause in e new thread (default: false)
  *
  * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
  *          there are some problems with Windows and the event loop.
- * 
+ *
  * \returns Nothing
  */
 void iInit::pauseMainLoop( bool _runInNewThread ) {
@@ -376,12 +325,10 @@ void iInit::pauseMainLoop( bool _runInNewThread ) {
       return;
    }
 
-   vMainLoopPaused_B  = true;
    vEventLoopPaused_B = true;
+   vPauseRenderLoop_SIG();
 
-   vLoopsPaused_B = true;
-
-   while ( !vMainLoopISPaused_B || !vEventLoopISPaused_B )
+   while ( !vEventLoopISPaused_B )
       B_SLEEP( milliseconds, 10 );
 
    iLOG "Loops paused" END
@@ -392,15 +339,11 @@ void iInit::pauseMainLoop( bool _runInNewThread ) {
  * \returns Nothing
  */
 void iInit::continueMainLoop() {
-   vLoopsPaused_B = false;
-
    boost::lock_guard<boost::mutex> lLockEvent_BT( vEventLoopMutex_BT );
    vEventLoopPaused_B = false;
    vEventLoopWait_BT.notify_one();
 
-   boost::lock_guard<boost::mutex> lLockMain_BT( vMainLoopMutex_BT );
-   vMainLoopPaused_B = false;
-   vMainLoopWait_BT.notify_one();
+   vContinueRenderLoop_SIG();
 
    iLOG "Loops unpaused" END
 }
