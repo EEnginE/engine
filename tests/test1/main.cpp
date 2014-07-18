@@ -1,6 +1,7 @@
 
 #include "config.hpp"
 #include "handler.hpp"
+#include "cmdANDinit.hpp"
 #include <engine.hpp>
 
 #if WINDOWS
@@ -10,9 +11,8 @@
 using namespace std;
 using namespace e_engine;
 
-#define KDEVELOP 0
-#define COLOR    0
-#define DO_SHA   0
+#define DO_SHA     0
+#define OLD_RENDER 0
 
 void hexPrint( std::vector<unsigned char> const &_v ) {
    for ( unsigned char const & c : _v )
@@ -32,50 +32,13 @@ void ftemp( iInit *_init ) {
 }
 
 
-int main( int argc, char **argv ) {
-   B_SLEEP( milliseconds, 1 ); // Why does this crash without this?
-
-   string lShaderRoot_str = ( string ) INSTALL_PREFIX + "/share/engineTests/test1/data/shaders/";
-
-   if ( argc == 2 ) {
-      lShaderRoot_str = ( string ) argv[1] ;
-   }
-
-
-
-   GlobConf.win.width           = 800;
-   GlobConf.win.height          = 600;
-   GlobConf.win.fullscreen      = false;
-   GlobConf.win.windowName      = "Engine Test";
-   GlobConf.win.iconName        = "ICON is missing";
-   GlobConf.win.xlibWindowName  = "My icon";
-   //GlobConf.win.winType         = e_engine::TOOLBAR;
-   GlobConf.useAutoOpenGLVersion();
-   GlobConf.config.appName      = "E Engine";
-
-#if ! KDEVELOP || COLOR
-   GlobConf.log.logOUT.colors   = FULL;
-   GlobConf.log.logERR.colors   = FULL;
-#else
-   GlobConf.log.logOUT.colors   = DISABLED;
-   GlobConf.log.logERR.colors   = DISABLED;
-
-   GlobConf.log.width           = 175;
-#endif
-   GlobConf.log.logOUT.Time     = LEFT_REDUCED;
-   GlobConf.log.logOUT.File     = RIGHT_FULL;
-   GlobConf.log.logERR.Time     = LEFT_REDUCED;
-   GlobConf.log.logERR.File     = RIGHT_FULL;
-   GlobConf.log.logFILE.File    = RIGHT_FULL;
-
-   GlobConf.win.restoreOldScreenRes = true;
-
-   GlobConf.versions.glMajorVersion = 4;
-   GlobConf.versions.glMinorVersion = 4;
-
-//    GlobConf.log.waitUntilLogEntryPrinted = true;
-//    GlobConf.log.logFILE.logFileName = "./log";
+int main( int argc, char *argv[] ) {
+   cmdANDinit cmd( argc, argv );
    
+   if( ! cmd.parseArgsAndInit() )
+      return 1;
+   
+#if OLD_RENDER
    uRandomISAAC myRand;
 
    const int ValChange = 50;
@@ -91,6 +54,7 @@ int main( int argc, char **argv ) {
    rr = myRand( 0, 1 ) ? true : false;
    gg = myRand( 0, 1 ) ? true : false;
    bb = myRand( 0, 1 ) ? true : false;
+#endif
 
 
    iLOG "User Name:     " ADD SYSTEM.getUserName()          END
@@ -100,9 +64,8 @@ int main( int argc, char **argv ) {
    iLOG "Log File Path: " ADD SYSTEM.getLogFilePath()       END
 
 
-// #if ! KDEVELOP
    iInit start;
-   MyHandler handler( lShaderRoot_str );
+   MyHandler handler( cmd.getDataRoot() );
 
    if ( start.init() == 1 ) {
       rWorld myWorld;
@@ -161,7 +124,7 @@ int main( int argc, char **argv ) {
       }
 
       string temp;
-      temp += lShaderRoot_str + "/colors_p";
+      temp += cmd.getDataRoot() + "shaders/colors_p";
 
       rLinker prog( temp );
       GLuint dummy;
@@ -175,7 +138,6 @@ int main( int argc, char **argv ) {
       start.closeWindow();
    }
 
-// #endif
 
 
 #if DO_SHA == 1
@@ -199,4 +161,5 @@ int main( int argc, char **argv ) {
 }
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+
 

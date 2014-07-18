@@ -88,7 +88,10 @@ finSources() {
 
     echo "INFO:    -- Find everything..."
 
-    TEMP=$(ls -d $DIR_TO_GO/*/)
+    TEMP=""
+    if (( $( ls -l $DIR_TO_GO | grep ^d | wc -l ) )); then
+        TEMP=$(ls -d $DIR_TO_GO/*/)
+    fi
     
     for B in $TEMP; do
         SERACH_IN="$SERACH_IN $B"

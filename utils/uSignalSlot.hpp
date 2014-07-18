@@ -103,7 +103,8 @@ template<class __R, class... __A>
 class uSignal {
       typedef typename boost::signals2::signal<__R( __A... )>            signal_TD;
       typedef typename boost::signals2::signal<__R( __A... )>::slot_type slotType_TD;
-      typedef typename boost::signals2::connection                    connection_TD;
+      typedef typename boost::signals2::connection                       connection_TD;
+      typedef typename signal_TD::result_type                            signalReturn_TD;
    private:
 
       //! The signal
@@ -178,7 +179,7 @@ class uSignal {
        * \param atr What needs to be sent to all connected functions
        * \returns The return value of one function
        */
-      __R operator()( __A... _atr ) {
+       signalReturn_TD operator()( __A... _atr ) {
          return vSignal_SIG( _atr... );
       }
 
@@ -192,7 +193,7 @@ class uSignal {
        * \param atr What needs to be sent to all connected functions
        * \returns The return value of one fnction
        */
-      __R sendSignal( __A... _atr ) {
+      signalReturn_TD sendSignal( __A... _atr ) {
          return vSignal_SIG( _atr... );
       }
 
