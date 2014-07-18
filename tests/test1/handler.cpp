@@ -183,7 +183,7 @@ GLuint Indices[] = {
 
 
 void MyHandler::initGL() {
-   data1.setFile( ( string )INSTALL_PREFIX + ( string )"/share/engineTests/test1/data/mesh.obj" );
+   data1.setFile( vDataRoot_str + "/mesh.obj" );
    data1.load();
 
    glGenVertexArrays( 1, &vVertexArray );
@@ -192,7 +192,7 @@ void MyHandler::initGL() {
    glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 
 
-   string temp = vShaderRoot_str + "/triangle1";
+   string temp = vDataRoot_str + "shaders/triangle1";
    vProgram.setShaders( temp );
    vProgram.link( vShaderProgram );
    

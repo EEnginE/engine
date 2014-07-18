@@ -30,7 +30,7 @@ class MyHandler {
       GLuint vShaderProgram;
       
       rLinker vProgram;
-      string  vShaderRoot_str;
+      string  vDataRoot_str;
             
       rLoader_3D_f_OBJ data1;
    public:
@@ -38,13 +38,13 @@ class MyHandler {
       _SLOT_ slotResize;
       _SLOT_ slotKey;
       _SLOT_ slotMouse;
-      MyHandler( string _shaderRoot ) {
+      MyHandler( string _dataRoot ) {
          slotWindowClose.setFunc( &MyHandler::windowClose, this );
          slotResize.setFunc( &MyHandler::resize, this );
          slotKey.setFunc( &MyHandler::key, this );
          slotMouse.setFunc( &MyHandler::mouse, this );
          
-         vShaderRoot_str = _shaderRoot;
+         vDataRoot_str = _dataRoot;
       }
       ~MyHandler();
       void windowClose( iEventInfo info ) {
