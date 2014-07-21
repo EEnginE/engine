@@ -80,7 +80,7 @@ set( ENGINE_LIBS ) # make ENGINE_LIBS global
 
 newLibrary( utils )
 newLibrary( init   utils )
-newLibrary( render utils )
+newLibrary( render utils init )
 
 # Generate FindEngine.cmake
 configure_file(

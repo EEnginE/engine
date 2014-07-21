@@ -60,6 +60,7 @@ iInit::iInit() {
 
    vEventLoopHasFinished_B  = false;
    vEventLoopISPaused_B     = false;
+   vEventLoopPaused_B       = false;
 
    vEventLoopHasFinished_B  = true;
 
@@ -133,6 +134,7 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
  * \returns -4 -- Failed to create a X11 Window
  * \returns  3 -- Failed to create a context
  * \returns  4 -- Failed to init GLEW
+ * \returns  5 -- Bad OpenGL version (at least 3.3)
  */
 int iInit::init() {
 
@@ -167,6 +169,11 @@ int iInit::init() {
 
    if ( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
 
+   if( GlobConf.extensions.querryAll() < OGL_VERSION_3_3 ) {
+      eLOG "Bad OpenGL version. At least version 3.3 is needed. Try updating your driver" END
+      destroyContext();
+      return 5;
+   }
    standardRender( this ); // Fill the Window with black
 
    return 1;
