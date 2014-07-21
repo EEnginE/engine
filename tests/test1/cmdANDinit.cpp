@@ -64,6 +64,10 @@ void cmdANDinit::usage() {
    dLOG "    --log=<path>   : set a custom log file path to <path>"    END
    dLOG "    -w | --wait    : wait until log entry is printed"         END
    dLOG "    --data=<path>  : set a custom root path for the data dir" END
+   dLOG "    --glMajor=<v>  : the OpenGL Major version (default: "
+   ADD  GlobConf.versions.glMajorVersion ADD ")"  END
+   dLOG "    --glMinor=<v>  : the OpenGL Major version (default: "
+   ADD  GlobConf.versions.glMinorVersion ADD ")"  END
    if ( vCanUseColor ) {
       dLOG "    -n | --nocolor : disable colored output"                  END
    }
@@ -106,6 +110,24 @@ bool cmdANDinit::parseArgsAndInit() {
          boost::regex lDataRegexRep( "^\\-\\-data=" );
          const char *lRep = "";
          dataRoot = boost::regex_replace( arg, lDataRegexRep, lRep );
+         continue;
+      }
+      
+      boost::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
+      if ( boost::regex_match( arg, lMajorRegex ) ) {
+         boost::regex lDataRegexRep( "^\\-\\-glMajor=" );
+         const char *lRep = "";
+         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         GlobConf.versions.glMajorVersion = atoi( version.c_str() );
+         continue;
+      }
+      
+      boost::regex lMinorRegex( "^\\-\\-glMinor=[0-9]+$" );
+      if ( boost::regex_match( arg, lMinorRegex ) ) {
+         boost::regex lDataRegexRep( "^\\-\\-glMinor=" );
+         const char *lRep = "";
+         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         GlobConf.versions.glMinorVersion = atoi( version.c_str() );
          continue;
       }
       
