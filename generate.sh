@@ -115,15 +115,15 @@ standard() {
 }
 
 help_text() {
-    echo "You will be probably yust fine with running $0 without any"
-    echo "arguments. In fact, the standard scenario will be selected."
+    echo "You will probably be just fine with running $0 without any arguments."
+    echo "In fact, the standard scenario will be selected."
     echo ""
-    echo "  all      - Do everything: clean, glew, generate sources"
-    echo "  glew     - Compile glew and generate sources"
-    echo "  standard - generate GLEW when needed and the sources"
-    echo "  count    - count the lines of code (needs cloc and bc) and run the standard scenario"
-    echo "  clean    - clean up"
-    echo "  help     - print this help message and exit"
+    echo "  all      - Do everything: clean, GLEW, generate sources"
+    echo "  glew     - Compile GLEW and generate sources"
+    echo "  standard - Generate GLEW (if needed) and the sources"
+    echo "  count    - Count the lines of code (needs cloc and bc) and run the standard scenario"
+    echo "  clean    - Clean up"
+    echo "  help     - Print this help message and exit"
     echo ""
 }
 
@@ -171,7 +171,7 @@ echo "               ==============="
 echo ""
 echo ""
 echo ""
-echo "INFO: Initing and updating submodules"
+echo "INFO: Initiating and updating submodules"
 
 git submodule init    > /dev/null
 git submodule sync    > /dev/null

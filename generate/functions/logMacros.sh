@@ -57,10 +57,10 @@ generateLogMacros() {
     IFNDEF_HEADDER="$( echo -n ${IFNDEF_HEADDER^^} )"
 
     echo "/*!"                                                                         >> $MACRO_PATH
-    echo " * \\file $(basename $MACRO_PATH)"                                       >> $MACRO_PATH
-    echo " * \\brief Here are some important macros for logging defined"               >> $MACRO_PATH
+    echo " * \\file $(basename $MACRO_PATH)"                                           >> $MACRO_PATH
+    echo " * \\brief Some important macros for logging are defined here"               >> $MACRO_PATH
     echo " *"                                                                          >> $MACRO_PATH
-    echo " * \\warning This is an automatically generated file from '$0'! DO NOT EDIT" >> $MACRO_PATH
+    echo " * \\warning This is an automatically generated file of '$0'! DO NOT EDIT"   >> $MACRO_PATH
     echo " */"                                                                         >> $MACRO_PATH
     echo ""                                                                            >> $MACRO_PATH
     echo ""                                                                            >> $MACRO_PATH

@@ -22,7 +22,7 @@ doGlew() {
     echo "INFO: GLEW: Making extensions..."
     make extensions &> /dev/null
     
-    echo "INFO: GLEW: building..."
+    echo "INFO: GLEW: Building..."
     make &> /dev/null
     
     cd ..

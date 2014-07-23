@@ -15,7 +15,7 @@ tests() {
         
         if [ ! -f MANUAL_CMAKE ]; then
         
-        echo "INFO:    -- Generating its CMakeLists.txt"
+        echo "INFO:    -- Generating CMakeLists.txt"
 cat > ${I}/CMakeLists.txt << EOF
 # Automatically generated file; DO NOT EDIT
 

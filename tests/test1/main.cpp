@@ -38,6 +38,7 @@ int main( int argc, char *argv[] ) {
    if( ! cmd.parseArgsAndInit() )
       return 1;
    
+   
 #if OLD_RENDER
    uRandomISAAC myRand;
 
