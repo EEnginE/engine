@@ -26,6 +26,7 @@
 
 #include <string>
 #include <vector>
+#include "uExtensions.hpp"
 
 namespace e_engine {
 
@@ -284,6 +285,8 @@ struct _uConfig {
       void reset();
    } config;
 
+   uExtensions extensions;
+   
    // Versions
 
 

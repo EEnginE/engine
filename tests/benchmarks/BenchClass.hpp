@@ -1,7 +1,9 @@
 #ifndef BENCHCLASS_H
 #define BENCHCLASS_H
 
+#include <functional>
 #include "cmdANDinit.hpp"
+
 
 class BenchClass {
    private:
@@ -22,6 +24,9 @@ class BenchClass {
 
       boost::function<double( int, double )> vBoostFunc;
       boost::function<double( int, double )> vBoostFuncInline;
+      
+      std::function<double( int, double )>   vStdFunc;
+      std::function<double( int, double )>   vStdFuncInline;
 
       double funcToCall( int _a, double _b );
       inline double funcToCallInline( int _a, double _b ) {

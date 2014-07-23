@@ -182,19 +182,32 @@ GLuint Indices[] = {
 };
 
 
-void MyHandler::initGL() {
+bool MyHandler::initGL() {
    data1.setFile( vDataRoot_str + "/mesh.obj" );
-   data1.load();
+   
+   if( data1.load() != 1 ) {
+      eLOG "Failed to load data '" ADD vDataRoot_str + "/mesh.obj" ADD "'" END
+      return false;
+   }
+   
+   string temp = vDataRoot_str + "shaders/triangle1";
+   vProgram.setShaders( temp );
+   
+   if( vProgram.compile( vShaderProgram ) < 0 ) {
+      eLOG "Failed to compile shader!" END
+      return false;
+   }
+   
+   if( ! vProgram.getInputLocation( "Position", vInputLocation ) ) {
+      eLOG "Shader " ADD temp ADD " has no input location 'Position'" END
+      return false;
+   }
+   
 
    glGenVertexArrays( 1, &vVertexArray );
    glBindVertexArray( vVertexArray );
 
-   glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
-
-
-   string temp = vDataRoot_str + "shaders/triangle1";
-   vProgram.setShaders( temp );
-   vProgram.link( vShaderProgram );
+   glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
    
    {
       glGenBuffers( 1, &vVertexBufferObject );
@@ -208,21 +221,22 @@ void MyHandler::initGL() {
       glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint ) * data1.getRawIndexData()->size(),   &data1.getRawIndexData()->at(0), GL_STATIC_DRAW );
    }
 
-
+   iLOG "Done loading OpenGL stuff" END
+   return true;
 }
 
 void MyHandler::doRenderTriangle( iInit *_init ) {
    glClear( GL_COLOR_BUFFER_BIT );
 
    glUseProgram( vShaderProgram );
-   glEnableVertexAttribArray( 0 );
+   glEnableVertexAttribArray( vInputLocation );
    glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObject );
-   glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+   glVertexAttribPointer( vInputLocation, 3, GL_FLOAT, GL_FALSE, 0, 0 );
    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObject );
 
    glDrawElements( GL_TRIANGLES, data1.getRawIndexData()->size(), GL_UNSIGNED_INT, 0 );
 
-   glDisableVertexAttribArray( 0 );
+   glDisableVertexAttribArray( vInputLocation );
    _init->swapBuffers();
 }
 

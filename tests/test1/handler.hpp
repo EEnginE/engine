@@ -29,22 +29,28 @@ class MyHandler {
       
       GLuint vShaderProgram;
       
-      rLinker vProgram;
+      GLint  vInputLocation;
+      
+      rShader vProgram;
       string  vDataRoot_str;
             
       rLoader_3D_f_OBJ data1;
+      rWorld           *vWorldPointer;
+      
+      MyHandler() {}
    public:
       _SLOT_ slotWindowClose;
       _SLOT_ slotResize;
       _SLOT_ slotKey;
       _SLOT_ slotMouse;
-      MyHandler( string _dataRoot ) {
+      MyHandler( string _dataRoot, rWorld *_world ) {
          slotWindowClose.setFunc( &MyHandler::windowClose, this );
          slotResize.setFunc( &MyHandler::resize, this );
          slotKey.setFunc( &MyHandler::key, this );
          slotMouse.setFunc( &MyHandler::mouse, this );
          
          vDataRoot_str = _dataRoot;
+         vWorldPointer = _world;
       }
       ~MyHandler();
       void windowClose( iEventInfo info ) {
@@ -55,9 +61,10 @@ class MyHandler {
       void mouse( iEventInfo info );
       void resize( iEventInfo info ) {
          iLOG "Window resized" END
+         vWorldPointer->updateViewPort( 0, 0, info.eResize.width, info.eResize.height );
       }
       
-      void initGL();
+      bool initGL();
       void doRenderTriangle( iInit *_init );
 
       _SLOT_ *getSWindowClose() {return &slotWindowClose;}

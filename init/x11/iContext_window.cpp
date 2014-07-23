@@ -207,15 +207,15 @@ int iContext::createFrameBuffer() {
    glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_STEREO,        &lFBAttribs_A_I[6] );
    glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_LEVEL,         &lFBAttribs_A_I[7] );
    
-   dLOG    "Adiditional framebuffer info:  (should be) [would be REALY helpful to be] {MUST BE}"
-   NEWLINE "  - GLX_X_RENDERABLE   {" ADD GL_TRUE        ADD "}      - " ADD lFBAttribs_A_I[0]
-   NEWLINE "  - GLX_DOUBLEBUFFER   {" ADD GL_TRUE        ADD "}      - " ADD lFBAttribs_A_I[1]
-   NEWLINE "  - GLX_RENDER_TYPE    [" ADD GLX_RGBA_BIT   ADD "]      - " ADD lFBAttribs_A_I[2]
-   NEWLINE "  - GLX_X_VISUAL_TYPE  [" ADD GLX_TRUE_COLOR ADD "]  - " ADD lFBAttribs_A_I[3]
-   NEWLINE "  - GLX_CONFIG_CAVEAT  [" ADD GLX_NONE       ADD "]  - " ADD lFBAttribs_A_I[4] ADD "  ( " ADD GLX_NON_CONFORMANT_CONFIG ADD " - GLX_NON_CONFORMANT_CONFIG is also OK )"
-   NEWLINE "  - GLX_DRAWABLE_TYPE  (" ADD GLX_WINDOW_BIT ADD ")      - " ADD lFBAttribs_A_I[5]
-   NEWLINE "  - GLX_STEREO          " ADD " "            ADD "       - " ADD lFBAttribs_A_I[6]
-   NEWLINE "  - GLX_LEVEL           " ADD " "            ADD "       - " ADD lFBAttribs_A_I[7]
+   dLOG  "Adiditional framebuffer info:  (should be) [would be REALY helpful to be] {MUST BE}"
+   POINT "GLX_X_RENDERABLE   {" ADD GL_TRUE        ADD "}      - " ADD lFBAttribs_A_I[0]
+   POINT "GLX_DOUBLEBUFFER   {" ADD GL_TRUE        ADD "}      - " ADD lFBAttribs_A_I[1]
+   POINT "GLX_RENDER_TYPE    [" ADD GLX_RGBA_BIT   ADD "]      - " ADD lFBAttribs_A_I[2]
+   POINT "GLX_X_VISUAL_TYPE  [" ADD GLX_TRUE_COLOR ADD "]  - " ADD lFBAttribs_A_I[3]
+   POINT "GLX_CONFIG_CAVEAT  [" ADD GLX_NONE       ADD "]  - " ADD lFBAttribs_A_I[4] ADD "  ( " ADD GLX_NON_CONFORMANT_CONFIG ADD " - GLX_NON_CONFORMANT_CONFIG is also OK )"
+   POINT "GLX_DRAWABLE_TYPE  (" ADD GLX_WINDOW_BIT ADD ")      - " ADD lFBAttribs_A_I[5]
+   POINT "GLX_STEREO          " ADD " "            ADD "       - " ADD lFBAttribs_A_I[6]
+   POINT "GLX_LEVEL           " ADD " "            ADD "       - " ADD lFBAttribs_A_I[7]
    END
    
 #endif // E_DEBUG_LOGGING

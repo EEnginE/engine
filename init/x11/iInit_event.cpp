@@ -256,7 +256,7 @@ int iInit::eventLoop() {
 
             default:
 
-               iLOG "Found Event: 0x" ADD lEvent_CSTR END
+               dLOG "Found Unknown Event: 0x" ADD lEvent_CSTR END
 
                break;
          }

@@ -18,6 +18,12 @@ rWorld::rWorld() {
    vRenderLoopIsPaused_B       = false;
    vRenderLoopShouldPaused_B   = false;
    
+   vViewPort.vNeedUpdate_B     = false;
+   vViewPort.x                 = 0;
+   vViewPort.y                 = 0;
+   vViewPort.width             = 0;
+   vViewPort.height            = 0;
+   
    vRenderLoopStartSlot.setFunc( &rWorld::startRenderLoop, this );
    vRenderLoopStopSlot.setFunc( &rWorld::stopRenderLoop, this );
 
@@ -48,6 +54,12 @@ void rWorld::renderLoop() {
             eLOG "Failed to make context current ==> quit render loop" END
             return;
          }
+      }
+      
+      if( vViewPort.vNeedUpdate_B ) {
+         vViewPort.vNeedUpdate_B = false;
+         glViewport( vViewPort.x, vViewPort.y, vViewPort.width, vViewPort.height );
+         dLOG "Viewport updated" END
       }
 
       vRenderFunctionPointer( vInitPointer );
@@ -122,6 +134,16 @@ void rWorld::setRenderFunc( rWorld::RENDER_FUNC_TD _func ) {
    vRenderFunctionPointer      = _func;
    vRenderFunctionPointerSet_B = true;
 }
+
+void rWorld::updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height ) {
+   vViewPort.vNeedUpdate_B = true;
+   vViewPort.x             = _x;
+   vViewPort.y             = _y;
+   vViewPort.width         = _width;
+   vViewPort.height        = _height;
+   return;
+}
+
 
 
 
