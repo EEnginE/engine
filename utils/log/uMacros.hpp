@@ -1,8 +1,8 @@
 /*!
  * \file uMacros.hpp
- * \brief Here are some important macros for logging defined
+ * \brief Some important macros for logging are defined here
  *
- * \warning This is an automatically generated file from './generate.sh'! DO NOT EDIT
+ * \warning This is an automatically generated file of './generate.sh'! DO NOT EDIT
  */
 
 

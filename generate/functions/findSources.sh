@@ -52,7 +52,7 @@ finSources() {
     SERACH_IN=""
    
     if (( ARGC != 7 )); then
-        echo "ERROR: finSources needs 7 arguments!"
+        echo "ERROR: findSources needs 7 arguments!"
     fi
     
     DIR_TO_GO=$1
@@ -86,7 +86,7 @@ finSources() {
 ############################################################################################################################
 ########################################################################################
 
-    echo "INFO:    -- Find everything..."
+    echo "INFO:    -- Searching everything..."
 
     TEMP=""
     if (( $( ls -l $DIR_TO_GO | grep ^d | wc -l ) )); then
@@ -117,7 +117,7 @@ finSources() {
 #########
 ## CPP ##
 #########
-    echo "INFO:    -- Assinging files to OS..."
+    echo "INFO:    -- Assigning files to OS..."
 
     for I in $TEMP_CPP; do
         ## Test X11 ##
@@ -229,7 +229,7 @@ finSources() {
 ############################################################################################################################
 ########################################################################################
 
-    echo "INFO:    -- Assinging directories to OS..."
+    echo "INFO:    -- Assigning directories to OS..."
 
     for I in $SERACH_IN; do
         ## Test X11 ##
