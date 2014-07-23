@@ -15,7 +15,7 @@ using namespace e_engine;
 #define OLD_RENDER 0
 
 void hexPrint( std::vector<unsigned char> const &_v ) {
-   for ( unsigned char const & c : _v )
+   for( unsigned char const & c : _v )
       printf( "%02X ", c );
    printf( "\n\n" );
    fflush( stdout );
@@ -34,11 +34,10 @@ void ftemp( iInit *_init ) {
 
 int main( int argc, char *argv[] ) {
    cmdANDinit cmd( argc, argv );
-   
+
    if( ! cmd.parseArgsAndInit() )
       return 1;
-   
-   
+
 #if OLD_RENDER
    uRandomISAAC myRand;
 
@@ -66,12 +65,12 @@ int main( int argc, char *argv[] ) {
 
 
    iInit start;
-   MyHandler handler( cmd.getDataRoot() );
 
-   if ( start.init() == 1 ) {
+   if( start.init() == 1 ) {
       rWorld myWorld;
       myWorld.setRenderFunc( renderTriangle );
       myWorld.setInitObj( &start );
+      MyHandler handler( cmd.getDataRoot(), &myWorld );
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
@@ -84,11 +83,11 @@ int main( int argc, char *argv[] ) {
 
       iLOG "Displays: " ADD displays.size() END
 
-      for ( GLuint i = 0; i < displays.size(); ++i ) {
+      for( GLuint i = 0; i < displays.size(); ++i ) {
          iLOG "Display " ADD i ADD ": " ADD displays[i].getName() END
       }
 
-      if ( displays.size() == 2 ) {
+      if( displays.size() == 2 ) {
 //          displays[0].disable();
 //          displays[1].disable();
 
@@ -127,15 +126,13 @@ int main( int argc, char *argv[] ) {
       string temp;
       temp += cmd.getDataRoot() + "shaders/colors_p";
 
-      rLinker prog( temp );
+      rShader prog( temp );
       GLuint dummy;
-      prog.link( dummy );
+      prog.compile( dummy );
 
       _HANDLER_ = &handler;
-      handler.initGL();
-      handler.doRenderTriangle( &start );
-
-      start.startMainLoop();
+      if( handler.initGL() )
+         start.startMainLoop();
       start.closeWindow();
    }
 
@@ -162,5 +159,6 @@ int main( int argc, char *argv[] ) {
 }
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+
 
 

@@ -411,7 +411,7 @@ void uLog::generateEntry( uLogEntry &_rawEntry ) {
       if ( _rawEntry.data.vLogEntries_V_eLS[i].getType() == e_engine_internal::NEW_POINT ) {
          lMessage_VEC.push_back( ( lTempMessageString_STR + lResetColl_STR ) );
 
-#if UNIX
+#if 0
          if ( _rawEntry.config.vColor_LCT == FULL || ( _rawEntry.config.vColor_LCT == REDUCED && _rawEntry.data.vBold_B ) )
             lTempColor_STR = eCMDColor::color( eCMDColor::OFF, eCMDColor::CYAN );
 #endif

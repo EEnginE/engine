@@ -67,12 +67,12 @@ class iInit : public unix_x11::iContext, public iMouse {
 class iInit : public windows_win32::iContext {
 #endif
    private:
-      bool              vMainLoopRunning_B;
-      bool              vBoolCloseWindow_B;
+      bool              vMainLoopRunning_B;   //!< Should the main loop be running?
+      bool              vBoolCloseWindow_B;   //!< Clean up after the main loop finished?
 
-      bool              vEventLoopHasFinished_B;
+      bool              vEventLoopHasFinished_B; //!< Has the event loop finished?
 
-      boost::thread     vEventLoop_BT;
+      boost::thread     vEventLoop_BT;           //!< The thread for the event loop
       boost::thread     vQuitMainLoop_BT;
 
       boost::thread     vRestartThread_BT;
@@ -82,7 +82,7 @@ class iInit : public windows_win32::iContext {
 
       boost::condition_variable vEventLoopWait_BT;
 
-      bool              vEventLoopPaused_B;
+      bool              vEventLoopPaused_B;    //!< SOULD the event loop be paused?
       bool              vEventLoopISPaused_B;
 
       bool              vWasMouseGrabbed_B;
