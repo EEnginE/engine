@@ -38,6 +38,8 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
       static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       LRESULT CALLBACK        actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo _tempInfo );
+      
+      GLuint                vVertexArray_OGL;
 
       bool                  vWindowsCallbacksError_B;
 
@@ -78,6 +80,8 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
 
       bool makeContextCurrent();
       bool makeNOContextCurrent();
+      
+      static bool isAContextCurrentForThisThread();
 
       bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
 
@@ -96,6 +100,8 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
       bool hidiMouseCursor();         
       bool showMouseCursor();         
       bool getIsCursorHidden() const; 
+      
+//       GLuint getVertexArrayOpenGL() { return vVertexArray_OGL; }
 };
 
 /*!
