@@ -113,6 +113,7 @@ class rShader {
 
       void         deleteProgram();
       bool         getIsLinked()    const {return vIsShaderLinked_B;}
+      std::string  getShaderPath()  const {return vPath_str;}
       bool         getProgram( unsigned int &_program ) const;
 
       e_engine_internal::programInfo getShaderInfo() { return vProgramInformation; }
@@ -132,6 +133,12 @@ class rShader {
  * \fn rShader::getIsLinked
  * \brief Get if the  program is linked
  * \returns Whether the  program is linked or not
+ */
+
+/*!
+ * \fn rShader::getShaderPath
+ * \brief Get the main path of the shader(s)
+ * \returns the main path of the shader(s)
  */
 
 /*!

@@ -14,15 +14,12 @@ namespace e_engine {
 class rWorld {
       typedef void ( *RENDER_FUNC_TD )( iInit * );
    private:
-      RENDER_FUNC_TD vRenderFunctionPointer;
-
       uSlot<void, rWorld, bool> vRenderLoopStartSlot;
       uSlot<void, rWorld>       vRenderLoopStopSlot;
 
       uSlot<void, rWorld>       vPauseRenderLoopSlot;
       uSlot<void, rWorld>       vContinueRenderLoopSlot;
 
-      bool vRenderFunctionPointerSet_B;
       bool vInitObjSet_B;
 
       bool vRenderLoopRunning_B;
@@ -40,6 +37,14 @@ class rWorld {
          unsigned int width;
          unsigned int height;
       } vViewPort;
+      
+      struct {
+         bool vNeedUpdate_B;
+         GLfloat r;
+         GLfloat g;
+         GLfloat b;
+         GLfloat a;
+      } vClearCollor;
 
       void renderLoop();
 
@@ -51,14 +56,19 @@ class rWorld {
 
       void pauseRenderLoop();
       void continueRenderLoop();
+      
+      rWorld();
 
    public:
       void setInitObj( iInit *_init );
-      void setRenderFunc( RENDER_FUNC_TD _func );
+      
+      virtual void renderFrame() = 0;
 
       void updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
+      void updateClearCollor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
 
-      rWorld();
+      
+      rWorld( iInit *_init );
       virtual ~rWorld() {}
 };
 

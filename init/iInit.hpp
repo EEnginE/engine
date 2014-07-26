@@ -88,7 +88,7 @@ class iInit : public windows_win32::iContext {
       bool              vWasMouseGrabbed_B;
 
       int               vCreateWindowReturn_I;
-
+      
       bool              vAreRenderLoopSignalsConnected_B;
 
       uSignal<void, bool> vStartRenderLoopSignal_SIG;
