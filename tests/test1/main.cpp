@@ -32,7 +32,6 @@ void ftemp( iInit *_init ) {
    _init->restartIfNeeded();
 }
 
-
 int main( int argc, char *argv[] ) {
    cmdANDinit cmd( argc, argv );
 
@@ -103,10 +102,7 @@ int main( int argc, char *argv[] ) {
    iInit start;
 
    if( start.init() == 1 ) {
-      rWorld myWorld;
-      myWorld.setRenderFunc( renderTriangle );
-      myWorld.setInitObj( &start );
-      MyHandler handler( cmd.getDataRoot(), &myWorld );
+      MyHandler handler( cmd.getDataRoot(), &start );
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
@@ -166,12 +162,11 @@ int main( int argc, char *argv[] ) {
       GLuint dummy;
       prog.compile( dummy );
 
-      _HANDLER_ = &handler;
-      if( handler.initGL() )
+      if( handler.initGL() == 1 )
          start.startMainLoop();
+
       start.closeWindow();
    }
-
 
 
 #if DO_SHA == 1

@@ -140,6 +140,8 @@ void iContext::destroyContext() {
       return;
 
    iLOG "Destroying everything" END
+   
+   glDeleteVertexArrays( 1, &vVertexArray_OGL );
 
    wglDeleteContext( vOpenGLContext_WGL );
    ReleaseDC( vHWND_Window_win32, vHDC_win32 );
@@ -193,6 +195,14 @@ bool iContext::makeNOContextCurrent() {
       vAThreadOwnsTheOpenGLContext_B = false;
 
    return lReturnVal_B;
+}
+
+/*!
+ * \brief Returns if a OpenGL context is current for this thread
+ * \returns true if a OpenGL context is current for this thread
+ */
+bool iContext::isAContextCurrentForThisThread() {
+   return wglGetCurrentContext() == NULL ? false : true;
 }
 
 

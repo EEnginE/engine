@@ -440,6 +440,9 @@ int iContext::createContext() {
 
 
    iLOG "OpenGL context created" END
+   
+   glGenVertexArrays( 1, &vVertexArray_OGL );
+   glBindVertexArray( vVertexArray_OGL );
 
    vHasContext_B = true;
 
