@@ -34,7 +34,7 @@ __iInit_Pointer __iInit_Pointer_OBJ;
 }
 
 void iInit::_setThisForHandluSignal() {
-   if ( ! e_engine_internal::__iInit_Pointer_OBJ.set( this ) ) {
+   if( ! e_engine_internal::__iInit_Pointer_OBJ.set( this ) ) {
       eLOG "There can only be ONE iInit Class" END
       throw std::string( "There can only be ONE iInit Class" );
    }
@@ -67,7 +67,7 @@ iInit::iInit() {
    vWasMouseGrabbed_B       = false;
 
    vCreateWindowReturn_I    = -1000;
-   
+
    vAreRenderLoopSignalsConnected_B = false;
 
 #if WINDOWS
@@ -90,15 +90,15 @@ iInit::iInit() {
  * Use iInit::addFocusSlot( iInit::getAdvancedGrabControlSlot() );
  */
 GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
-   if ( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
+   if( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
       // Focus restored
       vWasMouseGrabbed_B = false;
-      if ( ! grabMouse() ) {
+      if( ! grabMouse() ) {
          // Cannot grab again when X11 has not handled some events
 
-         for ( unsigned short int i = 0; i < 25; ++i ) {
+         for( unsigned short int i = 0; i < 25; ++i ) {
             iLOG "Try Grab " ADD i + 1 ADD " of 25" END
-            if ( grabMouse() )
+            if( grabMouse() )
                break; // Grab success
             B_SLEEP( milliseconds, 100 );
          }
@@ -106,7 +106,7 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
       }
       return;
    }
-   if ( ( _info.type == E_EVENT_FOCUS ) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
+   if( ( _info.type == E_EVENT_FOCUS ) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
       // Focus lost
       vWasMouseGrabbed_B = true;
       freiMouse();
@@ -141,7 +141,7 @@ int iInit::init() {
    signal( SIGINT, handluSignal );
    signal( SIGTERM, handluSignal );
 
-   if ( GlobConf.log.logFILE.logFileName.empty() ) {
+   if( GlobConf.log.logFILE.logFileName.empty() ) {
       GlobConf.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
 #if UNIX
       GlobConf.log.logFILE.logFileName += "/Log";
@@ -150,7 +150,7 @@ int iInit::init() {
 #endif
    }
 
-   if ( GlobConf.log.logDefaultInit )
+   if( GlobConf.log.logDefaultInit )
       LOG.devInit();
 
    LOG.startLogLoop();
@@ -160,14 +160,14 @@ int iInit::init() {
    boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
    vEventLoop_BT  = boost::thread( &iInit::eventLoop, this );
 
-   while ( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
+   while( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
 
    makeContextCurrent();
 #else
    vCreateWindowReturn_I = createContext();
 #endif
 
-   if ( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
+   if( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
 
    if( GlobConf.extensions.querryAll() < OGL_VERSION_3_3 ) {
       eLOG "Bad OpenGL version. At least version 3.3 is needed. Try updating your driver" END
@@ -187,8 +187,8 @@ int iInit::shutdown() {
 void iInit::handluSignal( int _signal ) {
    iInit *_THIS = e_engine_internal::__iInit_Pointer_OBJ.get();;
 
-   if ( _signal == SIGINT ) {
-      if ( GlobConf.handleSIGINT == true ) {
+   if( _signal == SIGINT ) {
+      if( GlobConf.handleSIGINT == true ) {
          wLOG "Received SIGINT (Crt-C) => Closing Window and exiting(5);" END
          _THIS->closeWindow( true );
          _THIS->destroyContext();
@@ -198,8 +198,8 @@ void iInit::handluSignal( int _signal ) {
       wLOG "Received SIGINT (Crt-C) => " ADD 'B', 'Y', "DO NOTHING" END
       return;
    }
-   if ( _signal == SIGTERM ) {
-      if ( GlobConf.handleSIGTERM == true ) {
+   if( _signal == SIGTERM ) {
+      if( GlobConf.handleSIGTERM == true ) {
          wLOG "Received SIGTERM => Closing Window and exit(6);" END
          _THIS->closeWindow( true );
          _THIS->destroyContext();
@@ -217,12 +217,12 @@ void iInit::handluSignal( int _signal ) {
  * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
  */
 int iInit::startMainLoop( bool _wait ) {
-   if ( ! getHaveContext() ) {
+   if( ! getHaveContext() ) {
       wLOG "Can not start the main loop. There is no OpenGL context!" END
       return 0;
    }
    vMainLoopRunning_B = true;
-   
+
    if( !vAreRenderLoopSignalsConnected_B ) {
       eLOG "iInit is not yet connected with a render system!" END
       return 0;
@@ -239,14 +239,14 @@ int iInit::startMainLoop( bool _wait ) {
    }
 #endif
 
-   if ( _wait ) {
+   if( _wait ) {
       vStartRenderLoopSignal_SIG( true );
       vEventLoop_BT.join();
    } else {
       vStartRenderLoopSignal_SIG( false );
-   }   
+   }
 
-   if ( vBoolCloseWindow_B ) {destroyContext();} // iInit::closeWindow() called?
+   if( vBoolCloseWindow_B ) {destroyContext();}  // iInit::closeWindow() called?
 
    return 1;
 }
@@ -265,7 +265,7 @@ int iInit::quitMainLoopCall( ) {
 #endif
 
 #if ! WINDOWS
-   if ( ! vEventLoopHasFinished_B )
+   if( ! vEventLoopHasFinished_B )
 #if BOOST_VERSION < 105000
    {
       boost::posix_time::time_duration duration = boost::posix_time::milliseconds( GlobConf.timeoutForMainLoopThread_mSec );
@@ -275,7 +275,7 @@ int iInit::quitMainLoopCall( ) {
       vEventLoop_BT.try_join_for( boost::chrono::milliseconds( GlobConf.timeoutForMainLoopThread_mSec ) );
 #endif
 
-   if ( ! vEventLoopHasFinished_B ) {
+   if( ! vEventLoopHasFinished_B ) {
       vEventLoop_BT.interrupt();
       wLOG "Event Loop Timeout reached   -->  kill the thread" END
       vEventLoopHasFinished_B = true;
@@ -284,18 +284,18 @@ int iInit::quitMainLoopCall( ) {
 #endif
 
    vStopRenderLoopSignal_SIG();
-  
+
 
    return 1;
 }
 
 
 int iInit::closeWindow( bool _waitUntilClosed ) {
-   if ( ! getHaveContext() ) {return 0;}
-   if ( vMainLoopRunning_B ) {
+   if( ! getHaveContext() ) {return 0;}
+   if( vMainLoopRunning_B ) {
       vBoolCloseWindow_B = true;
       quitMainLoop();
-      if ( _waitUntilClosed ) {vQuitMainLoop_BT.join();}
+      if( _waitUntilClosed ) {vQuitMainLoop_BT.join();}
 #if WINDOWS
       destroyContext();
 #endif
@@ -324,10 +324,10 @@ void iInit::s_standardWindowClose( iEventInfo _info )  {
  * \returns Nothing
  */
 void iInit::pauseMainLoop( bool _runInNewThread ) {
-   if ( ! vMainLoopRunning_B )
+   if( ! vMainLoopRunning_B )
       return;
 
-   if ( _runInNewThread ) {
+   if( _runInNewThread ) {
       vPauseThread_BT = boost::thread( &iInit::pauseMainLoop, this, false );
       return;
    }
@@ -335,7 +335,7 @@ void iInit::pauseMainLoop( bool _runInNewThread ) {
    vEventLoopPaused_B = true;
    vPauseRenderLoop_SIG();
 
-   while ( !vEventLoopISPaused_B )
+   while( !vEventLoopISPaused_B )
       B_SLEEP( milliseconds, 10 );
 
    iLOG "Loops paused" END
@@ -368,11 +368,11 @@ void iInit::continueMainLoop() {
  * \returns Nothing
  */
 void iInit::restart( bool _runInNewThread ) {
-   if ( !vMainLoopRunning_B )
+   if( !vMainLoopRunning_B )
       return;
 
    // Calling restart in the eventloop can cause some problems
-   if ( _runInNewThread ) {
+   if( _runInNewThread ) {
       vRestartThread_BT = boost::thread( &iInit::restart, this, false );
       return;
    }
@@ -389,7 +389,7 @@ void iInit::restart( bool _runInNewThread ) {
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
-   if ( vEventLoop_BT.joinable() )
+   if( vEventLoop_BT.joinable() )
       vEventLoop_BT.join();
    else
       eLOG "Failed to join the event loop" END
@@ -397,7 +397,7 @@ void iInit::restart( bool _runInNewThread ) {
       boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
    vEventLoop_BT  = boost::thread( &iInit::eventLoop, this );
 
-   while ( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
+   while( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
 
    {
       // Make sure lLockEvent_BT will be destroyed
@@ -424,7 +424,7 @@ void iInit::restart( bool _runInNewThread ) {
  * \returns Nothing
  */
 void iInit::restartIfNeeded( bool _runInNewThread ) {
-   if ( vWindowRecreate_B )
+   if( vWindowRecreate_B )
       restart( _runInNewThread );
 }
 

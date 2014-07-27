@@ -212,8 +212,6 @@ int rShader::compile( GLuint &_vShader_OGL ) {
  * \returns -6 When the shaders were not set
  */
 int rShader::compile() {
-   unsigned int i;
-
    if( vPath_str.empty() && vShaders.empty() ) {
       eLOG "No shaders set for compilation" END
       return -6;

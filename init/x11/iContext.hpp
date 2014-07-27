@@ -111,6 +111,9 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       long int             vEventMask_lI;             //!< The X11 event mask (needed to recieve events)
 
       glXCreateContextAttribsARBProc glXCreateContextAttribsARB; //! The context creation function pointer
+      
+      
+      GLuint               vVertexArray_OGL;
 
       int    vBestFBConfig_I;       //!< The Integer ID of the best FB config we have found
 
@@ -170,6 +173,8 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
 
       bool makeContextCurrent();
       bool makeNOContextCurrent();
+      
+      static bool isAContextCurrentForThisThread();
 
 
       void destroyContext();
@@ -196,6 +201,9 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       bool hidiMouseCursor();
       bool showMouseCursor();
       bool getIsCursorHidden() const;
+      
+      
+//       GLuint getVertexArrayOpenGL() { return vVertexArray_OGL; }
 };
 
 

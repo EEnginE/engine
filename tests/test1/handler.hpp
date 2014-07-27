@@ -12,45 +12,34 @@ using namespace std;
 using namespace e_engine;
 using namespace OS_NAMESPACE;
 
-extern GLfloat alpha;
-extern GLfloat r, g, b, R, G, B;
-extern bool    rr, gg, bb;
-extern int counter1;
-
-class MyHandler {
+class MyHandler : public rWorld {
       typedef uSlot<void, MyHandler, iEventInfo> _SLOT_;
    private:
       vector<iDisplays> vDisp_RandR;
 
-      GLuint vVertexArray;
-      
-      GLuint vVertexBufferObject;
-      GLuint vIndexBufferObject;
-      
-      GLuint vShaderProgram;
-      
-      GLint  vInputLocation;
-      
-      rShader vProgram;
       string  vDataRoot_str;
-            
-      rLoader_3D_f_OBJ data1;
-      rWorld           *vWorldPointer;
+
+      rNormalObject vObject1;
       
-      MyHandler() {}
+      GLfloat vAlpha;
+
+      MyHandler() : rWorld( nullptr ), vObject1( "OBJ_1", nullptr ) {}
    public:
       _SLOT_ slotWindowClose;
       _SLOT_ slotResize;
       _SLOT_ slotKey;
       _SLOT_ slotMouse;
-      MyHandler( string _dataRoot, rWorld *_world ) {
+      MyHandler( string _dataRoot, iInit *_init ) : rWorld( _init ), vObject1( "OBJ_1", _init ) {
          slotWindowClose.setFunc( &MyHandler::windowClose, this );
          slotResize.setFunc( &MyHandler::resize, this );
          slotKey.setFunc( &MyHandler::key, this );
          slotMouse.setFunc( &MyHandler::mouse, this );
-         
+
          vDataRoot_str = _dataRoot;
-         vWorldPointer = _world;
+         vAlpha        = 1;
+
+         vObject1.addData( vDataRoot_str + "/mesh.obj" );
+         vObject1.addShader( vDataRoot_str + "shaders/triangle1" );
       }
       ~MyHandler();
       void windowClose( iEventInfo info ) {
@@ -61,11 +50,13 @@ class MyHandler {
       void mouse( iEventInfo info );
       void resize( iEventInfo info ) {
          iLOG "Window resized" END
-         vWorldPointer->updateViewPort( 0, 0, info.eResize.width, info.eResize.height );
+         updateViewPort( 0, 0, info.eResize.width, info.eResize.height );
       }
-      
-      bool initGL();
-      void doRenderTriangle( iInit *_init );
+
+      int initGL() {return vObject1.loadData();}
+
+      virtual void renderFrame() {vObject1.render();}
+
 
       _SLOT_ *getSWindowClose() {return &slotWindowClose;}
       _SLOT_ *getSResize()      {return &slotResize;}
@@ -73,10 +64,6 @@ class MyHandler {
       _SLOT_ *getSMouse()       {return &slotMouse;}
 };
 
-extern MyHandler *_HANDLER_;
-
-void render( iInit * _init );
-void renderTriangle( iInit * _init );
-
 
 #endif // HANDLER_HPP
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

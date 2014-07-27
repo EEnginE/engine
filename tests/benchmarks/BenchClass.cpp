@@ -29,7 +29,6 @@ BenchClass::BenchClass( cmdANDinit *_cmd ) {
    }
 }
 
-
 void BenchClass::doFunction() {
    int    a = 3;
    double b = 5.5;
@@ -64,6 +63,12 @@ void BenchClass::doFunction() {
       funcToCall( a, b );
    }
    uint64_t lNormal = STOP( normal );
+   
+   START( virt );
+   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+      funcToCallVirtual( a, b );
+   }
+   uint64_t lVirt = STOP( virt );
 
    START( boostFunc );
    for ( auto i = 0; i < vLoopsToDo; ++i ) {
@@ -103,6 +108,12 @@ void BenchClass::doFunction() {
       funcToCallInline( a, b );
    }
    uint64_t lNormalIn = STOP( normalInline );
+   
+   START( normalInlineVirt );
+   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+      funcToCallInlineVirtual( a, b );
+   }
+   uint64_t lNormalVirtIn = STOP( normalInlineVirt );
 
    START( boostFuncInline );
    for ( auto i = 0; i < vLoopsToDo; ++i ) {
@@ -119,38 +130,43 @@ void BenchClass::doFunction() {
    iLOG "  - Time: microseconds" END
 
 
-   iLOG "  = [NORMAL] Signal Slot:     " ADD lSigSlot END
-   iLOG "  = [NORMAL] Functionpointer: " ADD lFunc END
-   iLOG "  = [NORMAL] C F Ptr:         " ADD lCFunc END
-   iLOG "  = [NORMAL] Normal call:     " ADD lNormal END
-   iLOG "  = [NORMAL] Boost Function:  " ADD lBoostFunc END
-   iLOG "  = [NORMAL] Std Function:    " ADD lStdFunc END
+   iLOG "  = [NORMAL] Signal Slot:     " ADD lSigSlot      END
+   iLOG "  = [NORMAL] Functionpointer: " ADD lFunc         END
+   iLOG "  = [NORMAL] C F Ptr:         " ADD lCFunc        END
+   iLOG "  = [NORMAL] Normal call:     " ADD lNormal       END
+   iLOG "  = [NORMAL] Virtual call:    " ADD lVirt         END
+   iLOG "  = [NORMAL] Boost Function:  " ADD lBoostFunc    END
+   iLOG "  = [NORMAL] Std Function:    " ADD lStdFunc      END
 
-   iLOG "  = [INLINE] Signal Slot:     " ADD lSigSlotIn END
-   iLOG "  = [INLINE] Functionpointer: " ADD lFuncIn END
-   iLOG "  = [INLINE] C F Ptr:         " ADD lCFuncIn END
-   iLOG "  = [INLINE] Normal call:     " ADD lNormalIn END
-   iLOG "  = [INLINE] Boost Function:  " ADD lBoostFuncIn END
-   iLOG "  = [INLINE] Std Function:    " ADD lStdFuncIn END
+   iLOG "  = [INLINE] Signal Slot:     " ADD lSigSlotIn    END
+   iLOG "  = [INLINE] Functionpointer: " ADD lFuncIn       END
+   iLOG "  = [INLINE] C F Ptr:         " ADD lCFuncIn      END
+   iLOG "  = [INLINE] Normal call:     " ADD lNormalIn     END
+   iLOG "  = [INLINE] Virtual call:    " ADD lNormalVirtIn END
+   iLOG "  = [INLINE] Boost Function:  " ADD lBoostFuncIn  END
+   iLOG "  = [INLINE] Std Function:    " ADD lStdFuncIn    END
 
-   string lSigSlot_str     = boost::lexical_cast<string>( lSigSlot );
-   string lFunc_str        = boost::lexical_cast<string>( lFunc );
-   string lCFunc_str       = boost::lexical_cast<string>( lCFunc );
-   string lNormal_str      = boost::lexical_cast<string>( lNormal );
-   string lBoostFunc_str   = boost::lexical_cast<string>( lBoostFunc );
-   string lStdFunc_str     = boost::lexical_cast<string>( lStdFunc );
+   string lSigSlot_str      = boost::lexical_cast<string>( lSigSlot );
+   string lFunc_str         = boost::lexical_cast<string>( lFunc );
+   string lCFunc_str        = boost::lexical_cast<string>( lCFunc );
+   string lNormal_str       = boost::lexical_cast<string>( lNormal );
+   string lVirt_str         = boost::lexical_cast<string>( lVirt );
+   string lBoostFunc_str    = boost::lexical_cast<string>( lBoostFunc );
+   string lStdFunc_str      = boost::lexical_cast<string>( lStdFunc );
 
-   string lSigSlotIn_str   = boost::lexical_cast<string>( lSigSlotIn );
-   string lFuncIn_str      = boost::lexical_cast<string>( lFuncIn );
-   string lCFuncIn_str     = boost::lexical_cast<string>( lCFuncIn );
-   string lNormalIn_str    = boost::lexical_cast<string>( lNormalIn );
-   string lBoostFuncIn_str = boost::lexical_cast<string>( lBoostFuncIn );
-   string lStdFuncIn_str   = boost::lexical_cast<string>( lStdFuncIn );
+   string lSigSlotIn_str    = boost::lexical_cast<string>( lSigSlotIn );
+   string lFuncIn_str       = boost::lexical_cast<string>( lFuncIn );
+   string lCFuncIn_str      = boost::lexical_cast<string>( lCFuncIn );
+   string lNormalIn_str     = boost::lexical_cast<string>( lNormalIn );
+   string lNormalVirtIn_str = boost::lexical_cast<string>( lNormalVirtIn );
+   string lBoostFuncIn_str  = boost::lexical_cast<string>( lBoostFuncIn );
+   string lStdFuncIn_str    = boost::lexical_cast<string>( lStdFuncIn );
 
    lSigSlot_str.resize( 10, ' ' );
    lFunc_str.resize( 10, ' ' );
    lCFunc_str.resize( 10, ' ' );
    lNormal_str.resize( 10, ' ' );
+   lVirt_str.resize( 10, ' ' );
    lBoostFunc_str.resize( 10, ' ' );
    lStdFunc_str.resize( 10, ' ' );
 
@@ -158,6 +174,7 @@ void BenchClass::doFunction() {
    lFuncIn_str.resize( 10, ' ' );
    lCFuncIn_str.resize( 10, ' ' );
    lNormalIn_str.resize( 10, ' ' );
+   lNormalVirtIn_str.resize( 10, ' ' );
    lBoostFuncIn_str.resize( 10, ' ' );
    lStdFuncIn_str.resize( 10, ' ' );
 
@@ -166,12 +183,13 @@ void BenchClass::doFunction() {
    NEWLINE "   |==================|============|============|"
    NEWLINE "   |       Type       |   normal   |   inline   |"
    NEWLINE "   |------------------|------------|------------|"
-   NEWLINE "   | Signal Slot      | " ADD lSigSlot_str   ADD " | " ADD lSigSlotIn_str   ADD " |"
-   NEWLINE "   | Function Pointer | " ADD lFunc_str      ADD " | " ADD lFuncIn_str      ADD " |"
-   NEWLINE "   | C Func. Pointer  | " ADD lCFunc_str     ADD " | " ADD lCFuncIn_str     ADD " |"
-   NEWLINE "   | Normal           | " ADD lNormal_str    ADD " | " ADD lNormalIn_str    ADD " |"
-   NEWLINE "   | Boost Function   | " ADD lBoostFunc_str ADD " | " ADD lBoostFuncIn_str ADD " |"
-   NEWLINE "   | STD Function     | " ADD lStdFunc_str   ADD " | " ADD lStdFuncIn_str   ADD " |"
+   NEWLINE "   | Signal Slot      | " ADD lSigSlot_str   ADD " | " ADD lSigSlotIn_str    ADD " |"
+   NEWLINE "   | Function Pointer | " ADD lFunc_str      ADD " | " ADD lFuncIn_str       ADD " |"
+   NEWLINE "   | C Func. Pointer  | " ADD lCFunc_str     ADD " | " ADD lCFuncIn_str      ADD " |"
+   NEWLINE "   | Normal           | " ADD lNormal_str    ADD " | " ADD lNormalIn_str     ADD " |"
+   NEWLINE "   | Virtual          | " ADD lVirt_str      ADD " | " ADD lNormalVirtIn_str ADD " |"
+   NEWLINE "   | Boost Function   | " ADD lBoostFunc_str ADD " | " ADD lBoostFuncIn_str  ADD " |"
+   NEWLINE "   | STD Function     | " ADD lStdFunc_str   ADD " | " ADD lStdFuncIn_str    ADD " |"
    NEWLINE "   |==================|============|============|"
    NEWLINE
    NEWLINE
