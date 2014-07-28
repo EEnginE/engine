@@ -20,16 +20,16 @@ class MyHandler : public rWorld {
       string  vDataRoot_str;
 
       rNormalObject vObject1;
-      
+
       GLfloat vAlpha;
 
-      MyHandler() : rWorld( nullptr ), vObject1( "OBJ_1", nullptr ) {}
+      MyHandler() : rWorld( nullptr ), vObject1( "OBJ_1" ) {}
    public:
       _SLOT_ slotWindowClose;
       _SLOT_ slotResize;
       _SLOT_ slotKey;
       _SLOT_ slotMouse;
-      MyHandler( string _dataRoot, iInit *_init ) : rWorld( _init ), vObject1( "OBJ_1", _init ) {
+      MyHandler( string _dataRoot, iInit *_init ) : rWorld( _init ), vObject1( "OBJ_1" ) {
          slotWindowClose.setFunc( &MyHandler::windowClose, this );
          slotResize.setFunc( &MyHandler::resize, this );
          slotKey.setFunc( &MyHandler::key, this );
@@ -38,7 +38,7 @@ class MyHandler : public rWorld {
          vDataRoot_str = _dataRoot;
          vAlpha        = 1;
 
-         vObject1.addData( vDataRoot_str + "/mesh.obj" );
+         vObject1.addData( vDataRoot_str + "test1.obj" );
          vObject1.addShader( vDataRoot_str + "shaders/triangle1" );
       }
       ~MyHandler();
@@ -53,7 +53,7 @@ class MyHandler : public rWorld {
          updateViewPort( 0, 0, info.eResize.width, info.eResize.height );
       }
 
-      int initGL() {return vObject1.loadData();}
+      int initGL() {return vObject1.loadData( this );}
 
       virtual void renderFrame() {vObject1.render();}
 

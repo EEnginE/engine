@@ -7,6 +7,7 @@
 #define R_RENDER_NORMAL_OBJ_BASE_HPP
 
 #include <GL/glew.h>
+#include "rMatrix.hpp"
 
 namespace e_engine {
 
@@ -26,9 +27,11 @@ class rRenderNormalOBJBase {
       rRenderNormalOBJBase() {}
       virtual ~rRenderNormalOBJBase() {}
       
-      virtual void render() = 0;
-      virtual bool setOGLInfo( std::vector<void *> &_data ) = 0;
-      virtual RENDERER_ID getRendererID() const = 0;
+      virtual void          render()                                 = 0;
+      virtual bool          setOGLInfo( std::vector<void *> &_data ) = 0;
+      virtual RENDERER_ID   getRendererID() const                    = 0;
+      virtual rMatrix<4,4> *getMatrix()                              = 0;
+      virtual void          updateUniforms()                         = 0;
 };
 
 }

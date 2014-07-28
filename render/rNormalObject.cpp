@@ -7,6 +7,7 @@
 #include <boost/filesystem.hpp>
 #include "rNormalObject.hpp"
 #include "uLog.hpp"
+#include "math.h"
 
 
 // Renderer
@@ -14,12 +15,45 @@
 
 namespace e_engine {
 
-rNormalObject::rNormalObject( std::string _name, iInit *_init ) {
+namespace {
+float degToRad( float _degree ) { return _degree * ( M_PI / 180.0 ); }
+}
+
+rNormalObject::rNormalObject( std::string _name ) {
    vIsDataLoaded_B        = false;
    vHasGeneretedBuffers_B = false;
    vRenderer              = nullptr;
    vObjectName            = _name;
-   vInitPointer           = _init;
+
+   vResultMatrix          = nullptr;
+
+   vTransformMatrix.set( 0, 0, 1 );
+   vTransformMatrix.set( 0, 1, 0 );
+   vTransformMatrix.set( 0, 2, 0 );
+   vTransformMatrix.set( 0, 3, 0 );
+
+   vTransformMatrix.set( 1, 0, 0 );
+   vTransformMatrix.set( 1, 1, 1 );
+   vTransformMatrix.set( 1, 2, 0 );
+   vTransformMatrix.set( 1, 3, 0 );
+
+   vTransformMatrix.set( 2, 0, 0 );
+   vTransformMatrix.set( 2, 1, 0 );
+   vTransformMatrix.set( 2, 2, 1 );
+   vTransformMatrix.set( 2, 3, 0 );
+
+   vTransformMatrix.set( 3, 0, 0 );
+   vTransformMatrix.set( 3, 1, 0 );
+   vTransformMatrix.set( 3, 2, 0 );
+   vTransformMatrix.set( 3, 3, 1 );
+
+
+   vRotateX = 0;
+   vRotateY = 0;
+   vRotateZ = 0;
+
+
+   setRotation( vRotateX, vRotateY, vRotateZ );
 }
 
 rNormalObject::~rNormalObject() {
@@ -119,7 +153,7 @@ void rNormalObject::freeData() {
  * \returns -3 if data is already loaded
  * \returns 5  if there is no renderer for this object type
  */
-int rNormalObject::loadData() {
+int rNormalObject::loadData( rWorld *_world ) {
    if( !iInit::isAContextCurrentForThisThread() ) {
       eLOG "Can not init data because no OpenGL context is current for this thread!" END
       return 0;
@@ -129,8 +163,6 @@ int rNormalObject::loadData() {
       return -3;
 
    std::vector<RENDERER_ID> lPossibleRendere;
-   
-//    glBindVertexArray( vInitPointer->getVertexArrayOpenGL() );
 
    // compile shaders
    bool lShaderCompileError_B = false;
@@ -157,12 +189,12 @@ int rNormalObject::loadData() {
 
    for( GLuint & i : vIndexBufferObjects )
       glGenBuffers( 1, &i );
-   
+
 
    unsigned int lCounter = 0;
 
    std::vector<GLuint> lIndexSize;
-   
+
    rLoader_3D_f_OBJ lLoader;
 
    for( dataFile const & d : vDataFiles ) {
@@ -173,12 +205,12 @@ int rNormalObject::loadData() {
                eLOG "Failed to load / parse the OBJ! ('" ADD d.path ADD "')" END
                return -1;
             }
-            
+
             glBindBuffer( GL_ARRAY_BUFFER,         vVertexBufferObjects[lCounter] );
-            glBufferData( GL_ARRAY_BUFFER,         sizeof( GLfloat ) * lLoader.getRawVertexData()->size(), &lLoader.getRawVertexData()->at(0), GL_STATIC_DRAW );
+            glBufferData( GL_ARRAY_BUFFER,         sizeof( GLfloat ) * lLoader.getRawVertexData()->size(), &lLoader.getRawVertexData()->at( 0 ), GL_STATIC_DRAW );
 
             glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObjects[lCounter] );
-            glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint ) * lLoader.getRawIndexData()->size(),   &lLoader.getRawIndexData()->at(0), GL_STATIC_DRAW );
+            glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint ) * lLoader.getRawIndexData()->size(),   &lLoader.getRawIndexData()->at( 0 ), GL_STATIC_DRAW );
             lIndexSize.emplace_back( lLoader.getRawIndexData()->size() );
             lLoader.unLoad();
             break;
@@ -204,20 +236,27 @@ int rNormalObject::loadData() {
          vRenderer = new rRenderNormal_3_3();
 
          vShaders[0].getProgram( lTempShaderID );
-         
+
          lTempData.emplace_back( ( void * ) & ( vVertexBufferObjects[0] ) );
          lTempData.emplace_back( ( void * ) & ( vIndexBufferObjects[0] ) );
          lTempData.emplace_back( ( void * ) & ( lTempShaderID ) );
          lTempData.emplace_back( ( void * ) & ( vInputLocations[0] ) );
+         lTempData.emplace_back( ( void * ) & ( vUniformLocations[0] ) );
          lTempData.emplace_back( ( void * ) & ( lIndexSize[0] ) );
 
          vRenderer->setOGLInfo( lTempData );
+
+         vResultMatrix = vRenderer->getMatrix();
          break;
 
       case render_NONE:
          eLOG "No renderer for this object type '" ADD vObjectName ADD "'" END
          return 5;
    }
+
+
+   vProjectionMatrix = _world->getProjectionMatrix();
+
 
    iLOG "Loaded data for '" ADD vObjectName ADD "'" END
 
@@ -236,16 +275,143 @@ RENDERER_ID rNormalObject::chooseRendere() {
    lPossibleRendere.emplace_back( render_NONE );
 
    if( vShaders.size() == 1 && vDataFiles.size() == 1 ) {
-      if( vShaderInfo[0].vInputInfo.size() == 1 ) {
-         vInputLocations.emplace_back( vShaderInfo[0].vInputInfo[0].location );
+      if( vShaderInfo[0].vInputInfo.size() == 1 && vShaderInfo[0].vUniformInfo.size() == 1 ) {
+         if( vShaderInfo[0].vUniformInfo[0].type == GL_FLOAT_MAT4 ) {
+            vInputLocations.emplace_back( vShaderInfo[0].vInputInfo[0].location );
+            vUniformLocations.emplace_back( vShaderInfo[0].vUniformInfo[0].location );
 
-         lPossibleRendere.emplace_back( render_OGL_3_3_Normal_Basic_1S_1D );
+            lPossibleRendere.emplace_back( render_OGL_3_3_Normal_Basic_1S_1D );
+         }
       }
    }
 
 
    return lPossibleRendere.back();
 }
+
+void rNormalObject::createResultMatrix() {
+   if( vResultMatrix == nullptr || vRenderer == nullptr || vProjectionMatrix == nullptr )
+      return;
+
+   rMatrix<4, 4> lTemp = vRotateMatrix * vTransformMatrix * *vProjectionMatrix;
+
+   for( unsigned int i = 0; i < 4; ++i ) {
+      std::string lStr;
+      for( unsigned int j = 0; j < 4; ++j ) {
+         lStr += boost::lexical_cast<std::string>( lTemp.get( j, i ) ) + "  ";
+      }
+      iLOG lStr END
+   }
+
+   for( unsigned int i = 0; i < 4; ++i ) {
+      std::string lStr;
+      for( unsigned int j = 0; j < 4; ++j ) {
+         lStr += boost::lexical_cast<std::string>( vTransformMatrix.get( j, i ) ) + "  ";
+      }
+      wLOG lStr END
+   }
+   
+//    for( unsigned int i = 0; i < 4; ++i ) {
+//       std::string lStr;
+//       for( unsigned int j = 0; j < 4; ++j ) {
+//          lStr += boost::lexical_cast<std::string>( vRotateMatrix.get( j, i ) ) + "  ";
+//       }
+//       wLOG lStr END
+//    }
+
+   for( unsigned int i = 0; i < 4; ++i ) {
+      std::string lStr;
+      for( unsigned int j = 0; j < 4; ++j ) {
+         lStr += boost::lexical_cast<std::string>( vProjectionMatrix->get( j, i ) ) + "  ";
+      }
+      eLOG lStr END
+   }
+
+   *vResultMatrix = vRotateMatrix * vTransformMatrix * *vProjectionMatrix;
+   vRenderer->updateUniforms();
+}
+
+
+void rNormalObject::setRotation( GLfloat _x, GLfloat _y, GLfloat _z ) {
+   rMatrix<4, 4> lTempX;
+   rMatrix<4, 4> lTempY;
+   rMatrix<4, 4> lTempZ;
+   
+   vRotateX = _x;
+   vRotateY = _y;
+   vRotateZ = _z;
+
+   GLfloat radX = degToRad( _x );
+   GLfloat radY = degToRad( _z );
+   GLfloat radZ = degToRad( _y );
+
+   lTempX.set( 0, 0, 1 );
+   lTempX.set( 0, 1, 0 );
+   lTempX.set( 0, 2, 0 );
+   lTempX.set( 0, 3, 0 );
+
+   lTempX.set( 1, 0, 0 );
+   lTempX.set( 1, 1, cos( radX ) );
+   lTempX.set( 1, 2, sin( radX ) );
+   lTempX.set( 1, 3, 0 );
+
+   lTempX.set( 2, 0, 0 );
+   lTempX.set( 2, 1, - sin( radX ) );
+   lTempX.set( 2, 2, cos( radX ) );
+   lTempX.set( 2, 3, 0 );
+
+   lTempX.set( 3, 0, 0 );
+   lTempX.set( 3, 1, 0 );
+   lTempX.set( 3, 2, 0 );
+   lTempX.set( 3, 3, 1 );
+
+
+   lTempY.set( 0, 0, cos( radY ) );
+   lTempY.set( 0, 1, 0 );
+   lTempY.set( 0, 2, sin( radY ) );
+   lTempY.set( 0, 3, 0 );
+
+   lTempY.set( 1, 0, 0 );
+   lTempY.set( 1, 1, 1 );
+   lTempY.set( 1, 2, 0 );
+   lTempY.set( 1, 3, 0 );
+
+   lTempY.set( 2, 0, - sin( radY ) );
+   lTempY.set( 2, 1, 0 );
+   lTempY.set( 2, 2, cos( radY ) );
+   lTempY.set( 2, 3, 0 );
+
+   lTempY.set( 3, 0, 0 );
+   lTempY.set( 3, 1, 0 );
+   lTempY.set( 3, 2, 0 );
+   lTempY.set( 3, 3, 1 );
+
+
+   lTempZ.set( 0, 0, cos( radZ ) );
+   lTempZ.set( 0, 1, sin( radZ ) );
+   lTempZ.set( 0, 2, 0 );
+   lTempZ.set( 0, 3, 0 );
+
+   lTempZ.set( 1, 0, -sin( radZ ) );
+   lTempZ.set( 1, 1, cos( radZ ) );
+   lTempZ.set( 1, 2, 0 );
+   lTempZ.set( 1, 3, 0 );
+
+   lTempZ.set( 2, 0, 0 );
+   lTempZ.set( 2, 1, 0 );
+   lTempZ.set( 2, 2, 0 );
+   lTempZ.set( 2, 3, 0 );
+
+   lTempZ.set( 3, 0, 0 );
+   lTempZ.set( 3, 1, 0 );
+   lTempZ.set( 3, 2, 0 );
+   lTempZ.set( 3, 3, 1 );
+   
+   rMatrix<4,4> lTempYX = lTempY * lTempX;
+   
+   vRotateMatrix = lTempZ * lTempYX;
+}
+
 
 
 std::vector< std::string > rNormalObject::getDataFileNames() {

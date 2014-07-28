@@ -12,6 +12,8 @@
 #include "rShader.hpp"
 #include "iInit.hpp"
 #include "rLoader_3D_f_OBJ.hpp"
+#include "rMatrix.hpp"
+#include "rWorld.hpp"
 
 namespace e_engine {
 
@@ -23,52 +25,99 @@ class rNormalObject {
       struct dataFile {
          std::string path;
          DATA_FILE_TYPE type;
-         
-         dataFile( std::string _p, DATA_FILE_TYPE _t ) : path(_p), type(_t) {}
+
+         dataFile( std::string _p, DATA_FILE_TYPE _t ) : path( _p ), type( _t ) {}
       };
-      
+
       RENDERER           *vRenderer;
-      
+
       std::vector<GLuint> vVertexBufferObjects;
       std::vector<GLuint> vIndexBufferObjects;
-      
+
       bool                vHasGeneretedBuffers_B;
       bool                vIsDataLoaded_B;
-      
+
       std::string         vObjectName;
 
       std::vector<dataFile>   vDataFiles;
       std::vector<rShader>    vShaders;
-      
+
       std::vector<SHADER_INF> vShaderInfo;
       std::vector<GLint>      vInputLocations;
+      std::vector<GLint>      vUniformLocations;
       std::vector<GLuint>     vNumOfIndexes;
+
+      rMatrix<4, 4>          *vResultMatrix;
+      rMatrix<4, 4>           vTransformMatrix;
+      rMatrix<4, 4>           vRotateMatrix;
       
-//       rLoader_3D_f_OBJ       vLoader;
-      
-      iInit                  *vInitPointer;
+      GLfloat                 vRotateX;
+      GLfloat                 vRotateY;
+      GLfloat                 vRotateZ;
+
+      bool                    vNeedUpdateMatrix_B;
+
+      rMatrix<4,4>           *vProjectionMatrix;
 
       DATA_FILE_TYPE detectFileTypeFromEnding( std::string const &_str );
       RENDERER_ID    chooseRendere();
-      
+
       rNormalObject() {}
    public:
-      rNormalObject( std::string _name, iInit *_init );
+      rNormalObject( std::string _name );
       virtual ~rNormalObject();
 
       inline void render()     {vRenderer->render();}
       inline void operator()() {vRenderer->render();}
 
-      int  loadData();
+      int  loadData( e_engine::rWorld *_world );
       void freeData();
 
       bool addShader( std::string _shaderPath );
       bool addData( std::string _pathToDataFile, e_engine::rNormalObject::DATA_FILE_TYPE _type = AUTODETECT );
 
       std::vector<std::string> getDataFileNames();
-      std::vector< rShader > * getShaders();
+      std::vector< rShader > *getShaders();
 
       inline bool getCanRender() const {return vIsDataLoaded_B;}
+
+
+      void setPosition( GLfloat _x, GLfloat _y, GLfloat _z ) {
+         vTransformMatrix.set( 3, 0, _x );
+         vTransformMatrix.set( 3, 1, _y );
+         vTransformMatrix.set( 3, 2, _z );
+      }
+
+      void getPosition( GLfloat &_x, GLfloat &_y, GLfloat &_z ) {
+         _x = vTransformMatrix.get( 3, 0 );
+         _y = vTransformMatrix.get( 3, 1 );
+         _z = vTransformMatrix.get( 3, 2 );
+      }
+
+      void move( GLfloat _x, GLfloat _y, GLfloat _z ) {
+         GLfloat x, y, z;
+         getPosition( x, y, z );
+         setPosition( x + _x, y + _y, z + _z );
+      }
+      
+      
+      void setRotation( GLfloat _x, GLfloat _y, GLfloat _z );
+      void getRotation( GLfloat &_x, GLfloat &_y, GLfloat &_z ) {
+         _x = vRotateX;
+         _y = vRotateY;
+         _z = vRotateZ;
+      }
+      void rotate( GLfloat _x, GLfloat _y, GLfloat _z ) {
+         GLfloat x, y, z;
+         getRotation( x, y, z );
+         setRotation( x + _x, y + _y, z + _z );
+         iLOG "X: " ADD x + _x ADD " Y: " ADD y + _y ADD " Z: " ADD z + _z END
+      }
+      
+
+      void createResultMatrix();
+      
+      void setProjectionMatrix( rMatrix<4,4> *_mat ) { vProjectionMatrix = _mat; }
 
       void reset();
 };

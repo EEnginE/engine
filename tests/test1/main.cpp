@@ -131,6 +131,73 @@ int main( int argc, char *argv[] ) {
 
       start.closeWindow();
    }
+/*
+ * 
+
+2.79904 0 0 0 
+0 3.73205 0 0 
+0 0 1.0202 3.08081 
+0 0 1 5
+
+2.06060815  0  0  0
+0  2.74747753  0  0
+0  0  -1.002002  -1
+0  0  -0.2002002  0
+
+   rMatrix<3, 3> lMa;
+   rMatrix<3, 3> lMb;
+   rMatrix<3, 3> lMr;
+   
+   lMa.set( 0, 0, 1 );
+   lMa.set( 0, 1, 2 );
+   lMa.set( 0, 2, 3 );
+   
+   lMa.set( 1, 0, 4 );
+   lMa.set( 1, 1, 5 );
+   lMa.set( 1, 2, 6 );
+   
+   lMa.set( 2, 0, 3 );
+   lMa.set( 2, 1, 2 );
+   lMa.set( 2, 2, 1 );
+   
+   lMb.set( 0, 0, 6 );
+   lMb.set( 0, 1, 5 );
+   lMb.set( 0, 2, 4 );
+   
+   lMb.set( 1, 0, 3 );
+   lMb.set( 1, 1, 2 );
+   lMb.set( 1, 2, 1 );
+   
+   lMb.set( 2, 0, 1 );
+   lMb.set( 2, 1, 2 );
+   lMb.set( 2, 2, 3 );
+
+   lMr = lMa * lMb;
+   
+
+   for( unsigned int i = 0; i < 3; ++i ) {
+      std::string lStr;
+      for( unsigned int j = 0; j < 3; ++j ) {
+         lStr += boost::lexical_cast<std::string>( lMa.get( j, i ) ) + "  ";
+      }
+      iLOG lStr END
+   }
+   
+   for( unsigned int i = 0; i < 3; ++i ) {
+      std::string lStr;
+      for( unsigned int j = 0; j < 3; ++j ) {
+         lStr += boost::lexical_cast<std::string>( lMb.get( j, i ) ) + "  ";
+      }
+      wLOG lStr END
+   }
+   
+   for( unsigned int i = 0; i < 3; ++i ) {
+      std::string lStr;
+      for( unsigned int j = 0; j < 3; ++j ) {
+         lStr += boost::lexical_cast<std::string>( lMr.get( j, i ) ) + "  ";
+      }
+      eLOG lStr END
+   }*/
 
 
 #if DO_SHA == 1
