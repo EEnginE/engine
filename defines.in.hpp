@@ -91,6 +91,9 @@ enum ACTION {
 
 }
 
+// Usefull constants
+#define E_VAR_PI 3.14159265358979323846
+
 //Global
 #define E_UNKNOWN      -1
 #define E_PRESSED      1

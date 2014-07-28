@@ -16,7 +16,7 @@
 namespace e_engine {
 
 namespace {
-float degToRad( float _degree ) { return _degree * ( M_PI / 180.0 ); }
+float degToRad( float _degree ) { return _degree * ( E_VAR_PI / 180.0 ); }
 }
 
 rNormalObject::rNormalObject( std::string _name ) {
@@ -144,13 +144,10 @@ int rNormalObject::loadData( rWorld *_world ) {
    std::vector<RENDERER_ID> lPossibleRendere;
 
    // compile shaders
-   bool lShaderCompileError_B = false;
-
    for( rShader & s : vShaders ) {
       if( ! s.getIsLinked() )  {
          if( s.compile() < 0 ) {
             eLOG "Failed to compile shader '" ADD s.getShaderPath() ADD "'. Failed to init OpenGL for object'" ADD vObjectName ADD "'" END
-            lShaderCompileError_B = true;
             return -1;
          }
       }
