@@ -154,7 +154,7 @@ void rShader::getProgramInfo() {
    glGetProgramInterfaceiv( vShaderProgram_OGL, GL_UNIFORM_BLOCK,  GL_ACTIVE_RESOURCES, &lNumOfUniformBlocks );
 
    // Input
-   for( GLuint i = 0; i < lNumOfInputs; ++i ) {
+   for( GLint i = 0; i < lNumOfInputs; ++i ) {
       GLint lResults[6];
       std::string lName_str = processData( GL_PROGRAM_INPUT, i, 6, lInputValues, lResults );
 
@@ -180,7 +180,7 @@ void rShader::getProgramInfo() {
    }
 
    // Output
-   for( GLuint i = 0; i < lNumOfOutouts; ++i ) {
+   for( GLint i = 0; i < lNumOfOutouts; ++i ) {
       GLint lResults[7];
       std::string lName_str = processData( GL_PROGRAM_OUTPUT, i, 7, lOutputValues, lResults );
 
@@ -208,7 +208,7 @@ void rShader::getProgramInfo() {
    }
 
    // Unifrom Blocks
-   for( GLuint i = 0; i < lNumOfUniformBlocks; ++i ) {
+   for( GLint i = 0; i < lNumOfUniformBlocks; ++i ) {
       GLint lResults[4];
       std::string lName_str = processData( GL_UNIFORM_BLOCK, i, 4, lUniformBlockValues, lResults );
 
@@ -232,7 +232,7 @@ void rShader::getProgramInfo() {
    }
 
    // Unifrom
-   for( GLuint i = 0; i < lNumOfUniforms; ++i ) {
+   for( GLint i = 0; i < lNumOfUniforms; ++i ) {
       GLint lResults[10];
       std::string lName_str = processData( GL_UNIFORM, i, 10, lUniformValues, lResults );
 
@@ -291,7 +291,7 @@ void rShader::getProgramInfo() {
    }
 
    for( auto & block : vProgramInformation.vUniformBlockInfo ) {
-      if( block.numActiveVariables != block.uniforms.size() ) {
+      if( (unsigned)block.numActiveVariables != block.uniforms.size() ) {
          wLOG "Uniform Block " ADD block.name ADD " has " ADD block.uniforms.size() ADD " out of " ADD block.numActiveVariables ADD " uniforms" END
       }
    }

@@ -193,7 +193,7 @@ void rWorld::updateClearCollor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a )
 
 namespace {
 
-float degToRad( float _degree ) { return _degree * ( M_PI / 180.0 ); }
+float degToRad( float _degree ) { return _degree * ( E_VAR_PI / 180.0 ); }
 
 }
 

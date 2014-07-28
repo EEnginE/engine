@@ -41,43 +41,43 @@ void BenchClass::doFunction() {
    // Normal:
 
    START( signalSlot );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vTheSignal( a, b );
    }
    uint64_t lSigSlot = STOP( signalSlot );
 
    START( functionPointer );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       ( *this.*vFunctionPointer )( a, b );
    }
    uint64_t lFunc = STOP( functionPointer );
    
    START( cFunctionPointer );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vCFunctionPointer( a, b );
    }
    uint64_t lCFunc = STOP( cFunctionPointer );
 
    START( normal );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       funcToCall( a, b );
    }
    uint64_t lNormal = STOP( normal );
    
    START( virt );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       funcToCallVirtual( a, b );
    }
    uint64_t lVirt = STOP( virt );
 
    START( boostFunc );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vBoostFunc( a, b );
    }
    uint64_t lBoostFunc = STOP( boostFunc );
    
    START( stdFunc );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vStdFunc( a, b );
    }
    uint64_t lStdFunc = STOP( stdFunc );
@@ -86,43 +86,43 @@ void BenchClass::doFunction() {
    // Inline:
 
    START( signalSlotInline );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vTheSignalInline( a, b );
    }
    uint64_t lSigSlotIn = STOP( signalSlotInline );
 
    START( functionPointerInline );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       ( *this.*vFunctionPointerInline )( a, b );
    }
    uint64_t lFuncIn = STOP( functionPointerInline );
    
    START( cFfunctionPointerInline );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vCFunctionPointerInline( a, b );
    }
    uint64_t lCFuncIn = STOP( cFfunctionPointerInline );
 
    START( normalInline );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       funcToCallInline( a, b );
    }
    uint64_t lNormalIn = STOP( normalInline );
    
    START( normalInlineVirt );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       funcToCallInlineVirtual( a, b );
    }
    uint64_t lNormalVirtIn = STOP( normalInlineVirt );
 
    START( boostFuncInline );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vBoostFuncInline( a, b );
    }
    uint64_t lBoostFuncIn = STOP( boostFuncInline );
    
    START( stdFuncInline );
-   for ( auto i = 0; i < vLoopsToDo; ++i ) {
+   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vStdFuncInline( a, b );
    }
    uint64_t lStdFuncIn = STOP( stdFuncInline );
