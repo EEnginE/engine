@@ -27,33 +27,12 @@ rNormalObject::rNormalObject( std::string _name ) {
 
    vResultMatrix          = nullptr;
 
-   vTransformMatrix.set( 0, 0, 1 );
-   vTransformMatrix.set( 0, 1, 0 );
-   vTransformMatrix.set( 0, 2, 0 );
-   vTransformMatrix.set( 0, 3, 0 );
-
-   vTransformMatrix.set( 1, 0, 0 );
-   vTransformMatrix.set( 1, 1, 1 );
-   vTransformMatrix.set( 1, 2, 0 );
-   vTransformMatrix.set( 1, 3, 0 );
-
-   vTransformMatrix.set( 2, 0, 0 );
-   vTransformMatrix.set( 2, 1, 0 );
-   vTransformMatrix.set( 2, 2, 1 );
-   vTransformMatrix.set( 2, 3, 0 );
-
-   vTransformMatrix.set( 3, 0, 0 );
-   vTransformMatrix.set( 3, 1, 0 );
-   vTransformMatrix.set( 3, 2, 0 );
-   vTransformMatrix.set( 3, 3, 1 );
-
+   vTransformMatrix.toIdentityMatrix();
+   vRotateMatrix.toIdentityMatrix();
 
    vRotateX = 0;
    vRotateY = 0;
    vRotateZ = 0;
-
-
-   setRotation( vRotateX, vRotateY, vRotateZ );
 }
 
 rNormalObject::~rNormalObject() {
@@ -293,24 +272,28 @@ void rNormalObject::createResultMatrix() {
    if( vResultMatrix == nullptr || vRenderer == nullptr || vProjectionMatrix == nullptr )
       return;
 
-   rMatrix<4, 4> lTemp = vRotateMatrix * vTransformMatrix * *vProjectionMatrix;
-
-   for( unsigned int i = 0; i < 4; ++i ) {
-      std::string lStr;
-      for( unsigned int j = 0; j < 4; ++j ) {
-         lStr += boost::lexical_cast<std::string>( lTemp.get( j, i ) ) + "  ";
-      }
-      iLOG lStr END
-   }
-
-   for( unsigned int i = 0; i < 4; ++i ) {
-      std::string lStr;
-      for( unsigned int j = 0; j < 4; ++j ) {
-         lStr += boost::lexical_cast<std::string>( vTransformMatrix.get( j, i ) ) + "  ";
-      }
-      wLOG lStr END
-   }
-   
+//    rMatrix<4, 4> lTemp = *vProjectionMatrix * vTransformMatrix * vRotateMatrix  ;
+// 
+//    for( unsigned int i = 0; i < 4; ++i ) {
+//       std::string lStr;
+//       for( unsigned int j = 0; j < 4; ++j ) {
+//          lStr += boost::lexical_cast<std::string>( lTemp.get( j, i ) ) + "  ";
+//       }
+//       iLOG lStr END
+//    }
+//    
+//    dLOG "" END
+// 
+//    for( unsigned int i = 0; i < 4; ++i ) {
+//       std::string lStr;
+//       for( unsigned int j = 0; j < 4; ++j ) {
+//          lStr += boost::lexical_cast<std::string>( vTransformMatrix.get( j, i ) ) + "  ";
+//       }
+//       wLOG lStr END
+//    }
+//    
+//    dLOG "" END
+//    
 //    for( unsigned int i = 0; i < 4; ++i ) {
 //       std::string lStr;
 //       for( unsigned int j = 0; j < 4; ++j ) {
@@ -318,16 +301,21 @@ void rNormalObject::createResultMatrix() {
 //       }
 //       wLOG lStr END
 //    }
+//    
+//    dLOG "" END
+// 
+//    for( unsigned int i = 0; i < 4; ++i ) {
+//       std::string lStr;
+//       for( unsigned int j = 0; j < 4; ++j ) {
+//          lStr += boost::lexical_cast<std::string>( vProjectionMatrix->get( j, i ) ) + "  ";
+//       }
+//       eLOG lStr END
+//    }
+//    
+//    dLOG "" END
+//    dLOG "" END
 
-   for( unsigned int i = 0; i < 4; ++i ) {
-      std::string lStr;
-      for( unsigned int j = 0; j < 4; ++j ) {
-         lStr += boost::lexical_cast<std::string>( vProjectionMatrix->get( j, i ) ) + "  ";
-      }
-      eLOG lStr END
-   }
-
-   *vResultMatrix = vRotateMatrix * vTransformMatrix * *vProjectionMatrix;
+   *vResultMatrix = *vProjectionMatrix * vTransformMatrix * vRotateMatrix;
    vRenderer->updateUniforms();
 }
 
@@ -344,72 +332,33 @@ void rNormalObject::setRotation( GLfloat _x, GLfloat _y, GLfloat _z ) {
    GLfloat radX = degToRad( _x );
    GLfloat radY = degToRad( _z );
    GLfloat radZ = degToRad( _y );
+   
+   lTempX.toIdentityMatrix();
+   lTempY.toIdentityMatrix();
+   lTempZ.toIdentityMatrix();
 
-   lTempX.set( 0, 0, 1 );
-   lTempX.set( 0, 1, 0 );
-   lTempX.set( 0, 2, 0 );
-   lTempX.set( 0, 3, 0 );
 
-   lTempX.set( 1, 0, 0 );
    lTempX.set( 1, 1, cos( radX ) );
    lTempX.set( 1, 2, sin( radX ) );
-   lTempX.set( 1, 3, 0 );
 
-   lTempX.set( 2, 0, 0 );
    lTempX.set( 2, 1, - sin( radX ) );
    lTempX.set( 2, 2, cos( radX ) );
-   lTempX.set( 2, 3, 0 );
-
-   lTempX.set( 3, 0, 0 );
-   lTempX.set( 3, 1, 0 );
-   lTempX.set( 3, 2, 0 );
-   lTempX.set( 3, 3, 1 );
 
 
    lTempY.set( 0, 0, cos( radY ) );
-   lTempY.set( 0, 1, 0 );
    lTempY.set( 0, 2, sin( radY ) );
-   lTempY.set( 0, 3, 0 );
-
-   lTempY.set( 1, 0, 0 );
-   lTempY.set( 1, 1, 1 );
-   lTempY.set( 1, 2, 0 );
-   lTempY.set( 1, 3, 0 );
 
    lTempY.set( 2, 0, - sin( radY ) );
-   lTempY.set( 2, 1, 0 );
    lTempY.set( 2, 2, cos( radY ) );
-   lTempY.set( 2, 3, 0 );
-
-   lTempY.set( 3, 0, 0 );
-   lTempY.set( 3, 1, 0 );
-   lTempY.set( 3, 2, 0 );
-   lTempY.set( 3, 3, 1 );
 
 
    lTempZ.set( 0, 0, cos( radZ ) );
    lTempZ.set( 0, 1, sin( radZ ) );
-   lTempZ.set( 0, 2, 0 );
-   lTempZ.set( 0, 3, 0 );
 
    lTempZ.set( 1, 0, -sin( radZ ) );
    lTempZ.set( 1, 1, cos( radZ ) );
-   lTempZ.set( 1, 2, 0 );
-   lTempZ.set( 1, 3, 0 );
-
-   lTempZ.set( 2, 0, 0 );
-   lTempZ.set( 2, 1, 0 );
-   lTempZ.set( 2, 2, 0 );
-   lTempZ.set( 2, 3, 0 );
-
-   lTempZ.set( 3, 0, 0 );
-   lTempZ.set( 3, 1, 0 );
-   lTempZ.set( 3, 2, 0 );
-   lTempZ.set( 3, 3, 1 );
-   
-   rMatrix<4,4> lTempYX = lTempY * lTempX;
-   
-   vRotateMatrix = lTempZ * lTempYX;
+      
+   vRotateMatrix = lTempZ * lTempY * lTempX;
 }
 
 

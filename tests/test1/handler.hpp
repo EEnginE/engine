@@ -53,7 +53,7 @@ class MyHandler : public rWorld {
          updateViewPort( 0, 0, info.eResize.width, info.eResize.height );
       }
 
-      int initGL() {return vObject1.loadData( this );}
+      int initGL();
 
       virtual void renderFrame() {vObject1.render();}
 

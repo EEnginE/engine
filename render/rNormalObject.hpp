@@ -111,7 +111,6 @@ class rNormalObject {
          GLfloat x, y, z;
          getRotation( x, y, z );
          setRotation( x + _x, y + _y, z + _z );
-         iLOG "X: " ADD x + _x ADD " Y: " ADD y + _y ADD " Z: " ADD z + _z END
       }
       
 
