@@ -34,7 +34,7 @@ class rMatrix {
       }
 
       float       &get( int _position )                 {return vMatrix[_position];}
-      float       &get( int _x, int _y )                {return vMatrix[_x + ( _y * ROWS )];}
+      float       &get( int _x, int _y )                {return vMatrix[( _x * ROWS ) + _y];}
       float       *get()                                {return vMatrix;}
       float const &get( int _position ) const           {return vMatrix[_position];}
       void         set( int _position, float _newVal  ) {vMatrix[_position] = _newVal;}

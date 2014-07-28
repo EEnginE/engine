@@ -15,14 +15,14 @@ MyHandler::~MyHandler() {}
 void MyHandler::mouse( iEventInfo info ) {
    if( info.iMouse.button <= E_MOUSE_6 )  // We dont want move events and etc.
       iLOG "Button " ADD info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.iMouse.button ADD "'" END
-      
+
       switch( info.iMouse.button ) {
          case E_MOUSE_LEFT:  vObject1.rotate( 0, 0, -1 ); vObject1.createResultMatrix(); break;
          case E_MOUSE_RIGHT: vObject1.rotate( 0, 0, 1 );  vObject1.createResultMatrix(); break;
          default: break;
       }
 
-   }
+}
 
 void MyHandler::key( iEventInfo info ) {
    if( vDisp_RandR.empty() )
@@ -70,7 +70,7 @@ void MyHandler::key( iEventInfo info ) {
          case E_KEY_PAGE_UP:     vObject1.move( 0, 0.01, 0 );  vObject1.createResultMatrix(); break;
          case E_KEY_PAGE_DOWN:   vObject1.move( 0, -0.01, 0 ); vObject1.createResultMatrix(); break;
          case L'1':
-            calculatePerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 40.0 );
+            calculatePerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
             vObject1.createResultMatrix();
             break;
          case L'p':
@@ -108,6 +108,14 @@ void MyHandler::key( iEventInfo info ) {
       }
    }
 }
+
+
+int MyHandler::initGL() {
+   int lReturn = vObject1.loadData( this );
+   vObject1.setPosition( 0, 0, -5 );
+   return lReturn;
+}
+
 
 
 

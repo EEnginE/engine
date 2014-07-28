@@ -30,25 +30,7 @@ rWorld::rWorld() {
    vPauseRenderLoopSlot.setFunc( &rWorld::pauseRenderLoop, this );
    vContinueRenderLoopSlot.setFunc( &rWorld::continueRenderLoop, this );
 
-   vProjectionMatrix_MAT.set( 0, 0, 1 );
-   vProjectionMatrix_MAT.set( 0, 1, 0 );
-   vProjectionMatrix_MAT.set( 0, 2, 0 );
-   vProjectionMatrix_MAT.set( 0, 3, 0 );
-
-   vProjectionMatrix_MAT.set( 1, 0, 0 );
-   vProjectionMatrix_MAT.set( 1, 1, 1 );
-   vProjectionMatrix_MAT.set( 1, 2, 0 );
-   vProjectionMatrix_MAT.set( 1, 3, 0 );
-
-   vProjectionMatrix_MAT.set( 2, 0, 0 );
-   vProjectionMatrix_MAT.set( 2, 1, 0 );
-   vProjectionMatrix_MAT.set( 2, 2, 1 );
-   vProjectionMatrix_MAT.set( 2, 3, 0 );
-
-   vProjectionMatrix_MAT.set( 3, 0, 0 );
-   vProjectionMatrix_MAT.set( 3, 1, 0 );
-   vProjectionMatrix_MAT.set( 3, 2, 0 );
-   vProjectionMatrix_MAT.set( 3, 3, 1 );
+   vProjectionMatrix_MAT.toIdentityMatrix();
 }
 
 rWorld::rWorld( iInit *_init ) {
@@ -79,26 +61,8 @@ rWorld::rWorld( iInit *_init ) {
    vContinueRenderLoopSlot.setFunc( &rWorld::continueRenderLoop, this );
 
    setInitObj( _init );
-
-   vProjectionMatrix_MAT.set( 0, 0, 1 );
-   vProjectionMatrix_MAT.set( 0, 1, 0 );
-   vProjectionMatrix_MAT.set( 0, 2, 0 );
-   vProjectionMatrix_MAT.set( 0, 3, 0 );
-
-   vProjectionMatrix_MAT.set( 1, 0, 0 );
-   vProjectionMatrix_MAT.set( 1, 1, 1 );
-   vProjectionMatrix_MAT.set( 1, 2, 0 );
-   vProjectionMatrix_MAT.set( 1, 3, 0 );
-
-   vProjectionMatrix_MAT.set( 2, 0, 0 );
-   vProjectionMatrix_MAT.set( 2, 1, 0 );
-   vProjectionMatrix_MAT.set( 2, 2, 1 );
-   vProjectionMatrix_MAT.set( 2, 3, 0 );
-
-   vProjectionMatrix_MAT.set( 3, 0, 0 );
-   vProjectionMatrix_MAT.set( 3, 1, 0 );
-   vProjectionMatrix_MAT.set( 3, 2, 0 );
-   vProjectionMatrix_MAT.set( 3, 3, 1 );
+   
+   vProjectionMatrix_MAT.toIdentityMatrix();
 }
 
 
@@ -110,17 +74,11 @@ void rWorld::renderLoop() {
    if( GlobConf.win.VSync == true )
       vInitPointer->enableVSync();
 
-//    GLuint lVertexArray_OGL;
-
-//    glGenVertexArrays( 1, &lVertexArray_OGL );
-//    glBindVertexArray( lVertexArray_OGL );
 
    glClearColor( vClearCollor.r, vClearCollor.g, vClearCollor.b, vClearCollor.a );
 
    glEnable( GL_CULL_FACE );
 //    glEnable( GL_DEPTH_TEST );
-
-//    glBindVertexArray( vInitPointer->getVertexArrayOpenGL() );
 
    while( vRenderLoopShouldRun_B ) {
       if( vRenderLoopShouldPaused_B ) {
@@ -154,8 +112,6 @@ void rWorld::renderLoop() {
       renderFrame();
       vInitPointer->swapBuffers();
    }
-
-//    glDeleteVertexArrays( 1, &lVertexArray_OGL );
 
    if( vInitPointer->getHaveContext() )
       vInitPointer->makeNOContextCurrent();
