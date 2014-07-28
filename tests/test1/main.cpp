@@ -2,6 +2,7 @@
 #include "config.hpp"
 #include "handler.hpp"
 #include "cmdANDinit.hpp"
+#include <time.h>
 #include <engine.hpp>
 
 #if WINDOWS
@@ -36,6 +37,41 @@ int main( int argc, char *argv[] ) {
 
    if( ! cmd.parseArgsAndInit() )
       return 1;
+   
+   rMatrix<4,4> st;
+   rMatrix<4,4> he;
+   rMatrix<4,4> go;
+   
+   
+   float abc[] = {5,5,5,5,10,10,10,10,5,5,5,5,10,10,10,10};
+   float cba[] = {5,5,5,5,10,10,10,10,5,5,5,5,10,10,10,10};
+   
+   st.set(abc);
+   he.set(cba);
+   
+   clock_t cll;
+   
+   cll = clock();
+   st.multiply(&he, &go);
+   cll = clock() - cll;
+   
+   
+   
+   
+   iLOG "Took " ADD (((float)cll)/CLOCKS_PER_SEC)*1000 ADD "ms." END
+   
+   for(int iiks = 0; iiks < 16; iiks++)
+      iLOG "VALUE: " ADD iiks ADD " = " ADD go.get(iiks) END
+      
+      cll = clock();
+      go = st * he;
+   cll = clock() - cll;
+   
+   iLOG "Took " ADD (((float)cll)/CLOCKS_PER_SEC)*1000 ADD "ms." END
+   
+   for(int iiks = 0; iiks < 16; iiks++)
+      iLOG "VALUE: " ADD iiks ADD " = " ADD go.get(iiks) END
+      
 
 #if OLD_RENDER
    uRandomISAAC myRand;
