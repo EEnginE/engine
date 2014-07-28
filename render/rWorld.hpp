@@ -8,6 +8,7 @@
 
 #include "uSignalSlot.hpp"
 #include "iInit.hpp"
+#include "rMatrix.hpp"
 
 namespace e_engine {
 
@@ -37,7 +38,7 @@ class rWorld {
          unsigned int width;
          unsigned int height;
       } vViewPort;
-      
+
       struct {
          bool vNeedUpdate_B;
          GLfloat r;
@@ -51,23 +52,31 @@ class rWorld {
       iInit *vInitPointer;
       boost::thread vRenderLoop_BT;
 
+      rMatrix<4, 4>  vProjectionMatrix_MAT;
+
       void startRenderLoop( bool _wait );
       void stopRenderLoop( );
 
       void pauseRenderLoop();
       void continueRenderLoop();
-      
+
       rWorld();
 
    public:
       void setInitObj( iInit *_init );
-      
+
       virtual void renderFrame() = 0;
 
       void updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
       void updateClearCollor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
 
+      void calculatePerspective( GLfloat _width, GLfloat _height, GLfloat _nearZ, GLfloat _farZ, GLfloat _angle )
+      {calculatePerspective( _width / _height, _nearZ, _farZ, _angle );}
+      void calculatePerspective( GLfloat _aspactRatio, GLfloat _nearZ, GLfloat _farZ, GLfloat _angle );
       
+      rMatrix<4, 4> *getProjectionMatrix() { return &vProjectionMatrix_MAT; }
+
+
       rWorld( iInit *_init );
       virtual ~rWorld() {}
 };

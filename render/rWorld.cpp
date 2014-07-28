@@ -5,6 +5,7 @@
 
 #include "rWorld.hpp"
 #include "uLog.hpp"
+#include "math.h"
 
 namespace e_engine {
 
@@ -28,6 +29,26 @@ rWorld::rWorld() {
 
    vPauseRenderLoopSlot.setFunc( &rWorld::pauseRenderLoop, this );
    vContinueRenderLoopSlot.setFunc( &rWorld::continueRenderLoop, this );
+
+   vProjectionMatrix_MAT.set( 0, 0, 1 );
+   vProjectionMatrix_MAT.set( 0, 1, 0 );
+   vProjectionMatrix_MAT.set( 0, 2, 0 );
+   vProjectionMatrix_MAT.set( 0, 3, 0 );
+
+   vProjectionMatrix_MAT.set( 1, 0, 0 );
+   vProjectionMatrix_MAT.set( 1, 1, 1 );
+   vProjectionMatrix_MAT.set( 1, 2, 0 );
+   vProjectionMatrix_MAT.set( 1, 3, 0 );
+
+   vProjectionMatrix_MAT.set( 2, 0, 0 );
+   vProjectionMatrix_MAT.set( 2, 1, 0 );
+   vProjectionMatrix_MAT.set( 2, 2, 1 );
+   vProjectionMatrix_MAT.set( 2, 3, 0 );
+
+   vProjectionMatrix_MAT.set( 3, 0, 0 );
+   vProjectionMatrix_MAT.set( 3, 1, 0 );
+   vProjectionMatrix_MAT.set( 3, 2, 0 );
+   vProjectionMatrix_MAT.set( 3, 3, 1 );
 }
 
 rWorld::rWorld( iInit *_init ) {
@@ -44,7 +65,7 @@ rWorld::rWorld( iInit *_init ) {
    vViewPort.y                 = 0;
    vViewPort.width             = 0;
    vViewPort.height            = 0;
-   
+
    vClearCollor.vNeedUpdate_B  = false;
    vClearCollor.r              = 0;
    vClearCollor.g              = 0;
@@ -58,6 +79,26 @@ rWorld::rWorld( iInit *_init ) {
    vContinueRenderLoopSlot.setFunc( &rWorld::continueRenderLoop, this );
 
    setInitObj( _init );
+
+   vProjectionMatrix_MAT.set( 0, 0, 1 );
+   vProjectionMatrix_MAT.set( 0, 1, 0 );
+   vProjectionMatrix_MAT.set( 0, 2, 0 );
+   vProjectionMatrix_MAT.set( 0, 3, 0 );
+
+   vProjectionMatrix_MAT.set( 1, 0, 0 );
+   vProjectionMatrix_MAT.set( 1, 1, 1 );
+   vProjectionMatrix_MAT.set( 1, 2, 0 );
+   vProjectionMatrix_MAT.set( 1, 3, 0 );
+
+   vProjectionMatrix_MAT.set( 2, 0, 0 );
+   vProjectionMatrix_MAT.set( 2, 1, 0 );
+   vProjectionMatrix_MAT.set( 2, 2, 1 );
+   vProjectionMatrix_MAT.set( 2, 3, 0 );
+
+   vProjectionMatrix_MAT.set( 3, 0, 0 );
+   vProjectionMatrix_MAT.set( 3, 1, 0 );
+   vProjectionMatrix_MAT.set( 3, 2, 0 );
+   vProjectionMatrix_MAT.set( 3, 3, 1 );
 }
 
 
@@ -75,6 +116,9 @@ void rWorld::renderLoop() {
 //    glBindVertexArray( lVertexArray_OGL );
 
    glClearColor( vClearCollor.r, vClearCollor.g, vClearCollor.b, vClearCollor.a );
+
+   glEnable( GL_CULL_FACE );
+//    glEnable( GL_DEPTH_TEST );
 
 //    glBindVertexArray( vInitPointer->getVertexArrayOpenGL() );
 
@@ -100,7 +144,7 @@ void rWorld::renderLoop() {
          glViewport( vViewPort.x, vViewPort.y, vViewPort.width, vViewPort.height );
          dLOG "Viewport updated" END
       }
-      
+
       if( vClearCollor.vNeedUpdate_B ) {
          vClearCollor.vNeedUpdate_B = false;
          glClearColor( vClearCollor.r, vClearCollor.g, vClearCollor.b, vClearCollor.a );
@@ -110,7 +154,7 @@ void rWorld::renderLoop() {
       renderFrame();
       vInitPointer->swapBuffers();
    }
-   
+
 //    glDeleteVertexArrays( 1, &lVertexArray_OGL );
 
    if( vInitPointer->getHaveContext() )
@@ -191,9 +235,28 @@ void rWorld::updateClearCollor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a )
    vClearCollor.a             = _a;
 }
 
+namespace {
 
+float degToRad( float _degree ) { return _degree * ( M_PI / 180.0 ); }
 
+}
 
+void rWorld::calculatePerspective( GLfloat _aspactRatio, GLfloat _nearZ, GLfloat _farZ, GLfloat _angle ) {
+   GLfloat lRange  = tan( degToRad( _angle / 2.0 ) ) * _nearZ;
+   GLfloat lLeft   = (-lRange) * _aspactRatio;
+   GLfloat lRight  = lRange * _aspactRatio;
+   GLfloat lBottom = (-lRange);
+   GLfloat lTop    = lRange;
+
+   vProjectionMatrix_MAT.set( 0, 0, ( 2.0 * _nearZ ) / ( lRight - lLeft ) );
+   vProjectionMatrix_MAT.set( 1, 1, ( 2.0 * _nearZ ) / ( lTop - lBottom ) );
+   vProjectionMatrix_MAT.set( 2, 0, ( lRight + lLeft ) / ( lRight - lLeft ) );
+   vProjectionMatrix_MAT.set( 2, 1, ( lTop + lBottom ) / ( lTop - lBottom ) );
+   vProjectionMatrix_MAT.set( 2, 2, - ( _farZ + _nearZ ) / ( _farZ - _nearZ ) );
+   vProjectionMatrix_MAT.set( 2, 3, -1.0 );
+   vProjectionMatrix_MAT.set( 3, 2, - ( 2.0 * _farZ * _nearZ ) / ( _farZ - _nearZ ) );
+   vProjectionMatrix_MAT.set( 3, 3, 0 );
+}
 
 
 void rWorld::setInitObj( iInit *_init ) {

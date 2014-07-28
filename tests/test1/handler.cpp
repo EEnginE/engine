@@ -13,13 +13,19 @@ MyHandler::~MyHandler() {}
 
 
 void MyHandler::mouse( iEventInfo info ) {
-   if ( info.iMouse.button <= E_MOUSE_6 ) // We dont want move events and etc.
+   if( info.iMouse.button <= E_MOUSE_6 )  // We dont want move events and etc.
       iLOG "Button " ADD info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.iMouse.button ADD "'" END
+      
+      switch( info.iMouse.button ) {
+         case E_MOUSE_LEFT:  vObject1.rotate( 0, 0, -1 ); vObject1.createResultMatrix(); break;
+         case E_MOUSE_RIGHT: vObject1.rotate( 0, 0, 1 );  vObject1.createResultMatrix(); break;
+         default: break;
+      }
 
    }
 
 void MyHandler::key( iEventInfo info ) {
-   if ( vDisp_RandR.empty() )
+   if( vDisp_RandR.empty() )
       vDisp_RandR = info.iInitPointer->getDisplayResolutions();
 
    char lHex_CSTR[6];
@@ -28,8 +34,8 @@ void MyHandler::key( iEventInfo info ) {
 
    vector<iDisplays> displays;
 
-   if ( info.eKey.state == E_PRESSED ) {
-      switch ( info.eKey.key ) {
+   if( info.eKey.state == E_PRESSED ) {
+      switch( info.eKey.key ) {
          case E_KEY_F1:          info.iInitPointer->setAttribute( C_TOGGLE, MODAL ); break;
          case E_KEY_F2:          info.iInitPointer->setAttribute( C_TOGGLE, STICKY ); break;
          case E_KEY_F3:          info.iInitPointer->setAttribute( C_TOGGLE, MAXIMIZED_VERT ); break;
@@ -54,9 +60,19 @@ void MyHandler::key( iEventInfo info ) {
          case L'F':
          case L'f':              info.iInitPointer->fullScreen( e_engine::C_TOGGLE ); info.iInitPointer->restartIfNeeded( true ); break;
          case L's':              info.iInitPointer->fullScreenMultiMonitor(); break;
-         case L'a':              if ( vDisp_RandR.size() > 0 ) info.iInitPointer->setFullScreenMonitor( vDisp_RandR[0] ); break;
-         case L'd':              if ( vDisp_RandR.size() > 1 ) info.iInitPointer->setFullScreenMonitor( vDisp_RandR[1] ); break;
+         case L'a':              if( vDisp_RandR.size() > 0 ) info.iInitPointer->setFullScreenMonitor( vDisp_RandR[0] ); break;
+         case L'd':              if( vDisp_RandR.size() > 1 ) info.iInitPointer->setFullScreenMonitor( vDisp_RandR[1] ); break;
          case L'r':              info.iInitPointer->restart( true ); break;
+         case E_KEY_UP:          vObject1.move( 0, 0, 0.1 );  vObject1.createResultMatrix(); break;
+         case E_KEY_DOWN:        vObject1.move( 0, 0, -0.1 ); vObject1.createResultMatrix(); break;
+         case E_KEY_LEFT:        vObject1.move( -0.01, 0, 0 ); vObject1.createResultMatrix(); break;
+         case E_KEY_RIGHT:       vObject1.move( 0.01, 0, 0 );  vObject1.createResultMatrix(); break;
+         case E_KEY_PAGE_UP:     vObject1.move( 0, 0.01, 0 );  vObject1.createResultMatrix(); break;
+         case E_KEY_PAGE_DOWN:   vObject1.move( 0, -0.01, 0 ); vObject1.createResultMatrix(); break;
+         case L'1':
+            calculatePerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 40.0 );
+            vObject1.createResultMatrix();
+            break;
          case L'p':
             iLOG "Pausing" END
             info.iInitPointer->pauseMainLoop( true );
@@ -76,16 +92,16 @@ void MyHandler::key( iEventInfo info ) {
             info.iInitPointer->setDisplaySizes( displays[0] );
             info.iInitPointer->applyNewRandRSettings();
             break;
-         case L'q':
          case L'g': info.iInitPointer->grabMouse(); break;
          case L'G': info.iInitPointer->freiMouse(); break;
          case L'w': info.iInitPointer->moviMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 ); break;
          case L'c': info.iInitPointer->hidiMouseCursor(); break;
          case L'C': info.iInitPointer->showMouseCursor(); break;
+         case L'q':
          case L'Q':
          case E_KEY_ESCAPE:      info.iInitPointer->closeWindow(); break;
          case L'u':
-            if ( info.iInitPointer->getKeyState( L'n' ) == E_PRESSED ) {
+            if( info.iInitPointer->getKeyState( L'n' ) == E_PRESSED ) {
                iLOG "JAAAAA" END;
             }
             break;
