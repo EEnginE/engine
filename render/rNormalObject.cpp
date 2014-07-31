@@ -71,7 +71,7 @@ bool rNormalObject::addData( std::string _pathToDataFile, e_engine::rNormalObjec
    boost::filesystem::path lPath( _pathToDataFile.c_str() );
 
    if( ! boost::filesystem::exists( lPath ) ) {
-      eLOG "Data File '" ADD _pathToDataFile ADD "' does not exists" END
+      eLOG "Data File '" ADD _pathToDataFile ADD "' does not exist" END
       return false;
    }
 
@@ -141,7 +141,7 @@ int rNormalObject::loadData( rWorld *_world ) {
    if( vHasGeneretedBuffers_B || vIsDataLoaded_B )
       return -3;
 
-   std::vector<RENDERER_ID> lPossibleRendere;
+   std::vector<RENDERER_ID> lPossibleRender;
 
    // compile shaders
    for( rShader & s : vShaders ) {
@@ -207,7 +207,7 @@ int rNormalObject::loadData( rWorld *_world ) {
    std::vector<void *> lTempData;
    GLuint              lTempShaderID;
 
-   switch( chooseRendere() ) {
+   switch( chooseRender() ) {
       case render_OGL_3_3_Normal_Basic_1S_1D:
          vRenderer = new rRenderNormal_3_3();
 
@@ -242,13 +242,13 @@ int rNormalObject::loadData( rWorld *_world ) {
 }
 
 /*!
- * \brief Decides which renderer to take
+ * \brief Decides which renderer to use
  *
  *
  */
-RENDERER_ID rNormalObject::chooseRendere() {
-   std::vector<RENDERER_ID> lPossibleRendere;
-   lPossibleRendere.emplace_back( render_NONE );
+RENDERER_ID rNormalObject::chooseRender() {
+   std::vector<RENDERER_ID> lPossibleRender;
+   lPossibleRender.emplace_back( render_NONE );
 
    if( vShaders.size() == 1 && vDataFiles.size() == 1 ) {
       if( vShaderInfo[0].vInputInfo.size() == 1 && vShaderInfo[0].vUniformInfo.size() == 1 ) {
@@ -256,13 +256,13 @@ RENDERER_ID rNormalObject::chooseRendere() {
             vInputLocations.emplace_back( vShaderInfo[0].vInputInfo[0].location );
             vUniformLocations.emplace_back( vShaderInfo[0].vUniformInfo[0].location );
 
-            lPossibleRendere.emplace_back( render_OGL_3_3_Normal_Basic_1S_1D );
+            lPossibleRender.emplace_back( render_OGL_3_3_Normal_Basic_1S_1D );
          }
       }
    }
 
 
-   return lPossibleRendere.back();
+   return lPossibleRender.back();
 }
 
 void rNormalObject::createResultMatrix() {

@@ -60,7 +60,7 @@ class rNormalObject {
       rMatrix<4,4>           *vProjectionMatrix;
 
       DATA_FILE_TYPE detectFileTypeFromEnding( std::string const &_str );
-      RENDERER_ID    chooseRendere();
+      RENDERER_ID    chooseRender();
 
       rNormalObject() {}
    public:

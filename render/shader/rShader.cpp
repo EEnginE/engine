@@ -119,7 +119,7 @@ int rShader::search_shaders() {
    }
 
    if( vShaders.size() == 0 ) {
-      wLOG "Found 0 shader(s) WARNING!!!" END
+      wLOG "No shaders found! WARNING!" END
    }
 
    return vShaders.size();
