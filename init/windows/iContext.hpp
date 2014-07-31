@@ -92,12 +92,12 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
       bool fullScreenMultiMonitor() {return false;}
 
       bool grabMouse();              
-      bool freiMouse();               
+      bool freeMouse();               
       bool getIsMouseGrabbed()  const; 
 
-      bool moviMouse( unsigned int _posX, unsigned int _posY ); 
+      bool moveMouse( unsigned int _posX, unsigned int _posY ); 
 
-      bool hidiMouseCursor();         
+      bool hideMouseCursor();         
       bool showMouseCursor();         
       bool getIsCursorHidden() const; 
       

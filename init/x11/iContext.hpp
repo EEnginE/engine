@@ -193,12 +193,12 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       bool setDecoration( ACTION _action );
 
       bool grabMouse();
-      bool freiMouse();
+      bool freeMouse();
       bool getIsMouseGrabbed()  const;
 
-      bool moviMouse( unsigned int _posX, unsigned int _posY );
+      bool moveMouse( unsigned int _posX, unsigned int _posY );
 
-      bool hidiMouseCursor();
+      bool hideMouseCursor();
       bool showMouseCursor();
       bool getIsCursorHidden() const;
       

@@ -45,7 +45,7 @@ class rWorld {
          GLfloat g;
          GLfloat b;
          GLfloat a;
-      } vClearCollor;
+      } vClearColor;
 
       void renderLoop();
 
@@ -68,7 +68,7 @@ class rWorld {
       virtual void renderFrame() = 0;
 
       void updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
-      void updateClearCollor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
+      void updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
 
       void calculatePerspective( GLfloat _width, GLfloat _height, GLfloat _nearZ, GLfloat _farZ, GLfloat _angle )
       {calculatePerspective( _width / _height, _nearZ, _farZ, _angle );}
