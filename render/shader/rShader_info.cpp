@@ -85,31 +85,32 @@ std::string getTypeString( int _type ) {
       case GL_UNSIGNED_INT_SAMPLER_2D_RECT:              return "usampler2DRect";
    }
 
-   return "UNKOWN";
+   return "UNKNOWN";
 }
 #endif
 
 std::string rShader::processData( GLenum _type, GLuint _index, GLsizei _arraySize, GLenum *_in, GLint *_out ) {
-   // Get almost all information we can get
+   // Get most of the information we can get
    glGetProgramResourceiv(
          vShaderProgram_OGL,        // The program ID
          _type,                     // The program Interface​
          _index,                    // The current index
-         _arraySize, _in,           // The inpt array and it's size
+         _arraySize, _in,           // The input array and it's size
          _arraySize, nullptr, _out  // The output array and it's size
    );
 
    std::string lName_str;
    lName_str.resize( _out[0] );
+   int actualLength;
    glGetProgramResourceName(
          vShaderProgram_OGL,        // The program ID
          _type,                     // The program Interface​
          _index,                    // The current index
          lName_str.size(),          // Our available memory
-         nullptr,                   // We dont care about the length
+         &actualLength,             // The actual length used
          &lName_str[0]              // The adress of the array in RAM
    );
-   lName_str.resize( lName_str.size() - 1 ); // Remove the annoying '\0' at the end
+   lName_str.resize( actualLength ); // Remove the annoying '\0' at the end
    return lName_str;
 }
 
@@ -119,7 +120,7 @@ void rShader::getProgramInfo() {
       return;
 
    if( ! GlobConf.extensions.isSupported( ID_ARB_program_interface_query ) ) {
-      wLOG "Extension ARB_program_interface_query is not supported! Can not querry information about the shader" END
+      wLOG "Extension ARB_program_interface_query is not supported! Can not query information about the shader" END
       return;
    }
 
@@ -163,7 +164,7 @@ void rShader::getProgramInfo() {
       POINT "Name:               " ADD lName_str
       POINT "Type:               " ADD getTypeString( lResults[1] )
       POINT "Array Size:         " ADD lResults[2]
-      POINT "Loaction:           " ADD lResults[3]
+      POINT "Location:           " ADD lResults[3]
       POINT "Is Per Patch:       " ADD lResults[4]
       POINT "Location Component: " ADD lResults[5]
       END
@@ -189,8 +190,8 @@ void rShader::getProgramInfo() {
       POINT "Name:               " ADD lName_str
       POINT "Type:               " ADD getTypeString( lResults[1] )
       POINT "Array Size:         " ADD lResults[2]
-      POINT "Loaction:           " ADD lResults[3]
-      POINT "Loaction Index:     " ADD lResults[4]
+      POINT "Location:           " ADD lResults[3]
+      POINT "Location Index:     " ADD lResults[4]
       POINT "Is Per Patch:       " ADD lResults[5]
       POINT "Location Component: " ADD lResults[6]
       END
@@ -272,7 +273,7 @@ void rShader::getProgramInfo() {
       POINT "Matrix Stride:         " ADD lResults[6]
       POINT "Is Row Major:          " ADD lResults[7]
       POINT "At. Count. Buff. Ind.: " ADD lResults[8]
-      POINT "Loaction:              " ADD lResults[9]
+      POINT "Location:              " ADD lResults[9]
       END
 #endif
 
