@@ -9,48 +9,26 @@
 
 namespace e_engine {
 
-rRenderNormal_3_3::rRenderNormal_3_3() {
+rRenderNormal_3_3::rRenderNormal_3_3( rMat4f *_mat ) {
    vVertexBufferObj_OGL = 0;
    vIndexBufferObj_OGL  = 0;
    vShader_OGL          = 0;
    vInputLocation_OGL   = 0;
    vUniformLocation_OGL = 0;
    vDataSize_uI         = 0;
-   
-   vMatrix.set( 0, 0, 1 );
-   vMatrix.set( 0, 1, 0 );
-   vMatrix.set( 0, 2, 0 );
-   vMatrix.set( 0, 3, 0 );
 
-   vMatrix.set( 1, 0, 0 );
-   vMatrix.set( 1, 1, 1 );
-   vMatrix.set( 1, 2, 0 );
-   vMatrix.set( 1, 3, 0 );
-
-   vMatrix.set( 2, 0, 0 );
-   vMatrix.set( 2, 1, 0 );
-   vMatrix.set( 2, 2, 1 );
-   vMatrix.set( 2, 3, 0 );
-
-   vMatrix.set( 3, 0, 0 );
-   vMatrix.set( 3, 1, 0 );
-   vMatrix.set( 3, 2, 0 );
-   vMatrix.set( 3, 3, 1 );
-   
-   vNeedUpdateUniforms_B = true;
+   vMatrix = _mat;
 }
 
 
 void rRenderNormal_3_3::render() {
-   glClear( GL_COLOR_BUFFER_BIT );
-
    glUseProgram( vShader_OGL );
-   
-   if( vNeedUpdateUniforms_B ) {
-      glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix.get() );
+
+   if( vNeedUpdateUniforms_B || vAlwaysUpdateUniforms_B ) {
+      glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix->get() );
       vNeedUpdateUniforms_B = false;
    }
-   
+
    glEnableVertexAttribArray( vInputLocation_OGL );
    glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObj_OGL );
    glVertexAttribPointer( vInputLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, 0 );
@@ -71,7 +49,7 @@ void rRenderNormal_3_3::render() {
  * \param[in] _data An array of data
  *
  * _data arguments:
- * 
+ *
  * | Num |  Type  |      Description      |
  * | :-: | :----: | :-------------------: |
  * | 0   | GLuint | Vertex Buffer Object  |

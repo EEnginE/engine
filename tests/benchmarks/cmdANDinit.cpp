@@ -37,6 +37,9 @@ cmdANDinit::cmdANDinit( int argc, char *argv[], bool _color ) {
 
    vDoFunction    = false;
    vFunctionLoops = 100000;
+   
+   vDoMutex       = false;
+   vMutexLoops    = 10000000;
 }
 
 
@@ -55,10 +58,12 @@ void cmdANDinit::usage() {
    iLOG "MODES:"
    POINT "all            : do all benchmarks"
    POINT "func           : do the functions benchmark"
+   POINT "mutex          : do the mutex benchmark"
    END
    iLOG "" END
    iLOG "BENCHMARK OPTIONS:" END
-   dLOG "    --funcLoops=<loops> : ammount of loops to do in function benchmark (default: " ADD vFunctionLoops ADD ")"
+   dLOG "    --funcLoops=<loops>  : ammount of loops to do in function benchmark (default: " ADD vFunctionLoops ADD ")" END
+   dLOG "    --mutexLoops=<loops> : ammount of loops to do in mutex benchmark (default: " ADD vMutexLoops ADD ")"
    NEWLINE
    NEWLINE
    END
@@ -103,11 +108,17 @@ bool cmdANDinit::parseArgsAndInit() {
 
       if ( arg == "all" ) {
          vDoFunction = true;
+         vDoMutex    = true;
          continue;
       }
 
       if ( arg == "func" ) {
          vDoFunction = true;
+         continue;
+      }
+      
+      if( arg == "mutex" ) {
+         vDoMutex = true;
          continue;
       }
 
@@ -120,11 +131,20 @@ bool cmdANDinit::parseArgsAndInit() {
          vFunctionLoops = atoi( funcString.c_str() );
          continue;
       }
+      
+      boost::regex lMutexRegex( "^\\-\\-mutexLoops=[0-9 ]*$" );
+      if ( boost::regex_match( arg, lFuncRegex ) ) {
+         boost::regex lFuncRegexRep( "^\\-\\-mutexLoops=" );
+         const char *lRep = "";
+         string funcString = boost::regex_replace( arg, lFuncRegexRep, lRep );
+         vMutexLoops = atoi( funcString.c_str() );
+         continue;
+      }
 
       eLOG "Unkonwn option '" ADD arg ADD "'" END
    }
 
-   if ( vDoFunction == false ) {
+   if ( vDoFunction == false && vDoMutex == false ) {
       postInit();
       usage();
       return false;
