@@ -46,11 +46,11 @@ rWorld::rWorld( iInit *_init ) {
    vViewPort.width             = 0;
    vViewPort.height            = 0;
 
-   vClearCollor.vNeedUpdate_B  = false;
-   vClearCollor.r              = 0;
-   vClearCollor.g              = 0;
-   vClearCollor.b              = 0;
-   vClearCollor.a              = 1;
+   vClearColor.vNeedUpdate_B  = false;
+   vClearColor.r              = 0;
+   vClearColor.g              = 0;
+   vClearColor.b              = 0;
+   vClearColor.a              = 1;
 
    vRenderLoopStartSlot.setFunc( &rWorld::startRenderLoop, this );
    vRenderLoopStopSlot.setFunc( &rWorld::stopRenderLoop, this );
@@ -71,7 +71,7 @@ void rWorld::renderLoop() {
       vInitPointer->enableVSync();
 
 
-   glClearColor( vClearCollor.r, vClearCollor.g, vClearCollor.b, vClearCollor.a );
+   glClearColor( vClearColor.r, vClearColor.g, vClearColor.b, vClearColor.a );
 
    glEnable( GL_CULL_FACE );
    glEnable( GL_DEPTH_TEST );
@@ -89,7 +89,7 @@ void rWorld::renderLoop() {
 #endif
          vRenderLoopIsPaused_B = false;
          if( ! vInitPointer->makeContextCurrent() ) {
-            eLOG "Failed to make context current ==> quit render loop" END
+            eLOG "Failed to make context current ==> Quitting render loop" END
             return;
          }
       }
@@ -100,10 +100,10 @@ void rWorld::renderLoop() {
          dLOG "Viewport updated" END
       }
 
-      if( vClearCollor.vNeedUpdate_B ) {
-         vClearCollor.vNeedUpdate_B = false;
-         glClearColor( vClearCollor.r, vClearCollor.g, vClearCollor.b, vClearCollor.a );
-         dLOG "Updatad clear collor: [RGBA] " ADD  vClearCollor.r ADD "; " ADD vClearCollor.g ADD "; " ADD vClearCollor.b ADD "; " ADD vClearCollor.a END
+      if( vClearColor.vNeedUpdate_B ) {
+         vClearColor.vNeedUpdate_B = false;
+         glClearColor( vClearColor.r, vClearColor.g, vClearColor.b, vClearColor.a );
+         dLOG "Updated clear color: [RGBA] " ADD  vClearColor.r ADD "; " ADD vClearColor.g ADD "; " ADD vClearColor.b ADD "; " ADD vClearColor.a END
       }
 
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -150,7 +150,7 @@ void rWorld::stopRenderLoop() {
 
    if( vRenderLoopRunning_B ) {
       vRenderLoop_BT.interrupt();
-      wLOG "Render Loop Timeout reached  -->  kill the thread" END
+      wLOG "Render Loop Timeout reached  -->  Killing the thread" END
       vRenderLoopRunning_B = false;
    }
 
@@ -183,12 +183,12 @@ void rWorld::updateViewPort( unsigned int _x, unsigned int _y, unsigned int _wid
    vViewPort.height        = _height;
 }
 
-void rWorld::updateClearCollor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a ) {
-   vClearCollor.vNeedUpdate_B = true;
-   vClearCollor.r             = _r;
-   vClearCollor.g             = _b;
-   vClearCollor.b             = _g;
-   vClearCollor.a             = _a;
+void rWorld::updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a ) {
+   vClearColor.vNeedUpdate_B = true;
+   vClearColor.r             = _r;
+   vClearColor.g             = _b;
+   vClearColor.b             = _g;
+   vClearColor.a             = _a;
 }
 
 namespace {
@@ -248,7 +248,7 @@ float degToRad( float _degree ) { return _degree * ( E_VAR_PI / 180.0 ); }
 
 void rWorld::setInitObj( iInit *_init ) {
    if( vInitObjSet_B ) {
-      eLOG "iInit object is already set and can't be reset! Do nothing" END
+      eLOG "iInit object is already set and can't be reset! Doing nothing" END
       return;
    }
 

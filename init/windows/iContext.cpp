@@ -509,7 +509,7 @@ bool iContext::grabMouse() {
    return true;
 }
 
-bool iContext::freiMouse() {
+bool iContext::freeMouse() {
    if ( !vIsMouseGrabbed_B ) {
       wLOG "Mouse is not grabbed" END
       return false;
@@ -543,7 +543,7 @@ bool iContext::getIsMouseGrabbed() const {
  *
  * \returns true if successful and false if not
  */
-bool iContext::moviMouse( unsigned int _posX, unsigned int _posY ) {
+bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
    if ( _posX > GlobConf.win.width || _posY > GlobConf.win.height ) {
       wLOG "_posX and/or _posY outside the window" END
       return false;
@@ -564,7 +564,7 @@ bool iContext::moviMouse( unsigned int _posX, unsigned int _posY ) {
  * \brief Hides the cursor
  * \returns true if successful and false if not
  */
-bool iContext::hidiMouseCursor() {
+bool iContext::hideMouseCursor() {
    if( vIsCursorHidden_B ) {
       wLOG "Cursor is already hidden" END
       return false;

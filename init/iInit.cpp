@@ -109,7 +109,7 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
    if( ( _info.type == E_EVENT_FOCUS ) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
       // Focus lost
       vWasMouseGrabbed_B = true;
-      freiMouse();
+      freeMouse();
       return;
    }
 }

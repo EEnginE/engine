@@ -50,7 +50,7 @@ class rNormalObject : public rMatrixObjectBase<float> {
       bool           vNeedUpdateMatrix_B;
 
       DATA_FILE_TYPE detectFileTypeFromEnding( std::string const &_str );
-      RENDERER_ID    chooseRendere();
+      RENDERER_ID    chooseRender();
 
       rNormalObject() {}
    public:

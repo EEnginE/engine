@@ -35,7 +35,7 @@ void MyHandler::mouse( iEventInfo info ) {
       "  DELATA X: " ADD info.iMouse.posX - signed( GlobConf.win.width  / 2 )
       ADD
       "  DELATA Y: " ADD info.iMouse.posY - signed( GlobConf.win.height / 2 ) END
-      vInitPointer->moviMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
+      vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    }
 }
 
@@ -74,8 +74,8 @@ void MyHandler::key( iEventInfo info ) {
          case E_KEY_KP_SUBTRACT: info.iInitPointer->setDecoration( e_engine::C_REMOVE ); info.iInitPointer->restartIfNeeded( true ); break;
          case E_KEY_KP_ADD:      info.iInitPointer->setDecoration( e_engine::C_ADD );    info.iInitPointer->restartIfNeeded( true ); break;
          case E_KEY_KP_MULTIPLY: info.iInitPointer->setDecoration( e_engine::C_TOGGLE ); info.iInitPointer->restartIfNeeded( true ); break;
-         case L't':              vAlpha = ( ( vAlpha - 0.1 ) < 0 ) ? 0 : vAlpha -= 0.01; updateClearCollor( 0, 0, 0, vAlpha ); break;
-         case L'T':              vAlpha = ( ( vAlpha + 0.1 ) > 1 ) ? 1 : vAlpha += 0.01; updateClearCollor( 0, 0, 0, vAlpha ); break;
+         case L't':              vAlpha = ( ( vAlpha - 0.1 ) < 0 ) ? 0 : vAlpha -= 0.01; updateClearColor( 0, 0, 0, vAlpha ); break;
+         case L'T':              vAlpha = ( ( vAlpha + 0.1 ) > 1 ) ? 1 : vAlpha += 0.01; updateClearColor( 0, 0, 0, vAlpha ); break;
          case L'o':              info.iInitPointer->changeWindowConfig( 800, 600, 10, 10 ); break;
          case L'F':
          case L'f':              info.iInitPointer->fullScreen( e_engine::C_TOGGLE ); info.iInitPointer->restartIfNeeded( true ); break;
@@ -113,9 +113,9 @@ void MyHandler::key( iEventInfo info ) {
             info.iInitPointer->applyNewRandRSettings();
             break;
          case L'g': info.iInitPointer->grabMouse(); break;
-         case L'G': info.iInitPointer->freiMouse(); break;
-         case L'w': info.iInitPointer->moviMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 ); break;
-         case L'c': info.iInitPointer->hidiMouseCursor(); break;
+         case L'G': info.iInitPointer->freeMouse(); break;
+         case L'w': info.iInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 ); break;
+         case L'c': info.iInitPointer->hideMouseCursor(); break;
          case L'C': info.iInitPointer->showMouseCursor(); break;
          case L'q':
          case L'Q':
@@ -135,8 +135,8 @@ void MyHandler::key( iEventInfo info ) {
 
             // Mouse control
          case L'g': info.iInitPointer->grabMouse(); break;
-         case L'G': info.iInitPointer->freiMouse(); break;
-         case L'c': info.iInitPointer->hidiMouseCursor(); break;
+         case L'G': info.iInitPointer->freeMouse(); break;
+         case L'c': info.iInitPointer->hideMouseCursor(); break;
          case L'C': info.iInitPointer->showMouseCursor(); break;
 
             // Object control
@@ -212,7 +212,7 @@ int MyHandler::initGL() {
    int lReturn = vObject1.loadData( this );
    vInitPointer->grabMouse();
    vInitPointer->fullScreen( C_ADD );
-   vInitPointer->moviMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
+   vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );
    calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
    vCameraLook = vObject1.getPosition();

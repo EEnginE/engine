@@ -22,8 +22,8 @@ rLoader_3D_f_OBJ::rLoader_3D_f_OBJ( std::string _file ) {
 }
 
 /*!
- * \brief get if the file is loaded and parsed
- * \returns if the file is loaded and parsed
+ * \brief Gets wether or not the file is loaded and parsed
+ * \returns The state of the file being loaded and parsed
  */
 
 bool rLoader_3D_f_OBJ::getIsLoaded() const {
@@ -31,24 +31,24 @@ bool rLoader_3D_f_OBJ::getIsLoaded() const {
 }
 
 /*!
- * \brief get the path of the file to parse
- * \returns if the path of the file to parse
+ * \brief Gets the path of the file to parse
+ * \returns The path of the file to parse
  */
 std::string rLoader_3D_f_OBJ::getFilePath() const {
    return vFilePath_str;
 }
 
 /*!
- * \brief get the raw vertex data pointer
- * \returns if the raw vertex data pointer
+ * \brief Gets the raw vertex data pointer
+ * \returns The raw vertex data pointer
  */
 std::vector< GLfloat > *rLoader_3D_f_OBJ::getRawVertexData() {
    return &vVertexData;
 }
 
 /*!
- * \brief get the raw vertex index pointer
- * \returns if the raw vertex index pointer
+ * \brief Gets the raw vertex index pointer
+ * \returns The raw vertex index pointer
  */
 std::vector< GLuint > *rLoader_3D_f_OBJ::getRawIndexData() {
    return &vIndexData;
@@ -57,10 +57,10 @@ std::vector< GLuint > *rLoader_3D_f_OBJ::getRawIndexData() {
 
 
 /*!
- * \brief sets the file to load
- * \param[in] _file the file to load
+ * \brief Sets the file to load
+ * \param[in] _file The file to load
  *
- * \note This will NOT load the file! You have to load it with load()
+ * \note This will NOT load the file! You have to manually load it with load()
  *
  * \returns Nothing
  */
@@ -69,7 +69,7 @@ void rLoader_3D_f_OBJ::setFile( std::string _file ) {
 }
 
 /*!
- * \brief clears the memory
+ * \brief Clears the memory
  * \returns Nothing
  */
 void rLoader_3D_f_OBJ::unLoad() {
@@ -85,7 +85,7 @@ namespace qi    = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 
 
-// Unfortunately boost::bind causes sometimes a seg fault so we need to do this :(
+// Unfortunately boost::bind causes a segmentation fault without the following
 namespace functions {
 
 rLoader_3D_f_OBJ *lPointer;
