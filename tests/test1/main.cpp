@@ -12,8 +12,9 @@
 using namespace std;
 using namespace e_engine;
 
-#define DO_SHA     0
-#define OLD_RENDER 0
+#define DO_SHA      0
+#define OLD_RENDER  0
+#define TEST_SHADER 0
 
 void hexPrint( std::vector<unsigned char> const &_v ) {
    for( unsigned char const & c : _v )
@@ -25,12 +26,6 @@ void hexPrint( std::vector<unsigned char> const &_v ) {
 // #undef  UNIX
 // #define UNIX 0
 
-void ftemp( iInit *_init ) {
-   B_SLEEP( seconds, 5 );
-   _init->setDecoration( C_REMOVE );
-   _init->fullScreen( C_ADD );
-   _init->restartIfNeeded();
-}
 
 int main( int argc, char *argv[] ) {
    cmdANDinit cmd( argc, argv );
@@ -41,7 +36,7 @@ int main( int argc, char *argv[] ) {
    }
 
 #if OLD_RENDER
-      uRandomISAAC myRand;
+   uRandomISAAC myRand;
 
    const int ValChange = 50;
 
@@ -76,7 +71,7 @@ int main( int argc, char *argv[] ) {
       start.addMousuSlot( handler.getSMouse() );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
 
-      iLOG "Test" END
+#if 0
 
       vector<iDisplays> displays = start.getDisplayResolutions();
 
@@ -122,19 +117,23 @@ int main( int argc, char *argv[] ) {
          start.setPrimary( displays[1] );
       }
 
+#endif
+
+#if TEST_SHADER
       string temp;
       temp += cmd.getDataRoot() + "shaders/colors_p";
 
       rShader prog( temp );
       GLuint dummy;
       prog.compile( dummy );
+#endif
 
       if( handler.initGL() == 1 )
          start.startMainLoop();
 
       start.closeWindow();
    }
-
+   
 #if DO_SHA == 1
    uSHA_2 mySHA( SHA2_384 );
    mySHA.selftest();

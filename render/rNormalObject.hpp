@@ -12,14 +12,14 @@
 #include "rShader.hpp"
 #include "iInit.hpp"
 #include "rLoader_3D_f_OBJ.hpp"
-#include "rMatrix.hpp"
+#include "rMatrixObjectBase.hpp"
 #include "rWorld.hpp"
 
 namespace e_engine {
 
-class rNormalObject {
-      typedef e_engine_internal::rRenderNormalOBJBase RENDERER;
-      typedef e_engine_internal::programInfo          SHADER_INF;
+class rNormalObject : public rMatrixObjectBase<float> {
+      typedef e_engine_internal::rRenderNormalOBJBase<float> RENDERER;
+      typedef e_engine_internal::programInfo                 S_INF;
       enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE };
    private:
       struct dataFile {
@@ -29,35 +29,25 @@ class rNormalObject {
          dataFile( std::string _p, DATA_FILE_TYPE _t ) : path( _p ), type( _t ) {}
       };
 
-      RENDERER           *vRenderer;
+      RENDERER             *vRenderer;
 
-      std::vector<GLuint> vVertexBufferObjects;
-      std::vector<GLuint> vIndexBufferObjects;
+      std::vector<GLuint>   vVertexBufferObjects;
+      std::vector<GLuint>   vIndexBufferObjects;
 
-      bool                vHasGeneretedBuffers_B;
-      bool                vIsDataLoaded_B;
+      bool                  vHasGeneretedBuffers_B;
+      bool                  vIsDataLoaded_B;
 
-      std::string         vObjectName;
+      std::string           vObjectName;
 
-      std::vector<dataFile>   vDataFiles;
-      std::vector<rShader>    vShaders;
+      std::vector<dataFile> vDataFiles;
+      std::vector<rShader>  vShaders;
 
-      std::vector<SHADER_INF> vShaderInfo;
-      std::vector<GLint>      vInputLocations;
-      std::vector<GLint>      vUniformLocations;
-      std::vector<GLuint>     vNumOfIndexes;
+      std::vector<S_INF>    vShaderInfo;
+      std::vector<GLint>    vInputLocations;
+      std::vector<GLint>    vUniformLocations;
+      std::vector<GLuint>   vNumOfIndexes;
 
-      rMatrix<4, 4>          *vResultMatrix;
-      rMatrix<4, 4>           vTransformMatrix;
-      rMatrix<4, 4>           vRotateMatrix;
-      
-      GLfloat                 vRotateX;
-      GLfloat                 vRotateY;
-      GLfloat                 vRotateZ;
-
-      bool                    vNeedUpdateMatrix_B;
-
-      rMatrix<4,4>           *vProjectionMatrix;
+      bool           vNeedUpdateMatrix_B;
 
       DATA_FILE_TYPE detectFileTypeFromEnding( std::string const &_str );
       RENDERER_ID    chooseRendere();
@@ -81,42 +71,8 @@ class rNormalObject {
 
       inline bool getCanRender() const {return vIsDataLoaded_B;}
 
-
-      void setPosition( GLfloat _x, GLfloat _y, GLfloat _z ) {
-         vTransformMatrix.set( 3, 0, _x );
-         vTransformMatrix.set( 3, 1, _y );
-         vTransformMatrix.set( 3, 2, _z );
-      }
-
-      void getPosition( GLfloat &_x, GLfloat &_y, GLfloat &_z ) {
-         _x = vTransformMatrix.get( 3, 0 );
-         _y = vTransformMatrix.get( 3, 1 );
-         _z = vTransformMatrix.get( 3, 2 );
-      }
-
-      void move( GLfloat _x, GLfloat _y, GLfloat _z ) {
-         GLfloat x, y, z;
-         getPosition( x, y, z );
-         setPosition( x + _x, y + _y, z + _z );
-      }
-      
-      
-      void setRotation( GLfloat _x, GLfloat _y, GLfloat _z );
-      void getRotation( GLfloat &_x, GLfloat &_y, GLfloat &_z ) {
-         _x = vRotateX;
-         _y = vRotateY;
-         _z = vRotateZ;
-      }
-      void rotate( GLfloat _x, GLfloat _y, GLfloat _z ) {
-         GLfloat x, y, z;
-         getRotation( x, y, z );
-         setRotation( x + _x, y + _y, z + _z );
-      }
-      
-
-      void createResultMatrix();
-      
-      void setProjectionMatrix( rMatrix<4,4> *_mat ) { vProjectionMatrix = _mat; }
+      inline void updateUniforms()                   {if( vRenderer ) vRenderer->updateUniforms();}
+      inline void updateUniformsAlways( bool _doit ) {if( vRenderer ) vRenderer->updateUniformsAlways( _doit );}
 
       void reset();
 };

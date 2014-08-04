@@ -29,8 +29,6 @@ rWorld::rWorld() {
 
    vPauseRenderLoopSlot.setFunc( &rWorld::pauseRenderLoop, this );
    vContinueRenderLoopSlot.setFunc( &rWorld::continueRenderLoop, this );
-
-   vProjectionMatrix_MAT.toIdentityMatrix();
 }
 
 rWorld::rWorld( iInit *_init ) {
@@ -61,8 +59,6 @@ rWorld::rWorld( iInit *_init ) {
    vContinueRenderLoopSlot.setFunc( &rWorld::continueRenderLoop, this );
 
    setInitObj( _init );
-   
-   vProjectionMatrix_MAT.toIdentityMatrix();
 }
 
 
@@ -78,7 +74,8 @@ void rWorld::renderLoop() {
    glClearColor( vClearCollor.r, vClearCollor.g, vClearCollor.b, vClearCollor.a );
 
    glEnable( GL_CULL_FACE );
-//    glEnable( GL_DEPTH_TEST );
+   glEnable( GL_DEPTH_TEST );
+   glEnable( GL_MULTISAMPLE );
 
    while( vRenderLoopShouldRun_B ) {
       if( vRenderLoopShouldPaused_B ) {
@@ -109,6 +106,9 @@ void rWorld::renderLoop() {
          dLOG "Updatad clear collor: [RGBA] " ADD  vClearCollor.r ADD "; " ADD vClearCollor.g ADD "; " ADD vClearCollor.b ADD "; " ADD vClearCollor.a END
       }
 
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+
+      updateCameraSpaceMatrix();
       renderFrame();
       vInitPointer->swapBuffers();
    }
@@ -197,22 +197,53 @@ float degToRad( float _degree ) { return _degree * ( E_VAR_PI / 180.0 ); }
 
 }
 
-void rWorld::calculatePerspective( GLfloat _aspactRatio, GLfloat _nearZ, GLfloat _farZ, GLfloat _angle ) {
-   GLfloat lRange  = tan( degToRad( _angle / 2.0 ) ) * _nearZ;
-   GLfloat lLeft   = (-lRange) * _aspactRatio;
-   GLfloat lRight  = lRange * _aspactRatio;
-   GLfloat lBottom = (-lRange);
-   GLfloat lTop    = lRange;
+// void rWorld::calculatePerspective( GLfloat _aspactRatio, GLfloat _nearZ, GLfloat _farZ, GLfloat _fofy ) {
+//    GLfloat f = ( 1.0f / tan( degToRad( _fofy / 2 ) ) );
+// 
+//    vProjectionMatrix_MAT.fill( 0 );
+//    vProjectionMatrix_MAT.set( 0, 0, f / _aspactRatio );
+//    vProjectionMatrix_MAT.set( 1, 1, f );
+//    vProjectionMatrix_MAT.set( 2, 2, ( _farZ + _nearZ ) / ( _nearZ - _farZ ) );
+//    vProjectionMatrix_MAT.set( 3, 2, ( 2 * _farZ * _nearZ ) / ( _nearZ - _farZ ) );
+//    vProjectionMatrix_MAT.set( 2, 3, -1 );
+// }
+// 
+// 
+// void rWorld::setCamera( rVec3f &_position, rVec3f &_lookAt, rVec3f &_upVector ) {
+//    rVec3f n = _lookAt;
+//    rVec3f u = _upVector;
+// 
+//    rVectorMath::normalize( n );
+//    rVectorMath::normalize( u );
+// 
+//    u = rVectorMath::crossProduct( u, n );
+// 
+//    rVec3f v = rVectorMath::crossProduct( n, u );
+// 
+//    rMat4f lMatTranslate;
+//    rMat4f lRotateMatrix;
+//    lMatTranslate.toIdentityMatrix();
+//    lRotateMatrix.toIdentityMatrix();
+//    
+//    lMatTranslate.set( 3, 0, -_position[0] );
+//    lMatTranslate.set( 3, 1, -_position[1] );
+//    lMatTranslate.set( 3, 2, -_position[2] );
+//    
+//    lRotateMatrix.set( 0, 0, u[0] );
+//    lRotateMatrix.set( 1, 0, u[1] );
+//    lRotateMatrix.set( 2, 0, u[2] );
+//    
+//    lRotateMatrix.set( 0, 1, v[0] );
+//    lRotateMatrix.set( 1, 1, v[1] );
+//    lRotateMatrix.set( 2, 1, v[2] );
+//    
+//    lRotateMatrix.set( 0, 2, n[0] );
+//    lRotateMatrix.set( 1, 2, n[1] );
+//    lRotateMatrix.set( 2, 2, n[2] );
+//    
+//    vCameraMatrix_MAT = lRotateMatrix * lMatTranslate;
+// }
 
-   vProjectionMatrix_MAT.set( 0, 0, ( 2.0 * _nearZ ) / ( lRight - lLeft ) );
-   vProjectionMatrix_MAT.set( 1, 1, ( 2.0 * _nearZ ) / ( lTop - lBottom ) );
-   vProjectionMatrix_MAT.set( 2, 0, ( lRight + lLeft ) / ( lRight - lLeft ) );
-   vProjectionMatrix_MAT.set( 2, 1, ( lTop + lBottom ) / ( lTop - lBottom ) );
-   vProjectionMatrix_MAT.set( 2, 2, - ( _farZ + _nearZ ) / ( _farZ - _nearZ ) );
-   vProjectionMatrix_MAT.set( 2, 3, -1.0 );
-   vProjectionMatrix_MAT.set( 3, 2, - ( 2.0 * _farZ * _nearZ ) / ( _farZ - _nearZ ) );
-   vProjectionMatrix_MAT.set( 3, 3, 0 );
-}
 
 
 void rWorld::setInitObj( iInit *_init ) {

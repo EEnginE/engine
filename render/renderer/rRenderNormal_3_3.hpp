@@ -17,7 +17,7 @@ namespace e_engine {
  * 
  * ID: render_OGL_3_3_Normal_Basic_1S_1D
  */
-class rRenderNormal_3_3 : public e_engine_internal::rRenderNormalOBJBase {
+class rRenderNormal_3_3 : public e_engine_internal::rRenderNormalOBJBase<float> {
    private:
       GLuint vVertexBufferObj_OGL;
       GLuint vIndexBufferObj_OGL;
@@ -29,18 +29,16 @@ class rRenderNormal_3_3 : public e_engine_internal::rRenderNormalOBJBase {
       
       GLuint vDataSize_uI;
       
-      rMatrix<4,4> vMatrix;
-      bool         vNeedUpdateUniforms_B;
+      rMat4f *vMatrix;
 
+      rRenderNormal_3_3() {}
    public:
-      rRenderNormal_3_3();
+      rRenderNormal_3_3( rMat4f *_mat );
       virtual ~rRenderNormal_3_3() {}
       
       virtual void          render();
       virtual bool          setOGLInfo( std::vector<void *> &_data );
       virtual RENDERER_ID   getRendererID() const { return render_OGL_3_3_Normal_Basic_1S_1D; }
-      virtual rMatrix<4,4> *getMatrix() {return &vMatrix;}
-      virtual void          updateUniforms() {vNeedUpdateUniforms_B = true;}
 };
 
 }

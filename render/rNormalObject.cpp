@@ -24,15 +24,6 @@ rNormalObject::rNormalObject( std::string _name ) {
    vHasGeneretedBuffers_B = false;
    vRenderer              = nullptr;
    vObjectName            = _name;
-
-   vResultMatrix          = nullptr;
-
-   vTransformMatrix.toIdentityMatrix();
-   vRotateMatrix.toIdentityMatrix();
-
-   vRotateX = 0;
-   vRotateY = 0;
-   vRotateZ = 0;
 }
 
 rNormalObject::~rNormalObject() {
@@ -209,7 +200,7 @@ int rNormalObject::loadData( rWorld *_world ) {
 
    switch( chooseRendere() ) {
       case render_OGL_3_3_Normal_Basic_1S_1D:
-         vRenderer = new rRenderNormal_3_3();
+         vRenderer = new rRenderNormal_3_3( getFinalMatrix() );
 
          vShaders[0].getProgram( lTempShaderID );
 
@@ -221,8 +212,6 @@ int rNormalObject::loadData( rWorld *_world ) {
          lTempData.emplace_back( ( void * ) & ( lIndexSize[0] ) );
 
          vRenderer->setOGLInfo( lTempData );
-
-         vResultMatrix = vRenderer->getMatrix();
          break;
 
       case render_NONE:
@@ -231,7 +220,7 @@ int rNormalObject::loadData( rWorld *_world ) {
    }
 
 
-   vProjectionMatrix = _world->getProjectionMatrix();
+   setCmaraSpaceMatrix( _world->getCameraSpaceMatrix() );
 
 
    iLOG "Loaded data for '" ADD vObjectName ADD "'" END
@@ -263,99 +252,6 @@ RENDERER_ID rNormalObject::chooseRendere() {
 
 
    return lPossibleRendere.back();
-}
-
-void rNormalObject::createResultMatrix() {
-   if( vResultMatrix == nullptr || vRenderer == nullptr || vProjectionMatrix == nullptr )
-      return;
-
-//    rMatrix<4, 4> lTemp = *vProjectionMatrix * vTransformMatrix * vRotateMatrix  ;
-// 
-//    for( unsigned int i = 0; i < 4; ++i ) {
-//       std::string lStr;
-//       for( unsigned int j = 0; j < 4; ++j ) {
-//          lStr += boost::lexical_cast<std::string>( lTemp.get( j, i ) ) + "  ";
-//       }
-//       iLOG lStr END
-//    }
-//    
-//    dLOG "" END
-// 
-//    for( unsigned int i = 0; i < 4; ++i ) {
-//       std::string lStr;
-//       for( unsigned int j = 0; j < 4; ++j ) {
-//          lStr += boost::lexical_cast<std::string>( vTransformMatrix.get( j, i ) ) + "  ";
-//       }
-//       wLOG lStr END
-//    }
-//    
-//    dLOG "" END
-//    
-//    for( unsigned int i = 0; i < 4; ++i ) {
-//       std::string lStr;
-//       for( unsigned int j = 0; j < 4; ++j ) {
-//          lStr += boost::lexical_cast<std::string>( vRotateMatrix.get( j, i ) ) + "  ";
-//       }
-//       wLOG lStr END
-//    }
-//    
-//    dLOG "" END
-// 
-//    for( unsigned int i = 0; i < 4; ++i ) {
-//       std::string lStr;
-//       for( unsigned int j = 0; j < 4; ++j ) {
-//          lStr += boost::lexical_cast<std::string>( vProjectionMatrix->get( j, i ) ) + "  ";
-//       }
-//       eLOG lStr END
-//    }
-//    
-//    dLOG "" END
-//    dLOG "" END
-
-   *vResultMatrix = *vProjectionMatrix * vTransformMatrix * vRotateMatrix;
-   vRenderer->updateUniforms();
-}
-
-
-void rNormalObject::setRotation( GLfloat _x, GLfloat _y, GLfloat _z ) {
-   rMatrix<4, 4> lTempX;
-   rMatrix<4, 4> lTempY;
-   rMatrix<4, 4> lTempZ;
-   
-   vRotateX = _x;
-   vRotateY = _y;
-   vRotateZ = _z;
-
-   GLfloat radX = degToRad( _x );
-   GLfloat radY = degToRad( _z );
-   GLfloat radZ = degToRad( _y );
-   
-   lTempX.toIdentityMatrix();
-   lTempY.toIdentityMatrix();
-   lTempZ.toIdentityMatrix();
-
-
-   lTempX.set( 1, 1, cos( radX ) );
-   lTempX.set( 1, 2, sin( radX ) );
-
-   lTempX.set( 2, 1, - sin( radX ) );
-   lTempX.set( 2, 2, cos( radX ) );
-
-
-   lTempY.set( 0, 0, cos( radY ) );
-   lTempY.set( 0, 2, sin( radY ) );
-
-   lTempY.set( 2, 0, - sin( radY ) );
-   lTempY.set( 2, 2, cos( radY ) );
-
-
-   lTempZ.set( 0, 0, cos( radZ ) );
-   lTempZ.set( 0, 1, sin( radZ ) );
-
-   lTempZ.set( 1, 0, -sin( radZ ) );
-   lTempZ.set( 1, 1, cos( radZ ) );
-      
-   vRotateMatrix = lTempZ * lTempY * lTempX;
 }
 
 

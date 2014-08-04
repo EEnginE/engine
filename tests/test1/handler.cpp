@@ -8,20 +8,35 @@
 
 #include <GL/glew.h>
 
+#define USE_OLD_KEY_BINDINGS 0
+
 
 MyHandler::~MyHandler() {}
 
 
 void MyHandler::mouse( iEventInfo info ) {
    if( info.iMouse.button <= E_MOUSE_6 )  // We dont want move events and etc.
-      iLOG "Button " ADD info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.iMouse.button ADD "'" END
-
       switch( info.iMouse.button ) {
-         case E_MOUSE_LEFT:  vObject1.rotate( 0, 0, -1 ); vObject1.createResultMatrix(); break;
-         case E_MOUSE_RIGHT: vObject1.rotate( 0, 0, 1 );  vObject1.createResultMatrix(); break;
-         default: break;
+         case E_MOUSE_LEFT:
+            vObject1.setRotation( rVec3f( 0, 1, 1 ), ++vCurrentRot );
+            vObject1.updateFinalMatrix();
+            break;
+         case E_MOUSE_RIGHT:
+            vObject1.setRotation( rVec3f( 0, 1, 1 ), --vCurrentRot );
+            vObject1.updateFinalMatrix();
+            break;
+         default:
+            iLOG "Button " ADD info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.iMouse.button ADD "'" END
+            break;
       }
 
+   if( info.iMouse.posX != ( GlobConf.win.width / 2 ) || info.iMouse.posY != ( GlobConf.win.height / 2 ) ) {
+      dLOG
+      "  DELATA X: " ADD info.iMouse.posX - signed( GlobConf.win.width  / 2 )
+      ADD
+      "  DELATA Y: " ADD info.iMouse.posY - signed( GlobConf.win.height / 2 ) END
+      vInitPointer->moviMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
+   }
 }
 
 void MyHandler::key( iEventInfo info ) {
@@ -29,13 +44,18 @@ void MyHandler::key( iEventInfo info ) {
       vDisp_RandR = info.iInitPointer->getDisplayResolutions();
 
    char lHex_CSTR[6];
+
+#if USE_OLD_KEY_BINDINGS
+   vector<iDisplays> displays;
    snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
    iLOG "Key " ADD info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
+#endif
 
-   vector<iDisplays> displays;
+   rVec3f lTemp; // For Camara control
 
    if( info.eKey.state == E_PRESSED ) {
       switch( info.eKey.key ) {
+#if USE_OLD_KEY_BINDINGS
          case E_KEY_F1:          info.iInitPointer->setAttribute( C_TOGGLE, MODAL ); break;
          case E_KEY_F2:          info.iInitPointer->setAttribute( C_TOGGLE, STICKY ); break;
          case E_KEY_F3:          info.iInitPointer->setAttribute( C_TOGGLE, MAXIMIZED_VERT ); break;
@@ -70,7 +90,7 @@ void MyHandler::key( iEventInfo info ) {
          case E_KEY_PAGE_UP:     vObject1.move( 0, 0.01, 0 );  vObject1.createResultMatrix(); break;
          case E_KEY_PAGE_DOWN:   vObject1.move( 0, -0.01, 0 ); vObject1.createResultMatrix(); break;
          case L'1':
-            calculatePerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
+            calculatePerspective( 0.1, 100.0, 35.0 );
             vObject1.createResultMatrix();
             break;
          case L'p':
@@ -105,6 +125,84 @@ void MyHandler::key( iEventInfo info ) {
                iLOG "JAAAAA" END;
             }
             break;
+#else
+            // Handle fullscreen
+         case E_KEY_F8:  info.iInitPointer->setAttribute( C_TOGGLE, MAXIMIZED_VERT, MAXIMIZED_HORZ ); break;
+         case E_KEY_F9:  info.iInitPointer->fullScreenMultiMonitor(); break;
+         case E_KEY_F11: info.iInitPointer->fullScreen( e_engine::C_TOGGLE ); info.iInitPointer->restartIfNeeded( true ); break;
+         case E_KEY_F10: if( vDisp_RandR.size() > 0 ) info.iInitPointer->setFullScreenMonitor( vDisp_RandR[0] ); break;
+         case E_KEY_F12: if( vDisp_RandR.size() > 1 ) info.iInitPointer->setFullScreenMonitor( vDisp_RandR[1] ); break;
+
+            // Mouse control
+         case L'g': info.iInitPointer->grabMouse(); break;
+         case L'G': info.iInitPointer->freiMouse(); break;
+         case L'c': info.iInitPointer->hidiMouseCursor(); break;
+         case L'C': info.iInitPointer->showMouseCursor(); break;
+
+            // Object control
+//          case E_KEY_UP:        vObject1.addPositionDelta( rVec3f( 0, 0, -0.1 ) );  vObject1.updateFinalMatrix(); break;
+//          case E_KEY_DOWN:      vObject1.addPositionDelta( rVec3f( 0, 0, 0.1 ) );   vObject1.updateFinalMatrix(); break;
+//          case E_KEY_LEFT:      vObject1.addPositionDelta( rVec3f( -0.01, 0, 0 ) ); vObject1.updateFinalMatrix(); break;
+//          case E_KEY_RIGHT:     vObject1.addPositionDelta( rVec3f( 0.01, 0, 0 ) );  vObject1.updateFinalMatrix(); break;
+//          case E_KEY_PAGE_UP:   vObject1.addPositionDelta( rVec3f( 0, 0.01, 0 ) );  vObject1.updateFinalMatrix(); break;
+//          case E_KEY_PAGE_DOWN: vObject1.addPositionDelta( rVec3f( 0, -0.01, 0 ) ); vObject1.updateFinalMatrix(); break;
+
+            // Camera control
+
+         case L'W':
+         case L'w': 
+            vCameraPos += 0.25f * vCameraLook;
+            setCamera( vCameraPos, vCameraLook, rVec3f(0 , 1, 0) );
+            break;
+         
+         case L'A':
+         case L'a':
+            vCameraPos -= 0.25f * rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp ) );
+            setCamera( vCameraPos, vCameraLook, vCameraUp );
+            break;
+         
+         case L'S':
+         case L's':
+            vCameraPos -= 0.25f * vCameraLook;
+            setCamera( vCameraPos, vCameraLook, rVec3f(0 , 1, 0) );
+            break;
+         
+         case L'D':
+         case L'd':
+            vCameraPos += 0.25f * rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp ) );
+            setCamera( vCameraPos, vCameraLook, vCameraUp );
+            break;
+
+            // Pause - restart
+         case L'p':
+         case L'P':
+            iLOG "Pausing" END
+            info.iInitPointer->pauseMainLoop( true );
+            B_SLEEP( seconds, 5 );
+            iLOG "Unpausing" END
+            info.iInitPointer->continueMainLoop();
+            break;
+         case L'r':
+         case L'R':
+            info.iInitPointer->restart( true );
+            break;
+
+            // Window Border
+         case L'b':
+         case L'B':
+            info.iInitPointer->setDecoration( e_engine::C_TOGGLE );
+            info.iInitPointer->restartIfNeeded( true );
+            break;
+
+            // Quit
+         case L'q':
+         case L'Q':
+         case E_KEY_ESCAPE: info.iInitPointer->closeWindow(); break;
+
+         default:
+            snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
+            iLOG "Key " ADD info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
+#endif
       }
    }
 }
@@ -112,7 +210,17 @@ void MyHandler::key( iEventInfo info ) {
 
 int MyHandler::initGL() {
    int lReturn = vObject1.loadData( this );
-   vObject1.setPosition( 0, 0, -5 );
+   vInitPointer->grabMouse();
+   vInitPointer->fullScreen( C_ADD );
+   vInitPointer->moviMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
+   vObject1.setPosition( rVec3f( 0, 0, -5 ) );
+   calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
+   vCameraLook = vObject1.getPosition();
+   rVectorMath::normalize( vCameraLook );
+   setCamera( vCameraPos, vCameraLook, vCameraUp );
+   updateCameraSpaceMatrix();
+   vObject1.updateUniformsAlways( true );
+   vObject1.updateFinalMatrix();
    return lReturn;
 }
 
