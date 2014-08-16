@@ -41,11 +41,11 @@ class MyHandler : public rWorld {
       MyHandler( string _dataRoot, iInit *_init ) : 
       rWorld( _init ), 
       vObject1( "OBJ_1" ),
-      vInitPointer( _init ),
       vCameraPos( 0, 0, 0 ),
       vCameraLook( 0, 0, 1 ),
       vCameraUp( 0, 1, 0 ),
-      vCameraLookWorker( 0, 0, 0 )
+      vCameraLookWorker( 0, 0, 0 ),
+      vInitPointer( _init )
       {
          slotWindowClose.setFunc( &MyHandler::windowClose, this );
          slotResize.setFunc( &MyHandler::resize, this );

@@ -191,12 +191,6 @@ void rWorld::updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a ) 
    vClearColor.a             = _a;
 }
 
-namespace {
-
-float degToRad( float _degree ) { return _degree * ( E_VAR_PI / 180.0 ); }
-
-}
-
 // void rWorld::calculatePerspective( GLfloat _aspactRatio, GLfloat _nearZ, GLfloat _farZ, GLfloat _fofy ) {
 //    GLfloat f = ( 1.0f / tan( degToRad( _fofy / 2 ) ) );
 // 

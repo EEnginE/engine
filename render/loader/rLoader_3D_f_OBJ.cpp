@@ -7,6 +7,9 @@
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
 #include <stdio.h>
 #include "uLog.hpp"
 
@@ -80,107 +83,89 @@ void rLoader_3D_f_OBJ::unLoad() {
    vIndexData.resize( 0 );
 }
 
-
-namespace qi    = boost::spirit::qi;
-namespace ascii = boost::spirit::ascii;
-
-
-// Unfortunately boost::bind causes a segmentation fault without the following
-namespace functions {
-
-rLoader_3D_f_OBJ *lPointer;
-
-struct functionCalls {
-   static void addVertex( float _ver ) {
-      lPointer->addVertex( _ver );
-   }
-
-   static void addIndex( float _ind ) {
-      lPointer->addIndex( _ind );
-   }
-};
-
-void unsupported( std::string _what ) {
-   wLOG "OBJ Parser: '" ADD _what ADD "' is not supported" END
-}
-
-void objName( std::string _name ) {
-   dLOG "Found object " ADD _name ADD " in " ADD lPointer->getFilePath() END
-}
-
-void mtllib( std::string _lib ) {
-   wLOG "The 'mtllib' command in obj files is currently not supported (do not load '" ADD _lib ADD "')" END
-}
-
-void usemtl( std::string _mtl ) {
-   wLOG "The 'usemtl' command in obj files is currently not supported (do not set the material to '" ADD _mtl ADD "')" END
-}
-
-void smooth( std::string _smooth ) {
-   wLOG "The 's' command in obj files is currently not supported (do not set the smoothing group to '" ADD _smooth ADD "')" END
-}
-
-void addVertex( float _ver ) {
-   functionCalls::addVertex( _ver );
-}
-
-void addIndex( float _ind ) {
-   functionCalls::addIndex( _ind );
-}
-
-}
+namespace spirit  = boost::spirit;
+namespace qi      = boost::spirit::qi;
+namespace ascii   = boost::spirit::ascii;
+namespace phoenix = boost::phoenix;
 
 template<class Iterator>
 struct objGrammar_float : qi::grammar<Iterator> {
-   objGrammar_float() : objGrammar_float::base_type( start ) {
+   static void unsupported_f( std::string _what ) {
+      wLOG "OBJ Parser: '" ADD _what ADD "' is not supported" END
+   }
+
+   static void objName_f( std::string _name ) {
+      dLOG "Found object " ADD _name ADD " in " /*ADD lPointer->getFilePath()*/ END
+   }
+
+   static void mtllib_f( std::string _lib ) {
+      wLOG "The 'mtllib' command in obj files is currently not supported (do not load '" ADD _lib ADD "')" END
+   }
+
+   static void usemtl_f( std::string _mtl ) {
+      wLOG "The 'usemtl' command in obj files is currently not supported (do not set the material to '" ADD _mtl ADD "')" END
+   }
+
+   static void smooth_f( std::string _smooth ) {
+      wLOG "The 's' command in obj files is currently not supported (do not set the smoothing group to '" ADD _smooth ADD "')" END
+   }
+
+   objGrammar_float( std::vector<GLfloat> *_v, std::vector<GLuint> *_i )
+      : objGrammar_float::base_type( start ),
+        vVertixes( _v ),
+        vIndexes( _i ) {
       using ascii::char_;
       using qi::float_;
       using qi::uint_;
+      using phoenix::push_back;
 
       string    = +( char_ - '\n' );
       comment   = *ascii::space >> qi::lit( "#" ) >> string;
       space     = ( char_( ' ' ) | char_( '\t' ) );
 
       objName   = *ascii::space >> qi::lit( "o" ) >> +space
-                  >> string[&functions::objName] >> '\n';
+            >> string[&objGrammar_float::objName_f] >> '\n';
 
       groupName = *ascii::space >> qi::lit( "g" ) >> +space
-                  >> string[&functions::objName]  >> '\n';
+            >> string[&objGrammar_float::objName_f]  >> '\n';
 
       vertex    = *ascii::space >> qi::lit( "v" ) >> +space
-                  >> float_[&functions::addVertex] >> +space
-                  >> float_[&functions::addVertex] >> +space
-                  >> float_[&functions::addVertex] >> *space >> '\n';
+            >> float_[push_back( phoenix::ref( *vVertixes ), spirit::_1 )] >> +space
+            >> float_[push_back( phoenix::ref( *vVertixes ), spirit::_1 )] >> +space
+            >> float_[push_back( phoenix::ref( *vVertixes ), spirit::_1 )] >> *space >> '\n';
 
       index     = *ascii::space >> qi::lit( "f" ) >> +space
-                  >> uint_[&functions::addIndex] >> +space
-                  >> uint_[&functions::addIndex] >> +space
-                  >> uint_[&functions::addIndex] >> *space >> '\n';
+            >> uint_[push_back( phoenix::ref( *vIndexes ), spirit::_1 )] >> +space
+            >> uint_[push_back( phoenix::ref( *vIndexes ), spirit::_1 )] >> +space
+            >> uint_[push_back( phoenix::ref( *vIndexes ), spirit::_1 )] >> *space >> '\n';
 
-      mtllib    = *ascii::space >> qi::lit( "mtllib" ) >> +space >> string[&functions::mtllib];
-      usemtl    = *ascii::space >> qi::lit( "usemtl" ) >> +space >> string[&functions::usemtl];
-      smooth    = *ascii::space >> qi::lit( "s" )      >> +space >> string[&functions::smooth];
+      mtllib    = *ascii::space >> qi::lit( "mtllib" ) >> +space >> string[&objGrammar_float::mtllib_f];
+      usemtl    = *ascii::space >> qi::lit( "usemtl" ) >> +space >> string[&objGrammar_float::usemtl_f];
+      smooth    = *ascii::space >> qi::lit( "s" )      >> +space >> string[&objGrammar_float::smooth_f];
 
 #if DO_NOT_FAIL_PARSING
-      other     = *ascii::space >> string[&functions::unsupported] >> '\n';
+      other     = *ascii::space >> string[&objGrammar_float::unsupported_f] >> '\n';
 #endif
 
       start     =
-         +(
-            vertex    |
-            index     |
-            objName   |
-            groupName |
-            mtllib    |
-            comment   |
-            usemtl    |
-            smooth
+            +(
+                  vertex    |
+                  index     |
+                  objName   |
+                  groupName |
+                  mtllib    |
+                  comment   |
+                  usemtl    |
+                  smooth
 #if DO_NOT_FAIL_PARSING
-            | other
+                  | other
 #endif
-         );
+            );
 
    }
+
+   std::vector<GLfloat>             *vVertixes;
+   std::vector<GLuint>              *vIndexes;
 
    qi::rule<Iterator, std::string()> string;
    qi::rule<Iterator, std::string()> comment;
@@ -213,23 +198,23 @@ struct objGrammar_float : qi::grammar<Iterator> {
  * \returns 5 if already loaded
  */
 int rLoader_3D_f_OBJ::load() {
-   if ( vIsDataLoaded_B )
+   if( vIsDataLoaded_B )
       return 5;
 
    boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
 
-   if ( ! boost::filesystem::exists( lFilePath_BFS ) ) {
+   if( ! boost::filesystem::exists( lFilePath_BFS ) ) {
       eLOG "File " ADD vFilePath_str ADD " does not exists" END
       return 2;
    }
 
-   if ( ! boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
+   if( ! boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
       eLOG vFilePath_str ADD " is not a file!" END
       return 2;
    }
 
    FILE *lFile = fopen( vFilePath_str.c_str(), "r" );
-   if ( lFile == NULL ) {
+   if( lFile == NULL ) {
       eLOG "Unable to open " ADD vFilePath_str END
       return 3;
    }
@@ -237,22 +222,23 @@ int rLoader_3D_f_OBJ::load() {
    int c;
    std::string lFileToParse_str;
 
-   while ( ( c = fgetc( lFile ) ) != EOF )
+   while( ( c = fgetc( lFile ) ) != EOF )
       lFileToParse_str.append( 1, ( char )c );
 
    fclose( lFile );
 
-   objGrammar_float<std::string::const_iterator> lGrammar;
-   functions::lPointer = this;
+   objGrammar_float<std::string::const_iterator> lGrammar( &vVertexData, &vIndexData );
 
    std::string::const_iterator lStartIter = lFileToParse_str.begin();
    std::string::const_iterator lEndIter   = lFileToParse_str.end();
    bool lReturn = qi::parse( lStartIter, lEndIter, lGrammar );
 
-   if ( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
+   if( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
       eLOG "Failed to parse '" ADD vFilePath_str ADD "'" END
       return 4;
    }
+
+//    B_SLEEP( seconds, 1 );
 
    vIsDataLoaded_B = true;
 
