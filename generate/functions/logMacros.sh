@@ -84,7 +84,7 @@ generateLogMacros() {
     __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_NEWLINE" "->nl("        $DO_UNDEF
     __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_POINT"   "->point("     $DO_UNDEF
     __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_S_COLOR" "->setColor("  $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_END"     "->end();"     $DO_UNDEF
+    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "__END__"  "->end();"     $DO_UNDEF
 
     echo "" >> $MACRO_DEFINE_PATH
 
