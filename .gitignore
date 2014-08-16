@@ -15,7 +15,7 @@ sources.cmake
 /render.cmake
 /utils.cmake
 
-/src/log/macros.hpp
+/utils/log/uMacros.hpp
 /engine.hpp
 /defines.hpp
 *config.h

@@ -6,6 +6,7 @@
 #ifndef R_LOADER_3D_F_OBJ_H
 #define R_LOADER_3D_F_OBJ_H
 
+#include "rLoaderBase.hpp"
 #include <string>
 #include <vector>
 
@@ -13,22 +14,14 @@
 
 namespace e_engine {
 
-namespace functions {struct functionCalls;}
-
-class rLoader_3D_f_OBJ {
+class rLoader_3D_f_OBJ : public e_engine_internal::rLoader_3D_Base<GLfloat> {
    private:
       bool        vIsDataLoaded_B;
 
       std::string vFilePath_str;
       
-      void addVertex( GLfloat _vert ) {vVertexData.push_back( _vert );}
-      void addIndex( GLuint _index )  {vIndexData.push_back( _index );}
+      e_engine_internal::_3D_DataF vData;
 
-   protected:
-
-      std::vector<GLfloat> vVertexData;
-      std::vector<GLuint>  vIndexData;
-            
    public:
       rLoader_3D_f_OBJ();
       rLoader_3D_f_OBJ( std::string _file );
@@ -37,14 +30,9 @@ class rLoader_3D_f_OBJ {
       void setFile( std::string _file );
       int  load();
       void unLoad();
-      
+
       bool        getIsLoaded() const;
       std::string getFilePath() const;
-      
-      std::vector<GLfloat> *getRawVertexData();
-      std::vector<GLuint> *getRawIndexData();
-            
-      friend struct functions::functionCalls;
 };
 
 }

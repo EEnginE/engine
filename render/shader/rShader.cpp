@@ -264,7 +264,7 @@ int rShader::compile() {
    for( auto & s : vShaders ) {
       lEntry_LOG _POINT s.vFilename_str _END_
    }
-   lEntry_LOG _END
+   lEntry_LOG __END__
    vIsShaderLinked_B = true;
 
    int lTempShaderCounter_I = vShaders.size();
