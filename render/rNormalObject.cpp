@@ -15,9 +15,6 @@
 
 namespace e_engine {
 
-namespace {
-float degToRad( float _degree ) { return _degree * ( E_VAR_PI / 180.0 ); }
-}
 
 rNormalObject::rNormalObject( std::string _name ) {
    vIsDataLoaded_B        = false;
