@@ -8,7 +8,7 @@
 
 namespace e_engine {
 
-namespace e_engine_internal {
+namespace internal {
 
 template<class T>
 struct _3D_Data {
@@ -53,7 +53,7 @@ std::vector< GLuint > *rLoader_3D_Base<T>::getRawIndexData() {
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
-      e_engine::e_engine_internal::_3D_DataF,
+      e_engine::internal::_3D_DataF,
       ( std::vector<GLfloat>, vVertexData )
       ( std::vector<GLuint>,  vIndexData )
 )

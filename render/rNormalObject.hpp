@@ -18,8 +18,8 @@
 namespace e_engine {
 
 class rNormalObject : public rMatrixObjectBase<float> {
-      typedef e_engine_internal::rRenderNormalOBJBase<float> RENDERER;
-      typedef e_engine_internal::programInfo                 S_INF;
+      typedef internal::rRenderNormalOBJBase<float> RENDERER;
+      typedef internal::programInfo                 S_INF;
       enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE };
    private:
       struct dataFile {

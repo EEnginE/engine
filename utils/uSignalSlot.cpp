@@ -7,7 +7,7 @@
 #include "uLog.hpp"
 
 namespace e_engine {
-namespace e_engine_internal {
+namespace internal {
 
 void __uSigSlotLogFunctionClass::sigSlotLogFunktion( std::string _errStr, const char* _file, const int _line, const char* _function ) {
    LOG( 'E', _file, _line, _function, _errStr )->end();

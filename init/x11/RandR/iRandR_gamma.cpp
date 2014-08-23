@@ -33,7 +33,7 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
 
    RRCrtc lTempCRTCId_XRR    = None;
 
-   for ( e_engine_internal::_output const & fOutout : vOutput_V_RandR ) {
+   for ( internal::_output const & fOutout : vOutput_V_RandR ) {
       if ( fOutout.connection == 0 ) {
          if ( _disp.getOutput() == fOutout.id ) {
             lTempCRTCId_XRR = fOutout.crtc;

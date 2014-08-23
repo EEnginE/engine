@@ -126,7 +126,7 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
  * \returns false
  */
 
-namespace e_engine_internal {
+namespace internal {
 
 /*!
  * \brief Stores information about WIN32 window classes
@@ -156,7 +156,7 @@ class eWindowClassRegister {
 //! Global object that stores the state of the window classes
 extern eWindowClassRegister CLASS_REGISTER;
 
-} // e_engine_internal
+} // internal
 
 } // windows_win32
 

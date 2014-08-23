@@ -183,7 +183,7 @@ class iInit : public windows_win32::iContext {
 //    #########################
 
 
-namespace e_engine_internal {
+namespace internal {
 
 /*!
  * \class __iInit_Pointer

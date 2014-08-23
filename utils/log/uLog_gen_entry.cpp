@@ -400,7 +400,7 @@ void uLog::generateEntry( uLogEntry &_rawEntry ) {
       std::wstring lTemp_STR = _rawEntry.data.vLogEntries_V_eLS[i].getString();
       std::wstring lColorTemp_STR = L"";
 
-      if ( _rawEntry.data.vLogEntries_V_eLS[i].getType() == e_engine_internal::NEW_LINE ) {
+      if ( _rawEntry.data.vLogEntries_V_eLS[i].getType() == internal::NEW_LINE ) {
          lMessage_VEC.push_back( ( lTempMessageString_STR + lResetColl_STR ) );
          lTempMessageString_STR.clear();
          lOldSize_uI = 0;
@@ -408,7 +408,7 @@ void uLog::generateEntry( uLogEntry &_rawEntry ) {
          continue;
       }
 
-      if ( _rawEntry.data.vLogEntries_V_eLS[i].getType() == e_engine_internal::NEW_POINT ) {
+      if ( _rawEntry.data.vLogEntries_V_eLS[i].getType() == internal::NEW_POINT ) {
          lMessage_VEC.push_back( ( lTempMessageString_STR + lResetColl_STR ) );
 
 #if 0

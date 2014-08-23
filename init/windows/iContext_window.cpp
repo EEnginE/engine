@@ -87,7 +87,7 @@ int iContext::createContext() {
    HWND      lHWND_Window_TEMP_win32;
 
 
-   if ( !e_engine_internal::CLASS_REGISTER.getC1() ) {
+   if ( !internal::CLASS_REGISTER.getC1() ) {
       lWindowClass_TEMP_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
       lWindowClass_TEMP_win32.lpfnWndProc   = &__WndProc;
       lWindowClass_TEMP_win32.cbClsExtra    = 0; // We do not need this
@@ -104,7 +104,7 @@ int iContext::createContext() {
          return -1;
       }
 
-      e_engine_internal::CLASS_REGISTER.setC1();
+      internal::CLASS_REGISTER.setC1();
    }
 
    if ( vWindowsCallbacksError_B ) {
@@ -172,7 +172,7 @@ int iContext::createContext() {
 
    vInstance_win32 = GetModuleHandle( NULL );
 
-   if ( !e_engine_internal::CLASS_REGISTER.getC2() ) {
+   if ( !internal::CLASS_REGISTER.getC2() ) {
       vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // We want a unique DC and redraw on window changes
       vWindowClass_win32.lpfnWndProc   = &iContext::initialWndProc;
       vWindowClass_win32.cbClsExtra    = 0; // We do not need this
@@ -191,7 +191,7 @@ int iContext::createContext() {
       }
 
 
-      e_engine_internal::CLASS_REGISTER.setC2();
+      internal::CLASS_REGISTER.setC2();
    }
 
    if ( vWindowsCallbacksError_B ) {

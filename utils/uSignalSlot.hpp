@@ -54,7 +54,7 @@ template<class __R, class... __A>
 class uSignal;
 
 
-namespace e_engine_internal {
+namespace internal {
 
 /*!
  * \brief Moves uLog logging to \c signal_slot.cpp
@@ -117,25 +117,25 @@ class uSignal {
    public:
       //! The Constructor of the class
       uSignal( bool _showCopyError = true ) : vShowCopyError_B( _showCopyError ) {
-         vThisSignalId_uI = e_engine_internal::__uSigSlotConnection::getCounter();
-         e_engine_internal::__uSigSlotConnection::increment();
+         vThisSignalId_uI = internal::__uSigSlotConnection::getCounter();
+         internal::__uSigSlotConnection::increment();
       }
 
       uSignal( const uSignal &_e ) {
          vShowCopyError_B = _e.vShowCopyError_B;
-         vThisSignalId_uI = e_engine_internal::__uSigSlotConnection::getCounter();
-         e_engine_internal::__uSigSlotConnection::increment();
+         vThisSignalId_uI = internal::__uSigSlotConnection::getCounter();
+         internal::__uSigSlotConnection::increment();
          if ( vShowCopyError_B )
-            e_engine_internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
+            internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
             ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (Constructor)", __FILE__, __LINE__, LOG_FUNCTION_NAME );
          // signal = _e.signal; => Compiler ERROR: Can not copy signal_TD objects
       }
       uSignal &operator=( const uSignal &_e ) {
          vShowCopyError_B = _e.vShowCopyError_B;
-         vThisSignalId_uI = e_engine_internal::__uSigSlotConnection::getCounter();
-         e_engine_internal::__uSigSlotConnection::increment();
+         vThisSignalId_uI = internal::__uSigSlotConnection::getCounter();
+         internal::__uSigSlotConnection::increment();
          if ( vShowCopyError_B )
-            e_engine_internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
+            internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
             ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (operator=)", __FILE__, __LINE__, LOG_FUNCTION_NAME );
          // signal = _e.signal; => Compiler ERROR: Can not copy signal_TD objects
          return *this;
@@ -240,7 +240,7 @@ class uSlot {
 //       typedef __R( __C::*CALL_TYPE )( __A... _arg );
    private:
       //! The signal connection
-      std::vector<e_engine_internal::__uSigSlotConnection> vConnections_eCON;
+      std::vector<internal::__uSigSlotConnection> vConnections_eCON;
 
       //! This object pointer is needed to call the function pointer
       __C *classObjPointer;
@@ -263,7 +263,7 @@ class uSlot {
       inline bool testIfAlreadyConnected( unsigned int _signalID ) {
          for ( size_t i = 0; i < vConnections_eCON.size(); ++i ) {
             if ( vConnections_eCON[i].getSignalId() == _signalID ) {
-               e_engine_internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
+               internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
                ( "The Signal is already connected => Ignore", __FILE__, __LINE__, LOG_FUNCTION_NAME );
                return true;
             }
@@ -272,7 +272,7 @@ class uSlot {
       }
 
       void setConnection( connection_TD *_con, unsigned int _signalID ) {
-         vConnections_eCON.push_back( e_engine_internal::__uSigSlotConnection( *_con, _signalID ) );
+         vConnections_eCON.push_back( internal::__uSigSlotConnection( *_con, _signalID ) );
       }
 
       void removeOld() {
@@ -343,7 +343,7 @@ class uSlot {
        */
       bool connectWith( uSignal<__R, __A...> *_signal ) {
          if ( !functionSet ) {
-            e_engine_internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
+            internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
             ( "SLOT Function Pointer is undefined! Do nothing!", __FILE__, __LINE__, LOG_FUNCTION_NAME );
             return false;
          }

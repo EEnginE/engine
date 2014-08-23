@@ -92,7 +92,7 @@ LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       SetWindowLongPtrW( _hwnd,
                          GWLP_WNDPROC,
                          reinterpret_cast<LONG_PTR>( &iContext::staticWndProc ) );
-      iEventInfo _tempInfo( e_engine::e_engine_internal::__iInit_Pointer_OBJ.get() );
+      iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
       return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
    }
    // if it isn't WM_NCCREATE, do something useful and wait until
@@ -103,7 +103,7 @@ LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
 LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    LONG_PTR lUserData_win32 = GetWindowLongPtrW( _hwnd, GWLP_USERDATA );
    iContext *this__ = reinterpret_cast<iContext *>( lUserData_win32 );
-   iEventInfo _tempInfo( e_engine::e_engine_internal::__iInit_Pointer_OBJ.get() );
+   iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
 
    if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
       eLOG "Bad Windows callback error" END

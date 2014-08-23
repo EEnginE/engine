@@ -66,7 +66,7 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
    // CRTC
    for ( int i = 0; i < vResources_XRR->ncrtc ; ++i ) {
-      e_engine_internal::_crtc lTempCRTC_RandR;
+      internal::_crtc lTempCRTC_RandR;
 
       XRRCrtcInfo *lTempCRTCInfo_XRR     = XRRGetCrtcInfo( vDisplay_X11, vResources_XRR, vResources_XRR->crtcs[i] );
 
@@ -95,7 +95,7 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
    // Output
    for ( int i = 0; i < vResources_XRR->noutput ; ++i ) {
-      e_engine_internal::_output lTempOutput_RandR;
+      internal::_output lTempOutput_RandR;
 
       XRROutputInfo *lTempOutputInfo_XRR = XRRGetOutputInfo( vDisplay_X11, vResources_XRR, vResources_XRR->outputs[i] );
 
@@ -128,7 +128,7 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
    // Modes
    for ( int i = 0; i < vResources_XRR->nmode ; ++i ) {
-      e_engine_internal::_mode lTempMode_RandR;
+      internal::_mode lTempMode_RandR;
 
       XRRModeInfo lTempModeInfo_XRR     = vResources_XRR->modes[i];
 

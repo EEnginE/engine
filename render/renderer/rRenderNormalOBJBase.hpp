@@ -17,7 +17,7 @@ enum RENDERER_ID {
    render_OGL_3_3_Normal_Basic_1S_1D
 };
 
-namespace e_engine_internal {
+namespace internal {
 
 /*!
  * \brief Basic render to provide an interface for other render classes

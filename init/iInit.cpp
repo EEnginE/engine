@@ -29,12 +29,12 @@
 #include "uLog.hpp"
 
 namespace e_engine {
-namespace e_engine_internal {
+namespace internal {
 __iInit_Pointer __iInit_Pointer_OBJ;
 }
 
 void iInit::_setThisForHandluSignal() {
-   if( ! e_engine_internal::__iInit_Pointer_OBJ.set( this ) ) {
+   if( ! internal::__iInit_Pointer_OBJ.set( this ) ) {
       eLOG "There can only be ONE iInit Class" END
       throw std::string( "There can only be ONE iInit Class" );
    }
@@ -185,7 +185,7 @@ int iInit::shutdown() {
 
 
 void iInit::handluSignal( int _signal ) {
-   iInit *_THIS = e_engine_internal::__iInit_Pointer_OBJ.get();;
+   iInit *_THIS = internal::__iInit_Pointer_OBJ.get();;
 
    if( _signal == SIGINT ) {
       if( GlobConf.handleSIGINT == true ) {

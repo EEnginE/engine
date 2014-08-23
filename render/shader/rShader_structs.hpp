@@ -6,7 +6,7 @@
 
 namespace e_engine {
 
-namespace e_engine_internal {
+namespace internal {
 //! A little structure to handle shader information for rShader
 struct atributeObject {
    int         index;

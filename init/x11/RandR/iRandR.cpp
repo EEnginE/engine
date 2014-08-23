@@ -119,7 +119,7 @@ void iRandR::endRandR() {
    vIsRandRSupported_B = false;
 }
 
-bool iRandR::restore( e_engine_internal::_config _conf ) {
+bool iRandR::restore( internal::_config _conf ) {
    if ( ! isRandRSupported() )
       return false;
 
@@ -172,7 +172,7 @@ std::vector< iDisplays > iRandR::getDisplayResolutions() {
 
    vMode_V_RandR.sort();
 
-   for ( e_engine_internal::_output const & fOutput : vOutput_V_RandR ) {
+   for ( internal::_output const & fOutput : vOutput_V_RandR ) {
       if ( fOutput.connection != 0 )
          continue;
 
@@ -185,10 +185,10 @@ std::vector< iDisplays > iRandR::getDisplayResolutions() {
       if ( fOutput.crtc != None ) {
 
          // Find the CRTC of the output
-         for ( e_engine_internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
+         for ( internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
             if ( fOutput.crtc == fCRTC.id ) {
 
-               for ( e_engine_internal::_mode const & fMode : vMode_V_RandR ) {
+               for ( internal::_mode const & fMode : vMode_V_RandR ) {
                   if ( fCRTC.mode == fMode.id ) {
                      lTempDisplay_eRRD.setCurrentSizeAndPosition(
                         fMode.width,
@@ -212,7 +212,7 @@ std::vector< iDisplays > iRandR::getDisplayResolutions() {
          }
       }
 
-      for ( e_engine_internal::_mode const & fMode : vMode_V_RandR ) {
+      for ( internal::_mode const & fMode : vMode_V_RandR ) {
          // Is mode supported and / or preferred ?
          bool lModeSupported_B = false;
          bool lModePrefered_B  = false;
@@ -334,7 +334,7 @@ int iRandR::getIndexOfDisplay( iDisplays const &_disp ) {
    RRCrtc lCRTC_XRR    = None;
    bool   lOutputFound = false;
    
-   for( e_engine_internal::_output fOut : vOutput_V_RandR ) {
+   for( internal::_output fOut : vOutput_V_RandR ) {
       if( _disp.getOutput() == fOut.id ) {
          lOutputFound = true;
          lCRTC_XRR    = fOut.crtc;

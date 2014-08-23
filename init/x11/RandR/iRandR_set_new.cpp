@@ -10,10 +10,10 @@ namespace e_engine {
 
 namespace unix_x11 {
 
-e_engine_internal::_crtc iRandR::isOutputPossible( RROutput _id, RRCrtc _crtc ) {
-   e_engine_internal::_crtc lTempCRTC_RandR;
+internal::_crtc iRandR::isOutputPossible( RROutput _id, RRCrtc _crtc ) {
+   internal::_crtc lTempCRTC_RandR;
    lTempCRTC_RandR.id = None;
-   for ( e_engine_internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
+   for ( internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
       if ( fCRTC.id != _crtc )
          continue;
 
@@ -51,7 +51,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    // Check mode
    bool                lModeSupported_B = false;
    if ( _disp.getMode() != None ) {
-      for ( e_engine_internal::_output const & fOutput : vOutput_V_RandR ) {
+      for ( internal::_output const & fOutput : vOutput_V_RandR ) {
          if ( _disp.getOutput() != fOutput.id )
             continue;
 
@@ -71,9 +71,9 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    }
 
    // Find CRTCs
-   e_engine_internal::_crtc lTempCRTC_RandR;
+   internal::_crtc lTempCRTC_RandR;
    lTempCRTC_RandR.id = None;
-   for ( e_engine_internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
+   for ( internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
       if ( fCRTC.outputs.size() == 1 && fCRTC.outputs[0] == _disp.getOutput() ) {
          lSingleMatch_XRR = fCRTC.id;
          // A Output can not be in two CRTC's
@@ -121,7 +121,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    if ( ! _disp.getIsEnabled() && lSingleMatch_XRR == None && lClonesMatch_XRR != None ) {
       // We disable an enabled Output but not the clone
       std::vector<RROutput> lTempOutputs_V_XRR;
-      for ( e_engine_internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
+      for ( internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
          if ( lClonesMatch_XRR == fCRTC.id ) {
             lTempCRTC_RandR = fCRTC;
             break;
@@ -172,7 +172,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
          return false;
       }
 
-      for ( e_engine_internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
+      for ( internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
          for ( RROutput const & fRROut : fCRTC.outputs ) {
             for ( RROutput const & fRRClone : _disp.getClones() ) {
                if ( fRROut == fRRClone ) {
@@ -213,7 +213,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    // ========== Change something cloned ======================================================================================================
    if ( _disp.getIsEnabled() && lSingleMatch_XRR == None && lClonesMatch_XRR != None ) {
       std::vector<RROutput> lTempOutputs_V_XRR;
-      for ( e_engine_internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
+      for ( internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
          if ( lClonesMatch_XRR == fCRTC.id ) {
             lTempCRTC_RandR = fCRTC;
             break;

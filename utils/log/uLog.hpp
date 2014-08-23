@@ -73,7 +73,7 @@ const unsigned short int MAX_LOG_TYPES = 8;
  * | point()  | POINT   | Adds a new point in a new line|
  * | end()    | END     | Ends the log entry            |
  * 
- * Those functions are ( with the exception of start() ) actually defined in e_engine_internal::__uLogStoreHelper.
+ * Those functions are ( with the exception of start() ) actually defined in internal::__uLogStoreHelper.
  * 
  * start() gets 2 arguments (actually 4, because the first one is a macro). 
  * The 1st one is the log type. 
@@ -120,7 +120,7 @@ class uLog {
       typedef uSignal<void, uLogEntry> _SIGNAL_;
       typedef uSlot<void, uLog , uLogEntry> _SLOT_;
    private:
-      std::vector<e_engine_internal::uLogType> vLogTypes_V_eLT;
+      std::vector<internal::uLogType> vLogTypes_V_eLT;
       std::string                              vLogFileName_str;
       std::string                              vLogFielFullPath_str;
       std::wofstream                           vLogFileOutput_OS;
@@ -149,7 +149,7 @@ class uLog {
       void stdErrStandard( uLogEntry _e );
       void stdLogStandard( uLogEntry _e );
 
-      std::list<e_engine_internal::__uLogStoreHelper> vLogList_L_eLSH;
+      std::list<internal::__uLogStoreHelper> vLogList_L_eLSH;
    public:
 
       uLog();
@@ -178,12 +178,12 @@ class uLog {
 
 
       template<class T>
-      inline e_engine_internal::__uLogStoreHelper *operator()( char _type, const char* _file, const int _line, const char* _function, T _text ) {
+      inline internal::__uLogStoreHelper *operator()( char _type, const char* _file, const int _line, const char* _function, T _text ) {
          return start( _type, _file, _line, _function, _text );
       }
 
       template<class T>
-      inline e_engine_internal::__uLogStoreHelper *start( char _type, const char* _file, const int _line, const char* _function, T _text ) {
+      inline internal::__uLogStoreHelper *start( char _type, const char* _file, const int _line, const char* _function, T _text ) {
          boost::lock_guard<boost::mutex> vLockGuard_BT( vLogMutex_BT );
          bool lDoWaitForPrint_B = GlobConf.log.waitUntilLogEntryPrinted && vIsLogLoopRunning_B ? true : false;
          vLogList_L_eLSH.emplace_back( _type, _file, _line, _function, lDoWaitForPrint_B );

@@ -27,20 +27,20 @@ namespace unix_x11 {
  * be made if you call applyNewRandRSettings().
  *
  * \todo Add rotation support
- * \todo Add subpixel order support -- e_engine_internal::_output::subpixel_order
- * \todo Add mode flags support -- e_engine_internal::_mode::modeFlags
+ * \todo Add subpixel order support -- internal::_output::subpixel_order
+ * \todo Add mode flags support -- internal::_mode::modeFlags
  */
 class iRandR {
 
    private:
-      std::vector<e_engine_internal::_crtc>   vCRTC_V_RandR;            //!< all current CRTC ( Data saved in \c e_engine_internal::_crtc )
-      std::vector<e_engine_internal::_output> vOutput_V_RandR;          //!< all current possible outputs ( Data saved in \c e_engine_internal::_output )
-      std::list<e_engine_internal::_mode>     vMode_V_RandR;            //!< all current available modes ( Data saved in \c e_engine_internal::_mode )
+      std::vector<internal::_crtc>   vCRTC_V_RandR;            //!< all current CRTC ( Data saved in \c internal::_crtc )
+      std::vector<internal::_output> vOutput_V_RandR;          //!< all current possible outputs ( Data saved in \c internal::_output )
+      std::list<internal::_mode>     vMode_V_RandR;            //!< all current available modes ( Data saved in \c internal::_mode )
 
-      e_engine_internal::_config              vDefaultConfig_RandR;     //!< the RandR config when init(); was called
-      e_engine_internal::_config              vLatestConfig_RandR;      //!< the RandR config before <b>applyNewSettings();</b> was called
+      internal::_config              vDefaultConfig_RandR;     //!< the RandR config when init(); was called
+      internal::_config              vLatestConfig_RandR;      //!< the RandR config before <b>applyNewSettings();</b> was called
 
-      std::vector<e_engine_internal::_crtc>   vChangeCRTC_V_RandR;
+      std::vector<internal::_crtc>   vChangeCRTC_V_RandR;
 
       Display                                *vDisplay_X11;             //!< The X11 display      -- set in init(...);
       Window                                  vWindow_X11;              //!< The X11 window       -- set in init(...);
@@ -58,10 +58,10 @@ class iRandR {
       bool                                    vIsRandRSupported_B;
 
       bool  reload( bool _overwriteLatest = true, bool _overwriteDefaults = false );
-      bool  restore( e_engine_internal::_config _conf );
-      int   changeCRTC( e_engine::e_engine_internal::_crtc _changeToThis );
+      bool  restore( internal::_config _conf );
+      int   changeCRTC( e_engine::internal::_crtc _changeToThis );
 
-      e_engine_internal::_crtc isOutputPossible( RROutput _id, RRCrtc _crtc );
+      internal::_crtc isOutputPossible( RROutput _id, RRCrtc _crtc );
 
    protected:
       void endRandR();

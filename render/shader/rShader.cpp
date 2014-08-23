@@ -67,7 +67,7 @@ rShader::rShader( std::string _path, GLuint n, ... ) {
    va_list list;
    va_start( list, n );
    for( unsigned int i = 0; i < n; i++ ) {
-      e_engine_internal::atributeObject attribute;
+      internal::atributeObject attribute;
       attribute.index = va_arg( list, int );
       attribute.name  = va_arg( list, char * );
       vLinkerAttributes.push_back( attribute );
@@ -416,7 +416,7 @@ void rShader::setAttributes( unsigned int n, ... ) {
    va_list list;
    va_start( list, n );
    for( unsigned int i = 0; i < n; i++ ) {
-      e_engine_internal::atributeObject attribute;
+      internal::atributeObject attribute;
       attribute.index = va_arg( list, int );
       attribute.name  = va_arg( list, char * );
       vLinkerAttributes.push_back( attribute );

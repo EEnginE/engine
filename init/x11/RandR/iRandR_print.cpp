@@ -79,8 +79,8 @@ void iRandR::printRandRStatus() {
       //
       //   -- Entries
       //
-   for ( e_engine_internal::_output const & fOutput : vOutput_V_RandR ) {
-      e_engine_internal::_crtc lCRTC_RandR;
+   for ( internal::_output const & fOutput : vOutput_V_RandR ) {
+      internal::_crtc lCRTC_RandR;
 
       std::string lCRTC_str      = ( fOutput.crtc == 0 )                         ? "OFF" : boost::lexical_cast<std::string>( fOutput.crtc ) ;
       std::string lPrimary_str   = ( vLatestConfig_RandR.primary == fOutput.id ) ? "YES" : "NO" ;
@@ -91,7 +91,7 @@ void iRandR::printRandRStatus() {
       char        lCRTC_C      = ( lCRTC_str != "OFF" )                          ? 'G'   : 'R';
 
       if ( !( fOutput.crtc == 0 ) ) {
-         for ( e_engine_internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
+         for ( internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
             if ( fCRTC.id == fOutput.crtc ) {
                lCRTC_RandR = fCRTC;
                lPosition_str = "";
@@ -139,7 +139,7 @@ void iRandR::printRandRStatus() {
       //
       //   -- Modes
       //
-      for ( e_engine_internal::_mode const & fMode : vMode_V_RandR ) {
+      for ( internal::_mode const & fMode : vMode_V_RandR ) {
          bool         lFoundMode_B    = false;
          bool         lModePrefered_B = false;
          char         lAtrib_C        = 'O';

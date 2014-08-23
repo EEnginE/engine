@@ -121,7 +121,7 @@ void uLog::devInit() {
  * \returns Nothing
  */
 void uLog::addType( char _type, std::wstring _name, char _color, bool _bold ) {
-   vLogTypes_V_eLT.push_back( e_engine_internal::uLogType( _type, _name, _color, _bold ) );
+   vLogTypes_V_eLT.push_back( internal::uLogType( _type, _name, _color, _bold ) );
    if ( _name.size() > vMaxTypeStringLength_usI )
       vMaxTypeStringLength_usI = _name.size();
 }
