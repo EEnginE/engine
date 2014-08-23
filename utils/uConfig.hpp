@@ -50,7 +50,7 @@ enum WINDOW_TYPE    {
 };
 
 
-namespace e_engine_internal {
+namespace internal {
 
 }
 

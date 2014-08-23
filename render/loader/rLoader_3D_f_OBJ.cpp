@@ -10,9 +10,9 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/filesystem.hpp>
 
 #include "uLog.hpp"
+#include "uFileIO.hpp"
 
 namespace e_engine {
 
@@ -74,7 +74,7 @@ namespace ascii   = boost::spirit::ascii;
 namespace phoenix = boost::phoenix;
 
 template<class Iterator>
-struct objGrammar_float : qi::grammar<Iterator, e_engine_internal::_3D_DataF()> {
+struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
    static void unsupported_f( std::string _what ) {
       wLOG "OBJ Parser: '" ADD _what ADD "' is not supported" END
    }
@@ -118,7 +118,7 @@ struct objGrammar_float : qi::grammar<Iterator, e_engine_internal::_3D_DataF()> 
 #endif
 
       start     =
-            +(    *ascii::space >>
+            +( *ascii::space >>
                   ( qi::lit( "v" ) >> +space
                         >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
                         >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
@@ -138,7 +138,7 @@ struct objGrammar_float : qi::grammar<Iterator, e_engine_internal::_3D_DataF()> 
 #if DO_NOT_FAIL_PARSING
                   | other
 #endif
-            );
+             );
 
    }
 
@@ -157,57 +157,36 @@ struct objGrammar_float : qi::grammar<Iterator, e_engine_internal::_3D_DataF()> 
    qi::rule<Iterator, std::string()> other;
 #endif
 
-   qi::rule<Iterator, e_engine_internal::_3D_DataF()> start;
+   qi::rule<Iterator, internal::_3D_DataF()> start;
 };
 
 
 /*!
  * \brief loads the 3D content frome the OBJ file
  * \returns 1 on success
- * \returns 2 if the file was not found or is not a file
- * \returns 3 if the file could not be opened
- * \returns 4 if there was a parsing error
- * \returns 5 if already loaded
+ * \returns 2 if there was a parsing error
+ * \returns 3 if the OBJ file doesn't exists
+ * \returns 4 if the OBJ file is not a regular file
+ * \returns 5 if the OBJ file is not readable
+ * \returns 6 if already loaded
  */
 int rLoader_3D_f_OBJ::load() {
    if( vIsDataLoaded_B )
-      return 5;
+      return 6;
 
-   boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
+   uFileIO lFile( vFilePath_str );
+   int lRet = lFile();
+   if( lRet != 1 ) return lRet;
 
-   if( ! boost::filesystem::exists( lFilePath_BFS ) ) {
-      eLOG "File " ADD vFilePath_str ADD " does not exists" END
-      return 2;
-   }
+   objGrammar_float<uFileIO::C_ITERATOR> lGrammar;
 
-   if( ! boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
-      eLOG vFilePath_str ADD " is not a file!" END
-      return 2;
-   }
-
-   FILE *lFile = fopen( vFilePath_str.c_str(), "r" );
-   if( lFile == NULL ) {
-      eLOG "Unable to open " ADD vFilePath_str END
-      return 3;
-   }
-
-   int c;
-   std::string lFileToParse_str;
-
-   while( ( c = fgetc( lFile ) ) != EOF )
-      lFileToParse_str.append( 1, ( char )c );
-
-   fclose( lFile );
-
-   objGrammar_float<std::string::const_iterator> lGrammar;
-
-   std::string::const_iterator lStartIter = lFileToParse_str.begin();
-   std::string::const_iterator lEndIter   = lFileToParse_str.end();
+   uFileIO::C_ITERATOR lStartIter = lFile.begin();
+   uFileIO::C_ITERATOR lEndIter   = lFile.end();
    bool lReturn = qi::parse( lStartIter, lEndIter, lGrammar, vData );
 
    if( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
       eLOG "Failed to parse '" ADD vFilePath_str ADD "'" END
-      return 4;
+      return 2;
    }
 
    vIsDataLoaded_B = true;
@@ -224,3 +203,4 @@ int rLoader_3D_f_OBJ::load() {
 
 }
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+

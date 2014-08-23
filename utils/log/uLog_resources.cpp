@@ -16,7 +16,7 @@
 #endif
 
 namespace e_engine {
-namespace e_engine_internal {
+namespace internal {
 
 
 __uLogStoreHelper::__uLogStoreHelper( wchar_t _type, std::string _rawFilename, int _logLine, std::string _functionName, bool _wait )  {
@@ -38,7 +38,7 @@ __uLogStoreHelper::__uLogStoreHelper( wchar_t _type, std::string _rawFilename, i
 }
 
 
-unsigned int __uLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_internal::uLogType > &_vLogTypes_V_eLT, e_engine::uLogEntry &_entry ) {
+unsigned int __uLogStoreHelper::getLogEntry( std::vector< e_engine::internal::uLogType > &_vLogTypes_V_eLT, e_engine::uLogEntry &_entry ) {
    _entry.data.vLogEntries_V_eLS = vElements_V_eLS;
    _entry.data.vFilename_STR     = vRawFilename_STR;
    _entry.data.vFunctionName_STR = vFunctionName_STR;
@@ -65,7 +65,7 @@ unsigned int __uLogStoreHelper::getLogEntry( std::vector< e_engine::e_engine_int
    ltemp_STR += vType_C;
    ltemp_STR += L"' not Found";
 
-   vElements_V_eLS.push_back( e_engine_internal::__uLogStore( ltemp_STR, 'B', 'R', '-' ) );
+   vElements_V_eLS.push_back( internal::__uLogStore( ltemp_STR, 'B', 'R', '-' ) );
 
    return 0;
 }

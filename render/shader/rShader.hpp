@@ -70,7 +70,7 @@ class rShader {
 
       std::vector<singleShader> vShaders;
       std::string               vPath_str;
-      std::vector<e_engine_internal::atributeObject> vLinkerAttributes;
+      std::vector<internal::atributeObject> vLinkerAttributes;
 
       std::string                    vShaderEndings[3];
 
@@ -78,7 +78,7 @@ class rShader {
 
       bool                           vIsShaderLinked_B;
 
-      e_engine_internal::programInfo vProgramInformation;
+      internal::programInfo vProgramInformation;
       bool                           vHasProgramInformation_B;
 
       unsigned int testProgram();
@@ -116,7 +116,7 @@ class rShader {
       std::string  getShaderPath()  const {return vPath_str;}
       bool         getProgram( unsigned int &_program ) const;
 
-      e_engine_internal::programInfo getShaderInfo() { return vProgramInformation; }
+      internal::programInfo getShaderInfo() { return vProgramInformation; }
 
       bool         getInputLocation( std::string _name, int &_location );
       bool         getOutputLocation( std::string _name, int &_location );

@@ -175,6 +175,7 @@ int rNormalObject::loadData( rWorld *_world ) {
 
             glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObjects[lCounter] );
             glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint ) * lLoader.getRawIndexData()->size(),   &lLoader.getRawIndexData()->at( 0 ), GL_STATIC_DRAW );
+
             lIndexSize.emplace_back( lLoader.getRawIndexData()->size() );
             lLoader.unLoad();
             break;
@@ -187,7 +188,6 @@ int rNormalObject::loadData( rWorld *_world ) {
       }
       ++lCounter;
    }
-
 
    // Now choose a renderer
 

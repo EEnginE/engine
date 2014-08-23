@@ -25,7 +25,7 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
    GlobConf.win.restoreOldScreenRes = true;
 
    GlobConf.versions.glMajorVersion = 4;
-   GlobConf.versions.glMinorVersion = 4;
+   GlobConf.versions.glMinorVersion = 6;
 
 
    if ( vCanUseColor ) {

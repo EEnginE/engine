@@ -17,7 +17,7 @@ namespace e_engine {
  * 
  * ID: render_OGL_3_3_Normal_Basic_1S_1D
  */
-class rRenderNormal_3_3 : public e_engine_internal::rRenderNormalOBJBase<float> {
+class rRenderNormal_3_3 : public internal::rRenderNormalOBJBase<float> {
    private:
       GLuint vVertexBufferObj_OGL;
       GLuint vIndexBufferObj_OGL;

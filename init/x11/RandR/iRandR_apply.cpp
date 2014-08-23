@@ -20,7 +20,7 @@ bool iRandR::applyNewRandRSettings() {
    if ( ! isRandRSupported() )
       return false;
 
-   std::vector<e_engine_internal::_crtc> lTempAllCRTC_V_RandR;
+   std::vector<internal::_crtc> lTempAllCRTC_V_RandR;
    int    lMinWidth_I,     lMinHeight_I;
    int    lMaxWidth_I,     lMaxHeight_I;
 
@@ -30,10 +30,10 @@ bool iRandR::applyNewRandRSettings() {
 
    reload();
 
-   for ( e_engine_internal::_crtc const & fCRTC : vChangeCRTC_V_RandR ) {
+   for ( internal::_crtc const & fCRTC : vChangeCRTC_V_RandR ) {
       bool lAppend_B = true;
       // Check for duplicates
-      for ( e_engine_internal::_crtc const & fCRTCTemp : lTempAllCRTC_V_RandR ) {
+      for ( internal::_crtc const & fCRTCTemp : lTempAllCRTC_V_RandR ) {
          if ( fCRTC.id == fCRTCTemp.id ) {
             lAppend_B = false;
             wLOG "RandR: Duplicate of a CRTC id in vChangeCRTC_V_RandR --> Only change first" END
@@ -48,9 +48,9 @@ bool iRandR::applyNewRandRSettings() {
    vChangeCRTC_V_RandR.clear();
 
    // Add mising CRTCs
-   for ( e_engine_internal::_crtc const & fCRTC1 : vCRTC_V_RandR ) {
+   for ( internal::_crtc const & fCRTC1 : vCRTC_V_RandR ) {
       bool lFound_B = false;
-      for ( e_engine_internal::_crtc const & fCRTC2 : lTempAllCRTC_V_RandR ) {
+      for ( internal::_crtc const & fCRTC2 : lTempAllCRTC_V_RandR ) {
          if ( fCRTC1.id == fCRTC2.id ) {
             lFound_B = true;
             break;
@@ -72,8 +72,8 @@ bool iRandR::applyNewRandRSettings() {
    lNewWidth_I  = 0;
    lNewHeight_I = 0;
 
-   for ( e_engine_internal::_crtc const & fCRTC : lTempAllCRTC_V_RandR ) {
-      e_engine_internal::_mode lTempMode_RandR;
+   for ( internal::_crtc const & fCRTC : lTempAllCRTC_V_RandR ) {
+      internal::_mode lTempMode_RandR;
       bool                     lModeFound_B = false;
 
       if ( fCRTC.mode == None ) {
@@ -81,7 +81,7 @@ bool iRandR::applyNewRandRSettings() {
          lTempMode_RandR.width  = 0;
          lTempMode_RandR.height = 0;
       } else {
-         for ( e_engine_internal::_mode const & fMode : vMode_V_RandR ) {
+         for ( internal::_mode const & fMode : vMode_V_RandR ) {
             if ( fCRTC.mode == fMode.id ) {
                lTempMode_RandR = fMode;
                lModeFound_B    = true;
@@ -145,7 +145,7 @@ bool iRandR::applyNewRandRSettings() {
       );
    }
 
-   for ( e_engine_internal::_crtc const & fCRTC : lTempAllCRTC_V_RandR )
+   for ( internal::_crtc const & fCRTC : lTempAllCRTC_V_RandR )
       changeCRTC( fCRTC );
 
    if (

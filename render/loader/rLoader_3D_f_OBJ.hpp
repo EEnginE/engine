@@ -14,14 +14,12 @@
 
 namespace e_engine {
 
-class rLoader_3D_f_OBJ : public e_engine_internal::rLoader_3D_Base<GLfloat> {
+class rLoader_3D_f_OBJ : public internal::rLoader_3D_Base<GLfloat> {
    private:
       bool        vIsDataLoaded_B;
 
       std::string vFilePath_str;
       
-      e_engine_internal::_3D_DataF vData;
-
    public:
       rLoader_3D_f_OBJ();
       rLoader_3D_f_OBJ( std::string _file );
@@ -30,7 +28,7 @@ class rLoader_3D_f_OBJ : public e_engine_internal::rLoader_3D_Base<GLfloat> {
       void setFile( std::string _file );
       int  load();
       void unLoad();
-
+      
       bool        getIsLoaded() const;
       std::string getFilePath() const;
 };

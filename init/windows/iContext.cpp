@@ -32,7 +32,7 @@ namespace e_engine {
 
 namespace windows_win32 {
 
-namespace e_engine_internal {
+namespace internal {
 eWindowClassRegister CLASS_REGISTER;
 }
 

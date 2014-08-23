@@ -1,6 +1,6 @@
 /*!
  * \file x11/RandR/iRandR_structs.hpp
- * \brief \b Structs: \a e_engine_internal::_crtc, \a e_engine_internal::_outpu , \a e_engine_internal::_mode , \a e_engine_internal::_config
+ * \brief \b Structs: \a internal::_crtc, \a internal::_outpu , \a internal::_mode , \a internal::_config
  */
 
 #ifndef E_RANDR_STRUCTS_HPP
@@ -12,10 +12,10 @@
 #include <string>
 
 namespace e_engine {
-namespace e_engine_internal {   
+namespace internal {   
 
 /*!
- * \struct e_engine::e_engine_internal::_crtc
+ * \struct e_engine::internal::_crtc
  * \brief \c [Xlib::XRandR] stores information for a CRTC
  * 
  * \note The description is a copy and paste from http://cgit.freedesktop.org/xorg/proto/randrproto/tree/randrproto.txt
@@ -38,7 +38,7 @@ struct _crtc {
 };
 
 /*!
- * \struct e_engine::e_engine_internal::_output
+ * \struct e_engine::internal::_output
  * \brief \c [Xlib::XRandR] stores information for a output (= display)
  * 
  * \note The description is a copy and paste from http://cgit.freedesktop.org/xorg/proto/randrproto/tree/randrproto.txt
@@ -62,7 +62,7 @@ struct _output {
 };
 
 /*!
- * \struct e_engine::e_engine_internal::_mode
+ * \struct e_engine::internal::_mode
  * \brief \c [Xlib::XRandR] stores information for a mode for a CRTC 
  * 
  * An output mode specifies the complete CRTC timings for
@@ -134,7 +134,7 @@ struct _mode {
 };
 
 /*!
- * \struct e_engine::e_engine_internal::_config
+ * \struct e_engine::internal::_config
  * \brief Stores all necessary infomation to restore a specific RandR configuration
  */
 struct _config {

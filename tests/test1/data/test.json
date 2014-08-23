@@ -1,0 +1,62 @@
+{
+  "hello": "world",
+  "num":   123,
+  "num2":  666,
+  "bool":  true,
+  "obj1": {
+    "numbers": [
+      111,
+      222,
+      333,
+      444,
+      555,
+      666
+    ],
+    "stings": [
+      "asd",
+      "ggg",
+      "fzu"
+    ],
+    "booleans": [
+      true,
+      false,
+      true,
+      true
+    ],
+    "objects": [
+      {
+        "h1":   1,
+        "h2":   2,
+        "name": "Test1"
+      },
+      {
+        "h1":   6,
+        "h2":   78,
+        "name": "Test2"
+      },
+      {
+        "h1":   46,
+        "h2":   3,
+        "name": "Test3"
+      },
+      {
+        "h1":   86,
+        "h2":   3,
+        "name": "Test4"
+      }
+    ],
+    "ddd": {
+      "haha": "DONE it \" \\ works -"
+    }
+  },
+  "obj2" : {
+    "num1":  20,
+    "num2":  42,
+    "str1":  "data String 1",
+    "str2":  "data STRING",
+    "bool1": true,
+    "bool2": false
+  },
+  "dummy": null,
+  "asdas": null
+}

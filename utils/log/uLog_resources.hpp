@@ -7,7 +7,7 @@
 #define E_LOG_STRUCTS_HPP
 
 #include "uSignalSlot.hpp"
-#include "uConfig.hpp"  // Only for e_engine_internal::LOG_COLOR_TYPE and e_engine_internal::LOG_PRINT_TYPE
+#include "uConfig.hpp"  // Only for internal::LOG_COLOR_TYPE and internal::LOG_PRINT_TYPE
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 
@@ -15,12 +15,12 @@ namespace e_engine {
 
 struct uLogEntry;
 
-namespace e_engine_internal {
+namespace internal {
 
 enum LOG_OBJECT_TYPE { STRING, NEW_LINE, NEW_POINT };
 
 /*!
- * \struct e_engine::e_engine_internal::uLogType
+ * \struct e_engine::internal::uLogType
  * \brief Holds information about a (new) output type for class \c uLog
  *
  * This structure defines all variables which are important
@@ -130,7 +130,7 @@ struct uLogEntry {
    std::wstring vResultStrin_STR;
 
    struct __rawData {
-      std::vector<e_engine_internal::__uLogStore> vLogEntries_V_eLS;
+      std::vector<internal::__uLogStore> vLogEntries_V_eLS;
       std::wstring                                vFilename_STR;
       std::wstring                                vFunctionName_STR;
       std::wstring                                vType_STR;
@@ -159,7 +159,7 @@ struct uLogEntry {
    void configure( e_engine::LOG_COLOR_TYPE _color, e_engine::LOG_PRINT_TYPE _time, e_engine::LOG_PRINT_TYPE _file, e_engine::LOG_PRINT_TYPE _errorType, int _columns );
 };
 
-namespace e_engine_internal {
+namespace internal {
 
 class __uLogStoreHelper {
    private:
@@ -324,7 +324,7 @@ class __uLogStoreHelper {
       inline bool   getIsComplete()   const   { return vComplete_B; }
       inline bool   getIsPrinted()    const   { return vIsPrinted_B; }
       inline size_t getElementsSize() const   { return vElements_V_eLS.size(); }
-      unsigned int  getLogEntry( std::vector< e_engine::e_engine_internal::uLogType > &_vLogTypes_V_eLT, e_engine::uLogEntry &_entry );
+      unsigned int  getLogEntry( std::vector< e_engine::internal::uLogType > &_vLogTypes_V_eLT, e_engine::uLogEntry &_entry );
 
       inline void   endLogWaitAndSetPrinted() {
          if ( ! vWaitForLogPrinted_B ) {
@@ -344,7 +344,7 @@ class __uLogStoreHelper {
 
 }
 
-typedef e_engine_internal::__uLogStoreHelper *LOG_ENTRY;
+typedef internal::__uLogStoreHelper *LOG_ENTRY;
 
 }
 

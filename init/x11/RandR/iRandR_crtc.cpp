@@ -16,7 +16,7 @@ namespace unix_x11 {
  * \returns -5 when the CRTC could not be found
  * \returns 1 when everything went fine
  */
-int iRandR::changeCRTC( e_engine_internal::_crtc _changeToThis ) {
+int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
    RRCrtc lCRTC_XRR           = _changeToThis.id;
    bool   lChangedCRTC_B      = false;
 
