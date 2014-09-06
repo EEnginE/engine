@@ -12,6 +12,14 @@
       555,
       666
     ],
+    "numbers": [
+      111,
+      222,
+      333,
+      444,
+      555,
+      666
+    ],
     "stings": [
       "asd",
       "ggg",
@@ -32,12 +40,18 @@
       {
         "h1":   6,
         "h2":   78,
+        "h1":   "Test for unique ID's",
+        "h1":   "Test for unique ID's",
+        "h1":   "Test for unique ID's",
+        "h2":   "Test for unique ID's",
+        "h1":   "Test for unique ID's",
         "name": "Test2"
       },
       {
         "h1":   46,
         "h2":   3,
-        "name": "Test3"
+        "name": "Test3",
+        "name": "Test for unique ID's"
       },
       {
         "h1":   86,
@@ -57,6 +71,8 @@
     "bool1": true,
     "bool2": false
   },
+  "bool":  false,
+  "bool":  true,
   "dummy": null,
   "asdas": null
 }
