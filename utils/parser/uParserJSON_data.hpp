@@ -9,27 +9,15 @@
 #include <string>
 #include <vector>
 #include <boost/fusion/include/adapt_struct.hpp>
-
 #include "uLog.hpp"
 
-#define PROCESS_JSON_START( __x__ )                                      \
-{                                                                        \
-   using ::e_engine::uJSON_data::END_MARKER_TYPE::GET; \
-   using ::e_engine::uJSON_data::END_MARKER_TYPE::SET; \
-                                                           \
-   __x__.process( 
+#define G_STR(  _out_, _def_ ) JSON_STRING,  &_out_, std::string( _def_ ), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+#define G_NUM(  _out_, _def_ ) JSON_NUMBER,  &_out_, (double)     _def_  , ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+#define G_BOOL( _out_, _def_ ) JSON_BOOL,    &_out_, (bool)       _def_  , ::e_engine::uJSON_data::END_MARKER_TYPE::GET
 
-#define  PROCESS_JSON_END \
-   );                     \
-}
-
-#define G_STR(  _out_, _def_ ) JSON_STRING,  &_out_, std::string( _def_ ), GET
-#define G_NUM(  _out_, _def_ ) JSON_NUMBER,  &_out_, (double)     _def_  , GET
-#define G_BOOL( _out_, _def_ ) JSON_BOOL,    &_out_, (bool)       _def_  , GET
-
-#define S_STR(  _def_ ) JSON_STRING, (std::string *)0, std::string( _def_ ) , SET
-#define S_NUM(  _def_ ) JSON_NUMBER, (double *)0,      (double)     _def_   , SET
-#define S_BOOL( _def_ ) JSON_BOOL,   (bool *)0,        (bool)       _def_   , SET
+#define S_STR(  _def_ ) JSON_STRING, (std::string *)0, std::string( _def_ ) , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
+#define S_NUM(  _def_ ) JSON_NUMBER, (double *)0,      (double)     _def_   , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
+#define S_BOOL( _def_ ) JSON_BOOL,   (bool *)0,        (bool)       _def_   , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
 
 namespace e_engine {
 
@@ -86,10 +74,10 @@ struct uJSON_data {
 
 
 
-   template<class... ARGS, class T>
-   inline void _( uJSON_data *_first, JSON_DATA_TYPE _type, T *_pointer, T const &_setData, END_MARKER_TYPE _what, ARGS... _args );
-   
-   
+   template<class... ARGS, class T, class D>
+   inline void _( uJSON_data *_first, JSON_DATA_TYPE _type, T *_pointer, D const &_setData, END_MARKER_TYPE _what, ARGS... _args );
+
+
 
    template<class... ARGS>
    inline void _( uJSON_data *_first, JSON_DATA_TYPE &_type, END_MARKER_TYPE _what, ARGS... _args );
@@ -103,6 +91,9 @@ struct uJSON_data {
 
    template<class... ARGS>
    inline void operator()( ARGS... _args ) {_( this, _args... );}
+
+   bool unique( bool _renoveDuplicates = true, bool _quiet = false, std::string _patent_IDs = "" );
+   void merge( uJSON_data &_toMerge, bool _overWrite = true );
 };
 
 
@@ -133,8 +124,8 @@ void uJSON_data::_( uJSON_data *_first, int _id, ARGS... _args ) {
    value_array.back()._( _first, _args... );
 }
 
-template<class... ARGS, class T>
-void uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE _type, T *_pointer, T const &_setData, END_MARKER_TYPE _what, ARGS... _args ) {
+template<class... ARGS, class T, class D>
+void uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE _type, T *_pointer, D const &_setData, END_MARKER_TYPE _what, ARGS... _args ) {
    if( type == __JSON_NOT_SET__ || ! _pointer || type != _type ) _what = SET;
 
    if( _what == SET ) {
@@ -164,7 +155,7 @@ void uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE _type, T *_pointer, T con
       default: break;
    }
 
-   *_pointer = *( T * )lData;
+   *_pointer = ( T ) * ( D * )lData; // D must be the right type, because of the macros, while T could be something different
 
    _first->_( _first, _args... );
 }
@@ -188,8 +179,6 @@ void uJSON_data::_( uJSON_data *_first, int &_size, END_MARKER_TYPE _what, ARGS.
 
    _first->_( _first, _args... );
 }
-
-
 
 
 
