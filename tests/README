@@ -13,12 +13,15 @@ test. This data directory will be installed to:
 
 ${CMAKE_INSTALL_PREFIX}/share/engineTests/<test Name>
 
+You should also add the <test Name> in the testOrder.txt. This file makes
+sure that the tests are generated in the right order.
+
 
 You can also have a config.in.hpp . This file will be automatically
 detected.
 
-If should need extra CMake stuff, put it in a custom.cmake.
+If you need extra CMake stuff, put it in a custom.cmake.
 
 
-If you totaly dislike the automatically generated CMakeLists.txt
+If you totaly dislike the automatically generated CMakeLists.txt, then
 you only need to add a MANUAL_CMAKE file.

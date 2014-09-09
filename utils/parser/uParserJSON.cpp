@@ -187,6 +187,19 @@ void uParserJSON::setWriteIndent( std::string _in ) {
 }
 
 
+/*!
+ * \brief Generates a JSON file from a uJSON_data structure
+ * 
+ * \param[in] _data              the data to write
+ * \param[in] _overwriteIfNeeded When true overwrites the file if it exists
+ * 
+ * \returns 1  if everything went fine
+ * \returns 2  if the file already exisits read (and _overWrite == false)
+ * \returns 3  if the file exists and is not a regular file
+ * \returns 4  if the file exists and is not removable
+ * \returns 5  if the file is not writable
+ * \returns -2 if _data has not the type JSON_OBJECT
+ */
 int uParserJSON::write( const uJSON_data &_data, bool _overwriteIfNeeded ) {
    if( _data.type != JSON_OBJECT )
       return -2;

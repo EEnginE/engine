@@ -95,6 +95,11 @@ clean() {
     for I in $TEMP; do
        rm_save $I/CMakeLists.txt
        rm_save $I/$SOURCE_FILE
+       if [ -f $I/.gitignore ]; then
+          for J in $( cat $I/.gitignore ); do
+             rm_save $I/$J
+          done
+       fi
     done
     
     cd GLEW
@@ -105,11 +110,17 @@ clean() {
 }
 
 
+addTarget() {
+    echo "INFO: Adding Target $1"
+    finSources $1 $2 $X11 $WAYLAND $MIR $WINDOWS $BASENAME_INIT
+}
+
+
 standard() {
     generateLogMacros $LOG_MACRO_PATH "$LOG_TYPES" $LOG_GEN_UNDEF
-    finSources        $INIT_LIB   $INIT_SRC   $X11 $WAYLAND $MIR $WINDOWS $BASENAME_INIT
-    finSources        $RENDER_LIB $RENDER_SRC $X11 $WAYLAND $MIR $WINDOWS $BASENAME_RENDER
-    finSources        $UTILS_LIB  $UTILS_SRC  $X11 $WAYLAND $MIR $WINDOWS $BASENAME_UTILS
+    addTarget         $INIT_LIB   $INIT_SRC
+    addTarget         $RENDER_LIB $RENDER_SRC
+    addTarget         $UTILS_LIB  $UTILS_SRC
     engineHPP         $INCLUDE_FILE
     tests
 }
@@ -225,3 +236,5 @@ echo ""
 if [ -d $STARTDIR ]; then
     cd $STARTDIR
 fi
+
+# kate: indent-mode shell; indent-width 4; replace-tabs on; 

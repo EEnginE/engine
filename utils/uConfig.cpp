@@ -59,6 +59,10 @@ _uConfig::__uConfig_Config::__uConfig_Config() {
    reset();
 }
 
+_uConfig::__uConfig_OpenGL::__uConfig_OpenGL() {
+   reset();
+}
+
 
 
 void _uConfig::__uConfig_FBA::reset() {
@@ -171,6 +175,11 @@ void _uConfig::__uConfig_Config::reset() {
    unixPathType = true;
 
    maxNumOfLogFileBackshift = 10;
+}
+
+void _uConfig::__uConfig_OpenGL::reset() {
+   shaderInfoQueryType = 0;
+   useShaders          = true;
 }
 
 

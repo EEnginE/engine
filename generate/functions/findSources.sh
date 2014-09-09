@@ -58,7 +58,7 @@ finSources() {
     DIR_TO_GO=$1
     FILENAME=$2
     
-    echo "INFO: Generating source file $FILENAME for $DIR_TO_GO..."
+    echo "INFO:    -- Generating source file $FILENAME for target $DIR_TO_GO..."
         
     if [ ! -d $DIR_TO_GO ]; then
         echo "ERROR: $DIR_TO_GO does not exist!"
@@ -86,7 +86,7 @@ finSources() {
 ############################################################################################################################
 ########################################################################################
 
-    echo "INFO:    -- Searching everything..."
+    echo "INFO:      -- Searching everything..."
 
     TEMP=""
     if (( $( ls -l $DIR_TO_GO | grep ^d | wc -l ) )); then
@@ -117,7 +117,7 @@ finSources() {
 #########
 ## CPP ##
 #########
-    echo "INFO:    -- Assigning files to OS..."
+    echo "INFO:      -- Assigning files to OS..."
 
     for I in $TEMP_CPP; do
         ## Test X11 ##
@@ -229,7 +229,7 @@ finSources() {
 ############################################################################################################################
 ########################################################################################
 
-    echo "INFO:    -- Assigning directories to OS..."
+    echo "INFO:      -- Assigning directories to OS..."
 
     for I in $SERACH_IN; do
         ## Test X11 ##
@@ -293,7 +293,7 @@ finSources() {
 
 # = Print =====
 
-    echo "INFO:    -- Printing $FILENAME..."
+    echo "INFO:      -- Printing $FILENAME..."
 
 cat > $FILENAME << EOF
 # $FILENAME
