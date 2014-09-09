@@ -1,15 +1,14 @@
 #include "cmdANDinit.hpp"
 #include "config.hpp"
-#include "oglTestBind.hpp"
 #include <boost/regex.hpp>
 
-cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
+cmdANDinit::cmdANDinit( int argc, char *argv[], testStarter &_starter, bool &_errors ) {
    argv0        = argv[0];
    vCanUseColor = COLOR == 1 ? true : false;
 #if WINDOWS
-   dataRoot     = INSTALL_PREFIX + string( "\\share\\engineTests\\test1\\data\\" );
+   dataRoot     = INSTALL_PREFIX + string( "\\share\\engineTests\\oglTest\\data\\" );
 #else
-   dataRoot     = INSTALL_PREFIX + string( "/share/engineTests/test1/data/" );
+   dataRoot     = INSTALL_PREFIX + string( "/share/engineTests/oglTest/data/" );
 #endif
 
    for ( auto i = 1; i < argc; ++i ) {
@@ -19,12 +18,12 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
    GlobConf.win.width           = 800;
    GlobConf.win.height          = 600;
    GlobConf.win.fullscreen      = false;
-   GlobConf.win.windowName      = "Engine Test";
+   GlobConf.win.windowName      = "OpenGL_TEST";
    GlobConf.win.iconName        = "ICON is missing";
    GlobConf.win.xlibWindowName  = "My icon";
    //GlobConf.win.winType         = e_engine::TOOLBAR;
    GlobConf.useAutoOpenGLVersion();
-   GlobConf.config.appName      = "E Engine";
+   GlobConf.config.appName      = "OpenGL_TEST";
 
 
    GlobConf.win.restoreOldScreenRes = true;
@@ -56,43 +55,39 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
 #endif
 
    GlobConf.log.waitUntilLogEntryPrinted = false;
+   
+   _errors = !parseArgsAndInit( _starter );
 
 }
 
 
 
 void cmdANDinit::usage() {
-   iLOG "Usage: " ADD argv0 ADD " [OPTIONS] MODE [BENCHMARK OPTIONS]"  END
+   iLOG "Usage: " ADD argv0 ADD " [OPTIONS] OUTPUT_FILES"  END
    iLOG "" END
    iLOG "OPTIONS:" END
-   dLOG "    -h | --help    : show this help message"                  END
-   dLOG "    --log=<path>   : set a custom log file path to <path>"    END
-   dLOG "    -w | --wait    : wait until log entry is printed"         END
-   dLOG "    --data=<path>  : set a custom root path for the data dir" END
-   dLOG "    --conf=<path>  : add a config file to parse"              END
-   dLOG "    --glMajor=<v>  : the OpenGL Major version (default: "
+   dLOG "    -h | --help      : show this help message"                  END
+   dLOG "    --log=<path>     : set a custom log file path to <path>"    END
+   dLOG "    -w | --wait      : wait until log entry is printed"         END
+   dLOG "    --data=<path>    : set a custom root path for the data dir" END
+   dLOG "    --glMajor=<v>    : the OpenGL Major version (default: "
    ADD  GlobConf.versions.glMajorVersion ADD ")"  END
-   dLOG "    --glMinor=<v>  : the OpenGL Major version (default: "
+   dLOG "    --glMinor=<v>    : the OpenGL Major version (default: "
    ADD  GlobConf.versions.glMinorVersion ADD ")"  END
    if ( vCanUseColor ) {
-      dLOG "    -n | --nocolor : disable colored output"                  END
+      dLOG "    -n | --nocolor   : disable colored output"                  END
    }
+   dLOG "    -l | --list      : lists all available tests" END
+   dLOG "    --without-<test> : disables test <test>"      END
+   dLOG "    --with-<test>    : enables test <test>"       END
+   dLOG "    --all-off        : disables all test"         END
+   dLOG "    --all-on         : enables all test"          END
 }
 
 
-bool cmdANDinit::parseArgsAndInit() {
-   
-   // Try to parse oglTest.json
-   uParserJSON lTrialAndErrorParser( "oglTest.json" );
-   if( lTrialAndErrorParser.parse() == 1 ) {
-      iLOG "Found oglTest.json" END
-      auto lTempData = lTrialAndErrorParser.getData();
-      vData_JSON.merge( lTempData );
-   }
-
+bool cmdANDinit::parseArgsAndInit( testStarter &_starter ) {
    for ( auto const & arg : args ) {
       if ( arg == "-h" || arg == "--help" ) {
-         postInit();
          usage();
          return false;
       }
@@ -127,24 +122,6 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
       
-      boost::regex lConfRegex( "^\\-\\-conf=[0-9]+$" );
-      if ( boost::regex_match( arg, lConfRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-conf=" );
-         const char *lRep = "";
-         string conf = boost::regex_replace( arg, lDataRegexRep, lRep );
-         uParserJSON parser( conf );
-         
-         if( parser.parse() == 1 ) {
-            auto lTempData = parser.getData();
-            vData_JSON.merge( lTempData );
-            iLOG "Successfully parsed additional JSON config '" ADD conf ADD "'" END
-         } else {
-            wLOG "Failed to parse additional JSON config '" ADD conf ADD "'" END
-         }
-         
-         continue;
-      }
-      
       boost::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
       if ( boost::regex_match( arg, lMajorRegex ) ) {
          boost::regex lDataRegexRep( "^\\-\\-glMajor=" );
@@ -163,19 +140,60 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
       
-      eLOG "Unkonwn option '" ADD arg ADD "'" END
+      
+      if ( arg == "--list" || arg == "-l" ) {
+         _starter.list();
+         return false;
+      }
+      
+      
+      boost::regex lWithoutRegex( "^\\-\\-without\\-[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if ( boost::regex_match( arg, lWithoutRegex ) ) {
+         boost::regex lDataRegexRep( "^\\-\\-without\\-" );
+         const char *lRep = "";
+         _starter.disable( boost::regex_replace( arg, lDataRegexRep, lRep ) );
+         continue;
+      }
+      
+      boost::regex lWithRegex( "^\\-\\-with\\-[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if ( boost::regex_match( arg, lWithRegex ) ) {
+         boost::regex lDataRegexRep( "^\\-\\-with\\-" );
+         const char *lRep = "";
+         _starter.enable( boost::regex_replace( arg, lDataRegexRep, lRep ) );
+         continue;
+      }
+      
+      if ( arg == "--all-off" ) {
+         _starter.allTestsOff();
+         continue;
+      }
+      
+      if ( arg == "--all-on"  ) {
+         _starter.allTestsOn();
+         continue;
+      }
+      
+      outputFiles.push_back( arg );
    }
-   
-   // Automatically parse the output from oglTest into GlobConf
-   oglTestBind::process( vData_JSON );
 
    return true;
 }
 
 
-void cmdANDinit::postInit() {
-   LOG.devInit();
-   LOG.startLogLoop();
+void cmdANDinit::generate( uJSON_data &_data ) {
+   if( outputFiles.empty() ) {
+      outputFiles.emplace_back( "./oglTest.json" );
+   }
+   for( auto &f : outputFiles ) {
+      uParserJSON generator( f );
+      if( generator.write( _data, true ) == 1 ) {
+         iLOG "Successfully written '" ADD f ADD "'" END
+      } else {
+         eLOG "Failed to write '" ADD f ADD "'" END
+      }
+   }
 }
+
+
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

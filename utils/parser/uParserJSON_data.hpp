@@ -11,13 +11,13 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include "uLog.hpp"
 
-#define G_STR(  _out_, _def_ ) JSON_STRING,  &_out_, std::string( _def_ ), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
-#define G_NUM(  _out_, _def_ ) JSON_NUMBER,  &_out_, (double)     _def_  , ::e_engine::uJSON_data::END_MARKER_TYPE::GET
-#define G_BOOL( _out_, _def_ ) JSON_BOOL,    &_out_, (bool)       _def_  , ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+#define G_STR(  _out_, _def_ ) ::e_engine::JSON_STRING,  &_out_, std::string( _def_ ), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+#define G_NUM(  _out_, _def_ ) ::e_engine::JSON_NUMBER,  &_out_, (double)     _def_  , ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+#define G_BOOL( _out_, _def_ ) ::e_engine::JSON_BOOL,    &_out_, (bool)       _def_  , ::e_engine::uJSON_data::END_MARKER_TYPE::GET
 
-#define S_STR(  _def_ ) JSON_STRING, (std::string *)0, std::string( _def_ ) , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
-#define S_NUM(  _def_ ) JSON_NUMBER, (double *)0,      (double)     _def_   , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
-#define S_BOOL( _def_ ) JSON_BOOL,   (bool *)0,        (bool)       _def_   , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
+#define S_STR(  _def_ ) ::e_engine::JSON_STRING, (std::string *)0, std::string( _def_ ) , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
+#define S_NUM(  _def_ ) ::e_engine::JSON_NUMBER, (double *)0,      (double)     _def_   , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
+#define S_BOOL( _def_ ) ::e_engine::JSON_BOOL,   (bool *)0,        (bool)       _def_   , ::e_engine::uJSON_data::END_MARKER_TYPE::SET
 
 namespace e_engine {
 

@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "testStarter.hpp"
+
 using namespace std;
 using namespace e_engine;
 
@@ -14,22 +16,20 @@ class cmdANDinit {
       string         argv0;
       string         dataRoot;
       
-      uJSON_data     vData_JSON;
+      vector<string> outputFiles;
 
       bool           vCanUseColor;
 
       cmdANDinit() {}
 
-      void postInit();
-      void preInit();
       void usage();
    public:
-      cmdANDinit( int argc, char *argv[] );
+      cmdANDinit( int argc, char *argv[], testStarter &_starter, bool &_errors );
 
       string getDataRoot() const {return dataRoot;}
 
-      bool parseArgsAndInit();
-
+      bool parseArgsAndInit( testStarter &_starter );
+      void generate( uJSON_data &_data );
 };
 
 #endif // CMDANDINIT_HPP

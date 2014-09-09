@@ -411,6 +411,9 @@ int iContext::createContext() {
          lAttributes_A_I[2] = WGL_CONTEXT_MINOR_VERSION_ARB;
          lAttributes_A_I[3] = version_list[i][1];
          lAttributes_A_I[4] = 0;
+         
+         GlobConf.versions.glMajorVersion = version_list[i][0];
+         GlobConf.versions.glMinorVersion = version_list[i][1];
 
       } else {
          break;

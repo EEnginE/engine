@@ -118,12 +118,21 @@ std::string rShader::processData( GLenum _type, GLuint _index, GLsizei _arraySiz
 void rShader::getProgramInfo() {
    if( !vIsShaderLinked_B )
       return;
+   
+   if( GlobConf.ogl.shaderInfoQueryType == 1 ) { getInfoOld(); return; }
+   if( GlobConf.ogl.shaderInfoQueryType == 2 ) { getInfoNew(); return; }
 
    if( ! GlobConf.extensions.isSupported( ID_ARB_program_interface_query ) ) {
-      wLOG "Extension ARB_program_interface_query is not supported! Can not query information about the shader" END
+      wLOG "Extension ARB_program_interface_query is not supported! Fallback to old style query" END
+      getInfoOld();
       return;
    }
 
+   getInfoNew();
+}
+
+
+void rShader::getInfoNew() {
    GLenum lInputValues[]   = { GL_NAME_LENGTH, GL_TYPE, GL_ARRAY_SIZE, GL_LOCATION,                    GL_IS_PER_PATCH, GL_LOCATION_COMPONENT };
    GLenum lOutputValues[]  = { GL_NAME_LENGTH, GL_TYPE, GL_ARRAY_SIZE, GL_LOCATION, GL_LOCATION_INDEX, GL_IS_PER_PATCH, GL_LOCATION_COMPONENT };
    GLenum lUniformValues[] = {
@@ -300,6 +309,14 @@ void rShader::getProgramInfo() {
 
    vHasProgramInformation_B = true;
 }
+
+void rShader::getInfoOld() {
+   eLOG "############################" END
+   eLOG "##  NEEDS IMPLEMENTATION  ##" END
+   eLOG "############################" END
+}
+
+
 
 bool rShader::getInputLocation( std::string _name, int &_location ) {
    for( auto loc : vProgramInformation.vInputInfo ) {

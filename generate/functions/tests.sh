@@ -5,15 +5,35 @@ tests() {
     CMAKE_MIN_V=$(cat CMakeLists.txt | grep cmake_minimum_required | sed 's/[a-zA-Z\_() ]*//g')
     echo -e "cmake_minimum_required(VERSION $CMAKE_MIN_V )\n" > $TESTS_DIR/CMakeLists.txt
 
-    TEST_PROJECTS=$(ls -d $TESTS_DIR/*/)
+    TEST_PROJECTS=$(cat $TESTS_DIR/testOrder.txt)
 
     for I in $TEST_PROJECTS; do
-        I=$( echo $I | sed 's/\/$//g' )
+        I=$( echo "$TESTS_DIR/$I" | sed 's/\/$//g' )
+        
+        if [ ! -d $i ]; then
+            echo "ERROR: $I is not a directory!"
+            continue
+        fi
+        
         TEST_BASENAME=$(basename $I)
         echo "INFO: Found test module $TEST_BASENAME"
         echo "add_subdirectory( $TEST_BASENAME )" >> $TESTS_DIR/CMakeLists.txt
         
-        if [ ! -f MANUAL_CMAKE ]; then
+        PRE_GEN="$(pwd)/${I}/generate.pre.sh"
+        POST_GEN="$(pwd)/${I}/generate.post.sh"
+
+        if [ -f $PRE_GEN ]; then
+            if [ ! -x $PRE_GEN ]; then
+                chmod +x $PRE_GEN
+            fi
+            CURRENT_TEMP_PATH="$(pwd)"
+            echo "INFO:    -- Running pre generate script $PRE_GEN"
+            cd $(dirname $PRE_GEN)
+            $PRE_GEN
+            cd $CURRENT_TEMP_PATH
+        fi
+        
+        if [ ! -f ${I}/MANUAL_CMAKE ]; then
         
         echo "INFO:    -- Generating CMakeLists.txt"
 cat > ${I}/CMakeLists.txt << EOF
@@ -63,6 +83,19 @@ EOF
         fi
         
         finSources        ${I} ${I}/$SOURCE_FILE $X11 $WAYLAND $MIR $WINDOWS ${TEST_BASENAME^^}
+        
+        if [ -f $POST_GEN ]; then
+            if [ ! -x $POST_GEN ]; then
+                chmod +x $POST_GEN
+            fi
+            CURRENT_TEMP_PATH="$(pwd)"
+            echo "INFO:    -- Running post generate script $POST_GEN"
+            cd $(dirname $POST_GEN)
+            $POST_GEN
+            cd $CURRENT_TEMP_PATH
+        fi
     done    
 
 }
+
+# kate: indent-mode shell; indent-width 4; replace-tabs on;

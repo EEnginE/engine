@@ -284,6 +284,24 @@ struct _uConfig {
        */
       void reset();
    } config;
+   
+   
+   struct __uConfig_OpenGL {
+      /*!
+       * 1: - force OLD shader query style - should always work
+       * 2: - force NEW shader query style - even if the extension is not supported ==> may cause segfault
+       * 0: Let rShader decide [default]
+       */
+      uint8_t shaderInfoQueryType;
+      bool    useShaders;
+      
+      __uConfig_OpenGL();
+      /*!
+       * \brief Reset to default
+       * \returns Nothing
+       */
+      void reset();
+   } ogl;
 
    uExtensions extensions;
    
