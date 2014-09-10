@@ -118,7 +118,7 @@ std::string rShader::processData( GLenum _type, GLuint _index, GLsizei _arraySiz
 void rShader::getProgramInfo() {
    if( !vIsShaderLinked_B )
       return;
-   
+
    if( GlobConf.ogl.shaderInfoQueryType == 1 ) { getInfoOld(); return; }
    if( GlobConf.ogl.shaderInfoQueryType == 2 ) { getInfoNew(); return; }
 
@@ -130,6 +130,16 @@ void rShader::getProgramInfo() {
 
    getInfoNew();
 }
+
+
+
+// =========================================================================================================================
+// ==============================================================================================================================================
+// =========            =====================================================================================================================================
+// =======   New querry   ========================================================================================================================================
+// =========            =====================================================================================================================================
+// ==============================================================================================================================================
+// =========================================================================================================================
 
 
 void rShader::getInfoNew() {
@@ -249,7 +259,7 @@ void rShader::getInfoNew() {
 
       auto *lWhereToPutInfo = &vProgramInformation.vUniformInfo;
 
-      if( !( lResults[4] < 0 ) ) {
+      if( lResults[4] >= 0 ) {
          /*
           * lUniformValues[4] = GL_BLOCK_INDEX
           * Because GL_BLOCK_INDEX is >= 0, this uniform is stored
@@ -272,7 +282,7 @@ void rShader::getInfoNew() {
       }
 
 #if E_DEBUG_LOGGING
-      dLOG  "Shader " ADD vPath_str ADD " Uniform Interface index " ADD i
+      dLOG  "Shader " ADD vPath_str ADD " Uniform Interface index " ADD i ADD lResults[4] >= 0 ? " [BLOCK]" : ""
       POINT "Name:                  " ADD lName_str
       POINT "Type:                  " ADD getTypeString( lResults[1] )
       POINT "Array Size:            " ADD lResults[2]
@@ -301,7 +311,7 @@ void rShader::getInfoNew() {
    }
 
    for( auto & block : vProgramInformation.vUniformBlockInfo ) {
-      if( (unsigned)block.numActiveVariables != block.uniforms.size() ) {
+      if( ( unsigned )block.numActiveVariables != block.uniforms.size() ) {
          wLOG "Uniform Block " ADD block.name ADD " has " ADD block.uniforms.size() ADD " out of " ADD block.numActiveVariables ADD " uniforms" END
       }
    }
@@ -310,11 +320,188 @@ void rShader::getInfoNew() {
    vHasProgramInformation_B = true;
 }
 
+
+// =========================================================================================================================
+// ==============================================================================================================================================
+// =========            =====================================================================================================================================
+// =======   Old querry   ========================================================================================================================================
+// =========            =====================================================================================================================================
+// ==============================================================================================================================================
+// =========================================================================================================================
+
+
+
 void rShader::getInfoOld() {
-   eLOG "############################" END
-   eLOG "##  NEEDS IMPLEMENTATION  ##" END
-   eLOG "############################" END
+   // Attributes
+
+   int lNumAttributes, lAttribMaxLength;
+   glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_ATTRIBUTES,           &lNumAttributes );
+   glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &lAttribMaxLength );
+
+   for( int i = 0; i < lNumAttributes; ++i ) {
+      char  *lName_CSTR = new char[ lAttribMaxLength ];
+      GLint  lArraySize;
+      GLenum lType;
+      glGetActiveAttrib( vShaderProgram_OGL, i, lAttribMaxLength, NULL, &lArraySize, &lType, lName_CSTR );
+
+      GLint  lLocation = glGetAttribLocation( vShaderProgram_OGL, lName_CSTR );
+
+      if( lLocation < 0 ) {
+         eLOG "Something went wrong with shader '" ADD vPath_str ADD "' -- Invalid input location of '" ADD lName_CSTR ADD "' ("
+         ADD lLocation ADD ")" END
+         continue;
+      }
+
+      vProgramInformation.vInputInfo.emplace_back(
+            std::string( lName_CSTR ),
+            lType,
+            lArraySize,
+            lLocation,
+            0, // Not supported here
+            0  // Not supported here
+      );
+
+#if E_DEBUG_LOGGING
+      dLOG  "Shader " ADD vPath_str ADD " Input Interface index " ADD i
+      POINT "Name:               " ADD lName_CSTR
+      POINT "Type:               " ADD getTypeString( lType )
+      POINT "Array Size:         " ADD lArraySize
+      POINT "Location:           " ADD lLocation
+      POINT "Is Per Patch:       " ADD "NOT SUPPORTED"
+      POINT "Location Component: " ADD "NOT SUPPORTED"
+      END
+#endif
+   }
+
+
+   // Uniform blocks
+
+   if( GlobConf.extensions.getOpenGLVersion() >= OGL_VERSION_3_1 ) {
+      // Uniform blocks only with OGL 3.1+
+
+      GLint lNumOfUniformBlocks;
+      glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORM_BLOCKS, &lNumOfUniformBlocks );
+
+      // Unifrom Blocks
+      for( GLint i = 0; i < lNumOfUniformBlocks; ++i ) {
+         GLint lBinding, lDataSize, lNameLength, lNumUniforms;
+         glGetActiveUniformBlockiv( vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_BINDING,         &lBinding );
+         glGetActiveUniformBlockiv( vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_DATA_SIZE,       &lDataSize );
+         glGetActiveUniformBlockiv( vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &lNumUniforms );
+         glGetActiveUniformBlockiv( vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_NAME_LENGTH,     &lNameLength );
+
+         char *lName_CSTR = new char[ lNameLength ];
+
+         glGetActiveUniformBlockName( vShaderProgram_OGL, i, lNameLength, NULL, lName_CSTR );
+
+#if E_DEBUG_LOGGING
+         dLOG  "Shader " ADD vPath_str ADD " Uniform Block Interface index " ADD i
+         POINT "Name:                 " ADD lName_CSTR
+         POINT "Buffer Binding:       " ADD lBinding
+         POINT "Buffer Data Size:     " ADD lDataSize
+         POINT "Num Active Variables: " ADD lNumUniforms
+         POINT "Index:                " ADD i
+         END
+#endif
+
+         vProgramInformation.vUniformBlockInfo.emplace_back(
+               std::string( lName_CSTR ),
+               lBinding,
+               lDataSize,
+               lNumUniforms,
+               i
+         );
+      }
+   }
+
+
+   // Uniforms
+
+   int lNumUniforms, lUniformMaxLength;
+   glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORMS,           &lNumUniforms );
+   glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORM_MAX_LENGTH, &lUniformMaxLength );
+
+   for( int i = 0; i < lNumUniforms; ++i ) {
+      char  *lName_CSTR = new char[ lUniformMaxLength ];
+      GLint  lArraySize, lOffset, lBlockIndex, lArrayStride, lMatrixStride, lType, lACBI, lIsRowMajor;
+
+      glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_TYPE,                        &lType );
+      glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_SIZE,                        &lArraySize );
+      glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_OFFSET,                      &lOffset );
+      glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_BLOCK_INDEX,                 &lBlockIndex );
+      glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_ARRAY_STRIDE,                &lArrayStride );
+      glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_MATRIX_STRIDE,               &lMatrixStride );
+      glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_IS_ROW_MAJOR,                &lIsRowMajor );
+      glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_ATOMIC_COUNTER_BUFFER_INDEX, &lACBI );
+
+      glGetActiveUniformName( vShaderProgram_OGL, i, lUniformMaxLength, NULL, lName_CSTR );
+
+      GLint lLocation = glGetUniformLocation( vShaderProgram_OGL, lName_CSTR );
+
+      auto *lWhereToPutInfo = &vProgramInformation.vUniformInfo;
+
+      if( lBlockIndex >= 0 && GlobConf.extensions.getOpenGLVersion() >= OGL_VERSION_3_1 ) {
+         /*
+          * Because GL_BLOCK_INDEX is >= 0, this uniform is stored
+          * in a uniform block. Now find it and adjust the pointer.
+          */
+
+         bool lFound_B = false;
+
+         for( auto & block : vProgramInformation.vUniformBlockInfo ) {
+            if( block.index == lBlockIndex ) {
+               lFound_B = true;
+               lWhereToPutInfo = &block.uniforms;
+               break;
+            }
+         }
+
+         if( !lFound_B ) {
+            wLOG "Failed to assign uniform '" ADD lName_CSTR ADD "' to block " ADD lBlockIndex ADD " (block not found)" END
+         }
+      }
+
+#if E_DEBUG_LOGGING
+      dLOG  "Shader " ADD vPath_str ADD " Uniform Interface index " ADD i ADD lBlockIndex >= 0 ? " [BLOCK]" : ""
+      POINT "Name:                  " ADD lName_CSTR
+      POINT "Type:                  " ADD getTypeString( lType )
+      POINT "Array Size:            " ADD lArraySize
+      POINT "Offset:                " ADD lOffset
+      POINT "Block Index:           " ADD lBlockIndex
+      POINT "Array Stride:          " ADD lArrayStride
+      POINT "Matrix Stride:         " ADD lMatrixStride
+      POINT "Is Row Major:          " ADD lIsRowMajor
+      POINT "At. Count. Buff. Ind.: " ADD lACBI
+      POINT "Location:              " ADD lLocation
+      END
+#endif
+
+      lWhereToPutInfo->emplace_back(
+            std::string( lName_CSTR ),
+            lType,
+            lArraySize,
+            lOffset,
+            lBlockIndex,
+            lArrayStride,
+            lMatrixStride,
+            lIsRowMajor,
+            lACBI,
+            lLocation
+      );
+
+   }
+
+   for( auto & block : vProgramInformation.vUniformBlockInfo ) {
+      if( ( unsigned )block.numActiveVariables != block.uniforms.size() ) {
+         wLOG "Uniform Block " ADD block.name ADD " has " ADD block.uniforms.size() ADD " out of " ADD block.numActiveVariables ADD " uniforms" END
+      }
+   }
+
+
+   vHasProgramInformation_B = true;
 }
+
+
 
 
 

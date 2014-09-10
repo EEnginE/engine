@@ -58,6 +58,7 @@ OPENGL_VERSIONS uExtensions::querryAll() {
             case 2:  return vVersion = OGL_VERSION_4_2;
             case 3:  return vVersion = OGL_VERSION_4_3;
             case 4:  return vVersion = OGL_VERSION_4_4;
+            case 5:  return vVersion = OGL_VERSION_4_5;
             default: return vVersion = OGL_VERSION_NONE;
          }
       default: return vVersion = OGL_VERSION_NONE;
