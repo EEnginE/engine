@@ -99,19 +99,20 @@ struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
       using ascii::char_;
       using qi::float_;
       using qi::uint_;
+      using qi::int_;
       using phoenix::push_back;
       using phoenix::at_c;
 
       string    = +( char_ - '\n' );
-      comment   = qi::lit( "#" ) >> string;
+      comment   = qi::lit( "#" ) >> *string >> '\n';
       space     = ( char_( ' ' ) | char_( '\t' ) );
 
       objName   = qi::lit( "o" ) >> +space >> string[&objGrammar_float::objName_f] >> '\n';
-      groupName = qi::lit( "g" ) >> +space >> string[&objGrammar_float::objName_f]  >> '\n';
+      groupName = qi::lit( "g" ) >> +space >> string[&objGrammar_float::objName_f] >> '\n';
 
-      mtllib    = qi::lit( "mtllib" ) >> +space >> string[&objGrammar_float::mtllib_f];
-      usemtl    = qi::lit( "usemtl" ) >> +space >> string[&objGrammar_float::usemtl_f];
-      smooth    = qi::lit( "s" )      >> +space >> string[&objGrammar_float::smooth_f];
+      mtllib    = qi::lit( "mtllib" ) >> +space >> string[&objGrammar_float::mtllib_f] >> '\n';
+      usemtl    = qi::lit( "usemtl" ) >> +space >> string[&objGrammar_float::usemtl_f] >> '\n';
+      smooth    = qi::lit( "s" )      >> +space >> string[&objGrammar_float::smooth_f] >> '\n';
 
 #if DO_NOT_FAIL_PARSING
       other     = *ascii::space >> string[&objGrammar_float::unsupported_f] >> '\n';

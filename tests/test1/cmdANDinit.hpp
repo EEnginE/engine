@@ -13,6 +13,7 @@ class cmdANDinit {
       vector<string> args;
       string         argv0;
       string         dataRoot;
+      string         meshToRender;
       
       uJSON_data     vData_JSON;
 
@@ -27,6 +28,7 @@ class cmdANDinit {
       cmdANDinit( int argc, char *argv[] );
 
       string getDataRoot() const {return dataRoot;}
+      string getMesh()     const {return meshToRender;}
 
       bool parseArgsAndInit();
 

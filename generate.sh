@@ -27,6 +27,10 @@ TESTS_DIR="tests"
 VAR_FOR_CMAKE_ROOT="PROJECT_SOURCE_DIR"
 
 
+TOOLS_DIRECTORY="tools"
+TOOLS_CMAKE_FILE="installTools.cmake"
+
+
 ## The platform dirs ##
 X11="x11"
 WAYLAND="wayland"
@@ -83,7 +87,9 @@ clean() {
     rm_save $INIT_SRC
     rm_save $RENDER_SRC
     rm_save $UTILS_SRC
-    
+
+    rm_save $TOOLS_CMAKE_FILE
+
     rm_save $INCLUDE_FILE
     rm_save $LOG_MACRO_PATH
     rm_save tests/CMakeLists.txt
@@ -118,6 +124,7 @@ addTarget() {
 
 standard() {
     generateLogMacros $LOG_MACRO_PATH "$LOG_TYPES" $LOG_GEN_UNDEF
+    installTools      $TOOLS_DIRECTORY $TOOLS_CMAKE_FILE
     addTarget         $INIT_LIB   $INIT_SRC
     addTarget         $RENDER_LIB $RENDER_SRC
     addTarget         $UTILS_LIB  $UTILS_SRC
@@ -142,7 +149,7 @@ countLines() {
     CLOC_EXEC="$(which cloc 2> /dev/null)"
     which bc &> /dev/null
     RET_BC=$?
-    
+
     echo ""
     echo ""
     echo ""
@@ -174,6 +181,7 @@ source ${PWD}/generate/functions/logMacros.sh
 source ${PWD}/generate/functions/findSources.sh
 source ${PWD}/generate/functions/engineHPP.sh
 source ${PWD}/generate/functions/glew.sh
+source ${PWD}/generate/functions/installTools.sh
 source ${PWD}/generate/functions/tests.sh
 
 echo ""
@@ -227,9 +235,6 @@ fi
 
 echo "INFO: DONE"
 
-echo ""
-echo ""
-
 
 
 # Switch back to the start directory where $0 was called
@@ -237,4 +242,4 @@ if [ -d $STARTDIR ]; then
     cd $STARTDIR
 fi
 
-# kate: indent-mode shell; indent-width 4; replace-tabs on; 
+# kate: indent-mode shell; indent-width 4; replace-tabs on;
