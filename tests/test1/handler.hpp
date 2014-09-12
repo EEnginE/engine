@@ -38,7 +38,7 @@ class MyHandler : public rWorld {
       _SLOT_ slotResize;
       _SLOT_ slotKey;
       _SLOT_ slotMouse;
-      MyHandler( string _dataRoot, iInit *_init ) : 
+      MyHandler( string _dataRoot, string _meshName, iInit *_init ) : 
       rWorld( _init ), 
       vObject1( "OBJ_1" ),
       vCameraPos( 0, 0, 0 ),
@@ -56,7 +56,7 @@ class MyHandler : public rWorld {
          vAlpha        = 1;
          vCurrentRot   = 0;
 
-         vObject1.addData( vDataRoot_str + "test1.obj" );
+         vObject1.addData( vDataRoot_str + _meshName );
          vObject1.addShader( vDataRoot_str + "shaders/triangle1" );
       }
       ~MyHandler();

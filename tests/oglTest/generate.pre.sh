@@ -162,7 +162,7 @@ for (( i=0; i < NUM_OF_TESTS; ++i )); do
       continue
    fi
    
-   echo "INFO:      -- Process test '$TEST'"
+   echo "INFO:        -- Process test '$TEST'"
    
    OBJ="l${TEST}_obj"
    

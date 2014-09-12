@@ -1,2 +1,5 @@
 oglTestBind.hpp
 oglTestBind.cpp
+data/mesh_f.obj
+data/mesh2_f.obj
+data/*.blend1

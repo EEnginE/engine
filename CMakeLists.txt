@@ -28,6 +28,8 @@ include( ${PROJECT_SOURCE_DIR}/generate/cmake/find.cmake )          # Find our d
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/compiler.cmake )      # Compiler Options
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/newLib.cmake )        # Get access to function "newLib"
 
+include( ${PROJECT_SOURCE_DIR}/installTools.cmake )                  # Install all files in the 'tools' dir
+
 # Only set CMAKE_BUILD_TYPE when not defined
 if( "${CMAKE_BUILD_TYPE}" MATCHES "" )
    set( CMAKE_BUILD_TYPE DEBUG )
