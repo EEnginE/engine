@@ -28,6 +28,7 @@
 #include <boost/filesystem.hpp>
 #include "uLog.hpp"
 #include "defines.hpp"
+#include "eCMDColor.hpp"
 #include <stdio.h>
 
 
@@ -113,13 +114,13 @@ int rShader::search_shaders() {
 
 
    } catch( const boost::filesystem::filesystem_error &ex ) {
-      eLOG ex.what() END
+      eLOG( ex.what() );
    } catch( ... ) {
-      eLOG "Caught unknown exception" END
+      eLOG( "Caught unknown exception" );
    }
 
    if( vShaders.size() == 0 ) {
-      wLOG "No shaders found! WARNING!" END
+      wLOG( "No shaders found! WARNING!" );
    }
 
    return vShaders.size();
@@ -138,18 +139,18 @@ bool rShader::addShader( std::string _filename, GLenum _shaderType ) {
                case GL_FRAGMENT_SHADER: vShaders.emplace_back( _filename, GL_FRAGMENT_SHADER ); return true;
                case GL_GEOMETRY_SHADER: vShaders.emplace_back( _filename, GL_GEOMETRY_SHADER ); return true;
                default:
-                  eLOG "Unknown shader type " ADD _shaderType ADD " of " ADD _filename END
+                  eLOG( "Unknown shader type ", _shaderType, " of ", _filename );
                   return false;
             }
          }
       }
    } catch( const boost::filesystem::filesystem_error &ex ) {
-      eLOG ex.what() END
+      eLOG( ex.what() );
    } catch( ... ) {
-      eLOG "Caught unknown exception" END
+      eLOG( "Caught unknown exception" );
    }
 
-   eLOG "Failed to access shader file " ADD _filename END
+   eLOG( "Failed to access shader file ", _filename );
    return false;
 }
 
@@ -168,10 +169,13 @@ unsigned int rShader::testProgram() {
       char log[5000];
       glGetProgramInfoLog( vShaderProgram_OGL, 5000, NULL, log );
 
-      eLOG    "Linking failure:"
-      NEWLINE "###################################################################################" NEWLINE
-      NEWLINE log NEWLINE
-      NEWLINE "###################################################################################" END
+      eLOG(
+            "Linking failure:\n"
+            "###################################################################################\n\n",
+            log,
+            "\n\n###################################################################################"
+
+      );
       glDeleteProgram( vShaderProgram_OGL );
 
       vIsShaderLinked_B = false;
@@ -213,12 +217,12 @@ int rShader::compile( GLuint &_vShader_OGL ) {
  */
 int rShader::compile() {
    if( vPath_str.empty() && vShaders.empty() ) {
-      eLOG "No shaders set for compilation" END
+      eLOG( "No shaders set for compilation" );
       return -6;
    }
 
    if( search_shaders() == 0  && vShaders.empty() ) {
-      eLOG "Unable to find any shader file ( Path: " ADD vPath_str ADD " )" END
+      eLOG( "Unable to find any shader file ( Path: ", vPath_str, " )" );
       //Return a file not found error
       return -3;
    }
@@ -260,11 +264,10 @@ int rShader::compile() {
 
 
    // Output
-   LOG_ENTRY lEntry_LOG = iLOG "Program with the " ADD vShaders.size() ADD " shader(s) successfully linked" _END_
+   iLOG( "Program with the ", vShaders.size(), " shader(s) successfully linked" );
    for( auto & s : vShaders ) {
-      lEntry_LOG _POINT s.vFilename_str _END_
+      LOG( _hI, eCMDColor::color( 'O', 'C' ), "  - ", s.vFilename_str );
    }
-   lEntry_LOG __END__
    vIsShaderLinked_B = true;
 
    int lTempShaderCounter_I = vShaders.size();
@@ -306,7 +309,7 @@ std::string getShaderTypeString( GLenum _type ) {
 bool rShader::singleShader::readShader() {
    FILE *lFile = fopen( vFilename_str.c_str(), "r" );
    if( lFile == NULL ) {
-      eLOG "Unable to open " ADD vFilename_str END
+      eLOG( "Unable to open ", vFilename_str );
       return false;
    }
 
@@ -334,10 +337,12 @@ bool rShader::singleShader::testShader() {
       char   log[5000];
       glGetShaderInfoLog( vShader_OGL, 5000, NULL, log );
 
-      eLOG    "Compile failure in the " ADD getShaderTypeString( vShader_OGL ) ADD " shader " ADD vFilename_str ADD ':'
-      NEWLINE "###################################################################################" NEWLINE
-      NEWLINE log NEWLINE
-      NEWLINE "###################################################################################" END
+      eLOG(
+            "Compile failure in the ", getShaderTypeString( vShader_OGL ), " shader ", vFilename_str, ':',
+            "###################################################################################\n\n",
+            log,
+            "\n\n###################################################################################"
+      );
       glDeleteShader( vShader_OGL );
 
       //Returns a shader compilation error
@@ -359,7 +364,7 @@ bool rShader::singleShader::testShader() {
 int rShader::singleShader::compileShader() {
    vData_str.clear();
    if( readShader() == false ) {
-      eLOG "Error while reading source file '" ADD vFilename_str ADD "'" END
+      eLOG( "Error while reading source file '", vFilename_str, "'" );
       //Return the file-reading error
       return 2;
    }

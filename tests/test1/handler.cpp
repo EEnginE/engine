@@ -26,15 +26,15 @@ void MyHandler::mouse( iEventInfo info ) {
             vObject1.updateFinalMatrix();
             break;
          default:
-            iLOG "Button " ADD info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.iMouse.button ADD "'" END
+            iLOG( "Button ", info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '", (uint16_t)info.iMouse.button, "'" );
             break;
       }
 
-   if( info.iMouse.posX != ( GlobConf.win.width / 2 ) || info.iMouse.posY != ( GlobConf.win.height / 2 ) ) {
-      dLOG
-      "  DELATA X: " ADD info.iMouse.posX - signed( GlobConf.win.width  / 2 )
-      ADD
-      "  DELATA Y: " ADD info.iMouse.posY - signed( GlobConf.win.height / 2 ) END
+   if( info.iMouse.posX != (int)( GlobConf.win.width / 2 ) || info.iMouse.posY != (int)( GlobConf.win.height / 2 ) ) {
+      dLOG(
+      "  DELATA X: ", info.iMouse.posX - signed( GlobConf.win.width  / 2 ),
+      "  DELATA Y: ", info.iMouse.posY - signed( GlobConf.win.height / 2 )
+      );
       vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    }
 }
@@ -48,7 +48,7 @@ void MyHandler::key( iEventInfo info ) {
 #if USE_OLD_KEY_BINDINGS
    vector<iDisplays> displays;
    snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
-   iLOG "Key " ADD info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
+   iLOG( "Key ", info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '", info.eKey.key, "' - ", "0x", lHex_CSTR );
 #endif
 
    rVec3f lTemp; // For Camara control
@@ -94,10 +94,10 @@ void MyHandler::key( iEventInfo info ) {
             vObject1.createResultMatrix();
             break;
          case L'p':
-            iLOG "Pausing" END
+            iLOG( "Pausing" );
             info.iInitPointer->pauseMainLoop( true );
             B_SLEEP( seconds, 5 );
-            iLOG "Unpausing" END
+            iLOG( "Unpausing" );
             info.iInitPointer->continueMainLoop();
             break;
          case L'B':
@@ -122,7 +122,7 @@ void MyHandler::key( iEventInfo info ) {
          case E_KEY_ESCAPE:      info.iInitPointer->closeWindow(); break;
          case L'u':
             if( info.iInitPointer->getKeyState( L'n' ) == E_PRESSED ) {
-               iLOG "JAAAAA" END;
+               iLOG( "JAAAAA" );;
             }
             break;
 #else
@@ -154,19 +154,19 @@ void MyHandler::key( iEventInfo info ) {
             vCameraPos += 0.25f * vCameraLook;
             setCamera( vCameraPos, vCameraLook, rVec3f(0 , 1, 0) );
             break;
-         
+
          case L'A':
          case L'a':
             vCameraPos -= 0.25f * rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp ) );
             setCamera( vCameraPos, vCameraLook, vCameraUp );
             break;
-         
+
          case L'S':
          case L's':
             vCameraPos -= 0.25f * vCameraLook;
             setCamera( vCameraPos, vCameraLook, rVec3f(0 , 1, 0) );
             break;
-         
+
          case L'D':
          case L'd':
             vCameraPos += 0.25f * rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp ) );
@@ -176,10 +176,10 @@ void MyHandler::key( iEventInfo info ) {
             // Pause - restart
          case L'p':
          case L'P':
-            iLOG "Pausing" END
+            iLOG( "Pausing" );
             info.iInitPointer->pauseMainLoop( true );
             B_SLEEP( seconds, 5 );
-            iLOG "Unpausing" END
+            iLOG( "Unpausing" );
             info.iInitPointer->continueMainLoop();
             break;
          case L'r':
@@ -201,7 +201,7 @@ void MyHandler::key( iEventInfo info ) {
 
          default:
             snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
-            iLOG "Key " ADD info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '" ADD info.eKey.key ADD "' - " ADD "0x" ADD lHex_CSTR END
+            iLOG( "Key ", info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '", info.eKey.key, "' - ", "0x", lHex_CSTR );
 #endif
       }
    }

@@ -23,7 +23,7 @@ int main( int argc, char *argv[] ) {
    if( init.init() == 1 ) {
       data( "oglTest", "init", "canCreateWindow", S_BOOL( true ) );
    } else {
-      eLOG "Failed to create a window" END
+      eLOG( "Failed to create a window" );
       data( "oglTest", "init", "canCreateWindow", S_BOOL( false ) );
    }
 
@@ -36,9 +36,9 @@ int main( int argc, char *argv[] ) {
 
    parseCMD.generate( data );
    
-   iLOG "" END
-   iLOG "Tipp: You can use the output of 'oglTestBindings.sh' to 'parse' all data this program produced into GlobConf" END
-   iLOG "" END
+   iLOG( "" );
+   iLOG( "Tipp: You can use the output of 'oglTestBindings.sh' to 'parse' all data this program produced into GlobConf" );
+   iLOG( "" );
 
    init.shutdown();
 

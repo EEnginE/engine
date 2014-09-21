@@ -64,13 +64,13 @@ uSystem::uSystem() {
    DWORD lUsername_DWORD = UNLEN + 1;
    TCHAR lUsername_TCSTR[UNLEN + 1];
    if ( GetUserName ( lUsername_TCSTR, &lUsername_DWORD ) == 0 ) {
-      wLOG "Failed to get Username (WINDOWS)" END
+      wLOG( "Failed to get Username (WINDOWS)" );
       lUsername_TCSTR[0] = 0;
    }
 
    TCHAR lAppData_LPTSTR[MAX_PATH + 1];
    if ( SHGetFolderPath ( NULL, CSIDL_APPDATA, NULL, 0, lAppData_LPTSTR ) != S_OK ) {
-      wLOG "Failed to get AppData (WINDOWS)" END
+      wLOG( "Failed to get AppData (WINDOWS)" );
    }
 
 #if defined UNICODE || defined _UNICODE
@@ -78,11 +78,11 @@ uSystem::uSystem() {
    char lAppData_CSTR[MAX_PATH + 1];
 
    if ( wcstombs ( lUsername_CSTR, lUsername_TCSTR, UNLEN ) == ( size_t ) - 1 ) {
-      wLOG "Failed to convert a WCHAR string to a CHAR string using wcstombs (USERNAME)" END
+      wLOG( "Failed to convert a WCHAR string to a CHAR string using wcstombs (USERNAME)" );
    }
 
    if ( wcstombs ( lAppData_CSTR, lAppData_LPTSTR, MAX_PATH ) == ( size_t ) - 1 ) {
-      wLOG "Failed to convert a WCHAR string to a CHAR string using wcstombs (APPDATA)" END
+      wLOG( "Failed to convert a WCHAR string to a CHAR string using wcstombs (APPDATA)" );
    }
 
    vUserName  = lUsername_CSTR;
@@ -245,7 +245,7 @@ std::string uSystem::getMainConfigDirPath() {
             }
          }
       } catch ( const boost::filesystem::filesystem_error &ex ) {
-         eLOG ex.what() END
+         eLOG( ex.what() );
       }
 
 #elif WINDOWS
@@ -264,19 +264,19 @@ std::string uSystem::getMainConfigDirPath() {
          }
 
          if ( ! boost::filesystem::exists ( dir1 ) ) {
-            wLOG "Failed to create / select the main config dir " ADD vMainConfigDir END
+            wLOG( "Failed to create / select the main config dir ", vMainConfigDir );
             vMainConfigDir.clear();
             return "";
          }
          
          if ( ! boost::filesystem::is_directory ( dir1 ) ) {
-            wLOG "Failed to create / select the main config dir " ADD vMainConfigDir END
+            wLOG( "Failed to create / select the main config dir ", vMainConfigDir );
             vMainConfigDir.clear();
             return "";
          }
 
       } catch ( const boost::filesystem::filesystem_error &ex ) {
-         eLOG ex.what() END
+         eLOG( ex.what() );
       }
 #endif
 
@@ -381,7 +381,7 @@ std::string uSystem::getConfigFilePath() {
                return vConfigFilePath;
             }
          } catch ( const boost::filesystem::filesystem_error &ex ) {
-            eLOG ex.what() END // LOG wont work
+            eLOG( ex.what() ); // LOG wont work
          }
 
       }

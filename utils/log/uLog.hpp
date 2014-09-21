@@ -1,6 +1,8 @@
-/// \file uLog.hpp
-/// \brief \b Classes: \a uLog
-/// \sa e_log.cpp
+/*!
+ * \file uLog.hpp
+ * \brief \b Classes: \a uLog
+ * \sa e_log.cpp
+ */
 /*
  *  E Engine
  *  Copyright (C) 2013 Daniel Mensinger
@@ -39,7 +41,6 @@
 
 namespace e_engine {
 
-const unsigned short int MAX_LOG_TYPES = 8;
 
 /*!
  * \class e_engine::uLog
@@ -64,50 +65,50 @@ const unsigned short int MAX_LOG_TYPES = 8;
  *
  * To start a new entry in your log you can call the commands
  * \c start, \c add, \c end, \c nl, \c point connected like in Example 1.
- * 
+ *
  * | function | Macro   | Description                   |
  * | :------: | :-----: |:----------------------------- |
  * | start()  | ?LOG    | Starts a new log entry.       |
- * | add()    | ADD     | Adds contents                 |
+ * | add()    |,     | Adds contents                 |
  * | nl()     | NEWLINE | Adds a new line               |
  * | point()  | POINT   | Adds a new point in a new line|
- * | end()    | END     | Ends the log entry            |
- * 
+ * | end()    | );     | Ends the log entry            |
+ *
  * Those functions are ( with the exception of start() ) actually defined in internal::__uLogStoreHelper.
- * 
- * start() gets 2 arguments (actually 4, because the first one is a macro). 
- * The 1st one is the log type. 
- * It consists of a '_' and a single capital letter. 
- * The letter defines the log type. 
- * There are 3 predefined ones but you can add more by using 
- * 
+ *
+ * start() gets 2 arguments (actually 4, because the first one is a macro).
+ * The 1st one is the log type.
+ * It consists of a '_' and a single capital letter.
+ * The letter defines the log type.
+ * There are 3 predefined ones but you can add more by using
+ *
  * \code
  * addType( the character, the long name (something like INFO), the color, if it should be printed bold )
  * connectSlotWith( the character, your slot ( e_engine::uSlot ) with your log generating function )
  * \endcode
- * 
+ *
  * Prdefined modes are:
- * 
+ *
  * | Mode | Name    |
  * | :--: | :-----: |
  * | _I   | INFO    |
  * | _W   | WARNING |
  * | _E   | ERROR   |
- * 
+ *
  * You can also change the color by putting single chars ( e_engine::eCMDColor for more information )
  * in front of the actual log message.
- * 
+ *
  * Instead of using the functions directly, you can use the macros like in Example 2.
- * 
+ *
  *
  * Example 1: Normal
  * \code
  *    LOG.start( _I, "Start of the log ")->add("number ")->add(1)->add( 'B', 'G', " I am colored" )->end();
  * \endcode
- * 
+ *
  * Example 2: Macros
  * \code
- *    iLOG "Start of the log " ADD "number " ADD 1 ADD 'B', 'G', " I am colored" END
+ *    iLOG( "Start of the log ", "number ", 1, 'B', 'G', " I am colored" );
  * \endcode
  *
  * \warning \b ALWAYS run \c end() at the and of a log entry!
@@ -117,15 +118,17 @@ const unsigned short int MAX_LOG_TYPES = 8;
  * \note Only the <b>single predefined</b> instance \c LOG of this class should be used!
  */
 class uLog {
-      typedef uSignal<void, uLogEntry> _SIGNAL_;
-      typedef uSlot<void, uLog , uLogEntry> _SLOT_;
+      typedef uSignal<void, uLogEntryRaw &> _SIGNAL_;
+      typedef uSlot<void, uLog , uLogEntryRaw &> _SLOT_;
    private:
       std::vector<internal::uLogType> vLogTypes_V_eLT;
-      std::string                              vLogFileName_str;
-      std::string                              vLogFielFullPath_str;
-      std::wofstream                           vLogFileOutput_OS;
-      
+      std::string                     vLogFileName_str;
+      std::string                     vLogFielFullPath_str;
+      std::wofstream                  vLogFileOutput_OS;
+
       boost::mutex vLogMutex_BT;
+
+      boost::mutex vLogThreadSaveMutex_BT;
 
       bool vLogLoopRun_B;
       bool vIsLogLoopRunning_B;
@@ -135,70 +138,68 @@ class uLog {
       _SLOT_ vStdLog_eSLOT;
 
       uint16_t vMaxTypeStringLength_usI; //!< The max string length from a \a Error \a type.
-      
-            
-      boost::mutex vOnlyOnuLogLoop_MUTEX;
-      
+
       boost::thread vLogLoopThread_THREAD;
 
       bool openLogFile( uint16_t i = 0 );
 
       void logLoop();
 
-      void stdOutStandard( e_engine::uLogEntry _e );
-      void stdErrStandard( uLogEntry _e );
-      void stdLogStandard( uLogEntry _e );
+      void stdOutStandard( uLogEntryRaw &_e );
+      void stdErrStandard( uLogEntryRaw &_e );
+      void stdLogStandard( uLogEntryRaw &_e );
 
-      std::list<internal::__uLogStoreHelper> vLogList_L_eLSH;
+      std::list<uLogEntryRaw>      vLogEntries;
    public:
 
       uLog();
 
       virtual ~uLog() {
          stopLogLoop();
-         if ( vLogFileOutput_OS.is_open() ) {
+         if( vLogFileOutput_OS.is_open() ) {
             vLogFileOutput_OS.close();
          }
       }
+
+      uint16_t getMaxTypeStingLength() { return vMaxTypeStringLength_usI; }
+      bool     getIsLogLoopRunning()   { return vIsLogLoopRunning_B; }
 
       void devInit();
 
       void addType( char _type, std::wstring _name, char _color, bool _bold );
 
-      void generateEntry( uLogEntry &_rawEntry );
+      template<class __C>
+      bool connectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot );
 
       template<class __C>
-      bool connectSlotWith( char _type, uSlot<void, __C, uLogEntry> &_slot );
-      
-      template<class __C>
-      bool disconnectSlotWith( char _type, uSlot<void, __C, uLogEntry> &_slot );
-      
+      bool disconnectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot );
+
       bool startLogLoop();
       bool stopLogLoop();
 
 
-      template<class T>
-      inline internal::__uLogStoreHelper *operator()( char _type, const char* _file, const int _line, const char* _function, T _text ) {
-         return start( _type, _file, _line, _function, _text );
+      template<class... ARGS>
+      inline void operator()( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS && ... _data ) {
+         boost::lock_guard<boost::mutex> lLock( vLogThreadSaveMutex_BT );
+         vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<ARGS>( _data )... );
+         vLogEntries.back().end();
       }
 
-      template<class T>
-      inline internal::__uLogStoreHelper *start( char _type, const char* _file, const int _line, const char* _function, T _text ) {
-         boost::lock_guard<boost::mutex> vLockGuard_BT( vLogMutex_BT );
-         bool lDoWaitForPrint_B = GlobConf.log.waitUntilLogEntryPrinted && vIsLogLoopRunning_B ? true : false;
-         vLogList_L_eLSH.emplace_back( _type, _file, _line, _function, lDoWaitForPrint_B );
-         vLogList_L_eLSH.back().add( _text );
-         return &vLogList_L_eLSH.back();
+      template<class... ARGS>
+      inline void addLogEntry( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS && ... _data ) {
+         boost::lock_guard<boost::mutex> lLock( vLogThreadSaveMutex_BT );
+         vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<ARGS>( _data )... );
+         vLogEntries.back().end();
       }
-      
+
       std::string getLogFileFullPath() {return vLogFielFullPath_str;}
 
 };
 
 template<class __C>
-bool uLog::connectSlotWith( char _type, uSlot< void, __C, uLogEntry > &_slot ) {
-   for ( unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i ) {
-      if ( vLogTypes_V_eLT.at( i ).getType() == _type ) {
+bool uLog::connectSlotWith( char _type, uSlot< void, __C, uLogEntryRaw & > &_slot ) {
+   for( unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i ) {
+      if( vLogTypes_V_eLT.at( i ).getType() == _type ) {
          return _slot.connectWith( vLogTypes_V_eLT.at( i ).getSignal() );
       }
    }
@@ -206,9 +207,9 @@ bool uLog::connectSlotWith( char _type, uSlot< void, __C, uLogEntry > &_slot ) {
 }
 
 template<class __C>
-bool uLog::disconnectSlotWith( char _type, uSlot< void, __C, uLogEntry > &_slot ) {
-   for ( unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i ) {
-      if ( vLogTypes_V_eLT.at( i ).getType() == _type ) {
+bool uLog::disconnectSlotWith( char _type, uSlot< void, __C, uLogEntryRaw & > &_slot ) {
+   for( unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i ) {
+      if( vLogTypes_V_eLT.at( i ).getType() == _type ) {
          return _slot.disconnectSlotWith( vLogTypes_V_eLT.at( i ).getSignal() );
       }
    }
@@ -221,7 +222,7 @@ bool uLog::disconnectSlotWith( char _type, uSlot< void, __C, uLogEntry > &_slot 
  *
  * When this function is called it locks the internal mutex first.
  * After that it calls \c printStart to produce a nice introduction
- * for the following Log entry. 
+ * for the following Log entry.
  * At last it adds the 1st part of the log
  *
  * \param _id    The id of the mode for the string

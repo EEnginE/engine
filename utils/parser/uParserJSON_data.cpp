@@ -5,6 +5,7 @@
 
 #include "uParserJSON_data.hpp"
 #include "uLog.hpp"
+#include <boost/lexical_cast.hpp>
 
 
 namespace e_engine {
@@ -48,12 +49,13 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
                      case JSON_OBJECT: lTypeStr = "object";  lValueStr = "{...}; Elements: " + boost::lexical_cast<std::string>( iter->value_obj.size() );   break;
                      default:          lTypeStr = "UNKNOWN"; lValueStr = "UNKNOWN";
                   }
-                  wLOG "JSON: found duplicate ID '" ADD _patent_IDs + ( id.empty() ? "" : ( id + "." ) ) + iter->id
-                  ADD "' ==> " ADD _renoveDuplicates ? "REMOVE" : "KEEP"
-                  POINT "Type:  " ADD lTypeStr
-                  POINT "Value: " ADD lValueStr
-                  POINT "Pos:   " ADD lOffset_uI
-                  END
+                  wLOG(
+                        "JSON: found duplicate ID '", _patent_IDs + ( id.empty() ? "" : ( id + "." ) ) + iter->id,
+                        "' ==> ", _renoveDuplicates ? "REMOVE" : "KEEP",
+                        "\n  - Type:  ", lTypeStr,
+                        "\n  - Value: ", lValueStr,
+                        "\n  - Pos:   ", lOffset_uI
+                  );
                }
                if( _renoveDuplicates ) lErase.push_back( lOffset_uI - lDulicatesFound_uI );
                ++lDulicatesFound_uI;
@@ -74,10 +76,10 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
 
 /*!
  * \brief Merges a opbject into the current object
- * 
+ *
  * \param[in] _toMerge   the object to be merged into this object
  * \param[in] _overWrite Overwrites values eith the same id when true
- * 
+ *
  * \returns nothing
  */
 void uJSON_data::merge( uJSON_data &_toMerge, bool _overWrite ) {
@@ -85,25 +87,25 @@ void uJSON_data::merge( uJSON_data &_toMerge, bool _overWrite ) {
       value_array.insert( value_array.end(), _toMerge.value_array.begin(), _toMerge.value_array.end() );
       return;
    }
-   
+
    if( _toMerge.type == JSON_OBJECT && type == JSON_OBJECT ) {
       for( auto & toM : _toMerge.value_obj ) {
          bool lFoundConflict_B = false;
          for( auto & current : value_obj ) {
-            if ( current.id == toM.id ) {
+            if( current.id == toM.id ) {
                current.merge( toM, _overWrite );
                lFoundConflict_B = true;
                break;
             }
          }
-         
+
          if( !lFoundConflict_B ) {
             value_obj.push_back( toM );
          }
       }
       return;
    }
-   
+
    if( _overWrite ) {
       type        = _toMerge.type;
       value_str   = _toMerge.value_str;
@@ -112,7 +114,7 @@ void uJSON_data::merge( uJSON_data &_toMerge, bool _overWrite ) {
       value_array = _toMerge.value_array;
       value_obj   = _toMerge.value_obj;
    }
-   
+
    return;
 }
 

@@ -33,7 +33,7 @@ int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
    }
 
    if ( ! lCRTCInfoFound ) {
-      wLOG "Cannot find CRTC " ADD lCRTC_XRR ADD " in the current CRTC --> return -5" END
+      wLOG( "Cannot find CRTC ", lCRTC_XRR, " in the current CRTC --> return -5" );
       return -5;
    }
 
@@ -73,7 +73,7 @@ int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
                         NULL,
                         0
                      );
-         iLOG "RandR: Disabled CRTC " ADD _changeToThis.id END
+         iLOG( "RandR: Disabled CRTC ", _changeToThis.id );
       } else {
          lTempOutputs_XRR = new RROutput[_changeToThis.outputs.size()];
          for ( unsigned int i = 0; i < _changeToThis.outputs.size(); ++i ) {
@@ -92,16 +92,16 @@ int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
                         _changeToThis.outputs.size()
                      );
          delete [] lTempOutputs_XRR;
-         iLOG "RandR: Changed CRTC " ADD _changeToThis.id END
+         iLOG( "RandR: Changed CRTC ", _changeToThis.id );
       }
 
       if ( lReturn_I != RRSetConfigSuccess ) {
-         wLOG "RabdR: Failed to set CRTC config ( XRRSetCrtcConfig(...) returns '" ADD lReturn_I ADD "' )" END
+         wLOG( "RabdR: Failed to set CRTC config ( XRRSetCrtcConfig(...) returns '", lReturn_I, "' )" );
          return lReturn_I;
       }
 
    } else {
-      iLOG "RandR: Changed CRTC " ADD _changeToThis.id ADD " -- nothing to do" END
+      iLOG( "RandR: Changed CRTC ", _changeToThis.id, " -- nothing to do" );
    }
 
    XRRFreeCrtcInfo( lTempCRTCInfo_XRR );

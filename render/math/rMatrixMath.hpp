@@ -9,6 +9,8 @@
 #include "rMatrix.hpp"
 #include "rVectorMath.hpp"
 
+#include "boost/lexical_cast.hpp"
+
 namespace e_engine {
 
 template<class T> using rMat2 = rMatrix<T, 2, 2>;
@@ -158,9 +160,9 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
       for( unsigned int j = 0; j < 4; ++j ) {
          lStr += boost::lexical_cast<std::string>( _out( j, i ) ) + "  ";
       }
-      eLOG lStr END
+      eLOG( lStr );
    }
-   dLOG "" END
+   dLOG( "" );
 }
 
 

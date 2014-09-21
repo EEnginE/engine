@@ -52,19 +52,19 @@ bool rNormalObject::addData( std::string _pathToDataFile, e_engine::rNormalObjec
       _type = detectFileTypeFromEnding( _pathToDataFile );
 
    if( _type == AUTODETECT ) {
-      eLOG "Failed to autodetect file type from suffix! (" ADD _pathToDataFile ADD ")" END
+      eLOG( "Failed to autodetect file type from suffix! (", _pathToDataFile, ")" );
       return false;
    }
 
    boost::filesystem::path lPath( _pathToDataFile.c_str() );
 
    if( ! boost::filesystem::exists( lPath ) ) {
-      eLOG "Data File '" ADD _pathToDataFile ADD "' does not exist" END
+      eLOG( "Data File '", _pathToDataFile, "' does not exist" );
       return false;
    }
 
    if( ! boost::filesystem::is_regular_file( lPath ) ) {
-      eLOG "Data File '" ADD _pathToDataFile ADD "' is not a regular file" END
+      eLOG( "Data File '", _pathToDataFile, "' is not a regular file" );
       return false;
    }
 
@@ -82,9 +82,7 @@ void rNormalObject::freeData() {
    if( !( vHasGeneretedBuffers_B || vIsDataLoaded_B ) )
 
       if( !iInit::isAContextCurrentForThisThread() ) {
-         eLOG    "Can NOT FREE data because no OpenGL context is current for this thread!"
-         NEWLINE "This function may be called from the destructor!"
-         END
+         eLOG( "Can NOT FREE data because no OpenGL context is current for this thread!\nThis function may be called from the destructor!" );
          return;
       }
 
@@ -122,7 +120,7 @@ void rNormalObject::freeData() {
  */
 int rNormalObject::loadData( rWorld *_world ) {
    if( !iInit::isAContextCurrentForThisThread() ) {
-      eLOG "Can not init data because no OpenGL context is current for this thread!" END
+      eLOG( "Can not init data because no OpenGL context is current for this thread!" );
       return 0;
    }
 
@@ -135,7 +133,7 @@ int rNormalObject::loadData( rWorld *_world ) {
    for( rShader & s : vShaders ) {
       if( ! s.getIsLinked() )  {
          if( s.compile() < 0 ) {
-            eLOG "Failed to compile shader '" ADD s.getShaderPath() ADD "'. Failed to init OpenGL for object'" ADD vObjectName ADD "'" END
+            eLOG( "Failed to compile shader '", s.getShaderPath(), "'. Failed to init OpenGL for object'", vObjectName, "'" );
             return -1;
          }
       }
@@ -166,7 +164,7 @@ int rNormalObject::loadData( rWorld *_world ) {
          case OBJ_FILE:
             lLoader.setFile( d.path ) ;
             if( lLoader.load() != 1 ) {
-               eLOG "Failed to load / parse the OBJ! ('" ADD d.path ADD "')" END
+               eLOG( "Failed to load / parse the OBJ! ('", d.path, "')" );
                return -1;
             }
 
@@ -180,10 +178,10 @@ int rNormalObject::loadData( rWorld *_world ) {
             lLoader.unLoad();
             break;
          case AUTODETECT:
-            eLOG "Data type for '" ADD d.path ADD "' is still AUTODETECT -- it should be impossible to see this message" END
+            eLOG( "Data type for '", d.path, "' is still AUTODETECT -- it should be impossible to see this message" );
             return -1;
          default:
-            eLOG "Unkown file type for '" ADD d.path ADD "' -- it should be impossible to see this message" END
+            eLOG( "Unkown file type for '", d.path, "' -- it should be impossible to see this message" );
             return -1;
       }
       ++lCounter;
@@ -212,7 +210,7 @@ int rNormalObject::loadData( rWorld *_world ) {
          break;
 
       case render_NONE:
-         eLOG "No renderer for this object type '" ADD vObjectName ADD "'" END
+         eLOG( "No renderer for this object type '", vObjectName, "'" );
          return 5;
    }
 
@@ -220,7 +218,7 @@ int rNormalObject::loadData( rWorld *_world ) {
    setCmaraSpaceMatrix( _world->getCameraSpaceMatrix() );
 
 
-   iLOG "Loaded data for '" ADD vObjectName ADD "'" END
+   iLOG( "Loaded data for '", vObjectName, "'" );
 
    vIsDataLoaded_B = true;
 

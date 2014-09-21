@@ -60,9 +60,12 @@ class BenchClass : public BenchBaseVirtual {
       double funcNormal( int a, double b );
       double funcMutex( int a, double b );
       double funcLockGuard( int a, double b );
+      
+      unsigned int vLoopsToDoCast;
 
       void doFunction();
       void doMutex();
+      void doCast();
 
    public:
       BenchClass( cmdANDinit *_cmd );

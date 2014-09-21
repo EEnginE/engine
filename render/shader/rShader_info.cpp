@@ -123,7 +123,7 @@ void rShader::getProgramInfo() {
    if( GlobConf.ogl.shaderInfoQueryType == 2 ) { getInfoNew(); return; }
 
    if( ! GlobConf.extensions.isSupported( ID_ARB_program_interface_query ) ) {
-      wLOG "Extension ARB_program_interface_query is not supported! Fallback to old style query" END
+      wLOG( "Extension ARB_program_interface_query is not supported! Fallback to old style query" );
       getInfoOld();
       return;
    }
@@ -179,14 +179,15 @@ void rShader::getInfoNew() {
       std::string lName_str = processData( GL_PROGRAM_INPUT, i, 6, lInputValues, lResults );
 
 #if E_DEBUG_LOGGING
-      dLOG  "Shader " ADD vPath_str ADD " Input Interface index " ADD i
-      POINT "Name:               " ADD lName_str
-      POINT "Type:               " ADD getTypeString( lResults[1] )
-      POINT "Array Size:         " ADD lResults[2]
-      POINT "Location:           " ADD lResults[3]
-      POINT "Is Per Patch:       " ADD lResults[4]
-      POINT "Location Component: " ADD lResults[5]
-      END
+      dLOG(
+            "Shader ", vPath_str, " Input Interface index ", i,
+            "\n  - Name:               ", lName_str,
+            "\n  - Type:               ", getTypeString( lResults[1] ),
+            "\n  - Array Size:         ", lResults[2],
+            "\n  - Location:           ", lResults[3],
+            "\n  - Is Per Patch:       ", lResults[4],
+            "\n  - Location Component: ", lResults[5]
+      );
 #endif
 
       vProgramInformation.vInputInfo.emplace_back(
@@ -205,15 +206,16 @@ void rShader::getInfoNew() {
       std::string lName_str = processData( GL_PROGRAM_OUTPUT, i, 7, lOutputValues, lResults );
 
 #if E_DEBUG_LOGGING
-      dLOG  "Shader " ADD vPath_str ADD " Output Interface index " ADD i
-      POINT "Name:               " ADD lName_str
-      POINT "Type:               " ADD getTypeString( lResults[1] )
-      POINT "Array Size:         " ADD lResults[2]
-      POINT "Location:           " ADD lResults[3]
-      POINT "Location Index:     " ADD lResults[4]
-      POINT "Is Per Patch:       " ADD lResults[5]
-      POINT "Location Component: " ADD lResults[6]
-      END
+      dLOG(
+            "Shader ", vPath_str, " Output Interface index ", i,
+            "\n  - Name:               ", lName_str,
+            "\n  - Type:               ", getTypeString( lResults[1] ),
+            "\n  - Array Size:         ", lResults[2],
+            "\n  - Location:           ", lResults[3],
+            "\n  - Location Index:     ", lResults[4],
+            "\n  - Is Per Patch:       ", lResults[5],
+            "\n  - Location Component: ", lResults[6]
+      );
 #endif
 
       vProgramInformation.vOutputInfo.emplace_back(
@@ -233,13 +235,14 @@ void rShader::getInfoNew() {
       std::string lName_str = processData( GL_UNIFORM_BLOCK, i, 4, lUniformBlockValues, lResults );
 
 #if E_DEBUG_LOGGING
-      dLOG  "Shader " ADD vPath_str ADD " Uniform Block Interface index " ADD i
-      POINT "Name:                 " ADD lName_str
-      POINT "Buffer Binding:       " ADD lResults[1]
-      POINT "Buffer Data Size:     " ADD lResults[2]
-      POINT "Num Active Variables: " ADD lResults[3]
-      POINT "Index:                " ADD i
-      END
+      dLOG(
+            "Shader ", vPath_str, " Uniform Block Interface index ", i,
+            "\n  - Name:                 ", lName_str,
+            "\n  - Buffer Binding:       ", lResults[1],
+            "\n  - Buffer Data Size:     ", lResults[2],
+            "\n  - Num Active Variables: ", lResults[3],
+            "\n  - Index:                ", i
+      );
 #endif
 
       vProgramInformation.vUniformBlockInfo.emplace_back(
@@ -277,23 +280,24 @@ void rShader::getInfoNew() {
          }
 
          if( !lFound_B ) {
-            wLOG "Failed to assign uniform '" ADD lName_str ADD "' to block " ADD lResults[4] ADD " (block not found)" END
+            wLOG( "Failed to assign uniform '", lName_str, "' to block ", lResults[4], " (block not found)" );
          }
       }
 
 #if E_DEBUG_LOGGING
-      dLOG  "Shader " ADD vPath_str ADD " Uniform Interface index " ADD i ADD lResults[4] >= 0 ? " [BLOCK]" : ""
-      POINT "Name:                  " ADD lName_str
-      POINT "Type:                  " ADD getTypeString( lResults[1] )
-      POINT "Array Size:            " ADD lResults[2]
-      POINT "Offset:                " ADD lResults[3]
-      POINT "Block Index:           " ADD lResults[4]
-      POINT "Array Stride:          " ADD lResults[5]
-      POINT "Matrix Stride:         " ADD lResults[6]
-      POINT "Is Row Major:          " ADD lResults[7]
-      POINT "At. Count. Buff. Ind.: " ADD lResults[8]
-      POINT "Location:              " ADD lResults[9]
-      END
+      dLOG(
+            "Shader ", vPath_str, " Uniform Interface index ", i, lResults[4] >= 0 ? " [BLOCK]" : "",
+            "\n  - Name:                  ", lName_str,
+            "\n  - Type:                  ", getTypeString( lResults[1] ),
+            "\n  - Array Size:            ", lResults[2],
+            "\n  - Offset:                ", lResults[3],
+            "\n  - Block Index:           ", lResults[4],
+            "\n  - Array Stride:          ", lResults[5],
+            "\n  - Matrix Stride:         ", lResults[6],
+            "\n  - Is Row Major:          ", lResults[7],
+            "\n  - At. Count. Buff. Ind.: ", lResults[8],
+            "\n  - Location:              ", lResults[9]
+      );
 #endif
 
       lWhereToPutInfo->emplace_back(
@@ -312,7 +316,7 @@ void rShader::getInfoNew() {
 
    for( auto & block : vProgramInformation.vUniformBlockInfo ) {
       if( ( unsigned )block.numActiveVariables != block.uniforms.size() ) {
-         wLOG "Uniform Block " ADD block.name ADD " has " ADD block.uniforms.size() ADD " out of " ADD block.numActiveVariables ADD " uniforms" END
+         wLOG( "Uniform Block ", block.name, " has ", block.uniforms.size(), " out of ", block.numActiveVariables, " uniforms" );
       }
    }
 
@@ -347,8 +351,8 @@ void rShader::getInfoOld() {
       GLint  lLocation = glGetAttribLocation( vShaderProgram_OGL, lName_CSTR );
 
       if( lLocation < 0 ) {
-         eLOG "Something went wrong with shader '" ADD vPath_str ADD "' -- Invalid input location of '" ADD lName_CSTR ADD "' ("
-         ADD lLocation ADD ")" END
+         eLOG( "Something went wrong with shader '", vPath_str, "' -- Invalid input location of '", lName_CSTR, "' ("
+               , lLocation, ")" );
          continue;
       }
 
@@ -362,14 +366,15 @@ void rShader::getInfoOld() {
       );
 
 #if E_DEBUG_LOGGING
-      dLOG  "Shader " ADD vPath_str ADD " Input Interface index " ADD i
-      POINT "Name:               " ADD lName_CSTR
-      POINT "Type:               " ADD getTypeString( lType )
-      POINT "Array Size:         " ADD lArraySize
-      POINT "Location:           " ADD lLocation
-      POINT "Is Per Patch:       " ADD "NOT SUPPORTED"
-      POINT "Location Component: " ADD "NOT SUPPORTED"
-      END
+      dLOG(
+         "Shader ", vPath_str, " Input Interface index ", i,
+            "\n  - Name:               ", lName_CSTR,
+            "\n  - Type:               ", getTypeString( lType ),
+            "\n  - Array Size:         ", lArraySize,
+            "\n  - Location:           ", lLocation,
+            "\n  - Is Per Patch:       ", "NOT SUPPORTED",
+            "\n  - Location Component: ", "NOT SUPPORTED"
+          );
 #endif
    }
 
@@ -395,13 +400,14 @@ void rShader::getInfoOld() {
          glGetActiveUniformBlockName( vShaderProgram_OGL, i, lNameLength, NULL, lName_CSTR );
 
 #if E_DEBUG_LOGGING
-         dLOG  "Shader " ADD vPath_str ADD " Uniform Block Interface index " ADD i
-         POINT "Name:                 " ADD lName_CSTR
-         POINT "Buffer Binding:       " ADD lBinding
-         POINT "Buffer Data Size:     " ADD lDataSize
-         POINT "Num Active Variables: " ADD lNumUniforms
-         POINT "Index:                " ADD i
-         END
+         dLOG( 
+         "Shader ", vPath_str, " Uniform Block Interface index ", i,
+               "\n  - Name:                 ", lName_CSTR,
+               "\n  - Buffer Binding:       ", lBinding,
+               "\n  - Buffer Data Size:     ", lDataSize,
+               "\n  - Num Active Variables: ", lNumUniforms,
+               "\n  - Index:                ", i
+             );
 #endif
 
          vProgramInformation.vUniformBlockInfo.emplace_back(
@@ -457,23 +463,24 @@ void rShader::getInfoOld() {
          }
 
          if( !lFound_B ) {
-            wLOG "Failed to assign uniform '" ADD lName_CSTR ADD "' to block " ADD lBlockIndex ADD " (block not found)" END
+            wLOG( "Failed to assign uniform '", lName_CSTR, "' to block ", lBlockIndex, " (block not found)" );
          }
       }
 
 #if E_DEBUG_LOGGING
-      dLOG  "Shader " ADD vPath_str ADD " Uniform Interface index " ADD i ADD lBlockIndex >= 0 ? " [BLOCK]" : ""
-      POINT "Name:                  " ADD lName_CSTR
-      POINT "Type:                  " ADD getTypeString( lType )
-      POINT "Array Size:            " ADD lArraySize
-      POINT "Offset:                " ADD lOffset
-      POINT "Block Index:           " ADD lBlockIndex
-      POINT "Array Stride:          " ADD lArrayStride
-      POINT "Matrix Stride:         " ADD lMatrixStride
-      POINT "Is Row Major:          " ADD lIsRowMajor
-      POINT "At. Count. Buff. Ind.: " ADD lACBI
-      POINT "Location:              " ADD lLocation
-      END
+      dLOG( 
+      "Shader ", vPath_str, " Uniform Interface index ", i, lBlockIndex >= 0 ? " [BLOCK]" : "",
+            "\n  - Name:                  ", lName_CSTR,
+            "\n  - Type:                  ", getTypeString( lType ),
+            "\n  - Array Size:            ", lArraySize,
+            "\n  - Offset:                ", lOffset,
+            "\n  - Block Index:           ", lBlockIndex,
+            "\n  - Array Stride:          ", lArrayStride,
+            "\n  - Matrix Stride:         ", lMatrixStride,
+            "\n  - Is Row Major:          ", lIsRowMajor,
+            "\n  - At. Count. Buff. Ind.: ", lACBI,
+            "\n  - Location:              ", lLocation
+          );
 #endif
 
       lWhereToPutInfo->emplace_back(
@@ -493,7 +500,7 @@ void rShader::getInfoOld() {
 
    for( auto & block : vProgramInformation.vUniformBlockInfo ) {
       if( ( unsigned )block.numActiveVariables != block.uniforms.size() ) {
-         wLOG "Uniform Block " ADD block.name ADD " has " ADD block.uniforms.size() ADD " out of " ADD block.numActiveVariables ADD " uniforms" END
+         wLOG( "Uniform Block ", block.name, " has ", block.uniforms.size(), " out of ", block.numActiveVariables, " uniforms" );
       }
    }
 

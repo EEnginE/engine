@@ -7,7 +7,7 @@
 #include "uLog.hpp"
 
 namespace e_engine {
-   
+
 namespace unix_x11 {
 
 /*!
@@ -26,23 +26,23 @@ namespace unix_x11 {
  * \note Most code is a simple copy and paste from the XRandR project (http://www.x.org/wiki/Projects/XRandR/)
  */
 bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, float _brightness ) {
-   if ( _r < 0 || _g < 0 || _b < 0 || _brightness < 0 || ! isRandRSupported() )
+   if( _r < 0 || _g < 0 || _b < 0 || _brightness < 0 || ! isRandRSupported() )
       return false;
 
    reload();
 
    RRCrtc lTempCRTCId_XRR    = None;
 
-   for ( internal::_output const & fOutout : vOutput_V_RandR ) {
-      if ( fOutout.connection == 0 ) {
-         if ( _disp.getOutput() == fOutout.id ) {
+   for( internal::_output const & fOutout : vOutput_V_RandR ) {
+      if( fOutout.connection == 0 ) {
+         if( _disp.getOutput() == fOutout.id ) {
             lTempCRTCId_XRR = fOutout.crtc;
             break;
          }
       }
    }
 
-   if ( lTempCRTCId_XRR == None )
+   if( lTempCRTCId_XRR == None )
       return false;
 
 
@@ -53,8 +53,8 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
    float         lGammaGreen_F;
    float         lGammaBlue_F;
 
-   if ( !lSize_I ) {
-      eLOG "RandR: Gamma size is 0 => Unable to set Gamma" END
+   if( !lSize_I ) {
+      eLOG( "RandR: Gamma size is 0 => Unable to set Gamma" );
       return false;
    }
 
@@ -64,8 +64,8 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
     * the X Color.  Because an X Color is 16 bits, size cannot be larger
     * than 2^16.
     */
-   if ( lSize_I > 65536 ) {
-      eLOG "RandR: Gamma correction table is impossibly large" END
+   if( lSize_I > 65536 ) {
+      eLOG( "RandR: Gamma correction table is impossibly large" );
       return false;
    }
 
@@ -78,8 +78,8 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
    lShift_I = 16 - ( ffs( lSize_I ) - 1 );
 
    lCRTCGamma_XRR = XRRAllocGamma( lSize_I );
-   if ( !lCRTCGamma_XRR ) {
-      eLOG "RandR: Gamma allocation failed" END
+   if( !lCRTCGamma_XRR ) {
+      eLOG( "RandR: Gamma allocation failed" );
       return false;
    }
 
@@ -91,35 +91,35 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
    lGammaGreen_F = 1 / _g;
    lGammaBlue_F  = 1 / _b;
 
-   for ( int i = 0; i < lSize_I; ++i ) {
-      if ( lGammaRed_F == 1.0 && _brightness == 1.0 )
+   for( int i = 0; i < lSize_I; ++i ) {
+      if( lGammaRed_F == 1.0 && _brightness == 1.0 )
          lCRTCGamma_XRR->red[i] = i;
       else
          lCRTCGamma_XRR->red[i] =
-            fmin(
-               pow( ( double )i / ( double )( lSize_I - 1 ), lGammaRed_F ) *
-               _brightness, 1.0 ) *
-            ( double )( lSize_I - 1 );
+               fmin(
+                     pow( ( double )i / ( double )( lSize_I - 1 ), lGammaRed_F ) *
+                     _brightness, 1.0 ) *
+               ( double )( lSize_I - 1 );
 
       lCRTCGamma_XRR->red[i] <<= lShift_I;
 
-      if ( lGammaGreen_F == 1.0 && _brightness == 1.0 )
+      if( lGammaGreen_F == 1.0 && _brightness == 1.0 )
          lCRTCGamma_XRR->green[i] = i;
       else
          lCRTCGamma_XRR->green[i] =
-            fmin( pow( ( double )i / ( double )( lSize_I - 1 ), lGammaGreen_F ) *
-                  _brightness, 1.0 ) *
-            ( double )( lSize_I - 1 );
+               fmin( pow( ( double )i / ( double )( lSize_I - 1 ), lGammaGreen_F ) *
+                     _brightness, 1.0 ) *
+               ( double )( lSize_I - 1 );
 
       lCRTCGamma_XRR->green[i] <<= lShift_I;
 
-      if ( lGammaBlue_F == 1.0 && _brightness == 1.0 )
+      if( lGammaBlue_F == 1.0 && _brightness == 1.0 )
          lCRTCGamma_XRR->blue[i] = i;
       else
          lCRTCGamma_XRR->blue[i] =
-            fmin( pow( ( double )i / ( double )( lSize_I - 1 ), lGammaBlue_F ) *
-                  _brightness, 1.0 ) *
-            ( double )( lSize_I - 1 );
+               fmin( pow( ( double )i / ( double )( lSize_I - 1 ), lGammaBlue_F ) *
+                     _brightness, 1.0 ) *
+               ( double )( lSize_I - 1 );
 
       lCRTCGamma_XRR->blue[i] <<= lShift_I;
    }
@@ -128,11 +128,13 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
 
    XRRFreeGamma( lCRTCGamma_XRR );
 
-   iLOG "Successfully set Gamma to   R: "
-   ADD _r          ADD "  --  G: "
-   ADD _g          ADD "  --  B: "
-   ADD _b          ADD "  --  Brightness: "
-   ADD _brightness ADD "  !!  " ADD lTempCRTCId_XRR END
+   iLOG(
+         "Successfully set Gamma to   R: ",
+         _r         , "  --  G: ",
+         _g         , "  --  B: ",
+         _b         , "  --  Brightness: ",
+         _brightness, "  !!  ", lTempCRTCId_XRR
+   );
 
    return true;
 }

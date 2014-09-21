@@ -5,13 +5,13 @@ cmdANDinit::cmdANDinit( int argc, char *argv[], bool _color ) {
    argv0        = argv[0];
    vCanUseColor = _color;
 
-   for ( auto i = 1; i < argc; ++i ) {
+   for( auto i = 1; i < argc; ++i ) {
       args.push_back( argv[i] );
    }
 
    GlobConf.config.appName      = "Engine.Benchmarks";
 
-   if ( vCanUseColor ) {
+   if( vCanUseColor ) {
       GlobConf.log.logOUT.colors   = FULL;
       GlobConf.log.logERR.colors   = FULL;
    } else {
@@ -37,67 +37,67 @@ cmdANDinit::cmdANDinit( int argc, char *argv[], bool _color ) {
 
    vDoFunction    = false;
    vFunctionLoops = 100000;
-   
+
    vDoMutex       = false;
    vMutexLoops    = 10000000;
+
+   vDoCast        = false;
+   vCastLoops     = 5000000;
 }
 
 
 
 void cmdANDinit::usage() {
-   iLOG "Usage: " ADD argv0 ADD " [OPTIONS] MODE [BENCHMARK OPTIONS]"  END
-   iLOG "" END
-   iLOG "OPTIONS:" END
-   dLOG "    -h | --help    : show this help message"                  END
-   dLOG "    --log=<path>   : set a custom log file path to <path>"    END
-   dLOG "    -w | --wait    : wait until log entry is printed"         END
-   if ( vCanUseColor ) {
-      dLOG "    -n | --nocolor : disable colored output"                  END
+   iLOG( "Usage: ", argv0, " [OPTIONS] MODE [BENCHMARK OPTIONS]" );
+   iLOG( "" );
+   iLOG( "OPTIONS:" );
+   dLOG( "    -h | --help    : show this help message" );
+   dLOG( "    --log=<path>   : set a custom log file path to <path>" );
+   dLOG( "    -w | --wait    : wait until log entry is printed" );
+   if( vCanUseColor ) {
+      dLOG( "    -n | --nocolor : disable colored output" );
    }
-   iLOG ""                                                             END
-   iLOG "MODES:"
-   POINT "all            : do all benchmarks"
-   POINT "func           : do the functions benchmark"
-   POINT "mutex          : do the mutex benchmark"
-   END
-   iLOG "" END
-   iLOG "BENCHMARK OPTIONS:" END
-   dLOG "    --funcLoops=<loops>  : ammount of loops to do in function benchmark (default: " ADD vFunctionLoops ADD ")" END
-   dLOG "    --mutexLoops=<loops> : ammount of loops to do in mutex benchmark (default: " ADD vMutexLoops ADD ")"
-   NEWLINE
-   NEWLINE
-   END
-   wLOG "You MUST define one ore more modes"
-   NEWLINE
-   NEWLINE
-   END
+   iLOG( "" );
+   iLOG(
+         "MODES:"
+         "\nall            : do all benchmarks"
+         "\nfunc           : do the functions benchmark"
+         "\nmutex          : do the mutex benchmark"
+         "\ncast           : do the number string cast benchmark"
+   );
+   iLOG( "" );
+   iLOG( "BENCHMARK OPTIONS:" );
+   dLOG( "    --funcLoops=<loops>  : ammount of loops to do in function benchmark (default: ", vFunctionLoops, ")" );
+   dLOG( "    --mutexLoops=<loops> : ammount of loops to do in mutex benchmark    (default: ", vMutexLoops,    ")" );
+   dLOG( "    --castLoops=<loops>  : ammount of loops to do in cast benchmark     (default: ", vCastLoops,     ")\n" );
+   wLOG( "You MUST define one ore more modes\n\n" );
 }
 
 
 bool cmdANDinit::parseArgsAndInit() {
 
-   for ( auto const & arg : args ) {
-      if ( arg == "-h" || arg == "--help" ) {
+   for( auto const & arg : args ) {
+      if( arg == "-h" || arg == "--help" ) {
          postInit();
          usage();
          return false;
       }
 
-      if ( arg == "-w" || arg == "--wait" ) {
-         iLOG "Wait is enabled" END
+      if( arg == "-w" || arg == "--wait" ) {
+         iLOG( "Wait is enabled" );
          GlobConf.log.waitUntilLogEntryPrinted = true;
          continue;
       }
 
-      if ( ( arg == "-n" || arg == "--nocolor" ) && vCanUseColor ) {
-         iLOG "Color is disabled" END
+      if( ( arg == "-n" || arg == "--nocolor" ) && vCanUseColor ) {
+         iLOG( "Color is disabled" );
          GlobConf.log.logOUT.colors   = DISABLED;
          GlobConf.log.logERR.colors   = DISABLED;
          continue;
       }
 
       boost::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if ( boost::regex_match( arg, lLogRegex ) ) {
+      if( boost::regex_match( arg, lLogRegex ) ) {
          boost::regex lLogRegexRep( "^\\-\\-log=" );
          const char *lRep = "";
          string logPath = boost::regex_replace( arg, lLogRegexRep, lRep );
@@ -106,34 +106,40 @@ bool cmdANDinit::parseArgsAndInit() {
       }
 
 
-      if ( arg == "all" ) {
+      if( arg == "all" ) {
          vDoFunction = true;
          vDoMutex    = true;
+         vDoCast     = true;
          continue;
       }
 
-      if ( arg == "func" ) {
+      if( arg == "func" ) {
          vDoFunction = true;
          continue;
       }
-      
+
       if( arg == "mutex" ) {
          vDoMutex = true;
          continue;
       }
 
+      if( arg == "cast" ) {
+         vDoCast = true;
+         continue;
+      }
+
 
       boost::regex lFuncRegex( "^\\-\\-funcLoops=[0-9 ]*$" );
-      if ( boost::regex_match( arg, lFuncRegex ) ) {
+      if( boost::regex_match( arg, lFuncRegex ) ) {
          boost::regex lFuncRegexRep( "^\\-\\-funcLoops=" );
          const char *lRep = "";
          string funcString = boost::regex_replace( arg, lFuncRegexRep, lRep );
          vFunctionLoops = atoi( funcString.c_str() );
          continue;
       }
-      
+
       boost::regex lMutexRegex( "^\\-\\-mutexLoops=[0-9 ]*$" );
-      if ( boost::regex_match( arg, lFuncRegex ) ) {
+      if( boost::regex_match( arg, lFuncRegex ) ) {
          boost::regex lFuncRegexRep( "^\\-\\-mutexLoops=" );
          const char *lRep = "";
          string funcString = boost::regex_replace( arg, lFuncRegexRep, lRep );
@@ -141,10 +147,19 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      eLOG "Unkonwn option '" ADD arg ADD "'" END
+      boost::regex lCastRegex( "^\\-\\-castLoops=[0-9 ]*$" );
+      if( boost::regex_match( arg, lFuncRegex ) ) {
+         boost::regex lFuncRegexRep( "^\\-\\-castLoops=" );
+         const char *lRep = "";
+         string funcString = boost::regex_replace( arg, lFuncRegexRep, lRep );
+         vCastLoops = atoi( funcString.c_str() );
+         continue;
+      }
+
+      eLOG( "Unkonwn option '", arg, "'" );
    }
 
-   if ( vDoFunction == false && vDoMutex == false ) {
+   if( vDoFunction == false && vDoMutex == false && vDoCast == false ) {
       postInit();
       usage();
       return false;

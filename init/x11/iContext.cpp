@@ -31,6 +31,7 @@
 #include <GL/glxew.h>   // Must be included BEFORE e_context.hpp!!! (GLEW)
 #include "iContext.hpp"
 #include "uLog.hpp"
+#include "eCMDColor.hpp"
 
 namespace e_engine {
 
@@ -124,7 +125,7 @@ int iContext::createContext() {
    std::string lRandRVersionString_str;
 
    if( XInitThreads() == 0 ) {
-      wLOG "Failed to call XInitThreads();" END
+      wLOG( "Failed to call XInitThreads();" );
    }
 
    if( ( lReturnValue_I = createDisplay() )     != 1 ) {return lReturnValue_I;}
@@ -147,24 +148,24 @@ int iContext::createContext() {
       glewExperimental = GL_TRUE;
       vHaveGLEW_B = true;
       if( GLEW_OK != glewInit() ) {
-         eLOG "Failed to init GLEW. Aborting. (return 4)" END
+         eLOG( "Failed to init GLEW. Aborting. (return 4)" );
          vHaveGLEW_B = false;
          return 4;
       }
    }
 
-   iLOG "Versions:"
-   POINT "Engine: "
-   ADD 'B', 'C', E_VERSION_MAJOR    ADD 'B', 'C', "."
-   ADD 'B', 'C', E_VERSION_MINOR    ADD 'B', 'C', "."
-   ADD 'B', 'C', E_VERSION_SUBMINOR ADD( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ) ADD E_VERSION_GIT
-   POINT "OpenGL: " ADD 'B', 'C', glGetString( GL_VERSION )
-   POINT "GLSL:   " ADD 'B', 'C', glGetString( GL_SHADING_LANGUAGE_VERSION )
-   POINT "GLX:    " ADD 'B', 'C', vGLXVersionMajor_I ADD 'B', 'C' , "." ADD 'B', 'C' , vGLXVersionMinor_I
-   POINT "X11:    " ADD 'B', 'C', vX11VersionMajor_I ADD 'B', 'C' , "." ADD 'B', 'C' , vX11VersionMinor_I
-   POINT "GLEW:   " ADD 'B', 'C', glewGetString( GLEW_VERSION )
-   POINT "RandR:  " ADD 'B', 'C', lRandRVersionString_str
-   END
+   std::wstring lC1_C = eCMDColor::color( 'B', 'C' );
+
+   iLOG(
+         "Versions:",
+         "\n  - Engine: ", lC1_C, E_VERSION_MAJOR , ".", E_VERSION_MINOR, ".", E_VERSION_SUBMINOR, ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ), E_VERSION_GIT,
+         "\n  - OpenGL: ", lC1_C, glGetString( GL_VERSION ),
+         "\n  - GLSL:   ", lC1_C, glGetString( GL_SHADING_LANGUAGE_VERSION ),
+         "\n  - GLX:    ", lC1_C, vGLXVersionMajor_I, ".", vGLXVersionMinor_I,
+         "\n  - X11:    ", lC1_C, vX11VersionMajor_I, ".", vX11VersionMinor_I,
+         "\n  - GLEW:   ", lC1_C, glewGetString( GLEW_VERSION ),
+         "\n  - RandR:  ", lC1_C, lRandRVersionString_str
+   );
 
    if( GlobConf.win.fullscreen == true ) {
       fullScreen( C_ADD );
@@ -230,7 +231,7 @@ void iContext::destroyContext() {
       XCloseDisplay( vDisplay_X11 );
       vDisplayCreated_B = false;
       vDisplay_X11 = NULL;
-      iLOG "Everything destroyed" END
+      iLOG( "Everything destroyed" );
    }
    vHaveContext_B = false;
 }
@@ -252,24 +253,20 @@ int iContext::enableVSync() {
    if( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
       switch( glXSwapIntervalSGI( 1 ) ) {
          case 0: // Success
-            iLOG "VSync [GLX] enabled" END
+            iLOG( "VSync [GLX] enabled" );
             return 1;
          case GLX_BAD_VALUE:
-            wLOG    "VSync Error [GLX] GLX_BAD_VALUE; 1 seams to be not a good value on this System"
-            NEWLINE "==> VSync NOT enabled" END
+            wLOG( "VSync Error [GLX] GLX_BAD_VALUE; 1 seams to be not a good value on this System\n==> VSync NOT enabled" );
             return 3;
          case GLX_BAD_CONTEXT:
-            wLOG    "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
-            NEWLINE "==> VSync NOT enabled" END
+            wLOG( "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT enabled" );
             return 4;
          default:
-            wLOG    "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
-            NEWLINE "==> VSync NOT enabled" END
+            wLOG( "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> VSync NOT enabled" );
             return 5;
       }
    } else {
-      wLOG    "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported"
-      NEWLINE "==> VSync NOT enabled" END
+      wLOG( "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported\n==> VSync NOT enabled" );
       return 2;
    }
 }
@@ -290,24 +287,20 @@ int iContext::disableVSync() {
    if( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
       switch( glXSwapIntervalSGI( 0 ) ) {
          case 0: // Success
-            iLOG "VSync [GLX] disabled" END
+            iLOG( "VSync [GLX] disabled" );
             return 1;
          case GLX_BAD_VALUE:
-            wLOG    "VSync Error [GLX] GLX_BAD_VALUE; 0 seams to be not a good value on this System"
-            NEWLINE "==> VSync NOT disabled" END
+            wLOG( "VSync Error [GLX] GLX_BAD_VALUE; 0 seams to be not a good value on this System\n==> VSync NOT disabled" );
             return 3;
          case GLX_BAD_CONTEXT:
-            wLOG    "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
-            NEWLINE "==> VSync NOT disabled" END
+            wLOG( "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT disabled" );
             return 4;
          default:
-            wLOG    "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
-            NEWLINE "==> VSync NOT disabled" END
+            wLOG( "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> VSync NOT disabled" );
             return 5;
       }
    } else {
-      wLOG    "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported"
-      NEWLINE "==> VSync NOT disabled" END
+      wLOG( "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported\n==> VSync NOT disabled" );
       return 2;
    }
 }
@@ -335,7 +328,7 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
 
    Atom lAtomMwmHints_X11 = XInternAtom( vDisplay_X11, "_MOTIF_WM_HINTS", True );
    if( ! lAtomMwmHints_X11 ) {
-      wLOG "Failed to create X11 Atom _MOTIF_WM_HINTS ==> Cannot set / remove window border" END
+      wLOG( "Failed to create X11 Atom _MOTIF_WM_HINTS ==> Cannot set / remove window border" );
       return false;
    }
 
@@ -359,7 +352,7 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
          ( unsigned char * )&lHints_X11,
          5 )
      ) {
-      wLOG "Failed to set XChangeProperty( ..., _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,...); ==> Can not set / remove window border " END
+      wLOG( "Failed to set XChangeProperty( ..., _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,...); ==> Can not set / remove window border " );
       return false;
    }
 
@@ -369,7 +362,7 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
       case C_TOGGLE: GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration; break;
    }
 
-   iLOG "Successfully " ADD( _action == C_REMOVE ) ? "removed window decoration" : "added window decoration" END
+   iLOG( "Successfully ", ( _action == C_REMOVE ) ? "removed window decoration" : "added window decoration" );
 
    return true;
 }
@@ -419,7 +412,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       return false;
 
    if( _type1 == _type2 ) {
-      eLOG "Changing the same attribute at the same time makes completely no sense. ==> Do nothing" END
+      eLOG( "Changing the same attribute at the same time makes completely no sense. ==> Do nothing" );
       return false;
    }
 
@@ -459,7 +452,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       lAtomNetWmStateState1_X11 = XInternAtom( vDisplay_X11, lState1_str.c_str(), True );
 
       if( ! lAtomNetWmStateState1_X11 ) {
-         wLOG "Failed to create X11 Atom " ADD lState1_str END
+         wLOG( "Failed to create X11 Atom ", lState1_str );
          return false;
       }
 
@@ -487,7 +480,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       lAtomNetWmStateState2_X11 = XInternAtom( vDisplay_X11, lState2_str.c_str(), True );
 
       if( ! lAtomNetWmStateState2_X11 ) {
-         wLOG "Failed to create X11 Atom " ADD lState2_str END
+         wLOG( "Failed to create X11 Atom ", lState2_str );
          return false;
       }
 
@@ -503,7 +496,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
                1
          )
      ) {
-      wLOG lMode_STR ADD ' ' ADD lState1_str ADD " and " ADD lState2_str ADD " mode FAILED" END
+      wLOG( lMode_STR, ' ', lState1_str, " and ", lState2_str, " mode FAILED" );
       return false;
    }
 
@@ -515,7 +508,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       }
    }
 
-   iLOG lMode_STR ADD ' ' ADD lState1_str ADD " and " ADD lState2_str ADD " mode SUCCEEDED" END
+   iLOG( lMode_STR, ' ', lState1_str, " and ", lState2_str, " mode SUCCEEDED" );
 
    return true;
 }
@@ -536,11 +529,11 @@ bool iContext::fullScreenMultiMonitor() {
    getMostLeftRightTopBottomCRTC( lLeft_I, lRight_I, lTop_I, lBot_I );
 
    if( ! sendX11Event( "_NET_WM_FULLSCREEN_MONITORS", lTop_I, lBot_I, lLeft_I, lRight_I ) ) {
-      wLOG "Unable to map the fullscreen window to all monitors" END
+      wLOG( "Unable to map the fullscreen window to all monitors" );
       return false;
    }
 
-   iLOG "Successfully mapped the fullscreen window to all monitors" END
+   iLOG( "Successfully mapped the fullscreen window to all monitors" );
 
    return true;
 }
@@ -562,16 +555,16 @@ int iContext::setFullScreenMonitor( iDisplays _disp ) {
    int lDisp_I = getIndexOfDisplay( _disp );
 
    if( lDisp_I < 0 ) {
-      wLOG "No valid iDisplays [ setFullScreenMonitor(...) ] ==> Return iRandR::getIndexOfDisplay( _disp ) = " ADD lDisp_I END
+      wLOG( "No valid iDisplays [ setFullScreenMonitor(...) ] ==> Return iRandR::getIndexOfDisplay( _disp ) = ", lDisp_I );
       return lDisp_I;
    }
 
    if( ! sendX11Event( "_NET_WM_FULLSCREEN_MONITORS", lDisp_I, lDisp_I, lDisp_I, lDisp_I ) ) {
-      wLOG "Unable to map the fullscreen window to monitor " ADD lDisp_I END
+      wLOG( "Unable to map the fullscreen window to monitor ", lDisp_I );
       return 2;
    }
 
-   iLOG "Successfully mapped the fullscreen window to monitor " ADD lDisp_I END
+   iLOG( "Successfully mapped the fullscreen window to monitor ", lDisp_I );
 
    return 1;
 }
@@ -581,7 +574,7 @@ bool iContext::sendX11Event( std::string _atom, GLint64 _l0, GLint64 _l1, GLint6
    Atom   lAtom_X11   = XInternAtom( vDisplay_X11, _atom.c_str(), True );
 
    if( ! lAtom_X11 ) {
-      wLOG "Failed to create X11 Atom " ADD _atom END
+      wLOG( "Failed to create X11 Atom ", _atom );
       return false;
    }
 
@@ -644,7 +637,7 @@ void iContext::getGLXVersion( int *_major, int *_minor ) {
  */
 bool iContext::makeContextCurrent() {
    if( ! vHaveContext_B ) {
-      eLOG "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" END
+      eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" );
       return false;
    }
    return glXMakeCurrent( vDisplay_X11, vWindow_X11, vOpenGLContext_GLX ) == True ? true : false;
@@ -657,7 +650,7 @@ bool iContext::makeContextCurrent() {
  */
 bool iContext::makeNOContextCurrent()  {
    if( ! vHaveContext_B ) {
-      eLOG "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" END
+      eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" );
       return false;
    }
    return glXMakeCurrent( vDisplay_X11, 0, 0 ) == True ? true : false;
@@ -681,7 +674,7 @@ bool iContext::isAContextCurrentForThisThread() {
  */
 bool iContext::grabMouse() {
    if( vIsMouseGrabbed_B ) {
-      wLOG "Mouse is already grabbed" END
+      wLOG( "Mouse is already grabbed" );
       return false;
    }
 
@@ -702,11 +695,11 @@ bool iContext::grabMouse() {
          );
 
    if( lReturn_I != GrabSuccess ) {
-      wLOG "Failed to grab the mouse" END
+      wLOG( "Failed to grab the mouse" );
       return false;
    }
    vIsMouseGrabbed_B = true;
-   iLOG "Mouse grabbed" END
+   iLOG( "Mouse grabbed" );
    return true;
 }
 
@@ -720,17 +713,17 @@ bool iContext::grabMouse() {
  */
 bool iContext::freeMouse() {
    if( !vIsMouseGrabbed_B ) {
-      wLOG "Mouse is not grabbed" END
+      wLOG( "Mouse is not grabbed" );
       return false;
    }
 
 
    if( XUngrabPointer( vDisplay_X11, CurrentTime ) == 0 ) {
-      wLOG "Failed to ungrab the mouse" END
+      wLOG( "Failed to ungrab the mouse" );
       return false;
    }
    vIsMouseGrabbed_B = false;
-   iLOG "Mouse ungrabbed" END
+   iLOG( "Mouse ungrabbed" );
    return true;
 }
 
@@ -746,7 +739,7 @@ bool iContext::freeMouse() {
  */
 bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
    if( _posX > GlobConf.win.width || _posY > GlobConf.win.height ) {
-      wLOG "_posX and/or _posY outside the window" END
+      wLOG( "_posX and/or _posY outside the window" );
       return false;
    }
 
@@ -781,7 +774,7 @@ bool iContext::getIsMouseGrabbed() const {
  */
 bool iContext::hideMouseCursor() {
    if( vIsCursorHidden_B ) {
-      wLOG "Cursor is already hidden" END
+      wLOG( "Cursor is already hidden" );
       return false;
    }
 
@@ -812,7 +805,7 @@ bool iContext::hideMouseCursor() {
       XFreePixmap( vDisplay_X11, lNoMouseCursorPixmap_X11 );
    XFreeColors( vDisplay_X11, lColorMap_X11, &lBlackColor_X11.pixel, 1, 0 );
 
-   iLOG "Cursor hidden" END
+   iLOG( "Cursor hidden" );
 
    vIsCursorHidden_B = true;
    return true;
@@ -824,13 +817,13 @@ bool iContext::hideMouseCursor() {
  */
 bool iContext::showMouseCursor() {
    if( !vIsCursorHidden_B ) {
-      wLOG "Cursor is already visible" END
+      wLOG( "Cursor is already visible" );
       return false;
    }
 
    XUndefineCursor( vDisplay_X11, vWindow_X11 );
    vIsCursorHidden_B = false;
-   iLOG "Cursor visible" END
+   iLOG( "Cursor visible" );
    return true;
 }
 

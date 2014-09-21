@@ -62,22 +62,21 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
 
 
 void cmdANDinit::usage() {
-   iLOG "Usage: " ADD argv0 ADD " [OPTIONS] MODE [BENCHMARK OPTIONS]"  END
-   iLOG "" END
-   iLOG "OPTIONS:" END
-   dLOG "    -h | --help    : show this help message"                  END
-   dLOG "    --log=<path>   : set a custom log file path to <path>"    END
-   dLOG "    -w | --wait    : wait until log entry is printed"         END
-   dLOG "    --data=<path>  : set a custom root path for the data dir" END
-   dLOG "    --mesh=<name>  : set the mesh to render IN the data dir"  END
-   dLOG "    --conf=<path>  : add a config file to parse"              END
-   dLOG "    --glMajor=<v>  : the OpenGL Major version (default: "
-   ADD  GlobConf.versions.glMajorVersion ADD ")"  END
-   dLOG "    --glMinor=<v>  : the OpenGL Major version (default: "
-   ADD  GlobConf.versions.glMinorVersion ADD ")"  END
-   if( vCanUseColor ) {
-      dLOG "    -n | --nocolor : disable colored output"                  END
-   }
+   iLOG( "Usage: ", argv0, " [OPTIONS] MODE [BENCHMARK OPTIONS]" );
+   iLOG( "" );
+   iLOG( "OPTIONS:" );
+   dLOG( "    -h | --help    : show this help message" );
+   dLOG( "    --log=<path>   : set a custom log file path to <path>" );
+   dLOG( "    -w | --wait    : wait until log entry is printed" );
+   dLOG( "    --data=<path>  : set a custom root path for the data dir" );
+   dLOG( "    --mesh=<name>  : set the mesh to render IN the data dir" );
+   dLOG( "    --conf=<path>  : add a config file to parse" );
+   dLOG( "    --glMajor=<v>  : the OpenGL Major version (default: "
+         ,  GlobConf.versions.glMajorVersion, ")" );
+   dLOG( "    --glMinor=<v>  : the OpenGL Major version (default: "
+         ,  GlobConf.versions.glMinorVersion, ")" );
+   dLOG( "    -n | --nocolor : disable colored output" );
+   dLOG( "    -c | --color   : enabel colored output" );
 }
 
 
@@ -86,7 +85,7 @@ bool cmdANDinit::parseArgsAndInit() {
    // Try to parse oglTest.json
    uParserJSON lTrialAndErrorParser( "oglTest.json" );
    if( lTrialAndErrorParser.parse() == 1 ) {
-      iLOG "Found oglTest.json" END
+      iLOG( "Found oglTest.json" );
       auto lTempData = lTrialAndErrorParser.getData();
       vData_JSON.merge( lTempData );
    }
@@ -101,15 +100,22 @@ bool cmdANDinit::parseArgsAndInit() {
       }
 
       if( arg == "-w" || arg == "--wait" ) {
-         iLOG "Wait is enabled" END
+         iLOG( "Wait is enabled" );
          GlobConf.log.waitUntilLogEntryPrinted = true;
          continue;
       }
 
-      if( ( arg == "-n" || arg == "--nocolor" ) && vCanUseColor ) {
-         iLOG "Color is disabled" END
+      if( arg == "-n" || arg == "--nocolor" ) {
+         iLOG( "Color is disabled" );
          GlobConf.log.logOUT.colors   = DISABLED;
          GlobConf.log.logERR.colors   = DISABLED;
+         continue;
+      }
+
+      if( arg == "-c" || arg == "--color" ) {
+         iLOG( "Color is enabled" );
+         GlobConf.log.logOUT.colors   = FULL;
+         GlobConf.log.logERR.colors   = FULL;
          continue;
       }
 
@@ -149,9 +155,9 @@ bool cmdANDinit::parseArgsAndInit() {
          if( parser.parse() == 1 ) {
             auto lTempData = parser.getData();
             vData_JSON.merge( lTempData );
-            iLOG "Successfully parsed additional JSON config '" ADD conf ADD "'" END
+            iLOG( "Successfully parsed additional JSON config '", conf, "'" );
          } else {
-            wLOG "Failed to parse additional JSON config '" ADD conf ADD "'" END
+            wLOG( "Failed to parse additional JSON config '", conf, "'" );
          }
 
          continue;
@@ -175,7 +181,7 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      eLOG "Unkonwn option '" ADD arg ADD "'" END
+      eLOG( "Unkonwn option '", arg, "'" );
    }
 
    // Automatically parse the output from oglTest into GlobConf
