@@ -10,6 +10,7 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "uLog.hpp"
 #include "uFileIO.hpp"
@@ -74,76 +75,76 @@ template<class ITER>
 struct json_grammar : qi::grammar<ITER, uJSON_data(), ascii::space_type> {
 
    json_grammar() : json_grammar::base_type( start ) {
-   using qi::lexeme;
-   using qi::lit;
-   using qi::double_;
-   using ascii::char_;
+      using qi::lexeme;
+      using qi::lit;
+      using qi::double_;
+      using ascii::char_;
 
-   using qi::_val;
+      using qi::_val;
 
-   using phoenix::at_c;
-   using phoenix::push_back;
-   using phoenix::ref;
+      using phoenix::at_c;
+      using phoenix::push_back;
+      using phoenix::ref;
 
-   string     = lexeme[ '"' >> +( ( char_ - '"' - '\\' ) | ( '\\' >> char_ ) )[_val += qi::_1 ] >> '"' ];
-   number     = lexeme[ double_[ _val = qi::_1 ] ];
-   boolean    = lexeme[( lit( "true" )[_val = true] | lit( "false" )[_val = false] ) ];
-   undefined  = lexeme[ "null" ];
+      string     = lexeme[ '"' >> +( ( char_ - '"' - '\\' ) | ( '\\' >> char_ ) )[_val += qi::_1 ] >> '"' ];
+      number     = lexeme[ double_[ _val = qi::_1 ] ];
+      boolean    = lexeme[( lit( "true" )[_val = true] | lit( "false" )[_val = false] ) ];
+      undefined  = lexeme[ "null" ];
 
-   valueArray =
-         ( ( string    [ at_c<1>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_STRING ] ) |
-         ( ( number    [ at_c<2>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_NUMBER ] ) |
-         ( ( boolean   [ at_c<3>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_BOOL   ] ) |
-         ( ( undefined ) [ at_c<6>( _val ) = JSON_NULL   ] ) |
-         (
-               '['
-               >>           valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ]
-               >> *( ',' >> valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ] )
-               >> lit( ']' )    [ at_c<6>( _val ) = JSON_ARRAY ]
-         ) |
-         (
-               '{'
-               >>           value      [ push_back( at_c<5>( _val ), qi::_1 ) ]
-               >> *( ',' >> value      [ push_back( at_c<5>( _val ), qi::_1 ) ] )
-               >> lit( '}' )    [ at_c<6>( _val ) = JSON_OBJECT ]
-         );
+      valueArray =
+            ( ( string    [ at_c<1>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_STRING ] ) |
+            ( ( number    [ at_c<2>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_NUMBER ] ) |
+            ( ( boolean   [ at_c<3>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_BOOL   ] ) |
+            ( ( undefined ) [ at_c<6>( _val ) = JSON_NULL   ] ) |
+            (
+                  '['
+                  >>           valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ]
+                  >> *( ',' >> valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ] )
+                  >> lit( ']' )    [ at_c<6>( _val ) = JSON_ARRAY ]
+            ) |
+            (
+                  '{'
+                  >>           value      [ push_back( at_c<5>( _val ), qi::_1 ) ]
+                  >> *( ',' >> value      [ push_back( at_c<5>( _val ), qi::_1 ) ] )
+                  >> lit( '}' )    [ at_c<6>( _val ) = JSON_OBJECT ]
+            );
 
-   value      =
-         string[at_c<0>( _val ) = qi::_1] >> ':' >>
-         (
-               ( ( string    [ at_c<1>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_STRING ] ) |
-               ( ( number    [ at_c<2>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_NUMBER ] ) |
-               ( ( boolean   [ at_c<3>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_BOOL   ] ) |
-               ( ( undefined ) [ at_c<6>( _val ) = JSON_NULL   ] ) |
-               (
-                     '['
-                     >>           valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ]
-                     >> *( ',' >> valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ] )
-                     >> lit( ']' )    [ at_c<6>( _val ) = JSON_ARRAY ]
-               ) |
-               (
-                     '{'
-                     >>           value      [ push_back( at_c<5>( _val ), qi::_1 ) ]
-                     >> *( ',' >> value      [ push_back( at_c<5>( _val ), qi::_1 ) ] )
-                     >> lit( '}' )    [ at_c<6>( _val ) = JSON_OBJECT ]
-               )
-         );
+      value      =
+            string[at_c<0>( _val ) = qi::_1] >> ':' >>
+            (
+                  ( ( string    [ at_c<1>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_STRING ] ) |
+                  ( ( number    [ at_c<2>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_NUMBER ] ) |
+                  ( ( boolean   [ at_c<3>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_BOOL   ] ) |
+                  ( ( undefined ) [ at_c<6>( _val ) = JSON_NULL   ] ) |
+                  (
+                        '['
+                        >>           valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ]
+                        >> *( ',' >> valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ] )
+                        >> lit( ']' )    [ at_c<6>( _val ) = JSON_ARRAY ]
+                  ) |
+                  (
+                        '{'
+                        >>           value      [ push_back( at_c<5>( _val ), qi::_1 ) ]
+                        >> *( ',' >> value      [ push_back( at_c<5>( _val ), qi::_1 ) ] )
+                        >> lit( '}' )    [ at_c<6>( _val ) = JSON_OBJECT ]
+                  )
+            );
 
-   start    =
-         '{'
-         >>           value[push_back( at_c<5>( _val ), qi::_1 )]
-         >> *( ',' >> value[push_back( at_c<5>( _val ), qi::_1 )] )
-         >> lit( '}' )[at_c<6>( _val ) = JSON_OBJECT] ;
-}
+      start    =
+            '{'
+            >>           value[push_back( at_c<5>( _val ), qi::_1 )]
+            >> *( ',' >> value[push_back( at_c<5>( _val ), qi::_1 )] )
+            >> lit( '}' )[at_c<6>( _val ) = JSON_OBJECT] ;
+   }
 
-qi::rule<ITER, std::string(), ascii::space_type> string;
-qi::rule<ITER, double(),      ascii::space_type> number;
-qi::rule<ITER, bool(),        ascii::space_type> boolean;
-qi::rule<ITER, void(),        ascii::space_type> undefined;
+   qi::rule<ITER, std::string(), ascii::space_type> string;
+   qi::rule<ITER, double(),      ascii::space_type> number;
+   qi::rule<ITER, bool(),        ascii::space_type> boolean;
+   qi::rule<ITER, void(),        ascii::space_type> undefined;
 
-qi::rule<ITER, uJSON_data(),  ascii::space_type> value;
-qi::rule<ITER, uJSON_data(),  ascii::space_type> valueArray;
-qi::rule<ITER, uJSON_data(),  ascii::space_type> start;
+   qi::rule<ITER, uJSON_data(),  ascii::space_type> value;
+   qi::rule<ITER, uJSON_data(),  ascii::space_type> valueArray;
+   qi::rule<ITER, uJSON_data(),  ascii::space_type> start;
 };
 
 /*!
@@ -172,10 +173,10 @@ int uParserJSON::parse() {
    bool lReturn = qi::phrase_parse( lStartIter, lEndIter, lGrammar, space, vData );
 
    if( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
-      eLOG "Failed to parse '" ADD vFilePath_str ADD "'" ADD " At '" ADD *lStartIter ADD "'" ADD " (" ADD lStartIter - lFile.begin() ADD ")" END
+      eLOG( "Failed to parse '", vFilePath_str, "'", " At '", *lStartIter, "'", " (", lStartIter - lFile.begin(), ")" );
       return 2;
    }
-   iLOG "Successfully parsed '" ADD vFilePath_str ADD "' (JSON)" END
+   iLOG( "Successfully parsed '", vFilePath_str, "' (JSON)" );
 
    vIsParsed = true;
 
@@ -189,10 +190,10 @@ void uParserJSON::setWriteIndent( std::string _in ) {
 
 /*!
  * \brief Generates a JSON file from a uJSON_data structure
- * 
+ *
  * \param[in] _data              the data to write
  * \param[in] _overwriteIfNeeded When true overwrites the file if it exists
- * 
+ *
  * \returns 1  if everything went fine
  * \returns 2  if the file already exisits read (and _overWrite == false)
  * \returns 3  if the file exists and is not a regular file
@@ -222,7 +223,7 @@ void uParserJSON::prepareString( const std::string &_in, std::string &_out ) {
    for( char ch : _in ) {
       if( ch == '"' || ch == '\\' )
          _out.append( 1, '\\' );
-      
+
       _out.append( 1, ch );
    }
 }
@@ -274,7 +275,7 @@ void uParserJSON::writeValue( const uJSON_data &_data, std::string &_worker, std
          _worker += _level + "}";
          break;
       default:
-         wLOG "Incomplete JSON data structure. Skipp unknown parts.  ( File: '" ADD vFilePath_str ADD "' )" END
+         wLOG( "Incomplete JSON data structure. Skipp unknown parts.  ( File: '", vFilePath_str, "' )" );
          break;
    }
 }

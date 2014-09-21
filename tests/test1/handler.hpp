@@ -61,13 +61,13 @@ class MyHandler : public rWorld {
       }
       ~MyHandler();
       void windowClose( iEventInfo info ) {
-         iLOG "User closed window" END
+         iLOG( "User closed window" );
          info.iInitPointer->closeWindow();
       }
       void key( iEventInfo info );
       void mouse( iEventInfo info );
       void resize( iEventInfo info ) {
-         iLOG "Window resized: W = " ADD info.eResize.width ADD ";  H = " ADD info.eResize.height END
+         iLOG( "Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height );
          updateViewPort( 0, 0, GlobConf.win.width, GlobConf.win.height );
          calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
          vObject1.updateFinalMatrix();

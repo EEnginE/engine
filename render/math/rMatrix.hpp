@@ -142,7 +142,7 @@ rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( const ARGS &... _args ) {
    vDelete = true;
 
    if( sizeof...( _args ) != ( ROWS * COLLUMNS ) ) {
-      eLOG "Can not set a " ADD ROWS ADD "x" ADD COLLUMNS ADD " matrix with " ADD sizeof...( _args ) ADD " Elements!" END
+      eLOG( "Can not set a ", ROWS, "x", COLLUMNS, " matrix with ", sizeof...( _args ), " Elements!" );
       fill( 0 );
    }
    setHelper( 0, _args... );
@@ -391,7 +391,7 @@ template <class TYPE, int ROWS, int COLLUMNS>
 template<class... ARGS>
 bool rMatrix<TYPE, ROWS, COLLUMNS>::set2( const ARGS &... _args ) {
    if( sizeof...( _args ) != ( ROWS * COLLUMNS ) ) {
-      eLOG "Can not set a " ADD ROWS ADD "x" ADD COLLUMNS ADD " matrix with " ADD sizeof...( _args ) ADD " Elements!" END
+      eLOG( "Can not set a ", ROWS, "x", COLLUMNS, " matrix with ", sizeof...( _args ), " Elements!" );
       return false;
    }
    setHelper( 0, _args... );

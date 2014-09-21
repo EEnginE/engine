@@ -151,41 +151,41 @@ void rMatrixObjectBase<T>::updateFinalMatrix() {
 //       for( unsigned int j = 0; j < 4; ++j ) {
 //          lStr += boost::lexical_cast<std::string>( lTemp.get( j, i ) ) + "  ";
 //       }
-//       iLOG lStr END
+//       iLOG( lStr );
 //    }
 // 
-//    dLOG "" END
+//    dLOG( "" );
 // 
 //    for( unsigned int i = 0; i < 4; ++i ) {
 //       std::string lStr;
 //       for( unsigned int j = 0; j < 4; ++j ) {
 //          lStr += boost::lexical_cast<std::string>( vRotationMatrix_MAT.get( j, i ) ) + "  ";
 //       }
-//       wLOG lStr END
+//       wLOG( lStr );
 //    }
 // 
-//    dLOG "" END
+//    dLOG( "" );
 // 
 //    for( unsigned int i = 0; i < 4; ++i ) {
 //       std::string lStr;
 //       for( unsigned int j = 0; j < 4; ++j ) {
 //          lStr += boost::lexical_cast<std::string>( vTranslationMatrix_MAT.get( j, i ) ) + "  ";
 //       }
-//       wLOG lStr END
+//       wLOG( lStr );
 //    }
 // 
-//    dLOG "" END
+//    dLOG( "" );
 // 
 //    for( unsigned int i = 0; i < 4; ++i ) {
 //       std::string lStr;
 //       for( unsigned int j = 0; j < 4; ++j ) {
 //          lStr += boost::lexical_cast<std::string>( vCameraSpaceMatrix_MAT->get( j, i ) ) + "  ";
 //       }
-//       eLOG lStr END
+//       eLOG( lStr );
 //    }
 // 
-//    dLOG "" END
-//    dLOG "" END
+//    dLOG( "" );
+//    dLOG( "" );
 
    vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 }

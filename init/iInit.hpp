@@ -138,7 +138,7 @@ class iInit : public windows_win32::iContext {
 
       //! The standard Mouse function
       GLvoid s_standardFocus( iEventInfo _info ) {
-         iLOG "Focus " ADD _info.eFocus.hasFocus ? "got" : "lost" END
+         iLOG( "Focus ", _info.eFocus.hasFocus ? "got" : "lost" );
       }
 
       GLvoid s_advancedGrabControl( iEventInfo _info );

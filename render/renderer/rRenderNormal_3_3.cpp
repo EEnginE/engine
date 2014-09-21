@@ -62,7 +62,7 @@ void rRenderNormal_3_3::render() {
  */
 bool rRenderNormal_3_3::setOGLInfo( std::vector< void * > &_data ) {
    if( _data.size() != 6 ) {
-      eLOG "This renderer needs exactly 5 data types (1:VBO:GLuint; 1:IBO:GLuint; 1:SHADER:GLuint; 1:INPUT:GLint; 1:SIZE:GLuint)" END
+      eLOG( "This renderer needs exactly 5 data types (1:VBO:GLuint; 1:IBO:GLuint; 1:SHADER:GLuint; 1:INPUT:GLint; 1:SIZE:GLuint)" );
       return false;
    }
 

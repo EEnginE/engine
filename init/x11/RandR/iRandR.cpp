@@ -66,7 +66,7 @@ bool iRandR::initRandR( Display *_display, Window _window, Window _root ) {
       XRRQueryVersion( vDisplay_X11 , &vRandRVersionMajor_I, &vRandRVersionMinor_I );
       vIsRandRSupported_B = true;
    } else {
-      wLOG "X11 RandR standard not supported. Screen resolution wont be changed" END
+      wLOG( "X11 RandR standard not supported. Screen resolution wont be changed" );
       return vIsRandRSupported_B = false;
    }
 
@@ -135,7 +135,7 @@ bool iRandR::restore( internal::_config _conf ) {
 
    // Reset gamma
    if ( _conf.gamma.size() != vCRTC_V_RandR.size() ) {
-      eLOG "RandR: Fatal internal ERROR:  _conf.gamma.size() != vCRTC_V_RandR.size()" END
+      eLOG( "RandR: Fatal internal ERROR:  _conf.gamma.size() != vCRTC_V_RandR.size()" );
       return false;
    }
 

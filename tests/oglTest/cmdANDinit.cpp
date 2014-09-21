@@ -63,25 +63,25 @@ cmdANDinit::cmdANDinit( int argc, char *argv[], testStarter &_starter, bool &_er
 
 
 void cmdANDinit::usage() {
-   iLOG "Usage: " ADD argv0 ADD " [OPTIONS] OUTPUT_FILES"  END
-   iLOG "" END
-   iLOG "OPTIONS:" END
-   dLOG "    -h | --help      : show this help message"                  END
-   dLOG "    --log=<path>     : set a custom log file path to <path>"    END
-   dLOG "    -w | --wait      : wait until log entry is printed"         END
-   dLOG "    --data=<path>    : set a custom root path for the data dir" END
-   dLOG "    --glMajor=<v>    : the OpenGL Major version (default: "
-   ADD  GlobConf.versions.glMajorVersion ADD ")"  END
-   dLOG "    --glMinor=<v>    : the OpenGL Major version (default: "
-   ADD  GlobConf.versions.glMinorVersion ADD ")"  END
+   iLOG( "Usage: ", argv0, " [OPTIONS] OUTPUT_FILES"  );
+   iLOG( "" );
+   iLOG( "OPTIONS:" );
+   dLOG( "    -h | --help      : show this help message"                  );
+   dLOG( "    --log=<path>     : set a custom log file path to <path>"    );
+   dLOG( "    -w | --wait      : wait until log entry is printed"         );
+   dLOG( "    --data=<path>    : set a custom root path for the data dir" );
+   dLOG( "    --glMajor=<v>    : the OpenGL Major version (default: "
+  ,  GlobConf.versions.glMajorVersion, ")"  );
+   dLOG( "    --glMinor=<v>    : the OpenGL Major version (default: "
+  ,  GlobConf.versions.glMinorVersion, ")"  );
    if ( vCanUseColor ) {
-      dLOG "    -n | --nocolor   : disable colored output"                  END
+      dLOG( "    -n | --nocolor   : disable colored output"                  );
    }
-   dLOG "    -l | --list      : lists all available tests" END
-   dLOG "    --without-<test> : disables test <test>"      END
-   dLOG "    --with-<test>    : enables test <test>"       END
-   dLOG "    --all-off        : disables all test"         END
-   dLOG "    --all-on         : enables all test"          END
+   dLOG( "    -l | --list      : lists all available tests" );
+   dLOG( "    --without-<test> : disables test <test>"      );
+   dLOG( "    --with-<test>    : enables test <test>"       );
+   dLOG( "    --all-off        : disables all test"         );
+   dLOG( "    --all-on         : enables all test"          );
 }
 
 
@@ -93,13 +93,13 @@ bool cmdANDinit::parseArgsAndInit( testStarter &_starter ) {
       }
 
       if ( arg == "-w" || arg == "--wait" ) {
-         iLOG "Wait is enabled" END
+         iLOG( "Wait is enabled" );
          GlobConf.log.waitUntilLogEntryPrinted = true;
          continue;
       }
 
       if ( ( arg == "-n" || arg == "--nocolor" ) && vCanUseColor ) {
-         iLOG "Color is disabled" END
+         iLOG( "Color is disabled" );
          GlobConf.log.logOUT.colors   = DISABLED;
          GlobConf.log.logERR.colors   = DISABLED;
          continue;
@@ -187,9 +187,9 @@ void cmdANDinit::generate( uJSON_data &_data ) {
    for( auto &f : outputFiles ) {
       uParserJSON generator( f );
       if( generator.write( _data, true ) == 1 ) {
-         iLOG "Successfully written '" ADD f ADD "'" END
+         iLOG( "Successfully written '", f, "'" );
       } else {
-         eLOG "Failed to write '" ADD f ADD "'" END
+         eLOG( "Failed to write '", f, "'" );
       }
    }
 }

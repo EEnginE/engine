@@ -73,7 +73,7 @@ int iInit::eventLoop() {
    unsigned int lKeyState_uI, lButtonState_uI;
    timeval tv_select, tv, periode;
 
-   iLOG "Event loop started" END
+   iLOG( "Event loop started" );
 
    int x11_fd;
    fd_set in_fds;
@@ -92,7 +92,7 @@ int iInit::eventLoop() {
    // Fix autotype keyrelease
    int lAutoRepeatTempReturn_B;
    if ( ! XkbSetDetectableAutoRepeat( getDisplay(), 1, &lAutoRepeatTempReturn_B ) ) {
-      wLOG "Failed to better handle autorepeat (when holdink key down)" END
+      wLOG( "Failed to better handle autorepeat (when holdink key down)" );
    }
 
    while ( vMainLoopRunning_B ) {
@@ -174,7 +174,7 @@ int iInit::eventLoop() {
                      case 10:      tempInfo.iMouse.button = E_MOUSE_5;          break;
                      default:
                         tempInfo.iMouse.button = E_MOUSE_UNKNOWN;
-                        wLOG "Unknown mouse button: " ADD lEvent_X11.xbutton.button END
+                        wLOG( "Unknown mouse button: ", lEvent_X11.xbutton.button );
                   }
 
                   vMouse_SIG.sendSignal( tempInfo );
@@ -247,7 +247,7 @@ int iInit::eventLoop() {
             case ClientMessage:
                // Check if the User pressed the [x] button or ALT+F4 [etc.]
                if ( ( Atom ) lEvent_X11.xclient.data.l[0] == unix_x11::atom_wmDeleteWindow ) {
-                  iLOG "User pressed the close button" END
+                  iLOG( "User pressed the close button" );
                   iEventInfo tempInfo( this );
                   tempInfo.type = E_EVENT_WINDOWCLOSE;
                   vWindowClose_SIG.sendSignal( tempInfo );
@@ -256,7 +256,7 @@ int iInit::eventLoop() {
 
             default:
 
-               dLOG "Found Unknown Event: 0x" ADD lEvent_CSTR END
+               dLOG( "Found Unknown Event: 0x", lEvent_CSTR );
 
                break;
          }

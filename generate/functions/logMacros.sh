@@ -13,16 +13,18 @@ __macro_func() {
     if (( ARGC != 5 )); then
         return
     fi
-    
+
+    WITHOUT_BRS=$(echo $3 | sed 's/([a-zA-Z\.]*)$//g')
+
     if (( $5 != 0 )); then
-        echo "#if defined $3"                                                               >> $1
-        echo "#warning \"UNDEF $3 -- Please remove '#define $3' from your project files\""  >> $1
-        echo "#undef $3"                                                                    >> $1
-        echo "#endif // defined $3"                                                         >> $1
-        echo ""                                                                             >> $1
+        echo "#if defined $WITHOUT_BRS"                                                                         >> $1
+        echo "#warning \"UNDEF $WITHOUT_BRS -- Please remove '#define $WITHOUT_BRS' from your project files\""  >> $1
+        echo "#undef $WITHOUT_BRS"                                                                              >> $1
+        echo "#endif // defined $WITHOUT_BRS"                                                                   >> $1
+        echo ""                                                                                                 >> $1
     fi
-    
-    echo "#define $3 $4"                                                                    >> $2
+
+    echo "#define $3 $4"                                                                                        >> $2
 }
 
 
@@ -71,32 +73,26 @@ generateLogMacros() {
 
     #### Body ####
 
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "ADD"     ")->add("       $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "NEWLINE" ")->nl("        $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "POINT"   ")->point("     $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "S_COLOR" ")->setColor("  $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_END_"   ");"            $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "END"     ")->end();"     $DO_UNDEF
-
-    echo "" >> $MACRO_DEFINE_PATH
-
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_ADD"     "->add("       $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_NEWLINE" "->nl("        $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_POINT"   "->point("     $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_S_COLOR" "->setColor("  $DO_UNDEF
-    __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "__END__"  "->end();"     $DO_UNDEF
-
     echo "" >> $MACRO_DEFINE_PATH
 
     for I in $TYPES; do
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
+        #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH    "_$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH " _$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',false,__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
     done
     unset I
 
     echo "" >> $MACRO_DEFINE_PATH
 
     for I in $TYPES; do
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME," $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_h$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',true ,__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
+    done
+    unset I
+
+    echo -e "\n" >> $MACRO_DEFINE_PATH
+
+    for I in $TYPES; do
+        #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH  "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME," $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG(...)" "LOG.addLogEntry('$( echo -n ${I^^} )',false,__FILE__,__LINE__,LOG_FUNCTION_NAME,__VA_ARGS__)" $DO_UNDEF 
     done
     unset I
 

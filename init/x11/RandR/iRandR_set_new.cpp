@@ -66,7 +66,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
 
    if ( ! lModeSupported_B && _disp.getMode() != None ) {
       // This should generally never happen because of iRandRDisplay! Something went wrong!!!
-      wLOG "RandR: Selected mode ( " ADD _disp.getMode() ADD " ) is not supported by output " ADD _disp.getOutput() ADD " --> Do Nothing" END
+      wLOG( "RandR: Selected mode ( ", _disp.getMode(), " ) is not supported by output ", _disp.getOutput(), " --> Do Nothing" );
       return false;
    }
 
@@ -168,7 +168,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
 
       // We can not use a fresh CRTC
       if ( _disp.getClones().empty() ) {
-         wLOG "RandR: Impossible to enable the Output " ADD _disp.getOutput() ADD " without cloning --> do nothing ( return false (iRandR::setDisplaySizes))" END
+         wLOG( "RandR: Impossible to enable the Output ", _disp.getOutput(), " without cloning --> do nothing ( return false (iRandR::setDisplaySizes))" );
          return false;
       }
 
@@ -228,7 +228,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
       return true;
    }
 
-   wLOG "Congratulations! It should be theoretically impossible to reach the end of this function [ iRandR::setDisplaySizes(...); ]" END
+   wLOG( "Congratulations! It should be theoretically impossible to reach the end of this function [ iRandR::setDisplaySizes(...); ]" );
 
    return false;
 }

@@ -7,10 +7,12 @@
 typedef boost::chrono::system_clock::duration TIME_DURATION;
 
 BenchClass::BenchClass( cmdANDinit *_cmd ) {
-   bool lDoFunctionBench;
-   bool lDoMutexBench;
+   bool lDoFunctionBench = false;
+   bool lDoMutexBench = false;
+   bool lDoCastBench = false;
    _cmd->getFunctionInf( vLoopsToDo, lDoFunctionBench );
    _cmd->getMutexInf( vLoopsToDoMutex, lDoMutexBench );
+   _cmd->getCastInf( vLoopsToDoCast, lDoCastBench );
 
    if( lDoFunctionBench ) {
       vTheSlot.setFunc( &BenchClass::funcToCall, this );
@@ -29,19 +31,22 @@ BenchClass::BenchClass( cmdANDinit *_cmd ) {
 
       doFunction();
    }
-   
+
    if( lDoMutexBench )
       doMutex();
+
+   if( lDoCastBench )
+      doCast();
 }
 
 void BenchClass::doFunction() {
    int    a = 3;
    double b = 5.5;
 
-   iLOG "==== BEGIN FUNCTION BENCHMARK ====" END
-   iLOG "" END
-   iLOG "  - Loops: " ADD vLoopsToDo END
-   iLOG "  - Args:  " ADD a ADD ", " ADD b END
+   iLOG( "==== BEGIN FUNCTION BENCHMARK ====" );
+   iLOG( "" );
+   iLOG( "  - Loops: ", vLoopsToDo );
+   iLOG( "  - Args:  ", a, ", ", b );
 
    // Normal:
 
@@ -132,24 +137,24 @@ void BenchClass::doFunction() {
    }
    uint64_t lStdFuncIn = STOP( stdFuncInline );
 
-   iLOG "  - Time: microseconds" END
+   iLOG( "  - Time: microseconds" );
 
 
-   iLOG "  = [NORMAL] Signal Slot:     " ADD lSigSlot      END
-   iLOG "  = [NORMAL] Functionpointer: " ADD lFunc         END
-   iLOG "  = [NORMAL] C F Ptr:         " ADD lCFunc        END
-   iLOG "  = [NORMAL] Normal call:     " ADD lNormal       END
-   iLOG "  = [NORMAL] Virtual call:    " ADD lVirt         END
-   iLOG "  = [NORMAL] Boost Function:  " ADD lBoostFunc    END
-   iLOG "  = [NORMAL] Std Function:    " ADD lStdFunc      END
+   iLOG( "  = [NORMAL] Signal Slot:     ", lSigSlot      );
+   iLOG( "  = [NORMAL] Functionpointer: ", lFunc         );
+   iLOG( "  = [NORMAL] C F Ptr:         ", lCFunc        );
+   iLOG( "  = [NORMAL] Normal call:     ", lNormal       );
+   iLOG( "  = [NORMAL] Virtual call:    ", lVirt         );
+   iLOG( "  = [NORMAL] Boost Function:  ", lBoostFunc    );
+   iLOG( "  = [NORMAL] Std Function:    ", lStdFunc      );
 
-   iLOG "  = [INLINE] Signal Slot:     " ADD lSigSlotIn    END
-   iLOG "  = [INLINE] Functionpointer: " ADD lFuncIn       END
-   iLOG "  = [INLINE] C F Ptr:         " ADD lCFuncIn      END
-   iLOG "  = [INLINE] Normal call:     " ADD lNormalIn     END
-   iLOG "  = [INLINE] Virtual call:    " ADD lNormalVirtIn END
-   iLOG "  = [INLINE] Boost Function:  " ADD lBoostFuncIn  END
-   iLOG "  = [INLINE] Std Function:    " ADD lStdFuncIn    END
+   iLOG( "  = [INLINE] Signal Slot:     ", lSigSlotIn    );
+   iLOG( "  = [INLINE] Functionpointer: ", lFuncIn       );
+   iLOG( "  = [INLINE] C F Ptr:         ", lCFuncIn      );
+   iLOG( "  = [INLINE] Normal call:     ", lNormalIn     );
+   iLOG( "  = [INLINE] Virtual call:    ", lNormalVirtIn );
+   iLOG( "  = [INLINE] Boost Function:  ", lBoostFuncIn  );
+   iLOG( "  = [INLINE] Std Function:    ", lStdFuncIn    );
 
    string lSigSlot_str      = boost::lexical_cast<string>( lSigSlot );
    string lFunc_str         = boost::lexical_cast<string>( lFunc );
@@ -184,21 +189,19 @@ void BenchClass::doFunction() {
    lStdFuncIn_str.resize( 10, ' ' );
 
 
-   dLOG    ""
-   NEWLINE "   |==================|============|============|"
-   NEWLINE "   |       Type       |   normal   |   inline   |"
-   NEWLINE "   |------------------|------------|------------|"
-   NEWLINE "   | Signal Slot      | " ADD lSigSlot_str   ADD " | " ADD lSigSlotIn_str    ADD " |"
-   NEWLINE "   | Function Pointer | " ADD lFunc_str      ADD " | " ADD lFuncIn_str       ADD " |"
-   NEWLINE "   | C Func. Pointer  | " ADD lCFunc_str     ADD " | " ADD lCFuncIn_str      ADD " |"
-   NEWLINE "   | Normal           | " ADD lNormal_str    ADD " | " ADD lNormalIn_str     ADD " |"
-   NEWLINE "   | Virtual          | " ADD lVirt_str      ADD " | " ADD lNormalVirtIn_str ADD " |"
-   NEWLINE "   | Boost Function   | " ADD lBoostFunc_str ADD " | " ADD lBoostFuncIn_str  ADD " |"
-   NEWLINE "   | STD Function     | " ADD lStdFunc_str   ADD " | " ADD lStdFuncIn_str    ADD " |"
-   NEWLINE "   |==================|============|============|"
-   NEWLINE
-   NEWLINE
-   END
+   dLOG(
+   "\n   |==================|============|============|"
+   "\n   |       Type       |   normal   |   inline   |"
+   "\n   |------------------|------------|------------|"
+   "\n   | Signal Slot      | ", lSigSlot_str  , " | ", lSigSlotIn_str   , " |"
+   "\n   | Function Pointer | ", lFunc_str     , " | ", lFuncIn_str      , " |"
+   "\n   | C Func. Pointer  | ", lCFunc_str    , " | ", lCFuncIn_str     , " |"
+   "\n   | Normal           | ", lNormal_str   , " | ", lNormalIn_str    , " |"
+   "\n   | Virtual          | ", lVirt_str     , " | ", lNormalVirtIn_str, " |"
+   "\n   | Boost Function   | ", lBoostFunc_str, " | ", lBoostFuncIn_str , " |"
+   "\n   | STD Function     | ", lStdFunc_str  , " | ", lStdFuncIn_str   , " |"
+   "\n   |==================|============|============|"
+   );
 }
 
 
@@ -230,37 +233,79 @@ double BenchClass::funcLockGuard( int a, double b ) {
 void BenchClass::doMutex() {
    int    a = 3;
    double b = 5.5;
-   iLOG "==== BEGIN FUNCTION BENCHMARK ====" END
-   iLOG "" END
-   iLOG "  - Loops: " ADD vLoopsToDoMutex END
-   iLOG "  - Args:  " ADD a ADD ", " ADD b END
-   
+   iLOG( "==== BEGIN FUNCTION BENCHMARK ====" );
+   iLOG( "" );
+   iLOG( "  - Loops: ", vLoopsToDoMutex );
+   iLOG( "  - Args:  ", a, ", ", b );
+
    START( normal );
    for( unsigned int i = 0; i < vLoopsToDoMutex; ++i ) {
       b = funcNormal( a, b );
    }
    uint64_t lNormal = STOP( normal );
-   
+
    START( mutex );
    for( unsigned int i = 0; i < vLoopsToDoMutex; ++i ) {
       b = funcMutex( a, b );
    }
    uint64_t lMutex = STOP( mutex );
-   
+
    START( lockGuard );
    for( unsigned int i = 0; i < vLoopsToDoMutex; ++i ) {
       b = funcLockGuard( a, b );
    }
    uint64_t lLockGuard = STOP( lockGuard );
-   
-   iLOG "  - Time: microseconds" END
+
+   iLOG( "  - Time: microseconds" );
 
 
-   iLOG "  = Normal:    " ADD lNormal    END
-   iLOG "  = Mutex:     " ADD lMutex     END
-   iLOG "  = LockGuard: " ADD lLockGuard END
-   
+   iLOG( "  = Normal:    ", lNormal    );
+   iLOG( "  = Mutex:     ", lMutex     );
+   iLOG( "  = LockGuard: ", lLockGuard );
+
 }
+
+void BenchClass::doCast() {
+   int    a = 5;
+   double b = 6.6;
+
+   iLOG( "==== BEGIN FUNCTION BENCHMARK ====" );
+   iLOG( "" );
+   iLOG( "  - Loops: ", vLoopsToDoMutex );
+   iLOG( "  - Args:  ", a, ", ", to_string(b) );
+
+   START( lexical_int );
+   for( unsigned int i = 0; i < vLoopsToDoCast; ++i ) {
+      string c = boost::lexical_cast<string>( a );
+   }
+   uint64_t lLexical_int = STOP( lexical_int );
+
+   START( lexical_double );
+   for( unsigned int i = 0; i < vLoopsToDoCast; ++i ) {
+      string c = boost::lexical_cast<string>( b );
+   }
+   uint64_t lLexical_double = STOP( lexical_double );
+
+
+
+   START( toStr_int );
+   for( unsigned int i = 0; i < vLoopsToDoCast; ++i ) {
+      string c = to_string( a );
+   }
+   uint64_t lToStr_int = STOP( toStr_int );
+
+   START( toStr_double );
+   for( unsigned int i = 0; i < vLoopsToDoCast; ++i ) {
+      string c = to_string( b );
+   }
+   uint64_t lToStr_double = STOP( toStr_double );
+   
+   iLOG( "  = LEXICAL CAST -- int:    ", lLexical_int     );
+   iLOG( "  = LEXICAL CAST -- double: ", lLexical_double  );
+   iLOG( "  = TO STRING    -- int:    ", lToStr_int       );
+   iLOG( "  = TO STRING    -- double: ", lToStr_double    );
+}
+
 
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

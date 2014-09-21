@@ -41,18 +41,18 @@ int uFileIO::read( bool _autoReload ) {
    boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
 
    if( ! boost::filesystem::exists( lFilePath_BFS ) ) {
-      eLOG "File " ADD vFilePath_str ADD " does not exists" END
+      eLOG( "File ", vFilePath_str, " does not exists" );
       return 3;
    }
 
    if( ! boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
-      eLOG vFilePath_str ADD " is not a file!" END
+      eLOG( vFilePath_str, " is not a file!" );
       return 4;
    }
 
    FILE *lFile = fopen( vFilePath_str.c_str(), "r" );
    if( lFile == NULL ) {
-      eLOG "Unable to open " ADD vFilePath_str END
+      eLOG( "Unable to open ", vFilePath_str );
       return 5;
    }
 
@@ -85,26 +85,26 @@ int uFileIO::write( const uFileIO::TYPE &_data, bool _overWrite ) {
 
    if( boost::filesystem::exists( lFilePath_BFS ) ) {
       if( ! _overWrite ) {
-         eLOG "File " ADD vFilePath_str ADD " already exists -- do not overwrite" END
+         eLOG( "File ", vFilePath_str, " already exists -- do not overwrite" );
          return 2;
       }
 
       if( ! boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
-         eLOG vFilePath_str ADD " is not a file! -- can not overwrite" END
+         eLOG( vFilePath_str, " is not a file! -- can not overwrite" );
          return 3;
       }
       
-      wLOG "File " ADD vFilePath_str ADD " already exists -- overwrite" END
+      wLOG( "File ", vFilePath_str, " already exists -- overwrite" );
       
       if( ! boost::filesystem::remove( lFilePath_BFS ) ) {
-         eLOG "Failed to remove '" ADD vFilePath_str ADD "'" END
+         eLOG( "Failed to remove '", vFilePath_str, "'" );
          return 4;
       }
    }
 
    FILE *lFile = fopen( vFilePath_str.c_str(), "w" );
    if( lFile == NULL ) {
-      eLOG "Unable to open " ADD vFilePath_str END
+      eLOG( "Unable to open ", vFilePath_str );
       return 5;
    }
 

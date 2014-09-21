@@ -63,7 +63,7 @@ rWorld::rWorld( iInit *_init ) {
 
 
 void rWorld::renderLoop() {
-   iLOG "Render loop started" END
+   iLOG( "Render loop started" );
    vRenderLoopRunning_B = true;
    vInitPointer->makeContextCurrent();  // Only ONE thread can have a context
 
@@ -89,7 +89,7 @@ void rWorld::renderLoop() {
 #endif
          vRenderLoopIsPaused_B = false;
          if( ! vInitPointer->makeContextCurrent() ) {
-            eLOG "Failed to make context current ==> Quitting render loop" END
+            eLOG( "Failed to make context current ==> Quitting render loop" );
             return;
          }
       }
@@ -97,13 +97,13 @@ void rWorld::renderLoop() {
       if( vViewPort.vNeedUpdate_B ) {
          vViewPort.vNeedUpdate_B = false;
          glViewport( vViewPort.x, vViewPort.y, vViewPort.width, vViewPort.height );
-         dLOG "Viewport updated" END
+         dLOG( "Viewport updated" );
       }
 
       if( vClearColor.vNeedUpdate_B ) {
          vClearColor.vNeedUpdate_B = false;
          glClearColor( vClearColor.r, vClearColor.g, vClearColor.b, vClearColor.a );
-         dLOG "Updated clear color: [RGBA] " ADD  vClearColor.r ADD "; " ADD vClearColor.g ADD "; " ADD vClearColor.b ADD "; " ADD vClearColor.a END
+         dLOG( "Updated clear color: [RGBA] ",  vClearColor.r, "; ", vClearColor.g, "; ", vClearColor.b, "; ", vClearColor.a );
       }
 
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -150,11 +150,11 @@ void rWorld::stopRenderLoop() {
 
    if( vRenderLoopRunning_B ) {
       vRenderLoop_BT.interrupt();
-      wLOG "Render Loop Timeout reached  -->  Killing the thread" END
+      wLOG( "Render Loop Timeout reached  -->  Killing the thread" );
       vRenderLoopRunning_B = false;
    }
 
-   iLOG "Render loop finished" END
+   iLOG( "Render loop finished" );
 }
 
 void rWorld::pauseRenderLoop() {
@@ -242,7 +242,7 @@ void rWorld::updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a ) 
 
 void rWorld::setInitObj( iInit *_init ) {
    if( vInitObjSet_B ) {
-      eLOG "iInit object is already set and can't be reset! Doing nothing" END
+      eLOG( "iInit object is already set and can't be reset! Doing nothing" );
       return;
    }
 

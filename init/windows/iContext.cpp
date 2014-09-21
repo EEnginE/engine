@@ -14,6 +14,7 @@
 #include <windows.h>
 #include "iContext.hpp"
 #include "uLog.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace {
 
@@ -69,26 +70,22 @@ int iContext::enableVSync() {
       if ( wglSwapIntervalEXT( 1 ) != TRUE ) {
          switch ( GetLastError() ) {
             case ERROR_INVALID_DATA:
-               wLOG    "VSync Error [WGL] ERROR_INVALID_DATA; 1 seams to be not a good value on this System"
-               NEWLINE "==> VSync NOT enabled" END
+               wLOG(    "VSync Error [WGL] ERROR_INVALID_DATA; 1 seams to be not a good value on this System\n==> VSync NOT enabled" );
                return 3;
             case ERROR_DC_NOT_FOUND:
-               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
-               NEWLINE "==> VSync NOT enabled" END
+               wLOG(    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT enabled" );
                return 4;
             default:
-               wLOG    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
-               NEWLINE "==> VSync NOT enabled" END
+               wLOG(    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> VSync NOT enabled" );
                return 5;
          }
       }
 
-      iLOG "VSync [WGL] enabled" END
+      iLOG( "VSync [WGL] enabled" );
       return 1;
 
    } else {
-      wLOG    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported"
-      NEWLINE "==> VSync NOT enabled" END
+      wLOG(    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported\n==> VSync NOT enabled" );
       return 2;
    }
 }
@@ -110,26 +107,22 @@ int iContext::disableVSync() {
       if ( wglSwapIntervalEXT( 0 ) != TRUE ) {
          switch ( GetLastError() ) {
             case ERROR_INVALID_DATA:
-               wLOG    "VSync Error [WGL] ERROR_INVALID_DATA; 0 seams to be not a good value on this System"
-               NEWLINE "==> VSync NOT disabled" END
+               wLOG(    "VSync Error [WGL] ERROR_INVALID_DATA; 0 seams to be not a good value on this System\n==> VSync NOT disabled" );
                return 3;
             case ERROR_DC_NOT_FOUND:
-               wLOG    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this"
-               NEWLINE "==> VSync NOT disabled" END
+               wLOG(    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT disabled" );
                return 4;
             default:
-               wLOG    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI"
-               NEWLINE "==> VSync NOT disabled" END
+               wLOG(    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> VSync NOT disabled" );
                return 5;
          }
       }
 
-      iLOG "VSync [WGL] disabled" END
+      iLOG( "VSync [WGL] disabled" );
       return 1;
 
    } else {
-      wLOG    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported"
-      NEWLINE "==> VSync NOT disabled" END
+      wLOG(    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported\n==> VSync NOT disabled" );
       return 2;
    }
 }
@@ -139,7 +132,7 @@ void iContext::destroyContext() {
    if ( ! vHasContext_B )
       return;
 
-   iLOG "Destroying everything" END
+   iLOG( "Destroying everything" );
    
    glDeleteVertexArrays( 1, &vVertexArray_OGL );
 
@@ -166,11 +159,11 @@ void iContext::destroyContext() {
  */
 bool iContext::makeContextCurrent() {
    if ( ! vHasContext_B ) {
-      eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with iInit::init() before you run this!" END
+      eLOG( "OpenGL context Error [WGL]; We do not have any context. Please create it with iInit::init() before you run this!" );
       return false;
    }
    if ( vAThreadOwnsTheOpenGLContext_B ) {
-      eLOG "The OpenGL Context is already in use in an other or this thread! Can not make it currnet now!" END
+      eLOG( "The OpenGL Context is already in use in an other or this thread! Can not make it currnet now!" );
       return false;
    }
    bool lReturnVal_B = wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL ) == TRUE ? true : false;
@@ -187,7 +180,7 @@ bool iContext::makeContextCurrent() {
  */
 bool iContext::makeNOContextCurrent() {
    if ( ! vHasContext_B ) {
-      eLOG "OpenGL context Error [WGL]; We do not have any context. Please create it with iInit::init() before you run this!" END
+      eLOG( "OpenGL context Error [WGL]; We do not have any context. Please create it with iInit::init() before you run this!" );
       return false;
    }
    bool lReturnVal_B = wglMakeCurrent( NULL, NULL ) == TRUE ? true : false;
@@ -262,7 +255,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       return false;
 
    if ( _type1 == _type2 ) {
-      eLOG "Changing the same attribute at the same time makes completely no sense. ==> Do nothing" END
+      eLOG( "Changing the same attribute at the same time makes completely no sense. ==> Do nothing" );
       return false;
    }
 
@@ -289,13 +282,13 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
    }
 
    if ( !lState1Supported_B ) {
-      wLOG "Window attribute " ADD lState1_str ADD " not suppored on Windows ==> change it to NONE, do (if possible) type2, and return false" END
+      wLOG( "Window attribute ", lState1_str, " not suppored on Windows ==> change it to NONE, do (if possible) type2, and return false" );
       _type1      = NONE;
       lState1_str = "NOT_SUPPORTED";
    }
 
    if ( !lState2Supported_B ) {
-      wLOG "Window attribute " ADD lState1_str ADD " not suppored on Windows ==> change it to NONE, do (if possible) type1, and return false" END
+      wLOG( "Window attribute ", lState1_str, " not suppored on Windows ==> change it to NONE, do (if possible) type1, and return false" );
       _type2      = NONE;
       lState2_str = "NOT_SUPPORTED";
    }
@@ -413,7 +406,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       }
    }
 
-   iLOG lMode_STR ADD " window attribute " ADD lState1_str ADD " and " ADD lState2_str END
+   iLOG( lMode_STR, " window attribute ", lState1_str, " and ", lState2_str );
 
    return lState1Supported_B && lState2Supported_B;
 }
@@ -435,12 +428,12 @@ bool iContext::setDecoration( ACTION _action ) {
          break;
 
       default:
-         eLOG "This message is theoretically totally impossible! [bool iContext::setDecoration( ACTION _action )]" END
+         eLOG( "This message is theoretically totally impossible! [bool iContext::setDecoration( ACTION _action )]" );
          return false;
    }
 
    if ( lGlobConfOld_B != GlobConf.win.windowDecoration ) {
-      iLOG "Window decoration ( " ADD GlobConf.win.windowDecoration ? "enabled" : "disabled" ADD " ) needs window restart!" END
+      iLOG( "Window decoration ( ", GlobConf.win.windowDecoration ? "enabled" : "disabled", " ) needs window restart!" );
       vWindowRecreate_B = true;
    }
 
@@ -463,12 +456,12 @@ int iContext::fullScreen( ACTION _action, bool _allMonitors ) {
          break;
 
       default:
-         eLOG "This message is theoretically totally impossible! [bool iContext::setDecoration( ACTION _action )]" END
+         eLOG( "This message is theoretically totally impossible! [bool iContext::setDecoration( ACTION _action )]" );
          return false;
    }
 
    if ( lGlobConfOld_B != GlobConf.win.fullscreen ) {
-      iLOG "Fullscreen ( " ADD GlobConf.win.fullscreen ? "enabled" : "disabled" ADD " ) needs window restart!" END
+      iLOG( "Fullscreen ( ", GlobConf.win.fullscreen ? "enabled" : "disabled", " ) needs window restart!" );
       vWindowRecreate_B = true;
    }
 
@@ -486,7 +479,7 @@ int iContext::fullScreen( ACTION _action, bool _allMonitors ) {
  */
 bool iContext::grabMouse() {
    if ( vIsMouseGrabbed_B ) {
-      wLOG "Mouse is already grabbed" END
+      wLOG( "Mouse is already grabbed" );
       return false;
    }
    
@@ -501,25 +494,25 @@ bool iContext::grabMouse() {
     bounds.bottom = GlobConf.win.posY + GlobConf.win.height;
    
    if(ClipCursor( &bounds ) == 0) {
-      wLOG "Error while grabbing mouse: " ADD GetLastError() END
+      wLOG( "Error while grabbing mouse: ", (uint64_t)GetLastError() );
       return false;
    }
    vIsMouseGrabbed_B = true;
-   iLOG "Mouse grabbed" END
+   iLOG( "Mouse grabbed" );
    return true;
 }
 
 bool iContext::freeMouse() {
    if ( !vIsMouseGrabbed_B ) {
-      wLOG "Mouse is not grabbed" END
+      wLOG( "Mouse is not grabbed" );
       return false;
    }
    if ( ClipCursor(NULL) == 0 ) { //Reset the bounds
-      wLOG "Error while freeing mouse: " ADD GetLastError() END
+      wLOG( "Error while freeing mouse: ", (uint64_t)GetLastError() );
       return false;
    }
    vIsMouseGrabbed_B = false;
-   iLOG "Mouse ungrabbed" END
+   iLOG( "Mouse ungrabbed" );
    return true;
 }
 
@@ -545,14 +538,14 @@ bool iContext::getIsMouseGrabbed() const {
  */
 bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
    if ( _posX > GlobConf.win.width || _posY > GlobConf.win.height ) {
-      wLOG "_posX and/or _posY outside the window" END
+      wLOG( "_posX and/or _posY outside the window" );
       return false;
    }
    
    int result = SetCursorPos(GlobConf.win.posX + _posX, GlobConf.win.posY + _posY);
    
    if ( result == 0 ) {
-      wLOG "Error while setting mouse position: " ADD GetLastError() END
+      wLOG( "Error while setting mouse position: ", (uint64_t)GetLastError() );
       return false;
    }
 
@@ -566,7 +559,7 @@ bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
  */
 bool iContext::hideMouseCursor() {
    if( vIsCursorHidden_B ) {
-      wLOG "Cursor is already hidden" END
+      wLOG( "Cursor is already hidden" );
       return false;
    }
    
@@ -576,7 +569,7 @@ bool iContext::hideMouseCursor() {
    }
    
    vIsCursorHidden_B = true;
-   iLOG "Cursor hidden" END
+   iLOG( "Cursor hidden" );
    return true;
 }
 
@@ -586,7 +579,7 @@ bool iContext::hideMouseCursor() {
  */
 bool iContext::showMouseCursor() {
    if ( !vIsCursorHidden_B ) {
-      wLOG "Cursor is already visible" END
+      wLOG( "Cursor is already visible" );
       return false;
    }
    
@@ -596,7 +589,7 @@ bool iContext::showMouseCursor() {
    }
    
    vIsCursorHidden_B = false;
-   iLOG "Cursor visible" END
+   iLOG( "Cursor visible" );
    return true;
 }
 

@@ -25,7 +25,7 @@ void ShaderInfo::runTest( uJSON_data &_data, string _dataRoot ) {
       // Compile error
       _data( "oglTest", "shader", "useShaders", S_BOOL( false ) );
       _data( "oglTest", "shader", "queryType",  S_NUM( 0 ) );
-      eLOG "Failed to compile test shader" END
+      eLOG( "Failed to compile test shader" );
       return;
    }
    
@@ -35,30 +35,30 @@ void ShaderInfo::runTest( uJSON_data &_data, string _dataRoot ) {
    
    if( ! ( info.vInputInfo.size() == 1 && info.vOutputInfo.size() == 1 && info.vUniformInfo.size() == 1 ) ) {
       _data( "oglTest", "shader", "queryType",  S_NUM( 1 ) );
-      wLOG "New shader query failed" END
+      wLOG( "New shader query failed" );
       return;
    }
    
    if( ! ( info.vInputInfo[0].name == "Position" && info.vInputInfo[0].type == GL_FLOAT_VEC3 && info.vInputInfo[0].location == 4 ) ) {
       _data( "oglTest", "shader", "queryType",  S_NUM( 1 ) );
-      wLOG "New shader query failed" END
+      wLOG( "New shader query failed" );
       return;
    }
    
    if( ! ( info.vOutputInfo[0].name == "FragColor" && info.vOutputInfo[0].type == GL_FLOAT_VEC4 && info.vOutputInfo[0].location == 2 ) ) {
       _data( "oglTest", "shader", "queryType",  S_NUM( 1 ) );
-      wLOG "New shader query failed" END
+      wLOG( "New shader query failed" );
       return;
    }
    
    if( ! ( info.vUniformInfo[0].name == "gWorld" && info.vUniformInfo[0].type == GL_FLOAT_MAT4 ) ) {
       _data( "oglTest", "shader", "queryType",  S_NUM( 1 ) );
-      wLOG "New shader query failed" END
+      wLOG( "New shader query failed" );
       return;
    }
    
    _data( "oglTest", "shader", "queryType",  S_NUM( 2 ) );
-   iLOG "New shader query succeeded" END
+   iLOG( "New shader query succeeded" );
 
 }
 

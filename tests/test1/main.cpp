@@ -54,12 +54,11 @@ int main( int argc, char *argv[] ) {
 #endif
 
 
-   iLOG "User Name:     " ADD SYSTEM.getUserName()          END
-   iLOG "User Login:    " ADD SYSTEM.getUserLogin()         END
-   iLOG "Home:          " ADD SYSTEM.getUserHomeDirectory() END
-   iLOG "Main config:   " ADD SYSTEM.getMainConfigDirPath() END
-   iLOG "Log File Path: " ADD SYSTEM.getLogFilePath()       END
-
+   iLOG( "User Name:     ", SYSTEM.getUserName()          );
+   iLOG( "User Login:    ", SYSTEM.getUserLogin()         );
+   iLOG( "Home:          ", SYSTEM.getUserHomeDirectory() );
+   iLOG( "Main config:   ", SYSTEM.getMainConfigDirPath() );
+   iLOG( "Log File Path: ", SYSTEM.getLogFilePath()       );
 
    iInit start;
 
@@ -74,18 +73,18 @@ int main( int argc, char *argv[] ) {
 #if 0
       vector<iDisplays> displays = start.getDisplayResolutions();
 
-      iLOG "Displays: " ADD displays.size() END
+      iLOG( "Displays: ", displays.size() );
 
       for( GLuint i = 0; i < displays.size(); ++i ) {
-         iLOG "Display " ADD i ADD ": " ADD displays[i].getName() END
+         iLOG( "Display ", i, ": ", displays[i].getName() );
       }
 
       if( displays.size() == 2 ) {
 //          displays[0].disable();
 //          displays[1].disable();
 
-//          iLOG start.setDisplaySizes( displays[0] ) END
-//          iLOG start.setDisplaySizes( displays[1] ) END
+//          iLOG( start.setDisplaySizes( displays[0] ) );
+//          iLOG( start.setDisplaySizes( displays[1] ) );
 
 //          start.applyNewRandRSettings();
 
@@ -98,8 +97,8 @@ int main( int argc, char *argv[] ) {
          displays[1].enable();
          displays[0].autoSelectBest();
          displays[1].autoSelectBest();
-//          iLOG start.setDisplaySizes( displays[0] ) END
-//          iLOG start.setDisplaySizes( displays[1] ) END
+//          iLOG( start.setDisplaySizes( displays[0] ) );
+//          iLOG( start.setDisplaySizes( displays[1] ) );
 //          start.applyNewRandRSettings();
 
 //          displays.clear();
@@ -109,8 +108,8 @@ int main( int argc, char *argv[] ) {
          displays[1].setNoClones();
          displays[1].setPositionAbsolute( 0, 0 );
          displays[0].setPositionRelative( iDisplays::RIGHT_OFF, displays[1] );
-         iLOG start.setDisplaySizes( displays[0] ) END
-         iLOG start.setDisplaySizes( displays[1] ) END
+         iLOG( start.setDisplaySizes( displays[0] ) );
+         iLOG( start.setDisplaySizes( displays[1] ) );
          start.setPrimary( displays[1] );
          start.applyNewRandRSettings();
          start.setPrimary( displays[1] );
@@ -137,11 +136,12 @@ int main( int argc, char *argv[] ) {
    mySHA.selftest();
 #endif
 
-//    iLOG "Credits: "
+
+//    iLOG( "Credits: "
 //    POINT "Daniel ( Mense ) Mensinger"
 //    POINT "Dennis Schunder"
 //    POINT "Silas Bartel"
-//    END
+//    );
 
 //    B_SLEEP( seconds, 1 );
 

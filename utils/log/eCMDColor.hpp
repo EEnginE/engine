@@ -32,8 +32,9 @@
 
 #if UNIX
 #include <sys/ioctl.h>
-#include <stdio.h>
-#else
+#endif
+
+#if 0
 
 #ifndef E_COLOR_DISABLED
 #define E_COLOR_DISABLED
@@ -45,7 +46,7 @@
 
 #endif
 
-#if defined E_COLOR_NO_TERMTEST
+#if defined E_COLOR_NO_TERMTEST || ! UNIX
 #define __IOCTL_TERMTEST__
 #else
 #define __IOCTL_TERMTEST__ if ( isatty( fileno( stdout ) ) == 0 ) return L"";
@@ -120,39 +121,36 @@ namespace e_engine {
  *
  */
 struct eCMDColor {
-   static const GLuint OFF        = 0;
-   static const GLuint BOLD       = 1;
-   static const GLuint UNDERSCORE = 4;
-   static const GLuint BLINK      = 5;
-   static const GLuint REVERSE    = 7;
-   static const GLuint CONCEALED  = 8;
+   static const uint16_t OFF        = 0;
+   static const uint16_t BOLD       = 1;
+   static const uint16_t UNDERSCORE = 4;
+   static const uint16_t BLINK      = 5;
+   static const uint16_t REVERSE    = 7;
+   static const uint16_t CONCEALED  = 8;
 
-   static const GLuint BLACK      = 30;
-   static const GLuint RED        = 31;
-   static const GLuint GREEN      = 32;
-   static const GLuint YELLOW     = 33;
-   static const GLuint BLUE       = 34;
-   static const GLuint MAGENTA    = 35;
-   static const GLuint CYAN       = 36;
-   static const GLuint WHITE      = 37;
+   static const uint16_t BLACK      = 30;
+   static const uint16_t RED        = 31;
+   static const uint16_t GREEN      = 32;
+   static const uint16_t YELLOW     = 33;
+   static const uint16_t BLUE       = 34;
+   static const uint16_t MAGENTA    = 35;
+   static const uint16_t CYAN       = 36;
+   static const uint16_t WHITE      = 37;
 
    static const std::wstring RESET;
-   
-   static inline std::wstring reset();         
 
-   static inline std::wstring color( GLuint _a1 );
-   static inline std::wstring color( GLuint _a1 , GLuint _a2 );
-   static inline std::wstring color( GLuint _a1 , GLuint _a2 , GLuint _a3 );
+   static inline std::wstring reset();
+
+   static inline std::wstring color( uint16_t _a1 );
+   static inline std::wstring color( uint16_t _a1 , uint16_t _a2 );
+   static inline std::wstring color( uint16_t _a1 , uint16_t _a2 , uint16_t _a3 );
 
    static inline std::wstring color( GLchar _fg );
    static inline std::wstring color( GLchar _a, GLchar _fg );
    static inline std::wstring color( GLchar _a, GLchar _fg , GLchar _bg );
 
-   static inline std::wstring color( GLuint _a, GLchar _fg );
-   static inline std::wstring color( GLuint _a, GLchar _fg , GLchar _bg );
-
-   static inline GLuint charToColorId( GLchar _c );
-   static inline GLuint charToAtributeId( GLchar _c );
+   static inline uint16_t charToColorId( GLchar _c );
+   static inline uint16_t charToAtributeId( GLchar _c );
 };
 
 std::wstring eCMDColor::reset() {
@@ -171,7 +169,7 @@ std::wstring eCMDColor::reset() {
  * \param _a The attribute integer
  * \returns An escape sequence for the attribute
  */
-std::wstring eCMDColor::color( GLuint _a1 ) {
+std::wstring eCMDColor::color( uint16_t _a1 ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
@@ -189,7 +187,7 @@ std::wstring eCMDColor::color( GLuint _a1 ) {
  * \param _fg The FG color integer
  * \returns An escape sequence for the attribute and the FG color
  */
-std::wstring eCMDColor::color( GLuint _a1, GLuint _a2 ) {
+std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2 ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
@@ -209,7 +207,7 @@ std::wstring eCMDColor::color( GLuint _a1, GLuint _a2 ) {
  * \param _bg The BG color integer
  * \returns An escape sequence for the attribute the FG and BG color
  */
-std::wstring eCMDColor::color( GLuint _a1, GLuint _a2, GLuint _a3 ) {
+std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2, uint16_t _a3 ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
@@ -272,42 +270,8 @@ std::wstring eCMDColor::color( GLchar _a, GLchar _fg, GLchar _bg ) {
 #endif // E_COLOR_DISABLED
 }
 
-/*!
- * \brief Set a console attribute, the FG and BG color
- * \param _a  The attribute character
- * \param _fg The FG color character
- * \returns An escape sequence for the attribute the FG and BG color
- */
-std::wstring eCMDColor::color( GLuint _a, GLchar _fg ) {
-#ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
 
-   return color( _a, charToColorId( _fg ) );
-#else // E_COLOR_DISABLED
-   return L"";
-#endif // E_COLOR_DISABLED
-}
-
-/*!
- * \brief Set a console attribute, the FG and BG color
- * \param _a  The attribute character
- * \param _fg The FG color character
- * \param _bg The BG color character
- * \returns An escape sequence for the attribute the FG and BG color
- */
-std::wstring eCMDColor::color( GLuint _a, GLchar _fg, GLchar _bg ) {
-#ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
-
-   return color( _a, charToColorId( _fg ), charToColorId( _bg ) + 10 );
-#else // E_COLOR_DISABLED
-   return L"";
-#endif // E_COLOR_DISABLED
-}
-
-
-
-GLuint eCMDColor::charToAtributeId( GLchar _c ) {
+uint16_t eCMDColor::charToAtributeId( GLchar _c ) {
    switch ( _c ) {
       case 'O': return OFF;
       case 'B': return BOLD;
@@ -319,7 +283,7 @@ GLuint eCMDColor::charToAtributeId( GLchar _c ) {
    }
 }
 
-GLuint eCMDColor::charToColorId( GLchar _c ) {
+uint16_t eCMDColor::charToColorId( GLchar _c ) {
    switch ( _c ) {
       case 'S': return BLACK;
       case 'R': return RED;
@@ -338,3 +302,4 @@ GLuint eCMDColor::charToColorId( GLchar _c ) {
 
 #endif
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+

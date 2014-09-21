@@ -40,7 +40,7 @@ WINDOWS="windows"
 
 ## Log macro config ##
 LOG_MACRO_PATH="utils/log/uMacros.hpp"
-LOG_TYPES="a b c d e f g h i j k l m n o p q r s t u v w x y z"
+LOG_TYPES="d i w e"
 LOG_GEN_UNDEF=1
 
 ###########################

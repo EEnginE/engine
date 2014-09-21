@@ -36,7 +36,7 @@ bool iRandR::applyNewRandRSettings() {
       for ( internal::_crtc const & fCRTCTemp : lTempAllCRTC_V_RandR ) {
          if ( fCRTC.id == fCRTCTemp.id ) {
             lAppend_B = false;
-            wLOG "RandR: Duplicate of a CRTC id in vChangeCRTC_V_RandR --> Only change first" END
+            wLOG( "RandR: Duplicate of a CRTC id in vChangeCRTC_V_RandR --> Only change first" );
             break;
          }
       }
@@ -91,7 +91,7 @@ bool iRandR::applyNewRandRSettings() {
       }
 
       if ( ! lModeFound_B ) {
-         wLOG "RandR: Unable to find mode ( fCRTC.mode = " ADD fCRTC.mode ADD ") in vMode_V_RandR --> Do not change Screen size" END
+         wLOG( "RandR: Unable to find mode ( fCRTC.mode = ", fCRTC.mode, ") in vMode_V_RandR --> Do not change Screen size" );
          return false;
       }
 
@@ -110,7 +110,7 @@ bool iRandR::applyNewRandRSettings() {
    lCurrentSizePossition_suI = XRRConfigCurrentConfiguration( vConfig_XRR, &lUselessRotationInfo_XRR );
 
    if ( !( lCurrentSizePossition_suI < lCountSizes_I ) ) {
-      wLOG "XRandR ERROR: ! lCurrentSizePossition_suI < lCountSizes_I ( " ADD lCurrentSizePossition_suI ADD " < " ADD lCountSizes_I ADD " )" END
+      wLOG( "XRandR ERROR: ! lCurrentSizePossition_suI < lCountSizes_I ( ", lCurrentSizePossition_suI, " < ", lCountSizes_I, " )" );
       return false;
    }
 
@@ -118,16 +118,16 @@ bool iRandR::applyNewRandRSettings() {
    lCurrentHeight_I = sizes[lCurrentSizePossition_suI].height;
 
    /* Only for debugging
-   iLOG "RandR Screen Size Info:"
-   POINT "MinWidth      - " ADD lMinWidth_I
-   POINT "MinHeight     - " ADD lMinHeight_I
-   POINT "MaxWidth      - " ADD lMaxWidth_I
-   POINT "MaxHeight     - " ADD lMaxHeight_I
-   POINT "NewWidth      - " ADD lNewWidth_I
-   POINT "NewHeight     - " ADD lNewHeight_I
-   POINT "CurrentWidth  - " ADD lCurrentWidth_I
-   POINT "CurrentHeight - " ADD lCurrentHeight_I
-   END */
+   iLOG( "RandR Screen Size Info:"
+   POINT "MinWidth      - ", lMinWidth_I
+   POINT "MinHeight     - ", lMinHeight_I
+   POINT "MaxWidth      - ", lMaxWidth_I
+   POINT "MaxHeight     - ", lMaxHeight_I
+   POINT "NewWidth      - ", lNewWidth_I
+   POINT "NewHeight     - ", lNewHeight_I
+   POINT "CurrentWidth  - ", lCurrentWidth_I
+   POINT "CurrentHeight - ", lCurrentHeight_I
+   ); */
 
    if (
       ( lNewWidth_I  >= lMinWidth_I     && lNewWidth_I  <= lMaxWidth_I        &&

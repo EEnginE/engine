@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 #if UNIX
 #define E_COLOR_NO_TERMTEST
@@ -16,47 +17,117 @@
 #endif
 
 namespace e_engine {
-namespace internal {
 
+class Converter : public boost::static_visitor<> {
+   public:
+      std::wstring theSTR;
+      bool   vIsSigned_B;
 
-__uLogStoreHelper::__uLogStoreHelper( wchar_t _type, std::string _rawFilename, int _logLine, std::string _functionName, bool _wait )  {
-   std::time( &vTime_lI );
-   vType_C              = _type;
-   vRawFilename_STR     = std::wstring( _rawFilename.begin(), _rawFilename.end() );
-   vLogLine_I           = _logLine;
+      void operator()( bool &i ) {
+         theSTR += i ? L"true" : L"false";
+      }
 
-   vFunctionName_STR    = std::wstring( _functionName.begin(), _functionName.end() );
+      void operator()( wchar_t &i ) { // uint8_t == char
+         theSTR.append( 1, i );
+      }
 
-   vComplete_B          = false;
+      void operator()( uint8_t &i ) { // uint8_t == char
+         theSTR.append( 1, i );
+      }
 
-   vAttrib_C            = '-';
-   vFG_C                = '-';
-   vBG_C                = '-';
-   vIsPrinted_B         = false;
-   vEndFinished_B       = false;
-   vWaitForLogPrinted_B = _wait;
+      void operator()( uint16_t &i ) {
+         if( vIsSigned_B )
+            theSTR += boost::lexical_cast<std::wstring>( ( int16_t )i );
+         else
+            theSTR += boost::lexical_cast<std::wstring>( i );
+      }
+
+      void operator()( uint32_t &i ) {
+         if( vIsSigned_B )
+            theSTR += boost::lexical_cast<std::wstring>( ( int32_t )i );
+         else
+            theSTR += boost::lexical_cast<std::wstring>( i );
+      }
+
+      void operator()( uint64_t &i ) {
+         if( vIsSigned_B )
+            theSTR += boost::lexical_cast<std::wstring>( ( int64_t )i );
+         else
+            theSTR += boost::lexical_cast<std::wstring>( i );
+      }
+
+      void operator()( double &i ) {
+         theSTR += boost::lexical_cast<std::wstring>( i );
+      }
+
+      void operator()( std::string &i ) {
+         theSTR.append( i.begin(), i.end() );
+      }
+
+      void operator()( std::wstring &i ) {
+         theSTR.append( i );
+      }
+
+      void operator()( const char *_str ) {
+         for( uint32_t i = 0; _str[i] != 0; ++i )
+            theSTR.append( 1, _str[i] );
+      }
+
+      void operator()( const wchar_t *_str ) {
+         theSTR.append( _str );
+      }
+};
+
+void uLogEntryRaw::end() {
+   if( !GlobConf.log.waitUntilLogEntryPrinted || !LOG.getIsLogLoopRunning() ) {
+      vEndFinished_B = true;
+      return;
+   }
+   {
+      boost::unique_lock<boost::mutex> lLock_BT( vWaitMutex_BT );
+      while( ! vIsPrinted_B ) vWaitUntilThisIsPrinted_BT.wait( lLock_BT );
+   }
+   boost::lock_guard<boost::mutex> lLockWait_BT( vWaitEndMutex_BT );
+   vEndFinished_B = true;
+   vWaitUntilEndFinisched_BT.notify_one();
 }
 
+void uLogEntryRaw::endLogWaitAndSetPrinted() {
+   if( ! GlobConf.log.waitUntilLogEntryPrinted ) {
+      vIsPrinted_B = true;
+      return;
+   }
+   {
+      boost::lock_guard<boost::mutex> lLockWait_BT( vWaitMutex_BT );
+      vIsPrinted_B = true;
+      vWaitUntilThisIsPrinted_BT.notify_one();
+   }
+   boost::unique_lock<boost::mutex> lLockWait_BT( vWaitEndMutex_BT );
+   while( ! vEndFinished_B ) vWaitUntilEndFinisched_BT.wait( lLockWait_BT );
+}
 
-unsigned int __uLogStoreHelper::getLogEntry( std::vector< e_engine::internal::uLogType > &_vLogTypes_V_eLT, e_engine::uLogEntry &_entry ) {
-   _entry.data.vLogEntries_V_eLS = vElements_V_eLS;
-   _entry.data.vFilename_STR     = vRawFilename_STR;
-   _entry.data.vFunctionName_STR = vFunctionName_STR;
-   _entry.data.vLine_I           = vLogLine_I;
-   _entry.data.vTime_lI          = vTime_lI;
-   _entry.data.vType_STR         = L"UNKNOWN";
-   _entry.data.vNewColor_STR     = testNewColor();
+unsigned int uLogEntryRaw::getLogEntry( std::vector< internal::uLogType > &_vLogTypes_V_eLT ) {
+   data.raw.vDataString_STR.clear();
+   data.raw.vType_STR  = L"UNKNOWN";
 
-   if ( _vLogTypes_V_eLT.empty() ) {
-      eLOG "No Log type found!! Please add at least one manually or run 'uLog.devInit();', which will be run now to prevent further Errors" END
+   Converter conf;
+   for( auto & i : vElements ) {
+      conf.vIsSigned_B = i.vIsSigned_B;
+      boost::apply_visitor( conf, i.vData );
+   }
+
+   data.raw.vDataString_STR = conf.theSTR;
+
+   if( _vLogTypes_V_eLT.empty() ) {
+      eLOG( "No Log type found!! Please add at least one manually or run 'uLog.devInit();', which will be run now to prevent further Errors" );
       LOG.devInit();
    }
 
-   for ( unsigned int i = 0; i < _vLogTypes_V_eLT.size(); ++i ) {
-      if ( _vLogTypes_V_eLT[i].getType() == vType_C ) {
-         _entry.data.vType_STR     = _vLogTypes_V_eLT[i].getString();
-         _entry.data.vBasicColor_C = _vLogTypes_V_eLT[i].getColor();
-         _entry.data.vBold_B       = _vLogTypes_V_eLT[i].getBold();
+   for( unsigned int i = 0; i < _vLogTypes_V_eLT.size(); ++i ) {
+      if( _vLogTypes_V_eLT[i].getType() == vType_C ) {
+         data.raw.vType_STR     = _vLogTypes_V_eLT[i].getString();
+         data.raw.vBasicColor_C = _vLogTypes_V_eLT[i].getColor();
+         data.raw.vBold_B       = _vLogTypes_V_eLT[i].getBold();
          return i;
       }
    }
@@ -64,50 +135,13 @@ unsigned int __uLogStoreHelper::getLogEntry( std::vector< e_engine::internal::uL
    std::wstring ltemp_STR = L"WARNING!! Log type '";
    ltemp_STR += vType_C;
    ltemp_STR += L"' not Found";
-
-   vElements_V_eLS.push_back( internal::__uLogStore( ltemp_STR, 'B', 'R', '-' ) );
+//    vElements.emplace_back( ltemp_STR );
 
    return 0;
 }
 
-std::wstring __uLogStoreHelper::testNewColor()  {
-#if UNIX
-   if ( vFG_C != L'-' ) {
-      if ( vAttrib_C != L'-' ) {
-         if ( vBG_C != L'-' ) {
-            return eCMDColor::color( vAttrib_C, vFG_C, vBG_C );
-         }
-         return eCMDColor::color( vAttrib_C, vFG_C );
-      }
-      return eCMDColor::color( vFG_C );
-   }
-#endif
-   return L"";
-}
 
-
-bool __uLogStore::hasColor()  {
-#if UNIX
-   if ( vFG_C != '-' ) {
-      if ( vAttrib_C != '-' ) {
-         if ( vBG_C != '-' ) {
-            vColor_STR = eCMDColor::color( vAttrib_C, vFG_C, vBG_C );
-            return true;
-         }
-         vColor_STR = eCMDColor::color( vAttrib_C, vFG_C );
-         return true;
-      }
-      vColor_STR = eCMDColor::color( vFG_C );
-      return true;
-   }
-#endif
-   return false;
-}
-
-
-}
-
-void uLogEntry::configure( e_engine::LOG_COLOR_TYPE _color, e_engine::LOG_PRINT_TYPE _time, e_engine::LOG_PRINT_TYPE _file, e_engine::LOG_PRINT_TYPE _errorType, int _columns ) {
+void uLogEntryRaw::__DATA__::configure( LOG_COLOR_TYPE _color, LOG_PRINT_TYPE _time, LOG_PRINT_TYPE _file, LOG_PRINT_TYPE _errorType, int _columns ) {
    config.vColor_LCT     = _color;
    config.vTime_LPT      = _time;
    config.vFile_LPT      = _file;
@@ -117,4 +151,6 @@ void uLogEntry::configure( e_engine::LOG_COLOR_TYPE _color, e_engine::LOG_PRINT_
 
 
 }
+
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

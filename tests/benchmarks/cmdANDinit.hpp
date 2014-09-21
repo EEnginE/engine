@@ -21,6 +21,9 @@ class cmdANDinit {
       bool           vDoMutex;
       unsigned int   vMutexLoops;
       
+      bool           vDoCast;
+      unsigned int   vCastLoops;
+      
       cmdANDinit() {}
       
       void postInit();
@@ -33,7 +36,7 @@ class cmdANDinit {
       
       void getFunctionInf( unsigned int &_loops, bool &_doIt ) { _loops = vFunctionLoops; _doIt = vDoFunction; }
       void getMutexInf( unsigned int &_loops, bool &_doIt ) { _loops = vMutexLoops; _doIt = vDoMutex; }
-      
+      void getCastInf( unsigned int &_loops, bool &_doIt ) { _loops = vCastLoops; _doIt = vDoCast; }
 };
 
 #endif // CMDANDINIT_H

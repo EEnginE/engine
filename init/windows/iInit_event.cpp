@@ -42,7 +42,7 @@ int iInit::eventLoop() {
    while ( !vContinueWithEventLoop_B ) vStartEventCondition_BT.wait( lLockEvent_BT );
 
 
-   iLOG "Event loop started" END
+   iLOG( "Event loop started" );
 
    MSG msg;
 
@@ -71,7 +71,7 @@ int iInit::eventLoop() {
       DispatchMessageW( &msg );
    }
 
-   iLOG "Event loop finished!" END
+   iLOG( "Event loop finished!" );
    vEventLoopHasFinished_B = true;
    return 1;
 }
@@ -106,7 +106,7 @@ LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
 
    if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
-      eLOG "Bad Windows callback error" END
+      eLOG( "Bad Windows callback error" );
    }
 
    return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
@@ -117,7 +117,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
 
 
    if ( _tempInfo.iInitPointer == 0 ) {
-      eLOG "iInit-pointer is not yet initialized" END
+      eLOG( "iInit-pointer is not yet initialized" );
       return 0;
    }
 
@@ -218,7 +218,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
                _tempInfo.iMouse.button = E_MOUSE_2;
                break;
             default:
-               iLOG "Found unhandled X-Button" END
+               iLOG( "Found unhandled X-Button" );
                _tempInfo.iMouse.button = E_MOUSE_UNKNOWN;
                break;
          }
@@ -271,11 +271,11 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          //The above returns 0 when a function key is pressed, may be useful
          return 0;
       case WM_DESTROY:
-         iLOG "Window Destroyed WM_DESTROY" END
+         iLOG( "Window Destroyed WM_DESTROY" );
          vWindowsDestroy_B   = true;
          break;
       case  WM_NCDESTROY:
-         iLOG "Window Destroyed WM_NCDESTROY" END
+         iLOG( "Window Destroyed WM_NCDESTROY" );
          vWindowsNCDestrox_B = true;
          break;
       default: break;

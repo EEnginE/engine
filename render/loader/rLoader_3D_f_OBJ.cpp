@@ -76,23 +76,23 @@ namespace phoenix = boost::phoenix;
 template<class Iterator>
 struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
    static void unsupported_f( std::string _what ) {
-      wLOG "OBJ Parser: '" ADD _what ADD "' is not supported" END
+      wLOG( "OBJ Parser: '", _what, "' is not supported" );
    }
 
    static void objName_f( std::string _name ) {
-      dLOG "Found object " ADD _name ADD " in " /*ADD lPointer->getFilePath()*/ END
+      dLOG( "Found object ", _name, " in " /*ADD lPointer->getFilePath()*/ );
    }
 
    static void mtllib_f( std::string _lib ) {
-      wLOG "The 'mtllib' command in obj files is currently not supported (do not load '" ADD _lib ADD "')" END
+      wLOG( "The 'mtllib' command in obj files is currently not supported (do not load '", _lib, "')" );
    }
 
    static void usemtl_f( std::string _mtl ) {
-      wLOG "The 'usemtl' command in obj files is currently not supported (do not set the material to '" ADD _mtl ADD "')" END
+      wLOG( "The 'usemtl' command in obj files is currently not supported (do not set the material to '", _mtl, "')" );
    }
 
    static void smooth_f( std::string _smooth ) {
-      wLOG "The 's' command in obj files is currently not supported (do not set the smoothing group to '" ADD _smooth ADD "')" END
+      wLOG( "The 's' command in obj files is currently not supported (do not set the smoothing group to '", _smooth, "')" );
    }
 
    objGrammar_float() : objGrammar_float::base_type( start ) {
@@ -186,7 +186,7 @@ int rLoader_3D_f_OBJ::load() {
    bool lReturn = qi::parse( lStartIter, lEndIter, lGrammar, vData );
 
    if( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
-      eLOG "Failed to parse '" ADD vFilePath_str ADD "'" END
+      eLOG( "Failed to parse '", vFilePath_str, "'" );
       return 2;
    }
 
