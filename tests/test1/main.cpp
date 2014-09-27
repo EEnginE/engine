@@ -26,7 +26,6 @@ void hexPrint( std::vector<unsigned char> const &_v ) {
 // #undef  UNIX
 // #define UNIX 0
 
-
 int main( int argc, char *argv[] ) {
    cmdANDinit cmd( argc, argv );
 
@@ -54,11 +53,11 @@ int main( int argc, char *argv[] ) {
 #endif
 
 
-   iLOG( "User Name:     ", SYSTEM.getUserName()          );
-   iLOG( "User Login:    ", SYSTEM.getUserLogin()         );
+   iLOG( "User Name:     ", SYSTEM.getUserName() );
+   iLOG( "User Login:    ", SYSTEM.getUserLogin() );
    iLOG( "Home:          ", SYSTEM.getUserHomeDirectory() );
    iLOG( "Main config:   ", SYSTEM.getMainConfigDirPath() );
-   iLOG( "Log File Path: ", SYSTEM.getLogFilePath()       );
+   iLOG( "Log File Path: ", SYSTEM.getLogFilePath() );
 
    iInit start;
 
@@ -130,6 +129,14 @@ int main( int argc, char *argv[] ) {
 
       start.closeWindow();
    }
+
+   rVec3f lTest( 1, 2, 3 );
+
+   iLOG( "T1:  X: ", lTest.x, " == ", lTest[0], ";  Y: ", lTest.y, " == ", lTest[1], ";  Z: ", lTest.z, " == ", lTest[2], ";" );
+   lTest.get<1>() = lTest.get<2>() * 2;
+   lTest.x = 5;
+   lTest[2] = 4;
+   iLOG( "T1:  X: ", lTest.x, " == ", lTest[0], ";  Y: ", lTest.y, " == ", lTest[1], ";  Z: ", lTest.z, " == ", lTest[2], ";" );
 
 #if DO_SHA == 1
    uSHA_2 mySHA( SHA2_384 );

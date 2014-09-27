@@ -2,47 +2,110 @@
 #define RMATRIX_H
 
 #include "uLog.hpp"
+#include <type_traits>
 
 namespace e_engine {
 
+namespace internal {
+
+template<class T, int R, int S>
+struct rMatrixData {
+   T vDataMat[R *S];
+};
+
+template<class T>
+struct rMatrixData<T, 2, 1> {
+   union {
+      struct {
+         T x, y;
+      };
+
+      T vDataMat[2];
+   };
+};
+
+template<class T>
+struct rMatrixData<T, 3, 1> {
+   union {
+      struct {
+         T x, y, z;
+      };
+
+      T vDataMat[3];
+   };
+};
+
+template<class T>
+struct rMatrixData<T, 4, 1> {
+   union {
+      struct {
+         T x, y, z, w;
+      };
+
+      T vDataMat[4];
+   };
+};
+
+}
+
 template <class TYPE, int ROWS, int COLLUMNS>
-class rMatrix {
+class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
+      static_assert( ( ROWS *COLLUMNS ) >= 2 , "Matrix size (ROWS*COLLUMNS) must be at least 2" );
+
    private:
-      TYPE *vMatrix;
-      bool vDelete;
+      template<class... ARGS>
+      inline void setHelper( uint16_t && _pos, TYPE && _arg, ARGS && ... _args );
+      inline void setHelper( uint16_t && _pos, TYPE && _arg );
 
       template<class... ARGS>
-      inline void setHelper( const uint16_t _pos, const TYPE &_arg, const ARGS &... _args );
-      inline void setHelper( const uint16_t _pos, const TYPE &_arg );
+      inline void setHelper( uint16_t && _pos, const TYPE &_arg, ARGS && ... _args );
+      inline void setHelper( uint16_t && _pos, const TYPE &_arg );
+
    public:
-      rMatrix();
-      rMatrix( TYPE _f );
+
+      // Tell the compiler that we are using templates and can access this:
+      using internal::rMatrixData<TYPE, ROWS, COLLUMNS>::vDataMat;
+
+      rMatrix()             {fill( 0 );}
+      rMatrix( TYPE &_f )   {fill( std::forward<TYPE>( _f ) );}
+      rMatrix( TYPE && _f ) {fill( _f );}
       rMatrix( TYPE *_f );
       rMatrix( const rMatrix<TYPE, ROWS, COLLUMNS> &_newMatrix );
 
       template<class... ARGS>
-      rMatrix( const ARGS &... _args );
+      rMatrix( TYPE && _a1, ARGS && ... _args );
 
-      ~rMatrix();
+      ~rMatrix() {}
 
-      TYPE       &get( uint16_t _position )                     {return vMatrix[_position];}
-      TYPE const &get( uint16_t _position ) const               {return vMatrix[_position];}
-      TYPE       &get( uint16_t _x, uint16_t _y )               {return vMatrix[( _x * ROWS ) + _y];}
-      TYPE const &get( uint16_t _x, uint16_t _y ) const         {return vMatrix[( _x * ROWS ) + _y];}
-      TYPE       *get()                                         {return vMatrix;}
-      void        set( uint16_t _position, TYPE _newVal )       {vMatrix[_position] = _newVal;}
+      TYPE       &get( uint16_t _position )                     {return vDataMat[_position];}
+      TYPE const &get( uint16_t _position ) const               {return vDataMat[_position];}
+      TYPE       &get( uint16_t _x, uint16_t _y )               {return vDataMat[( _x * ROWS ) + _y];}
+      TYPE const &get( uint16_t _x, uint16_t _y ) const         {return vDataMat[( _x * ROWS ) + _y];}
 
-      void        set( uint16_t _x, uint16_t _y, TYPE _newVal ) {vMatrix[( _x * ROWS ) + _y] = _newVal;}
+      template<uint I>         TYPE       &get()       {static_assert( I     < ROWS * COLLUMNS , "Out of range" ); return vDataMat[I];}
+      template<uint I>         TYPE const &get() const {static_assert( I     < ROWS * COLLUMNS , "Out of range" ); return vDataMat[I];}
+      template<uint X, uint Y> TYPE       &get()       {static_assert( X * Y < ROWS * COLLUMNS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
+      template<uint X, uint Y> TYPE const &get() const {static_assert( X * Y < ROWS * COLLUMNS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
+
+      TYPE       *getMatrix()                                   {return vDataMat;}
+      void        set( uint16_t _position, TYPE _newVal )       {vDataMat[_position] = _newVal;}
+
+      void        set( uint16_t _x, uint16_t _y, TYPE _newVal ) {vDataMat[( _x * ROWS ) + _y] = _newVal;}
       void        set( TYPE *_matrix );
 
       template<class... ARGS>
-      bool        set2( const ARGS &... _args );
+      void        set2( ARGS && ... _args );
 
       int getRowSize()     {return ROWS;}
       int getCollumnSize() {return COLLUMNS;}
 
-      void toIdentityMatrix();
-      void fill( TYPE _f );
+      // DTTSEIW = DUMMY_TEMPLATE_THAT_STD_ENABLE_IF_WORKS
+      template<class DTTSEIW = void>
+      typename std::enable_if<ROWS == COLLUMNS, DTTSEIW>::type
+      toIdentityMatrix();
+
+      void fill( TYPE &_f )  {fill( std::forward<TYPE>( _f ) );}
+      void fill( TYPE && _f );
 
 
       template <int COLLUMNS_NEW>
@@ -63,10 +126,10 @@ class rMatrix {
        */
       template <class T, int R, int C, int C_N >
       friend rMatrix<T, R, C_N> operator*( rMatrix<T, R, C> _lMatrix, rMatrix<T, C, C_N> &_rMatrix );
-      
+
       template <class T, int R, int C >
       friend rMatrix<T, R, C> operator*( T _lScalar, const rMatrix<T, R, C> &_rMatrix );
-      
+
       template <class T, int R, int C >
       friend rMatrix<T, R, C> operator*( rMatrix<T, R, C> _lMatrix, const T &_rScalar );
 
@@ -83,11 +146,11 @@ class rMatrix {
       rMatrix<TYPE, ROWS, COLLUMNS> &operator*=( const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix );
       rMatrix<TYPE, ROWS, COLLUMNS> &operator*=( const TYPE                          &_rScalar );
 
-      TYPE &operator[]( uint16_t _x );
-      TYPE &operator()( uint16_t _x, uint16_t _y );
+      TYPE &operator[]( uint16_t _x )                          {return get( _x);}
+      TYPE &operator()( uint16_t _x, uint16_t _y )             {return get( _x, _y );}
 
-      TYPE const &operator[]( uint16_t _x )              const;
-      TYPE const &operator()( uint16_t _x, uint16_t _y ) const;
+      TYPE const &operator[]( uint16_t _x )              const {return get( _x);}
+      TYPE const &operator()( uint16_t _x, uint16_t _y ) const {return get( _x, _y );}
 
 };
 
@@ -100,60 +163,29 @@ class rMatrix {
 // ==============================================================================================================================================
 // =========================================================================================================================
 
-template <class TYPE, int ROWS, int COLLUMNS>
-rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix()  {
-   vMatrix = new TYPE[ROWS * COLLUMNS];
-   vDelete = true;
-   fill( 0 );
-}
-
-template <class TYPE, int ROWS, int COLLUMNS>
-rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE _f )  {
-   vMatrix = new TYPE[ROWS * COLLUMNS];
-   vDelete = true;
-   fill( _f );
-}
 
 template <class TYPE, int ROWS, int COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE *_f )  {
-   vMatrix = new TYPE[ROWS * COLLUMNS];
-   vDelete = true;
-
    if( _f == nullptr )
       return;
 
    for( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      vMatrix[i] = _f[i];
+      vDataMat[i] = _f[i];
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( const rMatrix<TYPE, ROWS, COLLUMNS> &_newMatrix ) {
-   vMatrix = new TYPE[ROWS * COLLUMNS];
-   vDelete = true;
-
    for( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      vMatrix[i] = _newMatrix.vMatrix[i];
+      vDataMat[i] = _newMatrix.vDataMat[i];
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template <class... ARGS>
-rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( const ARGS &... _args ) {
-   vMatrix = new TYPE[ROWS * COLLUMNS];
-   vDelete = true;
-
-   if( sizeof...( _args ) != ( ROWS * COLLUMNS ) ) {
-      eLOG( "Can not set a ", ROWS, "x", COLLUMNS, " matrix with ", sizeof...( _args ), " Elements!" );
-      fill( 0 );
-   }
-   setHelper( 0, _args... );
+rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE && _a1, ARGS && ... _args ) {
+   static_assert( sizeof...( _args ) == ( ROWS * COLLUMNS - 1 ), "Wrong Number of arguments for this size of matrix / vector" );
+   setHelper( 0, std::forward<TYPE>( _a1 ), std::forward<ARGS>( _args )... );
 }
 
-
-
-template <class TYPE, int ROWS, int COLLUMNS>
-rMatrix<TYPE, ROWS, COLLUMNS>::~rMatrix() {
-   if( vDelete ) delete[] vMatrix;
-}
 
 
 // =========================================================================================================================
@@ -164,31 +196,11 @@ rMatrix<TYPE, ROWS, COLLUMNS>::~rMatrix() {
 // ==============================================================================================================================================
 // =========================================================================================================================
 
-template <class TYPE, int ROWS, int COLLUMNS>
-TYPE &rMatrix<TYPE, ROWS, COLLUMNS>::operator[]( uint16_t _x ) {
-   return vMatrix[_x];
-}
-
-template <class TYPE, int ROWS, int COLLUMNS>
-TYPE &rMatrix<TYPE, ROWS, COLLUMNS>::operator()( uint16_t _x, uint16_t _y ) {
-   return vMatrix[( _x * ROWS ) + _y];
-}
-
-template <class TYPE, int ROWS, int COLLUMNS>
-const TYPE &rMatrix<TYPE, ROWS, COLLUMNS>::operator[]( uint16_t _x ) const {
-   return vMatrix[_x];
-}
-
-template <class TYPE, int ROWS, int COLLUMNS>
-const TYPE &rMatrix<TYPE, ROWS, COLLUMNS>::operator()( uint16_t _x, uint16_t _y ) const {
-   return vMatrix[( _x * ROWS ) + _y];
-}
 
 template <class TYPE, int ROWS, int COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator=( rMatrix<TYPE, ROWS, COLLUMNS> _newMatrix ) {
-   _newMatrix.vDelete = false;
    for( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      vMatrix[i] = _newMatrix.get( i );
+      vDataMat[i] = _newMatrix.get( i );
    return *this;
 }
 
@@ -215,9 +227,9 @@ rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=( const 
 
 template <class TYPE, int ROWS, int COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=( const TYPE &_rScalar ) {
-   for( uint16_t i = 0; i < (ROWS * COLLUMNS); ++i )
-      vMatrix[i] *= _rScalar;
-   
+   for( uint16_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
+      vDataMat[i] *= _rScalar;
+
    return *this;
 }
 
@@ -227,8 +239,6 @@ rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=( const 
 template <class TYPE, int ROWS, int COLLUMNS, int COLLUMNS_NEW>
 rMatrix<TYPE, ROWS, COLLUMNS_NEW> operator*( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix, rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_rMatrix ) {
    rMatrix<TYPE, ROWS, COLLUMNS_NEW> _target;
-   _target.vDelete  = false;
-   _lMatrix.vDelete = false;
    _lMatrix.multiply( _rMatrix, &_target );
    return _target;
 }
@@ -237,16 +247,13 @@ rMatrix<TYPE, ROWS, COLLUMNS_NEW> operator*( rMatrix<TYPE, ROWS, COLLUMNS> _lMat
 template <class TYPE, int ROWS, int COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> operator*( TYPE _lScalar, const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    rMatrix<TYPE, ROWS, COLLUMNS> lTarget = _rMatrix;
-   lTarget.vDelete  = false;
    lTarget *= _lScalar;
    return lTarget;
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> operator*( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix, const TYPE &_rScalar ) {
-   _lMatrix.vDelete  = false;
-   _lMatrix *= _rScalar;
-   return _lMatrix;
+   return _lMatrix *= _rScalar;;
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
@@ -269,24 +276,28 @@ rMatrix<TYPE, ROWS, COLLUMNS> operator-( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix,
 // ==============================================================================================================================================
 // =========================================================================================================================
 
+/*!
+ * \brief Sets the Matrix to a identity matrix
+ *
+ * \note Only Works when ROWS == COLLUMNS else disabled with std::enable_if
+ */
+// DTTSEIW = DUMMY_TEMPLATE_THAT_STD_ENABLE_IF_WORKS
 template<class TYPE, int ROWS, int COLLUMNS>
-void rMatrix<TYPE, ROWS, COLLUMNS>::toIdentityMatrix() {
-   if( ROWS != COLLUMNS ) {
-      fill( 0 );
-      return;
-   }
-   vMatrix[0] = 1;
+template<class DTTSEIW>
+typename std::enable_if<ROWS == COLLUMNS, DTTSEIW>::type
+rMatrix<TYPE, ROWS, COLLUMNS>::toIdentityMatrix() {
+   vDataMat[0] = 1;
    for( int i = 1; i < ROWS * ROWS; ++i )
       if( ( i % ( ROWS + 1 ) ) == 0 )
-         vMatrix[i] = 1;
+         vDataMat[i] = 1;
       else
-         vMatrix[i] = 0;
+         vDataMat[i] = 0;
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
-void rMatrix<TYPE, ROWS, COLLUMNS>::fill( TYPE _f ) {
+void rMatrix<TYPE, ROWS, COLLUMNS>::fill( TYPE && _f ) {
    for( int i = 1; i < ROWS * ROWS; ++i )
-      vMatrix[i] = _f;
+      vDataMat[i] = _f;
 }
 
 // =========================================================================================================================
@@ -323,59 +334,59 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, COLLUMNS, COLL
 //HARDCODED 2x2
 template<class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 2, 2> &_matrix, rMatrix<TYPE, 2, 2> *_targetMatrix ) {
-   _targetMatrix->vMatrix[0] = ( ( vMatrix[0] * _matrix.vMatrix[0] ) + ( vMatrix[4] * _matrix.vMatrix[1] ) );
-   _targetMatrix->vMatrix[1] = ( ( vMatrix[1] * _matrix.vMatrix[0] ) + ( vMatrix[5] * _matrix.vMatrix[1] ) );
-   _targetMatrix->vMatrix[2] = ( ( vMatrix[0] * _matrix.vMatrix[2] ) + ( vMatrix[4] * _matrix.vMatrix[3] ) );
-   _targetMatrix->vMatrix[3] = ( ( vMatrix[1] * _matrix.vMatrix[2] ) + ( vMatrix[5] * _matrix.vMatrix[3] ) );
+   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) );
+   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) );
+   _targetMatrix->vDataMat[2] = ( ( vDataMat[0] * _matrix.vDataMat[2] ) + ( vDataMat[4] * _matrix.vDataMat[3] ) );
+   _targetMatrix->vDataMat[3] = ( ( vDataMat[1] * _matrix.vDataMat[2] ) + ( vDataMat[5] * _matrix.vDataMat[3] ) );
 }
 
 
 //HARDCODED 3x3
 template<class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 3, 3> &_matrix, rMatrix<TYPE, 3, 3> *_targetMatrix ) {
-   _targetMatrix->vMatrix[0] = ( ( vMatrix[0] * _matrix.vMatrix[0] ) + ( vMatrix[4] * _matrix.vMatrix[1] ) + ( vMatrix[8]  * _matrix.vMatrix[2] ) )  ;
-   _targetMatrix->vMatrix[1] = ( ( vMatrix[1] * _matrix.vMatrix[0] ) + ( vMatrix[5] * _matrix.vMatrix[1] ) + ( vMatrix[9]  * _matrix.vMatrix[2] ) )  ;
-   _targetMatrix->vMatrix[2] = ( ( vMatrix[2] * _matrix.vMatrix[0] ) + ( vMatrix[6] * _matrix.vMatrix[1] ) + ( vMatrix[10] * _matrix.vMatrix[2] ) ) ;
-   _targetMatrix->vMatrix[3] = ( ( vMatrix[0] * _matrix.vMatrix[3] ) + ( vMatrix[7] * _matrix.vMatrix[4] ) + ( vMatrix[11] * _matrix.vMatrix[5] ) ) ;
-   _targetMatrix->vMatrix[4] = ( ( vMatrix[1] * _matrix.vMatrix[3] ) + ( vMatrix[4] * _matrix.vMatrix[4] ) + ( vMatrix[8]  * _matrix.vMatrix[5] ) )  ;
-   _targetMatrix->vMatrix[5] = ( ( vMatrix[2] * _matrix.vMatrix[3] ) + ( vMatrix[5] * _matrix.vMatrix[4] ) + ( vMatrix[9]  * _matrix.vMatrix[5] ) )  ;
-   _targetMatrix->vMatrix[6] = ( ( vMatrix[0] * _matrix.vMatrix[6] ) + ( vMatrix[6] * _matrix.vMatrix[7] ) + ( vMatrix[10] * _matrix.vMatrix[8] ) ) ;
-   _targetMatrix->vMatrix[7] = ( ( vMatrix[1] * _matrix.vMatrix[6] ) + ( vMatrix[7] * _matrix.vMatrix[7] ) + ( vMatrix[11] * _matrix.vMatrix[8] ) ) ;
-   _targetMatrix->vMatrix[8] = ( ( vMatrix[2] * _matrix.vMatrix[6] ) + ( vMatrix[4] * _matrix.vMatrix[7] ) + ( vMatrix[8]  * _matrix.vMatrix[8] ) )  ;
+   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) + ( vDataMat[8]  * _matrix.vDataMat[2] ) )  ;
+   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) + ( vDataMat[9]  * _matrix.vDataMat[2] ) )  ;
+   _targetMatrix->vDataMat[2] = ( ( vDataMat[2] * _matrix.vDataMat[0] ) + ( vDataMat[6] * _matrix.vDataMat[1] ) + ( vDataMat[10] * _matrix.vDataMat[2] ) ) ;
+   _targetMatrix->vDataMat[3] = ( ( vDataMat[0] * _matrix.vDataMat[3] ) + ( vDataMat[7] * _matrix.vDataMat[4] ) + ( vDataMat[11] * _matrix.vDataMat[5] ) ) ;
+   _targetMatrix->vDataMat[4] = ( ( vDataMat[1] * _matrix.vDataMat[3] ) + ( vDataMat[4] * _matrix.vDataMat[4] ) + ( vDataMat[8]  * _matrix.vDataMat[5] ) )  ;
+   _targetMatrix->vDataMat[5] = ( ( vDataMat[2] * _matrix.vDataMat[3] ) + ( vDataMat[5] * _matrix.vDataMat[4] ) + ( vDataMat[9]  * _matrix.vDataMat[5] ) )  ;
+   _targetMatrix->vDataMat[6] = ( ( vDataMat[0] * _matrix.vDataMat[6] ) + ( vDataMat[6] * _matrix.vDataMat[7] ) + ( vDataMat[10] * _matrix.vDataMat[8] ) ) ;
+   _targetMatrix->vDataMat[7] = ( ( vDataMat[1] * _matrix.vDataMat[6] ) + ( vDataMat[7] * _matrix.vDataMat[7] ) + ( vDataMat[11] * _matrix.vDataMat[8] ) ) ;
+   _targetMatrix->vDataMat[8] = ( ( vDataMat[2] * _matrix.vDataMat[6] ) + ( vDataMat[4] * _matrix.vDataMat[7] ) + ( vDataMat[8]  * _matrix.vDataMat[8] ) )  ;
 }
 
 
 //HARDCODED 4x4
 template<class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 4, 4> &_matrix, rMatrix<TYPE, 4, 4> *_targetMatrix ) {
-   _targetMatrix->vMatrix[0]  = ( ( vMatrix[0] * _matrix.vMatrix[0] )  + ( vMatrix[4] * _matrix.vMatrix[1] )  + ( vMatrix[8]  * _matrix.vMatrix[2] )  + ( vMatrix[12] * _matrix.vMatrix[3] ) )  ;
-   _targetMatrix->vMatrix[1]  = ( ( vMatrix[1] * _matrix.vMatrix[0] )  + ( vMatrix[5] * _matrix.vMatrix[1] )  + ( vMatrix[9]  * _matrix.vMatrix[2] )  + ( vMatrix[13] * _matrix.vMatrix[3] ) )  ;
-   _targetMatrix->vMatrix[2]  = ( ( vMatrix[2] * _matrix.vMatrix[0] )  + ( vMatrix[6] * _matrix.vMatrix[1] )  + ( vMatrix[10] * _matrix.vMatrix[2] )  + ( vMatrix[14] * _matrix.vMatrix[3] ) )  ;
-   _targetMatrix->vMatrix[3]  = ( ( vMatrix[3] * _matrix.vMatrix[0] )  + ( vMatrix[7] * _matrix.vMatrix[1] )  + ( vMatrix[11] * _matrix.vMatrix[2] )  + ( vMatrix[15] * _matrix.vMatrix[3] ) )  ;
-   _targetMatrix->vMatrix[4]  = ( ( vMatrix[0] * _matrix.vMatrix[4] )  + ( vMatrix[4] * _matrix.vMatrix[5] )  + ( vMatrix[8]  * _matrix.vMatrix[6] )  + ( vMatrix[12] * _matrix.vMatrix[7] ) )  ;
-   _targetMatrix->vMatrix[5]  = ( ( vMatrix[1] * _matrix.vMatrix[4] )  + ( vMatrix[5] * _matrix.vMatrix[5] )  + ( vMatrix[9]  * _matrix.vMatrix[6] )  + ( vMatrix[13] * _matrix.vMatrix[7] ) )  ;
-   _targetMatrix->vMatrix[6]  = ( ( vMatrix[2] * _matrix.vMatrix[4] )  + ( vMatrix[6] * _matrix.vMatrix[5] )  + ( vMatrix[10] * _matrix.vMatrix[6] )  + ( vMatrix[14] * _matrix.vMatrix[7] ) )  ;
-   _targetMatrix->vMatrix[7]  = ( ( vMatrix[3] * _matrix.vMatrix[4] )  + ( vMatrix[7] * _matrix.vMatrix[5] )  + ( vMatrix[11] * _matrix.vMatrix[6] )  + ( vMatrix[15] * _matrix.vMatrix[7] ) )  ;
-   _targetMatrix->vMatrix[8]  = ( ( vMatrix[0] * _matrix.vMatrix[8] )  + ( vMatrix[4] * _matrix.vMatrix[9] )  + ( vMatrix[8]  * _matrix.vMatrix[10] ) + ( vMatrix[12] * _matrix.vMatrix[11] ) ) ;
-   _targetMatrix->vMatrix[9]  = ( ( vMatrix[1] * _matrix.vMatrix[8] )  + ( vMatrix[5] * _matrix.vMatrix[9] )  + ( vMatrix[9]  * _matrix.vMatrix[10] ) + ( vMatrix[13] * _matrix.vMatrix[11] ) ) ;
-   _targetMatrix->vMatrix[10] = ( ( vMatrix[2] * _matrix.vMatrix[8] )  + ( vMatrix[6] * _matrix.vMatrix[9] )  + ( vMatrix[10] * _matrix.vMatrix[10] ) + ( vMatrix[14] * _matrix.vMatrix[11] ) ) ;
-   _targetMatrix->vMatrix[11] = ( ( vMatrix[3] * _matrix.vMatrix[8] )  + ( vMatrix[7] * _matrix.vMatrix[9] )  + ( vMatrix[11] * _matrix.vMatrix[10] ) + ( vMatrix[15] * _matrix.vMatrix[11] ) ) ;
-   _targetMatrix->vMatrix[12] = ( ( vMatrix[0] * _matrix.vMatrix[12] ) + ( vMatrix[4] * _matrix.vMatrix[13] ) + ( vMatrix[8]  * _matrix.vMatrix[14] ) + ( vMatrix[12] * _matrix.vMatrix[15] ) ) ;
-   _targetMatrix->vMatrix[13] = ( ( vMatrix[1] * _matrix.vMatrix[12] ) + ( vMatrix[5] * _matrix.vMatrix[13] ) + ( vMatrix[9]  * _matrix.vMatrix[14] ) + ( vMatrix[13] * _matrix.vMatrix[15] ) ) ;
-   _targetMatrix->vMatrix[14] = ( ( vMatrix[2] * _matrix.vMatrix[12] ) + ( vMatrix[6] * _matrix.vMatrix[13] ) + ( vMatrix[10] * _matrix.vMatrix[14] ) + ( vMatrix[14] * _matrix.vMatrix[15] ) ) ;
-   _targetMatrix->vMatrix[15] = ( ( vMatrix[3] * _matrix.vMatrix[12] ) + ( vMatrix[7] * _matrix.vMatrix[13] ) + ( vMatrix[11] * _matrix.vMatrix[14] ) + ( vMatrix[15] * _matrix.vMatrix[15] ) ) ;
+   _targetMatrix->vDataMat[0]  = ( ( vDataMat[0] * _matrix.vDataMat[0] )  + ( vDataMat[4] * _matrix.vDataMat[1] )  + ( vDataMat[8]  * _matrix.vDataMat[2] )  + ( vDataMat[12] * _matrix.vDataMat[3] ) )  ;
+   _targetMatrix->vDataMat[1]  = ( ( vDataMat[1] * _matrix.vDataMat[0] )  + ( vDataMat[5] * _matrix.vDataMat[1] )  + ( vDataMat[9]  * _matrix.vDataMat[2] )  + ( vDataMat[13] * _matrix.vDataMat[3] ) )  ;
+   _targetMatrix->vDataMat[2]  = ( ( vDataMat[2] * _matrix.vDataMat[0] )  + ( vDataMat[6] * _matrix.vDataMat[1] )  + ( vDataMat[10] * _matrix.vDataMat[2] )  + ( vDataMat[14] * _matrix.vDataMat[3] ) )  ;
+   _targetMatrix->vDataMat[3]  = ( ( vDataMat[3] * _matrix.vDataMat[0] )  + ( vDataMat[7] * _matrix.vDataMat[1] )  + ( vDataMat[11] * _matrix.vDataMat[2] )  + ( vDataMat[15] * _matrix.vDataMat[3] ) )  ;
+   _targetMatrix->vDataMat[4]  = ( ( vDataMat[0] * _matrix.vDataMat[4] )  + ( vDataMat[4] * _matrix.vDataMat[5] )  + ( vDataMat[8]  * _matrix.vDataMat[6] )  + ( vDataMat[12] * _matrix.vDataMat[7] ) )  ;
+   _targetMatrix->vDataMat[5]  = ( ( vDataMat[1] * _matrix.vDataMat[4] )  + ( vDataMat[5] * _matrix.vDataMat[5] )  + ( vDataMat[9]  * _matrix.vDataMat[6] )  + ( vDataMat[13] * _matrix.vDataMat[7] ) )  ;
+   _targetMatrix->vDataMat[6]  = ( ( vDataMat[2] * _matrix.vDataMat[4] )  + ( vDataMat[6] * _matrix.vDataMat[5] )  + ( vDataMat[10] * _matrix.vDataMat[6] )  + ( vDataMat[14] * _matrix.vDataMat[7] ) )  ;
+   _targetMatrix->vDataMat[7]  = ( ( vDataMat[3] * _matrix.vDataMat[4] )  + ( vDataMat[7] * _matrix.vDataMat[5] )  + ( vDataMat[11] * _matrix.vDataMat[6] )  + ( vDataMat[15] * _matrix.vDataMat[7] ) )  ;
+   _targetMatrix->vDataMat[8]  = ( ( vDataMat[0] * _matrix.vDataMat[8] )  + ( vDataMat[4] * _matrix.vDataMat[9] )  + ( vDataMat[8]  * _matrix.vDataMat[10] ) + ( vDataMat[12] * _matrix.vDataMat[11] ) ) ;
+   _targetMatrix->vDataMat[9]  = ( ( vDataMat[1] * _matrix.vDataMat[8] )  + ( vDataMat[5] * _matrix.vDataMat[9] )  + ( vDataMat[9]  * _matrix.vDataMat[10] ) + ( vDataMat[13] * _matrix.vDataMat[11] ) ) ;
+   _targetMatrix->vDataMat[10] = ( ( vDataMat[2] * _matrix.vDataMat[8] )  + ( vDataMat[6] * _matrix.vDataMat[9] )  + ( vDataMat[10] * _matrix.vDataMat[10] ) + ( vDataMat[14] * _matrix.vDataMat[11] ) ) ;
+   _targetMatrix->vDataMat[11] = ( ( vDataMat[3] * _matrix.vDataMat[8] )  + ( vDataMat[7] * _matrix.vDataMat[9] )  + ( vDataMat[11] * _matrix.vDataMat[10] ) + ( vDataMat[15] * _matrix.vDataMat[11] ) ) ;
+   _targetMatrix->vDataMat[12] = ( ( vDataMat[0] * _matrix.vDataMat[12] ) + ( vDataMat[4] * _matrix.vDataMat[13] ) + ( vDataMat[8]  * _matrix.vDataMat[14] ) + ( vDataMat[12] * _matrix.vDataMat[15] ) ) ;
+   _targetMatrix->vDataMat[13] = ( ( vDataMat[1] * _matrix.vDataMat[12] ) + ( vDataMat[5] * _matrix.vDataMat[13] ) + ( vDataMat[9]  * _matrix.vDataMat[14] ) + ( vDataMat[13] * _matrix.vDataMat[15] ) ) ;
+   _targetMatrix->vDataMat[14] = ( ( vDataMat[2] * _matrix.vDataMat[12] ) + ( vDataMat[6] * _matrix.vDataMat[13] ) + ( vDataMat[10] * _matrix.vDataMat[14] ) + ( vDataMat[14] * _matrix.vDataMat[15] ) ) ;
+   _targetMatrix->vDataMat[15] = ( ( vDataMat[3] * _matrix.vDataMat[12] ) + ( vDataMat[7] * _matrix.vDataMat[13] ) + ( vDataMat[11] * _matrix.vDataMat[14] ) + ( vDataMat[15] * _matrix.vDataMat[15] ) ) ;
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::add( const rMatrix<TYPE, ROWS, COLLUMNS> &_matrix, rMatrix<TYPE, ROWS, COLLUMNS> *_targetMatrix ) {
    for( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      _targetMatrix->set( i, ( vMatrix[i] + _matrix.get( i ) ) );
+      _targetMatrix->set( i, ( vDataMat[i] + _matrix.get( i ) ) );
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::subtract( const rMatrix<TYPE, ROWS, COLLUMNS> &_matrix, rMatrix<TYPE, ROWS, COLLUMNS> *_targetMatrix ) {
    for( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      _targetMatrix->set( i, ( vMatrix[i] - _matrix.get( i ) ) );
+      _targetMatrix->set( i, ( vDataMat[i] - _matrix.get( i ) ) );
 }
 
 
@@ -389,31 +400,40 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::subtract( const rMatrix<TYPE, ROWS, COLLUMNS
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template<class... ARGS>
-bool rMatrix<TYPE, ROWS, COLLUMNS>::set2( const ARGS &... _args ) {
-   if( sizeof...( _args ) != ( ROWS * COLLUMNS ) ) {
-      eLOG( "Can not set a ", ROWS, "x", COLLUMNS, " matrix with ", sizeof...( _args ), " Elements!" );
-      return false;
-   }
-   setHelper( 0, _args... );
-   return true;
+void rMatrix<TYPE, ROWS, COLLUMNS>::set2( ARGS && ... _args ) {
+   static_assert( sizeof...( _args ) == ( ROWS * COLLUMNS ), "Wrong Number of arguments to set the size of this size of matrix / vector [set2]" );
+   setHelper( 0, std::forward<ARGS>( _args )... );
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::set( TYPE *_matrix ) {
    for( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      vMatrix[i] = _matrix[i];
+      vDataMat[i] = _matrix[i];
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template<class... ARGS>
-inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const uint16_t _pos, const TYPE &_arg, const ARGS &... _args ) {
-   vMatrix[_pos] = _arg;
-   setHelper( _pos + 1, _args... );
+inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( uint16_t && _pos, TYPE && _arg, ARGS && ... _args ) {
+   vDataMat[_pos] = _arg;
+   setHelper( std::forward<uint16_t>( _pos + 1 ), std::forward<ARGS>( _args )... );
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
-inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const uint16_t _pos, const TYPE &_arg ) {
-   vMatrix[_pos] = _arg;
+inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( uint16_t && _pos, TYPE && _arg ) {
+   vDataMat[_pos] = _arg;
+}
+
+
+template <class TYPE, int ROWS, int COLLUMNS>
+template<class... ARGS>
+inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( uint16_t && _pos, const TYPE &_arg, ARGS && ... _args ) {
+   vDataMat[_pos] = _arg;
+   setHelper( std::forward<uint16_t>( _pos + 1 ), std::forward<ARGS>( _args )... );
+}
+
+template <class TYPE, int ROWS, int COLLUMNS>
+inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( uint16_t && _pos, const TYPE &_arg ) {
+   vDataMat[_pos] = _arg;
 }
 
 
@@ -422,4 +442,6 @@ inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const uint16_t _pos, const
 
 #endif // RMATRIX_H
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+
+
 

@@ -62,10 +62,10 @@ template<class T>
 void rMatrixMath::scale( const rVec3<T> &_n, rMat4<T> &_out ) {
    _out.set2
    (
-         _n[0], 0 ,    0,     0,
-         0,     _n[1], 0,     0,
-         0,     0,     _n[2], 0,
-         0,     0,     0,     1
+         _n.x, 0 ,   0,    0,
+         0,    _n.y, 0,    0,
+         0,    0,    _n.z, 0,
+         0,    0,    0,    1
    );
 }
 
@@ -73,10 +73,10 @@ template<class T>
 void rMatrixMath::translate( const rVec3<T> &_n, rMat4<T> &_out ) {
    _out.set2
    (
-         1,     0,     0, 0,
-         0,     1,     0, 0,
-         0,     0,     1, 0,
-         _n[0], _n[1], _n[2], 1
+         1,     0,     0,  0,
+         0,     1,     0,  0,
+         0,     0,     1,  0,
+         _n.x, _n.y, _n.z, 1
    );
 }
 
@@ -86,35 +86,35 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    T lAngleToUse = DEG_TO_RAD( _angle ) / 2;
    T lSin = sin( lAngleToUse );
 
-   rQuaternion<T> lFinal( 1, 0, 0, 0 );
-   rQuaternion<T> lTemp(
+   rVec4<T> lFinal( 1, 0, 0, 0 );
+   rVec4<T> lTemp(
          cos( lAngleToUse ),
-         _axis[0] * lSin,
-         _axis[1] * lSin,
-         _axis[2] * lSin
+         _axis.x * lSin,
+         _axis.y * lSin,
+         _axis.z * lSin
    );
 
    rVectorMath::quaternionMultiplication( lTemp, lFinal, lFinal );
 
-   _out( 0, 0 ) = 1 - 2 * lFinal[2] * lFinal[2] - 2 * lFinal[3] * lFinal[3];
-   _out( 1, 0 ) =     2 * lFinal[1] * lFinal[2] - 2 * lFinal[0] * lFinal[3];
-   _out( 2, 0 ) =     2 * lFinal[1] * lFinal[3] + 2 * lFinal[0] * lFinal[2];
-   _out( 3, 0 ) = 0;
+   _out.template get<0, 0>() = 1 - 2 * lFinal.y * lFinal.y - 2 * lFinal.z * lFinal.z;
+   _out.template get<1, 0>() =     2 * lFinal.x * lFinal.y - 2 * lFinal.w * lFinal.z;
+   _out.template get<2, 0>() =     2 * lFinal.x * lFinal.z + 2 * lFinal.w * lFinal.y;
+   _out.template get<3, 0>() = 0;
 
-   _out( 0, 1 ) =     2 * lFinal[1] * lFinal[2] + 2 * lFinal[0] * lFinal[3];
-   _out( 1, 1 ) = 1 - 2 * lFinal[1] * lFinal[1] - 2 * lFinal[3] * lFinal[3];
-   _out( 2, 1 ) =     2 * lFinal[2] * lFinal[3] + 2 * lFinal[0] * lFinal[1];
-   _out( 3, 1 ) = 0;
+   _out.template get<0, 1>() =     2 * lFinal.x * lFinal.y + 2 * lFinal.w * lFinal.z;
+   _out.template get<1, 1>() = 1 - 2 * lFinal.x * lFinal.x - 2 * lFinal.z * lFinal.z;
+   _out.template get<2, 1>() =     2 * lFinal.y * lFinal.z + 2 * lFinal.w * lFinal.x;
+   _out.template get<3, 1>() = 0;
 
-   _out( 0, 2 ) =     2 * lFinal[1] * lFinal[3] - 2 * lFinal[0] * lFinal[2];
-   _out( 1, 2 ) =     2 * lFinal[2] * lFinal[3] - 2 * lFinal[0] * lFinal[1];
-   _out( 2, 2 ) = 1 - 2 * lFinal[1] * lFinal[1] - 2 * lFinal[2] * lFinal[2];
-   _out( 3, 2 ) = 0;
+   _out.template get<0, 2>() =     2 * lFinal.x * lFinal.z - 2 * lFinal.w * lFinal.y;
+   _out.template get<1, 2>() =     2 * lFinal.y * lFinal.z - 2 * lFinal.w * lFinal.x;
+   _out.template get<2, 2>() = 1 - 2 * lFinal.x * lFinal.x - 2 * lFinal.y * lFinal.y;
+   _out.template get<3, 2>() = 0;
 
-   _out( 0, 3 ) = 0;
-   _out( 1, 3 ) = 0;
-   _out( 2, 3 ) = 0;
-   _out( 3, 3 ) = 1;
+   _out.template get<0, 3>() = 0;
+   _out.template get<1, 3>() = 0;
+   _out.template get<2, 3>() = 0;
+   _out.template get<3, 3>() = 1;
 
 }
 
@@ -123,11 +123,11 @@ void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4
    GLfloat f = ( 1.0f / tan( DEG_TO_RAD( _fofy / 2 ) ) );
 
    _out.fill( 0 );
-   _out( 0, 0 ) = f / _aspectRatio;
-   _out( 1, 1 ) = f;
-   _out( 2, 2 ) = ( _farZ + _nearZ ) / ( _nearZ - _farZ );
-   _out( 3, 2 ) = ( 2 * _farZ * _nearZ ) / ( _nearZ - _farZ );
-   _out( 2, 3 ) = -1;
+   _out.template get<0, 0>() = f / _aspectRatio;
+   _out.template get<1, 1>() = f;
+   _out.template get<2, 2>() = ( _farZ + _nearZ ) / ( _nearZ - _farZ );
+   _out.template get<3, 2>() = ( 2 * _farZ * _nearZ ) / ( _nearZ - _farZ );
+   _out.template get<2, 3>() = -1;
 }
 
 template<class T>
@@ -142,18 +142,18 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
    rVec3<T> s = rVectorMath::normalizeReturn( rVectorMath::crossProduct( f, u ) );
    u = rVectorMath::crossProduct( s, f );
 
-   _out( 0, 0 ) = s[0];
-   _out( 1, 0 ) = s[1];
-   _out( 2, 0 ) = s[2];
-   _out( 0, 1 ) = u[0];
-   _out( 1, 1 ) = u[1];
-   _out( 2, 1 ) = u[2];
-   _out( 0, 2 ) = -f[0];
-   _out( 1, 2 ) = -f[1];
-   _out( 2, 2 ) = -f[2];
-   _out( 3, 0 ) = -rVectorMath::dotProduct( s, _position );
-   _out( 3, 1 ) = -rVectorMath::dotProduct( u, _position );
-   _out( 3, 2 ) = rVectorMath::dotProduct( f, _position );
+   _out.template get<0, 0>() = s.x;
+   _out.template get<1, 0>() = s.y;
+   _out.template get<2, 0>() = s.z;
+   _out.template get<0, 1>() = u.x;
+   _out.template get<1, 1>() = u.y;
+   _out.template get<2, 1>() = u.z;
+   _out.template get<0, 2>() = -f.x;
+   _out.template get<1, 2>() = -f.y;
+   _out.template get<2, 2>() = -f.z;
+   _out.template get<3, 0>() = -rVectorMath::dotProduct( s, _position );
+   _out.template get<3, 1>() = -rVectorMath::dotProduct( u, _position );
+   _out.template get<3, 2>() = rVectorMath::dotProduct( f, _position );
 
    for( unsigned int i = 0; i < 4; ++i ) {
       std::string lStr;
@@ -175,3 +175,4 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
 
 #endif
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+
