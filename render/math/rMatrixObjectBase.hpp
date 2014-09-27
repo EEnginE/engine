@@ -76,27 +76,27 @@ void rMatrixObjectBase<T>::setScale( T _scale ) {
 template<class T>
 void rMatrixObjectBase<T>::setScale( const rVec3< T > &_scale ) {
    vScaleMatrix_MAT.set2(
-         _scale[0], 0        , 0        , 0,
-         0        , _scale[1], 0        , 0,
-         0        , 0        , _scale[2], 0,
-         0        , 0        , 0        , 1
+         _scale.x, 0       , 0       , 0,
+         0       , _scale.y, 0       , 0,
+         0       , 0       , _scale.z, 0,
+         0       , 0       , 0       , 1
    );
 }
 
 template<class T>
 void rMatrixObjectBase<T>::getScale( rVec3< T > &_scale ) {
-   _scale[0] = vScaleMatrix_MAT( 0, 0 );
-   _scale[1] = vScaleMatrix_MAT( 1, 1 );
-   _scale[2] = vScaleMatrix_MAT( 2, 2 );
+   _scale.x = vScaleMatrix_MAT.template get<0, 0>();
+   _scale.y = vScaleMatrix_MAT.template get<1, 1>();
+   _scale.z = vScaleMatrix_MAT.template get<2, 2>();
 }
 
 template<class T>
 void rMatrixObjectBase<T>::addScaleDelta( const rVec3< T > &_scale ) {
    vScaleMatrix_MAT.set2(
-         vScaleMatrix_MAT( 0, 0 ) + _scale[0], 0                                    , 0                                   , 0,
-         0                                   , vScaleMatrix_MAT( 1, 1 ) +  _scale[1], 0                                   , 0,
-         0                                   , 0                                    , vScaleMatrix_MAT( 1, 1 ) + _scale[2], 0,
-         0                                   , 0                                    , 0                                   , 1
+         vScaleMatrix_MAT( 0, 0 ) + _scale.x, 0                                   , 0                                  , 0,
+         0                                  , vScaleMatrix_MAT( 1, 1 ) +  _scale.y, 0                                  , 0,
+         0                                  , 0                                   , vScaleMatrix_MAT( 2, 2 ) + _scale.z, 0,
+         0                                  , 0                                   , 0                                  , 1
    );
 }
 
@@ -113,15 +113,15 @@ void rMatrixObjectBase<T>::setPosition( const rVec3< T > &_pos ) {
          1, 0, 0, 0,
          0, 1, 0, 0,
          0, 0, 1, 0,
-         _pos[0], _pos[1], _pos[2], 1
+         _pos.x, _pos.y, _pos.z, 1
    );
 }
 
 template<class T>
 void rMatrixObjectBase<T>::getPosition( rVec3< T > &_pos ) {
-   _pos[0] = vTranslationMatrix_MAT( 3, 0 );
-   _pos[1] = vTranslationMatrix_MAT( 3, 1 );
-   _pos[2] = vTranslationMatrix_MAT( 3, 2 );
+   _pos.x = vTranslationMatrix_MAT.template get<3, 0>();
+   _pos.y = vTranslationMatrix_MAT.template get<3, 1>();
+   _pos.z = vTranslationMatrix_MAT.template get<3, 2>();
 }
 
 template<class T>
@@ -131,9 +131,9 @@ void rMatrixObjectBase<T>::addPositionDelta( const rVec3< T > &_pos ) {
          1, 0, 0, 0,
          0, 1, 0, 0,
          0, 0, 1, 0,
-         vTranslationMatrix_MAT( 3, 0 ) + _pos[0],
-         vTranslationMatrix_MAT( 3, 1 ) + _pos[1],
-         vTranslationMatrix_MAT( 3, 2 ) + _pos[2],
+         vTranslationMatrix_MAT.template get<3, 0>() + _pos[0],
+         vTranslationMatrix_MAT.template get<3, 1>() + _pos[1],
+         vTranslationMatrix_MAT.template get<3, 2>() + _pos[2],
          1
    );
 }
@@ -145,7 +145,7 @@ void rMatrixObjectBase<T>::updateFinalMatrix() {
       return;
 
 //    rMat4f lTemp = *vCameraSpaceMatrix_MAT * vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT ;
-// 
+//
 //    for( unsigned int i = 0; i < 4; ++i ) {
 //       std::string lStr;
 //       for( unsigned int j = 0; j < 4; ++j ) {
@@ -153,9 +153,9 @@ void rMatrixObjectBase<T>::updateFinalMatrix() {
 //       }
 //       iLOG( lStr );
 //    }
-// 
+//
 //    dLOG( "" );
-// 
+//
 //    for( unsigned int i = 0; i < 4; ++i ) {
 //       std::string lStr;
 //       for( unsigned int j = 0; j < 4; ++j ) {
@@ -163,9 +163,9 @@ void rMatrixObjectBase<T>::updateFinalMatrix() {
 //       }
 //       wLOG( lStr );
 //    }
-// 
+//
 //    dLOG( "" );
-// 
+//
 //    for( unsigned int i = 0; i < 4; ++i ) {
 //       std::string lStr;
 //       for( unsigned int j = 0; j < 4; ++j ) {
@@ -173,9 +173,9 @@ void rMatrixObjectBase<T>::updateFinalMatrix() {
 //       }
 //       wLOG( lStr );
 //    }
-// 
+//
 //    dLOG( "" );
-// 
+//
 //    for( unsigned int i = 0; i < 4; ++i ) {
 //       std::string lStr;
 //       for( unsigned int j = 0; j < 4; ++j ) {
@@ -183,7 +183,7 @@ void rMatrixObjectBase<T>::updateFinalMatrix() {
 //       }
 //       eLOG( lStr );
 //    }
-// 
+//
 //    dLOG( "" );
 //    dLOG( "" );
 

@@ -25,7 +25,7 @@ void rRenderNormal_3_3::render() {
    glUseProgram( vShader_OGL );
 
    if( vNeedUpdateUniforms_B || vAlwaysUpdateUniforms_B ) {
-      glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix->get() );
+      glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix->getMatrix() );
       vNeedUpdateUniforms_B = false;
    }
 

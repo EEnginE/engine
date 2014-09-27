@@ -11,61 +11,62 @@
 
 namespace e_engine {
 
-template<class T> using rVec2       = rMatrix<T, 1, 2>;
-template<class T> using rVec3       = rMatrix<T, 1, 3>;
+template<class T, int N> using rVecN = rMatrix<T, N, 1>;
+template<class T>        using rVec2 = rMatrix<T, 2, 1>;
+template<class T>        using rVec3 = rMatrix<T, 3, 1>;
+template<class T>        using rVec4 = rMatrix<T, 4, 1>;
 
 /*!
  * | Element | Value |
  * | :-----: | :---: |
- * |    0    |   w   |
- * |    1    |   x   |
- * |    2    |   y   |
- * |    3    |   z   |
+ * |    0    |   x   |
+ * |    1    |   y   |
+ * |    2    |   z   |
+ * |    3    |   w   |
  */
-template<class T> using rQuaternion = rMatrix<T, 1, 4>;
 
-typedef rMatrix<float, 1, 2> rVec2f;
-typedef rMatrix<float, 1, 3> rVec3f;
-typedef rMatrix<float, 1, 4> rQuaternionf;
+typedef rMatrix<float, 2, 1> rVec2f;
+typedef rMatrix<float, 3, 1> rVec3f;
+typedef rMatrix<float, 4, 1> rVec4f;
 
-typedef rMatrix<double, 1, 2> rVec2d;
-typedef rMatrix<double, 1, 3> rVec3d;
-typedef rMatrix<double, 1, 4> rQuaterniond;
-
-template<int N>
-using rVecNf = rMatrix<float, 1, N>;
+typedef rMatrix<double, 2, 1> rVec2d;
+typedef rMatrix<double, 3, 1> rVec3d;
+typedef rMatrix<double, 4, 1> rVec4d;
 
 template<int N>
-using rVecNd = rMatrix<double, 1, N>;
+using rVecNf = rMatrix<float, N, 1>;
+
+template<int N>
+using rVecNd = rMatrix<double, N, 1>;
 
 class rVectorMath {
    public:
-      template<class T, int N> static T    dotProduct( const rMatrix<T, 1, N> &_vec1, const rMatrix<T, 1, N> &_vec2 );
-      template<class T>        static T    dotProduct( const rMatrix<T, 1, 2> &_vec1, const rMatrix<T, 1, 2> &_vec2 );
-      template<class T>        static T    dotProduct( const rMatrix<T, 1, 3> &_vec1, const rMatrix<T, 1, 3> &_vec2 );
-      template<class T>        static T    dotProduct( const rMatrix<T, 1, 4> &_vec1, const rMatrix<T, 1, 4> &_vec2 );
+      template<class T, int N> static T    dotProduct( const rVecN<T, N> &_vec1, const rVecN<T, N> &_vec2 );
+      template<class T>        static T    dotProduct( const rVec2<T>    &_vec1, const rVec2<T>    &_vec2 );
+      template<class T>        static T    dotProduct( const rVec3<T>    &_vec1, const rVec3<T>    &_vec2 );
+      template<class T>        static T    dotProduct( const rVec4<T>    &_vec1, const rVec4<T>    &_vec2 );
 
-      template<class T>        static void quaternionMultiplication( const rQuaternion<T> &_q1, const rQuaternion<T> &_q2, rQuaternion<T> &_out );
-      
-      template<class T, int N> static T    length( const rMatrix<T, 1, N> &_vec);
-      template<class T>        static T    length( const rMatrix<T, 1, 2> &_vec);
-      template<class T>        static T    length( const rMatrix<T, 1, 3> &_vec);
-      template<class T>        static T    length( const rMatrix<T, 1, 4> &_vec);
+      template<class T>        static void quaternionMultiplication( const rVec4<T> &_q1, const rVec4<T> &_q2, rVec4<T> &_out );
 
-      template<class T, int N> static void normalize( rMatrix<T, 1, N> &_vec );
-      template<class T>        static void normalize( rMatrix<T, 1, 2> &_vec );
-      template<class T>        static void normalize( rMatrix<T, 1, 3> &_vec );
-      template<class T>        static void normalize( rMatrix<T, 1, 4> &_vec );
+      template<class T, int N> static T    length( const rVecN<T, N> &_vec );
+      template<class T>        static T    length( const rVec2<T>    &_vec );
+      template<class T>        static T    length( const rVec3<T>    &_vec );
+      template<class T>        static T    length( const rVec4<T>    &_vec );
+
+      template<class T, int N> static void normalize( rVecN<T, N> &_vec );
+      template<class T>        static void normalize( rVec2<T>    &_vec );
+      template<class T>        static void normalize( rVec3<T>    &_vec );
+      template<class T>        static void normalize( rVec4<T>    &_vec );
 
       template<class T, int N>
-      static rMatrix<T, 1, N>  normalizeReturn( rMatrix<T, 1, N> const &_vec ) {
-         rMatrix<T, 1, N> lResult = _vec;
+      static rVecN<T, N>  normalizeReturn( rVecN<T, N> const &_vec ) {
+         rVecN<T, N> lResult = _vec;
          normalize( lResult );
          return lResult;
       }
 
       template<class T>
-      static rMatrix<T, 1, 3>  crossProduct( const rMatrix<T, 1, 3> &_vec1, const rMatrix<T, 1, 3> &_vec2 );
+      static rVec3<T>     crossProduct( const rVec3<T> &_vec1, const rVec3<T> &_vec2 );
 };
 
 
@@ -78,7 +79,7 @@ class rVectorMath {
 // =========================================================================================================================
 
 template<class T, int N>
-T rVectorMath::dotProduct( const rMatrix<T, 1 , N> &_vec1, const rMatrix<T, 1 , N> &_vec2 ) {
+T rVectorMath::dotProduct( const rVecN<T, N> &_vec1, const rVecN<T, N> &_vec2 ) {
    T lProduct = 0;
 
    for( int i = 0; i < N; ++i )
@@ -88,18 +89,18 @@ T rVectorMath::dotProduct( const rMatrix<T, 1 , N> &_vec1, const rMatrix<T, 1 , 
 }
 
 template<class T>
-T rVectorMath::dotProduct( const rMatrix<T, 1 , 2> &_vec1, const rMatrix<T, 1 , 2> &_vec2 )  {
-   return _vec1[0] * _vec2[0] + _vec1[1] * _vec2[1];
+T rVectorMath::dotProduct( const rVec2<T> &_vec1, const rVec2<T> &_vec2 )  {
+   return _vec1.x * _vec2.x + _vec1.y * _vec2.y;
 }
 
 template<class T>
-T rVectorMath::dotProduct( const rMatrix<T, 1 , 3> &_vec1, const rMatrix<T, 1 , 3> &_vec2 ) {
-   return _vec1[0] * _vec2[0] + _vec1[1] * _vec2[1] + _vec1[2] * _vec2[2];
+T rVectorMath::dotProduct( const rVec3<T> &_vec1, const rVec3<T> &_vec2 ) {
+   return _vec1.x * _vec2.x + _vec1.y * _vec2.y + _vec1.z * _vec2.z;
 }
 
 template<class T>
-T rVectorMath::dotProduct( const rMatrix<T, 1 , 4> &_vec1, const rMatrix<T, 1 , 4> &_vec2 ) {
-   return _vec1[0] * _vec2[0] + _vec1[1] * _vec2[1] + _vec1[2] * _vec2[2] + _vec1[3] * _vec2[3];
+T rVectorMath::dotProduct( const rVec4<T> &_vec1, const rVec4<T> &_vec2 ) {
+   return _vec1.x * _vec2.x + _vec1.y * _vec2.y + _vec1.z * _vec2.z + _vec1.w * _vec2.w;
 }
 
 
@@ -112,7 +113,7 @@ T rVectorMath::dotProduct( const rMatrix<T, 1 , 4> &_vec1, const rMatrix<T, 1 , 
 // =========================================================================================================================
 
 template<class T, int N>
-void rVectorMath::normalize( rMatrix< T, 1 , N  > &_vec ) {
+void rVectorMath::normalize( rVecN<T, N> &_vec ) {
    T lTemp = 0;
    for( unsigned int i = 0; i < N; ++i )
       lTemp += _vec[i] * _vec[i];
@@ -124,30 +125,30 @@ void rVectorMath::normalize( rMatrix< T, 1 , N  > &_vec ) {
 }
 
 template<class T>
-void rVectorMath::normalize( rMatrix< T, 1 , 2  > &_vec ) {
-   T lLength = sqrt( _vec[0] * _vec[0] + _vec[1] * _vec[1] );
+void rVectorMath::normalize( rVec2<T> &_vec ) {
+   T lLength = sqrt( _vec.x * _vec.x + _vec.y * _vec.y );
 
-   _vec[0] /= lLength;
-   _vec[1] /= lLength;
+   _vec.x /= lLength;
+   _vec.y /= lLength;
 }
 
 template<class T>
-void rVectorMath::normalize( rMatrix< T, 1 , 3  > &_vec ) {
-   T lLength = sqrt( _vec[0] * _vec[0] + _vec[1] * _vec[1] + _vec[2] * _vec[2] );
+void rVectorMath::normalize( rVec3<T> &_vec ) {
+   T lLength = sqrt( _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z );
 
-   _vec[0] /= lLength;
-   _vec[1] /= lLength;
-   _vec[2] /= lLength;
+   _vec.x /= lLength;
+   _vec.y /= lLength;
+   _vec.z /= lLength;
 }
 
 template<class T>
-void rVectorMath::normalize( rMatrix< T, 1 , 4  > &_vec ) {
-   T lLength = sqrt( _vec[0] * _vec[0] + _vec[1] * _vec[1] + _vec[2] * _vec[2] + _vec[3] * _vec[3] );
+void rVectorMath::normalize( rVec4<T> &_vec ) {
+   T lLength = sqrt( _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z + _vec.w * _vec.w );
 
-   _vec[0] /= lLength;
-   _vec[1] /= lLength;
-   _vec[2] /= lLength;
-   _vec[3] /= lLength;
+   _vec.x /= lLength;
+   _vec.y /= lLength;
+   _vec.z /= lLength;
+   _vec.w /= lLength;
 }
 
 // =========================================================================================================================
@@ -160,7 +161,7 @@ void rVectorMath::normalize( rMatrix< T, 1 , 4  > &_vec ) {
 
 
 template<class T, int N>
-T rVectorMath::length( const rMatrix<T, 1 , N> &_vec) {
+T rVectorMath::length( const rVecN<T, N> &_vec ) {
    T lTemp = 0;
    for( unsigned int i = 0; i < N; ++i )
       lTemp += _vec[i] * _vec[i];
@@ -169,18 +170,18 @@ T rVectorMath::length( const rMatrix<T, 1 , N> &_vec) {
 }
 
 template<class T>
-T rVectorMath::length( const rMatrix<T, 1 , 2> &_vec)  {
-   return sqrt( _vec[0] * _vec[0] + _vec[1] * _vec[1] );
+T rVectorMath::length( const rVec2<T> &_vec )  {
+   return sqrt( _vec.x * _vec.x + _vec.y * _vec.y );
 }
 
 template<class T>
-T rVectorMath::length( const rMatrix<T, 1 , 3> &_vec) {
-   return sqrt( _vec[0] * _vec[0] + _vec[1] * _vec[1] + _vec[2] * _vec[2] );
+T rVectorMath::length( const rVec3<T> &_vec ) {
+   return sqrt( _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z );
 }
 
 template<class T>
-T rVectorMath::length( const rMatrix<T, 1 , 4> &_vec) {
-   return sqrt( _vec[0] * _vec[0] + _vec[1] * _vec[1] + _vec[2] * _vec[2] + _vec[3] * _vec[3] );
+T rVectorMath::length( const rVec4<T> &_vec ) {
+   return sqrt( _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z + _vec.w * _vec.w );
 }
 
 
@@ -194,12 +195,12 @@ T rVectorMath::length( const rMatrix<T, 1 , 4> &_vec) {
 
 
 template<class T>
-rMatrix< T, 1, 3 > rVectorMath::crossProduct( const rMatrix< T, 1, 3 > &_vec1, const rMatrix< T, 1, 3 > &_vec2 ) {
-   return rMatrix< T, 1, 3 >
+rVec3<T> rVectorMath::crossProduct( const rVec3<T> &_vec1, const rVec3<T> &_vec2 ) {
+   return rVec3<T>
          (
-               ( _vec1[1] * _vec2[2] ) - ( _vec1[2] * _vec2[1] ),
-               ( _vec1[2] * _vec2[0] ) - ( _vec1[0] * _vec2[2] ),
-               ( _vec1[0] * _vec2[1] ) - ( _vec1[1] * _vec2[0] )
+               ( _vec1.y * _vec2.z ) - ( _vec1.z * _vec2.y ),
+               ( _vec1.z * _vec2.x ) - ( _vec1.x * _vec2.z ),
+               ( _vec1.x * _vec2.y ) - ( _vec1.y * _vec2.x )
          );
 }
 
@@ -211,12 +212,12 @@ rMatrix< T, 1, 3 > rVectorMath::crossProduct( const rMatrix< T, 1, 3 > &_vec1, c
 */
 
 template<class T>
-void rVectorMath::quaternionMultiplication( const rQuaternion<T> &_q1, const rQuaternion<T> &_q2, rQuaternion<T> &_out ) {
+void rVectorMath::quaternionMultiplication( const rVec4<T> &_q1, const rVec4<T> &_q2, rVec4<T> &_out ) {
    _out.set2(
-         ( ( _q1[0] * _q2[0] ) - ( _q1[1] * _q2[1] ) - ( _q1[2] * _q2[2] ) - ( _q1[3] * _q2[3] ) ),
-         ( ( _q1[0] * _q2[1] ) + ( _q1[1] * _q2[0] ) + ( _q1[2] * _q2[3] ) - ( _q1[3] * _q2[2] ) ),
-         ( ( _q1[0] * _q2[2] ) - ( _q1[1] * _q2[3] ) + ( _q1[2] * _q2[0] ) + ( _q1[3] * _q2[1] ) ),
-         ( ( _q1[0] * _q2[3] ) + ( _q1[1] * _q2[2] ) - ( _q1[2] * _q2[1] ) + ( _q1[3] * _q2[0] ) )
+         ( ( _q1.w * _q2.w ) - ( _q1.x * _q2.x ) - ( _q1.y * _q2.y ) - ( _q1.z * _q2.z ) ),
+         ( ( _q1.w * _q2.x ) + ( _q1.x * _q2.w ) + ( _q1.y * _q2.z ) - ( _q1.z * _q2.y ) ),
+         ( ( _q1.w * _q2.y ) - ( _q1.x * _q2.z ) + ( _q1.y * _q2.w ) + ( _q1.z * _q2.x ) ),
+         ( ( _q1.w * _q2.z ) + ( _q1.x * _q2.y ) - ( _q1.y * _q2.x ) + ( _q1.z * _q2.w ) )
    );
 }
 
