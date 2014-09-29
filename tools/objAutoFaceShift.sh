@@ -52,8 +52,9 @@ fi
 
 (( X *= -1 ))
 
-tryShiftAndExit "./objFaceShift.awk"        $X
-tryShiftAndExit "$(which objFaceShift.awk)" $X
+tryShiftAndExit "./objFaceShift.awk"                     $X
+tryShiftAndExit "$(dirname 0)/objFaceShift.awk"          $X
+tryShiftAndExit "$(which objFaceShift.awk 2> /dev/null)" $X
 
 exit 3
 

@@ -63,21 +63,9 @@ namespace e_engine {
  * output to a file of your choice with the main config
  * structure \c GlobConf.log
  *
- * To start a new entry in your log you can call the commands
- * \c start, \c add, \c end, \c nl, \c point connected like in Example 1.
+ * To start a new log entry run either LOG( < type macro >, a comma, seperated list, of data );
+ * or < type >LOG( a comma, seperated list, of data );
  *
- * | function | Macro   | Description                   |
- * | :------: | :-----: |:----------------------------- |
- * | start()  | ?LOG    | Starts a new log entry.       |
- * | add()    |,     | Adds contents                 |
- * | nl()     | NEWLINE | Adds a new line               |
- * | point()  | POINT   | Adds a new point in a new line|
- * | end()    | );     | Ends the log entry            |
- *
- * Those functions are ( with the exception of start() ) actually defined in internal::__uLogStoreHelper.
- *
- * start() gets 2 arguments (actually 4, because the first one is a macro).
- * The 1st one is the log type.
  * It consists of a '_' and a single capital letter.
  * The letter defines the log type.
  * There are 3 predefined ones but you can add more by using
@@ -94,6 +82,7 @@ namespace e_engine {
  * | _I   | INFO    |
  * | _W   | WARNING |
  * | _E   | ERROR   |
+ * | _D   | DEBUG   |
  *
  * You can also change the color by putting single chars ( e_engine::eCMDColor for more information )
  * in front of the actual log message.
@@ -103,15 +92,13 @@ namespace e_engine {
  *
  * Example 1: Normal
  * \code
- *    LOG.start( _I, "Start of the log ")->add("number ")->add(1)->add( 'B', 'G', " I am colored" )->end();
+ *    LOG( _I, "Start of the log ", L"number ", 1, eCMDColor::color( 'B', 'G' ), " I am colored" );
  * \endcode
  *
  * Example 2: Macros
  * \code
- *    iLOG( "Start of the log ", "number ", 1, 'B', 'G', " I am colored" );
+ *    iLOG( "Start of the log ", L"number ", 1, eCMDColor::color( 'B', 'G' ), " I am colored" );
  * \endcode
- *
- * \warning \b ALWAYS run \c end() at the and of a log entry!
  *
  * \warning It is impossible to change the log file after the 1st output!
  *

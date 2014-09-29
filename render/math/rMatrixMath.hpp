@@ -73,10 +73,10 @@ template<class T>
 void rMatrixMath::translate( const rVec3<T> &_n, rMat4<T> &_out ) {
    _out.set2
    (
-         1,     0,     0,  0,
-         0,     1,     0,  0,
-         0,     0,     1,  0,
-         _n.x, _n.y, _n.z, 1
+         1, 0, 0,  _n.x,
+         0, 1, 0,  _n.y,
+         0, 0, 1,  _n.z,
+         0, 0, 0, 1
    );
 }
 
