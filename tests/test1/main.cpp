@@ -130,14 +130,6 @@ int main( int argc, char *argv[] ) {
       start.closeWindow();
    }
 
-   rVec3f lTest( 1, 2, 3 );
-
-   iLOG( "T1:  X: ", lTest.x, " == ", lTest[0], ";  Y: ", lTest.y, " == ", lTest[1], ";  Z: ", lTest.z, " == ", lTest[2], ";" );
-   lTest.get<1>() = lTest.get<2>() * 2;
-   lTest.x = 5;
-   lTest[2] = 4;
-   iLOG( "T1:  X: ", lTest.x, " == ", lTest[0], ";  Y: ", lTest.y, " == ", lTest[1], ";  Z: ", lTest.z, " == ", lTest[2], ";" );
-
 #if DO_SHA == 1
    uSHA_2 mySHA( SHA2_384 );
    mySHA.selftest();

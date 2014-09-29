@@ -65,7 +65,7 @@ rMatrixObjectBase<T>::rMatrixObjectBase() {
 
 template<class T>
 void rMatrixObjectBase<T>::setScale( T _scale ) {
-   vScaleMatrix_MAT.set2(
+   vScaleMatrix_MAT.setMat(
          _scale, 0     , 0     , 0,
          0     , _scale, 0     , 0,
          0     , 0     , _scale, 0,
@@ -75,7 +75,7 @@ void rMatrixObjectBase<T>::setScale( T _scale ) {
 
 template<class T>
 void rMatrixObjectBase<T>::setScale( const rVec3< T > &_scale ) {
-   vScaleMatrix_MAT.set2(
+   vScaleMatrix_MAT.setMat(
          _scale.x, 0       , 0       , 0,
          0       , _scale.y, 0       , 0,
          0       , 0       , _scale.z, 0,
@@ -108,12 +108,12 @@ void rMatrixObjectBase<T>::setRotation( const rVec3< T > &_axis, T _angle ) {
 
 template<class T>
 void rMatrixObjectBase<T>::setPosition( const rVec3< T > &_pos ) {
-   vTranslationMatrix_MAT.set2
+   vTranslationMatrix_MAT.setMat
    (
-         1, 0, 0, 0,
-         0, 1, 0, 0,
-         0, 0, 1, 0,
-         _pos.x, _pos.y, _pos.z, 1
+         1, 0, 0, _pos.x,
+         0, 1, 0, _pos.y,
+         0, 0, 1, _pos.z,
+         0, 0, 0, 1
    );
 }
 
@@ -126,15 +126,12 @@ void rMatrixObjectBase<T>::getPosition( rVec3< T > &_pos ) {
 
 template<class T>
 void rMatrixObjectBase<T>::addPositionDelta( const rVec3< T > &_pos ) {
-   vTranslationMatrix_MAT.set2
+   vTranslationMatrix_MAT.setMat
    (
-         1, 0, 0, 0,
-         0, 1, 0, 0,
-         0, 0, 1, 0,
-         vTranslationMatrix_MAT.template get<3, 0>() + _pos[0],
-         vTranslationMatrix_MAT.template get<3, 1>() + _pos[1],
-         vTranslationMatrix_MAT.template get<3, 2>() + _pos[2],
-         1
+         1, 0, 0, vTranslationMatrix_MAT.template get<3, 0>() + _pos.x,
+         0, 1, 0, vTranslationMatrix_MAT.template get<3, 1>() + _pos.y,
+         0, 0, 1, vTranslationMatrix_MAT.template get<3, 2>() + _pos.z,
+         0, 0, 0, 1
    );
 }
 

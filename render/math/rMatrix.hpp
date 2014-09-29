@@ -3,6 +3,7 @@
 
 #include "uLog.hpp"
 #include <type_traits>
+#include <boost/lexical_cast.hpp>
 
 namespace e_engine {
 
@@ -53,13 +54,14 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
       static_assert( ( ROWS *COLLUMNS ) >= 2 , "Matrix size (ROWS*COLLUMNS) must be at least 2" );
 
    private:
-      template<class... ARGS>
-      inline void setHelper( uint16_t && _pos, TYPE && _arg, ARGS && ... _args );
-      inline void setHelper( uint16_t && _pos, TYPE && _arg );
+      template<uint32_t POS, class... ARGS>  inline void setHelper( TYPE && _arg, ARGS && ... _args );
+      template<uint32_t POS>                 inline void setHelper( TYPE && _arg );
 
-      template<class... ARGS>
-      inline void setHelper( uint16_t && _pos, const TYPE &_arg, ARGS && ... _args );
-      inline void setHelper( uint16_t && _pos, const TYPE &_arg );
+      template<uint32_t POS, class... ARGS>  inline void setHelper( const TYPE & _arg, ARGS && ... _args );
+      template<uint32_t POS>                 inline void setHelper( const TYPE & _arg );
+
+
+      inline void TYPE2String( uint32_t && _pos, std::string &_str );
 
    public:
 
@@ -77,24 +79,24 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
 
       ~rMatrix() {}
 
-      TYPE       &get( uint16_t _position )                     {return vDataMat[_position];}
-      TYPE const &get( uint16_t _position ) const               {return vDataMat[_position];}
-      TYPE       &get( uint16_t _x, uint16_t _y )               {return vDataMat[( _x * ROWS ) + _y];}
-      TYPE const &get( uint16_t _x, uint16_t _y ) const         {return vDataMat[( _x * ROWS ) + _y];}
+      TYPE       &get( uint32_t _position )                     {return vDataMat[_position];}
+      TYPE const &get( uint32_t _position ) const               {return vDataMat[_position];}
+      TYPE       &get( uint32_t _x, uint32_t _y )               {return vDataMat[( _x * ROWS ) + _y];}
+      TYPE const &get( uint32_t _x, uint32_t _y ) const         {return vDataMat[( _x * ROWS ) + _y];}
 
-      template<uint I>         TYPE       &get()       {static_assert( I     < ROWS * COLLUMNS , "Out of range" ); return vDataMat[I];}
-      template<uint I>         TYPE const &get() const {static_assert( I     < ROWS * COLLUMNS , "Out of range" ); return vDataMat[I];}
-      template<uint X, uint Y> TYPE       &get()       {static_assert( X * Y < ROWS * COLLUMNS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
-      template<uint X, uint Y> TYPE const &get() const {static_assert( X * Y < ROWS * COLLUMNS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
+      template<uint32_t I>             TYPE       &get()       {static_assert( I     < ROWS * COLLUMNS , "Out of range" ); return vDataMat[I];}
+      template<uint32_t I>             TYPE const &get() const {static_assert( I     < ROWS * COLLUMNS , "Out of range" ); return vDataMat[I];}
+      template<uint32_t X, uint32_t Y> TYPE       &get()       {static_assert( X * Y < ROWS * COLLUMNS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
+      template<uint32_t X, uint32_t Y> TYPE const &get() const {static_assert( X * Y < ROWS * COLLUMNS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
 
       TYPE       *getMatrix()                                   {return vDataMat;}
-      void        set( uint16_t _position, TYPE _newVal )       {vDataMat[_position] = _newVal;}
+      void        set( uint32_t _position, TYPE _newVal )       {vDataMat[_position] = _newVal;}
 
-      void        set( uint16_t _x, uint16_t _y, TYPE _newVal ) {vDataMat[( _x * ROWS ) + _y] = _newVal;}
+      void        set( uint32_t _x, uint32_t _y, TYPE _newVal ) {vDataMat[( _x * ROWS ) + _y] = _newVal;}
       void        set( TYPE *_matrix );
 
       template<class... ARGS>
-      void        set2( ARGS && ... _args );
+      void        setMat( ARGS && ... _args );
 
       int getRowSize()     {return ROWS;}
       int getCollumnSize() {return COLLUMNS;}
@@ -146,12 +148,13 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
       rMatrix<TYPE, ROWS, COLLUMNS> &operator*=( const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix );
       rMatrix<TYPE, ROWS, COLLUMNS> &operator*=( const TYPE                          &_rScalar );
 
-      TYPE &operator[]( uint16_t _x )                          {return get( _x);}
-      TYPE &operator()( uint16_t _x, uint16_t _y )             {return get( _x, _y );}
+      TYPE &operator[]( uint32_t _x )                          {return get( _x );}
+      TYPE &operator()( uint32_t _x, uint32_t _y )             {return get( _x, _y );}
 
-      TYPE const &operator[]( uint16_t _x )              const {return get( _x);}
-      TYPE const &operator()( uint16_t _x, uint16_t _y ) const {return get( _x, _y );}
+      TYPE const &operator[]( uint32_t _x )              const {return get( _x );}
+      TYPE const &operator()( uint32_t _x, uint32_t _y ) const {return get( _x, _y );}
 
+      void print( std::string _name = "Matrix", char _type = 'D' );
 };
 
 
@@ -162,6 +165,7 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
 // =========             ====================================================================================================================================
 // ==============================================================================================================================================
 // =========================================================================================================================
+
 
 
 template <class TYPE, int ROWS, int COLLUMNS>
@@ -183,7 +187,7 @@ template <class TYPE, int ROWS, int COLLUMNS>
 template <class... ARGS>
 rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE && _a1, ARGS && ... _args ) {
    static_assert( sizeof...( _args ) == ( ROWS * COLLUMNS - 1 ), "Wrong Number of arguments for this size of matrix / vector" );
-   setHelper( 0, std::forward<TYPE>( _a1 ), std::forward<ARGS>( _args )... );
+   setHelper<0>( std::forward<TYPE>( _a1 ), std::forward<ARGS>( _args )... );
 }
 
 
@@ -227,7 +231,7 @@ rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=( const 
 
 template <class TYPE, int ROWS, int COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=( const TYPE &_rScalar ) {
-   for( uint16_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
+   for( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       vDataMat[i] *= _rScalar;
 
    return *this;
@@ -398,12 +402,6 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::subtract( const rMatrix<TYPE, ROWS, COLLUMNS
 // ==============================================================================================================================================
 // =========================================================================================================================
 
-template <class TYPE, int ROWS, int COLLUMNS>
-template<class... ARGS>
-void rMatrix<TYPE, ROWS, COLLUMNS>::set2( ARGS && ... _args ) {
-   static_assert( sizeof...( _args ) == ( ROWS * COLLUMNS ), "Wrong Number of arguments to set the size of this size of matrix / vector [set2]" );
-   setHelper( 0, std::forward<ARGS>( _args )... );
-}
 
 template <class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::set( TYPE *_matrix ) {
@@ -413,30 +411,80 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::set( TYPE *_matrix ) {
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template<class... ARGS>
-inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( uint16_t && _pos, TYPE && _arg, ARGS && ... _args ) {
-   vDataMat[_pos] = _arg;
-   setHelper( std::forward<uint16_t>( _pos + 1 ), std::forward<ARGS>( _args )... );
+void rMatrix<TYPE, ROWS, COLLUMNS>::setMat( ARGS && ... _args ) {
+   static_assert( sizeof...( _args ) == ( ROWS * COLLUMNS ), "Wrong Number of arguments to set the size of this size of matrix / vector [set2]" );
+   setHelper<0>( std::forward<ARGS>( _args )... );
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
-inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( uint16_t && _pos, TYPE && _arg ) {
-   vDataMat[_pos] = _arg;
-}
 
 
 template <class TYPE, int ROWS, int COLLUMNS>
-template<class... ARGS>
-inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( uint16_t && _pos, const TYPE &_arg, ARGS && ... _args ) {
-   vDataMat[_pos] = _arg;
-   setHelper( std::forward<uint16_t>( _pos + 1 ), std::forward<ARGS>( _args )... );
+template<uint32_t POS, class... ARGS>
+inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( TYPE && _arg, ARGS && ... _args ) {
+   vDataMat[( (POS % ROWS) * COLLUMNS ) + (POS / ROWS)] = _arg;
+   setHelper<POS + 1>( std::forward<ARGS>( _args )... );
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
-inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( uint16_t && _pos, const TYPE &_arg ) {
-   vDataMat[_pos] = _arg;
+template<uint32_t POS>
+inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( TYPE && _arg ) {
+   vDataMat[( (POS % ROWS) * COLLUMNS ) + (POS / ROWS)] = _arg;
 }
 
 
+template <class TYPE, int ROWS, int COLLUMNS>
+template<uint32_t POS, class... ARGS>
+inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const TYPE &_arg, ARGS && ... _args ) {
+   vDataMat[( (POS % ROWS) * COLLUMNS ) + (POS / ROWS)] = _arg;
+   setHelper<POS + 1>( std::forward<ARGS>( _args )... );
+}
+
+template <class TYPE, int ROWS, int COLLUMNS>
+template<uint32_t POS>
+inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const TYPE &_arg ) {
+   vDataMat[( (POS % ROWS) * COLLUMNS ) + (POS / ROWS)] = _arg;
+}
+
+
+// =========================================================================================================================
+// ==============================================================================================================================================
+// =========          =======================================================================================================================================
+// =======   Printing   ==========================================================================================================================================
+// =========          =======================================================================================================================================
+// ==============================================================================================================================================
+// =========================================================================================================================
+
+template <class TYPE, int ROWS, int COLLUMNS>
+void rMatrix<TYPE, ROWS, COLLUMNS>::TYPE2String( uint32_t && _pos, std::string &_str ) {
+   static std::string lTempStr;
+   lTempStr = boost::lexical_cast<std::string>( vDataMat[_pos] );
+
+   if( lTempStr.size() < 10 ) {
+      lTempStr.insert( lTempStr.begin(), 10 - lTempStr.size(), ' ' );
+   } else {
+      lTempStr.resize( 10 );
+   }
+
+   _str += lTempStr;
+}
+
+
+template <class TYPE, int ROWS, int COLLUMNS>
+void rMatrix<TYPE, ROWS, COLLUMNS>::print( std::string _name, char _type ) {
+   LOG( _type, false, __FILE__, __LINE__, LOG_FUNCTION_NAME, _name, ": " );
+
+   std::string lRowStr;
+
+   for( size_t row = 0; row < ROWS; ++row ) {
+      lRowStr.clear();
+      for( size_t collumn = 0; collumn < COLLUMNS; ++collumn ) {
+         TYPE2String( ( collumn * ROWS ) + row, lRowStr );
+      }
+      LOG( _type, true, __FILE__, __LINE__, LOG_FUNCTION_NAME, "( ", lRowStr, " )" );
+   }
+
+   LOG( _type, true, __FILE__, __LINE__, LOG_FUNCTION_NAME, "" );
+}
 
 }
 
