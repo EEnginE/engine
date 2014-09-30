@@ -26,6 +26,8 @@ class rMatrixObjectBase {
 
       rMat4<T>  vFinalMatrix_MAT;
 
+      bool      vNeedMatrixUpdate_B;
+
    public:
       rMatrixObjectBase();
 
@@ -49,7 +51,7 @@ class rMatrixObjectBase {
 
       inline void setCmaraSpaceMatrix( rMat4<T> *_mat ) { vCameraSpaceMatrix_MAT = _mat; }
 
-      inline void updateFinalMatrix();
+      inline void updateFinalMatrix( bool _forceUpdate );
 };
 
 template<class T>
@@ -61,6 +63,8 @@ rMatrixObjectBase<T>::rMatrixObjectBase() {
    vFinalMatrix_MAT.toIdentityMatrix();
 
    vCameraSpaceMatrix_MAT = nullptr;
+
+   vNeedMatrixUpdate_B = true;
 }
 
 template<class T>
@@ -71,6 +75,7 @@ void rMatrixObjectBase<T>::setScale( T _scale ) {
          0     , 0     , _scale, 0,
          0     , 0     , 0     , 1
    );
+   vNeedMatrixUpdate_B = true;
 }
 
 template<class T>
@@ -81,6 +86,7 @@ void rMatrixObjectBase<T>::setScale( const rVec3< T > &_scale ) {
          0       , 0       , _scale.z, 0,
          0       , 0       , 0       , 1
    );
+   vNeedMatrixUpdate_B = true;
 }
 
 template<class T>
@@ -98,11 +104,13 @@ void rMatrixObjectBase<T>::addScaleDelta( const rVec3< T > &_scale ) {
          0                                  , 0                                   , vScaleMatrix_MAT( 2, 2 ) + _scale.z, 0,
          0                                  , 0                                   , 0                                  , 1
    );
+   vNeedMatrixUpdate_B = true;
 }
 
 template<class T>
 void rMatrixObjectBase<T>::setRotation( const rVec3< T > &_axis, T _angle ) {
    rMatrixMath::rotate( _axis, _angle, vRotationMatrix_MAT );
+   vNeedMatrixUpdate_B = true;
 }
 
 
@@ -115,6 +123,7 @@ void rMatrixObjectBase<T>::setPosition( const rVec3< T > &_pos ) {
          0, 0, 1, _pos.z,
          0, 0, 0, 1
    );
+   vNeedMatrixUpdate_B = true;
 }
 
 template<class T>
@@ -133,58 +142,27 @@ void rMatrixObjectBase<T>::addPositionDelta( const rVec3< T > &_pos ) {
          0, 0, 1, vTranslationMatrix_MAT.template get<3, 2>() + _pos.z,
          0, 0, 0, 1
    );
+   vNeedMatrixUpdate_B = true;
 }
 
 
 template<class T>
-void rMatrixObjectBase<T>::updateFinalMatrix() {
-   if( vCameraSpaceMatrix_MAT == nullptr )
+void rMatrixObjectBase<T>::updateFinalMatrix( bool _forceUpdate ) {
+   if( vCameraSpaceMatrix_MAT == nullptr || ( !_forceUpdate && !vNeedMatrixUpdate_B ) )
       return;
 
-//    rMat4f lTemp = *vCameraSpaceMatrix_MAT * vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT ;
-//
-//    for( unsigned int i = 0; i < 4; ++i ) {
-//       std::string lStr;
-//       for( unsigned int j = 0; j < 4; ++j ) {
-//          lStr += boost::lexical_cast<std::string>( lTemp.get( j, i ) ) + "  ";
-//       }
-//       iLOG( lStr );
-//    }
-//
-//    dLOG( "" );
-//
-//    for( unsigned int i = 0; i < 4; ++i ) {
-//       std::string lStr;
-//       for( unsigned int j = 0; j < 4; ++j ) {
-//          lStr += boost::lexical_cast<std::string>( vRotationMatrix_MAT.get( j, i ) ) + "  ";
-//       }
-//       wLOG( lStr );
-//    }
-//
-//    dLOG( "" );
-//
-//    for( unsigned int i = 0; i < 4; ++i ) {
-//       std::string lStr;
-//       for( unsigned int j = 0; j < 4; ++j ) {
-//          lStr += boost::lexical_cast<std::string>( vTranslationMatrix_MAT.get( j, i ) ) + "  ";
-//       }
-//       wLOG( lStr );
-//    }
-//
-//    dLOG( "" );
-//
-//    for( unsigned int i = 0; i < 4; ++i ) {
-//       std::string lStr;
-//       for( unsigned int j = 0; j < 4; ++j ) {
-//          lStr += boost::lexical_cast<std::string>( vCameraSpaceMatrix_MAT->get( j, i ) ) + "  ";
-//       }
-//       eLOG( lStr );
-//    }
-//
-//    dLOG( "" );
-//    dLOG( "" );
-
    vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   vNeedMatrixUpdate_B = false;
+
+#if E_DEBUG_LOGGING
+
+   vScaleMatrix_MAT.print( "[MATRIX - ScaleMatrix] OUT", 'I' );
+   vRotationMatrix_MAT.print( "[MATRIX - RotationMatrix] OUT", 'I' );
+   vTranslationMatrix_MAT.print( "[MATRIX - TranslationMatrix] OUT", 'I' );
+   vCameraSpaceMatrix_MAT->print( "[MATRIX - CameraSpaceMatrix] OUT", 'I' );
+   vFinalMatrix_MAT.print( "[MATRIX - FinalMatrix_MAT] OUT", 'I' );
+
+#endif
 }
 
 

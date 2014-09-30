@@ -19,11 +19,9 @@ void MyHandler::mouse( iEventInfo info ) {
       switch( info.iMouse.button ) {
          case E_MOUSE_LEFT:
             vObject1.setRotation( rVec3f( 0, 1, 1 ), ++vCurrentRot );
-            vObject1.updateFinalMatrix();
             break;
          case E_MOUSE_RIGHT:
             vObject1.setRotation( rVec3f( 0, 1, 1 ), --vCurrentRot );
-            vObject1.updateFinalMatrix();
             break;
          default:
             iLOG( "Button ", info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '", (uint16_t)info.iMouse.button, "'" );
@@ -220,7 +218,7 @@ int MyHandler::initGL() {
    setCamera( vCameraPos, vCameraLook, vCameraUp );
    updateCameraSpaceMatrix();
    vObject1.updateUniformsAlways( true );
-   vObject1.updateFinalMatrix();
+   vObject1.updateFinalMatrix( true );
    return lReturn;
 }
 
