@@ -13,7 +13,6 @@
 namespace e_engine {
 
 class rWorld : public rMatrixWorldBase<float> {
-      typedef void ( *RENDER_FUNC_TD )( iInit * );
    private:
       uSlot<void, rWorld, bool> vRenderLoopStartSlot;
       uSlot<void, rWorld>       vRenderLoopStopSlot;
@@ -63,7 +62,7 @@ class rWorld : public rMatrixWorldBase<float> {
    public:
       void setInitObj( iInit *_init );
 
-      virtual void renderFrame() = 0;
+      virtual void renderFrame( bool ) = 0;
 
       void updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
       void updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );

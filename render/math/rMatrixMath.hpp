@@ -8,8 +8,8 @@
 
 #include "rMatrix.hpp"
 #include "rVectorMath.hpp"
+#include "defines.hpp"
 
-#include "boost/lexical_cast.hpp"
 
 namespace e_engine {
 
@@ -116,6 +116,17 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    _out.template get<2, 3>() = 0;
    _out.template get<3, 3>() = 1;
 
+#if E_DEBUG_LOGGING
+
+   dLOG(
+         "[MATRIX - rotate] IN:\n"
+         "   _axis:  (", _axis.x, "|", _axis.y, "|", _axis.z, ")\n"
+         "   _angle: ", _angle
+   );
+   _out.print( "[MATRIX - rotate] OUT", 'D' );
+
+#endif
+
 }
 
 template<class T>
@@ -128,6 +139,19 @@ void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4
    _out.template get<2, 2>() = ( _farZ + _nearZ ) / ( _nearZ - _farZ );
    _out.template get<3, 2>() = ( 2 * _farZ * _nearZ ) / ( _nearZ - _farZ );
    _out.template get<2, 3>() = -1;
+
+#if E_DEBUG_LOGGING
+
+   dLOG(
+         "[MATRIX - perspective] IN:\n"
+         "   _aspectRatio: ", _aspectRatio, "\n"
+         "   _nearZ:       ", _nearZ,       "\n"
+         "   _farZ:        ", _farZ,        "\n"
+         "   _fofy:        ", _fofy
+   );
+   _out.print( "[MATRIX - perspective] OUT", 'D' );
+
+#endif
 }
 
 template<class T>
@@ -155,14 +179,17 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
    _out.template get<3, 1>() = -rVectorMath::dotProduct( u, _position );
    _out.template get<3, 2>() = rVectorMath::dotProduct( f, _position );
 
-   for( unsigned int i = 0; i < 4; ++i ) {
-      std::string lStr;
-      for( unsigned int j = 0; j < 4; ++j ) {
-         lStr += boost::lexical_cast<std::string>( _out( j, i ) ) + "  ";
-      }
-      eLOG( lStr );
-   }
-   dLOG( "" );
+#if E_DEBUG_LOGGING
+
+   dLOG(
+         "[MATRIX - camera] IN:\n"
+         "   _position: (", _position.x, "|", _position.y, "|", _position.z, ")\n"
+         "   _lookAt:   (", _lookAt.x,   "|", _lookAt.y,   "|", _lookAt.z,   ")\n"
+         "   _upVector: (", _upVector.x, "|", _upVector.y, "|", _upVector.z, ")"
+   );
+   _out.print( "[MATRIX - camera] OUT", 'D' );
+
+#endif
 }
 
 

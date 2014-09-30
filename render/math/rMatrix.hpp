@@ -465,7 +465,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::TYPE2String( uint32_t && _pos, std::string &
       lTempStr.resize( 10 );
    }
 
-   _str += lTempStr;
+   _str += lTempStr + " ";
 }
 
 

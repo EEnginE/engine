@@ -12,7 +12,7 @@ using namespace std;
 using namespace e_engine;
 using namespace OS_NAMESPACE;
 
-class MyHandler : public rWorld {
+class MyHandler final : public rWorld {
       typedef uSlot<void, MyHandler, iEventInfo> _SLOT_;
    private:
       vector<iDisplays> vDisp_RandR;
@@ -22,14 +22,14 @@ class MyHandler : public rWorld {
       rNormalObject vObject1;
 
       GLfloat vAlpha;
-      
+
       GLfloat vCurrentRot;
-      
+
       rVec3f  vCameraPos;
       rVec3f  vCameraLook;
       rVec3f  vCameraUp;
       rVec3f  vCameraLookWorker;
-      
+
       iInit  *vInitPointer;
 
       MyHandler() : rWorld( nullptr ), vObject1( "OBJ_1" ) {}
@@ -38,15 +38,14 @@ class MyHandler : public rWorld {
       _SLOT_ slotResize;
       _SLOT_ slotKey;
       _SLOT_ slotMouse;
-      MyHandler( string _dataRoot, string _meshName, iInit *_init ) : 
-      rWorld( _init ), 
-      vObject1( "OBJ_1" ),
-      vCameraPos( 0, 0, 0 ),
-      vCameraLook( 0, 0, 1 ),
-      vCameraUp( 0, 1, 0 ),
-      vCameraLookWorker( 0, 0, 0 ),
-      vInitPointer( _init )
-      {
+      MyHandler( string _dataRoot, string _meshName, iInit *_init ) :
+         rWorld( _init ),
+         vObject1( "OBJ_1" ),
+         vCameraPos( 0, 0, 0 ),
+         vCameraLook( 0, 0, 1 ),
+         vCameraUp( 0, 1, 0 ),
+         vCameraLookWorker( 0, 0, 0 ),
+         vInitPointer( _init ) {
          slotWindowClose.setFunc( &MyHandler::windowClose, this );
          slotResize.setFunc( &MyHandler::resize, this );
          slotKey.setFunc( &MyHandler::key, this );
@@ -70,13 +69,14 @@ class MyHandler : public rWorld {
          iLOG( "Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height );
          updateViewPort( 0, 0, GlobConf.win.width, GlobConf.win.height );
          calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
-         vObject1.updateFinalMatrix();
-         vObject1.updateUniforms();
       }
 
       int initGL();
 
-      virtual void renderFrame() {vObject1.updateFinalMatrix(); vObject1.render();}
+      virtual void renderFrame( bool _wasCameraSpaceMatrixUpdated ) {
+         vObject1.updateFinalMatrix( _wasCameraSpaceMatrixUpdated );
+         vObject1.render();
+      }
 
 
       _SLOT_ *getSWindowClose() {return &slotWindowClose;}
