@@ -228,6 +228,8 @@ void uLog::stdOutStandard( e_engine::uLogEntryRaw &_e ) {
    }
 #endif // UNIX
 
+   _e.data.vResultString_STR.clear();
+
    _e.defaultEntryGenerator();
 
    wprintf( _e.data.vResultString_STR.c_str() );
@@ -255,6 +257,8 @@ void uLog::stdErrStandard( e_engine::uLogEntryRaw &_e ) {
    }
 #endif // __linux__
 
+   _e.data.vResultString_STR.clear();
+
    _e.defaultEntryGenerator();
 
    fwprintf( stderr, _e.data.vResultString_STR.c_str() );
@@ -272,6 +276,8 @@ void uLog::stdLogStandard( e_engine::uLogEntryRaw &_e ) {
       vStdLog_eSLOT.disconnectAll();
       return;
    }
+
+   _e.data.vResultString_STR.clear();
 
    _e.data.configure( DISABLED,                      // Impossible to show colors in a Text File
          GlobConf.log.logFILE.Time,
