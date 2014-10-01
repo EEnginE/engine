@@ -31,14 +31,16 @@ include( ${PROJECT_SOURCE_DIR}/generate/cmake/newLib.cmake )        # Get access
 include( ${PROJECT_SOURCE_DIR}/installTools.cmake )                  # Install all files in the 'tools' dir
 
 # Only set CMAKE_BUILD_TYPE when not defined
-if( NOT DEFINED CMAKE_BUILD_TYPE )
+if( NOT CMAKE_BUILD_TYPE )
    set( CMAKE_BUILD_TYPE DEBUG )
-   
+
    # Is this tagged ==> Release?
    if( "${CM_COMMIT_IS_TAGGED}" MATCHES "1" )
       set( CMAKE_BUILD_TYPE RELEASE )
    endif( "${CM_COMMIT_IS_TAGGED}" MATCHES "1" )
-endif( NOT DEFINED CMAKE_BUILD_TYPE )
+endif( NOT CMAKE_BUILD_TYPE )
+
+message( STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 
 set( DEBUG_LOGGING 0 )
 
@@ -98,7 +100,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/tests/)
 # Also install some usefull cmakefiles
 set(DEPENDENCES ${PROJECT_SOURCE_DIR}/generate/cmake/FindEngine.cmake
                 ${PROJECT_SOURCE_DIR}/generate/cmake/FindGLEW2.cmake)
-                
+
 set(OTHER_INC ${PROJECT_SOURCE_DIR}/engine.hpp ${PROJECT_SOURCE_DIR}/defines.hpp )
 
 # The install configuaration
