@@ -31,14 +31,14 @@ include( ${PROJECT_SOURCE_DIR}/generate/cmake/newLib.cmake )        # Get access
 include( ${PROJECT_SOURCE_DIR}/installTools.cmake )                  # Install all files in the 'tools' dir
 
 # Only set CMAKE_BUILD_TYPE when not defined
-if( "${CMAKE_BUILD_TYPE}" MATCHES "" )
+if( NOT DEFINED CMAKE_BUILD_TYPE )
    set( CMAKE_BUILD_TYPE DEBUG )
    
    # Is this tagged ==> Release?
    if( "${CM_COMMIT_IS_TAGGED}" MATCHES "1" )
       set( CMAKE_BUILD_TYPE RELEASE )
    endif( "${CM_COMMIT_IS_TAGGED}" MATCHES "1" )
-endif( "${CMAKE_BUILD_TYPE}" MATCHES "" )
+endif( NOT DEFINED CMAKE_BUILD_TYPE )
 
 set( DEBUG_LOGGING 0 )
 
