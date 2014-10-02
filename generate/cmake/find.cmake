@@ -42,12 +42,12 @@ find_package(GLEW2   REQUIRED) # The orginal FindGLEW.cmake has no options to se
 find_package(OpenGL  REQUIRED)
 find_package(Threads REQUIRED)
 
-if( UNIX )
+if( WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES GNU )
+   find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread_win32 chrono filesystem )
+else()
    find_package(X11   REQUIRED)
    find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread chrono filesystem )
-elseif( WIN32 )
-   find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread_win32 chrono filesystem )
-endif( UNIX )
+endif( WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES GNU )
 
 
 set(ENGINE_LINK 
