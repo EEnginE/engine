@@ -9,16 +9,16 @@ tests() {
 
     for I in $TEST_PROJECTS; do
         I=$( echo "$TESTS_DIR/$I" | sed 's/\/$//g' )
-        
+
         if [ ! -d $i ]; then
             echo "ERROR: $I is not a directory!"
             continue
         fi
-        
+
         TEST_BASENAME=$(basename $I)
         echo "INFO: Found test module $TEST_BASENAME"
         echo "add_subdirectory( $TEST_BASENAME )" >> $TESTS_DIR/CMakeLists.txt
-        
+
         PRE_GEN="$(pwd)/${I}/generate.pre.sh"
         POST_GEN="$(pwd)/${I}/generate.post.sh"
 
@@ -32,9 +32,9 @@ tests() {
             $PRE_GEN
             cd $CURRENT_TEMP_PATH
         fi
-        
+
         if [ ! -f ${I}/MANUAL_CMAKE ]; then
-        
+
         echo "INFO:    -- Generating CMakeLists.txt"
 cat > ${I}/CMakeLists.txt << EOF
 # Automatically generated file; DO NOT EDIT
@@ -55,7 +55,7 @@ endif( EXISTS \${CSD}/config.in.hpp )
 
 include( sources.cmake )
 
-add_executable( $TEST_BASENAME \${\${CURRENT_BASENAME}_SRC} )
+add_executable( $TEST_BASENAME \${\${CURRENT_BASENAME}_SRC} \${\${CURRENT_BASENAME}_INC} )
 
 target_link_libraries(
  $TEST_BASENAME
@@ -81,9 +81,9 @@ endif( EXISTS \${CSD}/data AND IS_DIRECTORY \${CSD}/data )
 EOF
 
         fi
-        
+
         finSources        ${I} ${I}/$SOURCE_FILE $X11 $WAYLAND $MIR $WINDOWS ${TEST_BASENAME^^}
-        
+
         if [ -f $POST_GEN ]; then
             if [ ! -x $POST_GEN ]; then
                 chmod +x $POST_GEN
@@ -94,7 +94,7 @@ EOF
             $POST_GEN
             cd $CURRENT_TEMP_PATH
         fi
-    done    
+    done
 
 }
 
