@@ -48,23 +48,6 @@ class rVectorMath {
 
       template<class T>        static void quaternionMultiplication( const rVec4<T> &_q1, const rVec4<T> &_q2, rVec4<T> &_out );
 
-      template<class T, int N> static T    length( const rVecN<T, N> &_vec );
-      template<class T>        static T    length( const rVec2<T>    &_vec );
-      template<class T>        static T    length( const rVec3<T>    &_vec );
-      template<class T>        static T    length( const rVec4<T>    &_vec );
-
-      template<class T, int N> static void normalize( rVecN<T, N> &_vec );
-      template<class T>        static void normalize( rVec2<T>    &_vec );
-      template<class T>        static void normalize( rVec3<T>    &_vec );
-      template<class T>        static void normalize( rVec4<T>    &_vec );
-
-      template<class T, int N>
-      static rVecN<T, N>  normalizeReturn( rVecN<T, N> const &_vec ) {
-         rVecN<T, N> lResult = _vec;
-         normalize( lResult );
-         return lResult;
-      }
-
       template<class T>
       static rVec3<T>     crossProduct( const rVec3<T> &_vec1, const rVec3<T> &_vec2 );
 };
@@ -106,87 +89,6 @@ T rVectorMath::dotProduct( const rVec4<T> &_vec1, const rVec4<T> &_vec2 ) {
 
 // =========================================================================================================================
 // ==============================================================================================================================================
-// =========          =======================================================================================================================================
-// =======   Normalize  ==========================================================================================================================================
-// =========          =======================================================================================================================================
-// ==============================================================================================================================================
-// =========================================================================================================================
-
-template<class T, int N>
-void rVectorMath::normalize( rVecN<T, N> &_vec ) {
-   T lTemp = 0;
-   for( unsigned int i = 0; i < N; ++i )
-      lTemp += _vec[i] * _vec[i];
-
-   T lLength = sqrt( lTemp );
-
-   for( unsigned int i = 0; i < N; ++i )
-      _vec[i] /= lLength;
-}
-
-template<class T>
-void rVectorMath::normalize( rVec2<T> &_vec ) {
-   T lLength = sqrt( _vec.x * _vec.x + _vec.y * _vec.y );
-
-   _vec.x /= lLength;
-   _vec.y /= lLength;
-}
-
-template<class T>
-void rVectorMath::normalize( rVec3<T> &_vec ) {
-   T lLength = sqrt( _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z );
-
-   _vec.x /= lLength;
-   _vec.y /= lLength;
-   _vec.z /= lLength;
-}
-
-template<class T>
-void rVectorMath::normalize( rVec4<T> &_vec ) {
-   T lLength = sqrt( _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z + _vec.w * _vec.w );
-
-   _vec.x /= lLength;
-   _vec.y /= lLength;
-   _vec.z /= lLength;
-   _vec.w /= lLength;
-}
-
-// =========================================================================================================================
-// ==============================================================================================================================================
-// =========       ==========================================================================================================================================
-// =======   Length  =============================================================================================================================================
-// =========       ==========================================================================================================================================
-// ==============================================================================================================================================
-// =========================================================================================================================
-
-
-template<class T, int N>
-T rVectorMath::length( const rVecN<T, N> &_vec ) {
-   T lTemp = 0;
-   for( unsigned int i = 0; i < N; ++i )
-      lTemp += _vec[i] * _vec[i];
-
-   return sqrt( lTemp );
-}
-
-template<class T>
-T rVectorMath::length( const rVec2<T> &_vec )  {
-   return sqrt( _vec.x * _vec.x + _vec.y * _vec.y );
-}
-
-template<class T>
-T rVectorMath::length( const rVec3<T> &_vec ) {
-   return sqrt( _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z );
-}
-
-template<class T>
-T rVectorMath::length( const rVec4<T> &_vec ) {
-   return sqrt( _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z + _vec.w * _vec.w );
-}
-
-
-// =========================================================================================================================
-// ==============================================================================================================================================
 // =========              ===================================================================================================================================
 // =======   Cross Product  ======================================================================================================================================
 // =========              ===================================================================================================================================
@@ -223,4 +125,4 @@ void rVectorMath::quaternionMultiplication( const rVec4<T> &_q1, const rVec4<T> 
 }
 
 #endif
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

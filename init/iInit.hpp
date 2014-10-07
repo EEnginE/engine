@@ -217,4 +217,4 @@ extern __iInit_Pointer __iInit_Pointer_OBJ;
 
 #endif // E_INIT_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

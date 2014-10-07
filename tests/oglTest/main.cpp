@@ -55,4 +55,4 @@ int main( int argc, char *argv[] ) {
 //#!BIND "oglTest", "init", "version", "minor", G_NUM( GlobConf.versions.glMajorVersion, 6 )
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

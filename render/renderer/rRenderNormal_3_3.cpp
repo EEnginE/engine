@@ -78,4 +78,4 @@ bool rRenderNormal_3_3::setOGLInfo( std::vector< void * > &_data ) {
 
 
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
