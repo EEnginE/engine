@@ -20,4 +20,4 @@ double cFuncToCall( int _a, double _b ) {
    return _b * _a;
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

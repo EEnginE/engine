@@ -143,4 +143,4 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
 
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

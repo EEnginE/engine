@@ -347,6 +347,6 @@ iRandR::~iRandR() {
 } // windows_win32
 
 } // e_engine
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
 
 
