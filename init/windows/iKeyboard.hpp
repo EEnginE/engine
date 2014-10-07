@@ -9,12 +9,13 @@
 #include <windows.h>
 #include "iKeyboardBasic.hpp"
 #include "uLog.hpp"
+#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
 namespace windows_win32 {
 
-class iKeyboard : public iKeyboardBasic {
+class init_EXPORT iKeyboard : public iKeyboardBasic {
 
    protected:
       /*!

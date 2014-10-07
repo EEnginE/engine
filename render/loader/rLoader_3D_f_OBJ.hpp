@@ -11,10 +11,11 @@
 #include <vector>
 
 #include <GL/glew.h>
+#include "engine_render_Export.hpp"
 
 namespace e_engine {
 
-class rLoader_3D_f_OBJ : public internal::rLoader_3D_Base<GLfloat> {
+class render_EXPORT rLoader_3D_f_OBJ : public internal::rLoader_3D_Base<GLfloat> {
    private:
       bool        vIsDataLoaded_B;
 

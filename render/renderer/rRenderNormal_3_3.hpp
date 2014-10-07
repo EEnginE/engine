@@ -8,6 +8,8 @@
 
 #include <GL/glew.h>
 #include "rRenderNormalOBJBase.hpp"
+#include "engine_render_Export.hpp"
+
 
 
 namespace e_engine {
@@ -17,7 +19,7 @@ namespace e_engine {
  * 
  * ID: render_OGL_3_3_Normal_Basic_1S_1D
  */
-class rRenderNormal_3_3 : public internal::rRenderNormalOBJBase<float> {
+class render_EXPORT rRenderNormal_3_3 : public internal::rRenderNormalOBJBase<float> {
    private:
       GLuint vVertexBufferObj_OGL;
       GLuint vIndexBufferObj_OGL;

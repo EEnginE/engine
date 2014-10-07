@@ -155,7 +155,7 @@ void MyHandler::key( iEventInfo info ) {
 
          case L'A':
          case L'a':
-            vCameraPos -= 0.25f * rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp ) );
+            vCameraPos -= 0.25f * (rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp )) );
             setCamera( vCameraPos, vCameraLook, vCameraUp );
             break;
 
@@ -167,7 +167,7 @@ void MyHandler::key( iEventInfo info ) {
 
          case L'D':
          case L'd':
-            vCameraPos += 0.25f * rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp ) );
+            vCameraPos += 0.25f * (rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp ) ) );
             setCamera( vCameraPos, vCameraLook, vCameraUp );
             break;
 
@@ -198,7 +198,11 @@ void MyHandler::key( iEventInfo info ) {
          case E_KEY_ESCAPE: info.iInitPointer->closeWindow(); break;
 
          default:
-            snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
+			#ifdef _MSC_VER
+			 _snprintf(lHex_CSTR, 5, "%04X", info.eKey.key);
+			#else
+             snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
+			#endif
             iLOG( "Key ", info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '", info.eKey.key, "' - ", "0x", lHex_CSTR );
 #endif
       }

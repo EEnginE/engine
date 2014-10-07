@@ -7,6 +7,8 @@
 #define R_MATRIX_WORLD_BASE_HPP
 
 #include "rMatrixMath.hpp"
+#include "engine_render_Export.hpp"
+
 
 namespace e_engine {
 
@@ -89,11 +91,10 @@ void rMatrixWorldBase<T>::calculateProjectionPerspective( T _width, T _height, T
  * \param[in] _upVector The up direction of the camera ( mostly rVec3( 0, 1, 0 ) )
  */
 template<class T>
-void rMatrixWorldBase<T>::setCamera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector ) {
-   rMatrixMath::camera( _position, _lookAt, _upVector, vCameraMatrix_MAT );
-   vNeedCamaraSpaceMatrixUpdate_B = true;
+void rMatrixWorldBase<T>::setCamera(const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector) {
+	rMatrixMath::camera(_position, _lookAt, _upVector, vCameraMatrix_MAT);
+	vNeedCamaraSpaceMatrixUpdate_B = true;
 }
-
 
 
 

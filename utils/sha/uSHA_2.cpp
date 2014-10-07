@@ -310,7 +310,12 @@ std::string uSHA_2::get( bool _space ) {
       case SHA2_224: lEnd_suI = 7;
       case SHA2_256:
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
+		#ifdef _MSC_VER
+			_snprintf(lBuffer_CSTR, 10, "%08x", h_512[i] );
+		#else
             snprintf( lBuffer_CSTR, 9, "%08x", h_512[i] );
+		#endif
+
             lString_str += lBuffer_CSTR;
 
             if ( _space && i != ( lEnd_suI - 1 ) )
@@ -324,14 +329,21 @@ std::string uSHA_2::get( bool _space ) {
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
             v1 = ( uint32_t )( h_1024[i] >> 32 );
             v2 = ( uint32_t )( h_1024[i] );
-
-            snprintf( lBuffer_CSTR, 9, "%08x", v1 );
+			#ifdef _MSC_VER
+				_snprintf(lBuffer_CSTR, 10, "%08x", v1);
+			#else
+				snprintf( lBuffer_CSTR, 9, "%08x", v1 );
+			#endif
             lString_str += lBuffer_CSTR;
 
             if ( _space )
                lString_str += ' ';
 
-            snprintf( lBuffer_CSTR, 9, "%08x", v2 );
+			#ifdef _MSC_VER
+				_snprintf(lBuffer_CSTR, 10, "%08x", v2);
+			#else
+				snprintf(lBuffer_CSTR, 9, "%08x", v2);
+			#endif
             lString_str += lBuffer_CSTR;
 
             if ( _space && i != ( lEnd_suI - 1 ) )

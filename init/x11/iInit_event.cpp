@@ -36,7 +36,7 @@
  * \param[out] result the result
  * \returns Nothing
  */
-static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
+static init_EXPORT  inline void addTimeval(timeval &a, timeval &b, timeval &result) {
    result.tv_sec  = a.tv_sec  + b.tv_sec;
    result.tv_usec = a.tv_usec + b.tv_usec;
    while ( result.tv_usec >= 1000000 ) {
@@ -52,7 +52,7 @@ static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
  * \param[out] result the result
  * \returns Nothing
  */
-static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
+static init_EXPORT inline void subTimeval(timeval &a, timeval &b, timeval &result) {
    result.tv_sec  = a.tv_sec  - b.tv_sec;
    result.tv_usec = a.tv_usec - b.tv_usec;
    while ( result.tv_usec < 0 ) {

@@ -123,7 +123,7 @@ void uLog::devInit() {
 void uLog::addType( char _type, std::wstring _name, char _color, bool _bold ) {
    vLogTypes_V_eLT.push_back( internal::uLogType( _type, _name, _color, _bold ) );
    if( _name.size() > vMaxTypeStringLength_usI )
-      vMaxTypeStringLength_usI = _name.size();
+      vMaxTypeStringLength_usI = (unsigned short int) _name.size();
 }
 
 bool uLog::openLogFile( uint16_t i ) {

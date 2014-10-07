@@ -7,6 +7,7 @@
 #define E_EVENT_INFO_HPP
 
 #include "defines.hpp"
+#include "engine_init_Export.hpp"
 
 namespace e_engine {
 

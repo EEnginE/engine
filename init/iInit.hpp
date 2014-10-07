@@ -38,6 +38,7 @@
 
 #include "uLog.hpp"
 #include <boost/thread.hpp>
+#include "engine_init_Export.hpp"
 
 
 
@@ -64,7 +65,7 @@ typedef GLvoid( *RENDER_FUNC )( iEventInfo info );
 #if UNIX_X11
 class iInit : public unix_x11::iContext, public iMouse {
 #elif WINDOWS
-class iInit : public windows_win32::iContext {
+class init_EXPORT iInit : public windows_win32::iContext {
 #endif
    private:
       bool              vMainLoopRunning_B;   //!< Should the main loop be running?
@@ -168,10 +169,10 @@ class iInit : public windows_win32::iContext {
       
       template<class __C>
       void   addRenderSlots( uSlot<void, __C, bool> *_start, uSlot<void, __C> *_stop, uSlot<void, __C> *_pause, uSlot<void, __C> *_continue ) {
-         vStartRenderLoopSignal_SIG.connectWith( _start );
-         vStopRenderLoopSignal_SIG.connectWith( _stop );
-         vPauseRenderLoop_SIG.connectWith( _pause );
-         vContinueRenderLoop_SIG.connectWith( _continue );
+		  vStartRenderLoopSignal_SIG.connectWith<__C>(_start);
+         vStopRenderLoopSignal_SIG.connectWith<__C>( _stop );
+		 vPauseRenderLoop_SIG.connectWith<__C>(_pause);
+		 vContinueRenderLoop_SIG.connectWith<__C>(_continue);
                   
          vAreRenderLoopSignalsConnected_B = true;
       }
@@ -192,7 +193,7 @@ namespace internal {
  * \todo Remove this workaround / hack
  *
  */
-class __iInit_Pointer {
+class init_EXPORT __iInit_Pointer {
    private:
       iInit *pointer;
       bool  is_set;

@@ -18,6 +18,9 @@
 
 namespace e_engine {
 
+
+#ifndef _MSC_VER
+
 class Converter : public boost::static_visitor<> {
    public:
       std::wstring theSTR;
@@ -78,6 +81,9 @@ class Converter : public boost::static_visitor<> {
       }
 };
 
+#endif
+
+
 void uLogEntryRaw::end() {
    if( !GlobConf.log.waitUntilLogEntryPrinted || !LOG.getIsLogLoopRunning() ) {
       vEndFinished_B = true;
@@ -110,6 +116,11 @@ unsigned int uLogEntryRaw::getLogEntry( std::vector< internal::uLogType > &_vLog
    data.raw.vDataString_STR.clear();
    data.raw.vType_STR  = L"UNKNOWN";
 
+#ifdef _MSC_VER
+   for (auto & i : vElements) {
+	   data.raw.vDataString_STR += i.vData;
+   }
+#else
    Converter conf;
    for( auto & i : vElements ) {
       conf.vIsSigned_B = i.vIsSigned_B;
@@ -117,6 +128,7 @@ unsigned int uLogEntryRaw::getLogEntry( std::vector< internal::uLogType > &_vLog
    }
 
    data.raw.vDataString_STR = conf.theSTR;
+#endif
 
    if( _vLogTypes_V_eLT.empty() ) {
       eLOG( "No Log type found!! Please add at least one manually or run 'uLog.devInit();', which will be run now to prevent further Errors" );

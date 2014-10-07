@@ -26,7 +26,6 @@
 
 #include <functional>
 
-
 // This stuff is needed for our std::bind stuff so that we can use "Variadic templates"
 // More information https://stackoverflow.com/questions/21192659/variadic-templates-and-stdbind
 template<int...>           struct int_sequence                                                            {};
@@ -44,6 +43,7 @@ template<int N> struct is_placeholder< placeholder_template<N> > : integral_cons
 #include <vector>
 
 #include "defines.hpp"
+#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
@@ -63,16 +63,20 @@ namespace internal {
  */
 class __uSigSlotLogFunctionClass {
    public:
-      static void sigSlotLogFunktion( std::string _errStr, const char *_file, const int _line, const char *_function );
+      static utils_EXPORT void sigSlotLogFunktion( std::string _errStr, const char *_file, const int _line, const char *_function );
 };
 
 
 
 class __uSigSlotConnection {
-      typedef typename boost::signals2::connection connection_TD;
+	#ifndef _MSC_VER
+		typedef typename boost::signals2::connection connection_TD;
+	#else
+		typedef boost::signals2::connection connection_TD;
+	#endif
    private:
       //! Counter for Signals
-      static unsigned int vSignalsCounter_uI;
+      static utils_EXPORT unsigned int vSignalsCounter_uI;
 
       __uSigSlotConnection() {}
 
@@ -92,7 +96,7 @@ class __uSigSlotConnection {
 
 /*!
  * \class e_engine::uSignal
- * \brief Class to manage signals
+ * \brief class to manage signals
  *
  * This class stores a \c boost::signals2::signal object and
  * can connect it with a function from a uSlot class.
@@ -225,7 +229,7 @@ class uSignal {
 
 /*!
  * \class e_engine::uSlot
- * \brief Class to manage slots
+ * \brief class to manage slots
  *
  * This class stores the function pointer and the boost
  * connection object

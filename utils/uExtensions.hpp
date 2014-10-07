@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
@@ -42,7 +43,7 @@ struct uExtensionData {
    bool        supported;
 };
 
-class uExtensions {
+class utils_EXPORT uExtensions {
    private:
       uExtensionData *vOpenGLExtList;
       OPENGL_VERSIONS vVersion;

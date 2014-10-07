@@ -4,6 +4,8 @@
 #include "uLog.hpp"
 #include <type_traits>
 #include <boost/lexical_cast.hpp>
+#include "engine_render_Export.hpp"
+
 
 namespace e_engine {
 

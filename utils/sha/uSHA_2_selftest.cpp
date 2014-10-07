@@ -25,7 +25,11 @@ bool uSHA_2::test( HASH_FUNCTION _type, const std::string &_message, const std::
    }
 
    for( unsigned char const & c : lRes1_V_uC ) {
+	#ifdef _MSC_VER
+	  _snprintf(lBuffer_CSTR, 4, "%02x", c);
+	#else
       snprintf( lBuffer_CSTR, 3, "%02x", c );
+	#endif
       lRes1_str += lBuffer_CSTR;
    }
 

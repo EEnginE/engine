@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include "engine_render_Export.hpp"
+
 
 namespace e_engine {
 
