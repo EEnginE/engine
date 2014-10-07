@@ -7,10 +7,11 @@
 #define U_PARSER_JSON_HPP
 
 #include "uParserJSON_data.hpp"
+#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
-class uParserJSON {
+class utils_EXPORT uParserJSON {
    private:
       std::string vFilePath_str;
       bool        vIsParsed;

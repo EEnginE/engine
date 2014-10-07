@@ -8,10 +8,11 @@
 #define MOUSE
 
 #include "defines.hpp"
+#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
-class iMouse {
+class init_EXPORT iMouse {
    private:
       unsigned short int button_state[E_MOUSE_UNKNOWN];
 

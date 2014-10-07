@@ -9,15 +9,17 @@
 #include <string>
 #include <array>
 #include <vector>
+#include <stdint.h>
+#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
 enum HASH_FUNCTION { SHA2_224, SHA2_256, SHA2_384, SHA2_512 };
 
 /*!
- * \brief Class for calculating SHA-2 (SHA-224, SHA-256, SHA-384, SHA-512) hashes
+ * \brief class for calculating SHA-2 (SHA-224, SHA-256, SHA-384, SHA-512) hashes
  */
-class uSHA_2 {
+class utils_EXPORT uSHA_2 {
    public:
    private:
       HASH_FUNCTION vType;

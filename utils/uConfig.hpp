@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include "uExtensions.hpp"
+#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
@@ -71,7 +72,7 @@ namespace internal {
  *
  * \sa iInit iContext GlobConf
  */
-struct _uConfig {
+struct utils_EXPORT _uConfig {
 
    bool         handleSIGINT;  // Crt - C
    bool         handleSIGTERM;
@@ -292,7 +293,7 @@ struct _uConfig {
        * 2: - force NEW shader query style - even if the extension is not supported ==> may cause segfault
        * 0: Let rShader decide [default]
        */
-      uint8_t shaderInfoQueryType;
+      unsigned char shaderInfoQueryType;
       bool    useShaders;
       
       __uConfig_OpenGL();
@@ -316,7 +317,7 @@ struct _uConfig {
  * \brief The main object from _uConfig
  * \sa _uConfig __uConfig_FBA
  */
-extern _uConfig GlobConf;
+extern utils_EXPORT _uConfig GlobConf;
 
 }
 

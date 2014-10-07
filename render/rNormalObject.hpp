@@ -14,6 +14,8 @@
 #include "rLoader_3D_f_OBJ.hpp"
 #include "rMatrixObjectBase.hpp"
 #include "rWorld.hpp"
+#include "engine_render_Export.hpp"
+
 
 namespace e_engine {
 

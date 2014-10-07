@@ -25,18 +25,19 @@
 
 #ifndef U_SYSTEM_HPP
 #define U_SYSTEM_HPP
+#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
 /*!
  * \class e_engine::uSystem
- * \brief Class to get information about the user of the programm
+ * \brief class to get information about the user of the programm
  * 
  * This class stores information about the actual user
  * running the programm and the operating system.
  * 
  */
-class uSystem {
+class utils_EXPORT uSystem {
 private:
    std::string  vUserName;  //!< The user name var
    std::string  vUserLogin; //!< The user login name var
@@ -77,7 +78,7 @@ public:
  * 
  * The standard \c uSystem object
  */
-extern uSystem SYSTEM;
+extern utils_EXPORT uSystem SYSTEM;
 
 }
 

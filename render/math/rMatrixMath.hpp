@@ -9,6 +9,8 @@
 #include "rMatrix.hpp"
 #include "rVectorMath.hpp"
 #include "defines.hpp"
+#include "engine_render_Export.hpp"
+
 
 
 namespace e_engine {

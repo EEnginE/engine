@@ -9,10 +9,11 @@
 #include "uSignalSlot.hpp"
 #include "iInit.hpp"
 #include "rMatrixWorldBase.hpp"
+#include "engine_render_Export.hpp"
 
 namespace e_engine {
 
-class rWorld : public rMatrixWorldBase<float> {
+class render_EXPORT rWorld : public rMatrixWorldBase<float> {
    private:
       uSlot<void, rWorld, bool> vRenderLoopStartSlot;
       uSlot<void, rWorld>       vRenderLoopStopSlot;

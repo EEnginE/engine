@@ -7,6 +7,8 @@
 #define R_MATRIX_OBJECT_BASE_HPP
 
 #include "rMatrixMath.hpp"
+#include "engine_render_Export.hpp"
+
 
 namespace e_engine {
 

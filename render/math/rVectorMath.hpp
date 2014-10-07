@@ -8,6 +8,8 @@
 
 #include "rMatrix.hpp"
 #include <math.h>
+#include "engine_render_Export.hpp"
+
 
 namespace e_engine {
 

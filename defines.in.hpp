@@ -49,6 +49,9 @@
 #elif defined __GNUC__
 // #define LOG_FUNCTION_NAME __PRETTY_FUNCTION__ // A bit to long ...
 #define LOG_FUNCTION_NAME __func__
+#elif defined _MSC_VER
+// #define LOG_FUNCTION_NAME __PRETTY_FUNCTION__ // A bit to long ...
+#define LOG_FUNCTION_NAME __FUNCTION__
 #else
 // This is int the C++11 standard, so every compiler should / must have this
 #define LOG_FUNCTION_NAME __func__

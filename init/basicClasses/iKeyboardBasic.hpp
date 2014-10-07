@@ -8,10 +8,11 @@
 #define KEYS_BASIC
 
 #include "defines.hpp"
+#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
-class iKeyboardBasic {
+class init_EXPORT iKeyboardBasic {
    private:
       unsigned short int key_state[_E_KEY_LAST + 1];
 

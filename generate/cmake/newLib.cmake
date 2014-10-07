@@ -18,15 +18,31 @@ function( newLibrary )
   endforeach( III ${ARGV} )
 
   include( ${PROJECT_SOURCE_DIR}/${ARGV0}.cmake )
+  include (GenerateExportHeader)
 
   if( ENGINE_BUILD_SHARED )
     add_library( ${PROJECT_NAME}_${ARGV0} SHARED ${${CURRENT_BASENAME}_SRC} ${${CURRENT_BASENAME}_INC} ) # Create a shared library
-    set( _BUILD_TYPE "shared" )
+	set( _BUILD_TYPE "shared" )
   else( ENGINE_BUILD_SHARED )
     add_library( ${PROJECT_NAME}_${ARGV0} STATIC ${${CURRENT_BASENAME}_SRC} ${${CURRENT_BASENAME}_INC} ) # Create a static library
     set( _BUILD_TYPE "static" )
   endif( ENGINE_BUILD_SHARED )
 
+  GENERATE_EXPORT_HEADER( ${PROJECT_NAME}_${ARGV0}
+             BASE_NAME ${PROJECT_NAME}_${ARGV0}
+             EXPORT_MACRO_NAME ${ARGV0}_EXPORT
+             EXPORT_FILE_NAME ${PROJECT_SOURCE_DIR}/${ARGV0}/${PROJECT_NAME}_${ARGV0}_Export.hpp
+             STATIC_DEFINE ${ARGV0}_BUILT_AS_STATIC)
+			 
+  if(CMAKE_CXX_COMPILER_ID MATCHES MSVC) 
+  set_target_properties(
+   ${PROJECT_NAME}_${ARGV0}
+   PROPERTIES
+    VERSION       ${CM_VERSION_MAJOR}.${CM_VERSION_MINOR}.${CM_VERSION_SUBMINOR}
+    SOVERSION     ${CM_VERSION_MAJOR} 
+   LINK_FLAGS	  "/LIBPATH:${Boost_LIBRARY_DIRS} /FORCE:MULTIPLE"
+  )
+  else() 
   # Set some variables so that Cmake can do some fancy stuff with versions and filenames
   set_target_properties(
    ${PROJECT_NAME}_${ARGV0}
@@ -34,11 +50,13 @@ function( newLibrary )
     VERSION       ${CM_VERSION_MAJOR}.${CM_VERSION_MINOR}.${CM_VERSION_SUBMINOR}
     SOVERSION     ${CM_VERSION_MAJOR}
   )
+  endif(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
 
+  
   # Windows also needs some linking...
-  if( WIN32 AND ENGINE_BUILD_SHARED )
+  if( WIN32 )
     target_link_libraries(${PROJECT_NAME}_${ARGV0} ${ENGINE_LINK} ${LIBS_TO_LINK} )
-  endif( WIN32 AND ENGINE_BUILD_SHARED )
+  endif( WIN32 )
 
   install( FILES ${${CURRENT_BASENAME}_INC} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/engine)
 

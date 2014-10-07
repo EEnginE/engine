@@ -29,6 +29,7 @@
 #include <boost/chrono.hpp>
 #include "uLog_resources.hpp"
 #include "uMacros.hpp"
+#include "engine_utils_Export.hpp"
 
 #if BOOST_VERSION < 105000
 #define B_SLEEP( chrono_sleep, time ) {boost::posix_time::time_duration duration = boost::posix_time::chrono_sleep( time );\
@@ -104,7 +105,7 @@ namespace e_engine {
  *
  * \note Only the <b>single predefined</b> instance \c LOG of this class should be used!
  */
-class uLog {
+class utils_EXPORT uLog {
       typedef uSignal<void, uLogEntryRaw &> _SIGNAL_;
       typedef uSlot<void, uLog , uLogEntryRaw &> _SLOT_;
    private:
@@ -228,7 +229,7 @@ bool uLog::disconnectSlotWith( char _type, uSlot< void, __C, uLogEntryRaw & > &_
  * This is the standard \c uLog object which should
  * be used for \b all Logging operations
  */
-extern uLog LOG;
+extern utils_EXPORT uLog LOG;
 
 }
 

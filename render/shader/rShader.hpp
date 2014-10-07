@@ -28,6 +28,8 @@
 #include <vector>
 #include <string>
 #include "rShader_structs.hpp"
+#include "engine_render_Export.hpp"
+
 
 namespace e_engine {
 
@@ -45,7 +47,7 @@ static const std::string GEOM_END( ".geom" );   //!< Standard shader ending for 
  * to a \c GLSL program
  *
  */
-class rShader {
+class render_EXPORT rShader {
    public:
       enum SHADER_TYPE {
          VERT = 0,

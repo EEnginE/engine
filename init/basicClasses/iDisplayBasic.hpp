@@ -8,10 +8,11 @@
 
 #include <vector>
 #include <string>
+#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
-class iDisplayBasic {
+class init_EXPORT iDisplayBasic {
    public:
       /*!
        * \brief describes the position of one display relative to an other

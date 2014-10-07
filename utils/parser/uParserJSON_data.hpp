@@ -10,6 +10,7 @@
 #include <vector>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include "uLog.hpp"
+#include "engine_utils_Export.hpp"
 
 #define G_STR(  _out_, _def_ ) ::e_engine::JSON_STRING,  &_out_, std::string( _def_ ), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
 #define G_NUM(  _out_, _def_ ) ::e_engine::JSON_NUMBER,  &_out_, (double)     _def_  , ::e_engine::uJSON_data::END_MARKER_TYPE::GET
@@ -43,7 +44,7 @@ typedef std::vector<::e_engine::uJSON_data>  VALUES;
 
 namespace e_engine {
 
-struct uJSON_data {
+struct utils_EXPORT uJSON_data {
    std::string id;
    std::string value_str;
    double      value_num;

@@ -246,7 +246,7 @@ void rWorld::setInitObj( iInit *_init ) {
    }
 
    vInitPointer = _init;
-   vInitPointer->addRenderSlots( &vRenderLoopStartSlot, &vRenderLoopStopSlot, &vPauseRenderLoopSlot, &vContinueRenderLoopSlot );
+   vInitPointer->addRenderSlots<e_engine::rWorld>( &vRenderLoopStartSlot, &vRenderLoopStopSlot, &vPauseRenderLoopSlot, &vContinueRenderLoopSlot );
 
    vInitObjSet_B = true;
 }

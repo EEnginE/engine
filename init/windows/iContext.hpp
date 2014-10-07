@@ -15,6 +15,7 @@
 #include "iInitEventBasic.hpp"
 #include "iKeyboard.hpp"
 #include "iRandR.hpp"
+#include "engine_init_Export.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -24,7 +25,7 @@ namespace e_engine {
 namespace windows_win32 {
 
 
-class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
+class init_EXPORT iContext : public iInitEventBasic, public iKeyboard, public iRandR {
    private:
       PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
       HINSTANCE             vInstance_win32;
@@ -81,7 +82,7 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
       bool makeContextCurrent();
       bool makeNOContextCurrent();
       
-      static bool isAContextCurrentForThisThread();
+	  static bool isAContextCurrentForThisThread();
 
       bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
 
@@ -135,7 +136,7 @@ namespace internal {
  * Registering them more than once leads to errors. This class
  * stores if a window class is registered.
  */
-class eWindowClassRegister {
+class init_EXPORT eWindowClassRegister {
    private:
       bool vClass1Registered; //!< Is the temporary window class registered (used for the temporary OpenGL context)
       bool vClass2Registered; //!< Is the final window class registered (the "real" window class)
