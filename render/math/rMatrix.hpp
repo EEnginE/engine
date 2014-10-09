@@ -25,6 +25,17 @@ struct rMatrixData<T, 2, 1> {
 
       T vDataMat[2];
    };
+
+   void normalize() {
+      T lLength = sqrt( x * x + y * y );
+
+      x /= lLength;
+      y /= lLength;
+   }
+
+   T length() {
+      return sqrt( x * x + y * y );
+   }
 };
 
 template<class T>
@@ -36,6 +47,18 @@ struct rMatrixData<T, 3, 1> {
 
       T vDataMat[3];
    };
+
+   void normalize() {
+      T lLength = sqrt( x * x + y * y + z * z );
+
+      x /= lLength;
+      y /= lLength;
+      z /= lLength;
+   }
+
+   T length() {
+      return sqrt( x * x + y * y + z * z );
+   }
 };
 
 template<class T>
@@ -47,6 +70,19 @@ struct rMatrixData<T, 4, 1> {
 
       T vDataMat[4];
    };
+
+   void normalize() {
+      T lLength = sqrt( x * x + y * y + z * z + w * w );
+
+      x /= lLength;
+      y /= lLength;
+      z /= lLength;
+      w /= lLength;
+   }
+
+   T length() {
+      return sqrt( x * x + y * y + z * z + w * w );
+   }
 };
 
 }
@@ -59,8 +95,8 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
       template<uint32_t POS, class... ARGS>  inline void setHelper( TYPE && _arg, ARGS && ... _args );
       template<uint32_t POS>                 inline void setHelper( TYPE && _arg );
 
-      template<uint32_t POS, class... ARGS>  inline void setHelper( const TYPE & _arg, ARGS && ... _args );
-      template<uint32_t POS>                 inline void setHelper( const TYPE & _arg );
+      template<uint32_t POS, class... ARGS>  inline void setHelper( const TYPE &_arg, ARGS && ... _args );
+      template<uint32_t POS>                 inline void setHelper( const TYPE &_arg );
 
 
       inline void TYPE2String( uint32_t && _pos, std::string &_str );
@@ -423,28 +459,28 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::setMat( ARGS && ... _args ) {
 template <class TYPE, int ROWS, int COLLUMNS>
 template<uint32_t POS, class... ARGS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( TYPE && _arg, ARGS && ... _args ) {
-   vDataMat[( (POS % ROWS) * COLLUMNS ) + (POS / ROWS)] = _arg;
-   setHelper<POS + 1>( std::forward<ARGS>( _args )... );
+   vDataMat[( ( POS % ROWS ) * COLLUMNS ) + ( POS / ROWS )] = _arg;
+   setHelper < POS + 1 > ( std::forward<ARGS>( _args )... );
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template<uint32_t POS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( TYPE && _arg ) {
-   vDataMat[( (POS % ROWS) * COLLUMNS ) + (POS / ROWS)] = _arg;
+   vDataMat[( ( POS % ROWS ) * COLLUMNS ) + ( POS / ROWS )] = _arg;
 }
 
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template<uint32_t POS, class... ARGS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const TYPE &_arg, ARGS && ... _args ) {
-   vDataMat[( (POS % ROWS) * COLLUMNS ) + (POS / ROWS)] = _arg;
-   setHelper<POS + 1>( std::forward<ARGS>( _args )... );
+   vDataMat[( ( POS % ROWS ) * COLLUMNS ) + ( POS / ROWS )] = _arg;
+   setHelper < POS + 1 > ( std::forward<ARGS>( _args )... );
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template<uint32_t POS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const TYPE &_arg ) {
-   vDataMat[( (POS % ROWS) * COLLUMNS ) + (POS / ROWS)] = _arg;
+   vDataMat[( ( POS % ROWS ) * COLLUMNS ) + ( POS / ROWS )] = _arg;
 }
 
 
@@ -491,7 +527,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::print( std::string _name, char _type ) {
 }
 
 #endif // RMATRIX_H
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
 
 
 

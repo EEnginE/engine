@@ -38,5 +38,5 @@ class render_EXPORT rLoader_3D_f_OBJ : public internal::rLoader_3D_Base<GLfloat>
 
 #endif // R_LOADER_3D_F_OBJ_H
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
 

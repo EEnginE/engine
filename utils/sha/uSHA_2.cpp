@@ -311,7 +311,7 @@ std::string uSHA_2::get( bool _space ) {
       case SHA2_256:
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
 		#ifdef _MSC_VER
-			_snprintf(lBuffer_CSTR, 10, "%08x", h_512[i] );
+			_snprintf(lBuffer_CSTR, 9, "%08x", h_512[i] );
 		#else
             snprintf( lBuffer_CSTR, 9, "%08x", h_512[i] );
 		#endif
@@ -330,7 +330,7 @@ std::string uSHA_2::get( bool _space ) {
             v1 = ( uint32_t )( h_1024[i] >> 32 );
             v2 = ( uint32_t )( h_1024[i] );
 			#ifdef _MSC_VER
-				_snprintf(lBuffer_CSTR, 10, "%08x", v1);
+				_snprintf(lBuffer_CSTR, 9, "%08x", v1);
 			#else
 				snprintf( lBuffer_CSTR, 9, "%08x", v1 );
 			#endif
@@ -340,7 +340,7 @@ std::string uSHA_2::get( bool _space ) {
                lString_str += ' ';
 
 			#ifdef _MSC_VER
-				_snprintf(lBuffer_CSTR, 10, "%08x", v2);
+				_snprintf(lBuffer_CSTR, 9, "%08x", v2);
 			#else
 				snprintf(lBuffer_CSTR, 9, "%08x", v2);
 			#endif
@@ -368,6 +368,6 @@ unsigned int uSHA_2::getHashLength() {
 
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
 
 

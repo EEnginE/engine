@@ -84,7 +84,8 @@ void rMatrixMath::translate( const rVec3<T> &_n, rMat4<T> &_out ) {
 
 template<class T>
 void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
-   rVec3<T> lAxis = rVectorMath::normalizeReturn( _axis );
+   rVec3<T> lAxis = _axis;
+   lAxis.normalize();
    T lAngleToUse = DEG_TO_RAD( _angle ) / 2;
    T lSin = sin( lAngleToUse );
 
@@ -163,9 +164,15 @@ void rMatrixMath::perspective( T _width, T _height, T _nearZ, T _farZ, T _fofy, 
 
 template<class T>
 void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector, rMat4< T > &_out ) {
-   rVec3<T> f = rVectorMath::normalizeReturn( _lookAt - _position );
-   rVec3<T> u = rVectorMath::normalizeReturn( _upVector );
-   rVec3<T> s = rVectorMath::normalizeReturn( rVectorMath::crossProduct( f, u ) );
+   rVec3<T> f = _lookAt - _position;
+   f.normalize();
+
+   rVec3<T> u = _upVector;
+   u.normalize();
+
+   rVec3<T> s = rVectorMath::crossProduct( f, u );
+   s.normalize();
+
    u = rVectorMath::crossProduct( s, f );
 
    _out.template get<0, 0>() = s.x;
@@ -177,9 +184,19 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
    _out.template get<0, 2>() = -f.x;
    _out.template get<1, 2>() = -f.y;
    _out.template get<2, 2>() = -f.z;
+#ifdef _MSC_VER
+   /*!The following code has to be used in order to be compatible with the MSVC compiler,
+	 as it cannot handle the templates used in rVectorMath::dotProduct correctly and thus crashes.
+	 \todo Fix the problem correctly.
+	*/
+   _out.template get<3, 0>() = -rVectorMath::dotProduct<T, 3>(s, _position);
+   _out.template get<3, 1>() = -rVectorMath::dotProduct<T, 3>(u, _position);
+   _out.template get<3, 2>() = rVectorMath::dotProduct<T, 3>(f, _position);
+#else
    _out.template get<3, 0>() = -rVectorMath::dotProduct( s, _position );
-   _out.template get<3, 1>() = -rVectorMath::dotProduct( u, _position );
-   _out.template get<3, 2>() = rVectorMath::dotProduct( f, _position );
+   _out.template get<3, 1>() = -rVectorMath::dotProduct(u, _position);
+   _out.template get<3, 2>() = rVectorMath::dotProduct(f, _position);
+#endif
 
 #if E_DEBUG_LOGGING
 
@@ -203,5 +220,5 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
 }
 
 #endif
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
 

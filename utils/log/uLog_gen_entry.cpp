@@ -38,7 +38,7 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
    unsigned int lFileSize_uI     = 0;
    unsigned int lFileSizeNext_uI = 0;
 
-   LOG_PRINT_TYPE lTimeNext_LPT, lFileNext_LPT;
+   LOG_PRINT_TYPE lTimeNext_LPT, lFileNext_LPT = OFF;
 
    switch( data->data.config.vTime_LPT ) {
       case LEFT_FULL:
@@ -146,7 +146,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 // ========= Generate The File Entry ==============================================================================================================
 
    if( data.config.vFile_LPT != OFF ) {
-      boost::wregex lReplace_EX( L"^(/)?(.+/)*" );
+	   boost::wregex lReplace_EX( L"^(.+[/\\\\])*" );
       const wchar_t  *lReplaceChar = L"";
 
       std::wstring lFilename_STR = boost::to_upper_copy( boost::regex_replace( data.raw.vFilename_STR, lReplace_EX, lReplaceChar ) );
@@ -479,4 +479,4 @@ void uLogEntryRaw::defaultEntryGenerator() {
 }
 
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

@@ -155,7 +155,9 @@ void MyHandler::key( iEventInfo info ) {
 
          case L'A':
          case L'a':
-            vCameraPos -= 0.25f * (rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp )) );
+            vXVector = rVectorMath::crossProduct( vCameraLook, vCameraUp );
+            vXVector.normalize();
+            vCameraPos -= 0.25f * vXVector;
             setCamera( vCameraPos, vCameraLook, vCameraUp );
             break;
 
@@ -167,7 +169,9 @@ void MyHandler::key( iEventInfo info ) {
 
          case L'D':
          case L'd':
-            vCameraPos += 0.25f * (rVectorMath::normalizeReturn( rVectorMath::crossProduct( vCameraLook, vCameraUp ) ) );
+            vXVector = rVectorMath::crossProduct( vCameraLook, vCameraUp );
+            vXVector.normalize();
+            vCameraPos += 0.25f * vXVector;
             setCamera( vCameraPos, vCameraLook, vCameraUp );
             break;
 
@@ -218,7 +222,7 @@ int MyHandler::initGL() {
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );
    calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
    vCameraLook = vObject1.getPosition();
-   rVectorMath::normalize( vCameraLook );
+   vCameraLook.normalize();
    setCamera( vCameraPos, vCameraLook, vCameraUp );
    updateCameraSpaceMatrix();
    vObject1.updateUniformsAlways( true );
@@ -230,4 +234,4 @@ int MyHandler::initGL() {
 
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

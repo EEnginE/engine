@@ -52,4 +52,4 @@ class init_EXPORT iKeyboardBasic {
 
 
 #endif // KEYS_BASIC
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

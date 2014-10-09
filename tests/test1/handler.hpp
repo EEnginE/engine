@@ -30,6 +30,8 @@ class MyHandler final : public rWorld {
       rVec3f  vCameraUp;
       rVec3f  vCameraLookWorker;
 
+      rVec3f  vXVector;
+
       iInit  *vInitPointer;
 
       MyHandler() : rWorld( nullptr ), vObject1( "OBJ_1" ) {}
@@ -42,7 +44,7 @@ class MyHandler final : public rWorld {
          rWorld( _init ),
          vObject1( "OBJ_1" ),
          vCameraPos( 0, 0, 0 ),
-         vCameraLook( 0, 0, 1 ),
+         vCameraLook( 0, 0, -1 ),
          vCameraUp( 0, 1, 0 ),
          vCameraLookWorker( 0, 0, 0 ),
          vInitPointer( _init ) {
@@ -87,4 +89,4 @@ class MyHandler final : public rWorld {
 
 
 #endif // HANDLER_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

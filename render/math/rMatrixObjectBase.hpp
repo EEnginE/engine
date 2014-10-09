@@ -100,7 +100,7 @@ void rMatrixObjectBase<T>::getScale( rVec3< T > &_scale ) {
 
 template<class T>
 void rMatrixObjectBase<T>::addScaleDelta( const rVec3< T > &_scale ) {
-   vScaleMatrix_MAT.set2(
+   vScaleMatrix_MAT.setMat(
          vScaleMatrix_MAT( 0, 0 ) + _scale.x, 0                                   , 0                                  , 0,
          0                                  , vScaleMatrix_MAT( 1, 1 ) +  _scale.y, 0                                  , 0,
          0                                  , 0                                   , vScaleMatrix_MAT( 2, 2 ) + _scale.z, 0,
