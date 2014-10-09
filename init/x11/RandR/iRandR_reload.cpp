@@ -186,4 +186,4 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

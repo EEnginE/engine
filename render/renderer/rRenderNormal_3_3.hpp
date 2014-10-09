@@ -46,4 +46,4 @@ class render_EXPORT rRenderNormal_3_3 : public internal::rRenderNormalOBJBase<fl
 }
 
 #endif // RRENDERNORMAL_3_3_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

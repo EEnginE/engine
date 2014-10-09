@@ -70,5 +70,5 @@ void ShaderInfo::runTest( uJSON_data &_data, string _dataRoot ) {
 //#!BIND "oglTest", "shader", "queryType",  G_NUM( GlobConf.ogl.shaderInfoQueryType, 0 )
 //#!BIND "oglTest", "shader", "useShaders", G_BOOL( GlobConf.ogl.useShaders, true )
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
 

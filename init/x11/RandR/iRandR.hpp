@@ -147,5 +147,5 @@ class init_EXPORT iRandR {
 } // e_engine
 
 #endif // E_RANDR_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
 

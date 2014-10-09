@@ -19,7 +19,7 @@
 
 namespace e_engine {
 
-class rNormalObject : public rMatrixObjectBase<float> {
+class render_EXPORT rNormalObject : public rMatrixObjectBase<float> {
       typedef internal::rRenderNormalOBJBase<float> RENDERER;
       typedef internal::programInfo                 S_INF;
       enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE };
@@ -119,4 +119,4 @@ class rNormalObject : public rMatrixObjectBase<float> {
 
 #endif // R_NORMAL_OBJECT_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

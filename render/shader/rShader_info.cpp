@@ -101,7 +101,7 @@ std::string rShader::processData( GLenum _type, GLuint _index, GLsizei _arraySiz
 
    std::string lName_str;
    lName_str.resize( _out[0] );
-   int actualLength;
+   int actualLength = 10;
    glGetProgramResourceName(
          vShaderProgram_OGL,        // The program ID
          _type,                     // The program Interface​
@@ -552,4 +552,4 @@ bool rShader::getUniformLocation( std::string _name, int &_location ) {
 }
 
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

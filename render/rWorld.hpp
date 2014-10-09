@@ -77,4 +77,4 @@ class render_EXPORT rWorld : public rMatrixWorldBase<float> {
 
 #endif // R_WORLD_H
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
