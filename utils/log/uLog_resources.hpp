@@ -13,9 +13,9 @@
 #include "uConfig.hpp"  // Only for internal::LOG_COLOR_TYPE and internal::LOG_PRINT_TYPE
 
 #ifdef _MSC_VER
-	#include <boost/lexical_cast.hpp>
+#include <boost/lexical_cast.hpp>
 #else
-	#include <boost/variant.hpp>
+#include <boost/variant.hpp>
 #endif
 
 #include "engine_utils_Export.hpp"
@@ -74,7 +74,7 @@ class uLogType {
  * template metaprogramming.
  */
 struct uLogPartData {
-   typedef boost::variant<bool, wchar_t, unsigned char, short unsigned int, unsigned int, long unsigned int, std::string, std::wstring, double, const char *, const wchar_t *> B_VAR;
+   typedef boost::variant<bool, wchar_t, uint8_t, uint16_t, uint32_t, uint64_t, std::string, std::wstring, double, const char *, const wchar_t *> B_VAR;
 
    bool vIsSigned_B;
    B_VAR vData;
@@ -103,7 +103,7 @@ struct uLogPartData {
    template<class T>
    uLogPartData( T && _what ) : vIsSigned_B( std::is_signed<T>::value ) {__INRERNAL__( _what, vData );}
 
-   uLogPartData() : vIsSigned_B(false), vData(false) {}
+   uLogPartData() : vIsSigned_B( false ), vData( false ) {}
 
    // Only for Windows (mingw) WHY!?!?!
    uLogPartData( uLogPartData &_what ) : vIsSigned_B( _what.vIsSigned_B ), vData( _what.vData ) {}
@@ -122,36 +122,34 @@ struct uLogPartData {
 * \todo Make boost variant version work with MSVC
 */
 struct uLogPartData {
-	std::wstring vData;
+   std::wstring vData;
+
+   template<class T>
+   uLogPartData( T _what )      { vData = boost::lexical_cast<std::wstring>( _what ); }
 
 
-	template<class T>
-	uLogPartData(T _what)		{ vData = boost::lexical_cast<std::wstring>(_what); }
+   // Only for Windows (mingw) WHY!?!?!
+   uLogPartData( uLogPartData &_what ) : vData( _what.vData ) {}
 
+   uLogPartData( const char          *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
+   uLogPartData( const unsigned char *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
+   uLogPartData( const wchar_t       *_str ) : vData( _str ) {}
 
+   uLogPartData( char          *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
+   uLogPartData( unsigned char *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
+   uLogPartData( wchar_t       *_str ) : vData( _str ) {}
 
-	// Only for Windows (mingw) WHY!?!?!
-	uLogPartData(uLogPartData &_what) : vData(_what.vData) {}
-
-	uLogPartData(const char          *_str) { for (uint32_t i = 0; _str[i] != 0; ++i) vData.append(1, _str[i]); }
-	uLogPartData(const unsigned char *_str) { for (uint32_t i = 0; _str[i] != 0; ++i) vData.append(1, _str[i]); }
-	uLogPartData(const wchar_t       *_str) : vData(_str) {}
-
-	uLogPartData(char          *_str) { for (uint32_t i = 0; _str[i] != 0; ++i) vData.append(1, _str[i]); }
-	uLogPartData(unsigned char *_str) { for (uint32_t i = 0; _str[i] != 0; ++i) vData.append(1, _str[i]); }
-	uLogPartData(wchar_t       *_str) : vData(_str) {}
-	
-	uLogPartData(bool _what) {
-		if (_what)
-			vData = std::wstring(L"true");
-		else
-			vData = std::wstring(L"false");
-	}
-	uLogPartData(wchar_t				_what) { vData.append(1, _what); }
-	uLogPartData(unsigned char			_what) { vData.append(1, _what); }
-	uLogPartData(char					_what) { vData.append(1, _what); }
-	uLogPartData(std::wstring			_what) : vData(_what) {}
-	uLogPartData(std::string			_what) : vData(std::wstring(_what.begin(), _what.end())) {}
+   uLogPartData( bool _what ) {
+      if( _what )
+         vData = std::wstring( L"true" );
+      else
+         vData = std::wstring( L"false" );
+   }
+   uLogPartData( wchar_t          _what ) { vData.append( 1, _what ); }
+   uLogPartData( unsigned char       _what ) { vData.append( 1, _what ); }
+   uLogPartData( char             _what ) { vData.append( 1, _what ); }
+   uLogPartData( std::wstring        _what ) : vData( _what ) {}
+   uLogPartData( std::string         _what ) : vData( std::wstring( _what.begin(), _what.end() ) ) {}
 };
 
 #endif
@@ -224,7 +222,7 @@ class utils_EXPORT uLogEntryRaw {
 
       template<class T, class... ARGS>
       void add( T && _what, ARGS && ... _args ) {
-         //vElements.emplace_back( _what );
+         vElements.emplace_back( _what );
          add( std::forward<ARGS>( _args )... );
       }
 
@@ -272,5 +270,5 @@ class utils_EXPORT uLogEntryRaw {
 
 #endif //E_LOG_STRUCTS_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
 
