@@ -74,7 +74,7 @@ set( CLANG_COMPILER_OPTIONS_RELEASE "${CLANG_ENABLE_CXX_11} ${PROJECT_DEFINES_CL
 
 if( EXTRA_WARNINGS )
    set( CLANG_COMPILER_OPTIONS_DEBUG   "-Werror -Wthread-safety -ftemplate-backtrace-limit=0 ${CLANG_COMPILER_OPTIONS_DEBUG}" )
-   set( CLANG_COMPILER_OPTIONS_RELEASE "-v -Werror -Wthread-safety -ftemplate-backtrace-limit=0 ${CLANG_COMPILER_OPTIONS_RELEASE}" )
+   set( CLANG_COMPILER_OPTIONS_RELEASE "-Werror -Wthread-safety -ftemplate-backtrace-limit=0 ${CLANG_COMPILER_OPTIONS_RELEASE}" )
 endif( EXTRA_WARNINGS )
 
 

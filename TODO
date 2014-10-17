@@ -4,7 +4,7 @@
          | | (_) | |_| | (_) |
          |_|\___/|____/ \___/
 
-1. Debian/Ubuntu gcc compatibility
+1. Debian/Ubuntu gcc compatibility -- still there??
       Descripton:
         Linking error with gcc(!) under Debian/Ubuntu. Maybe a bug in GCC? Are the compiler options correct?
         Works with llvm under Debian!
@@ -40,3 +40,15 @@
         Lots of functions are not or too less commented.
       Editor:
         Free
+
+4. List all CMake Options in README
+      Description:
+        Lots of CMake options are undocumented.
+      Editor:
+        Free
+
+5. Convert README and ToDo
+      Description:
+        Convert README and ToDo in a Markdown
+      Editor:
+        Silas
