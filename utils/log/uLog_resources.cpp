@@ -19,7 +19,7 @@
 namespace e_engine {
 
 
-#ifndef _MSC_VER
+#ifndef LOG_FALLBACK
 
 class Converter : public boost::static_visitor<> {
    public:
@@ -116,7 +116,7 @@ unsigned int uLogEntryRaw::getLogEntry( std::vector< internal::uLogType > &_vLog
    data.raw.vDataString_STR.clear();
    data.raw.vType_STR  = L"UNKNOWN";
 
-#ifdef _MSC_VER
+#ifdef LOG_FALLBACK
    for (auto & i : vElements) {
 	   data.raw.vDataString_STR += i.vData;
    }

@@ -13,6 +13,12 @@
 #include "uConfig.hpp"  // Only for internal::LOG_COLOR_TYPE and internal::LOG_PRINT_TYPE
 
 #ifdef _MSC_VER
+#  ifndef LOG_FALLBACK
+#     define LOG_FALLBACK
+#  endif
+#endif
+
+#ifdef LOG_FALLBACK
 #include <boost/lexical_cast.hpp>
 #else
 #include <boost/variant.hpp>
@@ -66,7 +72,7 @@ class uLogType {
       //void send( uLogEntryStruct _data )   { vSignal_eSIG( _data ); }
 };
 
-#ifndef _MSC_VER
+#ifndef LOG_FALLBACK
 /*!
  * \brief Contains raw data for a log entry
  *
@@ -124,12 +130,18 @@ struct uLogPartData {
 struct uLogPartData {
    std::wstring vData;
 
+//    template<class T>
+//    uLogPartData( T _what )      { vData = boost::lexical_cast<std::wstring>( _what ); }
+
    template<class T>
-   uLogPartData( T _what )      { vData = boost::lexical_cast<std::wstring>( _what ); }
+   uLogPartData( T &_what )      { vData = boost::lexical_cast<std::wstring>( _what ); }
+
+   template<class T>
+   uLogPartData( T &&_what )      { vData = boost::lexical_cast<std::wstring>( _what ); }
 
 
-   // Only for Windows (mingw) WHY!?!?!
-   uLogPartData( uLogPartData &_what ) : vData( _what.vData ) {}
+//    // Only for Windows (mingw) WHY!?!?!
+//    uLogPartData( uLogPartData &_what ) : vData( _what.vData ) {}
 
    uLogPartData( const char          *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
    uLogPartData( const unsigned char *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
@@ -145,11 +157,13 @@ struct uLogPartData {
       else
          vData = std::wstring( L"false" );
    }
-   uLogPartData( wchar_t          _what ) { vData.append( 1, _what ); }
-   uLogPartData( unsigned char       _what ) { vData.append( 1, _what ); }
-   uLogPartData( char             _what ) { vData.append( 1, _what ); }
-   uLogPartData( std::wstring        _what ) : vData( _what ) {}
-   uLogPartData( std::string         _what ) : vData( std::wstring( _what.begin(), _what.end() ) ) {}
+   uLogPartData( wchar_t         _what ) { vData.append( 1, _what ); }
+   uLogPartData( unsigned char   _what ) { vData.append( 1, _what ); }
+   uLogPartData( char            _what ) { vData.append( 1, _what ); }
+   uLogPartData( std::wstring    _what ) : vData( _what ) {}
+   uLogPartData( std::string     _what ) : vData( std::wstring( _what.begin(), _what.end() ) ) {}
+
+   uLogPartData() : vData( L"<UNDEFINED>" ) {}
 };
 
 #endif
