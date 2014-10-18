@@ -1,5 +1,5 @@
 #+STARTUP: indent
-#+STARTIP: showall
+#+STARTUP: showall
 
 :           _____   _____            _
 :          |  ___| |  ___|          (_)

@@ -1,0 +1,71 @@
+#+STARTUP: indent
+#+STARTUP: showall
+:        _____     ____
+:       |_   _|__ |  _ \  ___
+:         | |/ _ \| | | |/ _ \
+:         | | (_) | |_| | (_) |
+:         |_|\___/|____/ \___/
+
+* TODO Debian/Ubuntu gcc compatibility
+  
+** Descripton:
+   Linking error with gcc(!) under Debian/Ubuntu. Maybe a bug in GCC? Are the compiler options correct?
+   Works with llvm under Debian!
+
+*** Error code Debian shared:
+    #+begin_src sh
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
+         collect2: error: ld returned 1 exit status
+    #+end_src
+
+*** Error code Ubuntu shared:
+    #+begin_src sh
+         Linking CXX executable ../../bin/engine_test1
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
+         collect2: ld gab 1 als Ende-Status zurück
+    #+end_src
+
+*** Error code Ubuntu static:
+    #+begin_src sh
+         Linking CXX executable ../../bin/engine_test1
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
+         collect2: ld gab 1 als Ende-Status zurück
+    #+end_src
+
+** Editor:
+   Free
+
+* TODO [#C] Clean Dependencies
+
+** Description:
+   Maybe link some libraries static or provide shared objects of GLEW/Boost(?) and so on.
+
+** Editor:
+   Free
+
+* TODO [#C] Comment the Code
+
+** Description:
+   Lots of functions are not or too less commented.
+
+** Editor:
+   Free
+
+* TODO [#C] List all CMake Options in README
+
+** Description:
+   Lots of CMake options are undocumented.
+
+** Editor:
+   Silas
+
+* DONE Convert README and ToDo
+
+** Description:
+   Convert README and ToDo in a Markdown
+
+** Editor:
+   Silas
