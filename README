@@ -1,11 +1,14 @@
-           _____   _____            _
-          |  ___| |  ___|          (_)
-          | |__   | |__ _ __   __ _ _ _ __   ___
-          |  __|  |  __| '_ \ / _` | | '_ \ / _ \
-          | |___  | |__| | | | (_| | | | | |  __/
-          \____/  \____/_| |_|\__, |_|_| |_|\___|
-                               __/ |
-                              |___/
+#+STARTUP: indent
+#+STARTIP: showall
+
+:           _____   _____            _
+:          |  ___| |  ___|          (_)
+:          | |__   | |__ _ __   __ _ _ _ __   ___
+:          |  __|  |  __| '_ \ / _` | | '_ \ / _ \
+:          | |___  | |__| | | | (_| | | | | |  __/
+:          \____/  \____/_| |_|\__, |_|_| |_|\___|
+:                               __/ |
+:                              |___/
 
 * Denpendencies
 
@@ -45,29 +48,29 @@ $ make install
 
    -DENGINE_VERBOSE=<0/1>
      Special cmake output and verbose compiler messages ...
-       0: disabled # default
+       0: disabled - default
        1: enabled
 
    -DDISPLAY_SERVER=<which>
      Possible options:
-      - UNIX_X11     # default
-      - WINDOWS      # alpha
-      - UNIX_WAYLAND # not yet supported
-      - UNIX_MIR     # not yet supported
+      - UNIX_X11     - default
+      - WINDOWS      - alpha
+      - UNIX_WAYLAND - not yet supported
+      - UNIX_MIR     - not yet supported
 
    -DENGINE_LINK_SHARED=<0/1>
      Link the engine ...
        0: static
-       1: shared # default
+       1: shared - default
 
    -DENGINE_BUILD_SHARED=<0/1>
      Build the engine ...
        0: static
-       1: shared # default
+       1: shared - default
      
    -DLOG_FALLBACK=<0/1>
      Compile fallback to avoid compile errors ...
-       0: disabled # default
+       0: disabled - default
        1: enabled
    
    -DEXTRA_CXX_FLAGS=<Extra CXX compiler options>
@@ -77,7 +80,7 @@ $ make install
 
    -DGLEW_USE_DEFAULT=<0/1>
      if you want to have your system GLEW
-       0: disabled # default
+       0: disabled - default
        1: enabled
      
    -DGLEW_ROOT=/Path/to/GLEW/install/prefix
@@ -87,7 +90,7 @@ $ make install
 
    -DBOOST_NO_SYSTEM_PATHS=<0/1>
       To tell CMake to only search boost in BOOST_ROOT
-       0: disabled # default
+       0: disabled - default
        1: enabled
 
    -DBOOST_ROOT=/Path/to/Boost/install/prefix
@@ -118,8 +121,7 @@ $ make install
 
 ** I crosscompiled the project on Linux and want to test the result with WINE but WINE crashes immediately.
 
-    Wine doesnt like boost::wregex because a function was unimplemented:
-      BUG: http://bugs.winehq.org/show_bug.cgi?id=36617
+    Wine doesnt like boost::wregex because a function was unimplemented: [[http://bugs.winehq.org/show_bug.cgi?id=36617][BUG]]
  
     Try to update your WINE version.
     Or set:
