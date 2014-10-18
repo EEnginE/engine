@@ -7,105 +7,120 @@
                                __/ |
                               |___/
 
+* Denpendencies
 
-1. Dependences
-
- - Boost v1.48.0 or newer [http://www.boost.org/]
+ - CMake v2.8.9 or newer [http://www.cmake.org/]
  - The OpenGL headers (often in a mesa package)
  - Linux/UNIX (at least one of those):
    - X11 and it's headers (including RandR)
    - Wayland and it's headers (not yet supported)
    - Mir and it's headers (not yet supported)
+ - Boost v1.48.0 or newer [http://www.boost.org/]
  - GLEW v1.6.0 or newer [http://glew.sourceforge.net/]
- - CMake v2.8.9 or newer [http://www.cmake.org/]
 
 
+* Installation
 
-2. CMake options (optional):
+  Download from git server at this moment only with invitation.
 
-ENGINE:
-
-   -DCMAKE_INSTALL_PREFIX=/Install/prefix/of/engine
-
-   -DENGINE_VERBOSE=1
-     Turns on some special cmake output and verbose compiler messages
-
-   -DDISPLAY_SERVER=<which>
-     Possible options:
-      - UNIX_X11
-      - UNIX_WAYLAND # not yet supported
-      - UNIX_MIR     # not yet supported
-      - WINDOWS
-
-   -DENGINE_LINK_SHARED=<1/0>
-     1: Link the engine and tests shared
-     0: Link the engine and tests static
-
-   -DENGINE_BUILD_SHARED=<1/0>
-     1: Build the engine shared
-     0: Build the engine static
-     
-   -DEXTRA_CXX_FLAGS=<Extra CXX compiler options>
-   
-   -DLOG_FALLBACK=1
-     to enable a compile fallback to avoid compile errors
-     
-GLEW
-
-   -DGLEW_USE_DEFAULT=1
-     if you want to have your system GLEW
-     
-   -DGLEW_ROOT=/Path/to/GLEW/install/prefix
-
-
-BOOST:
-
-   -DBOOST_ROOT=/To/the/path/of/the/boost/install/prefix
-
-   -DBoost_NO_SYSTEM_PATHS=1
-      To tell CMake to only search boost in BOOST_ROOT
-
-
-3. Installation:
-Download from git server at this time only with invitation.
-
+#+begin_src sh
 $ git clone git@mprs-bartel.de:/git/engine.git
-$ ./gen_sources.sh
+$ ./generate.sh
 $ mkdir build
 $ cd build
 $ cmake <Additional CMake options> ..
 $ make
-# make install
+$ make install
+#+end_src
 
-Alternatively, you can use ninja instead of make by adding -G Ninja to your cmake options.
-
-
-4. Troubleshooting:
-
-4.1 CMake can not find Boost:
-
-Try to set -DBOOST_ROOT=/To/the/path/of/the/boost/install/prefix
+  Alternatively, you can use ninja instead of make by adding -G Ninja to your cmake options.
 
 
-
-4.2 CMake complains about an outdated Boost version even though the newest Version has
-    been compiled by myself:
-
-You can either remove your native boost installation or add -DBoost_NO_SYSTEM_PATHS=1 to
-your CMake options. You may also need to set your -DBOOST_ROOT as described above.
+* CMake options
 
 
-4.3 CMake can not find GLEW:
+** ENGINE
 
-Try setting your GLEW root via -DGLEW_ROOT=/To/the/path/of/the/GLEW/install/prefix
+   -DCMAKE_INSTALL_PREFIX=/Install/prefix/of/engine
+
+   -DENGINE_VERBOSE=<0/1>
+     Special cmake output and verbose compiler messages ...
+       0: disabled # default
+       1: enabled
+
+   -DDISPLAY_SERVER=<which>
+     Possible options:
+      - UNIX_X11     # default
+      - WINDOWS      # alpha
+      - UNIX_WAYLAND # not yet supported
+      - UNIX_MIR     # not yet supported
+
+   -DENGINE_LINK_SHARED=<0/1>
+     Link the engine ...
+       0: static
+       1: shared # default
+
+   -DENGINE_BUILD_SHARED=<0/1>
+     Build the engine ...
+       0: static
+       1: shared # default
+     
+   -DLOG_FALLBACK=<0/1>
+     Compile fallback to avoid compile errors ...
+       0: disabled # default
+       1: enabled
+   
+   -DEXTRA_CXX_FLAGS=<Extra CXX compiler options>
 
 
-4.4 I crosscompiled the project on Linux and want to test the result with WINE but
-    WINE crashes immediately.
+** GLEW
 
-Wine doesnt like boost::wregex because a function was unimplemented. Try to update your WINE
-version. 
-BUG: http://bugs.winehq.org/show_bug.cgi?id=36617
+   -DGLEW_USE_DEFAULT=<0/1>
+     if you want to have your system GLEW
+       0: disabled # default
+       1: enabled
+     
+   -DGLEW_ROOT=/Path/to/GLEW/install/prefix
 
-You can alos try add -DEXTRA_CXX_FLAGS=-DUGLY_WINE_WORKAROUND to your cmake options
 
+** BOOST
+
+   -DBOOST_NO_SYSTEM_PATHS=<0/1>
+      To tell CMake to only search boost in BOOST_ROOT
+       0: disabled # default
+       1: enabled
+
+   -DBOOST_ROOT=/Path/to/Boost/install/prefix
+
+
+* Troubleshooting:
+
+
+** CMake can not find Boost
+
+   Try to set:
+     -DBOOST_ROOT=/Path/to/Boost/install/prefix
+
+
+** CMake complains about an outdated Boost version even though the newest Version has been compiled by myself
+
+   You can either remove your native boost installation or set
+     -DBoost_NO_SYSTEM_PATHS=1
+   and
+     -DBOOST_ROOT=/Path/to/Boost/install/prefix
+
+
+** CMake can not find GLEW
+
+   Try to set:
+   -DGLEW_ROOT=/Path/to/GLEW/install/prefix
+
+
+** I crosscompiled the project on Linux and want to test the result with WINE but WINE crashes immediately.
+
+    Wine doesnt like boost::wregex because a function was unimplemented:
+      BUG: http://bugs.winehq.org/show_bug.cgi?id=36617
+ 
+    Try to update your WINE version.
+    Or set:
+      -DEXTRA_CXX_FLAGS=-DUGLY_WINE_WORKAROUND
