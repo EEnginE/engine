@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>README</title>
-<!-- 2014-10-18 Sat 15:56 -->
+<!-- 2014-10-19 Sun 19:33 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Silas Bartel" />
@@ -233,54 +233,85 @@ Alternatively, you can use ninja instead of make by adding -G Ninja to your cmak
 <h3 id="sec-3-1"><span class="section-number-3">3.1</span> ENGINE</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
--DCMAKE<sub>INSTALL</sub><sub>PREFIX</sub>=/Install/prefix/of/engine
+-DCMAKE_INSTALL_PREFIX=/Install/prefix/of/engine
 </p>
 
 <p>
--DENGINE<sub>VERBOSE</sub>=&lt;0/1&gt;
-  Special cmake output and verbose compiler messages &#x2026;
-    0: disabled - default
-    1: enabled
+-DENGINE_VERBOSE=&lt;0/1&gt;
 </p>
 
 <p>
--DDISPLAY<sub>SERVER</sub>=&lt;which&gt;
-  Possible options:
+Special cmake output and verbose compiler messages &#x2026;
 </p>
 <ul class="org-ul">
-<li>UNIX<sub>X11</sub>     - default
+<li>0: disabled - default
 </li>
-<li>WINDOWS      - alpha
-</li>
-<li>UNIX<sub>WAYLAND</sub> - not yet supported
-</li>
-<li>UNIX<sub>MIR</sub>     - not yet supported
+<li>1: enabled
 </li>
 </ul>
 
 <p>
--DENGINE<sub>LINK</sub><sub>SHARED</sub>=&lt;0/1&gt;
-  Link the engine &#x2026;
-    0: static
-    1: shared - default
+-DDISPLAY_SERVER=&lt;which&gt;
 </p>
 
 <p>
--DENGINE<sub>BUILD</sub><sub>SHARED</sub>=&lt;0/1&gt;
-  Build the engine &#x2026;
-    0: static
-    1: shared - default
+Possible options:
+</p>
+<ul class="org-ul">
+<li>UNIX_X11     - default
+</li>
+<li>WINDOWS      - alpha
+</li>
+<li>UNIX_WAYLAND - not yet supported
+</li>
+<li>UNIX_MIR     - not yet supported
+</li>
+</ul>
+
+<p>
+-DENGINE_LINK_SHARED=&lt;0/1&gt;
 </p>
 
 <p>
--DLOG<sub>FALLBACK</sub>=&lt;0/1&gt;
-  Compile fallback to avoid compile errors &#x2026;
-    0: disabled - default
-    1: enabled
+Link the engine &#x2026;
+</p>
+<ul class="org-ul">
+<li>0: static
+</li>
+<li>1: shared - default
+</li>
+</ul>
+
+<p>
+-DENGINE_BUILD_SHARED=&lt;0/1&gt;
 </p>
 
 <p>
--DEXTRA<sub>CXX</sub><sub>FLAGS</sub>=&lt;Extra CXX compiler options&gt;
+Build the engine &#x2026;
+</p>
+<ul class="org-ul">
+<li>0: static
+</li>
+<li>1: shared - default
+</li>
+</ul>
+
+<p>
+-DLOG_FALLBACK=&lt;0/1&gt;
+</p>
+
+<p>
+Compile fallback to avoid compile errors &#x2026;
+</p>
+<ul class="org-ul">
+<li>0: disabled - default
+</li>
+<li>1: enabled
+</li>
+</ul>
+
+<p>
+-DEXTRA_CXX_FLAGS=&lt;Extra CXX compiler options&gt;
 </p>
 </div>
 </div>
@@ -290,14 +321,21 @@ Alternatively, you can use ninja instead of make by adding -G Ninja to your cmak
 <h3 id="sec-3-2"><span class="section-number-3">3.2</span> GLEW</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
--DGLEW<sub>USE</sub><sub>DEFAULT</sub>=&lt;0/1&gt;
-  if you want to have your system GLEW
-    0: disabled - default
-    1: enabled
+-DGLEW_USE_DEFAULT=&lt;0/1&gt;
 </p>
 
 <p>
--DGLEW<sub>ROOT</sub>=/Path/to/GLEW/install/prefix
+if you want to have your system GLEW
+</p>
+<ul class="org-ul">
+<li>0: disabled - default
+</li>
+<li>1: enabled
+</li>
+</ul>
+
+<p>
+-DGLEW_ROOT=/Path/to/GLEW/install/prefix
 </p>
 </div>
 </div>
@@ -307,14 +345,21 @@ Alternatively, you can use ninja instead of make by adding -G Ninja to your cmak
 <h3 id="sec-3-3"><span class="section-number-3">3.3</span> BOOST</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
--DBOOST<sub>NO</sub><sub>SYSTEM</sub><sub>PATHS</sub>=&lt;0/1&gt;
-   To tell CMake to only search boost in BOOST<sub>ROOT</sub>
-    0: disabled - default
-    1: enabled
+-DBOOST_NO_SYSTEM_PATHS=&lt;0/1&gt;
 </p>
 
 <p>
--DBOOST<sub>ROOT</sub>=/Path/to/Boost/install/prefix
+To tell CMake to only search boost in BOOST_ROOT
+</p>
+<ul class="org-ul">
+<li>0: disabled - default
+</li>
+<li>1: enabled
+</li>
+</ul>
+
+<p>
+-DBOOST_ROOT=/Path/to/Boost/install/prefix
 </p>
 </div>
 </div>
@@ -329,7 +374,10 @@ Alternatively, you can use ninja instead of make by adding -G Ninja to your cmak
 <div class="outline-text-3" id="text-4-1">
 <p>
 Try to set:
-  -DBOOST<sub>ROOT</sub>=/Path/to/Boost/install/prefix
+</p>
+
+<p>
+-DBOOST_ROOT=/Path/to/Boost/install/prefix
 </p>
 </div>
 </div>
@@ -340,9 +388,18 @@ Try to set:
 <div class="outline-text-3" id="text-4-2">
 <p>
 You can either remove your native boost installation or set
-  -DBoost<sub>NO</sub><sub>SYSTEM</sub><sub>PATHS</sub>=1
+</p>
+
+<p>
+-DBoost_NO_SYSTEM_PATHS=1
+</p>
+
+<p>
 and
-  -DBOOST<sub>ROOT</sub>=/Path/to/Boost/install/prefix
+</p>
+
+<p>
+-DBOOST_ROOT=/Path/to/Boost/install/prefix
 </p>
 </div>
 </div>
@@ -353,7 +410,10 @@ and
 <div class="outline-text-3" id="text-4-3">
 <p>
 Try to set:
--DGLEW<sub>ROOT</sub>=/Path/to/GLEW/install/prefix
+</p>
+
+<p>
+-DGLEW_ROOT=/Path/to/GLEW/install/prefix
 </p>
 </div>
 </div>
@@ -369,7 +429,10 @@ Wine doesnt like boost::wregex because a function was unimplemented: <a href="ht
 <p>
 Try to update your WINE version.
 Or set:
-  -DEXTRA<sub>CXX</sub><sub>FLAGS</sub>=-DUGLY<sub>WINE</sub><sub>WORKAROUND</sub>
+</p>
+
+<p>
+-DEXTRA_CXX_FLAGS=-DUGLY_WINE_WORKAROUND
 </p>
 </div>
 </div>
@@ -377,7 +440,7 @@ Or set:
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Silas Bartel</p>
-<p class="date">Created: 2014-10-18 Sat 15:56</p>
+<p class="date">Created: 2014-10-19 Sun 19:33</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
