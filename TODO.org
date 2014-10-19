@@ -1,10 +1,14 @@
 #+STARTUP: indent
 #+STARTUP: showall
-:        _____     ____
-:       |_   _|__ |  _ \  ___
-:         | |/ _ \| | | |/ _ \
-:         | | (_) | |_| | (_) |
-:         |_|\___/|____/ \___/
+#+OPTIONS: ^:nil
+
+#+begin_src
+        _____     ____
+       |_   _|__ |  _ \  ___
+         | |/ _ \| | | |/ _ \
+         | | (_) | |_| | (_) |
+         |_|\___/|____/ \___/
+#+end_src
 
 * TODO Debian/Ubuntu gcc compatibility
   
@@ -14,24 +18,24 @@
 
 *** Error code Debian shared:
     #+begin_src sh
-         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
-         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF`
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD`
          collect2: error: ld returned 1 exit status
     #+end_src
 
 *** Error code Ubuntu shared:
     #+begin_src sh
          Linking CXX executable ../../bin/engine_test1
-         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
-         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF`
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD`
          collect2: ld gab 1 als Ende-Status zurück
     #+end_src
 
 *** Error code Ubuntu static:
     #+begin_src sh
          Linking CXX executable ../../bin/engine_test1
-         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF'
-         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD'
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::OFF`
+         ../../lib/libengine.so.0.1: undefined reference to `e_engine::eCMDColor::BOLD`
          collect2: ld gab 1 als Ende-Status zurück
     #+end_src
 
@@ -65,7 +69,7 @@
 * DONE Convert README and ToDo
 
 ** Description:
-   Convert README and ToDo in a Markdown
+   Convert README and ToDo in a Markdown.
 
 ** Editor:
    Silas
