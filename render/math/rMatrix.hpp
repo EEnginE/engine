@@ -89,7 +89,7 @@ struct rMatrixData<T, 4, 1> {
 
 template <class TYPE, int ROWS, int COLLUMNS>
 class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
-      static_assert( ( ROWS *COLLUMNS ) >= 2 , "Matrix size (ROWS*COLLUMNS) must be at least 2" );
+      static_assert( ( ROWS * COLLUMNS ) >= 2 , "Matrix size (ROWS*COLLUMNS) must be at least 2" );
 
    private:
       template<uint32_t POS, class... ARGS>  inline void setHelper( TYPE && _arg, ARGS && ... _args );
