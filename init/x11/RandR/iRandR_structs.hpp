@@ -102,7 +102,7 @@ struct _mode {
     * \returns Whether the objects are equal or not.
     */
    inline bool operator==( const _mode &_m ) const {
-      if ( _m.id == id && _m.height == height && _m.width == _m.width && _m.refresh == refresh && _m.syncFreq == syncFreq && _m.name == name )
+      if ( _m.id == id && _m.height == height && _m.width == width && _m.refresh == refresh && _m.syncFreq == syncFreq && _m.name == name )
          return true;
 
       return false;
