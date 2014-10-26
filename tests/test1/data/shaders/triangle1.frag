@@ -1,8 +1,8 @@
-#version 330
+#version 120
 
 in vec4 Color;
 
-out vec4 FragColor;
+varying out vec4 FragColor;
 
 void main()
 {
