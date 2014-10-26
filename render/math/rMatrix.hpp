@@ -338,7 +338,7 @@ rMatrix<TYPE, ROWS, COLLUMNS>::toIdentityMatrix() {
 
 template <class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::fill( TYPE && _f ) {
-   for( int i = 1; i < ROWS * ROWS; ++i )
+   for( int i = 1; i < ROWS * COLLUMNS; ++i )
       vDataMat[i] = _f;
 }
 
