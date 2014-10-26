@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>TODO</title>
-<!-- 2014-10-19 Sun 19:28 -->
+<!-- 2014-10-26 Sun 11:11 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Silas Bartel" />
@@ -178,6 +178,7 @@ for the JavaScript code in this tag.
 <li><a href="#sec-5-2">5.2. Editor:</a></li>
 </ul>
 </li>
+<li><a href="#sec-6">6. <span class="todo TODO">TODO</span> Fix code warnings</a></li>
 </ul>
 </div>
 </div>
@@ -326,7 +327,7 @@ Silas
 <h3 id="sec-5-1"><span class="section-number-3">5.1</span> Description:</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
-Convert README and ToDo in a Markdown
+Convert README and ToDo in a Markdown.
 </p>
 </div>
 </div>
@@ -340,11 +341,50 @@ Silas
 </div>
 </div>
 </div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> <span class="todo TODO">TODO</span> Fix code warnings</h2>
+<div class="outline-text-2" id="text-6">
+<div class="org-src-container">
+
+<pre class="src src-sh">[init/basicClasses/iDisplayBasic.hpp:30]: (style) struct or union member <span style="color: #ffa07a;">'res::width'</span> is never used
+[init/basicClasses/iDisplayBasic.hpp:31]: (style) struct or union member <span style="color: #ffa07a;">'res::height'</span> is never used
+[init/basicClasses/iDisplayBasic.hpp:37]: (style) struct or union member <span style="color: #ffa07a;">'mode_basic::prefered'</span> is never used
+[init/basicClasses/iDisplayBasic.hpp:39]: (style) struct or union member <span style="color: #ffa07a;">'mode_basic::width'</span> is never used
+[init/basicClasses/iDisplayBasic.hpp:40]: (style) struct or union member <span style="color: #ffa07a;">'mode_basic::height'</span> is never used
+[init/basicClasses/iDisplayBasic.hpp:41]: (style) struct or union member <span style="color: #ffa07a;">'mode_basic::rate'</span> is never used
+[init/iEventInfo.hpp:26]: (style) struct or union member <span style="color: #ffa07a;">'iEventInfo::type'</span> is never used
+[init/windows/iDisplays.cpp:85]: (style) The scope of the variable <span style="color: #ffa07a;">'lMinDiffToPref_D'</span> can be reduced
+[init/windows/iDisplays.cpp:91]: (style) The scope of the variable <span style="color: #ffa07a;">'lRatePref_D'</span> can be reduced
+[init/x11/RandR/iRandR_structs.hpp:105] -&gt; [init/x11/RandR/iRandR_structs.hpp:105]: (style) Same expression on both sides of <span style="color: #ffa07a;">'=='</span>.
+[init/x11/RandR/iRandR_structs.hpp:29]: (style) struct or union member <span style="color: #ffa07a;">'_crtc::posX'</span> is never used
+[init/x11/RandR/iRandR_structs.hpp:30]: (style) struct or union member <span style="color: #ffa07a;">'_crtc::posY'</span> is never used
+[init/x11/RandR/iRandR_structs.hpp:54]: (style) struct or union member <span style="color: #ffa07a;">'_output::mm_width'</span> is never used
+[init/x11/RandR/iRandR_structs.hpp:55]: (style) struct or union member <span style="color: #ffa07a;">'_output::mm_height'</span> is never used
+[init/x11/RandR/iRandR_structs.hpp:61]: (style) struct or union member <span style="color: #ffa07a;">'_output::npreferred'</span> is never used
+[init/x11/iContext.cpp:311]: (style) struct or union member <span style="color: #ffa07a;">'MwmHints::functions'</span> is never used
+[init/x11/iContext.cpp:313]: (style) struct or union member <span style="color: #ffa07a;">'MwmHints::input_mode'</span> is never used
+[init/x11/iContext.cpp:314]: (style) struct or union member <span style="color: #ffa07a;">'MwmHints::status'</span> is never used
+[render/rNormalObject.cpp:19]: (warning) Member variable <span style="color: #ffa07a;">'rNormalObject::vNeedUpdateMatrix_B'</span> is not initialized<span style="color: #20b2aa; font-weight: bold;"> in</span> the constructor.
+[render/shader/rShader_structs.hpp:14]: (style) struct or union member <span style="color: #ffa07a;">'atributeObject::index'</span> is never used
+[utils/log/uLog.cpp:319]: (style) Unused variable: lErrorType_STR
+[utils/log/uLog_resources.hpp:190]: (warning) Member variable <span style="color: #ffa07a;">'__DATA_RAW__::vBasicColor_C'</span> is not initialized<span style="color: #20b2aa; font-weight: bold;"> in</span> the constructor.
+[utils/log/uLog_resources.hpp:190]: (warning) Member variable <span style="color: #ffa07a;">'__DATA_RAW__::vBold_B'</span> is not initialized<span style="color: #20b2aa; font-weight: bold;"> in</span> the constructor.
+[utils/log/uLog_resources.hpp:207]: (warning) Member variable <span style="color: #ffa07a;">'__DATA_CONF__::vColumns_uI'</span> is not initialized<span style="color: #20b2aa; font-weight: bold;"> in</span> the constructor.
+[utils/log/uLog.cpp:333]: (style) Exception should be caught by reference.
+[utils/sha/uSHA_2_selftest.cpp:62]: (style) Unused variable: lResult_str
+[utils/uConfig.cpp:42]: (warning) Member variable <span style="color: #ffa07a;">'__uConfig_FBA::FBA_DRAW_TO_WINDOW'</span> is not initialized<span style="color: #20b2aa; font-weight: bold;"> in</span> the constructor.
+[utils/uConfig.cpp:42]: (warning) Member variable <span style="color: #ffa07a;">'__uConfig_FBA::FBA_ACCELERATION'</span> is not initialized<span style="color: #20b2aa; font-weight: bold;"> in</span> the constructor.
+[utils/uConfig.cpp:42]: (warning) Member variable <span style="color: #ffa07a;">'__uConfig_FBA::FBA_OGL_SUPPORTED'</span> is not initialized<span style="color: #20b2aa; font-weight: bold;"> in</span> the constructor.
+</pre>
+</div>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Silas Bartel</p>
-<p class="date">Created: 2014-10-19 Sun 19:28</p>
-<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="date">Created: 2014-10-26 Sun 11:11</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.4.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
