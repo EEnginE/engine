@@ -4,8 +4,6 @@ attribute vec3 Position;
 
 uniform mat4 gWorld;
 
-varying vec4 Color;
-
 void main()
 {
     gl_Position = gWorld * vec4(Position, 1.0);
