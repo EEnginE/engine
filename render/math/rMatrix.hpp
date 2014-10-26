@@ -376,25 +376,25 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, COLLUMNS, COLL
 //HARDCODED 2x2
 template<class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 2, 2> &_matrix, rMatrix<TYPE, 2, 2> *_targetMatrix ) {
-   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) );
-   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) );
-   _targetMatrix->vDataMat[2] = ( ( vDataMat[0] * _matrix.vDataMat[2] ) + ( vDataMat[4] * _matrix.vDataMat[3] ) );
-   _targetMatrix->vDataMat[3] = ( ( vDataMat[1] * _matrix.vDataMat[2] ) + ( vDataMat[5] * _matrix.vDataMat[3] ) );
+   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[2] * _matrix.vDataMat[1] ) );
+   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[3] * _matrix.vDataMat[1] ) );
+   _targetMatrix->vDataMat[2] = ( ( vDataMat[0] * _matrix.vDataMat[2] ) + ( vDataMat[2] * _matrix.vDataMat[3] ) );
+   _targetMatrix->vDataMat[3] = ( ( vDataMat[1] * _matrix.vDataMat[2] ) + ( vDataMat[3] * _matrix.vDataMat[3] ) );
 }
 
 
 //HARDCODED 3x3
 template<class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 3, 3> &_matrix, rMatrix<TYPE, 3, 3> *_targetMatrix ) {
-   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) + ( vDataMat[8]  * _matrix.vDataMat[2] ) )  ;
-   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) + ( vDataMat[9]  * _matrix.vDataMat[2] ) )  ;
-   _targetMatrix->vDataMat[2] = ( ( vDataMat[2] * _matrix.vDataMat[0] ) + ( vDataMat[6] * _matrix.vDataMat[1] ) + ( vDataMat[10] * _matrix.vDataMat[2] ) ) ;
-   _targetMatrix->vDataMat[3] = ( ( vDataMat[0] * _matrix.vDataMat[3] ) + ( vDataMat[7] * _matrix.vDataMat[4] ) + ( vDataMat[11] * _matrix.vDataMat[5] ) ) ;
-   _targetMatrix->vDataMat[4] = ( ( vDataMat[1] * _matrix.vDataMat[3] ) + ( vDataMat[4] * _matrix.vDataMat[4] ) + ( vDataMat[8]  * _matrix.vDataMat[5] ) )  ;
-   _targetMatrix->vDataMat[5] = ( ( vDataMat[2] * _matrix.vDataMat[3] ) + ( vDataMat[5] * _matrix.vDataMat[4] ) + ( vDataMat[9]  * _matrix.vDataMat[5] ) )  ;
-   _targetMatrix->vDataMat[6] = ( ( vDataMat[0] * _matrix.vDataMat[6] ) + ( vDataMat[6] * _matrix.vDataMat[7] ) + ( vDataMat[10] * _matrix.vDataMat[8] ) ) ;
-   _targetMatrix->vDataMat[7] = ( ( vDataMat[1] * _matrix.vDataMat[6] ) + ( vDataMat[7] * _matrix.vDataMat[7] ) + ( vDataMat[11] * _matrix.vDataMat[8] ) ) ;
-   _targetMatrix->vDataMat[8] = ( ( vDataMat[2] * _matrix.vDataMat[6] ) + ( vDataMat[4] * _matrix.vDataMat[7] ) + ( vDataMat[8]  * _matrix.vDataMat[8] ) )  ;
+   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[3] * _matrix.vDataMat[1] ) + ( vDataMat[6]  * _matrix.vDataMat[2] ) )  ;
+   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) + ( vDataMat[7]  * _matrix.vDataMat[2] ) )  ;
+   _targetMatrix->vDataMat[2] = ( ( vDataMat[2] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) + ( vDataMat[8] * _matrix.vDataMat[2] ) ) ;
+   _targetMatrix->vDataMat[3] = ( ( vDataMat[0] * _matrix.vDataMat[3] ) + ( vDataMat[3] * _matrix.vDataMat[4] ) + ( vDataMat[6] * _matrix.vDataMat[5] ) ) ;
+   _targetMatrix->vDataMat[4] = ( ( vDataMat[1] * _matrix.vDataMat[3] ) + ( vDataMat[4] * _matrix.vDataMat[4] ) + ( vDataMat[7]  * _matrix.vDataMat[5] ) )  ;
+   _targetMatrix->vDataMat[5] = ( ( vDataMat[2] * _matrix.vDataMat[3] ) + ( vDataMat[5] * _matrix.vDataMat[4] ) + ( vDataMat[8]  * _matrix.vDataMat[5] ) )  ;
+   _targetMatrix->vDataMat[6] = ( ( vDataMat[0] * _matrix.vDataMat[6] ) + ( vDataMat[3] * _matrix.vDataMat[7] ) + ( vDataMat[6] * _matrix.vDataMat[8] ) ) ;
+   _targetMatrix->vDataMat[7] = ( ( vDataMat[1] * _matrix.vDataMat[6] ) + ( vDataMat[4] * _matrix.vDataMat[7] ) + ( vDataMat[7] * _matrix.vDataMat[8] ) ) ;
+   _targetMatrix->vDataMat[8] = ( ( vDataMat[2] * _matrix.vDataMat[6] ) + ( vDataMat[5] * _matrix.vDataMat[7] ) + ( vDataMat[8]  * _matrix.vDataMat[8] ) )  ;
 }
 
 
