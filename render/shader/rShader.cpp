@@ -166,19 +166,23 @@ unsigned int rShader::testProgram() {
    int status;
    glGetProgramiv( vShaderProgram_OGL, GL_LINK_STATUS, &status );
    if( status == GL_FALSE ) {
-      char log[5000];
-      glGetProgramInfoLog( vShaderProgram_OGL, 5000, NULL, log );
+     GLint lLinkLogLength;
+     glGetProgramiv( vShaderProgram_OGL, GL_INFO_LOG_LENGTH, &lLinkLogLength );
+      GLchar *log = new GLchar[lLinkLogLength];
+      glGetProgramInfoLog( vShaderProgram_OGL, lLinkLogLength, NULL, log );
 
       eLOG(
             "Linking failure:\n"
             "###################################################################################\n\n",
-            log,
+            std::string( log ),
             "\n\n###################################################################################"
 
       );
       glDeleteProgram( vShaderProgram_OGL );
 
       vIsShaderLinked_B = false;
+
+      delete[] log;
 
       //Return a shader linking error
       return -5;
@@ -334,20 +338,23 @@ bool rShader::singleShader::testShader() {
    int test;
    glGetShaderiv( vShader_OGL, GL_COMPILE_STATUS, &test );
    if( test == GL_FALSE ) {
-      char   log[5000];
-      glGetShaderInfoLog( vShader_OGL, 5000, NULL, log );
+     GLint logLength = 0;
+     glGetShaderiv( vShader_OGL, GL_INFO_LOG_LENGTH, &logLength );
+      GLchar *log = new GLchar[logLength];
+      glGetShaderInfoLog( vShader_OGL, logLength, NULL, log );
 
       eLOG(
-            "Compile failure in the ", getShaderTypeString( vShader_OGL ), " shader ", vFilename_str, ':',
+	   "Compile failure in the ", getShaderTypeString( vShaderType ), " shader ", vFilename_str, ":\n",
             "###################################################################################\n\n",
-            log,
+            std::string( log ),
             "\n\n###################################################################################"
       );
       glDeleteShader( vShader_OGL );
 
+      delete[] log;
+
       //Returns a shader compilation error
       return false;
-
    }
    return true;
 }

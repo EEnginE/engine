@@ -1,10 +1,10 @@
-#version 330
+#version 120
 
-layout (location = 4) in vec3 Position;
+in vec3 Position;
 
 uniform mat4 gWorld;
 
-out vec4 Color;
+varying out vec4 Color;
 
 void main()
 {
