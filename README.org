@@ -97,7 +97,7 @@ $ make install
 
 ** BOOST
 
-   -DBOOST_NO_SYSTEM_PATHS=<0/1>
+   -DBoost_NO_SYSTEM_PATHS=<0/1>
 
       To tell CMake to only search boost in BOOST_ROOT
        - 0: disabled - default
