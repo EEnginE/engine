@@ -77,6 +77,7 @@ int iContext::createDisplay() {
       return -1;
    }
    vDisplayCreated_B  = true;
+   XInitThreads();
 
    vX11VersionMajor_I = ProtocolVersion( vDisplay_X11 );
    vX11VersionMinor_I = ProtocolRevision( vDisplay_X11 );
