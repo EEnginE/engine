@@ -133,7 +133,7 @@ int rNormalObject::loadData( rWorld *_world ) {
    for( rShader & s : vShaders ) {
       if( ! s.getIsLinked() )  {
          if( s.compile() < 0 ) {
-            eLOG( "Failed to compile shader '", s.getShaderPath(), "'. Failed to init OpenGL for object'", vObjectName, "'" );
+            eLOG( "Failed to compile shader '", s.getShaderPath(), "'. Failed to init OpenGL for object '", vObjectName, "'" );
             return -1;
          }
       }
