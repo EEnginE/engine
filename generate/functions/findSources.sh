@@ -7,12 +7,12 @@ REGEX_CPP_2=".*/[a-zA-Z0-9]+[a-zA-Z0-9_\-]*\.cpp"
 REGEX_HPP_2=".*/[a-zA-Z0-9]+[a-zA-Z0-9_\-]*\.hpp"
 
 dirs_func() {
-    ARGC=$#
+    local ARGC=$#
     if (( ARGC == 0 )); then
         return
     fi
     
-    local A
+    local A B
 
     for A in $*; do
         local DIRS="$(ls ${A})"
@@ -27,36 +27,22 @@ dirs_func() {
 }
 
 finSources() {
-    ARGC=$#
+    local ARGC=$#
     
-    X11_CPP=""
-    X11_HPP=""
+    local X11_CPP     X11_HPP
+    local WAYLAND_CPP WAYLAND_HPP
+    local MIR_CPP     MIR_HPP
+    local WINDOWS_CPP WINDOWS_HPP
+    local ALL_CPP     ALL_HPP
     
-    WAYLAND_CPP=""
-    WAYLAND_HPP=""
-    
-    MIR_CPP=""
-    MIR_HPP=""
-    
-    WINDOWS_CPP=""
-    WINDOWS_HPP=""
-
-    ALL_CPP=""
-    ALL_HPP=""
-    
-    TEMP=""
-    
-    TEMP_CPP=""
-    TEMP_HPP=""
-    
-    SERACH_IN=""
+    local TEMP TEMP_CPP TEMP_HPP SERACH_IN I
    
     if (( ARGC != 7 )); then
         echo "ERROR: findSources needs 7 arguments!"
     fi
     
-    DIR_TO_GO=$1
-    FILENAME=$2
+    local DIR_TO_GO=$1
+    local FILENAME=$2
     
     echo "INFO:    -- Generating source file $FILENAME for target $DIR_TO_GO..."
         
@@ -65,18 +51,18 @@ finSources() {
         return
     fi
    
-    X11_DIRECTORY=${DIR_TO_GO}/$3
-    WAYLAND_DIRECTORY=${DIR_TO_GO}/$4
-    MIR_DIRECTORY=${DIR_TO_GO}/$5
-    WINDOWS_DIRECTORY=${DIR_TO_GO}/$6
+    local X11_DIRECTORY=${DIR_TO_GO}/$3
+    local WAYLAND_DIRECTORY=${DIR_TO_GO}/$4
+    local MIR_DIRECTORY=${DIR_TO_GO}/$5
+    local WINDOWS_DIRECTORY=${DIR_TO_GO}/$6
     
-    BASENAME_VARS=$7
+    local BASENAME_VARS=$7
     
-    X11_DIRS="$X11_DIRECTORY"
-    WAYLAND_DIRS="$WAYLAND_DIRECTORY"
-    MIR_DIRS="$MIR_DIRECTORY"
-    WINDOWS_DIRS="$WINDOWS_DIRECTORY"
-    ALL_DIRS=""
+    local X11_DIRS="$X11_DIRECTORY"
+    local WAYLAND_DIRS="$WAYLAND_DIRECTORY"
+    local MIR_DIRS="$MIR_DIRECTORY"
+    local WINDOWS_DIRS="$WINDOWS_DIRECTORY"
+    local ALL_DIRS=""
 
 ########################################################################################
 ############################################################################################################################

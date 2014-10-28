@@ -10,17 +10,11 @@ ARGV=$*
 SOURCE_FILE="sources.cmake"
 INCLUDE_FILE="engine.hpp"
 
-UTILS_LIB="utils"
-UTILS_SRC="utils.cmake"
-BASENAME_UTILS="UTILS"
+CMAKE_LISTS_IN="CMakeLists.in.txt"
 
-INIT_LIB="init"
-INIT_SRC="init.cmake"
-BASENAME_INIT="INIT"
-
-RENDER_LIB="render"
-RENDER_SRC="render.cmake"
-BASENAME_RENDER="RENDER"
+LIBS=()
+LIBS_DEP=()
+LIBS_FILE="libs.txt"
 
 TESTS_DIR="tests"
 
@@ -67,6 +61,20 @@ if [ -d $CD_TO_THIS_DIR ]; then
     cd $CD_TO_THIS_DIR
 fi
 
+initLibs() {
+    if [ ! -f "$(pwd)/$LIBS_FILE" ]; then
+	echo "ERROR: Can not find libs file $(pwd)/$LIBS_FILE"
+	exit 2
+    fi
+
+    local line
+    while read line; do
+	LIBS[${#LIBS[@]}]="$(echo "$line" | sed 's/;[a-z A-Z 0-9]*$//g')"
+	LIBS_DEP[${#LIBS_DEP[@]}]="$(echo "$line" | sed 's/^[a-zA-Z0-g]*;[ ]*//g')"
+    done < "$(pwd)/$LIBS_FILE"
+}
+    
+
 rm_save() {
     if [ -e $1 ]; then
         if [ -d $1 ]; then
@@ -84,15 +92,18 @@ rm_save() {
 clean() {
     echo "INFO: Cleaning"
     
-    rm_save $INIT_SRC
-    rm_save $RENDER_SRC
-    rm_save $UTILS_SRC
+    for (( I = 0; I < ${#LIBS[@]}; ++I )); do
+	rm_save ${LIBS[$I]}/$SOURCE_FILE
+	rm_save ${LIBS[$I]}/CMakeLists.txt
+	rm_save ${LIBS[$I]}/engine_${LIBS[$I]}_Export.hpp
+    done
 
     rm_save $TOOLS_CMAKE_FILE
 
     rm_save $INCLUDE_FILE
     rm_save $LOG_MACRO_PATH
     rm_save tests/CMakeLists.txt
+    rm_save CMakeLists.txt
     rm_save defines.hpp
     rm_save Doxyfile
     
@@ -116,18 +127,11 @@ clean() {
 }
 
 
-addTarget() {
-    echo "INFO: Adding Target $1"
-    finSources $1 $2 $X11 $WAYLAND $MIR $WINDOWS $BASENAME_INIT
-}
-
-
 standard() {
     generateLogMacros $LOG_MACRO_PATH "$LOG_TYPES" $LOG_GEN_UNDEF
     installTools      $TOOLS_DIRECTORY $TOOLS_CMAKE_FILE
-    addTarget         $INIT_LIB   $INIT_SRC
-    addTarget         $RENDER_LIB $RENDER_SRC
-    addTarget         $UTILS_LIB  $UTILS_SRC
+    addTarget
+    
     engineHPP         $INCLUDE_FILE
     tests
 }
@@ -177,6 +181,7 @@ countLines() {
 ############################################################################################################################
 ########################################################################################
 
+source ${PWD}/generate/functions/addTarget.sh
 source ${PWD}/generate/functions/logMacros.sh
 source ${PWD}/generate/functions/findSources.sh
 source ${PWD}/generate/functions/engineHPP.sh
@@ -195,6 +200,8 @@ echo "INFO: Initiating and updating submodules"
 git submodule init    > /dev/null
 git submodule sync    > /dev/null
 git submodule update  > /dev/null
+
+initLibs
 
 if (( ARGC == 1 )); then
     case $1 in

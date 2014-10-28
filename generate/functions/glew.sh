@@ -1,7 +1,7 @@
 #!/bin/bash
 
 doGlew() {
-    ARGC=$#
+    local ARGC=$#
    
     if (( $ARGC != 1 )); then
         echo "ERROR: doGlew needs 1 argument"
