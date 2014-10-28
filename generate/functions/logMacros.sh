@@ -9,7 +9,7 @@
 ########################################################################################
 
 __macro_func() {
-    ARGC=$#
+    local ARGC=$#
     if (( ARGC != 5 )); then
         return
     fi
@@ -29,7 +29,8 @@ __macro_func() {
 
 
 generateLogMacros() {
-    ARGC=$#
+    local ARGC=$#
+    local I
     
     if (( ARGC != 3 )); then
         echo "ERROR generateLogMacros needs 3 Arguments"
@@ -42,21 +43,20 @@ generateLogMacros() {
     local TYPES=$2
     local DO_UNDEF=$3
 
-    MACRO_UNDEF_PATH="$(  dirname $MACRO_PATH )/macros_undef_temp"
-    MACRO_DEFINE_PATH="$( dirname $MACRO_PATH )/macros_define_temp"
+    local MACRO_UNDEF_PATH="$(  dirname $MACRO_PATH )/macros_undef_temp"
+    local MACRO_DEFINE_PATH="$( dirname $MACRO_PATH )/macros_define_temp"
 
     for I in $MACRO_DEFINE_PATH $MACRO_UNDEF_PATH $MACRO_PATH; do
         if [ -e $I ]; then
             rm $I
         fi
     done
-    unset I
 
     #### Headder ####
 
-    IFNDEF_HEADDER="$( basename $MACRO_PATH )"
-    IFNDEF_HEADDER="$( echo -n $IFNDEF_HEADDER | sed 's/\./_/g' )"
-    IFNDEF_HEADDER="$( echo -n ${IFNDEF_HEADDER^^} )"
+    local IFNDEF_HEADDER="$( basename $MACRO_PATH )"
+    local IFNDEF_HEADDER="$( echo -n $IFNDEF_HEADDER | sed 's/\./_/g' )"
+    local IFNDEF_HEADDER="$( echo -n ${IFNDEF_HEADDER^^} )"
 
     echo "/*!"                                                                         >> $MACRO_PATH
     echo " * \\file $(basename $MACRO_PATH)"                                           >> $MACRO_PATH
@@ -79,14 +79,12 @@ generateLogMacros() {
         #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH    "_$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
         __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH " _$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',false,__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
     done
-    unset I
 
     echo "" >> $MACRO_DEFINE_PATH
 
     for I in $TYPES; do
         __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_h$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',true ,__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
     done
-    unset I
 
     echo -e "\n" >> $MACRO_DEFINE_PATH
 
@@ -94,7 +92,6 @@ generateLogMacros() {
         #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH  "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME," $DO_UNDEF
         __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG(...)" "LOG.addLogEntry('$( echo -n ${I^^} )',false,__FILE__,__LINE__,LOG_FUNCTION_NAME,__VA_ARGS__)" $DO_UNDEF 
     done
-    unset I
 
     #### Footer ####
 
@@ -115,6 +112,5 @@ generateLogMacros() {
             rm $I
         fi
     done
-    unset I
 
 }

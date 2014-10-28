@@ -1,8 +1,8 @@
 #!/bin/bash
 
 engineHPP() {
-    ARGC=$#
-    
+    local ARGC=$#
+    local I
     if (( ARGC != 1 )); then
         echo "ERROR: engineHPP needs 1 argument"
         return

@@ -1,8 +1,9 @@
 #!/bin/bash
 
 installTools() {
-    TOOLS_DIR=$1
-    OUT_INSTALL_TOOLS=$2
+    local TOOLS_DIR=$1
+    local OUT_INSTALL_TOOLS=$2
+    local I
     
     echo "INFO: Generating file $OUT_INSTALL_TOOLS for tools to install..."
 

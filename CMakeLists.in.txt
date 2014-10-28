@@ -19,14 +19,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
-include( ${PROJECT_SOURCE_DIR}/generate/cmake/testSources.cmake )   # Automatically testing if we need to run generate.sh
-testSources()
-
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/displayServer.cmake ) # Choose the low level graphic API
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/git.cmake )           # Get the project version
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/find.cmake )          # Find our dependences
 include( ${PROJECT_SOURCE_DIR}/generate/cmake/compiler.cmake )      # Compiler Options
-include( ${PROJECT_SOURCE_DIR}/generate/cmake/newLib.cmake )        # Get access to function "newLib"
 
 include( ${PROJECT_SOURCE_DIR}/installTools.cmake )                  # Install all files in the 'tools' dir
 
@@ -80,11 +76,7 @@ include_directories(
  ${PROJECT_SOURCE_DIR}
 )
 
-set( ENGINE_LIBS ) # make ENGINE_LIBS global
-
-newLibrary( utils )
-newLibrary( init   utils )
-newLibrary( render utils init )
+SED_REPLACE_ME_WITH_SUBDIRS
 
 # Generate FindEngine.cmake
 configure_file(
@@ -106,13 +98,6 @@ set(OTHER_INC ${PROJECT_SOURCE_DIR}/engine.hpp ${PROJECT_SOURCE_DIR}/defines.hpp
 # The install configuaration
 install( FILES ${DEPENDENCES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/engine)
 install( FILES ${OTHER_INC}   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/engine)
-install( 
- TARGETS  ${ENGINE_LIBS}
- RUNTIME  DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/
- LIBRARY  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/ 
- ARCHIVE  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
-)
-
 
 
 
@@ -144,8 +129,6 @@ if( ENGINE_VERBOSE )
    message( STATUS "Options:" )
    message( STATUS "  - DEBUG:          ${CMAKE_CXX_FLAGS_DEBUG}" )
    message( STATUS "  - RELEASE:        ${CMAKE_CXX_FLAGS_RELEASE}" )
-   message( STATUS "" )
-   message( STATUS "Building:           ${ENGINE_LIBS_STR}" )
    message( STATUS "" )
    message( STATUS "" )
 endif( ENGINE_VERBOSE )

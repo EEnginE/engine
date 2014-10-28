@@ -2,10 +2,10 @@
 
 
 tests() {
-    CMAKE_MIN_V=$(cat CMakeLists.txt | grep cmake_minimum_required | sed 's/[a-zA-Z\_() ]*//g')
+    local CMAKE_MIN_V=$(cat CMakeLists.txt | grep cmake_minimum_required | sed 's/[a-zA-Z\_() ]*//g')
     echo -e "cmake_minimum_required(VERSION $CMAKE_MIN_V )\n" > $TESTS_DIR/CMakeLists.txt
 
-    TEST_PROJECTS=$(cat $TESTS_DIR/testOrder.txt)
+    local TEST_PROJECTS=$(cat $TESTS_DIR/testOrder.txt)
 
     for I in $TEST_PROJECTS; do
         I=$( echo "$TESTS_DIR/$I" | sed 's/\/$//g' )
@@ -42,8 +42,6 @@ cat > ${I}/CMakeLists.txt << EOF
 cmake_minimum_required(VERSION $CMAKE_MIN_V )
 
 set( CSD \${CMAKE_HOME_DIRECTORY}/$I )
-
-testSources()
 
 if( EXISTS \${CSD}/custom.cmake )
    include( \${CSD}/custom.cmake )
