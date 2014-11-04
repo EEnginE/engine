@@ -12,7 +12,7 @@
 #define UNIX_X11     @CM_UNIX_X11@
 #define UNIX_WAYLAND @CM_UNIX_WAYLAND@
 #define UNIX_MIR     @CM_UNIX_MIR@
-#define WINDOWS      @CM_WINDOWS@
+#define WINDOWS      @CM_WIN32_WINDOWS@
 
 #if UNIX_X11 || UNIX_WAYLAND || UNIX_MIR
 #define UNIX         1
