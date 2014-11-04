@@ -2,22 +2,18 @@
 
 
 tests() {
-    local CMAKE_MIN_V=$(cat CMakeLists.txt | grep cmake_minimum_required | sed 's/[a-zA-Z\_() ]*//g')
-    echo -e "cmake_minimum_required(VERSION $CMAKE_MIN_V )\n" > $TESTS_DIR/CMakeLists.txt
+    local I i
 
-    local TEST_PROJECTS=$(cat $TESTS_DIR/testOrder.txt)
+    for (( i = 0; i < ${#TESTS[@]}; ++i )); do
+        I=$( echo "$TESTS_DIR/${TESTS[$i]}" | sed 's/\/$//g' )
 
-    for I in $TEST_PROJECTS; do
-        I=$( echo "$TESTS_DIR/$I" | sed 's/\/$//g' )
-
-        if [ ! -d $i ]; then
+        if [ ! -d $I ]; then
             echo "ERROR: $I is not a directory!"
             continue
         fi
 
-        TEST_BASENAME=$(basename $I)
-        echo "INFO: Found test module $TEST_BASENAME"
-        echo "add_subdirectory( $TEST_BASENAME )" >> $TESTS_DIR/CMakeLists.txt
+        local TEST_NAME="${TESTS[$i]}"
+        echo "INFO: Found test module $TEST_NAME"
 
         PRE_GEN="$(pwd)/${I}/generate.pre.sh"
         POST_GEN="$(pwd)/${I}/generate.post.sh"
@@ -33,38 +29,43 @@ tests() {
             cd $CURRENT_TEMP_PATH
         fi
 
-        if [ ! -f ${I}/MANUAL_CMAKE ]; then
-
+	local CMAKE_FILE="$(pwd)/${I}/$CMAKE_LISTS_NAME"
         echo "INFO:    -- Generating CMakeLists.txt"
-cat > ${I}/CMakeLists.txt << EOF
+	cat > $CMAKE_FILE << EOF
 # Automatically generated file; DO NOT EDIT
 
-cmake_minimum_required(VERSION $CMAKE_MIN_V )
+EOF
+	local CUSTOM_FILE="$(pwd)/$I/$CMAKE_CUSTOM_FILE"
+	
+	if [ -f $CUSTOM_FILE ]; then
+	    cat $CUSTOM_FILE >> $CMAKE_FILE
+	fi
 
-set( CSD \${CMAKE_HOME_DIRECTORY}/$I )
+	finSources ${I} ${TEST_NAME^^} 1>> $CMAKE_FILE
 
-if( EXISTS \${CSD}/custom.cmake )
-   include( \${CSD}/custom.cmake )
-endif( EXISTS \${CSD}/custom.cmake )
+	local ENGINE_LIBS="" TTT
+	for TTT in "${LIBS[@]}"; do
+	    ENGINE_LIBS="$ENGINE_LIBS ${PROJECT_NAME}_${TTT}"
+	done
+		
+	cat >> $CMAKE_FILE <<EOF
 
-if( EXISTS \${CSD}/config.in.hpp )
-   configure_file("\${CSD}/config.in.hpp" "\${CSD}/config.hpp")
-endif( EXISTS \${CSD}/config.in.hpp )
+if( EXISTS config.in.hpp )
+   configure_file("config.in.hpp" "config.hpp")
+endif( EXISTS config.in.hpp )
 
-include( sources.cmake )
-
-add_executable( $TEST_BASENAME \${\${CURRENT_BASENAME}_SRC} \${\${CURRENT_BASENAME}_INC} )
+add_executable( $TEST_NAME \${${TEST_NAME^^}_SRC} \${${TEST_NAME^^}_INC} )
 
 target_link_libraries(
- $TEST_BASENAME
+ $TEST_NAME
 
- \${ENGINE_LIBS}
+ ${ENGINE_LIBS}
  \${ENGINE_LINK}
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES MSVC) 
 set_target_properties(
- $TEST_BASENAME
+ $TEST_NAME
  PROPERTIES
   INSTALL_RPATH \${CMAKE_INSTALL_PREFIX}/lib
   INSTALL_RPATH_USE_LINK_PATH TRUE
@@ -72,7 +73,7 @@ set_target_properties(
   )
 else()
 set_target_properties(
- $TEST_BASENAME
+ $TEST_NAME
  PROPERTIES
   INSTALL_RPATH \${CMAKE_INSTALL_PREFIX}/lib
   INSTALL_RPATH_USE_LINK_PATH TRUE
@@ -80,17 +81,14 @@ set_target_properties(
 endif(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
 
 
-install( TARGETS $TEST_BASENAME RUNTIME DESTINATION \${CMAKE_INSTALL_PREFIX}/bin )
+install( TARGETS $TEST_NAME RUNTIME DESTINATION \${CMAKE_INSTALL_PREFIX}/bin )
 
-if( EXISTS \${CSD}/data AND IS_DIRECTORY \${CSD}/data )
-   install( DIRECTORY \${CSD}/data DESTINATION \${CMAKE_INSTALL_PREFIX}/share/engineTests/$TEST_BASENAME )
-endif( EXISTS \${CSD}/data AND IS_DIRECTORY \${CSD}/data )
+if( EXISTS data AND IS_DIRECTORY data )
+   install( DIRECTORY data DESTINATION \${CMAKE_INSTALL_PREFIX}/share/engineTests/$TEST_NAME )
+endif( EXISTS data AND IS_DIRECTORY data )
 
 EOF
 
-        fi
-
-        finSources        ${I} ${I}/$SOURCE_FILE $X11 $WAYLAND $MIR $WINDOWS ${TEST_BASENAME^^}
 
         if [ -f $POST_GEN ]; then
             if [ ! -x $POST_GEN ]; then
