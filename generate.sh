@@ -15,6 +15,7 @@ INCLUDE_FILE="engine.hpp"
 CMAKE_LISTS_NAME="CMakeLists.txt"
 
 CONFIG_FILE="generate.cfg"
+CLANG_COMPLETE=".clang"
 
 LIBS=()
 LIBS_DEP=()
@@ -81,6 +82,10 @@ parseCFG() {
 	    CM)
 		echo "INFO:   -- Name of CMake files to generate: '$TEMP'"
 		CMAKE_LISTS_NAME="$TEMP"
+		;;
+	    CLA)
+		echo "INFO:   -- Name of the clang autocomplete file: '$TEMP'"
+		CLANG_COMPLETE="$TEMP"
 		;;
 	    PRO)
 		echo "INFO:   -- Project Name: $TEMP"
