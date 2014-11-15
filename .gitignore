@@ -29,3 +29,8 @@ Makefile
 FindEngine.cmake
 
 .*.kate-swp
+
+.clang_complete
+*_flymake.cpp
+*_flymake.hpp
+

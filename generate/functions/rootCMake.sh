@@ -106,6 +106,8 @@ EOF
 
     local TEMP_SIZE=0
     local TEMP_A=()
+
+    echo "-I$(pwd)" > $CLANG_COMPLETE
     
     for i in "${DISPLAY_SERVER[@]}"; do
 	eval "TEMP_SIZE=\${#${i^^}_DIRS[@]}"
@@ -118,6 +120,7 @@ EOF
 	    eval "TEMP_A=( \${${i^^}_DIRS[@]} )"
 	    for I in "${TEMP_A[@]}"; do
 		echo "  $I"
+		echo "-I$(pwd)/${I}" >> $CLANG_COMPLETE
 	    done
 	    echo ")"
 	    echo ""
@@ -133,6 +136,7 @@ EOF
     echo "include_directories("
     for I in "${ALL_DIRS[@]}"; do
 	echo "  $I"
+	echo "-I$(pwd)/${I}" >> $CLANG_COMPLETE
     done
     echo ")"
 
