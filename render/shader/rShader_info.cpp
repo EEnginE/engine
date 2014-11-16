@@ -173,8 +173,8 @@ void rShader::getInfoNew() {
    glGetProgramInterfaceiv( vShaderProgram_OGL, GL_UNIFORM,        GL_ACTIVE_RESOURCES, &lNumOfUniforms );
    glGetProgramInterfaceiv( vShaderProgram_OGL, GL_UNIFORM_BLOCK,  GL_ACTIVE_RESOURCES, &lNumOfUniformBlocks );
 
-   eLOG( "SILAS: Das sollte alles 1 sein: ", lNumOfUniforms, " -- ", lNumOfInputs, " -- ", lNumOfOutouts );
-   return;
+   // eLOG( "SILAS: Das sollte alles 1 sein: ", lNumOfUniforms, " -- ", lNumOfInputs, " -- ", lNumOfOutouts );
+   // return;
    
    // Input
    for( GLint i = 0; i < lNumOfInputs; ++i ) {

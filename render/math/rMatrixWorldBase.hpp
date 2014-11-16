@@ -48,6 +48,8 @@ class rMatrixWorldBase {
       inline rMat4<T> *getCameraMatrix()      { return &vCameraMatrix_MAT; }
       inline rMat4<T> *getCameraSpaceMatrix() { return &vCameraSpaceMatrix_MAT; }
 
+      inline glm::mat4 *getCameraSpaceGLM()   { return &vGLM_final; }
+
       inline bool updateCameraSpaceMatrix();
 };
 
