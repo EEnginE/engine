@@ -15,7 +15,7 @@ MyHandler::~MyHandler() {}
 
 
 void MyHandler::mouse( iEventInfo info ) {
-   if ( info.iMouse.button <= E_MOUSE_6 ) // We dont want move events and etc.
+   if ( info.iMouse.button <= E_MOUSE_6 ) { // We dont want move events and etc.
       switch ( info.iMouse.button ) {
          case E_MOUSE_LEFT:
             vObject1.setRotation( rVec3f( 0, 1, 1 ), ++vCurrentRot );
@@ -27,16 +27,7 @@ void MyHandler::mouse( iEventInfo info ) {
             iLOG( "Button ", info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '", ( uint16_t )info.iMouse.button, "'" );
             break;
       }
-
-#if 0
-   if ( info.iMouse.posX != ( int )( GlobConf.win.width / 2 ) || info.iMouse.posY != ( int )( GlobConf.win.height / 2 ) ) {
-      dLOG(
-         "  DELATA X: ", info.iMouse.posX - signed( GlobConf.win.width  / 2 ),
-         "  DELATA Y: ", info.iMouse.posY - signed( GlobConf.win.height / 2 )
-      );
-      vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    }
-#endif
 }
 
 void MyHandler::key( iEventInfo info ) {
@@ -94,6 +85,13 @@ void MyHandler::key( iEventInfo info ) {
             // Quit
          case L'Q':
          case E_KEY_ESCAPE: info.iInitPointer->closeWindow(); break;
+         
+         case L'w':
+         case L'a':
+         case L's':
+         case L'd':
+         case L'q':
+         case L'e': break;
 
          default:
 #ifdef _MSC_VER
@@ -112,6 +110,7 @@ int MyHandler::initGL() {
    // vInitPointer->grabMouse();
    // vInitPointer->fullScreen( C_ADD );
    vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
+   vInitPointer->hideMouseCursor();
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );
    calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
    vCameraDirection = vObject1.getPosition();

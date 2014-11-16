@@ -31,6 +31,8 @@
 #include <GL/wglext.h>
 #endif
 
+#include <math.h>
+
 
 #include "uConfig.hpp"
 
@@ -62,6 +64,11 @@ _uConfig::__uConfig_Config::__uConfig_Config() {
 _uConfig::__uConfig_OpenGL::__uConfig_OpenGL() {
    reset();
 }
+
+_uConfig::__uConfig_Camera::__uConfig_Camera() {
+   reset();
+}
+
 
 
 
@@ -180,6 +187,19 @@ void _uConfig::__uConfig_Config::reset() {
 void _uConfig::__uConfig_OpenGL::reset() {
    shaderInfoQueryType = 0;
    useShaders          = true;
+}
+
+
+void _uConfig::__uConfig_Camera::reset() {
+   movementSpeed    = 0.2;
+   mouseSensitivity = 0.001;
+   
+#ifdef M_PIl
+   angleHorizontal  = M_PIl;
+#else
+   angleHorizontal  = M_PI;
+#endif
+   angleVertical    = 0;
 }
 
 

@@ -8,6 +8,7 @@
 #include "rMatrixWorldBase.hpp"
 #include "iInit.hpp"
 #include "uSignalSlot.hpp"
+#include "uLog.hpp"
 
 namespace e_engine {
 
@@ -34,31 +35,25 @@ class rCameraHandler {
 
       bool     vCameraMovementEnabled;
 
-      T        vSpeed;
-      T        vMouseSenseitvity;
-
       _SLOT_   vMouseSlot;
       _SLOT_   vKeySlot;
 
       wchar_t  keys[KEY_MOVEMENT::__LAST__];
+
+      void updateDirectionAndUp();
 
       void mouse( iEventInfo _event );
       void key( iEventInfo _event );
 
       rCameraHandler() {}
    public:
-      rCameraHandler( rMatrixWorldBase<T> *_world, iInit *_init, T _mouseSenseitvity = ( T )0.5, T _speed = ( T )0.25 ) :
+      rCameraHandler( rMatrixWorldBase<T> *_world, iInit *_init ) :
          vWorld( _world ),
          vInit( _init ),
 
          vCameraMovementEnabled( true ),
 
-         vSpeed( _speed ),
-         vMouseSenseitvity( _mouseSenseitvity ),
-         
-         vPosition( (T)0.0, (T)0.0, (T)0.0 ),
-         vDirection( (T)0.0, (T)0.0, (T)-1.0 ),
-         vUp( (T)0.0, (T)1.0, (T)0.0 ),
+         vPosition( ( T )0.0, ( T )0.0, ( T )0.0 ),
 
          vMouseSlot( &rCameraHandler::mouse, this ),
          vKeySlot( &rCameraHandler::key, this ) {
@@ -72,11 +67,18 @@ class rCameraHandler {
          keys[RIGHT]    = L'd';
          keys[FORWARD]  = L'w';
          keys[BACKWARD] = L's';
+
+         updateDirectionAndUp();
+
+         iLOG( "Camera movement enabled" );
       }
 
       void setKey( KEY_MOVEMENT _key, wchar_t _what );
-      void setSpeedAndMouse( T _mouseSenseitvity = ( T )0.5, T _speed = ( T )0.25 );
 
+      void enable()  {vCameraMovementEnabled = true;  iLOG( "Camera movement enabled" );}
+      void disable() {vCameraMovementEnabled = false; iLOG( "Camera movement disabled" );}
+
+      bool getIsEnabled()   const {return vCameraMovementEnabled;}
 };
 
 template<class T>
@@ -88,24 +90,18 @@ void rCameraHandler<T>::setKey( KEY_MOVEMENT _key, wchar_t _what ) {
 }
 
 template<class T>
-void rCameraHandler<T>::setSpeedAndMouse( T _mouseSenseitvity, T _speed ) {
-   vMouseSenseitvity = _mouseSenseitvity;
-   vSpeed = _speed;
-}
-
-template<class T>
 void rCameraHandler<T>::key( iEventInfo _event ) {
    if ( !vCameraMovementEnabled || _event.eKey.state == E_RELEASED )
       return;
-   
-   T lSpeed = vSpeed;
+
+   T lSpeed = GlobConf.camera.movementSpeed;
    KEY_MOVEMENT _action = __LAST__;
-   
+
    rVec3<T> lTempVector;
-   
-   for( uint8_t i = 0; i < __LAST__; ++i ) {
-      if( _event.eKey.key == keys[i] ) {
-         _action = (KEY_MOVEMENT)i;
+
+   for ( uint8_t i = 0; i < __LAST__; ++i ) {
+      if ( _event.eKey.key == keys[i] ) {
+         _action = ( KEY_MOVEMENT )i;
          break;
       }
    }
@@ -116,7 +112,7 @@ void rCameraHandler<T>::key( iEventInfo _event ) {
          lTempVector = lSpeed * vUp;
          vPosition += lTempVector;
          break;
-         
+
       case LEFT: lSpeed *= -1;
       case RIGHT:
          lTempVector = rVectorMath::crossProduct( vDirection, vUp );
@@ -124,22 +120,53 @@ void rCameraHandler<T>::key( iEventInfo _event ) {
          lTempVector *= lSpeed;
          vPosition += lTempVector;
          break;
-         
+
       case BACKWARD: lSpeed *= -1;
       case FORWARD:
          lTempVector = lSpeed * vDirection;
          vPosition += lTempVector;
          break;
-         
+
       default: return;
    }
-   
+
    vWorld->setCamera( vPosition, vPosition + vDirection, vUp );
 }
 
+
+template<class T>
+void rCameraHandler<T>::updateDirectionAndUp() {
+   vDirection.x = cos( GlobConf.camera.angleVertical ) * sin( GlobConf.camera.angleHorizontal );
+   vDirection.y = sin( GlobConf.camera.angleVertical );
+   vDirection.z = cos( GlobConf.camera.angleVertical ) * cos( GlobConf.camera.angleHorizontal );
+
+   rVec3<T> lTempRight;
+   lTempRight.y = 0;
+   
+#ifdef M_PIl
+   lTempRight.x = sin( GlobConf.camera.angleHorizontal - ( T )( M_PIl / 2 ) );
+   lTempRight.z = cos( GlobConf.camera.angleHorizontal - ( T )( M_PIl / 2 ) );
+#else
+   lTempRight.x = sin( GlobConf.camera.angleHorizontal - ( T )( M_PI / 2 ) );
+   lTempRight.z = cos( GlobConf.camera.angleHorizontal - ( T )( M_PI / 2 ) );
+#endif
+   
+   vUp = rVectorMath::crossProduct( lTempRight, vDirection );
+}
+
+
 template<class T>
 void rCameraHandler<T>::mouse( iEventInfo _event ) {
+   if ( !( _event.iMouse.posX != ( int )( GlobConf.win.width / 2 ) || _event.iMouse.posY != ( int )( GlobConf.win.height / 2 ) ) || !vCameraMovementEnabled )
+      return;
 
+   GlobConf.camera.angleHorizontal += GlobConf.camera.mouseSensitivity * ( signed( GlobConf.win.width  / 2 ) - _event.iMouse.posX );
+   GlobConf.camera.angleVertical   += GlobConf.camera.mouseSensitivity * ( signed( GlobConf.win.height / 2 ) - _event.iMouse.posY );
+   vInit->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
+
+   updateDirectionAndUp();
+
+   vWorld->setCamera( vPosition, vPosition + vDirection, vUp );
 }
 
 
