@@ -25,13 +25,6 @@ class MyHandler final : public rWorld, public rCameraHandler<float> {
 
       GLfloat vCurrentRot;
 
-      rVec3f  vCameraPos;
-      rVec3f  vCameraDirection;
-      rVec3f  vCameraUp;
-      rVec3f  vCameraLookWorker;
-
-      rVec3f  vXVector;
-
       iInit  *vInitPointer;
 
       MyHandler() : rWorld( nullptr ), rCameraHandler(nullptr, nullptr), vObject1( "OBJ_1" ) {}
@@ -44,10 +37,6 @@ class MyHandler final : public rWorld, public rCameraHandler<float> {
          rWorld( _init ),
          rCameraHandler(this, _init),
          vObject1( "OBJ_1" ),
-         vCameraPos( 0, 0, 0 ),
-         vCameraDirection( 0, 0, -1 ),
-         vCameraUp( 0, 1, 0 ),
-         vCameraLookWorker( 0, 0, 0 ),
          vInitPointer( _init ) {
          slotWindowClose.setFunc( &MyHandler::windowClose, this );
          slotResize.setFunc( &MyHandler::resize, this );

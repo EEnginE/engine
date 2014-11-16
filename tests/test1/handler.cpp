@@ -28,6 +28,8 @@ void MyHandler::mouse( iEventInfo info ) {
             break;
       }
    }
+   
+   if( !getIsCameraEnabled() ) {enableCamera();}
 }
 
 void MyHandler::key( iEventInfo info ) {
@@ -35,8 +37,8 @@ void MyHandler::key( iEventInfo info ) {
       vDisp_RandR = info.iInitPointer->getDisplayResolutions();
 
    char lHex_CSTR[6];
-
-   rVec3f lTemp; // For Camara control
+   
+   if( !getIsCameraEnabled() ) {enableCamera();}
 
    if ( info.eKey.state == E_PRESSED ) {
       switch ( info.eKey.key ) {
@@ -107,15 +109,13 @@ void MyHandler::key( iEventInfo info ) {
 
 int MyHandler::initGL() {
    int lReturn = vObject1.loadData( this );
-   // vInitPointer->grabMouse();
    // vInitPointer->fullScreen( C_ADD );
+   updateCamera();
+   disableCamera(); // Remove the first mouse event
    vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    vInitPointer->hideMouseCursor();
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );
    calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
-   vCameraDirection = vObject1.getPosition();
-   vCameraDirection.normalize();
-   setCamera( vCameraPos, vCameraPos + vCameraDirection, vCameraUp );
    updateCameraSpaceMatrix();
    vObject1.updateUniformsAlways( true );
    vObject1.updateFinalMatrix( true );
