@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include "engine_render_Export.hpp"
 
+#define TOLERANCE 0.001
 
 namespace e_engine {
 
@@ -27,7 +28,12 @@ struct rMatrixData<T, 2, 1> {
    };
 
    void normalize() {
-      T lLength = sqrt( x * x + y * y );
+      T lLength2 = x * x + y * y;
+      
+      if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
+         return; // Nothing to do here
+      
+      T lLength = sqrt( lLength2 );
 
       x /= lLength;
       y /= lLength;
@@ -49,7 +55,12 @@ struct rMatrixData<T, 3, 1> {
    };
 
    void normalize() {
-      T lLength = sqrt( x * x + y * y + z * z );
+      T lLength2 = x * x + y * y + z * z;
+      
+      if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
+         return; // Nothing to do here
+      
+      T lLength = sqrt( lLength2 );
 
       x /= lLength;
       y /= lLength;
@@ -72,7 +83,12 @@ struct rMatrixData<T, 4, 1> {
    };
 
    void normalize() {
-      T lLength = sqrt( x * x + y * y + z * z + w * w );
+      T lLength2 = x * x + y * y + z * z + w * w;
+      
+      if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
+         return; // Nothing to do here
+      
+      T lLength = sqrt( lLength2 );
 
       x /= lLength;
       y /= lLength;

@@ -11,8 +11,6 @@
 #include "defines.hpp"
 #include "engine_render_Export.hpp"
 
-
-
 namespace e_engine {
 
 template<class T> using rMat2 = rMatrix<T, 2, 2>;
@@ -89,47 +87,44 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    T lAngleToUse = DEG_TO_RAD( _angle ) / 2;
    T lSin = sin( lAngleToUse );
 
-   rVec4<T> lFinal( 1, 0, 0, 0 );
-   rVec4<T> lTemp(
-      cos( lAngleToUse ),
-      _axis.x * lSin,
-      _axis.y * lSin,
-      _axis.z * lSin
-   );
+   
+   rVec4<T> lTemp;
+   lTemp.x = _axis.x * lSin;
+   lTemp.y = _axis.y * lSin;
+   lTemp.z = _axis.z * lSin;
+   lTemp.w = cos( lAngleToUse );
+   
+   lTemp.normalize();
+   
+   T x2 = lTemp.x * lTemp.x;
+   T y2 = lTemp.y * lTemp.y;
+   T z2 = lTemp.z * lTemp.z;
+   T xy = lTemp.x * lTemp.y;
+   T xz = lTemp.x * lTemp.z;
+   T yz = lTemp.y * lTemp.z;
+   T wx = lTemp.w * lTemp.x;
+   T wy = lTemp.w * lTemp.y;
+   T wz = lTemp.w * lTemp.z;
 
-   rVectorMath::quaternionMultiplication( lTemp, lFinal, lFinal );
-
-   _out.template get<0, 0>() = 1 - 2 * lFinal.y * lFinal.y - 2 * lFinal.z * lFinal.z;
-   _out.template get<1, 0>() =     2 * lFinal.x * lFinal.y - 2 * lFinal.w * lFinal.z;
-   _out.template get<2, 0>() =     2 * lFinal.x * lFinal.z + 2 * lFinal.w * lFinal.y;
+   _out.template get<0, 0>() = 1 - 2 * y2 - 2 * z2;
+   _out.template get<1, 0>() =     2 * xy - 2 * wz;
+   _out.template get<2, 0>() =     2 * xz + 2 * wy;
    _out.template get<3, 0>() = 0;
 
-   _out.template get<0, 1>() =     2 * lFinal.x * lFinal.y + 2 * lFinal.w * lFinal.z;
-   _out.template get<1, 1>() = 1 - 2 * lFinal.x * lFinal.x - 2 * lFinal.z * lFinal.z;
-   _out.template get<2, 1>() =     2 * lFinal.y * lFinal.z + 2 * lFinal.w * lFinal.x;
+   _out.template get<0, 1>() =     2 * xy + 2 * wz;
+   _out.template get<1, 1>() = 1 - 2 * x2 - 2 * z2;
+   _out.template get<2, 1>() =     2 * yz + 2 * wx;
    _out.template get<3, 1>() = 0;
 
-   _out.template get<0, 2>() =     2 * lFinal.x * lFinal.z - 2 * lFinal.w * lFinal.y;
-   _out.template get<1, 2>() =     2 * lFinal.y * lFinal.z - 2 * lFinal.w * lFinal.x;
-   _out.template get<2, 2>() = 1 - 2 * lFinal.x * lFinal.x - 2 * lFinal.y * lFinal.y;
+   _out.template get<0, 2>() =     2 * xz - 2 * wy;
+   _out.template get<1, 2>() =     2 * yz - 2 * wx;
+   _out.template get<2, 2>() = 1 - 2 * x2 - 2 * y2;
    _out.template get<3, 2>() = 0;
 
    _out.template get<0, 3>() = 0;
    _out.template get<1, 3>() = 0;
    _out.template get<2, 3>() = 0;
    _out.template get<3, 3>() = 1;
-
-#if E_DEBUG_LOGGING
-
-   dLOG(
-      "[MATRIX - rotate] IN:\n"
-      "   _axis:  (", _axis.x, "|", _axis.y, "|", _axis.z, ")\n"
-      "   _angle: ", _angle
-   );
-   _out.print( "[MATRIX - rotate] OUT", 'D' );
-
-#endif
-
 }
 
 template<class T>

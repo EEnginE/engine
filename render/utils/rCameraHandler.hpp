@@ -73,21 +73,30 @@ class rCameraHandler {
          iLOG( "Camera movement enabled" );
       }
 
-      void setKey( KEY_MOVEMENT _key, wchar_t _what );
+      void setCameraKey( KEY_MOVEMENT _key, wchar_t _what );
 
-      void enable()  {vCameraMovementEnabled = true;  iLOG( "Camera movement enabled" );}
-      void disable() {vCameraMovementEnabled = false; iLOG( "Camera movement disabled" );}
+      void enableCamera()  {vCameraMovementEnabled = true;  iLOG( "Camera movement enabled" );}
+      void disableCamera() {vCameraMovementEnabled = false; iLOG( "Camera movement disabled" );}
 
-      bool getIsEnabled()   const {return vCameraMovementEnabled;}
+      void updateCamera();
+
+      bool getIsCameraEnabled()   const {return vCameraMovementEnabled;}
 };
 
 template<class T>
-void rCameraHandler<T>::setKey( KEY_MOVEMENT _key, wchar_t _what ) {
+void rCameraHandler<T>::setCameraKey( KEY_MOVEMENT _key, wchar_t _what ) {
    if ( _key >= __LAST__ || _key < 0 )
       return;
 
    keys[_key] = _what;
 }
+
+template<class T>
+void rCameraHandler<T>::updateCamera() {
+   if ( vCameraMovementEnabled )
+      vWorld->setCamera( vPosition, vPosition + vDirection, vUp );
+}
+
 
 template<class T>
 void rCameraHandler<T>::key( iEventInfo _event ) {
@@ -130,7 +139,7 @@ void rCameraHandler<T>::key( iEventInfo _event ) {
       default: return;
    }
 
-   vWorld->setCamera( vPosition, vPosition + vDirection, vUp );
+   updateCamera();
 }
 
 
@@ -142,7 +151,7 @@ void rCameraHandler<T>::updateDirectionAndUp() {
 
    rVec3<T> lTempRight;
    lTempRight.y = 0;
-   
+
 #ifdef M_PIl
    lTempRight.x = sin( GlobConf.camera.angleHorizontal - ( T )( M_PIl / 2 ) );
    lTempRight.z = cos( GlobConf.camera.angleHorizontal - ( T )( M_PIl / 2 ) );
@@ -150,23 +159,25 @@ void rCameraHandler<T>::updateDirectionAndUp() {
    lTempRight.x = sin( GlobConf.camera.angleHorizontal - ( T )( M_PI / 2 ) );
    lTempRight.z = cos( GlobConf.camera.angleHorizontal - ( T )( M_PI / 2 ) );
 #endif
-   
+
    vUp = rVectorMath::crossProduct( lTempRight, vDirection );
 }
 
 
 template<class T>
 void rCameraHandler<T>::mouse( iEventInfo _event ) {
-   if ( !( _event.iMouse.posX != ( int )( GlobConf.win.width / 2 ) || _event.iMouse.posY != ( int )( GlobConf.win.height / 2 ) ) || !vCameraMovementEnabled )
+   int lDifX = signed( GlobConf.win.width  / 2 ) - _event.iMouse.posX;
+   int lDifY = signed( GlobConf.win.height / 2 ) - _event.iMouse.posY;
+   if ( ( lDifX == 0 && lDifY == 0 ) || !vCameraMovementEnabled )
       return;
 
-   GlobConf.camera.angleHorizontal += GlobConf.camera.mouseSensitivity * ( signed( GlobConf.win.width  / 2 ) - _event.iMouse.posX );
-   GlobConf.camera.angleVertical   += GlobConf.camera.mouseSensitivity * ( signed( GlobConf.win.height / 2 ) - _event.iMouse.posY );
+   GlobConf.camera.angleHorizontal += GlobConf.camera.mouseSensitivity * lDifX;
+   GlobConf.camera.angleVertical   += GlobConf.camera.mouseSensitivity * lDifY;
    vInit->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
 
    updateDirectionAndUp();
 
-   vWorld->setCamera( vPosition, vPosition + vDirection, vUp );
+   updateCamera();
 }
 
 
