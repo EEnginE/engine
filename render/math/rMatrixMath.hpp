@@ -51,7 +51,7 @@ class rMatrixMath {
 
 template<class T>
 void rMatrixMath::scale( T _n, rMat4<T> &_out ) {
-   _out.set2
+   _out.setMat
    (
          _n, 0 , 0,  0,
          0,  _n, 0,  0,
@@ -62,7 +62,7 @@ void rMatrixMath::scale( T _n, rMat4<T> &_out ) {
 
 template<class T>
 void rMatrixMath::scale( const rVec3<T> &_n, rMat4<T> &_out ) {
-   _out.set2
+   _out.setMat
    (
          _n.x, 0 ,   0,    0,
          0,    _n.y, 0,    0,
@@ -73,7 +73,7 @@ void rMatrixMath::scale( const rVec3<T> &_n, rMat4<T> &_out ) {
 
 template<class T>
 void rMatrixMath::translate( const rVec3<T> &_n, rMat4<T> &_out ) {
-   _out.set2
+   _out.setMat
    (
          1, 0, 0,  _n.x,
          0, 1, 0,  _n.y,

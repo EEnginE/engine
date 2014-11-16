@@ -138,6 +138,7 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
 
       int getRowSize()     {return ROWS;}
       int getCollumnSize() {return COLLUMNS;}
+      int getSize()        {return ROWS*COLLUMNS;}
 
       // DTTSEIW = DUMMY_TEMPLATE_THAT_STD_ENABLE_IF_WORKS
       template<class DTTSEIW = void>

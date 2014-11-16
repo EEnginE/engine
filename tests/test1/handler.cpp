@@ -28,6 +28,7 @@ void MyHandler::mouse( iEventInfo info ) {
             break;
       }
 
+#if 0
    if( info.iMouse.posX != (int)( GlobConf.win.width / 2 ) || info.iMouse.posY != (int)( GlobConf.win.height / 2 ) ) {
       dLOG(
       "  DELATA X: ", info.iMouse.posX - signed( GlobConf.win.width  / 2 ),
@@ -35,6 +36,7 @@ void MyHandler::mouse( iEventInfo info ) {
       );
       vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    }
+#endif
 }
 
 void MyHandler::key( iEventInfo info ) {
@@ -216,8 +218,8 @@ void MyHandler::key( iEventInfo info ) {
 
 int MyHandler::initGL() {
    int lReturn = vObject1.loadData( this );
-   vInitPointer->grabMouse();
-   vInitPointer->fullScreen( C_ADD );
+   // vInitPointer->grabMouse();
+   // vInitPointer->fullScreen( C_ADD );
    vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );
    calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );

@@ -123,7 +123,7 @@ int main( int argc, char *argv[] ) {
       GLuint dummy;
       prog.compile( dummy );
 #endif
-
+  
       if( handler.initGL() == 1 )
          start.startMainLoop();
 
@@ -135,6 +135,25 @@ int main( int argc, char *argv[] ) {
    mySHA.selftest();
 #endif
 
+   rMat4f lMatrix;
+   rMatrixMath::translate(rVec3f( 1, 2, 4), lMatrix);
+
+   glm::mat4 lGLM = glm::translate(glm::vec3(1 , 2, 4));
+
+   iLOG( L"\n\nMatrix tests\n============\n" );
+   lMatrix.print( "rMatrix: printed:", 'I' );
+
+   internal::printGLMMat(lGLM, "GLM:", 'I');
+
+   for( size_t i = 0; i < lMatrix.getSize(); ++i ) {
+     dLOG( "rMatrix RAW: ", lMatrix[i] );
+   }
+
+   float *p = &lGLM[0][0];
+   for( size_t i = 0; i < lMatrix.getSize(); ++i ) {
+     dLOG( "GLM RAW: ", *p );
+     ++p;
+   }
 
 //    iLOG( "Credits: "
 //    POINT "Daniel ( Mense ) Mensinger"
