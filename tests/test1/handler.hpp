@@ -12,7 +12,7 @@ using namespace std;
 using namespace e_engine;
 using namespace OS_NAMESPACE;
 
-class MyHandler final : public rWorld {
+class MyHandler final : public rWorld, public rCameraHandler<float> {
       typedef uSlot<void, MyHandler, iEventInfo> _SLOT_;
    private:
       vector<iDisplays> vDisp_RandR;
@@ -34,7 +34,7 @@ class MyHandler final : public rWorld {
 
       iInit  *vInitPointer;
 
-      MyHandler() : rWorld( nullptr ), vObject1( "OBJ_1" ) {}
+      MyHandler() : rWorld( nullptr ), rCameraHandler(nullptr, nullptr), vObject1( "OBJ_1" ) {}
    public:
       _SLOT_ slotWindowClose;
       _SLOT_ slotResize;
@@ -42,6 +42,7 @@ class MyHandler final : public rWorld {
       _SLOT_ slotMouse;
       MyHandler( string _dataRoot, string _meshName, iInit *_init ) :
          rWorld( _init ),
+         rCameraHandler(this, _init),
          vObject1( "OBJ_1" ),
          vCameraPos( 0, 0, 0 ),
          vCameraDirection( 0, 0, -1 ),

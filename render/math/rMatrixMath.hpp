@@ -134,7 +134,7 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
 
 template<class T>
 void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4< T > &_out ) {
-   GLfloat f = ( 1.0f / tan( DEG_TO_RAD( _fofy / 2 ) ) );
+   T f = ( 1.0f / tan( DEG_TO_RAD( _fofy / 2 ) ) );
 
    _out.fill( 0 );
    _out.template get<0, 0>() = f / _aspectRatio;
