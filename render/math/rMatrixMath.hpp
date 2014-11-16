@@ -53,10 +53,10 @@ template<class T>
 void rMatrixMath::scale( T _n, rMat4<T> &_out ) {
    _out.setMat
    (
-         _n, 0 , 0,  0,
-         0,  _n, 0,  0,
-         0,  0,  _n, 0,
-         0,  0,  0,  1
+      _n, 0 , 0,  0,
+      0,  _n, 0,  0,
+      0,  0,  _n, 0,
+      0,  0,  0,  1
    );
 }
 
@@ -64,10 +64,10 @@ template<class T>
 void rMatrixMath::scale( const rVec3<T> &_n, rMat4<T> &_out ) {
    _out.setMat
    (
-         _n.x, 0 ,   0,    0,
-         0,    _n.y, 0,    0,
-         0,    0,    _n.z, 0,
-         0,    0,    0,    1
+      _n.x, 0 ,   0,    0,
+      0,    _n.y, 0,    0,
+      0,    0,    _n.z, 0,
+      0,    0,    0,    1
    );
 }
 
@@ -75,10 +75,10 @@ template<class T>
 void rMatrixMath::translate( const rVec3<T> &_n, rMat4<T> &_out ) {
    _out.setMat
    (
-         1, 0, 0,  _n.x,
-         0, 1, 0,  _n.y,
-         0, 0, 1,  _n.z,
-         0, 0, 0, 1
+      1, 0, 0,  _n.x,
+      0, 1, 0,  _n.y,
+      0, 0, 1,  _n.z,
+      0, 0, 0, 1
    );
 }
 
@@ -91,10 +91,10 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
 
    rVec4<T> lFinal( 1, 0, 0, 0 );
    rVec4<T> lTemp(
-         cos( lAngleToUse ),
-         _axis.x * lSin,
-         _axis.y * lSin,
-         _axis.z * lSin
+      cos( lAngleToUse ),
+      _axis.x * lSin,
+      _axis.y * lSin,
+      _axis.z * lSin
    );
 
    rVectorMath::quaternionMultiplication( lTemp, lFinal, lFinal );
@@ -122,9 +122,9 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
 #if E_DEBUG_LOGGING
 
    dLOG(
-         "[MATRIX - rotate] IN:\n"
-         "   _axis:  (", _axis.x, "|", _axis.y, "|", _axis.z, ")\n"
-         "   _angle: ", _angle
+      "[MATRIX - rotate] IN:\n"
+      "   _axis:  (", _axis.x, "|", _axis.y, "|", _axis.z, ")\n"
+      "   _angle: ", _angle
    );
    _out.print( "[MATRIX - rotate] OUT", 'D' );
 
@@ -142,19 +142,6 @@ void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4
    _out.template get<2, 2>() = ( _farZ + _nearZ ) / ( _nearZ - _farZ );
    _out.template get<3, 2>() = ( 2 * _farZ * _nearZ ) / ( _nearZ - _farZ );
    _out.template get<2, 3>() = -1;
-
-#if E_DEBUG_LOGGING
-
-   dLOG(
-         "[MATRIX - perspective] IN:\n"
-         "   _aspectRatio: ", _aspectRatio, "\n"
-         "   _nearZ:       ", _nearZ,       "\n"
-         "   _farZ:        ", _farZ,        "\n"
-         "   _fofy:        ", _fofy
-   );
-   _out.print( "[MATRIX - perspective] OUT", 'D' );
-
-#endif
 }
 
 template<class T>
@@ -185,33 +172,20 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
    _out.template get<1, 2>() = -f.y;
    _out.template get<2, 2>() = -f.z;
 #ifdef _MSC_VER
-   /*!The following code has to be used in order to be compatible with the MSVC compiler,
-	 as it cannot handle the templates used in rVectorMath::dotProduct correctly and thus crashes.
-	 \todo Fix the problem correctly.
-	*/
-   _out.template get<3, 0>() = -rVectorMath::dotProduct<T, 3>(s, _position);
-   _out.template get<3, 1>() = -rVectorMath::dotProduct<T, 3>(u, _position);
-   _out.template get<3, 2>() = rVectorMath::dotProduct<T, 3>(f, _position);
+   /*!
+    * The following code has to be used in order to be compatible with the MSVC compiler,
+    * as it cannot handle the templates used in rVectorMath::dotProduct correctly and thus crashes.
+    * \todo Fix the problem correctly.
+    */
+   _out.template get<3, 0>() = -rVectorMath::dotProduct<T, 3>( s, _position );
+   _out.template get<3, 1>() = -rVectorMath::dotProduct<T, 3>( u, _position );
+   _out.template get<3, 2>() = rVectorMath::dotProduct<T, 3>( f, _position );
 #else
    _out.template get<3, 0>() = -rVectorMath::dotProduct( s, _position );
-   _out.template get<3, 1>() = -rVectorMath::dotProduct(u, _position);
-   _out.template get<3, 2>() = rVectorMath::dotProduct(f, _position);
-#endif
-
-#if E_DEBUG_LOGGING
-
-   dLOG(
-         "[MATRIX - camera] IN:\n"
-         "   _position: (", _position.x, "|", _position.y, "|", _position.z, ")\n"
-         "   _lookAt:   (", _lookAt.x,   "|", _lookAt.y,   "|", _lookAt.z,   ")\n"
-         "   _upVector: (", _upVector.x, "|", _upVector.y, "|", _upVector.z, ")"
-   );
-   _out.print( "[MATRIX - camera] OUT", 'D' );
-
+   _out.template get<3, 1>() = -rVectorMath::dotProduct( u, _position );
+   _out.template get<3, 2>() = rVectorMath::dotProduct( f, _position );
 #endif
 }
-
-
 
 
 
@@ -220,5 +194,5 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
 }
 
 #endif
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
 

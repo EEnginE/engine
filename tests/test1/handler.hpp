@@ -26,7 +26,7 @@ class MyHandler final : public rWorld {
       GLfloat vCurrentRot;
 
       rVec3f  vCameraPos;
-      rVec3f  vCameraLook;
+      rVec3f  vCameraDirection;
       rVec3f  vCameraUp;
       rVec3f  vCameraLookWorker;
 
@@ -44,7 +44,7 @@ class MyHandler final : public rWorld {
          rWorld( _init ),
          vObject1( "OBJ_1" ),
          vCameraPos( 0, 0, 0 ),
-         vCameraLook( 0, 0, -1 ),
+         vCameraDirection( 0, 0, -1 ),
          vCameraUp( 0, 1, 0 ),
          vCameraLookWorker( 0, 0, 0 ),
          vInitPointer( _init ) {
