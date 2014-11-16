@@ -9,10 +9,6 @@
 #include "rMatrixMath.hpp"
 #include "engine_render_Export.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-
 namespace e_engine {
 
 /*!
@@ -26,10 +22,6 @@ class rMatrixWorldBase {
       rMat4<T>  vProjectionMatrix_MAT;
       rMat4<T>  vCameraMatrix_MAT;
       rMat4<T>  vCameraSpaceMatrix_MAT;
-
-      glm::mat4 vGLM_final;
-      glm::mat4 vGLM_camera;
-      glm::mat4 vGLM_projection;
 
       bool      vNeedCamaraSpaceMatrixUpdate_B;
       bool      vAlwaysUpdateMatrix_B;
@@ -48,44 +40,8 @@ class rMatrixWorldBase {
       inline rMat4<T> *getCameraMatrix()      { return &vCameraMatrix_MAT; }
       inline rMat4<T> *getCameraSpaceMatrix() { return &vCameraSpaceMatrix_MAT; }
 
-      inline glm::mat4 *getCameraSpaceGLM()   { return &vGLM_final; }
-
       inline bool updateCameraSpaceMatrix();
 };
-
-namespace internal {
-
-inline void getRowSTR( float x, std::string &_str ) {
-   static std::string lTempStr;
-   lTempStr = boost::lexical_cast<std::string>( x );
-
-   if( lTempStr.size() < 10 ) {
-      lTempStr.insert( lTempStr.begin(), 10 - lTempStr.size(), ' ' );
-   } else {
-      lTempStr.resize( 10 );
-   }
-
-   _str += lTempStr + " ";
-}
-
-
-inline void printGLMMat( glm::mat4 &_mat, std::string _name, char _type ) {
-   LOG( _type, false, __FILE__, __LINE__, LOG_FUNCTION_NAME, _name, ": " );
-
-   std::string lRowStr;
-
-   for( size_t row = 0; row < 4; ++row ) {
-      lRowStr.clear();
-      for( size_t collumn = 0; collumn < 4; ++collumn ) {
-         getRowSTR( _mat[collumn][row], lRowStr );
-      }
-      LOG( _type, true, __FILE__, __LINE__, LOG_FUNCTION_NAME, "( ", lRowStr, " )" );
-   }
-
-   LOG( _type, true, __FILE__, __LINE__, LOG_FUNCTION_NAME, "" );
-}
-
-}
 
 
 template<class T>
@@ -109,7 +65,6 @@ rMatrixWorldBase<T>::rMatrixWorldBase() {
 template<class T>
 void rMatrixWorldBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vGLM_projection = glm::perspective( _fofy, _aspectRatio, _nearZ, _farZ );
    vNeedCamaraSpaceMatrixUpdate_B = true;
 }
 
@@ -125,7 +80,6 @@ void rMatrixWorldBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nea
 template<class T>
 void rMatrixWorldBase<T>::calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vGLM_projection = glm::perspective( _fofy, _width / _height, _nearZ, _farZ );
    vNeedCamaraSpaceMatrixUpdate_B = true;
 }
 
@@ -139,11 +93,6 @@ void rMatrixWorldBase<T>::calculateProjectionPerspective( T _width, T _height, T
 template<class T>
 void rMatrixWorldBase<T>::setCamera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector ) {
    rMatrixMath::camera( _position, _lookAt, _upVector, vCameraMatrix_MAT );
-   vGLM_camera = glm::lookAt(
-         glm::vec3( _position.x, _position.y, _position.z ),
-         glm::vec3( _lookAt.x, _lookAt.y, _lookAt.z ),
-         glm::vec3( _upVector.x, _upVector.y, _upVector.z )
-         );
    vNeedCamaraSpaceMatrixUpdate_B = true;
 }
 
@@ -164,20 +113,6 @@ bool rMatrixWorldBase<T>::updateCameraSpaceMatrix() {
    vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
    vNeedCamaraSpaceMatrixUpdate_B = false;
 
-#if E_DEBUG_LOGGING
-
-   vCameraMatrix_MAT.print( "[MATRIX - CameraMatrix] OUT", 'I' );
-   internal::printGLMMat( vGLM_camera, "GLM Camera", 'E' );
-
-   vProjectionMatrix_MAT.print( "[MATRIX - ProjectionMatrix] OUT", 'I' );
-   internal::printGLMMat( vGLM_projection, "GLM Projection", 'E' );
-
-   vGLM_final = vGLM_projection * vGLM_camera;
-
-   vCameraSpaceMatrix_MAT.print( "[MATRIX - CameraSoace] OUT", 'I' );
-   internal::printGLMMat( vGLM_final, "GLM CameraSoace", 'E' );
-
-#endif
    return true;
 }
 

@@ -20,24 +20,12 @@ rRenderNormal_3_3::rRenderNormal_3_3( rMat4f *_mat ) {
    vMatrix = _mat;
 }
 
-rRenderNormal_3_3::rRenderNormal_3_3( glm::mat4 *_mat ) {
-   vVertexBufferObj_OGL = 0;
-   vIndexBufferObj_OGL  = 0;
-   vShader_OGL          = 0;
-   vInputLocation_OGL   = 0;
-   vUniformLocation_OGL = 0;
-   vDataSize_uI         = 0;
-
-   vMatGLM = _mat;
-}
-
 
 void rRenderNormal_3_3::render() {
    glUseProgram( vShader_OGL );
 
    if( vNeedUpdateUniforms_B || vAlwaysUpdateUniforms_B ) {
-      glUniformMatrix4fv( vUniformLocation_OGL, 1, false, &vMatGLM->operator[](0)[0] );
-      //      glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix->getMatrix() );
+      glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix->getMatrix() );
       vNeedUpdateUniforms_B = false;
    }
 

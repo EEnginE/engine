@@ -10,11 +10,6 @@
 #include "rRenderNormalOBJBase.hpp"
 #include "engine_render_Export.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-
-
 namespace e_engine {
 
 /*!
@@ -36,12 +31,9 @@ class render_EXPORT rRenderNormal_3_3 : public internal::rRenderNormalOBJBase<fl
       
       rMat4f *vMatrix;
 
-      glm::mat4 *vMatGLM;
-
       rRenderNormal_3_3() {}
    public:
       rRenderNormal_3_3( rMat4f *_mat );
-      rRenderNormal_3_3( glm::mat4 *_mat );
       virtual ~rRenderNormal_3_3() {}
       
       virtual void          render();

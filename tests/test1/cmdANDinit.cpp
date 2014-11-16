@@ -16,8 +16,8 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
       args.push_back( argv[i] );
    }
 
-   GlobConf.win.width           = 800;
-   GlobConf.win.height          = 600;
+   GlobConf.win.width           = 1280;
+   GlobConf.win.height          = 1024;
    GlobConf.win.fullscreen      = false;
    GlobConf.win.windowName      = "Engine Test";
    GlobConf.win.iconName        = "ICON is missing";

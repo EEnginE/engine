@@ -195,8 +195,7 @@ int rNormalObject::loadData( rWorld *_world ) {
 
    switch( chooseRender() ) {
       case render_OGL_3_3_Normal_Basic_1S_1D:
-         //         vRenderer = new rRenderNormal_3_3( getFinalMatrix() );
-         vRenderer = new rRenderNormal_3_3( getFinalGLM() );
+         vRenderer = new rRenderNormal_3_3( getFinalMatrix() );
 
          vShaders[0].getProgram( lTempShaderID );
 
@@ -217,8 +216,6 @@ int rNormalObject::loadData( rWorld *_world ) {
 
 
    setCmaraSpaceMatrix( _world->getCameraSpaceMatrix() );
-   setCameraSpaceMAtrix_GLM( _world->getCameraSpaceGLM() );
-
 
    iLOG( "Loaded data for '", vObjectName, "'" );
 
