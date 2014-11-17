@@ -143,6 +143,8 @@ void rShader::getProgramInfo() {
 
 
 void rShader::getInfoNew() {
+   iLOG( "Querying shader information form ", vPath_str, " [NEW STYLE]" );
+   
    GLenum lInputValues[]   = { GL_NAME_LENGTH, GL_TYPE, GL_ARRAY_SIZE, GL_LOCATION,                    GL_IS_PER_PATCH, GL_LOCATION_COMPONENT };
    GLenum lOutputValues[]  = { GL_NAME_LENGTH, GL_TYPE, GL_ARRAY_SIZE, GL_LOCATION, GL_LOCATION_INDEX, GL_IS_PER_PATCH, GL_LOCATION_COMPONENT };
    GLenum lUniformValues[] = {
@@ -172,6 +174,16 @@ void rShader::getInfoNew() {
    glGetProgramInterfaceiv( vShaderProgram_OGL, GL_PROGRAM_OUTPUT, GL_ACTIVE_RESOURCES, &lNumOfOutouts );
    glGetProgramInterfaceiv( vShaderProgram_OGL, GL_UNIFORM,        GL_ACTIVE_RESOURCES, &lNumOfUniforms );
    glGetProgramInterfaceiv( vShaderProgram_OGL, GL_UNIFORM_BLOCK,  GL_ACTIVE_RESOURCES, &lNumOfUniformBlocks );
+   
+#if E_DEBUG_LOGGING
+   dLOG(
+      "Shader ", vPath_str, ":"
+      "\n  - Number of Inputs:         ", lNumOfInputs,
+      "\n  - Numner of Outputs:        ", lNumOfOutouts,
+      "\n  - Number of Uniforms:       ", lNumOfUniforms,
+      "\n  - Number of Uniform Blocks: ", lNumOfUniformBlocks
+   );
+#endif
    
    // Input
    for( GLint i = 0; i < lNumOfInputs; ++i ) {
@@ -337,10 +349,24 @@ void rShader::getInfoNew() {
 
 void rShader::getInfoOld() {
    // Attributes
+   iLOG( "Querying shader information form ", vPath_str, " [OLD STYLE]" );
+   wLOG( "Using this function may cause render problems" );
 
    int lNumAttributes, lAttribMaxLength;
    glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_ATTRIBUTES,           &lNumAttributes );
    glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &lAttribMaxLength );
+   
+   int lNumUniforms, lUniformMaxLength;
+   glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORMS,           &lNumUniforms );
+   glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORM_MAX_LENGTH, &lUniformMaxLength );
+   
+#if E_DEBUG_LOGGING
+   dLOG(
+      "Shader ", vPath_str, ":"
+      "\n  - Number of Attributes: ", lNumAttributes,
+      "\n  - Number of Uniforms:   ", lNumUniforms
+   );
+#endif
 
    for( int i = 0; i < lNumAttributes; ++i ) {
       char  *lName_CSTR = new char[ lAttribMaxLength ];
@@ -422,10 +448,6 @@ void rShader::getInfoOld() {
 
 
    // Uniforms
-
-   int lNumUniforms, lUniformMaxLength;
-   glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORMS,           &lNumUniforms );
-   glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORM_MAX_LENGTH, &lUniformMaxLength );
 
    for( int i = 0; i < lNumUniforms; ++i ) {
       char  *lName_CSTR = new char[ lUniformMaxLength ];

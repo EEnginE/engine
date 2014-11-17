@@ -1,4 +1,4 @@
-#!/usr/bin/awk -f
+#!/usr/bin/gawk -f
 BEGIN {
     if( ARGC < 2 ) {
         print "ERROR: Usage: <scale> [<files>]"
