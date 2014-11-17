@@ -16,17 +16,17 @@ configure_file(
 
 # Generate FindEngine.cmake
 configure_file(
- "generate/cmake/FindEngine.cmake.in"
- "generate/cmake/FindEngine.cmake"
+ "${PROJECT_SOURCE_DIR}/generate/cmake/FindEngine.cmake.in"
+ "${PROJECT_SOURCE_DIR}/generate/cmake/FindEngine.cmake"
  @ONLY
 )
 
 
 # Also install some usefull cmakefiles
-set(DEPENDENCES generate/cmake/FindEngine.cmake
-                generate/cmake/FindGLEW2.cmake)
+set(DEPENDENCES ${PROJECT_SOURCE_DIR}/generate/cmake/FindEngine.cmake
+                ${PROJECT_SOURCE_DIR}/generate/cmake/FindGLEW2.cmake)
 
-set(OTHER_INC engine.hpp defines.hpp )
+set(OTHER_INC ${PROJECT_SOURCE_DIR}/engine.hpp ${PROJECT_SOURCE_DIR}/defines.hpp )
 
 # The install configuaration
 install( FILES ${DEPENDENCES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/engine)
