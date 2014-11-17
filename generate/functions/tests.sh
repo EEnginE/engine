@@ -51,7 +51,7 @@ EOF
 	cat >> $CMAKE_FILE <<EOF
 
 if( EXISTS config.in.hpp )
-   configure_file("config.in.hpp" "config.hpp")
+   configure_file("config.in.hpp" "\${CMAKE_CURRENT_SOURCE_DIR}/config.hpp")
 endif( EXISTS config.in.hpp )
 
 add_executable( $TEST_NAME \${${TEST_NAME^^}_SRC} \${${TEST_NAME^^}_INC} )
