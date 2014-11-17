@@ -294,7 +294,7 @@ int iContext::createContext() {
          "Found ", lBG_C, lNumberOfPixelFormats_I, lG_C, " pixel format descriptors:\n\n",
          lOFF_C,
          "   |========|=========|=======|=========|=======================|\n", lOFF_C,
-         "   |  ", lBW_C, "ID",      lOFF_C,
+         "   |   ", lBW_C, "ID",      lOFF_C,
          "   | " , lBW_C, "Samples", lOFF_C, " | "  ,  lBW_C, "Depth", lOFF_C,
          " | "   , lBW_C, "Stencil", lOFF_C,
          " |  "  , lBR_C, "R", lOFF_C,
@@ -373,7 +373,7 @@ int iContext::createContext() {
       return 8;
    }
 
-   LOG( _hD, "   |=========|========|=========|=======|=========|=======================|\n\n" );
+   LOG( _hD, "   |========|=========|=======|=========|=======================|\n\n" );
 
    iLOG( "Selected Pixel format descriptor: ", lBestFBConfig_I );
 
@@ -452,9 +452,9 @@ int iContext::createContext() {
    iLOG(
          "Versions:",
          "\n  - Engine: ", lC1_C, E_VERSION_MAJOR , ".", E_VERSION_MINOR, ".", E_VERSION_SUBMINOR, ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ), E_VERSION_GIT,
-         "\n  - OpenGL: ", lC1_C, glGetString( GL_VERSION ),
-         "\n  - GLSL:   ", lC1_C, glGetString( GL_SHADING_LANGUAGE_VERSION ),
-         "\n  - GLEW:   ", lC1_C, glewGetString( GLEW_VERSION )
+         "\n  - OpenGL: ", lC1_C, (char *)glGetString( GL_VERSION ),
+         "\n  - GLSL:   ", lC1_C, (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
+         "\n  - GLEW:   ", lC1_C, (char *)glewGetString( GLEW_VERSION )
    );
 
 

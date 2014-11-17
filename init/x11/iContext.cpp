@@ -88,8 +88,6 @@ iContext::iContext() {
    vIsMouseGrabbed_B = false;
    
    vWindowRecreate_B = false;
-
-   XInitThreads();
 }
 
 
@@ -164,11 +162,11 @@ int iContext::createContext() {
    iLOG(
       "Versions:",
       "\n  - Engine: ", lC1_C, E_VERSION_MAJOR , ".", E_VERSION_MINOR, ".", E_VERSION_SUBMINOR, ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ), E_VERSION_GIT,
-      "\n  - OpenGL: ", lC1_C, glGetString( GL_VERSION ),
-      "\n  - GLSL:   ", lC1_C, glGetString( GL_SHADING_LANGUAGE_VERSION ),
+      "\n  - OpenGL: ", lC1_C, (char *)glGetString( GL_VERSION ),
+      "\n  - GLSL:   ", lC1_C, (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
       "\n  - GLX:    ", lC1_C, vGLXVersionMajor_I, ".", vGLXVersionMinor_I,
       "\n  - X11:    ", lC1_C, vX11VersionMajor_I, ".", vX11VersionMinor_I,
-      "\n  - GLEW:   ", lC1_C, glewGetString( GLEW_VERSION ),
+      "\n  - GLEW:   ", lC1_C, (char *)glewGetString( GLEW_VERSION ),
       "\n  - RandR:  ", lC1_C, lRandRVersionString_str
    );
 
