@@ -5,6 +5,11 @@
 #ifndef R_CAMERA_HANDLER_HPP
 #define R_CAMERA_HANDLER_HPP
 
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+
+#include <math.h>
 #include "rMatrixWorldBase.hpp"
 #include "iInit.hpp"
 #include "uSignalSlot.hpp"
@@ -26,12 +31,12 @@ class rCameraHandler {
          __LAST__
       };
    private:
+      rMatrixWorldBase<T> *vWorld;
+      iInit               *vInit;
+      
       rVec3<T> vPosition;
       rVec3<T> vDirection;
       rVec3<T> vUp;
-
-      rMatrixWorldBase<T> *vWorld;
-      iInit               *vInit;
 
       bool     vCameraMovementEnabled;
 
@@ -51,9 +56,9 @@ class rCameraHandler {
          vWorld( _world ),
          vInit( _init ),
 
-         vCameraMovementEnabled( true ),
-
          vPosition( ( T )0.0, ( T )0.0, ( T )0.0 ),
+         
+         vCameraMovementEnabled( true ),
 
          vMouseSlot( &rCameraHandler::mouse, this ),
          vKeySlot( &rCameraHandler::key, this ) {

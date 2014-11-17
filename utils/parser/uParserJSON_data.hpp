@@ -153,10 +153,11 @@ void uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE _type, T *_pointer, D con
       case JSON_BOOL:   lData = ( void * )&value_bool;  break;
       case JSON_ARRAY:  lData = ( void * )&value_array; break;
       case JSON_OBJECT: lData = ( void * )&value_obj;   break;
-      default: break;
+      default: lData = ( void * )0;
    }
 
-   *_pointer = ( T ) * ( D * )lData; // D must be the right type, because of the macros, while T could be something different
+   if ( lData != 0 )
+      *_pointer = ( T ) * ( D * )lData; // D must be the right type, because of the macros, while T could be something different
 
    _first->_( _first, _args... );
 }
