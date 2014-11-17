@@ -23,6 +23,7 @@
    - Mir and it's headers (not yet supported)
  - Boost v1.48.0 or newer [http://www.boost.org/]
  - GLEW v1.6.0 or newer [http://glew.sourceforge.net/]
+ - gawk - needed for some scripts, mawk wont work!
 
 
 * Installation

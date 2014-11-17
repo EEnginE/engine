@@ -43,20 +43,21 @@ class init_EXPORT iRandR {
 
       std::vector<internal::_crtc>   vChangeCRTC_V_RandR;
 
-      Display                                *vDisplay_X11;             //!< The X11 display      -- set in init(...);
-      Window                                  vWindow_X11;              //!< The X11 window       -- set in init(...);
-      Window                                  vRootWindow_X11;          //!< The X11 root window  -- set in init(...);
+      Display                       *vDisplay_X11;             //!< The X11 display      -- set in init(...);
+      Window                         vWindow_X11;              //!< The X11 window       -- set in init(...);
+      Window                         vRootWindow_X11;          //!< The X11 root window  -- set in init(...);
 
-      XRRScreenResources                     *vResources_XRR;
-      XRRScreenConfiguration                 *vConfig_XRR;
+      XRRScreenResources            *vResources_XRR;
+      XRRScreenConfiguration        *vConfig_XRR;
 
-      unsigned int                            vScreenWidth_uI;
-      unsigned int                            vScreenHeight_uI;
+      unsigned int                   vScreenWidth_uI;
+      unsigned int                   vScreenHeight_uI;
 
-      int                                     vRandRVersionMajor_I;
-      int                                     vRandRVersionMinor_I;
+      int                            vRandRVersionMajor_I;
+      int                            vRandRVersionMinor_I;
 
-      bool                                    vIsRandRSupported_B;
+      bool                           vIsRandRSupported_B;
+      bool                           vWasScreenChanged_B;
 
       bool  reload( bool _overwriteLatest = true, bool _overwriteDefaults = false );
       bool  restore( internal::_config _conf );

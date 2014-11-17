@@ -1,4 +1,4 @@
-#!/usr/bin/awk -f
+#!/usr/bin/gawk -f
 BEGIN {
     if( ARGC < 4 ) {
         print "ERROR: Usage: <moveX> <moveY> <moveZ> [<files>]"
