@@ -50,9 +50,9 @@ EOF
 		
 	cat >> $CMAKE_FILE <<EOF
 
-if( EXISTS config.in.hpp )
-   configure_file("config.in.hpp" "\${CMAKE_CURRENT_SOURCE_DIR}/config.hpp")
-endif( EXISTS config.in.hpp )
+if( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/config.in.hpp )
+   configure_file("\${CMAKE_CURRENT_SOURCE_DIR}/config.in.hpp" "\${CMAKE_CURRENT_SOURCE_DIR}/config.hpp")
+endif( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/config.in.hpp )
 
 add_executable( $TEST_NAME \${${TEST_NAME^^}_SRC} \${${TEST_NAME^^}_INC} )
 
@@ -83,9 +83,9 @@ endif(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
 
 install( TARGETS $TEST_NAME RUNTIME DESTINATION \${CMAKE_INSTALL_PREFIX}/bin )
 
-if( EXISTS data AND IS_DIRECTORY data )
-   install( DIRECTORY data DESTINATION \${CMAKE_INSTALL_PREFIX}/share/engineTests/$TEST_NAME )
-endif( EXISTS data AND IS_DIRECTORY data )
+if( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/data AND IS_DIRECTORY \${CMAKE_CURRENT_SOURCE_DIR}/data )
+   install( DIRECTORY \${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION \${CMAKE_INSTALL_PREFIX}/share/engineTests/$TEST_NAME )
+endif( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/data AND IS_DIRECTORY \${CMAKE_CURRENT_SOURCE_DIR}/data )
 
 EOF
 

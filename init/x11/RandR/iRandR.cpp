@@ -15,15 +15,16 @@ namespace unix_x11 {
  * \brief sets only some basic values.
  */
 iRandR::iRandR() {
-   vIsRandRSupported_B            = false;
+   vIsRandRSupported_B  = false;
    
-   vRandRVersionMajor_I           = -1;
-   vRandRVersionMinor_I           = -1;
+   vRandRVersionMajor_I = -1;
+   vRandRVersionMinor_I = -1;
    
-   vScreenHeight_uI               = 0;
-   vScreenWidth_uI                = 0;
+   vScreenHeight_uI     = 0;
+   vScreenWidth_uI      = 0;
    
-   vDisplay_X11                   = NULL;
+   vDisplay_X11         = NULL;
+   vWasScreenChanged_B  = false;
 }
 
 iRandR::~iRandR() {
@@ -91,7 +92,7 @@ void iRandR::endRandR() {
    if ( ! vIsRandRSupported_B )
       return;
 
-   if ( GlobConf.win.restoreOldScreenRes )
+   if ( GlobConf.win.restoreOldScreenRes && vWasScreenChanged_B )
       restore( vDefaultConfig_RandR );
 
 
