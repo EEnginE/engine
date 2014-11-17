@@ -2,14 +2,14 @@
 
 # Generate defines.hpp
 configure_file(
- "defines.in.hpp"
- "defines.hpp"
+ "${PROJECT_SOURCE_DIR}/defines.in.hpp"
+ "${PROJECT_SOURCE_DIR}/defines.hpp"
 )
 
 # Generate Doxyfile
 configure_file(
- "Doxyfile.in"
- "Doxyfile"
+ "${PROJECT_SOURCE_DIR}/Doxyfile.in"
+ "${PROJECT_SOURCE_DIR}/Doxyfile"
 )
 
 
