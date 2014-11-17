@@ -5,6 +5,8 @@
 /build*
 /Toolchain*.cmake
 
+oglTest.json
+
 # Qt Creator project file
 /CMakeLists.txt.user
 
