@@ -1,0 +1,15 @@
+{
+  "oglTest": {
+    "init": {
+      "canCreateWindow": true,
+      "version": {
+        "major": 4,
+        "minor": 4
+      }
+    },
+    "shader": {
+      "useShaders": true,
+      "queryType": 2
+    }
+  }
+}
