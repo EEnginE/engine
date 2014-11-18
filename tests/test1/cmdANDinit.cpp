@@ -56,6 +56,8 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
 #endif
 
    GlobConf.log.waitUntilLogEntryPrinted = false;
+   
+   vShader = "triangle1";
 
 }
 
@@ -65,18 +67,19 @@ void cmdANDinit::usage() {
    iLOG( "Usage: ", argv0, " [OPTIONS] MODE [BENCHMARK OPTIONS]" );
    iLOG( "" );
    iLOG( "OPTIONS:" );
-   dLOG( "    -h | --help    : show this help message" );
-   dLOG( "    --log=<path>   : set a custom log file path to <path>" );
-   dLOG( "    -w | --wait    : wait until log entry is printed" );
-   dLOG( "    --data=<path>  : set a custom root path for the data dir" );
-   dLOG( "    --mesh=<name>  : set the mesh to render IN the data dir" );
-   dLOG( "    --conf=<path>  : add a config file to parse" );
-   dLOG( "    --glMajor=<v>  : the OpenGL Major version (default: "
+   dLOG( "    -h | --help       : show this help message" );
+   dLOG( "    --log=<path>      : set a custom log file path to <path>" );
+   dLOG( "    -w | --wait       : wait until log entry is printed" );
+   dLOG( "    --data=<path>     : set a custom root path for the data dir" );
+   dLOG( "    --mesh=<name>     : set the mesh to render IN the data dir" );
+   dLOG( "    --shader=<shader> : set the shader to use" );
+   dLOG( "    --conf=<path>     : add a config file to parse" );
+   dLOG( "    --glMajor=<v>     : the OpenGL Major version (default: "
          ,  GlobConf.versions.glMajorVersion, ")" );
-   dLOG( "    --glMinor=<v>  : the OpenGL Major version (default: "
+   dLOG( "    --glMinor=<v>     : the OpenGL Major version (default: "
          ,  GlobConf.versions.glMinorVersion, ")" );
-   dLOG( "    -n | --nocolor : disable colored output" );
-   dLOG( "    -c | --color   : enabel colored output" );
+   dLOG( "    -n | --nocolor    : disable colored output" );
+   dLOG( "    -c | --color      : enabel colored output" );
 }
 
 
@@ -141,6 +144,15 @@ bool cmdANDinit::parseArgsAndInit() {
          boost::regex lDataRegexRep( "^\\-\\-mesh=" );
          const char *lRep = "";
          meshToRender = boost::regex_replace( arg, lDataRegexRep, lRep );
+         continue;
+      }
+      
+      
+      boost::regex lShaderRegex( "^\\-\\-shader=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if( boost::regex_match( arg, lShaderRegex ) ) {
+         boost::regex lDataRegexRep( "^\\-\\-shader=" );
+         const char *lRep = "";
+         vShader = boost::regex_replace( arg, lDataRegexRep, lRep );
          continue;
       }
 
