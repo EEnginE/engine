@@ -14,6 +14,8 @@
 #include "uLog.hpp"
 #include "uFileIO.hpp"
 
+#define DO_NOT_FAIL_PARSING 1
+
 namespace e_engine {
 
 rLoader_3D_f_OBJ::rLoader_3D_f_OBJ() {
@@ -63,8 +65,12 @@ void rLoader_3D_f_OBJ::unLoad() {
    vIsDataLoaded_B = false;
    vData.vVertexData.clear();
    vData.vVertexData.resize( 0 );
-   vData.vIndexData.clear();
-   vData.vIndexData.resize( 0 );
+   vData.vNormalesData.clear();
+   vData.vNormalesData.resize( 0 );
+   vData.vIndexVertexData.clear();
+   vData.vIndexVertexData.resize( 0 );
+   vData.vIndexNormalData.clear();
+   vData.vIndexNormalData.resize( 0 );
 }
 
 
@@ -119,27 +125,44 @@ struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
 #endif
 
       start     =
-            +( *ascii::space >>
-                  ( qi::lit( "v" ) >> +space
-                        >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
-                        >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
-                        >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
+         +( *ascii::space >>
+            ( qi::lit( "v" ) >> +space
+              >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
+              >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
+              >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
+              
+              ( qi::lit( "vt" ) >> +space
+              >> float_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> +space
+              >> float_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
+              
+              ( qi::lit( "vn" ) >> +space
+              >> float_[push_back( at_c<2>( spirit::_val ), spirit::_1 )] >> +space
+              >> float_[push_back( at_c<2>( spirit::_val ), spirit::_1 )] >> +space
+              >> float_[push_back( at_c<2>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
 
-                  ( qi::lit( "f" ) >> +space
-                        >> uint_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> +space
-                        >> uint_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> +space
-                        >> uint_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> *space >> '\n' )  |
+            ( qi::lit( "f" ) >> +space
+              >> uint_[push_back( at_c<3>( spirit::_val ), spirit::_1 )]
+              >> -( qi::lit( "/" ) >> -uint_[push_back( at_c<4>( spirit::_val ), spirit::_1 )] >> -( qi::lit( "/" ) >> uint_[push_back( at_c<5>( spirit::_val ), spirit::_1 )] ) )
+              >> +space
 
-                  objName   |
-                  groupName |
-                  mtllib    |
-                  comment   |
-                  usemtl    |
-                  smooth
+              >> uint_[push_back( at_c<3>( spirit::_val ), spirit::_1 )]
+              >> -( qi::lit( "/" ) >> -uint_[push_back( at_c<4>( spirit::_val ), spirit::_1 )] >> -( qi::lit( "/" ) >> uint_[push_back( at_c<5>( spirit::_val ), spirit::_1 )] ) )
+              >> +space
+
+              >> uint_[push_back( at_c<3>( spirit::_val ), spirit::_1 )]
+              >> -( qi::lit( "/" ) >> -uint_[push_back( at_c<4>( spirit::_val ), spirit::_1 )] >> -( qi::lit( "/" ) >> uint_[push_back( at_c<5>( spirit::_val ), spirit::_1 )] ) )
+              >> *space >> '\n' )  |
+
+            objName   |
+            groupName |
+            mtllib    |
+            comment   |
+            usemtl    |
+            smooth
 #if DO_NOT_FAIL_PARSING
-                  | other
+            | other
 #endif
-             );
+          );
 
    }
 
@@ -172,12 +195,12 @@ struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
  * \returns 6 if already loaded
  */
 int rLoader_3D_f_OBJ::load() {
-   if( vIsDataLoaded_B )
+   if ( vIsDataLoaded_B )
       return 6;
 
    uFileIO lFile( vFilePath_str );
    int lRet = lFile();
-   if( lRet != 1 ) return lRet;
+   if ( lRet != 1 ) return lRet;
 
    objGrammar_float<uFileIO::C_ITERATOR> lGrammar;
 
@@ -185,11 +208,11 @@ int rLoader_3D_f_OBJ::load() {
    uFileIO::C_ITERATOR lEndIter   = lFile.end();
    bool lReturn = qi::parse( lStartIter, lEndIter, lGrammar, vData );
 
-   if( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
+   if ( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
       eLOG( "Failed to parse '", vFilePath_str, "'" );
       return 2;
    }
-
+      
    vIsDataLoaded_B = true;
 
    return 1;
@@ -203,5 +226,5 @@ int rLoader_3D_f_OBJ::load() {
 
 
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
 

@@ -1,6 +1,7 @@
 oglTestBind.hpp
 oglTestBind.cpp
 data/mesh_f.obj
+data/mesh-normal_f.obj
 data/mesh2_f.obj
 data/blender_monkey_f.obj
 data/e-engine_f.obj

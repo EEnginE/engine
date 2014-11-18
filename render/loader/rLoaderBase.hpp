@@ -14,8 +14,13 @@ namespace internal {
 
 template<class T>
 struct _3D_Data {
-   std::vector<T> vVertexData;
-   std::vector<GLuint>  vIndexData;
+   std::vector<T>      vVertexData;
+   std::vector<T>      vTextureData;
+   std::vector<T>      vNormalesData;
+
+   std::vector<GLuint> vIndexVertexData;
+   std::vector<GLuint> vIndexTextureData;
+   std::vector<GLuint> vIndexNormalData;
 };
 
 typedef _3D_Data<GLfloat>  _3D_DataF;
@@ -28,7 +33,12 @@ class rLoader_3D_Base {
 
    public:
       std::vector<GLfloat> *getRawVertexData();
-      std::vector<GLuint>  *getRawIndexData();
+      std::vector<GLfloat> *getRawTextureData();
+      std::vector<GLfloat> *getRawNormalData();
+      
+      std::vector<GLuint>  *getRawIndexVertexData();
+      std::vector<GLuint>  *getRawIndexTextureData();
+      std::vector<GLuint>  *getRawIndexNormalData();
 };
 
 /*!
@@ -41,12 +51,51 @@ std::vector< GLfloat > *rLoader_3D_Base<T>::getRawVertexData() {
 }
 
 /*!
+ * \brief Gets the raw vertex data pointer
+ * \returns The raw vertex data pointer
+ */
+template<class T>
+std::vector< GLfloat > *rLoader_3D_Base<T>::getRawTextureData() {
+   return &vData.vTextureData;
+}
+
+
+/*!
+ * \brief Gets the raw vertex data pointer
+ * \returns The raw vertex data pointer
+ */
+template<class T>
+std::vector< GLfloat > *rLoader_3D_Base<T>::getRawNormalData() {
+   return &vData.vNormalesData;
+}
+
+
+
+/*!
  * \brief Gets the raw vertex index pointer
  * \returns The raw vertex index pointer
  */
 template<class T>
-std::vector< GLuint > *rLoader_3D_Base<T>::getRawIndexData() {
-   return &vData.vIndexData;
+std::vector< GLuint > *rLoader_3D_Base<T>::getRawIndexVertexData() {
+   return &vData.vIndexVertexData;
+}
+
+/*!
+ * \brief Gets the raw vertex index pointer
+ * \returns The raw vertex index pointer
+ */
+template<class T>
+std::vector< GLuint > *rLoader_3D_Base<T>::getRawIndexTextureData() {
+   return &vData.vIndexTextureData;
+}
+
+/*!
+ * \brief Gets the raw normal index pointer
+ * \returns The raw normal index pointer
+ */
+template<class T>
+std::vector< GLuint > *rLoader_3D_Base<T>::getRawIndexNormalData() {
+   return &vData.vIndexNormalData;
 }
 
 
@@ -57,7 +106,12 @@ std::vector< GLuint > *rLoader_3D_Base<T>::getRawIndexData() {
 BOOST_FUSION_ADAPT_STRUCT(
       e_engine::internal::_3D_DataF,
       ( std::vector<GLfloat>, vVertexData )
-      ( std::vector<GLuint>,  vIndexData )
+      ( std::vector<GLfloat>, vTextureData )
+      ( std::vector<GLfloat>, vNormalesData )
+      
+      ( std::vector<GLuint>,  vIndexVertexData )
+      ( std::vector<GLuint>,  vIndexTextureData )
+      ( std::vector<GLuint>,  vIndexNormalData )
 )
 
 #endif // R_LOADER_BASE_HPP
