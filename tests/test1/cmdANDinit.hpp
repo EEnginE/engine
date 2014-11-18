@@ -14,6 +14,7 @@ class cmdANDinit {
       string         argv0;
       string         dataRoot;
       string         meshToRender;
+      string         vShader;
       
       uJSON_data     vData_JSON;
 
@@ -27,8 +28,8 @@ class cmdANDinit {
    public:
       cmdANDinit( int argc, char *argv[] );
 
-      string getDataRoot() const {return dataRoot;}
-      string getMesh()     const {return meshToRender;}
+      string getMesh()     const {return dataRoot + meshToRender;}
+      string getShader()   const {return dataRoot + string( "shaders/" ) + vShader;}
 
       bool parseArgsAndInit();
 

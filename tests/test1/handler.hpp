@@ -4,6 +4,7 @@
  */
 
 #include <engine.hpp>
+#include "cmdANDinit.hpp"
 
 #ifndef HANDLER_HPP
 #define HANDLER_HPP
@@ -16,8 +17,6 @@ class MyHandler final : public rWorld, public rCameraHandler<float> {
       typedef uSlot<void, MyHandler, iEventInfo> _SLOT_;
    private:
       vector<iDisplays> vDisp_RandR;
-
-      string  vDataRoot_str;
 
       rNormalObject vObject1;
 
@@ -33,7 +32,7 @@ class MyHandler final : public rWorld, public rCameraHandler<float> {
       _SLOT_ slotResize;
       _SLOT_ slotKey;
       _SLOT_ slotMouse;
-      MyHandler( string _dataRoot, string _meshName, iInit *_init ) :
+      MyHandler( cmdANDinit &_cmd, iInit *_init ) :
          rWorld( _init ),
          rCameraHandler(this, _init),
          vObject1( "OBJ_1" ),
@@ -43,12 +42,11 @@ class MyHandler final : public rWorld, public rCameraHandler<float> {
          slotKey.setFunc( &MyHandler::key, this );
          slotMouse.setFunc( &MyHandler::mouse, this );
 
-         vDataRoot_str = _dataRoot;
          vAlpha        = 1;
          vCurrentRot   = 0;
 
-         vObject1.addData( vDataRoot_str + _meshName );
-         vObject1.addShader( vDataRoot_str + "shaders/triangle1" );
+         vObject1.addData( _cmd.getMesh() );
+         vObject1.addShader( _cmd.getShader() );
       }
       ~MyHandler();
       void windowClose( iEventInfo info ) {
