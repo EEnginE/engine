@@ -172,9 +172,9 @@ int rNormalObject::loadData( rWorld *_world ) {
             glBufferData( GL_ARRAY_BUFFER,         sizeof( GLfloat ) * lLoader.getRawVertexData()->size(), &lLoader.getRawVertexData()->at( 0 ), GL_STATIC_DRAW );
 
             glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObjects[lCounter] );
-            glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint ) * lLoader.getRawIndexData()->size(),   &lLoader.getRawIndexData()->at( 0 ), GL_STATIC_DRAW );
+            glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint ) * lLoader.getRawIndexVertexData()->size(),   &lLoader.getRawIndexVertexData()->at( 0 ), GL_STATIC_DRAW );
 
-            lIndexSize.emplace_back( lLoader.getRawIndexData()->size() );
+            lIndexSize.emplace_back( lLoader.getRawIndexVertexData()->size() );
             lLoader.unLoad();
             break;
          case AUTODETECT:

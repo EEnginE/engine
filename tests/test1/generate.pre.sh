@@ -11,6 +11,9 @@ echo "INFO:      -- Generating oglTestBind.hpp and oglTestBind.cpp"
 echo "INFO:      -- Generating data/mesh_f.obj"
 ../../tools/objFaceShift.awk -1 ./data/mesh.obj           | ../../tools/objScale.awk 0.675 > ./data/mesh_f.obj
 
+echo "INFO:      -- Generating data/mesh-normal_f.obj"
+../../tools/objFaceShift.awk -1 ./data/mesh-normal.obj    | ../../tools/objScale.awk 0.675 > ./data/mesh-normal_f.obj
+
 echo "INFO:      -- Generating data/mesh2_f.obj"
 ../../tools/objFaceShift.awk -1 ./data/mesh2.obj          | ../../tools/objScale.awk 0.685 > ./data/mesh2_f.obj
 
