@@ -44,7 +44,7 @@ void rRenderNormal_3_3::render() {
  *
  * \warning If no data is set a render() can result in undefined behavior
  *
- * \note you can delete / free the data calling this function
+ * \note you can delete / free the data after calling this function
  *
  * \param[in] _data An array of data
  *

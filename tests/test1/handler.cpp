@@ -30,6 +30,9 @@ void MyHandler::mouse( iEventInfo info ) {
    }
    
    if( !getIsCameraEnabled() ) {enableCamera();}
+   
+   // We need to update the matrixes here now.
+   vObject1.updateFinalMatrix();
 }
 
 void MyHandler::key( iEventInfo info ) {
@@ -92,8 +95,11 @@ void MyHandler::key( iEventInfo info ) {
          case L'a':
          case L's':
          case L'd':
-         case L'q':
-         case L'e': break;
+         case L'q': 
+         case L'e':
+            // We need to update the matrixes here now.
+            vObject1.updateFinalMatrix();
+            break;
 
          default:
 #ifdef _MSC_VER
@@ -118,7 +124,7 @@ int MyHandler::initGL() {
    calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
    updateCameraSpaceMatrix();
    vObject1.updateUniformsAlways( true );
-   vObject1.updateFinalMatrix( true );
+   vObject1.updateFinalMatrix();
    return lReturn;
 }
 

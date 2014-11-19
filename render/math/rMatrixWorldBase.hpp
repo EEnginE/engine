@@ -23,9 +23,6 @@ class rMatrixWorldBase {
       rMat4<T>  vCameraMatrix_MAT;
       rMat4<T>  vCameraSpaceMatrix_MAT;
 
-      bool      vNeedCamaraSpaceMatrixUpdate_B;
-      bool      vAlwaysUpdateMatrix_B;
-
    public:
       rMatrixWorldBase();
 
@@ -34,13 +31,11 @@ class rMatrixWorldBase {
 
       inline void setCamera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector );
 
-      inline void alwaysUpdateMatrix( bool _doItAlways = true ) { vAlwaysUpdateMatrix_B = _doItAlways; }
-
       inline rMat4<T> *getProjectionMatrix()  { return &vProjectionMatrix_MAT; }
       inline rMat4<T> *getCameraMatrix()      { return &vCameraMatrix_MAT; }
       inline rMat4<T> *getCameraSpaceMatrix() { return &vCameraSpaceMatrix_MAT; }
 
-      inline bool updateCameraSpaceMatrix();
+      void updateCameraSpaceMatrix();
 };
 
 
@@ -50,8 +45,7 @@ rMatrixWorldBase<T>::rMatrixWorldBase() {
    vCameraMatrix_MAT.toIdentityMatrix();
    vCameraSpaceMatrix_MAT.toIdentityMatrix();
 
-   vNeedCamaraSpaceMatrixUpdate_B = true;
-   vAlwaysUpdateMatrix_B          = false;
+   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
 }
 
 /*!
@@ -65,7 +59,7 @@ rMatrixWorldBase<T>::rMatrixWorldBase() {
 template<class T>
 void rMatrixWorldBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vNeedCamaraSpaceMatrixUpdate_B = true;
+   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
 }
 
 /*!
@@ -80,7 +74,7 @@ void rMatrixWorldBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nea
 template<class T>
 void rMatrixWorldBase<T>::calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vNeedCamaraSpaceMatrixUpdate_B = true;
+   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
 }
 
 /*!
@@ -93,7 +87,7 @@ void rMatrixWorldBase<T>::calculateProjectionPerspective( T _width, T _height, T
 template<class T>
 void rMatrixWorldBase<T>::setCamera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector ) {
    rMatrixMath::camera( _position, _lookAt, _upVector, vCameraMatrix_MAT );
-   vNeedCamaraSpaceMatrixUpdate_B = true;
+   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
 }
 
 
@@ -101,19 +95,11 @@ void rMatrixWorldBase<T>::setCamera( const rVec3< T > &_position, const rVec3< T
 /*!
  * \brief Updates the camera-space-matrix
  *
- * This should be done once before rendering a frame
- *
- * \returns true - if matrix was updated and false if not
+ * \returns nothing
  */
 template<class T>
-bool rMatrixWorldBase<T>::updateCameraSpaceMatrix() {
-   if( !vNeedCamaraSpaceMatrixUpdate_B && !vAlwaysUpdateMatrix_B )
-      return false;
-
+void rMatrixWorldBase<T>::updateCameraSpaceMatrix() {
    vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
-   vNeedCamaraSpaceMatrixUpdate_B = false;
-
-   return true;
 }
 
 

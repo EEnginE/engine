@@ -63,8 +63,7 @@ class MyHandler final : public rWorld, public rCameraHandler<float> {
 
       int initGL();
 
-      virtual void renderFrame( bool _wasCameraSpaceMatrixUpdated ) {
-         vObject1.updateFinalMatrix( _wasCameraSpaceMatrixUpdated );
+      virtual void renderFrame() {
          vObject1.render();
       }
 
