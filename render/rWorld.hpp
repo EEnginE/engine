@@ -63,7 +63,7 @@ class render_EXPORT rWorld : public rMatrixWorldBase<float> {
    public:
       void setInitObj( iInit *_init );
 
-      virtual void renderFrame( bool ) = 0;
+      virtual void renderFrame() = 0;
 
       void updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
       void updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );

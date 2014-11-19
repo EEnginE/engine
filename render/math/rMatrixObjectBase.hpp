@@ -25,9 +25,8 @@ class rMatrixObjectBase {
 
       rMat4<T> *vCameraSpaceMatrix_MAT;
 
+      rMat4<T>  vObjectSpaceMatrix_MAT;
       rMat4<T>  vFinalMatrix_MAT;
-
-      bool      vNeedMatrixUpdate_B;
 
    public:
       rMatrixObjectBase();
@@ -48,11 +47,12 @@ class rMatrixObjectBase {
       inline rMat4<T> *getScaleMatrix()       { return &vScaleMatrix_MAT; }
       inline rMat4<T> *getRotationMatrix()    { return &vRotationMatrix_MAT; }
       inline rMat4<T> *getTranslationMatrix() { return &vTranslationMatrix_MAT; }
+      inline rMat4<T> *getObjectSpaceMatrix() { return &vObjectSpaceMatrix_MAT; }
       inline rMat4<T> *getFinalMatrix()       { return &vFinalMatrix_MAT; }
 
       inline void setCmaraSpaceMatrix( rMat4<T> *_mat ) { vCameraSpaceMatrix_MAT = _mat; }
 
-      inline void updateFinalMatrix( bool _forceUpdate );
+      inline void updateFinalMatrix();
 };
 
 template<class T>
@@ -65,7 +65,11 @@ rMatrixObjectBase<T>::rMatrixObjectBase() {
 
    vCameraSpaceMatrix_MAT = nullptr;
 
-   vNeedMatrixUpdate_B = true;
+
+   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   
+   if( vCameraSpaceMatrix_MAT )
+      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
 
 template<class T>
@@ -76,7 +80,11 @@ void rMatrixObjectBase<T>::setScale( T _scale ) {
       0     , 0     , _scale, 0,
       0     , 0     , 0     , 1
    );
-   vNeedMatrixUpdate_B = true;
+
+   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   
+   if( vCameraSpaceMatrix_MAT )
+      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
 
 template<class T>
@@ -87,7 +95,11 @@ void rMatrixObjectBase<T>::setScale( const rVec3< T > &_scale ) {
       0       , 0       , _scale.z, 0,
       0       , 0       , 0       , 1
    );
-   vNeedMatrixUpdate_B = true;
+
+   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   
+   if( vCameraSpaceMatrix_MAT )
+      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
 
 template<class T>
@@ -105,13 +117,17 @@ void rMatrixObjectBase<T>::addScaleDelta( const rVec3< T > &_scale ) {
       0                                  , 0                                   , vScaleMatrix_MAT( 2, 2 ) + _scale.z, 0,
       0                                  , 0                                   , 0                                  , 1
    );
-   vNeedMatrixUpdate_B = true;
+
+   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   
+   if( vCameraSpaceMatrix_MAT )
+      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
 
 template<class T>
 void rMatrixObjectBase<T>::setRotation( const rVec3< T > &_axis, T _angle ) {
    rMatrixMath::rotate( _axis, _angle, vRotationMatrix_MAT );
-   vNeedMatrixUpdate_B = true;
+
 }
 
 
@@ -124,7 +140,11 @@ void rMatrixObjectBase<T>::setPosition( const rVec3< T > &_pos ) {
          0, 0, 1, _pos.z,
          0, 0, 0, 1
       );
-   vNeedMatrixUpdate_B = true;
+
+   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   
+   if( vCameraSpaceMatrix_MAT )
+      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
 
 template<class T>
@@ -143,17 +163,18 @@ void rMatrixObjectBase<T>::addPositionDelta( const rVec3< T > &_pos ) {
          0, 0, 1, vTranslationMatrix_MAT.template get<3, 2>() + _pos.z,
          0, 0, 0, 1
       );
-   vNeedMatrixUpdate_B = true;
+
+   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   
+   if( vCameraSpaceMatrix_MAT )
+      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
 
 
 template<class T>
-void rMatrixObjectBase<T>::updateFinalMatrix( bool _forceUpdate ) {
-   if( vCameraSpaceMatrix_MAT == nullptr || ( !_forceUpdate && !vNeedMatrixUpdate_B ) )
-      return;
-
-   vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
-   vNeedMatrixUpdate_B = false;
+void rMatrixObjectBase<T>::updateFinalMatrix() {
+   if( vCameraSpaceMatrix_MAT )
+      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
 
 
