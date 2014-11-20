@@ -1,3 +1,5 @@
+#!SHIFT: -1
+#!SCALE: 10
 # Blender v2.69 (sub 0) OBJ File: ''
 # www.blender.org
 mtllib town.mtl
