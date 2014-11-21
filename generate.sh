@@ -52,10 +52,9 @@ STARTDIR="$PWD"
 
 
 # Make sure we are in the engine root directory
-CD_TO_THIS_DIR="$( dirname $0 )"
-
-if [ -d $CD_TO_THIS_DIR ]; then
-    cd $CD_TO_THIS_DIR
+export ENGINE_ROOT=$(readlink -m $(dirname $0))
+if [ -d $ENGINE_ROOT ]; then
+    cd $ENGINE_ROOT
 fi
 
 parseCFG() {
@@ -147,6 +146,11 @@ parseCFG() {
     
 
 rm_save() {
+    if [[ $1 == *'*'* ]]; then
+        echo "INFO: Removing $1: Files removed"
+        rm -rf $1
+        exit 0
+    fi
     if [ -e $1 ]; then
         if [ -d $1 ]; then
             echo "INFO: Removing $1: Directory removed"
@@ -180,7 +184,7 @@ clean() {
        rm_save $I/CMakeLists.txt
        if [ -f $I/.gitignore ]; then
           for J in $( cat $I/.gitignore ); do
-             rm_save $I/$J
+             rm_save "$I/$J"
           done
        fi
     done
