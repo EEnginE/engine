@@ -8,7 +8,6 @@
 
 #include "iRandR_structs.hpp"
 #include "iDisplays.hpp"
-#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
@@ -31,7 +30,7 @@ namespace unix_x11 {
  * \todo Add subpixel order support -- internal::_output::subpixel_order
  * \todo Add mode flags support -- internal::_mode::modeFlags
  */
-class init_EXPORT iRandR {
+class iRandR {
 
    private:
       std::vector<internal::_crtc>   vCRTC_V_RandR;            //!< all current CRTC ( Data saved in \c internal::_crtc )

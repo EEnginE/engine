@@ -8,13 +8,12 @@
 
 #include <X11/extensions/Xrandr.h>
 #include "iDisplayBasic.hpp"
-#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
 namespace unix_x11 {
 
-class init_EXPORT iRandR;
+class iRandR;
 
 /*!
  * \brief Contains information about the current Display
@@ -27,7 +26,7 @@ class init_EXPORT iRandR;
  * \note To apply the changes made here, you must call iRandR::setDisplaySizes()
  *       first and then iRandR::applyNewSettings()
  */
-class init_EXPORT iDisplays : public iDisplayBasic {
+class iDisplays : public iDisplayBasic {
    private:
       //! \brief internal structure for storing important mode information.
       struct mode : mode_basic {

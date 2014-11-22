@@ -375,7 +375,7 @@ int iContext::createWindow() {
 // Create OpenGL Context ###################################################################################################### ###
 // Error handler for the X-Server so it doesn't exit the program
 static bool gContextErrorOccoured_B = false;
-static init_EXPORT int contextERROR_HANDLE(Display *dpy, XErrorEvent *event) {
+static int contextERROR_HANDLE(Display *dpy, XErrorEvent *event) {
    gContextErrorOccoured_B = true;
    return 0;
 }
