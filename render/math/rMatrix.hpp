@@ -29,10 +29,10 @@ struct rMatrixData<T, 2, 1> {
 
    void normalize() {
       T lLength2 = x * x + y * y;
-      
+
       if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
          return; // Nothing to do here
-      
+
       T lLength = sqrt( lLength2 );
 
       x /= lLength;
@@ -56,10 +56,10 @@ struct rMatrixData<T, 3, 1> {
 
    void normalize() {
       T lLength2 = x * x + y * y + z * z;
-      
+
       if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
          return; // Nothing to do here
-      
+
       T lLength = sqrt( lLength2 );
 
       x /= lLength;
@@ -84,10 +84,10 @@ struct rMatrixData<T, 4, 1> {
 
    void normalize() {
       T lLength2 = x * x + y * y + z * z + w * w;
-      
+
       if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
          return; // Nothing to do here
-      
+
       T lLength = sqrt( lLength2 );
 
       x /= lLength;
@@ -122,7 +122,7 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
       // Tell the compiler that we are using templates and can access this:
       using internal::rMatrixData<TYPE, ROWS, COLLUMNS>::vDataMat;
 
-      rMatrix()             {fill( 0 );}
+      rMatrix()             {}
       rMatrix( TYPE &_f )   {fill( std::forward<TYPE>( _f ) );}
       rMatrix( TYPE && _f ) {fill( _f );}
       rMatrix( TYPE *_f );

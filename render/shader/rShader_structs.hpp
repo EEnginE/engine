@@ -1,6 +1,11 @@
+/*!
+ * \file rShader_structs.hpp
+ */
+
 #ifndef R_LINKER_STRUCTS_HPP
 #define R_LINKER_STRUCTS_HPP
 
+#include <GL/glew.h>
 #include <string>
 #include <vector>
 #include "engine_render_Export.hpp"

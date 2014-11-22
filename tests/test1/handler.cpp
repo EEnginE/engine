@@ -14,34 +14,11 @@
 MyHandler::~MyHandler() {}
 
 
-void MyHandler::mouse( iEventInfo info ) {
-   if ( info.iMouse.button <= E_MOUSE_6 ) { // We dont want move events and etc.
-      switch ( info.iMouse.button ) {
-         case E_MOUSE_LEFT:
-            vObject1.setRotation( rVec3f( 0, 1, 1 ), ++vCurrentRot );
-            break;
-         case E_MOUSE_RIGHT:
-            vObject1.setRotation( rVec3f( 0, 1, 1 ), --vCurrentRot );
-            break;
-         default:
-            iLOG( "Button ", info.iMouse.state == E_PRESSED ? "pressed:  '" : "released: '", ( uint16_t )info.iMouse.button, "'" );
-            break;
-      }
-   }
-   
-   if( !getIsCameraEnabled() ) {enableCamera();}
-   
-   // We need to update the matrixes here now.
-   vObject1.updateFinalMatrix();
-}
-
 void MyHandler::key( iEventInfo info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.iInitPointer->getDisplayResolutions();
 
    char lHex_CSTR[6];
-   
-   if( !getIsCameraEnabled() ) {enableCamera();}
 
    if ( info.eKey.state == E_PRESSED ) {
       switch ( info.eKey.key ) {
@@ -90,15 +67,7 @@ void MyHandler::key( iEventInfo info ) {
             // Quit
          case L'Q':
          case E_KEY_ESCAPE: info.iInitPointer->closeWindow(); break;
-         
-         case L'w':
-         case L'a':
-         case L's':
-         case L'd':
-         case L'q': 
-         case L'e':
-            // We need to update the matrixes here now.
-            vObject1.updateFinalMatrix();
+
             break;
 
          default:
@@ -114,17 +83,11 @@ void MyHandler::key( iEventInfo info ) {
 
 
 int MyHandler::initGL() {
-   int lReturn = vObject1.loadData( this );
    // vInitPointer->fullScreen( C_ADD );
-   updateCamera();
-   disableCamera(); // Remove the first mouse event
+   int lReturn = vScene.init();
+
    vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    vInitPointer->hideMouseCursor();
-   vObject1.setPosition( rVec3f( 0, 0, -5 ) );
-   calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
-   updateCameraSpaceMatrix();
-   vObject1.updateUniformsAlways( true );
-   vObject1.updateFinalMatrix();
    return lReturn;
 }
 

@@ -190,54 +190,6 @@ void rWorld::updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a ) 
    vClearColor.a             = _a;
 }
 
-// void rWorld::calculatePerspective( GLfloat _aspactRatio, GLfloat _nearZ, GLfloat _farZ, GLfloat _fofy ) {
-//    GLfloat f = ( 1.0f / tan( degToRad( _fofy / 2 ) ) );
-// 
-//    vProjectionMatrix_MAT.fill( 0 );
-//    vProjectionMatrix_MAT.set( 0, 0, f / _aspactRatio );
-//    vProjectionMatrix_MAT.set( 1, 1, f );
-//    vProjectionMatrix_MAT.set( 2, 2, ( _farZ + _nearZ ) / ( _nearZ - _farZ ) );
-//    vProjectionMatrix_MAT.set( 3, 2, ( 2 * _farZ * _nearZ ) / ( _nearZ - _farZ ) );
-//    vProjectionMatrix_MAT.set( 2, 3, -1 );
-// }
-// 
-// 
-// void rWorld::setCamera( rVec3f &_position, rVec3f &_lookAt, rVec3f &_upVector ) {
-//    rVec3f n = _lookAt;
-//    rVec3f u = _upVector;
-// 
-//    rVectorMath::normalize( n );
-//    rVectorMath::normalize( u );
-// 
-//    u = rVectorMath::crossProduct( u, n );
-// 
-//    rVec3f v = rVectorMath::crossProduct( n, u );
-// 
-//    rMat4f lMatTranslate;
-//    rMat4f lRotateMatrix;
-//    lMatTranslate.toIdentityMatrix();
-//    lRotateMatrix.toIdentityMatrix();
-//    
-//    lMatTranslate.set( 3, 0, -_position[0] );
-//    lMatTranslate.set( 3, 1, -_position[1] );
-//    lMatTranslate.set( 3, 2, -_position[2] );
-//    
-//    lRotateMatrix.set( 0, 0, u[0] );
-//    lRotateMatrix.set( 1, 0, u[1] );
-//    lRotateMatrix.set( 2, 0, u[2] );
-//    
-//    lRotateMatrix.set( 0, 1, v[0] );
-//    lRotateMatrix.set( 1, 1, v[1] );
-//    lRotateMatrix.set( 2, 1, v[2] );
-//    
-//    lRotateMatrix.set( 0, 2, n[0] );
-//    lRotateMatrix.set( 1, 2, n[1] );
-//    lRotateMatrix.set( 2, 2, n[2] );
-//    
-//    vCameraMatrix_MAT = lRotateMatrix * lMatTranslate;
-// }
-
-
 
 void rWorld::setInitObj( iInit *_init ) {
    if( vInitObjSet_B ) {

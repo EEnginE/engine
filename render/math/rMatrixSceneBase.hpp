@@ -1,5 +1,5 @@
 /*!
- * \file rMatrixWorldBase.hpp
+ * \file rMatrixSceneBase.hpp
  * \brief \b Classes: \a rMatrixWorldBase
  */
 
@@ -17,14 +17,14 @@ namespace e_engine {
  *
  */
 template<class T>
-class rMatrixWorldBase {
+class rMatrixSceneBase {
    private:
       rMat4<T>  vProjectionMatrix_MAT;
       rMat4<T>  vCameraMatrix_MAT;
       rMat4<T>  vCameraSpaceMatrix_MAT;
 
    public:
-      rMatrixWorldBase();
+      rMatrixSceneBase();
 
       inline void calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy );
       inline void calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy );
@@ -34,13 +34,11 @@ class rMatrixWorldBase {
       inline rMat4<T> *getProjectionMatrix()  { return &vProjectionMatrix_MAT; }
       inline rMat4<T> *getCameraMatrix()      { return &vCameraMatrix_MAT; }
       inline rMat4<T> *getCameraSpaceMatrix() { return &vCameraSpaceMatrix_MAT; }
-
-      void updateCameraSpaceMatrix();
 };
 
 
 template<class T>
-rMatrixWorldBase<T>::rMatrixWorldBase() {
+rMatrixSceneBase<T>::rMatrixSceneBase() {
    vProjectionMatrix_MAT.toIdentityMatrix();
    vCameraMatrix_MAT.toIdentityMatrix();
    vCameraSpaceMatrix_MAT.toIdentityMatrix();
@@ -57,7 +55,7 @@ rMatrixWorldBase<T>::rMatrixWorldBase() {
  * \param[in] _fofy        The field of view angle
  */
 template<class T>
-void rMatrixWorldBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy ) {
+void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
    vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
 }
@@ -72,7 +70,7 @@ void rMatrixWorldBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nea
  * \param[in] _fofy        The field of view angle
  */
 template<class T>
-void rMatrixWorldBase<T>::calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy ) {
+void rMatrixSceneBase<T>::calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
    vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
 }
@@ -85,20 +83,8 @@ void rMatrixWorldBase<T>::calculateProjectionPerspective( T _width, T _height, T
  * \param[in] _upVector The up direction of the camera ( mostly rVec3( 0, 1, 0 ) )
  */
 template<class T>
-void rMatrixWorldBase<T>::setCamera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector ) {
+void rMatrixSceneBase<T>::setCamera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector ) {
    rMatrixMath::camera( _position, _lookAt, _upVector, vCameraMatrix_MAT );
-   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
-}
-
-
-
-/*!
- * \brief Updates the camera-space-matrix
- *
- * \returns nothing
- */
-template<class T>
-void rMatrixWorldBase<T>::updateCameraSpaceMatrix() {
    vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
 }
 

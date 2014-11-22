@@ -27,52 +27,6 @@ rLoader_3D_f_OBJ::rLoader_3D_f_OBJ( std::string _file ) {
    vFilePath_str   = _file;
 }
 
-/*!
- * \brief Gets wether or not the file is loaded and parsed
- * \returns The state of the file being loaded and parsed
- */
-
-bool rLoader_3D_f_OBJ::getIsLoaded() const {
-   return vIsDataLoaded_B;
-}
-
-/*!
- * \brief Gets the path of the file to parse
- * \returns The path of the file to parse
- */
-std::string rLoader_3D_f_OBJ::getFilePath() const {
-   return vFilePath_str;
-}
-
-
-/*!
- * \brief Sets the file to load
- * \param[in] _file The file to load
- *
- * \note This will NOT load the file! You have to manually load it with load()
- *
- * \returns Nothing
- */
-void rLoader_3D_f_OBJ::setFile( std::string _file ) {
-   vFilePath_str = _file;
-}
-
-/*!
- * \brief Clears the memory
- * \returns Nothing
- */
-void rLoader_3D_f_OBJ::unLoad() {
-   vIsDataLoaded_B = false;
-   vData.vVertexData.clear();
-   vData.vVertexData.resize( 0 );
-   vData.vNormalesData.clear();
-   vData.vNormalesData.resize( 0 );
-   vData.vIndexVertexData.clear();
-   vData.vIndexVertexData.resize( 0 );
-   vData.vIndexNormalData.clear();
-   vData.vIndexNormalData.resize( 0 );
-}
-
 
 namespace spirit  = boost::spirit;
 namespace qi      = boost::spirit::qi;
@@ -86,7 +40,7 @@ struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
    }
 
    static void objName_f( std::string _name ) {
-      dLOG( "Found object ", _name, " in " /*ADD lPointer->getFilePath()*/ );
+      dLOG( "Found object ", _name );
    }
 
    static void mtllib_f( std::string _lib ) {
@@ -130,11 +84,11 @@ struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
               >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
               >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
               >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
-              
+
               ( qi::lit( "vt" ) >> +space
               >> float_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> +space
               >> float_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
-              
+
               ( qi::lit( "vn" ) >> +space
               >> float_[push_back( at_c<2>( spirit::_val ), spirit::_1 )] >> +space
               >> float_[push_back( at_c<2>( spirit::_val ), spirit::_1 )] >> +space
@@ -212,7 +166,7 @@ int rLoader_3D_f_OBJ::load() {
       eLOG( "Failed to parse '", vFilePath_str, "'" );
       return 2;
    }
-      
+
    vIsDataLoaded_B = true;
 
    return 1;
