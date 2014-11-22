@@ -7,7 +7,6 @@
 #define R_MATRIX_OBJECT_BASE_HPP
 
 #include "rMatrixMath.hpp"
-#include "engine_render_Export.hpp"
 
 namespace e_engine {
 
@@ -67,7 +66,7 @@ rMatrixObjectBase<T>::rMatrixObjectBase() {
 
 
    vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
-   
+
    if( vCameraSpaceMatrix_MAT )
       vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
@@ -82,7 +81,7 @@ void rMatrixObjectBase<T>::setScale( T _scale ) {
    );
 
    vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
-   
+
    if( vCameraSpaceMatrix_MAT )
       vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
@@ -97,7 +96,7 @@ void rMatrixObjectBase<T>::setScale( const rVec3< T > &_scale ) {
    );
 
    vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
-   
+
    if( vCameraSpaceMatrix_MAT )
       vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
@@ -119,7 +118,7 @@ void rMatrixObjectBase<T>::addScaleDelta( const rVec3< T > &_scale ) {
    );
 
    vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
-   
+
    if( vCameraSpaceMatrix_MAT )
       vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
@@ -142,7 +141,7 @@ void rMatrixObjectBase<T>::setPosition( const rVec3< T > &_pos ) {
       );
 
    vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
-   
+
    if( vCameraSpaceMatrix_MAT )
       vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
@@ -165,7 +164,7 @@ void rMatrixObjectBase<T>::addPositionDelta( const rVec3< T > &_pos ) {
       );
 
    vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
-   
+
    if( vCameraSpaceMatrix_MAT )
       vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }

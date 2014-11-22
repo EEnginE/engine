@@ -5,8 +5,6 @@
 #include <GL/glew.h>
 #include <vector>
 #include <boost/fusion/include/adapt_struct.hpp>
-#include "engine_render_Export.hpp"
-
 
 namespace e_engine {
 
@@ -35,7 +33,7 @@ class rLoader_3D_Base {
       std::vector<GLfloat> *getRawVertexData();
       std::vector<GLfloat> *getRawTextureData();
       std::vector<GLfloat> *getRawNormalData();
-      
+
       std::vector<GLuint>  *getRawIndexVertexData();
       std::vector<GLuint>  *getRawIndexTextureData();
       std::vector<GLuint>  *getRawIndexNormalData();
@@ -108,7 +106,7 @@ BOOST_FUSION_ADAPT_STRUCT(
       ( std::vector<GLfloat>, vVertexData )
       ( std::vector<GLfloat>, vTextureData )
       ( std::vector<GLfloat>, vNormalesData )
-      
+
       ( std::vector<GLuint>,  vIndexVertexData )
       ( std::vector<GLuint>,  vIndexTextureData )
       ( std::vector<GLuint>,  vIndexNormalData )

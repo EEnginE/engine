@@ -14,12 +14,11 @@
 #include "rLoader_3D_f_OBJ.hpp"
 #include "rMatrixObjectBase.hpp"
 #include "rWorld.hpp"
-#include "engine_render_Export.hpp"
 
 
 namespace e_engine {
 
-class render_EXPORT rNormalObject : public rMatrixObjectBase<float> {
+class rNormalObject : public rMatrixObjectBase<float> {
       typedef internal::rRenderNormalOBJBase<float> RENDERER;
       typedef internal::programInfo                 S_INF;
       enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE };

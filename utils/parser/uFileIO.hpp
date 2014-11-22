@@ -8,15 +8,14 @@
 
 #include <string>
 #include <vector>
-#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
-class utils_EXPORT uFileIO {
+class uFileIO {
    public:
       typedef std::string::const_iterator C_ITERATOR;
       typedef std::string::iterator       ITERATOR;
-      
+
       typedef std::string                 TYPE;
 
    private:

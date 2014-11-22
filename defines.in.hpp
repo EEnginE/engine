@@ -94,7 +94,7 @@ enum ACTION {
 
 }
 
-// Usefull constants
+// Useful constants
 #define E_VAR_PI 3.14159265358979323846
 
 #define DEG_TO_RAD( _x ) _x * ( E_VAR_PI / 180.0 )

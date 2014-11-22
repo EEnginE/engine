@@ -7,11 +7,10 @@
 #define U_RADNDOM_ISAAC_HPP
 
 #include <stdint.h>
-#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
-class utils_EXPORT uRandomISAAC {
+class uRandomISAAC {
    private:
       uint32_t mm[256];
       uint32_t aa;
