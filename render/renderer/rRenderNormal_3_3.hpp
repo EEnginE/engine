@@ -10,16 +10,15 @@
 #include "rRenderBase.hpp"
 #include "rObjectBase.hpp"
 #include "rMatrixMath.hpp"
-#include "engine_render_Export.hpp"
 
 namespace e_engine {
 
 /*!
  * \brief Verry basic OpenGL 3.3 renderer
- * 
+ *
  * ID: render_OGL_3_3_Normal_Basic_1S_1D
  */
-class render_EXPORT rRenderNormal_3_3 : public internal::rRenderBase {
+class rRenderNormal_3_3 : public internal::rRenderBase {
    private:
       GLuint vVertexBufferObj_OGL;
       GLuint vIndexBufferObj_OGL;
@@ -44,6 +43,7 @@ class render_EXPORT rRenderNormal_3_3 : public internal::rRenderBase {
 
       static bool         testShader( rShader &_shader );
       static bool         testObject( internal::rObjectBase *_obj );
+
 };
 
 }

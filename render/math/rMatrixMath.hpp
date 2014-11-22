@@ -9,7 +9,6 @@
 #include "rMatrix.hpp"
 #include "rVectorMath.hpp"
 #include "defines.hpp"
-#include "engine_render_Export.hpp"
 
 namespace e_engine {
 
@@ -91,15 +90,15 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    T lAngleToUse = DEG_TO_RAD( _angle ) / 2;
    T lSin = sin( lAngleToUse );
 
-   
+
    rVec4<T> lTemp;
    lTemp.x = _axis.x * lSin;
    lTemp.y = _axis.y * lSin;
    lTemp.z = _axis.z * lSin;
    lTemp.w = cos( lAngleToUse );
-   
+
    lTemp.normalize();
-   
+
    T x2 = lTemp.x * lTemp.x;
    T y2 = lTemp.y * lTemp.y;
    T z2 = lTemp.z * lTemp.z;
@@ -170,20 +169,9 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
    _out.template get<0, 2>() = -f.x;
    _out.template get<1, 2>() = -f.y;
    _out.template get<2, 2>() = -f.z;
-#ifdef _MSC_VER
-   /*!
-    * The following code has to be used in order to be compatible with the MSVC compiler,
-    * as it cannot handle the templates used in rVectorMath::dotProduct correctly and thus crashes.
-    * \todo Fix the problem correctly.
-    */
-   _out.template get<3, 0>() = -rVectorMath::dotProduct<T, 3>( s, _position );
-   _out.template get<3, 1>() = -rVectorMath::dotProduct<T, 3>( u, _position );
-   _out.template get<3, 2>() = rVectorMath::dotProduct<T, 3>( f, _position );
-#else
    _out.template get<3, 0>() = -rVectorMath::dotProduct( s, _position );
    _out.template get<3, 1>() = -rVectorMath::dotProduct( u, _position );
    _out.template get<3, 2>() = rVectorMath::dotProduct( f, _position );
-#endif
 }
 
 

@@ -8,7 +8,6 @@
 
 #include "iDisplayBasic.hpp"
 #include <windows.h>
-#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
@@ -27,7 +26,7 @@ class iRandR_win32;
  * \note To apply the changes made here, you must call iRandR::setDisplaySizes()
  *       first and then iRandR::applyNewSettings()
  */
-class init_EXPORT iDisplays : public iDisplayBasic {
+class iDisplays : public iDisplayBasic {
    private:
       //! \brief internal structure for storing important mode information.
       std::vector<DEVMODEW>     vModes_V_win32;                 //!< all possible modes
@@ -50,7 +49,7 @@ class init_EXPORT iDisplays : public iDisplayBasic {
       DEVMODEW getSelectedDevmode() const;
       //! \brief Get the display device (needed for the disply ID)
       DISPLAY_DEVICEW getDisplayDevice() const {return vDisplayDevice_win32;}
-      
+
       int getMaxBitsPerPelFromResolutionAndFreq( unsigned int _width, unsigned int _height, double _rate ) const;
 
    public:

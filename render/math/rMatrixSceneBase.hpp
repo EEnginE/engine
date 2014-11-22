@@ -7,7 +7,6 @@
 #define R_MATRIX_WORLD_BASE_HPP
 
 #include "rMatrixMath.hpp"
-#include "engine_render_Export.hpp"
 
 namespace e_engine {
 

@@ -32,8 +32,6 @@ endif( NOT DEFINED ENGINE_BUILD_SHARED )
 
 set( LIBS_TO_LINK $LINK_LIBS )
 
-include( GenerateExportHeader )
-
 if( ENGINE_BUILD_SHARED )
   add_library( ${TMP_NAME} SHARED \${${T^^}_SRC} \${${T^^}_INC} ) # Create a shared library
   set( _BUILD_TYPE "shared" )
@@ -41,12 +39,6 @@ else( ENGINE_BUILD_SHARED )
   add_library( ${TMP_NAME} STATIC \${${T^^}_SRC} \${${T^^}_INC} ) # Create a static library
   set( _BUILD_TYPE "static" )
 endif( ENGINE_BUILD_SHARED )
-
-GENERATE_EXPORT_HEADER( ${TMP_NAME}
-           BASE_NAME ${TMP_NAME}
-           EXPORT_MACRO_NAME ${T}_EXPORT
-           EXPORT_FILE_NAME \${CMAKE_CURRENT_SOURCE_DIR}/${TMP_NAME}_Export.hpp
-           STATIC_DEFINE ${T}_BUILT_AS_STATIC)
 	 
 if(CMAKE_CXX_COMPILER_ID MATCHES MSVC) 
   set_target_properties(

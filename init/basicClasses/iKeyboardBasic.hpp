@@ -8,11 +8,10 @@
 #define KEYS_BASIC
 
 #include "defines.hpp"
-#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
-class init_EXPORT iKeyboardBasic {
+class iKeyboardBasic {
    private:
       unsigned short int key_state[_E_KEY_LAST + 1];
 
@@ -28,7 +27,7 @@ class init_EXPORT iKeyboardBasic {
          if ( _key < 0 ) {_state = E_UNKNOWN; return;}
          key_state[( unsigned int )_key] = _state;
       }
-      
+
       /*!
        * \brief Get the key state
        * \param _key The key
@@ -43,7 +42,7 @@ class init_EXPORT iKeyboardBasic {
       iKeyboardBasic();
       virtual ~iKeyboardBasic() {}
 
-      
+
 };
 
 }

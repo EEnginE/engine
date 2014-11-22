@@ -6,8 +6,6 @@
 #include <vector>
 #include <string>
 #include <boost/fusion/include/adapt_struct.hpp>
-#include "engine_render_Export.hpp"
-
 
 namespace e_engine {
 

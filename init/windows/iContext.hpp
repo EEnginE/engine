@@ -15,7 +15,6 @@
 #include "iInitEventBasic.hpp"
 #include "iKeyboard.hpp"
 #include "iRandR.hpp"
-#include "engine_init_Export.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -25,7 +24,7 @@ namespace e_engine {
 namespace windows_win32 {
 
 
-class init_EXPORT iContext : public iInitEventBasic, public iKeyboard, public iRandR {
+class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
    private:
       PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
       HINSTANCE             vInstance_win32;
@@ -39,15 +38,15 @@ class init_EXPORT iContext : public iInitEventBasic, public iKeyboard, public iR
       static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
       LRESULT CALLBACK        actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo _tempInfo );
-      
+
       GLuint                vVertexArray_OGL;
 
       bool                  vWindowsCallbacksError_B;
 
       bool                  vHasContext_B;
       bool                  vHasGLEW_B;
-      
-      
+
+
       bool                  vIsMouseGrabbed_B;
       bool                  vIsCursorHidden_B;
 
@@ -64,7 +63,7 @@ class init_EXPORT iContext : public iInitEventBasic, public iKeyboard, public iR
       bool                  vWindowsNCDestrox_B;
 
       HWND getHWND_win32() {return vHWND_Window_win32;}
-      
+
    public:
       iContext();
       virtual ~iContext() {if ( vHasContext_B ) destroyContext();}
@@ -81,7 +80,7 @@ class init_EXPORT iContext : public iInitEventBasic, public iKeyboard, public iR
 
       bool makeContextCurrent();
       bool makeNOContextCurrent();
-      
+
 	  static bool isAContextCurrentForThisThread();
 
       bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
@@ -92,16 +91,16 @@ class init_EXPORT iContext : public iInitEventBasic, public iKeyboard, public iR
       int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
       bool fullScreenMultiMonitor() {return false;}
 
-      bool grabMouse();              
-      bool freeMouse();               
-      bool getIsMouseGrabbed()  const; 
+      bool grabMouse();
+      bool freeMouse();
+      bool getIsMouseGrabbed()  const;
 
-      bool moveMouse( unsigned int _posX, unsigned int _posY ); 
+      bool moveMouse( unsigned int _posX, unsigned int _posY );
 
-      bool hideMouseCursor();         
-      bool showMouseCursor();         
-      bool getIsCursorHidden() const; 
-      
+      bool hideMouseCursor();
+      bool showMouseCursor();
+      bool getIsCursorHidden() const;
+
 //       GLuint getVertexArrayOpenGL() { return vVertexArray_OGL; }
 };
 
@@ -136,7 +135,7 @@ namespace internal {
  * Registering them more than once leads to errors. This class
  * stores if a window class is registered.
  */
-class init_EXPORT eWindowClassRegister {
+class eWindowClassRegister {
    private:
       bool vClass1Registered; //!< Is the temporary window class registered (used for the temporary OpenGL context)
       bool vClass2Registered; //!< Is the final window class registered (the "real" window class)

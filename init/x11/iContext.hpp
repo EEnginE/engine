@@ -34,7 +34,6 @@
 #include "iInitEventBasic.hpp"
 #include "iKeyboard.hpp"
 #include <GL/glew.h>
-#include "engine_init_Export.hpp"
 // WARNING Can not include <glxew.h> because it would overwrite all <glx.h> macros
 //         which dont work before calling glewInit();
 #include <GL/glx.h>
@@ -89,7 +88,7 @@ extern Atom atom_wmDeleteWindow;
  * functions and in the other file ( iContext.cpp ) the
  * rest of the functions.
  */
-class init_EXPORT iContext : public iRandR, public iInitEventBasic, public iKeyboard {
+class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
    private:
 
       // X11 variables
@@ -174,8 +173,8 @@ class init_EXPORT iContext : public iRandR, public iInitEventBasic, public iKeyb
 
       bool makeContextCurrent();
       bool makeNOContextCurrent();
-      
-	  static init_EXPORT bool isAContextCurrentForThisThread();
+
+      static bool isAContextCurrentForThisThread();
 
 
       void destroyContext();
@@ -202,8 +201,8 @@ class init_EXPORT iContext : public iRandR, public iInitEventBasic, public iKeyb
       bool hideMouseCursor();
       bool showMouseCursor();
       bool getIsCursorHidden() const;
-      
-      
+
+
 //       GLuint getVertexArrayOpenGL() { return vVertexArray_OGL; }
 };
 
