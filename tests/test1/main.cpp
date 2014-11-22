@@ -4,6 +4,7 @@
 #include "cmdANDinit.hpp"
 #include <time.h>
 #include <engine.hpp>
+#include <typeinfo>
 
 #if WINDOWS
 #include <windows.h>
@@ -17,11 +18,12 @@ using namespace e_engine;
 #define TEST_SHADER 0
 
 void hexPrint( std::vector<unsigned char> const &_v ) {
-   for( unsigned char const & c : _v )
+   for ( unsigned char const & c : _v )
       printf( "%02X ", c );
    printf( "\n\n" );
    fflush( stdout );
 }
+
 
 // #undef  UNIX
 // #define UNIX 0
@@ -29,7 +31,7 @@ void hexPrint( std::vector<unsigned char> const &_v ) {
 int main( int argc, char *argv[] ) {
    cmdANDinit cmd( argc, argv );
 
-   if( ! cmd.parseArgsAndInit() ) {
+   if ( ! cmd.parseArgsAndInit() ) {
       B_SLEEP( seconds, 1 );
       return 1;
    }
@@ -61,12 +63,11 @@ int main( int argc, char *argv[] ) {
 
    iInit start;
 
-   if( start.init() == 1 ) {
+   if ( start.init() == 1 ) {
       MyHandler handler( cmd, &start );
       start.addWindowCloseSlot( handler.getSWindowClose() );
       start.addResizeSlot( handler.getSResize() );
       start.addKeySlot( handler.getSKey() );
-      start.addMousuSlot( handler.getSMouse() );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
 
 #if 0
@@ -74,11 +75,11 @@ int main( int argc, char *argv[] ) {
 
       iLOG( "Displays: ", displays.size() );
 
-      for( GLuint i = 0; i < displays.size(); ++i ) {
+      for ( GLuint i = 0; i < displays.size(); ++i ) {
          iLOG( "Display ", i, ": ", displays[i].getName() );
       }
 
-      if( displays.size() == 2 ) {
+      if ( displays.size() == 2 ) {
 //          displays[0].disable();
 //          displays[1].disable();
 
@@ -123,8 +124,8 @@ int main( int argc, char *argv[] ) {
       GLuint dummy;
       prog.compile( dummy );
 #endif
-  
-      if( handler.initGL() == 1 )
+
+      if ( handler.initGL() == 0 )
          start.startMainLoop();
 
       start.closeWindow();
@@ -150,7 +151,7 @@ int main( int argc, char *argv[] ) {
    return EXIT_SUCCESS;
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
 
 
 

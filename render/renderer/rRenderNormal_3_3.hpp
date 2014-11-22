@@ -7,7 +7,9 @@
 #define RRENDERNORMAL_3_3_HPP
 
 #include <GL/glew.h>
-#include "rRenderNormalOBJBase.hpp"
+#include "rRenderBase.hpp"
+#include "rObjectBase.hpp"
+#include "rMatrixMath.hpp"
 #include "engine_render_Export.hpp"
 
 namespace e_engine {
@@ -17,28 +19,31 @@ namespace e_engine {
  * 
  * ID: render_OGL_3_3_Normal_Basic_1S_1D
  */
-class render_EXPORT rRenderNormal_3_3 : public internal::rRenderNormalOBJBase<float> {
+class render_EXPORT rRenderNormal_3_3 : public internal::rRenderBase {
    private:
       GLuint vVertexBufferObj_OGL;
       GLuint vIndexBufferObj_OGL;
-      
+
       GLuint vShader_OGL;
-      
+
       GLint  vInputLocation_OGL;
       GLint  vUniformLocation_OGL;
-      
+
       GLuint vDataSize_uI;
-      
+
       rMat4f *vMatrix;
 
-      rRenderNormal_3_3() {}
    public:
-      rRenderNormal_3_3( rMat4f *_mat );
+      rRenderNormal_3_3();
       virtual ~rRenderNormal_3_3() {}
-      
-      virtual void          render();
-      virtual bool          setOGLInfo( std::vector<void *> &_data );
-      virtual RENDERER_ID   getRendererID() const { return render_OGL_3_3_Normal_Basic_1S_1D; }
+
+      virtual void        render();
+      virtual RENDERER_ID getRendererID() const { return render_OGL_3_3_Normal_Basic_1S_1D; }
+      virtual void        setDataFromShader( rShader &_s );
+      virtual void        setDataFromObject( internal::rObjectBase *_obj );
+
+      static bool         testShader( rShader &_shader );
+      static bool         testObject( internal::rObjectBase *_obj );
 };
 
 }

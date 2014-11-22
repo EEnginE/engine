@@ -10,7 +10,7 @@
 #endif
 
 #include <math.h>
-#include "rMatrixWorldBase.hpp"
+#include "rMatrixSceneBase.hpp"
 #include "iInit.hpp"
 #include "uSignalSlot.hpp"
 #include "uLog.hpp"
@@ -31,9 +31,9 @@ class rCameraHandler {
          __LAST__
       };
    private:
-      rMatrixWorldBase<T> *vWorld;
+      rMatrixSceneBase<T> *vScene;
       iInit               *vInit;
-      
+
       rVec3<T> vPosition;
       rVec3<T> vDirection;
       rVec3<T> vUp;
@@ -52,12 +52,12 @@ class rCameraHandler {
 
       rCameraHandler() {}
    public:
-      rCameraHandler( rMatrixWorldBase<T> *_world, iInit *_init ) :
-         vWorld( _world ),
+      rCameraHandler( rMatrixSceneBase<T> *_scene, iInit *_init ) :
+         vScene( _scene ),
          vInit( _init ),
 
          vPosition( ( T )0.0, ( T )0.0, ( T )0.0 ),
-         
+
          vCameraMovementEnabled( true ),
 
          vMouseSlot( &rCameraHandler::mouse, this ),
@@ -86,6 +86,8 @@ class rCameraHandler {
       void updateCamera();
 
       bool getIsCameraEnabled()   const {return vCameraMovementEnabled;}
+
+      virtual void afterCameraUpdate() = 0;
 };
 
 template<class T>
@@ -99,7 +101,9 @@ void rCameraHandler<T>::setCameraKey( KEY_MOVEMENT _key, wchar_t _what ) {
 template<class T>
 void rCameraHandler<T>::updateCamera() {
    if ( vCameraMovementEnabled )
-      vWorld->setCamera( vPosition, vPosition + vDirection, vUp );
+      vScene->setCamera( vPosition, vPosition + vDirection, vUp );
+
+   afterCameraUpdate();
 }
 
 

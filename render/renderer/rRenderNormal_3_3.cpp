@@ -9,7 +9,7 @@
 
 namespace e_engine {
 
-rRenderNormal_3_3::rRenderNormal_3_3( rMat4f *_mat ) {
+rRenderNormal_3_3::rRenderNormal_3_3() {
    vVertexBufferObj_OGL = 0;
    vIndexBufferObj_OGL  = 0;
    vShader_OGL          = 0;
@@ -17,14 +17,14 @@ rRenderNormal_3_3::rRenderNormal_3_3( rMat4f *_mat ) {
    vUniformLocation_OGL = 0;
    vDataSize_uI         = 0;
 
-   vMatrix = _mat;
+   vMatrix = nullptr;
 }
 
 
 void rRenderNormal_3_3::render() {
    glUseProgram( vShader_OGL );
 
-   if( vNeedUpdateUniforms_B || vAlwaysUpdateUniforms_B ) {
+   if ( vNeedUpdateUniforms_B || vAlwaysUpdateUniforms_B || true ) {
       glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix->getMatrix() );
       vNeedUpdateUniforms_B = false;
    }
@@ -39,43 +39,93 @@ void rRenderNormal_3_3::render() {
    glDisableVertexAttribArray( vInputLocation_OGL );
 }
 
-/*!
- * \brief Sets information for the renderer
- *
- * \warning If no data is set a render() can result in undefined behavior
- *
- * \note you can delete / free the data after calling this function
- *
- * \param[in] _data An array of data
- *
- * _data arguments:
- *
- * | Num |  Type  |      Description      |
- * | :-: | :----: | :-------------------: |
- * | 0   | GLuint | Vertex Buffer Object  |
- * | 1   | GLuint | Index Buffer Object   |
- * | 2   | GLuint | Shader ID             |
- * | 3   | GLint  | Shader input location |
- * | 4   | GLint  | Uniform location      |
- * | 5   | GLuint | Num of indexes        |
- *
- */
-bool rRenderNormal_3_3::setOGLInfo( std::vector< void * > &_data ) {
-   if( _data.size() != 6 ) {
-      eLOG( "This renderer needs exactly 5 data types (1:VBO:GLuint; 1:IBO:GLuint; 1:SHADER:GLuint; 1:INPUT:GLint; 1:SIZE:GLuint)" );
-      return false;
-   }
 
-   vVertexBufferObj_OGL = *( ( GLuint * )_data[0] );
-   vIndexBufferObj_OGL  = *( ( GLuint * )_data[1] );
-   vShader_OGL          = *( ( GLuint * )_data[2] );
-   vInputLocation_OGL   = *( ( GLint * )_data[3] );
-   vUniformLocation_OGL = *( ( GLint * )_data[4] );
-   vDataSize_uI         = *( ( GLuint * )_data[5] );
+bool rRenderNormal_3_3::testShader( rShader &_shader ) {
+   if ( !_shader.getIsLinked() )
+      return false;
+
+   auto info = _shader.getShaderInfo();
+
+   // We need exactly one input
+   if ( info.vInputInfo.size() != 1 )
+      return false;
+
+   if ( info.vInputInfo[0].type != GL_FLOAT_VEC3 )
+      return false;
+
+   // We need exactly one uniform
+   if ( info.vUniformInfo.size() != 1 )
+      return false;
+
+   if ( info.vUniformInfo[0].type != GL_FLOAT_MAT4 )
+      return false;
+
+   // And none of these
+   if ( info.vUniformBlockInfo.size() != 0 )
+      return false;
+
+   return true;
+}
+
+bool rRenderNormal_3_3::testObject( internal::rObjectBase *_obj ) {
+   int lVert, lFlags, lMatrices, lnVBO, lnIBO;
+
+   _obj->getHints(
+      internal::rObjectBase::NUM_INDEXES, lVert,
+      internal::rObjectBase::FLAGS,       lFlags,
+      internal::rObjectBase::MATRICES,    lMatrices,
+      internal::rObjectBase::NUM_VBO,     lnVBO,
+      internal::rObjectBase::NUM_IBO,     lnIBO
+   );
+
+   if ( !( lFlags & MESH_OBJECT ) )
+      return false;
+
+   if ( lVert < 3 )
+      return false;
+
+   if ( !( lMatrices & FINAL_MATRIX_FLAG ) )
+      return false;
+
+   if ( lnVBO != 1 )
+      return false;
+
+   if ( lnIBO != 1 )
+      return false;
 
    return true;
 }
 
 
+void rRenderNormal_3_3::setDataFromShader( rShader &_s ) {
+   if ( !_s.getProgram( vShader_OGL ) )
+      return;
+
+   auto info = _s.getShaderInfo();
+
+   vInputLocation_OGL   = info.vInputInfo[0].location;
+   vUniformLocation_OGL = info.vUniformInfo[0].location;
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+
+void rRenderNormal_3_3::setDataFromObject( internal::rObjectBase *_obj ) {
+   vVertexBufferObj_OGL = vIndexBufferObj_OGL = 0;
+   _obj->getVBO( vVertexBufferObj_OGL );
+   _obj->getIBO( vIndexBufferObj_OGL );
+   _obj->getMatrix( &vMatrix, internal::rObjectBase::FINAL );
+
+   int lTemp;
+
+   _obj->getHints( internal::rObjectBase::OBJECT_HINTS::NUM_INDEXES, lTemp );
+
+   vDataSize_uI = ( GLuint ) lTemp;
+}
+
+
+
+}
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+
+
+
+
+

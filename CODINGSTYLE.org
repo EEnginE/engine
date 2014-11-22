@@ -1,0 +1,19 @@
+#+STARTUP: indent
+#+STARTUP: showall
+
+
+#+begin_src 
+           _____           _ _               _____ _         _     
+          /  __ \         | (_)             /  ___| |       | | 
+          | /  \/ ___   __| |_ _ __   __ _  \ `--.| |_ _   _| | ___
+          | |    / _ \ / _` | | '_ \ / _` |  `--. \ __| | | | |/ _ \
+          | \__/\ (_) | (_| | | | | | (_| | /\__/ / |_| |_| | |  __/
+           \____/\___/ \__,_|_|_| |_|\__, | \____/ \__|\__, |_|\___|
+                                      __/ |             __/ |
+                                     |___/             |___/
+#+end_src
+
+* Return Values
+
+Functions should return 0 if they succeed and an error code if not.
+Alternatively they can also return a boolean value (true or false).

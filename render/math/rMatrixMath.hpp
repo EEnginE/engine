@@ -31,6 +31,10 @@ using rMatNf = rMatrix<float, N, N>;
 template<int N>
 using rMatNd = rMatrix<double, N, N>;
 
+
+template<class T, int N>
+using rMat   = rMatrix<T, N, N>;
+
 class rMatrixMath {
    public:
       template<class T> static void scale( T _n, rMat4<T> &_out );
