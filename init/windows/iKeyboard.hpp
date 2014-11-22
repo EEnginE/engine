@@ -9,13 +9,12 @@
 #include <windows.h>
 #include "iKeyboardBasic.hpp"
 #include "uLog.hpp"
-#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
 namespace windows_win32 {
 
-class init_EXPORT iKeyboard : public iKeyboardBasic {
+class iKeyboard : public iKeyboardBasic {
 
    protected:
       /*!
@@ -29,10 +28,10 @@ class init_EXPORT iKeyboard : public iKeyboardBasic {
    public:
       iKeyboard() {}
       virtual ~iKeyboard() {}
-      
+
       unsigned short int getKeyState(wchar_t _key);
 
-      
+
 
 };
 

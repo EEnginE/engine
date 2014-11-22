@@ -27,7 +27,6 @@
 #include <string>
 #include <vector>
 #include "uExtensions.hpp"
-#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
@@ -72,7 +71,7 @@ namespace internal {
  *
  * \sa iInit iContext GlobConf
  */
-struct utils_EXPORT _uConfig {
+struct _uConfig {
 
    bool         handleSIGINT;  // Crt - C
    bool         handleSIGTERM;
@@ -154,14 +153,14 @@ struct utils_EXPORT _uConfig {
       unsigned int minHeight; //!< The min height of the window                       \c CLASSES: \a iInit, \a iContext
       int          posX;      //!< The posX   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
       int          posY;      //!< The posY   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
-      
+
       unsigned int mousePosX; //!< The mouse posX   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
       unsigned int mousePosY; //!< The mouse posY   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
-      
+
       bool         mouseIsInWindow; //!< Is the mouse in the window? ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
       bool         windowHasFocus;  //!< Has our window the focus?   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
-      
-      
+
+
 
       bool         fullscreen;       //!< Fullscreen?          ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit
       bool         VSync;            //!< VSync?               ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit
@@ -285,8 +284,8 @@ struct utils_EXPORT _uConfig {
        */
       void reset();
    } config;
-   
-   
+
+
    struct __uConfig_OpenGL {
       /*!
        * 1: - force OLD shader query style - should always work
@@ -295,7 +294,7 @@ struct utils_EXPORT _uConfig {
        */
       unsigned char shaderInfoQueryType;
       bool    useShaders;
-      
+
       __uConfig_OpenGL();
       /*!
        * \brief Reset to default
@@ -303,8 +302,8 @@ struct utils_EXPORT _uConfig {
        */
       void reset();
    } ogl;
-   
-   
+
+
    // =============================================================================
    // ==================================================================================================================
    // =======      =====================================================================================================================
@@ -312,20 +311,20 @@ struct utils_EXPORT _uConfig {
    // =======      =====================================================================================================================
    // ==================================================================================================================
    // =============================================================================
-   
+
    struct __uConfig_Camera {
       double mouseSensitivity; //!< Negative values will invert the mouse
       double movementSpeed;
-      
+
       double angleHorizontal;
       double angleVertical;
-      
+
       __uConfig_Camera();
       void reset();
    } camera;
 
    uExtensions extensions;
-   
+
    // Versions
 
 
@@ -337,7 +336,7 @@ struct utils_EXPORT _uConfig {
  * \brief The main object from _uConfig
  * \sa _uConfig __uConfig_FBA
  */
-extern utils_EXPORT _uConfig GlobConf;
+extern _uConfig GlobConf;
 
 }
 

@@ -8,11 +8,10 @@
 
 #include <vector>
 #include <string>
-#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
-class init_EXPORT iDisplayBasic {
+class iDisplayBasic {
    public:
       /*!
        * \brief describes the position of one display relative to an other
@@ -40,7 +39,7 @@ class init_EXPORT iDisplayBasic {
          unsigned int height;   //!< The height of this mode
          double       rate;     //!< The display redraw frequency of this mode
       };
-      
+
       bool            vEnabled_B;          //!< Is the display enabbled
       bool            vIsPrimary_B;        //!< Is this the primary display? Onl one eDisplay schould have this true
       bool            vPositionChanged_B;  //!< Has the user changed the positon of this display
@@ -50,27 +49,27 @@ class init_EXPORT iDisplayBasic {
       unsigned int    vCurrentHeight_uI;   //!< The current height, without the changes the user made
       unsigned int    vPosX_uI;            //!< The position (X) of the display WITH the userchanges
       unsigned int    vPosY_uI;            //!< The position (Y) of the display WITH the userchanges
-      
+
       double          vCurrentRate_D;      //!< The current display frequency, without the changes the user made
-      
+
       void setCurrentSizeAndPosition( unsigned int _width, unsigned int _height, unsigned int _posX, unsigned int _posY, unsigned int _rate );
-      
+
       iDisplayBasic() : vPositionChanged_B(false) {}
 
    public:
       virtual ~iDisplayBasic() {}
-      
+
       virtual void disable() = 0;
       virtual void enable()  = 0;
-      
+
       void setPositionAbsolute( unsigned int _posX, unsigned int _posY );
       void setPositionRelative( e_engine::iDisplayBasic::POSITON _where, e_engine::iDisplayBasic &_disp );
-      
+
       void getSelectedPosition( int &_posX, int &_posY ) const;
       void getCurrentResolution( unsigned int &_width, unsigned int &_height, double &_rate ) const;
-      
+
       bool getIsPrimary() const { return vIsPrimary_B; }
-      
+
       std::string getName() const { return vName_str; }
 };
 

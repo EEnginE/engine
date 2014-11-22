@@ -44,23 +44,22 @@ STARTDIR="$PWD"
 
 ########################################################################################
 ############################################################################################################################
-#####           #####################################################################################################################
-###  Where am I?  ######################################################################################################################
-#####           #####################################################################################################################
+#####                   #############################################################################################################
+###  Directory Locations  ######################################################################################################################
+#####                   #############################################################################################################
 ############################################################################################################################
 ########################################################################################
 
 
 # Make sure we are in the engine root directory
-CD_TO_THIS_DIR="$( dirname $0 )"
-
-if [ -d $CD_TO_THIS_DIR ]; then
-    cd $CD_TO_THIS_DIR
+export ENGINE_ROOT=$(readlink -m $(dirname $0))
+if [ -d $ENGINE_ROOT ]; then
+    cd $ENGINE_ROOT
 fi
 
 parseCFG() {
     if [ ! -f "$CONFIG_FILE" ]; then
-	echo "ERROR: Can not find libs file $CONFIG_FILE"
+	echo "ERROR: Cannot find libs file $CONFIG_FILE"
 	exit 2
     fi
 
@@ -91,7 +90,7 @@ parseCFG() {
 		PROJECT_NAME=$TEMP
 		;;
 	    P)
-		echo "INFO:   -- Added target plarform: $TEMP"
+		echo "INFO:   -- Added target platform: $TEMP"
 		DISPLAY_SERVER+=( "$TEMP" )
 		;;
 	    OS)
@@ -133,11 +132,11 @@ parseCFG() {
 		LOG_GEN_UNDEF=$TEMP
 		;;
 	    LOG)
-		echo "INFO:   -- log types: $TEMP"
+		echo "INFO:   -- Log types: $TEMP"
 		LOG_TYPES="$TEMP"
 		;;
 	    *)
-		echo "ERROR: Unkown option"
+		echo "ERROR: Unknown option"
 		exit
 		;;
 	esac
@@ -147,6 +146,11 @@ parseCFG() {
     
 
 rm_save() {
+    if [[ $1 == *'*'* ]]; then
+        echo "INFO: Removing $1: Files removed"
+        rm -rf $1
+        exit 0
+    fi
     if [ -e $1 ]; then
         if [ -d $1 ]; then
             echo "INFO: Removing $1: Directory removed"
@@ -165,7 +169,6 @@ clean() {
     
     for (( I = 0; I < ${#LIBS[@]}; ++I )); do
 	rm_save ${LIBS[$I]}/CMakeLists.txt
-	rm_save ${LIBS[$I]}/engine_${LIBS[$I]}_Export.hpp
     done
 
     rm_save $INCLUDE_FILE
@@ -180,7 +183,7 @@ clean() {
        rm_save $I/CMakeLists.txt
        if [ -f $I/.gitignore ]; then
           for J in $( cat $I/.gitignore ); do
-             rm_save $I/$J
+             rm_save "$I/$J"
           done
        fi
     done
@@ -196,7 +199,7 @@ clean() {
 help_text() {
     echo "You will probably be just fine with running $0 without any arguments."
     echo ""
-    echo "  all      - Do turn everything on"
+    echo "  all      - Turn everything on"
     echo "  none     - Turn everything off"
     echo ""
     echo "  glew     - Force recompile GLEW"

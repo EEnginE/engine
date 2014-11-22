@@ -38,8 +38,6 @@
 
 #include "uLog.hpp"
 #include <boost/thread.hpp>
-#include "engine_init_Export.hpp"
-
 
 
 namespace e_engine {
@@ -65,7 +63,7 @@ typedef GLvoid( *RENDER_FUNC )( iEventInfo info );
 #if UNIX_X11
 class iInit : public unix_x11::iContext, public iMouse {
 #elif WINDOWS
-class init_EXPORT iInit : public windows_win32::iContext {
+class iInit : public windows_win32::iContext {
 #endif
    private:
       bool              vMainLoopRunning_B;   //!< Should the main loop be running?
@@ -89,7 +87,7 @@ class init_EXPORT iInit : public windows_win32::iContext {
       bool              vWasMouseGrabbed_B;
 
       int               vCreateWindowReturn_I;
-      
+
       bool              vAreRenderLoopSignalsConnected_B;
 
       uSignal<void, bool> vStartRenderLoopSignal_SIG;
@@ -166,14 +164,14 @@ class init_EXPORT iInit : public windows_win32::iContext {
        * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
        */
       int    closeWindow( bool _waitUntilClosed = false );
-      
+
       template<class __C>
       void   addRenderSlots( uSlot<void, __C, bool> *_start, uSlot<void, __C> *_stop, uSlot<void, __C> *_pause, uSlot<void, __C> *_continue ) {
 		  vStartRenderLoopSignal_SIG.connectWith<__C>(_start);
          vStopRenderLoopSignal_SIG.connectWith<__C>( _stop );
 		 vPauseRenderLoop_SIG.connectWith<__C>(_pause);
 		 vContinueRenderLoop_SIG.connectWith<__C>(_continue);
-                  
+
          vAreRenderLoopSignalsConnected_B = true;
       }
 
@@ -193,7 +191,7 @@ namespace internal {
  * \todo Remove this workaround / hack
  *
  */
-class init_EXPORT __iInit_Pointer {
+class __iInit_Pointer {
    private:
       iInit *pointer;
       bool  is_set;
