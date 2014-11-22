@@ -44,9 +44,9 @@ STARTDIR="$PWD"
 
 ########################################################################################
 ############################################################################################################################
-#####           #####################################################################################################################
-###  Where am I?  ######################################################################################################################
-#####           #####################################################################################################################
+#####                   #############################################################################################################
+###  Directory Locations  ######################################################################################################################
+#####                   #############################################################################################################
 ############################################################################################################################
 ########################################################################################
 
@@ -59,7 +59,7 @@ fi
 
 parseCFG() {
     if [ ! -f "$CONFIG_FILE" ]; then
-	echo "ERROR: Can not find libs file $CONFIG_FILE"
+	echo "ERROR: Cannot find libs file $CONFIG_FILE"
 	exit 2
     fi
 
@@ -90,7 +90,7 @@ parseCFG() {
 		PROJECT_NAME=$TEMP
 		;;
 	    P)
-		echo "INFO:   -- Added target plarform: $TEMP"
+		echo "INFO:   -- Added target platform: $TEMP"
 		DISPLAY_SERVER+=( "$TEMP" )
 		;;
 	    OS)
@@ -132,11 +132,11 @@ parseCFG() {
 		LOG_GEN_UNDEF=$TEMP
 		;;
 	    LOG)
-		echo "INFO:   -- log types: $TEMP"
+		echo "INFO:   -- Log types: $TEMP"
 		LOG_TYPES="$TEMP"
 		;;
 	    *)
-		echo "ERROR: Unkown option"
+		echo "ERROR: Unknown option"
 		exit
 		;;
 	esac
@@ -169,7 +169,6 @@ clean() {
     
     for (( I = 0; I < ${#LIBS[@]}; ++I )); do
 	rm_save ${LIBS[$I]}/CMakeLists.txt
-	rm_save ${LIBS[$I]}/engine_${LIBS[$I]}_Export.hpp
     done
 
     rm_save $INCLUDE_FILE
@@ -200,7 +199,7 @@ clean() {
 help_text() {
     echo "You will probably be just fine with running $0 without any arguments."
     echo ""
-    echo "  all      - Do turn everything on"
+    echo "  all      - Turn everything on"
     echo "  none     - Turn everything off"
     echo ""
     echo "  glew     - Force recompile GLEW"

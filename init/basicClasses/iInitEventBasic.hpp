@@ -9,13 +9,12 @@
 
 #include "uSignalSlot.hpp"
 #include "iEventInfo.hpp"
-#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
 class iInit;
 
-class init_EXPORT iInitEventBasic {
+class iInitEventBasic {
       typedef uSignal<void, iEventInfo>      _SIGNAL_;
       typedef uSlot<void, iInit, iEventInfo> _SLOT_;
 

@@ -7,13 +7,12 @@
 #define E_RANDR_WIN32_HPP
 
 #include "iDisplays.hpp"
-#include "engine_init_Export.hpp"
 
 namespace e_engine {
 
 namespace windows_win32 {
 
-class init_EXPORT iRandR {
+class iRandR {
    private:
       unsigned int vScreenWidth_uI;
       unsigned int vScreenHeight_uI;

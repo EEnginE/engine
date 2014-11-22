@@ -24,8 +24,6 @@
 #include <boost/variant.hpp>
 #endif
 
-#include "engine_utils_Export.hpp"
-
 
 namespace e_engine {
 
@@ -119,60 +117,13 @@ struct uLogPartData {
 
 };
 
-#else
-
-/*!
-* \brief Contains raw data for a log entry
-*
-* Quick hack for MSVC compiler
-* \todo Make boost variant version work with MSVC
-*/
-struct uLogPartData {
-   std::wstring vData;
-
-//    template<class T>
-//    uLogPartData( T _what )      { vData = boost::lexical_cast<std::wstring>( _what ); }
-
-   template<class T>
-   uLogPartData( T &_what )      { vData = boost::lexical_cast<std::wstring>( _what ); }
-
-   template<class T>
-   uLogPartData( T &&_what )      { vData = boost::lexical_cast<std::wstring>( _what ); }
-
-
-//    // Only for Windows (mingw) WHY!?!?!
-//    uLogPartData( uLogPartData &_what ) : vData( _what.vData ) {}
-
-   uLogPartData( const char          *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
-   uLogPartData( const unsigned char *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
-   uLogPartData( const wchar_t       *_str ) : vData( _str ) {}
-
-   uLogPartData( char          *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
-   uLogPartData( unsigned char *_str ) { for( uint32_t i = 0; _str[i] != 0; ++i ) vData.append( 1, _str[i] ); }
-   uLogPartData( wchar_t       *_str ) : vData( _str ) {}
-
-   uLogPartData( bool _what ) {
-      if( _what )
-         vData = std::wstring( L"true" );
-      else
-         vData = std::wstring( L"false" );
-   }
-   uLogPartData( wchar_t         _what ) { vData.append( 1, _what ); }
-   uLogPartData( unsigned char   _what ) { vData.append( 1, _what ); }
-   uLogPartData( char            _what ) { vData.append( 1, _what ); }
-   uLogPartData( std::wstring    _what ) : vData( _what ) {}
-   uLogPartData( std::string     _what ) : vData( std::wstring( _what.begin(), _what.end() ) ) {}
-
-   uLogPartData() : vData( L"<UNDEFINED>" ) {}
-};
-
 #endif
 
 }
 
 class uLog;
 
-class utils_EXPORT uLogEntryRaw {
+class uLogEntryRaw {
    public:
       struct __DATA__ {
          std::wstring vResultString_STR;

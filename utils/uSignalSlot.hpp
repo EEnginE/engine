@@ -43,7 +43,6 @@ template<int N> struct is_placeholder< placeholder_template<N> > : integral_cons
 #include <vector>
 
 #include "defines.hpp"
-#include "engine_utils_Export.hpp"
 
 namespace e_engine {
 
@@ -63,7 +62,7 @@ namespace internal {
  */
 class __uSigSlotLogFunctionClass {
    public:
-      static utils_EXPORT void sigSlotLogFunktion( std::string _errStr, const char *_file, const int _line, const char *_function );
+      static void sigSlotLogFunktion( std::string _errStr, const char *_file, const int _line, const char *_function );
 };
 
 
@@ -76,7 +75,7 @@ class __uSigSlotConnection {
 	#endif
    private:
       //! Counter for Signals
-      static utils_EXPORT unsigned int vSignalsCounter_uI;
+      static unsigned int vSignalsCounter_uI;
 
       __uSigSlotConnection() {}
 

@@ -8,7 +8,6 @@
 
 #include "rMatrix.hpp"
 #include <math.h>
-#include "engine_render_Export.hpp"
 
 
 namespace e_engine {
@@ -97,20 +96,7 @@ T rVectorMath::dotProduct( const rVec4<T> &_vec1, const rVec4<T> &_vec2 ) {
 // ==============================================================================================================================================
 // =========================================================================================================================
 
-#ifdef _MSC_VER
-/*!The following code has to be used in order to be compatible with the MSVC compiler,
-as it cannot handle the templates used in rVectorMath::dotProduct correctly and thus gives out an error.
-\todo Fix the problem correctly.
-*/
-template<class T>
-rVec3<T> rVectorMath::crossProduct(const rVec3<T> &_vec1, const rVec3<T> &_vec2) {
-	rVec3<T> lTemp;
-	lTemp.x = (_vec1.y * _vec2.z) - (_vec1.z * _vec2.y);
-	lTemp.y = (_vec1.z * _vec2.x) - (_vec1.x * _vec2.z);
-	lTemp.z = (_vec1.x * _vec2.y) - (_vec1.y * _vec2.x);
-	return lTemp;
-}
-#else
+
 template<class T>
 rVec3<T> rVectorMath::crossProduct( const rVec3<T> &_vec1, const rVec3<T> &_vec2 ) {
    return rVec3<T>
@@ -120,7 +106,6 @@ rVec3<T> rVectorMath::crossProduct( const rVec3<T> &_vec1, const rVec3<T> &_vec2
                ( _vec1.x * _vec2.y ) - ( _vec1.y * _vec2.x )
          );
 }
-#endif
 
 /*
 (Q1 * Q2).x = (w1x2 + x1w2 + y1z2 - z1y2)

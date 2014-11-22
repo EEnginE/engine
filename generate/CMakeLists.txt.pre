@@ -58,12 +58,12 @@ find_package(GLEW2   REQUIRED) # The orginal FindGLEW.cmake has no options to se
 find_package(OpenGL  REQUIRED)
 find_package(Threads REQUIRED)
 
-if( WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES GNU )
+if( WIN32 AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND CMAKE_CXX_COMPILER_ID MATCHES GNU )
    find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread_win32 chrono filesystem )
 else()
    find_package(X11   REQUIRED)
    find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread chrono filesystem )
-endif( WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES GNU )
+endif( WIN32 AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND CMAKE_CXX_COMPILER_ID MATCHES GNU )
 
 
 set(ENGINE_LINK 
@@ -124,7 +124,7 @@ set( ENGINE_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION} )
 
 # Options GCC
 
-# CMAKE_CXX_COMPILER_VERSION doesent work always defined, so this is needed
+# CMAKE_CXX_COMPILER_VERSION is not always defined, so this is needed
 if( CMAKE_CXX_COMPILER_ID MATCHES GNU )
    if( NOT DEFINED CMAKE_CXX_COMPILER_VERSION )
       execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_COMPILER_VERSION)
@@ -213,9 +213,10 @@ elseif( CMAKE_CXX_COMPILER_ID MATCHES Intel )
    message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )           # Remove this when done with Intel
 
 elseif( CMAKE_CXX_COMPILER_ID MATCHES MSVC )
-   set( CMAKE_CXX_FLAGS_DEBUG   "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}   ${MSVC_COMPILER_OPTIONS_DEBUG}" )
-   set( CMAKE_CXX_FLAGS_RELEASE "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_COMPILER_OPTIONS_RELEASE}" )
-
+   #set( CMAKE_CXX_FLAGS_DEBUG   "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}   ${MSVC_COMPILER_OPTIONS_DEBUG}" )    # Uncomment this when making MSVC compatible
+   #set( CMAKE_CXX_FLAGS_RELEASE "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_COMPILER_OPTIONS_RELEASE}" )  # Uncomment this when making MSVC compatible
+   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )           # Remove this when making MSVC compatible
+   
 else()
    message( WARNING "Unknown compiler ${CMAKE_CXX_COMPILER_ID}" )
 endif()
@@ -227,7 +228,7 @@ endif()
 ########################################################################################
 ############################################################################################################################
 #####                        ########################################################################################################
-###  Get the Version form git  #############################################################################################################
+###  Get the version of Git    #############################################################################################################
 #####                        ########################################################################################################
 ############################################################################################################################
 ########################################################################################
@@ -235,7 +236,7 @@ endif()
 
 set( CM_VERSION_GIT "GIT_FAILED" )
 
-# Set here the Version of this project
+# Set the version of this project
 set( CM_VERSION_MAJOR    0 )
 set( CM_VERSION_MINOR    0 )
 set( CM_VERSION_SUBMINOR 0 )
@@ -247,8 +248,9 @@ execute_process(
    RESULT_VARIABLE GIT_FOUND
 )
          
-if( ${GIT_FOUND} MATCHES 0 )
-   # which adds a newline (what is bad)
+# Git functionality is not provided under Windows (yet)
+if( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
+   # Remove newlines added by Git
    string( REGEX REPLACE "\n" "" GIT_EXECUTABLE ${GIT_EXECUTABLE} )
 
    execute_process( 
@@ -258,7 +260,7 @@ if( ${GIT_FOUND} MATCHES 0 )
       RESULT_VARIABLE GIT_RESULT
    )
      
-   # git adds a newline (what is bad)
+   # Remove newlines added by Git
    string( REGEX REPLACE "\n" "" CM_VERSION_GIT ${CM_VERSION_GIT} )
    
    execute_process( 
@@ -287,7 +289,7 @@ if( ${GIT_FOUND} MATCHES 0 )
       message( STATUS "VERSION: ${GIT_TAG_1} +GIT ${CM_VERSION_GIT}" )
    endif( ${GIT_TAG_1} STREQUAL ${GIT_TAG_2} )
    
-endif( ${GIT_FOUND} MATCHES 0 )
+endif( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
 
 
 # Only set CMAKE_BUILD_TYPE when not defined
