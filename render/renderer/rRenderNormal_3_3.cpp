@@ -67,15 +67,15 @@ bool rRenderNormal_3_3::testShader( rShader *_shader ) {
    return true;
 }
 
-bool rRenderNormal_3_3::testObject( internal::rObjectBase *_obj ) {
+bool rRenderNormal_3_3::testObject( rObjectBase *_obj ) {
    int lVert, lFlags, lMatrices, lnVBO, lnIBO;
 
    _obj->getHints(
-      internal::rObjectBase::NUM_INDEXES, lVert,
-      internal::rObjectBase::FLAGS,       lFlags,
-      internal::rObjectBase::MATRICES,    lMatrices,
-      internal::rObjectBase::NUM_VBO,     lnVBO,
-      internal::rObjectBase::NUM_IBO,     lnIBO
+      rObjectBase::NUM_INDEXES, lVert,
+      rObjectBase::FLAGS,       lFlags,
+      rObjectBase::MATRICES,    lMatrices,
+      rObjectBase::NUM_VBO,     lnVBO,
+      rObjectBase::NUM_IBO,     lnIBO
    );
 
    if ( !( lFlags & MESH_OBJECT ) )
@@ -107,15 +107,15 @@ void rRenderNormal_3_3::setDataFromShader( rShader *_s ) {
    vUniformLocation_OGL = info->vUniformInfo[0].location;
 }
 
-void rRenderNormal_3_3::setDataFromObject( internal::rObjectBase *_obj ) {
+void rRenderNormal_3_3::setDataFromObject( rObjectBase *_obj ) {
    vVertexBufferObj_OGL = vIndexBufferObj_OGL = 0;
    _obj->getVBO( vVertexBufferObj_OGL );
    _obj->getIBO( vIndexBufferObj_OGL );
-   _obj->getMatrix( &vMatrix, internal::rObjectBase::FINAL );
+   _obj->getMatrix( &vMatrix, rObjectBase::FINAL );
 
    int lTemp;
 
-   _obj->getHints( internal::rObjectBase::OBJECT_HINTS::NUM_INDEXES, lTemp );
+   _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );
 
    vDataSize_uI = ( GLuint ) lTemp;
 }

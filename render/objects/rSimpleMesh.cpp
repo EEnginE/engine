@@ -80,7 +80,7 @@ uint32_t rSimpleMesh::getIBO( uint32_t &_n ) {
    return lRet;
 }
 
-uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, internal::rObjectBase::MATRIX_TYPES _type ) {
+uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) {
    switch ( _type ) {
       case SCALE:        *_mat = getScaleMatrix();       return 0;
       case ROTATION:     *_mat = getRotationMatrix();    return 0;

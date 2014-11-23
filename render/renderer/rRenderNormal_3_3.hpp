@@ -18,7 +18,7 @@ namespace e_engine {
  *
  * ID: render_OGL_3_3_Normal_Basic_1S_1D
  */
-class rRenderNormal_3_3 : public internal::rRenderBase {
+class rRenderNormal_3_3 : public rRenderBase {
    private:
       GLuint vVertexBufferObj_OGL;
       GLuint vIndexBufferObj_OGL;
@@ -39,10 +39,10 @@ class rRenderNormal_3_3 : public internal::rRenderBase {
       virtual void        render();
       virtual RENDERER_ID getRendererID() const { return render_OGL_3_3_Normal_Basic_1S_1D; }
       virtual void        setDataFromShader( rShader *_s );
-      virtual void        setDataFromObject( internal::rObjectBase *_obj );
+      virtual void        setDataFromObject( rObjectBase *_obj );
 
       static bool         testShader( rShader *_shader );
-      static bool         testObject( internal::rObjectBase *_obj );
+      static bool         testObject( rObjectBase *_obj );
 
 };
 

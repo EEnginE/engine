@@ -15,7 +15,7 @@
 
 namespace e_engine {
 
-class rSimpleMesh final : public rMatrixObjectBase<float>, public internal::rObjectBase {
+class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
    private:
       GLuint vVertexBufferObject;
       GLuint vIndexBufferObject;
@@ -36,7 +36,7 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public internal::rObj
 
       virtual uint32_t getVBO( uint32_t &_n );
       virtual uint32_t getIBO( uint32_t &_n );
-      virtual uint32_t getMatrix( e_engine::rMat4f **_mat, internal::rObjectBase::MATRIX_TYPES _type );
+      virtual uint32_t getMatrix( e_engine::rMat4f **_mat, rObjectBase::MATRIX_TYPES _type );
 };
 
 

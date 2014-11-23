@@ -33,7 +33,7 @@ bool rSceneBase::canRenderScene() {
       }
 
       d.vObjectPointer->getHints(
-         internal::rObjectBase::IS_DATA_READY, lIsObjectReady
+         rObjectBase::IS_DATA_READY, lIsObjectReady
       );
 
       if ( lIsObjectReady != GL_TRUE ) {
@@ -106,7 +106,7 @@ int rSceneBase::addShader( std::string _shader ) {
  *
  * \returns The Index of the object
  */
-int rSceneBase::addObject( internal::rObjectBase *_obj, GLuint _shaderIndex ) {
+int rSceneBase::addObject( rObjectBase *_obj, GLuint _shaderIndex ) {
    boost::lock_guard<boost::mutex> lLockObjects( vObjects_MUT );
 
    vObjects.emplace_back( _obj, _shaderIndex );
@@ -144,7 +144,7 @@ int rSceneBase::compileShaders() {
  *
  * \returns 0 on success
  */
-int rSceneBase::assignObjectRenderer( GLuint _index, internal::rRenderBase *_renderer ) {
+int rSceneBase::assignObjectRenderer( GLuint _index, rRenderBase *_renderer ) {
    _renderer->setDataFromShader( &vShaders[vObjects[_index].vShaderIndex] );
    _renderer->setDataFromObject( vObjects[_index].vObjectPointer );
 

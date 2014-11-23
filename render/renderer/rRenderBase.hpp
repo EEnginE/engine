@@ -19,8 +19,6 @@ enum RENDERER_ID {
    ___RENDERER_ENGINE_LAST___
 };
 
-namespace internal {
-
 /*!
  * \brief Basic render to provide an interface for other render classes
  */
@@ -32,10 +30,10 @@ class rRenderBase {
       rRenderBase() : vNeedUpdateUniforms_B( false ), vAlwaysUpdateUniforms_B( false ) {}
       virtual ~rRenderBase() {}
 
-      virtual void        render()                                         = 0;
-      virtual RENDERER_ID getRendererID() const                            = 0;
-      virtual void        setDataFromShader( rShader *_s )                 = 0;
-      virtual void        setDataFromObject( internal::rObjectBase *_obj ) = 0;
+      virtual void        render()                              = 0;
+      virtual RENDERER_ID getRendererID() const                 = 0;
+      virtual void        setDataFromShader( rShader *_s )      = 0;
+      virtual void        setDataFromObject( rObjectBase *_obj ) = 0;
 
       void updateUniforms() {vNeedUpdateUniforms_B = true;}
       void updateUniformsAlways( bool _doit ) { vAlwaysUpdateUniforms_B = _doit; }
@@ -48,7 +46,6 @@ class rRenderBase {
  * \warning This function assumes that testShader (from the derived class) returned true
  */
 
-}
 
 }
 
