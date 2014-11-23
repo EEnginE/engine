@@ -15,8 +15,9 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
       rSimpleMesh vObject1;
       std::string vShader_str;
 
-      myScene();
    public:
+      myScene() = delete;
+
       myScene( iInit *_init, cmdANDinit &_cmd ) :
          rScene( "MAIN SCENE" ),
          rCameraHandler( this, _init ),

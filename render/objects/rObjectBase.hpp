@@ -9,7 +9,6 @@
 #include <GL/glew.h>
 #include "rLoaderBase.hpp"
 #include "rMatrixMath.hpp"
-#include "engine_render_Export.hpp"
 
 namespace e_engine {
 
@@ -41,7 +40,7 @@ namespace internal {
  * cleared later. Value = 0 means that this object is completely broken!
  *
  */
-class render_EXPORT rObjectBase {
+class rObjectBase {
    public:
       enum OBJECT_HINTS {
          FLAGS,
@@ -74,9 +73,6 @@ class render_EXPORT rObjectBase {
          FINAL
       };
 
-   private:
-      rObjectBase();
-
    protected:
       uint64_t vObjectHints[__LAST__];
       std::string vName_str;
@@ -104,6 +100,16 @@ class render_EXPORT rObjectBase {
          for ( uint32_t i = 0; i < __LAST__; ++i )
             vObjectHints[i] = 0;
       }
+
+      rObjectBase() = delete;
+
+      // Forbid copying
+      rObjectBase( const rObjectBase & ) = delete;
+      rObjectBase &operator=( const rObjectBase & ) = delete;
+
+      // Allow moving
+      rObjectBase( rObjectBase&& ) {}
+      rObjectBase &operator=( rObjectBase&& ) {return *this;}
 
       virtual ~rObjectBase() {clearRAMData();}
 

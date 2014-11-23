@@ -17,3 +17,51 @@
 
 Functions should return 0 if they succeed and an error code if not.
 Alternatively they can also return a boolean value (true or false).
+
+
+* Classes
+
+** Deleting Constructors
+
+If you want to delete constructors, don't make them private. Instead use the
+C++11 key word delete.
+
+Example:
+
+#+BEGIN_SRC C++
+  class myClass {
+     private:
+        int vAnInt;
+
+     public:
+        myClass() = delete;
+
+        myClass( int _a ) : vAnInt( _a ) {}
+  };
+#+END_SRC
+
+** Constructors
+
+Classes managing OpenGL objects should always have a DELETED copy constructor
+and a move constructor.
+
+This will prevent silly errors, when an object is copied (e.g. passed by value)
+and then deleted. As a result the destructor will be called before the main object
+is deleted and the OpenGL data will be removed more than once!
+
+With a removed copy constructor, the compiler will print a compile time error,
+when copying.
+
+You should use something like this:
+
+#+BEGIN_SRC C++
+  // Forbid copying
+  myClass( const myClass & ) = delete;
+  myClass &operator=( const myClass & ) = delete;
+
+  // Allow moving
+  myClass( myClass&& ) {}
+  myClass &operator=( myClass&& ) {return *this;}
+#+END_SRC
+
+

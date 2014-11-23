@@ -145,7 +145,7 @@ int rSceneBase::compileShaders() {
  * \returns 0 on success
  */
 int rSceneBase::assignObjectRenderer( GLuint _index, internal::rRenderBase *_renderer ) {
-   _renderer->setDataFromShader( vShaders[vObjects[_index].vShaderIndex] );
+   _renderer->setDataFromShader( &vShaders[vObjects[_index].vShaderIndex] );
    _renderer->setDataFromObject( vObjects[_index].vObjectPointer );
 
    if ( vObjects[_index].vRenderer )

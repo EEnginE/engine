@@ -43,7 +43,6 @@ class rMatrixMath {
 
       template<class T> static void rotate( const rVec3<T> &_axis, T _angle , rMat4<T> &_out );
 
-      template<class T> static void perspective( T _width, T _height, T _nearZ, T _farZ, T _fofy, rMat4<T> &_out );
       template<class T> static void perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4< T > &_out );
 
       template<class T>
@@ -140,11 +139,6 @@ void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4
    _out.template get<2, 2>() = ( _farZ + _nearZ ) / ( _nearZ - _farZ );
    _out.template get<3, 2>() = ( 2 * _farZ * _nearZ ) / ( _nearZ - _farZ );
    _out.template get<2, 3>() = -1;
-}
-
-template<class T>
-void rMatrixMath::perspective( T _width, T _height, T _nearZ, T _farZ, T _fofy, rMat4< T > &_out ) {
-   perspective( _width / _height, _nearZ, _farZ, _fofy, _out );
 }
 
 template<class T>

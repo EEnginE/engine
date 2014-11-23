@@ -90,11 +90,18 @@ class rShader {
       void         getInfoNew();
 
    public:
-
       rShader();
       rShader( std::string _path );
       rShader( std::string _path, GLuint n, ... );
-      ~rShader() { if( vIsShaderLinked_B ) deleteProgram();}
+      ~rShader() { if ( vIsShaderLinked_B ) deleteProgram();}
+
+      // Forbid copying
+      rShader( const rShader & ) = delete;
+      rShader &operator=( const rShader & ) = delete;
+
+      // Allow moving
+      rShader( rShader&& ) {}
+      rShader &operator=( rShader&& ) {return *this;}
 
       GLvoid   setShaders( std::string _path ) { vPath_str = _path; }
 
@@ -120,7 +127,7 @@ class rShader {
       std::string  getShaderPath()  const {return vPath_str;}
       bool         getProgram( unsigned int &_program ) const;
 
-      internal::programInfo getShaderInfo() { return vProgramInformation; }
+      internal::programInfo *getShaderInfo() { return &vProgramInformation; }
 
       bool         getInputLocation( std::string _name, int &_location );
       bool         getOutputLocation( std::string _name, int &_location );
@@ -170,4 +177,4 @@ class rShader {
 }
 
 #endif // LINKER_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
