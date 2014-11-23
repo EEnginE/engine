@@ -57,23 +57,22 @@ class rWorld {
       void pauseRenderLoop();
       void continueRenderLoop();
 
-      rWorld();
-
    public:
+      rWorld( iInit *_init );
+      virtual ~rWorld() {}
+
+      rWorld() = delete;
+
       void setInitObj( iInit *_init );
 
       virtual void renderFrame() = 0;
 
       void updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
       void updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
-
-
-      rWorld( iInit *_init );
-      virtual ~rWorld() {}
 };
 
 }
 
 #endif // R_WORLD_H
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

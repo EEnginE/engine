@@ -68,6 +68,14 @@ void MyHandler::key( iEventInfo info ) {
          case L'Q':
          case E_KEY_ESCAPE: info.iInitPointer->closeWindow(); break;
 
+         // Dont print wasd keys
+         case L'w':
+         case L'a':
+         case L's':
+         case L'd':
+         case L'q':
+         case L'e': break;
+
             break;
 
          default:

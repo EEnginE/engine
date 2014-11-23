@@ -11,23 +11,23 @@
 #include "rMatrixObjectBase.hpp"
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
-#include "engine_render_Export.hpp"
 
 
 namespace e_engine {
 
-class render_EXPORT rSimpleMesh final : public rMatrixObjectBase<float>, public internal::rObjectBase {
+class rSimpleMesh final : public rMatrixObjectBase<float>, public internal::rObjectBase {
    private:
       GLuint vVertexBufferObject;
       GLuint vIndexBufferObject;
 
       void setFlags();
 
-      rSimpleMesh();
    public:
       rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name, std::string _file, DATA_FILE_TYPE _type = AUTODETECT ) :
          rMatrixObjectBase( _scene ),
          rObjectBase( _name, _file, _type ) {setFlags();}
+
+      rSimpleMesh() = delete;
 
       virtual ~rSimpleMesh();
 

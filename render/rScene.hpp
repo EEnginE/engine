@@ -39,8 +39,8 @@ class rSceneBase {
       struct select<T, R...> : select<R...> {
          select(
             internal::rRenderBase **_p,
-            rShader &_s,
-            internal::rObjectBase *_o
+            rShader                *_s,
+            internal::rObjectBase  *_o
          ) :
             select<R...>( _p, _s, _o ) {
             if (
@@ -115,7 +115,7 @@ int rSceneBase::setObjectRenderer( GLuint _index ) {
    internal::rRenderBase *lRenderer = nullptr;
    select<T, RENDERERS...> selecter(
       &lRenderer,
-      vShaders[vObjects[_index].vShaderIndex],
+      &vShaders[vObjects[_index].vShaderIndex],
       vObjects[_index].vObjectPointer
    );
 

@@ -9,28 +9,6 @@
 
 namespace e_engine {
 
-rWorld::rWorld() {
-   vInitObjSet_B               = false;
-
-   vRenderLoopRunning_B        = false;
-   vRenderLoopShouldRun_B      = false;
-
-   vRenderLoopIsPaused_B       = false;
-   vRenderLoopShouldPaused_B   = false;
-
-   vViewPort.vNeedUpdate_B     = false;
-   vViewPort.x                 = 0;
-   vViewPort.y                 = 0;
-   vViewPort.width             = 0;
-   vViewPort.height            = 0;
-
-   vRenderLoopStartSlot.setFunc( &rWorld::startRenderLoop, this );
-   vRenderLoopStopSlot.setFunc( &rWorld::stopRenderLoop, this );
-
-   vPauseRenderLoopSlot.setFunc( &rWorld::pauseRenderLoop, this );
-   vContinueRenderLoopSlot.setFunc( &rWorld::continueRenderLoop, this );
-}
-
 rWorld::rWorld( iInit *_init ) {
    vInitObjSet_B               = false; // Will be set true in setInitObj
 

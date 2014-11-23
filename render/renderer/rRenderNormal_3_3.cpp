@@ -20,7 +20,6 @@ rRenderNormal_3_3::rRenderNormal_3_3() {
    vMatrix = nullptr;
 }
 
-
 void rRenderNormal_3_3::render() {
    glUseProgram( vShader_OGL );
 
@@ -30,38 +29,39 @@ void rRenderNormal_3_3::render() {
    }
 
    glEnableVertexAttribArray( vInputLocation_OGL );
+
    glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObj_OGL );
    glVertexAttribPointer( vInputLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, 0 );
-   glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObj_OGL );
 
+   glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObj_OGL );
    glDrawElements( GL_TRIANGLES, vDataSize_uI, GL_UNSIGNED_INT, 0 );
 
    glDisableVertexAttribArray( vInputLocation_OGL );
 }
 
 
-bool rRenderNormal_3_3::testShader( rShader &_shader ) {
-   if ( !_shader.getIsLinked() )
+bool rRenderNormal_3_3::testShader( rShader *_shader ) {
+   if ( !_shader->getIsLinked() )
       return false;
 
-   auto info = _shader.getShaderInfo();
+   auto *info = _shader->getShaderInfo();
 
    // We need exactly one input
-   if ( info.vInputInfo.size() != 1 )
+   if ( info->vInputInfo.size() != 1 )
       return false;
 
-   if ( info.vInputInfo[0].type != GL_FLOAT_VEC3 )
+   if ( info->vInputInfo[0].type != GL_FLOAT_VEC3 )
       return false;
 
    // We need exactly one uniform
-   if ( info.vUniformInfo.size() != 1 )
+   if ( info->vUniformInfo.size() != 1 )
       return false;
 
-   if ( info.vUniformInfo[0].type != GL_FLOAT_MAT4 )
+   if ( info->vUniformInfo[0].type != GL_FLOAT_MAT4 )
       return false;
 
    // And none of these
-   if ( info.vUniformBlockInfo.size() != 0 )
+   if ( info->vUniformBlockInfo.size() != 0 )
       return false;
 
    return true;
@@ -97,14 +97,14 @@ bool rRenderNormal_3_3::testObject( internal::rObjectBase *_obj ) {
 }
 
 
-void rRenderNormal_3_3::setDataFromShader( rShader &_s ) {
-   if ( !_s.getProgram( vShader_OGL ) )
+void rRenderNormal_3_3::setDataFromShader( rShader *_s ) {
+   if ( !_s->getProgram( vShader_OGL ) )
       return;
 
-   auto info = _s.getShaderInfo();
+   auto *info = _s->getShaderInfo();
 
-   vInputLocation_OGL   = info.vInputInfo[0].location;
-   vUniformLocation_OGL = info.vUniformInfo[0].location;
+   vInputLocation_OGL   = info->vInputInfo[0].location;
+   vUniformLocation_OGL = info->vUniformInfo[0].location;
 }
 
 void rRenderNormal_3_3::setDataFromObject( internal::rObjectBase *_obj ) {

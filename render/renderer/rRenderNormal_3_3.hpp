@@ -38,10 +38,10 @@ class rRenderNormal_3_3 : public internal::rRenderBase {
 
       virtual void        render();
       virtual RENDERER_ID getRendererID() const { return render_OGL_3_3_Normal_Basic_1S_1D; }
-      virtual void        setDataFromShader( rShader &_s );
+      virtual void        setDataFromShader( rShader *_s );
       virtual void        setDataFromObject( internal::rObjectBase *_obj );
 
-      static bool         testShader( rShader &_shader );
+      static bool         testShader( rShader *_shader );
       static bool         testObject( internal::rObjectBase *_obj );
 
 };
