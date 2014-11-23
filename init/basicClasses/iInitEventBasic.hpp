@@ -59,7 +59,7 @@ class iInitEventBasic {
       }
 
       template<class __C>
-      void addMousuSlot( uSlot<void, __C, iEventInfo> *_slot ) {
+      void addMouseSlot( uSlot<void, __C, iEventInfo> *_slot ) {
          vMouse_SLOT.disconnectAll();
          _slot->connectWith( &vMouse_SIG );
       }
@@ -118,7 +118,7 @@ class iInitEventBasic {
  */
 
 /*!
- * \fn void iInitEventBasic::addMousuSlot
+ * \fn void iInitEventBasic::addMouseSlot
  * \brief Adds a slot for the \c Mouse event
  *
  * \param[in] _slot The Slot for the event

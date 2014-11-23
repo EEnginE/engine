@@ -63,7 +63,7 @@ class rCameraHandler {
          vMouseSlot( &rCameraHandler::mouse, this ),
          vKeySlot( &rCameraHandler::key, this ) {
 
-         vInit->addMousuSlot( &vMouseSlot );
+         vInit->addMouseSlot( &vMouseSlot );
          vInit->addKeySlot( &vKeySlot );
 
          keys[UP]       = L'q';

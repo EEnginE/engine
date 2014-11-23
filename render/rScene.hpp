@@ -17,16 +17,16 @@ namespace e_engine {
 
 class rSceneBase {
    public:
-      struct rObjects {
+      struct rObject {
          rObjectBase *vObjectPointer;
          rRenderBase *vRenderer;
          GLuint                 vShaderIndex;
 
-         rObjects( rObjectBase *_obj, GLuint _index ) :
+         rObject( rObjectBase *_obj, GLuint _index ) :
             vObjectPointer( _obj ),
             vRenderer( nullptr ),
             vShaderIndex( _index ) {}
-         virtual ~rObjects() {}
+         virtual ~rObject() {}
       };
 
       template<class... R>
@@ -54,7 +54,7 @@ class rSceneBase {
       };
 
    private:
-      std::vector<rObjects> vObjects;
+      std::vector<rObject> vObjects;
       std::vector<rShader>  vShaders;
 
       std::string vName_str;
@@ -94,7 +94,7 @@ class rSceneBase {
  * \returns 0 on success
  * \returns 1 if _index is out of range
  * \returns 2 if the object pointer is invalid
- * \returns 3 if the shader does not exists
+ * \returns 3 if the shader does not exist
  * \returns 4 if no matching renderer was found
  */
 template<class T, class... RENDERERS>

@@ -57,8 +57,8 @@ int rObjectBase::clearAllData() {
  * \note This function does NOT need a working OpenGL context
  *
  * \returns 1   - on success
- * \returns 100   - if data is already loaded
- * \returns 101 - if the file type is SET_DATA_MANUALY
+ * \returns 100 - if data is already loaded
+ * \returns 101 - if the file type is SET_DATA_MANUALLY
  * \returns 102 - if it was impossible to autodetect the file tye
  * \returns the return value of the loader if something went wrong during the load process
  */
@@ -68,8 +68,8 @@ int rObjectBase::loadData() {
       return 100;
    }
 
-   if ( vFileType == SET_DATA_MANUALY ) {
-      eLOG( "loadData was called for object '", vName_str, "' but the data file type for this object is SET_DATA_MANUALY; return 100" );
+   if ( vFileType == SET_DATA_MANUALLY ) {
+      eLOG( "loadData was called for object '", vName_str, "' but the data file type for this object is SET_DATA_MANUALLY; return 100" );
       return 101;
    }
 
@@ -186,12 +186,12 @@ int rObjectBase::setOGLData() {
    }
 
    if ( !iInit::isAContextCurrentForThisThread() ) {
-      eLOG( "Can not init data because no OpenGL context is current for this thread!" );
+      eLOG( "Cannot init data because no OpenGL context is current for this thread!" );
       return 100;
    }
 
    if ( !vLoaderData ) {
-      eLOG( "The OpenGL Data is not present in RAM! Can not copy to OpenGL buffers! [OBJECT: '", vName_str, "']" );
+      eLOG( "The OpenGL Data is not present in RAM! Cannot copy to OpenGL buffers! [OBJECT: '", vName_str, "']" );
       eLOG( "Use loadData() to load the data." );
       return 102;
    }

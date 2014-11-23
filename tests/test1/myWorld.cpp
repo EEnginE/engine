@@ -1,9 +1,9 @@
 /*!
- * \file handler.cpp
- * \brief Class MyHandler
+ * \file myWorld.cpp
+ * \brief Class myWorld
  */
 
-#include "handler.hpp"
+#include "myWorld.hpp"
 #include "config.hpp"
 
 #include <GL/glew.h>
@@ -11,10 +11,10 @@
 #define USE_OLD_KEY_BINDINGS 0
 
 
-MyHandler::~MyHandler() {}
+myWorld::~myWorld() {}
 
 
-void MyHandler::key( iEventInfo info ) {
+void myWorld::key( iEventInfo info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.iInitPointer->getDisplayResolutions();
 
@@ -90,7 +90,7 @@ void MyHandler::key( iEventInfo info ) {
 }
 
 
-int MyHandler::initGL() {
+int myWorld::initGL() {
    // vInitPointer->fullScreen( C_ADD );
    int lReturn = vScene.init();
 
