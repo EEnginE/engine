@@ -18,8 +18,8 @@ rSceneBase::~rSceneBase() {
 }
 
 /*!
- * \brief Tests if it is save to render the scene
- * \returns ture when it is save
+ * \brief Tests if it is safe to render the scene
+ * \returns true when it is safe
  */
 bool rSceneBase::canRenderScene() {
    bool lCanRender = true;
@@ -116,7 +116,7 @@ int rSceneBase::addObject( rObjectBase *_obj, GLuint _shaderIndex ) {
 /*!
  * \brief Compiles all shaders set with addShader
  *
- * \note This function will abort, when a shader fails to compile
+ * \note This function will abort when a shader fails to compile
  *
  * \returns 1 on success or the error code of rShader::compile
  */

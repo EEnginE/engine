@@ -32,10 +32,10 @@ namespace e_engine {
  * You MUST set some hints in your constructor about the object and create a clearOGLData__
  * and setOGLData__ function.
  *
- * The data will be loaded into RAM from this class and can than be accessd via vLoaderData
+ * The data will be loaded into RAM from this class and can than be accessed via vLoaderData
  *
  * You should also return 1 if everything went fine. Values < 0 mean there where errors but data
- * can be savely set / cleared. Values > 1 mean that the data can still be used and may be successfully
+ * can be safely set / cleared. Values > 1 mean that the data can still be used and may be successfully
  * cleared later. Value = 0 means that this object is completely broken!
  *
  */
@@ -54,7 +54,7 @@ class rObjectBase {
          __LAST__
       };
 
-      enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE, SET_DATA_MANUALY };
+      enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE, SET_DATA_MANUALLY };
 
       enum ERROR_FLAGS {
          ALL_OK                             = 0,
@@ -132,7 +132,7 @@ class rObjectBase {
       bool getIsDataInRAM()  const { if ( vLoaderData ) return true; return false; }
       bool getIsDataLoaded() const { return vIsLoaded_B; }
 
-      void setKeepDataInRam( bool _keep ) { vKeepDataInRAM_B = _keep; }
+      void setKeepDataInRAM( bool _keep ) { vKeepDataInRAM_B = _keep; }
 
       std::string getName()  const { return vName_str; }
 

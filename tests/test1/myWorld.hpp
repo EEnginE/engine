@@ -1,6 +1,6 @@
 /*!
- * \file handler.hpp
- * \brief Class MyHandler
+ * \file myWorld.hpp
+ * \brief Class myWorld
  */
 
 #include <engine.hpp>
@@ -14,8 +14,8 @@ using namespace std;
 using namespace e_engine;
 using namespace OS_NAMESPACE;
 
-class MyHandler final : public rWorld {
-      typedef uSlot<void, MyHandler, iEventInfo> _SLOT_;
+class myWorld final : public rWorld {
+      typedef uSlot<void, myWorld, iEventInfo> _SLOT_;
    private:
       GLfloat vAlpha;
 
@@ -32,15 +32,15 @@ class MyHandler final : public rWorld {
       _SLOT_ slotResize;
       _SLOT_ slotKey;
    public:
-      MyHandler( cmdANDinit &_cmd, iInit *_init ) :
+      myWorld( cmdANDinit &_cmd, iInit *_init ) :
          rWorld( _init ),
          vScene( _init, _cmd ),
          vInitPointer( _init ),
          vNearZ( _cmd.getNearZ() ),
          vFarZ( _cmd.getFarZ() ),
-         slotWindowClose( &MyHandler::windowClose, this ),
-         slotResize( &MyHandler::resize, this ),
-         slotKey( &MyHandler::key, this ) {
+         slotWindowClose( &myWorld::windowClose, this ),
+         slotResize( &myWorld::resize, this ),
+         slotKey( &myWorld::key, this ) {
 
          _init->addWindowCloseSlot( &slotWindowClose );
          _init->addResizeSlot( &slotResize );
@@ -49,8 +49,8 @@ class MyHandler final : public rWorld {
          vAlpha        = 1;
       }
 
-      ~MyHandler();
-      MyHandler() = delete;
+      ~myWorld();
+      myWorld() = delete;
 
 
       void windowClose( iEventInfo info ) {

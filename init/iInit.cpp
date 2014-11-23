@@ -52,7 +52,7 @@ iInit::iInit() {
    addWindowCloseSlot( &vWindowClose_SLOT );
    addResizeSlot( &vResize_SLOT );
    addKeySlot( &vKey_SLOT );
-   addMousuSlot( &vMouse_SLOT );
+   addMouseSlot( &vMouse_SLOT );
    addFocusSlot( &vFocus_SLOT );
 
    vMainLoopRunning_B       = false;

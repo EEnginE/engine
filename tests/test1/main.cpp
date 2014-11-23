@@ -1,6 +1,6 @@
 
 #include "config.hpp"
-#include "handler.hpp"
+#include "myWorld.hpp"
 #include "cmdANDinit.hpp"
 #include <time.h>
 #include <engine.hpp>
@@ -30,7 +30,7 @@ int main( int argc, char *argv[] ) {
    iInit start;
 
    if ( start.init() == 1 ) {
-      MyHandler handler( cmd, &start );
+      myWorld handler( cmd, &start );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
 
       if ( handler.initGL() == 0 )

@@ -14,7 +14,7 @@
 namespace e_engine {
 
 /*!
- * \brief Verry basic OpenGL 3.3 renderer
+ * \brief Very basic OpenGL 3.3 renderer
  *
  * ID: render_OGL_3_3_Normal_Basic_1S_1D
  */
