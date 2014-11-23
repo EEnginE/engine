@@ -12,9 +12,12 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
    dataRoot     = INSTALL_PREFIX + string( "/share/engineTests/test1/data/" );
 #endif
 
-   for( auto i = 1; i < argc; ++i ) {
+   for ( auto i = 1; i < argc; ++i ) {
       args.push_back( argv[i] );
    }
+
+   vNearZ = 0.1;
+   vFarZ  = 100.0;
 
    GlobConf.win.width           = 1280;
    GlobConf.win.height          = 1024;
@@ -33,7 +36,7 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
    GlobConf.versions.glMinorVersion = 0;
 
 
-   if( vCanUseColor ) {
+   if ( vCanUseColor ) {
       GlobConf.log.logOUT.colors   = FULL;
       GlobConf.log.logERR.colors   = FULL;
    } else {
@@ -56,7 +59,7 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
 #endif
 
    GlobConf.log.waitUntilLogEntryPrinted = false;
-   
+
    vShader = "triangle1";
 
 }
@@ -70,16 +73,16 @@ void cmdANDinit::usage() {
    dLOG( "    -h | --help       : show this help message" );
    dLOG( "    --log=<path>      : set a custom log file path to <path>" );
    dLOG( "    -w | --wait       : wait until log entry is printed" );
-   dLOG( "    --data=<path>     : set a custom root path for the data dir" );
-   dLOG( "    --mesh=<name>     : set the mesh to render IN the data dir" );
-   dLOG( "    --shader=<shader> : set the shader to use" );
+   dLOG( "    --data=<path>     : set a custom root path for the data dir\n        - Default:      ", dataRoot );
+   dLOG( "    --mesh=<name>     : set the mesh to render IN the data dir (default: ", meshToRender, ")" );
+   dLOG( "    --shader=<shader> : set the shader to use (default: ", vShader, ")" );
    dLOG( "    --conf=<path>     : add a config file to parse" );
-   dLOG( "    --glMajor=<v>     : the OpenGL Major version (default: "
-         ,  GlobConf.versions.glMajorVersion, ")" );
-   dLOG( "    --glMinor=<v>     : the OpenGL Major version (default: "
-         ,  GlobConf.versions.glMinorVersion, ")" );
+   dLOG( "    --glMajor=<v>     : the OpenGL Major version (default: ", GlobConf.versions.glMajorVersion, ")" );
+   dLOG( "    --glMinor=<v>     : the OpenGL Major version (default: ", GlobConf.versions.glMinorVersion, ")" );
    dLOG( "    -n | --nocolor    : disable colored output" );
    dLOG( "    -c | --color      : enabel colored output" );
+   dLOG( "    --near=<z>        : set near z clipping to <z> (default: ", vNearZ, ")" );
+   dLOG( "    --far=<z>         : set far  z clipping to <z> (default: ", vFarZ, ")" );
 }
 
 
@@ -87,35 +90,35 @@ bool cmdANDinit::parseArgsAndInit() {
 
    // Try to parse oglTest.json
    uParserJSON lTrialAndErrorParser( "oglTest.json" );
-   if( lTrialAndErrorParser.parse() == 1 ) {
+   if ( lTrialAndErrorParser.parse() == 1 ) {
       iLOG( "Found oglTest.json" );
       auto lTempData = lTrialAndErrorParser.getData();
       vData_JSON.merge( lTempData );
    }
 
-   meshToRender = "test1.obj";
+   meshToRender = "mesh_f.obj";
 
-   for( auto const & arg : args ) {
-      if( arg == "-h" || arg == "--help" ) {
+   for ( auto const & arg : args ) {
+      if ( arg == "-h" || arg == "--help" ) {
          postInit();
          usage();
          return false;
       }
 
-      if( arg == "-w" || arg == "--wait" ) {
+      if ( arg == "-w" || arg == "--wait" ) {
          iLOG( "Wait is enabled" );
          GlobConf.log.waitUntilLogEntryPrinted = true;
          continue;
       }
 
-      if( arg == "-n" || arg == "--nocolor" ) {
+      if ( arg == "-n" || arg == "--nocolor" ) {
          iLOG( "Color is disabled" );
          GlobConf.log.logOUT.colors   = DISABLED;
          GlobConf.log.logERR.colors   = DISABLED;
          continue;
       }
 
-      if( arg == "-c" || arg == "--color" ) {
+      if ( arg == "-c" || arg == "--color" ) {
          iLOG( "Color is enabled" );
          GlobConf.log.logOUT.colors   = FULL;
          GlobConf.log.logERR.colors   = FULL;
@@ -123,7 +126,7 @@ bool cmdANDinit::parseArgsAndInit() {
       }
 
       boost::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lLogRegex ) ) {
+      if ( boost::regex_match( arg, lLogRegex ) ) {
          boost::regex lLogRegexRep( "^\\-\\-log=" );
          const char *lRep = "";
          string logPath = boost::regex_replace( arg, lLogRegexRep, lRep );
@@ -132,24 +135,25 @@ bool cmdANDinit::parseArgsAndInit() {
       }
 
       boost::regex lDataRegex( "^\\-\\-data=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lDataRegex ) ) {
+      if ( boost::regex_match( arg, lDataRegex ) ) {
          boost::regex lDataRegexRep( "^\\-\\-data=" );
          const char *lRep = "";
          dataRoot = boost::regex_replace( arg, lDataRegexRep, lRep );
+         iLOG( "Using custom data path: '", dataRoot, "'" );
          continue;
       }
 
       boost::regex lMeshRegex( "^\\-\\-mesh=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lMeshRegex ) ) {
+      if ( boost::regex_match( arg, lMeshRegex ) ) {
          boost::regex lDataRegexRep( "^\\-\\-mesh=" );
          const char *lRep = "";
          meshToRender = boost::regex_replace( arg, lDataRegexRep, lRep );
          continue;
       }
-      
-      
+
+
       boost::regex lShaderRegex( "^\\-\\-shader=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lShaderRegex ) ) {
+      if ( boost::regex_match( arg, lShaderRegex ) ) {
          boost::regex lDataRegexRep( "^\\-\\-shader=" );
          const char *lRep = "";
          vShader = boost::regex_replace( arg, lDataRegexRep, lRep );
@@ -158,13 +162,13 @@ bool cmdANDinit::parseArgsAndInit() {
 
 
       boost::regex lConfRegex( "^\\-\\-conf=[0-9]+$" );
-      if( boost::regex_match( arg, lConfRegex ) ) {
+      if ( boost::regex_match( arg, lConfRegex ) ) {
          boost::regex lDataRegexRep( "^\\-\\-conf=" );
          const char *lRep = "";
          string conf = boost::regex_replace( arg, lDataRegexRep, lRep );
          uParserJSON parser( conf );
 
-         if( parser.parse() == 1 ) {
+         if ( parser.parse() == 1 ) {
             auto lTempData = parser.getData();
             vData_JSON.merge( lTempData );
             iLOG( "Successfully parsed additional JSON config '", conf, "'" );
@@ -176,7 +180,7 @@ bool cmdANDinit::parseArgsAndInit() {
       }
 
       boost::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
-      if( boost::regex_match( arg, lMajorRegex ) ) {
+      if ( boost::regex_match( arg, lMajorRegex ) ) {
          boost::regex lDataRegexRep( "^\\-\\-glMajor=" );
          const char *lRep = "";
          string version = boost::regex_replace( arg, lDataRegexRep, lRep );
@@ -185,11 +189,30 @@ bool cmdANDinit::parseArgsAndInit() {
       }
 
       boost::regex lMinorRegex( "^\\-\\-glMinor=[0-9]+$" );
-      if( boost::regex_match( arg, lMinorRegex ) ) {
+      if ( boost::regex_match( arg, lMinorRegex ) ) {
          boost::regex lDataRegexRep( "^\\-\\-glMinor=" );
          const char *lRep = "";
          string version = boost::regex_replace( arg, lDataRegexRep, lRep );
          GlobConf.versions.glMinorVersion = atoi( version.c_str() );
+         continue;
+      }
+
+
+      boost::regex lNearRegex( "^\\-\\-near=[0-9]+(\\.[0-9]+)?$" );
+      if ( boost::regex_match( arg, lNearRegex ) ) {
+         boost::regex lDataRegexRep( "^\\-\\-near=" );
+         const char *lRep = "";
+         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         vNearZ = atof( version.c_str() );
+         continue;
+      }
+
+      boost::regex lFarRegex( "^\\-\\-far=[0-9]+(\\.[0-9]+)?$" );
+      if ( boost::regex_match( arg, lFarRegex ) ) {
+         boost::regex lDataRegexRep( "^\\-\\-far=" );
+         const char *lRep = "";
+         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         vFarZ = atof( version.c_str() );
          continue;
       }
 
@@ -208,4 +231,4 @@ void cmdANDinit::postInit() {
    LOG.startLogLoop();
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

@@ -167,10 +167,10 @@ class iInit : public windows_win32::iContext {
 
       template<class __C>
       void   addRenderSlots( uSlot<void, __C, bool> *_start, uSlot<void, __C> *_stop, uSlot<void, __C> *_pause, uSlot<void, __C> *_continue ) {
-		  vStartRenderLoopSignal_SIG.connectWith<__C>(_start);
+         vStartRenderLoopSignal_SIG.connectWith<__C>( _start );
          vStopRenderLoopSignal_SIG.connectWith<__C>( _stop );
-		 vPauseRenderLoop_SIG.connectWith<__C>(_pause);
-		 vContinueRenderLoop_SIG.connectWith<__C>(_continue);
+         vPauseRenderLoop_SIG.connectWith<__C>( _pause );
+         vContinueRenderLoop_SIG.connectWith<__C>( _continue );
 
          vAreRenderLoopSignalsConnected_B = true;
       }
@@ -216,4 +216,4 @@ extern __iInit_Pointer __iInit_Pointer_OBJ;
 
 #endif // E_INIT_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

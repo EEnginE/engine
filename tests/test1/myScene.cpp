@@ -3,8 +3,6 @@
 int myScene::init() {
    updateCamera();
 
-   calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, 0.1, 100.0, 35.0 );
-
    vObject1.loadData();
    vObject1.setOGLData();
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );

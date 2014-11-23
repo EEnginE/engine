@@ -31,9 +31,6 @@ int main( int argc, char *argv[] ) {
 
    if ( start.init() == 1 ) {
       MyHandler handler( cmd, &start );
-      start.addWindowCloseSlot( handler.getSWindowClose() );
-      start.addResizeSlot( handler.getSResize() );
-      start.addKeySlot( handler.getSKey() );
       start.addFocusSlot( start.getAdvancedGrabControlSlot() );
 
       if ( handler.initGL() == 0 )

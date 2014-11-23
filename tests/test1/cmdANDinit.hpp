@@ -15,10 +15,13 @@ class cmdANDinit {
       string         dataRoot;
       string         meshToRender;
       string         vShader;
-      
+
       uJSON_data     vData_JSON;
 
       bool           vCanUseColor;
+
+      GLfloat        vNearZ;
+      GLfloat        vFarZ;
 
       cmdANDinit() {}
 
@@ -31,10 +34,13 @@ class cmdANDinit {
       string getMesh()     const {return dataRoot + meshToRender;}
       string getShader()   const {return dataRoot + string( "shaders/" ) + vShader;}
 
+      GLfloat getNearZ()   const {return vNearZ;}
+      GLfloat getFarZ()    const {return vFarZ;}
+
       bool parseArgsAndInit();
 
 };
 
 #endif // CMDANDINIT_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
