@@ -18,11 +18,11 @@ namespace e_engine {
 class rSceneBase {
    public:
       struct rObjects {
-         internal::rObjectBase *vObjectPointer;
-         internal::rRenderBase *vRenderer;
-         GLuint                vShaderIndex;
+         rObjectBase *vObjectPointer;
+         rRenderBase *vRenderer;
+         GLuint                 vShaderIndex;
 
-         rObjects( internal::rObjectBase *_obj, GLuint _index ) :
+         rObjects( rObjectBase *_obj, GLuint _index ) :
             vObjectPointer( _obj ),
             vRenderer( nullptr ),
             vShaderIndex( _index ) {}
@@ -38,9 +38,9 @@ class rSceneBase {
       template<class T, class... R>
       struct select<T, R...> : select<R...> {
          select(
-            internal::rRenderBase **_p,
-            rShader                *_s,
-            internal::rObjectBase  *_o
+            rRenderBase **_p,
+            rShader      *_s,
+            rObjectBase  *_o
          ) :
             select<R...>( _p, _s, _o ) {
             if (
@@ -64,7 +64,7 @@ class rSceneBase {
       boost::mutex vObjects_MUT;
       boost::mutex vShaders_MUT;
 
-      int assignObjectRenderer( GLuint _index, internal::rRenderBase *_renderer );
+      int assignObjectRenderer( GLuint _index, rRenderBase *_renderer );
    public:
       rSceneBase( std::string _name ) : vName_str( _name ), vReadyToRender_B( false ) {}
       virtual ~rSceneBase();
@@ -72,7 +72,7 @@ class rSceneBase {
 
       bool canRenderScene();
 
-      int  addObject( internal::rObjectBase *_obj, GLuint _shaderIndex );
+      int  addObject( rObjectBase *_obj, GLuint _shaderIndex );
 
       int  addShader( std::string _shader );
       int  compileShaders();
@@ -112,7 +112,7 @@ int rSceneBase::setObjectRenderer( GLuint _index ) {
    if ( vObjects[_index].vShaderIndex > vShaders.size() )
       return 3;
 
-   internal::rRenderBase *lRenderer = nullptr;
+   rRenderBase *lRenderer = nullptr;
    select<T, RENDERERS...> selecter(
       &lRenderer,
       &vShaders[vObjects[_index].vShaderIndex],

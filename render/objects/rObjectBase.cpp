@@ -11,8 +11,6 @@
 
 namespace e_engine {
 
-namespace internal {
-
 rObjectBase::DATA_FILE_TYPE rObjectBase::detectFileTypeFromEnding( const std::string &_str ) {
    boost::regex lDataEndingOBJ_ex( "\\.obj" );
 
@@ -259,7 +257,8 @@ uint32_t rObjectBase::getIBO( GLuint &_n ) {
  * \param[in]  _type The Matrix type
  * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getMatrix( rMat4d **_mat, internal::rObjectBase::MATRIX_TYPES _type ) {
+uint32_t rObjectBase::getMatrix( rMat4d **_mat, rObjectBase::MATRIX_TYPES _type ) {
+   *_mat = nullptr;
    return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
 
@@ -270,7 +269,32 @@ uint32_t rObjectBase::getMatrix( rMat4d **_mat, internal::rObjectBase::MATRIX_TY
  * \param[in]  _type The Matrix type
  * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getMatrix( rMat4f **_mat, internal::rObjectBase::MATRIX_TYPES _type ) {
+uint32_t rObjectBase::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) {
+   *_mat = nullptr;
+   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
+}
+
+/*!
+ * \brief Get the _type Vector
+ *
+ * \param[out] _vec The Vector pointer
+ * \param[in]  _type The Vector type
+ * \returns 0 if the requested Vector exists and ERROR_FLAGS flags if not
+ */
+uint32_t rObjectBase::getVector( rVec4d **_vec, rObjectBase::VECTOR_TYPES _type ) {
+   *_vec = nullptr;
+   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
+}
+
+/*!
+ * \brief Get the _type Vector
+ *
+ * \param[out] _vec The Vector pointer
+ * \param[in]  _type The Vector type
+ * \returns 0 if the requested Vector exists and ERROR_FLAGS flags if not
+ */
+uint32_t rObjectBase::getVector( rVec4f **_vec, rObjectBase::VECTOR_TYPES _type ) {
+   *_vec = nullptr;
    return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
 
@@ -278,7 +302,6 @@ uint32_t rObjectBase::getMatrix( rMat4f **_mat, internal::rObjectBase::MATRIX_TY
 
 
 
-} // internal
 
 } // e_engine
 

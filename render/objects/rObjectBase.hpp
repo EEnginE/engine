@@ -12,11 +12,10 @@
 
 namespace e_engine {
 
-namespace internal {
-
 // Object Flags:
 #define MESH_OBJECT     ( 1 << 0 )
 #define LIGHT_SOURCE    ( 1 << 1 )
+#define AMBIENT_LIGHT   ( 1 << 2 )
 
 // Matrix Flags:
 #define SCALE_MATRIX_FLAG       ( 1 << 0 )
@@ -59,9 +58,10 @@ class rObjectBase {
 
       enum ERROR_FLAGS {
          ALL_OK                             = 0,
-         FUNCTION_NOT_VALID_FOR_THIS_OBJECT = 0x0001,
-         INDEX_OUT_OF_RANGE                 = 0x0002,
-         DATA_NOT_LOADED                    = 0x0004
+         FUNCTION_NOT_VALID_FOR_THIS_OBJECT = ( 1 << 0 ),
+         INDEX_OUT_OF_RANGE                 = ( 1 << 1 ),
+         DATA_NOT_LOADED                    = ( 1 << 2 ),
+         UNSUPPORTED_TYPE                   = ( 1 << 3 ),
       };
 
       enum MATRIX_TYPES {
@@ -71,6 +71,10 @@ class rObjectBase {
          CAMERA_SPACE,
          OBJECT_SPACE,
          FINAL
+      };
+
+      enum VECTOR_TYPES {
+         AMBIENT_COLOR
       };
 
    protected:
@@ -137,6 +141,9 @@ class rObjectBase {
 
       virtual uint32_t getMatrix( rMat4f **_mat, MATRIX_TYPES _type );
       virtual uint32_t getMatrix( rMat4d **_mat, MATRIX_TYPES _type );
+
+      virtual uint32_t getVector( rVec4f **_vec, VECTOR_TYPES _type );
+      virtual uint32_t getVector( rVec4d **_vec, VECTOR_TYPES _type );
 };
 
 template<class... ARGS>
@@ -149,7 +156,6 @@ void rObjectBase::getHints( OBJECT_HINTS _hint, int &_ret ) {
    _ret = vObjectHints[_hint];
 }
 
-} // internal
 
 } // e_engine
 
