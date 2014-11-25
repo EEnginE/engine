@@ -67,24 +67,6 @@ void myWorld::key( iEventInfo info ) {
             // Quit
          case L'Q':
          case E_KEY_ESCAPE: info.iInitPointer->closeWindow(); break;
-
-         // Dont print wasd keys
-         case L'w':
-         case L'a':
-         case L's':
-         case L'd':
-         case L'q':
-         case L'e': break;
-
-            break;
-
-         default:
-#ifdef _MSC_VER
-            _snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
-#else
-            snprintf( lHex_CSTR, 5, "%04X", info.eKey.key );
-#endif
-            iLOG( "Key ", info.eKey.state == E_PRESSED ? "pressed:  '" : "released: '", info.eKey.key, "' - ", "0x", lHex_CSTR );
       }
    }
 }
