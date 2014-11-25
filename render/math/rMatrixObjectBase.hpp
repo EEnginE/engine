@@ -127,6 +127,10 @@ template<class T>
 void rMatrixObjectBase<T>::setRotation( const rVec3< T > &_axis, T _angle ) {
    rMatrixMath::rotate( _axis, _angle, vRotationMatrix_MAT );
 
+   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+
+   if ( vCameraSpaceMatrix_MAT )
+      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
 }
 
 

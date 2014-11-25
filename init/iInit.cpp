@@ -379,6 +379,7 @@ void iInit::restart( bool _runInNewThread ) {
 
    pauseMainLoop();
    vWindowRecreate_B = true;
+   makeContextCurrent();
    destroyContext();
 #if UNIX
    createContext();
