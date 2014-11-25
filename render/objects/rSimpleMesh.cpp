@@ -85,9 +85,9 @@ uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type 
       case SCALE:        *_mat = getScaleMatrix();       return 0;
       case ROTATION:     *_mat = getRotationMatrix();    return 0;
       case TRANSLATION:  *_mat = getTranslationMatrix(); return 0;
-      case CAMERA_SPACE: *_mat = getCameraSpaceMatrix(); return 0;
-      case OBJECT_SPACE: *_mat = getObjectSpaceMatrix(); return 0;
-      case FINAL:        *_mat = getFinalMatrix();       return 0;
+      case CAMERA_SPACE: *_mat = getViewProjectionMatrix(); return 0;
+      case OBJECT_SPACE: *_mat = getModelMatrix(); return 0;
+      case FINAL:        *_mat = getModelViewProjectionMatrix();       return 0;
       default: return INDEX_OUT_OF_RANGE;
    }
 }
