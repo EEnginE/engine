@@ -49,7 +49,7 @@ namespace e_engine {
  * \par General information
  *
  * This is the main Log class of this project. It is
- * able to write all input in a log-file and to a
+ * able to write all input into a log-file and to a
  * specific (colored) commandline output.
  *
  * \par Multithreading
@@ -59,7 +59,7 @@ namespace e_engine {
  *
  * \par Usage
  *
- * At first you really should change the standard log file
+ * At first you should change the standard log file
  * output to a file of your choice with the main config
  * structure \c GlobConf.log
  *
@@ -87,7 +87,7 @@ namespace e_engine {
  * You can also change the color by putting single chars ( e_engine::eCMDColor for more information )
  * in front of the actual log message.
  *
- * Instead of using the functions directly, you can use the macros like in Example 2.
+ * Instead of using the functions directly you can use the macros like in Example 2.
  *
  *
  * Example 1: Normal
@@ -124,7 +124,7 @@ class uLog {
       _SLOT_ vStdErr_eSLOT;
       _SLOT_ vStdLog_eSLOT;
 
-      uint16_t vMaxTypeStringLength_usI; //!< The max string length from a \a Error \a type.
+      uint16_t vMaxTypeStringLength_usI; //!< The max string length of an \a Error \a type.
 
       boost::thread vLogLoopThread_THREAD;
 

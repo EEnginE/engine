@@ -14,17 +14,17 @@ namespace e_engine {
 class iDisplayBasic {
    public:
       /*!
-       * \brief describes the position of one display relative to an other
+       * \brief Describes the position of one display relative to another
        */
       enum POSITON {
-         LEFT_OFF,   //!< Place the display in the \a argument LEFT OFF the \a calling display
-         RIGHT_OFF,  //!< Place the \a calling display LEFT OFF the display in the \a argument
+         LEFT_OF,   //!< Place the display in the \a argument LEFT OF the \a calling display
+         RIGHT_OF,  //!< Place the \a calling display RIGHT OF the display in the \a argument
          ABOVE,      //!< Place the display in the \a argument ABOVE the \a calling display
          BELOW       //!< Place the \a calling display ABOVE the display in the \a argument
       };
 
 
-      //! \brief simple structure for storing mode resolution.
+      //! \brief Simple structure for storing mode resolution.
       struct res {
          unsigned int width;  //!< the width of a mode
          unsigned int height; //!< the height of a mode
@@ -33,16 +33,16 @@ class iDisplayBasic {
    protected:
       //! \brief Basic mode class for storing mode information
       struct mode_basic {
-         bool         prefered; //!< Is this mode prefered (only ONE mode schould have this true)
+         bool         prefered; //!< Is this mode prefered (only ONE mode should have this set to true)
 
-         unsigned int width;    //!< The Width of this mode
+         unsigned int width;    //!< The width of this mode
          unsigned int height;   //!< The height of this mode
          double       rate;     //!< The display redraw frequency of this mode
       };
 
-      bool            vEnabled_B;          //!< Is the display enabbled
-      bool            vIsPrimary_B;        //!< Is this the primary display? Onl one eDisplay schould have this true
-      bool            vPositionChanged_B;  //!< Has the user changed the positon of this display
+      bool            vEnabled_B;          //!< Is the display enabled?
+      bool            vIsPrimary_B;        //!< Is this the primary display? Only one eDisplay should have this true
+      bool            vPositionChanged_B;  //!< Has the user changed the positon of this display?
 
       std::string     vName_str;           //!< The name of this display
       unsigned int    vCurrentWidth_uI;    //!< The current width, without the changes the user made
