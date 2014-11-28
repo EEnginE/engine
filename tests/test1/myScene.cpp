@@ -43,6 +43,17 @@ int myScene::init() {
    return 0;
 }
 
+void myScene::keySlot( iEventInfo _inf ) {
+   if( _inf.eKey.state != E_PRESSED )
+      return;
+
+   switch( _inf.eKey.key ) {
+      case L'z': vRotationAngle += 0.25; vObject1.setRotation( rVec3f( 0, 1, 0 ), vRotationAngle ); break;
+      case L't': vRotationAngle -= 0.25; vObject1.setRotation( rVec3f( 0, 1, 0 ), vRotationAngle ); break;
+   }
+}
+
+
 void myScene::afterCameraUpdate() {
    vObject1.updateFinalMatrix();
 }
