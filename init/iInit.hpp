@@ -111,8 +111,8 @@ class iInit : public windows_win32::iContext {
       int  quitMainLoopCall(); //!< The actual function to quit the main loop
 
       // Signal handling ---------------------------------------------------------- ###
-      static GLvoid handluSignal( int _signal ); //!< The signal handle function
-      GLvoid _setThisForHandluSignal();          //!< Unfortunately you can not pass this with signal()
+      static GLvoid handleSignal( int _signal ); //!< The signal handle function
+      GLvoid _setThisForHandluSignal();          //!< Unfortunately you cannot pass this with signal()
 
       // Standart callbacks NEW --------------------------------------------------- ###
 
@@ -135,7 +135,7 @@ class iInit : public windows_win32::iContext {
       //! The standard Mouse function
       GLvoid s_standardMouse( iEventInfo _info ) {}
 
-      //! The standard Mouse function
+      //! The standard Focus function
       GLvoid s_standardFocus( iEventInfo _info ) {
          iLOG( "Focus ", _info.eFocus.hasFocus ? "got" : "lost" );
       }

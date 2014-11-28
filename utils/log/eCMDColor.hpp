@@ -58,7 +58,7 @@ namespace e_engine {
  * \class e_engine::eCMDColor
  * \brief The main color string changing class for the commandline
  *
- * This class gnerates a string changing the current color of the commandline.
+ * This class generates a string changing the current color of the commandline.
  *
  * \par Linux
  *
