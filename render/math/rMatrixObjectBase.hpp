@@ -23,10 +23,10 @@ class rMatrixObjectBase {
       rMat4<T>  vRotationMatrix_MAT;
       rMat4<T>  vTranslationMatrix_MAT;
 
-      rMat4<T> *vCameraSpaceMatrix_MAT;
+      rMat4<T> *vViewProjectionMatrix_MAT;
 
-      rMat4<T>  vObjectSpaceMatrix_MAT;
-      rMat4<T>  vFinalMatrix_MAT;
+      rMat4<T>  vModelMatrix_MAT;
+      rMat4<T>  vModelViewProjectionMatrix_MAT;
 
       rMatrixObjectBase();
    public:
@@ -45,12 +45,12 @@ class rMatrixObjectBase {
       inline void addScaleDelta( const rVec3<T> &_scale );
 
 
-      inline rMat4<T> *getScaleMatrix()       { return &vScaleMatrix_MAT; }
-      inline rMat4<T> *getRotationMatrix()    { return &vRotationMatrix_MAT; }
-      inline rMat4<T> *getTranslationMatrix() { return &vTranslationMatrix_MAT; }
-      inline rMat4<T> *getObjectSpaceMatrix() { return &vObjectSpaceMatrix_MAT; }
-      inline rMat4<T> *getCameraSpaceMatrix() { return vCameraSpaceMatrix_MAT; }
-      inline rMat4<T> *getFinalMatrix()       { return &vFinalMatrix_MAT; }
+      inline rMat4<T> *getScaleMatrix()               { return &vScaleMatrix_MAT; }
+      inline rMat4<T> *getRotationMatrix()            { return &vRotationMatrix_MAT; }
+      inline rMat4<T> *getTranslationMatrix()         { return &vTranslationMatrix_MAT; }
+      inline rMat4<T> *getModelMatrix()               { return &vModelMatrix_MAT; }
+      inline rMat4<T> *getViewProjectionMatrix()      { return vViewProjectionMatrix_MAT; }
+      inline rMat4<T> *getModelViewProjectionMatrix() { return &vModelViewProjectionMatrix_MAT; }
 
       inline void updateFinalMatrix();
 };
@@ -61,14 +61,14 @@ rMatrixObjectBase<T>::rMatrixObjectBase( rMatrixSceneBase<T> *_scene ) {
    vRotationMatrix_MAT.toIdentityMatrix();
    vTranslationMatrix_MAT.toIdentityMatrix();
 
-   vCameraSpaceMatrix_MAT = _scene->getCameraSpaceMatrix();
+   vViewProjectionMatrix_MAT = _scene->getViewProjectionMatrix();
 
-   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
-   if ( vCameraSpaceMatrix_MAT )
-      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
+   if ( vViewProjectionMatrix_MAT )
+      vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
    else
-      vFinalMatrix_MAT.toIdentityMatrix();
+      vModelViewProjectionMatrix_MAT.toIdentityMatrix();
 }
 
 template<class T>
@@ -80,10 +80,10 @@ void rMatrixObjectBase<T>::setScale( T _scale ) {
       0     , 0     , 0     , 1
    );
 
-   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
-   if ( vCameraSpaceMatrix_MAT )
-      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
+   if ( vViewProjectionMatrix_MAT )
+      vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
 template<class T>
@@ -95,10 +95,10 @@ void rMatrixObjectBase<T>::setScale( const rVec3< T > &_scale ) {
       0       , 0       , 0       , 1
    );
 
-   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
-   if ( vCameraSpaceMatrix_MAT )
-      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
+   if ( vViewProjectionMatrix_MAT )
+      vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
 template<class T>
@@ -117,16 +117,20 @@ void rMatrixObjectBase<T>::addScaleDelta( const rVec3< T > &_scale ) {
       0                                  , 0                                   , 0                                  , 1
    );
 
-   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
-   if ( vCameraSpaceMatrix_MAT )
-      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
+   if ( vViewProjectionMatrix_MAT )
+      vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
 template<class T>
 void rMatrixObjectBase<T>::setRotation( const rVec3< T > &_axis, T _angle ) {
    rMatrixMath::rotate( _axis, _angle, vRotationMatrix_MAT );
 
+   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+
+   if ( vViewProjectionMatrix_MAT )
+      vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
 
@@ -140,10 +144,10 @@ void rMatrixObjectBase<T>::setPosition( const rVec3< T > &_pos ) {
       0, 0, 0, 1
    );
 
-   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
-   if ( vCameraSpaceMatrix_MAT )
-      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
+   if ( vViewProjectionMatrix_MAT )
+      vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
 template<class T>
@@ -163,17 +167,17 @@ void rMatrixObjectBase<T>::addPositionDelta( const rVec3< T > &_pos ) {
       0, 0, 0, 1
    );
 
-   vObjectSpaceMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
+   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
-   if ( vCameraSpaceMatrix_MAT )
-      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
+   if ( vViewProjectionMatrix_MAT )
+      vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
 
 template<class T>
 void rMatrixObjectBase<T>::updateFinalMatrix() {
-   if ( vCameraSpaceMatrix_MAT )
-      vFinalMatrix_MAT = *vCameraSpaceMatrix_MAT * vObjectSpaceMatrix_MAT;
+   if ( vViewProjectionMatrix_MAT )
+      vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
 

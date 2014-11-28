@@ -19,8 +19,8 @@ template<class T>
 class rMatrixSceneBase {
    private:
       rMat4<T>  vProjectionMatrix_MAT;
-      rMat4<T>  vCameraMatrix_MAT;
-      rMat4<T>  vCameraSpaceMatrix_MAT;
+      rMat4<T>  vViewMatrix_MAT;
+      rMat4<T>  vViewProjectionMatrix_MAT;
 
    public:
       rMatrixSceneBase();
@@ -30,19 +30,19 @@ class rMatrixSceneBase {
 
       inline void setCamera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector );
 
-      inline rMat4<T> *getProjectionMatrix()  { return &vProjectionMatrix_MAT; }
-      inline rMat4<T> *getCameraMatrix()      { return &vCameraMatrix_MAT; }
-      inline rMat4<T> *getCameraSpaceMatrix() { return &vCameraSpaceMatrix_MAT; }
+      inline rMat4<T> *getProjectionMatrix()     { return &vProjectionMatrix_MAT; }
+      inline rMat4<T> *getViewMatrix()           { return &vViewMatrix_MAT; }
+      inline rMat4<T> *getViewProjectionMatrix() { return &vViewProjectionMatrix_MAT; }
 };
 
 
 template<class T>
 rMatrixSceneBase<T>::rMatrixSceneBase() {
    vProjectionMatrix_MAT.toIdentityMatrix();
-   vCameraMatrix_MAT.toIdentityMatrix();
-   vCameraSpaceMatrix_MAT.toIdentityMatrix();
+   vViewMatrix_MAT.toIdentityMatrix();
+   vViewProjectionMatrix_MAT.toIdentityMatrix();
 
-   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
+   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -56,7 +56,7 @@ rMatrixSceneBase<T>::rMatrixSceneBase() {
 template<class T>
 void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
+   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -71,7 +71,7 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nea
 template<class T>
 void rMatrixSceneBase<T>::calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
+   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -83,8 +83,8 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective( T _width, T _height, T
  */
 template<class T>
 void rMatrixSceneBase<T>::setCamera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector ) {
-   rMatrixMath::camera( _position, _lookAt, _upVector, vCameraMatrix_MAT );
-   vCameraSpaceMatrix_MAT = vProjectionMatrix_MAT * vCameraMatrix_MAT;
+   rMatrixMath::camera( _position, _lookAt, _upVector, vViewMatrix_MAT );
+   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 
