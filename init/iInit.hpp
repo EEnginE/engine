@@ -81,7 +81,7 @@ class iInit : public windows_win32::iContext {
 
       boost::condition_variable vEventLoopWait_BT;
 
-      bool              vEventLoopPaused_B;    //!< SOULD the event loop be paused?
+      bool              vEventLoopPaused_B;    //!< SHOULD the event loop be paused?
       bool              vEventLoopISPaused_B;
 
       bool              vWasMouseGrabbed_B;
