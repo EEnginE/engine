@@ -53,7 +53,7 @@ void rWorld::renderLoop() {
 
    glClearColor( vClearColor.r, vClearColor.g, vClearColor.b, vClearColor.a );
 
-//    glEnable( GL_CULL_FACE );
+   glEnable( GL_CULL_FACE );
    glEnable( GL_DEPTH_TEST );
    glEnable( GL_MULTISAMPLE );
 
