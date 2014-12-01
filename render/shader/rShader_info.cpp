@@ -6,8 +6,7 @@
 
 namespace e_engine {
 
-#if E_DEBUG_LOGGING
-std::string getTypeString( int _type ) {
+std::string rShader::getTypeString( int _type ) {
    switch ( _type ) {
       case GL_FLOAT:                                     return "float";
       case GL_FLOAT_VEC2:                                return "vec2";
@@ -87,7 +86,7 @@ std::string getTypeString( int _type ) {
 
    return "UNKNOWN";
 }
-#endif
+
 
 std::string rShader::processData( GLenum _type, GLuint _index, GLsizei _arraySize, GLenum *_in, GLint *_out ) {
    // Get most of the information we can get
@@ -530,48 +529,6 @@ void rShader::getInfoOld() {
    vHasProgramInformation_B = true;
 }
 
-
-
-
-
-bool rShader::getInputLocation( std::string _name, int &_location ) {
-   for ( auto loc : vProgramInformation.vInputInfo ) {
-      if ( _name == loc.name ) {
-         _location = loc.location;
-         return true;
-      }
-   }
-   return false;
-}
-
-bool rShader::getOutputLocation( std::string _name, int &_location ) {
-   for ( auto loc : vProgramInformation.vOutputInfo ) {
-      if ( _name == loc.name ) {
-         _location = loc.location;
-         return true;
-      }
-   }
-   return false;
-}
-
-bool rShader::getUniformLocation( std::string _name, int &_location ) {
-   for ( auto loc : vProgramInformation.vUniformInfo ) {
-      if ( _name == loc.name ) {
-         _location = loc.location;
-         return true;
-      }
-   }
-
-   for ( auto block : vProgramInformation.vUniformBlockInfo ) {
-      for ( auto loc : block.uniforms ) {
-         if ( _name == loc.name ) {
-            _location = loc.location;
-            return true;
-         }
-      }
-   }
-   return false;
-}
 
 }
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

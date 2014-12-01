@@ -18,8 +18,6 @@ void myWorld::key( iEventInfo info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.iInitPointer->getDisplayResolutions();
 
-   char lHex_CSTR[6];
-
    if ( info.eKey.state == E_PRESSED ) {
       switch ( info.eKey.key ) {
             // Handle fullscreen

@@ -15,10 +15,16 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
 
    private:
       rSimpleMesh vObject1;
+
+      rAmbientLight<float>      vAmbient;
+      rSimpleLightSource<float> vLight1;
+
       std::string vShader_str;
+      std::string vNormalShader_str;
 
       _SLOT_ vKeySlot;
       float  vRotationAngle;
+      bool   vRenderNormals;
 
    public:
       myScene() = delete;
@@ -27,9 +33,14 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
          rScene( "MAIN SCENE" ),
          rCameraHandler( this, _init ),
          vObject1( this, "OBJ 1", _cmd.getMesh() ),
+         vAmbient( "Ambient Light", rVec3f( 0.1, 0.05, 0.1 ) ),
+         vLight1( this, "L1", rVec3f( 1, 0.75, 0.75 ) ),
          vShader_str( _cmd.getShader() ),
+         vNormalShader_str( _cmd.getNormalShader() ),
          vKeySlot( &myScene::keySlot, this ),
-         vRotationAngle( 0 ) { _init->addKeySlot( &vKeySlot ); }
+         vRotationAngle( 0 ),
+         vRenderNormals( _cmd.getRenderNormals() )
+         { _init->addKeySlot( &vKeySlot ); }
 
       int init();
 

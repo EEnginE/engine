@@ -24,7 +24,6 @@
 
 #include <GL/glew.h>
 #include "rShader.hpp"
-#include <cstdarg>
 #include <boost/filesystem.hpp>
 #include "uLog.hpp"
 #include "defines.hpp"
@@ -35,28 +34,6 @@
 namespace e_engine {
 
 rShader::rShader() {
-   vPath_str             = "";
-   vShaderProgram_OGL    = 0;
-   vIsShaderLinked_B     = false;
-
-   vShaderEndings[VERT]  = VERT_END;
-   vShaderEndings[FRAG]  = FRAG_END;
-   vShaderEndings[GEOM]  = GEOM_END;
-}
-
-
-rShader::rShader( std::string _path ) {
-   vPath_str     = _path;
-   vShaderProgram_OGL    = 0;
-   vIsShaderLinked_B     = false;
-
-   vShaderEndings[VERT]  = VERT_END;
-   vShaderEndings[FRAG]  = FRAG_END;
-   vShaderEndings[GEOM]  = GEOM_END;
-}
-
-rShader::rShader( std::string _path, GLuint n, ... ) {
-   vPath_str             = _path;
    vShaderProgram_OGL    = 0;
    vIsShaderLinked_B     = false;
 
@@ -64,17 +41,64 @@ rShader::rShader( std::string _path, GLuint n, ... ) {
    vShaderEndings[FRAG]  = FRAG_END;
    vShaderEndings[GEOM]  = GEOM_END;
 
-   vLinkerAttributes.clear();
-   va_list list;
-   va_start( list, n );
-   for( unsigned int i = 0; i < n; i++ ) {
-      internal::atributeObject attribute;
-      attribute.index = va_arg( list, int );
-      attribute.name  = va_arg( list, char * );
-      vLinkerAttributes.push_back( attribute );
-   }
-   va_end( list );
+   for( size_t i = 0; i < __END_INF__; ++i )
+      vLocationInformation[i] = -1;
+
+   // Inputs:
+
+   vLocationNames[VERTEX_INPUT]       = "iVertex";
+   vLocationTypes[VERTEX_INPUT]       = GL_FLOAT_VEC3;
+
+   vLocationNames[NORMALS_INPUT]      = "iNormals";
+   vLocationTypes[NORMALS_INPUT]      = GL_FLOAT_VEC3;
+
+   // Uniforms:
+
+   vLocationNames[MODEL_MATRIX]       = "uModel";
+   vLocationTypes[MODEL_MATRIX]       = GL_FLOAT_MAT4;
+
+   vLocationNames[VIEW_MATRIX]        = "uView";
+   vLocationTypes[VIEW_MATRIX]        = GL_FLOAT_MAT4;
+
+   vLocationNames[PROJECTOIN_MATRIX]  = "uProjection";
+   vLocationTypes[PROJECTOIN_MATRIX]  = GL_FLOAT_MAT4;
+
+   vLocationNames[M_V_P_MATRIX]       = "uMVP";
+   vLocationTypes[M_V_P_MATRIX]       = GL_FLOAT_MAT4;
+
+
+   vLocationNames[AMBIENT_COLOR]      = "uAmbientColor";
+   vLocationTypes[AMBIENT_COLOR]      = GL_FLOAT_VEC3;
+
+   vLocationNames[LIGHT_COLOR]        = "uLightColor";
+   vLocationTypes[LIGHT_COLOR]        = GL_FLOAT_VEC3;
+
+   vLocationNames[LIGHT_POSITION]     = "uLightPos";
+   vLocationTypes[LIGHT_POSITION]     = GL_FLOAT_VEC3;
 }
+
+rShader::rShader( rShader && _s ) :
+   vShaders( std::move( _s.vShaders ) ),
+   vPath_str( std::move( _s.vPath_str ) ),
+   vShaderProgram_OGL( std::move( _s.vShaderProgram_OGL ) ),
+   vIsShaderLinked_B( std::move( _s.vIsShaderLinked_B ) ),
+   vProgramInformation( std::move( _s.vProgramInformation ) ),
+   vHasProgramInformation_B( std::move( _s.vHasProgramInformation_B ) ) {
+
+   for( unsigned int i = 0; i < 3; ++i )
+      vShaderEndings[i] = std::move( _s.vShaderEndings[i] );
+
+   for( unsigned int i = 0; i < __END_INF__; ++i )
+      vLocationInformation[i] = std::move( _s.vLocationInformation[i] );
+
+   for( unsigned int i = 0; i < __END_INF__; ++i )
+      vLocationNames[i] = std::move( _s.vLocationNames[i] );
+
+   for( unsigned int i = 0; i < __END_INF__; ++i )
+      vLocationTypes[i] = std::move( _s.vLocationTypes[i] );
+
+}
+
 
 // =========================================================================================================================
 // ==============================================================================================================================================
@@ -166,8 +190,8 @@ unsigned int rShader::testProgram() {
    int status;
    glGetProgramiv( vShaderProgram_OGL, GL_LINK_STATUS, &status );
    if( status == GL_FALSE ) {
-     GLint lLinkLogLength;
-     glGetProgramiv( vShaderProgram_OGL, GL_INFO_LOG_LENGTH, &lLinkLogLength );
+      GLint lLinkLogLength;
+      glGetProgramiv( vShaderProgram_OGL, GL_INFO_LOG_LENGTH, &lLinkLogLength );
       GLchar *log = new GLchar[lLinkLogLength];
       glGetProgramInfoLog( vShaderProgram_OGL, lLinkLogLength, NULL, log );
 
@@ -245,13 +269,6 @@ int rShader::compile() {
    // Adding shaders
    for( auto & s : vShaders ) {
       glAttachShader( vShaderProgram_OGL, s.vShader_OGL );
-   }
-
-   // Binding Attributes
-   if( vLinkerAttributes.empty() == false ) {
-      for( GLuint i = 0; i < vLinkerAttributes.size(); i++ ) {
-         glBindAttribLocation( vShaderProgram_OGL, vLinkerAttributes[i].index, vLinkerAttributes[i].name.c_str() );
-      }
    }
 
    // Linking
@@ -338,13 +355,13 @@ bool rShader::singleShader::testShader() {
    int test;
    glGetShaderiv( vShader_OGL, GL_COMPILE_STATUS, &test );
    if( test == GL_FALSE ) {
-     GLint logLength = 0;
-     glGetShaderiv( vShader_OGL, GL_INFO_LOG_LENGTH, &logLength );
+      GLint logLength = 0;
+      glGetShaderiv( vShader_OGL, GL_INFO_LOG_LENGTH, &logLength );
       GLchar *log = new GLchar[logLength];
       glGetShaderInfoLog( vShader_OGL, logLength, NULL, log );
 
       eLOG(
-	   "Compile failure in the ", getShaderTypeString( vShaderType ), " shader ", vFilename_str, ":\n",
+            "Compile failure in the ", getShaderTypeString( vShaderType ), " shader ", vFilename_str, ":\n",
             "###################################################################################\n\n",
             std::string( log ),
             "\n\n###################################################################################"
@@ -413,31 +430,86 @@ bool rShader::getProgram( unsigned int &_program ) const  {
  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
 
 
+void rShader::setLocationString( SHADER_INFORMATION _type, std::string &_str ) {
+   vLocationNames[_type] = _str;
+}
+
+void rShader::setLocationString( SHADER_INFORMATION _type, std::string && _str ) {
+   vLocationNames[_type] = _str;
+}
+
+
 /*!
- * \brief Set additional attributes
- * \param[in] n Number of following attribute pairs
+ * \brief Interpretes the information in the shader info struct
  *
- * Adds attributes to the program when its linked.
+ * This function Interpretes the information in the shader info struct and assigns
+ * the location of the input / uniform to a specific type.
  *
- * USE: <number of atrributes> , attributes: [int index, char* name]
+ * Defult strings:
  *
- * \returns Nothing
+ * |    name     |        type       |
+ * | :---------: | :---------------: |
+ * | iVertex     | VERTEX_INPUT      |
+ * | iNormals    | NORMALS_INPUT     |
+ * | uModel      | MODEL_MATRIX      |
+ * | uView       | VIEW_MATRIX       |
+ * | uProjection | PROJECTOIN_MATRIX |
+ * | uMVP        | M_V_P_MATRIX      |
+ *
+ * \returns true if everything went fine and false when at least one value could not be assigned
  */
-void rShader::setAttributes( unsigned int n, ... ) {
-   vLinkerAttributes.clear();
-   va_list list;
-   va_start( list, n );
-   for( unsigned int i = 0; i < n; i++ ) {
-      internal::atributeObject attribute;
-      attribute.index = va_arg( list, int );
-      attribute.name  = va_arg( list, char * );
-      vLinkerAttributes.push_back( attribute );
+bool rShader::parseRawInformation() {
+   if( !vIsShaderLinked_B )
+      return false;
+
+#if E_DEBUG_LOGGING
+   dLOG( "Assigning locations of shader '", vPath_str, "' to a type" );
+#endif
+
+   GLint j;
+   bool lRet = true;
+
+   for( auto const & i : vProgramInformation.vInputInfo ) {
+      for( j = 0; j < __BEGIN_UNIFORMS__; ++j ) {
+         if( vLocationInformation[j] >= 0 )
+            continue;
+
+         if( i.name == vLocationNames[j] && i.type == vLocationTypes[j] ) {
+            vLocationInformation[j] = i.location;
+            j = -1;
+            break;
+         }
+      }
+
+      if( j >= 0 ) {
+         wLOG( "  - Failed to assign input '", i.name, "' [", i.location, "; ", getTypeString( i.type ), "]" );
+         lRet = false;
+      }
    }
-   va_end( list );
+
+   for( auto const & i : vProgramInformation.vUniformInfo ) {
+      for( j = __BEGIN_UNIFORMS__ + 1; j < __END_INF__; ++j ) {
+         if( vLocationInformation[j] >= 0 )
+            continue;
+
+         if( i.name == vLocationNames[j] && i.type == vLocationTypes[j] ) {
+            vLocationInformation[j] = i.location;
+            j = -1;
+            break;
+         }
+      }
+
+      if( j >= 0 ) {
+         wLOG( "  - Failed to assign uniform '", i.name, "' [", i.location, "; ", getTypeString( i.type ), "]" );
+         lRet = false;
+      }
+   }
+
+   return true;
 }
 
 
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
 

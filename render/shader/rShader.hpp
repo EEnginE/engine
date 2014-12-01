@@ -54,6 +54,25 @@ class rShader {
          GEOM
       };
 
+      enum SHADER_INFORMATION {
+         VERTEX_INPUT = 0,
+         NORMALS_INPUT,
+         __BEGIN_UNIFORMS__,
+
+         // Matrices
+         MODEL_MATRIX,
+         VIEW_MATRIX,
+         PROJECTOIN_MATRIX,
+         M_V_P_MATRIX,
+
+         // Light
+         AMBIENT_COLOR,
+         LIGHT_COLOR,
+         LIGHT_POSITION,
+
+         __END_INF__
+      };
+
    private:
       struct singleShader {
          std::string vFilename_str;
@@ -71,16 +90,15 @@ class rShader {
 
       std::vector<singleShader> vShaders;
       std::string               vPath_str;
-      std::vector<internal::atributeObject> vLinkerAttributes;
 
-      std::string                    vShaderEndings[3];
+      std::string               vShaderEndings[3];
 
-      GLuint                         vShaderProgram_OGL;
+      GLuint                    vShaderProgram_OGL;
 
-      bool                           vIsShaderLinked_B;
+      bool                      vIsShaderLinked_B;
 
       internal::programInfo vProgramInformation;
-      bool                           vHasProgramInformation_B;
+      bool                  vHasProgramInformation_B;
 
       unsigned int testProgram();
       void         getProgramInfo();
@@ -89,19 +107,23 @@ class rShader {
       void         getInfoOld();
       void         getInfoNew();
 
+      std::string  getTypeString( int _type );
+
+      GLint vLocationInformation[__END_INF__];
+      std::string vLocationNames[__END_INF__];
+      GLint       vLocationTypes[__END_INF__];
+
    public:
       rShader();
-      rShader( std::string _path );
-      rShader( std::string _path, GLuint n, ... );
-      ~rShader() { if ( vIsShaderLinked_B ) deleteProgram();}
+      rShader( std::string _path ) : rShader() {vPath_str = _path;}
+      ~rShader() { if( vIsShaderLinked_B ) deleteProgram();}
 
       // Forbid copying
-      rShader( const rShader & ) = delete;
+      rShader( const rShader & )            = delete;
       rShader &operator=( const rShader & ) = delete;
 
       // Allow moving
-      rShader( rShader&& ) {}
-      rShader &operator=( rShader&& ) {return *this;}
+      rShader( rShader && _s );
 
       GLvoid   setShaders( std::string _path ) { vPath_str = _path; }
 
@@ -112,10 +134,6 @@ class rShader {
       }
 
       bool   addShader( std::string _filename, GLenum _shaderType );
-
-
-      void   setAttributes( unsigned int n, ... );
-      void   clearAttributes() {vLinkerAttributes.clear();}
 
       int    search_shaders();
 
@@ -129,9 +147,12 @@ class rShader {
 
       internal::programInfo *getShaderInfo() { return &vProgramInformation; }
 
-      bool         getInputLocation( std::string _name, int &_location );
-      bool         getOutputLocation( std::string _name, int &_location );
-      bool         getUniformLocation( std::string _name, int &_location );
+      bool parseRawInformation();
+
+      void setLocationString( SHADER_INFORMATION _type, std::string &_str );
+      void setLocationString( SHADER_INFORMATION _type, std::string && _str );
+
+      GLint getLocation( SHADER_INFORMATION _type ) {return vLocationInformation[_type];}
 };
 
 /*!
@@ -172,6 +193,16 @@ class rShader {
  * \param _frag fragment-shader ending
  * \param _geom geometry-shader ending
  * \returns Nothing
+ */
+
+/*!
+ * \fn rShader::getLocation
+ *
+ * You should run parseRawInformation() first
+ *
+ * \brief Returns the location of a shader input / uniform
+ * \param[in] _type The type of the input / uniform
+ * \returns The location or a negative value
  */
 
 }

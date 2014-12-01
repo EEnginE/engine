@@ -21,12 +21,11 @@ class myWorld final : public rWorld {
 
       std::vector<iDisplays> vDisp_RandR;
 
+      myScene vScene;
+      iInit  *vInitPointer;
+      
       GLfloat vNearZ;
       GLfloat vFarZ;
-
-      myScene vScene;
-
-      iInit  *vInitPointer;
 
       _SLOT_ slotWindowClose;
       _SLOT_ slotResize;

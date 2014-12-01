@@ -19,13 +19,17 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
    private:
       GLuint vVertexBufferObject;
       GLuint vIndexBufferObject;
+      GLuint vNormalBufferObject;
 
       void setFlags();
+
+      bool vHasNormals;
 
    public:
       rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name, std::string _file, DATA_FILE_TYPE _type = AUTODETECT ) :
          rMatrixObjectBase( _scene ),
-         rObjectBase( _name, _file, _type ) {setFlags();}
+         rObjectBase( _name, _file, _type ),
+         vHasNormals( false ) {setFlags();}
 
       rSimpleMesh() = delete;
 
@@ -36,6 +40,7 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
 
       virtual uint32_t getVBO( uint32_t &_n );
       virtual uint32_t getIBO( uint32_t &_n );
+      virtual uint32_t getNBO( uint32_t &_n );
       virtual uint32_t getMatrix( e_engine::rMat4f **_mat, rObjectBase::MATRIX_TYPES _type );
 };
 

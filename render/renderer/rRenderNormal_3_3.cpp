@@ -23,10 +23,7 @@ rRenderNormal_3_3::rRenderNormal_3_3() {
 void rRenderNormal_3_3::render() {
    glUseProgram( vShader_OGL );
 
-   if ( vNeedUpdateUniforms_B || vAlwaysUpdateUniforms_B || true ) {
-      glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix->getMatrix() );
-      vNeedUpdateUniforms_B = false;
-   }
+   glUniformMatrix4fv( vUniformLocation_OGL, 1, false, vMatrix->getMatrix() );
 
    glEnableVertexAttribArray( vInputLocation_OGL );
 
@@ -41,56 +38,36 @@ void rRenderNormal_3_3::render() {
 
 
 bool rRenderNormal_3_3::testShader( rShader *_shader ) {
-   if ( !_shader->getIsLinked() )
+   if( !_shader->getIsLinked() )
       return false;
 
-   auto *info = _shader->getShaderInfo();
-
-   // We need exactly one input
-   if ( info->vInputInfo.size() != 1 )
-      return false;
-
-   if ( info->vInputInfo[0].type != GL_FLOAT_VEC3 )
-      return false;
-
-   // We need exactly one uniform
-   if ( info->vUniformInfo.size() != 1 )
-      return false;
-
-   if ( info->vUniformInfo[0].type != GL_FLOAT_MAT4 )
-      return false;
-
-   // And none of these
-   if ( info->vUniformBlockInfo.size() != 0 )
-      return false;
-
-   return true;
+   return require( _shader, rShader::VERTEX_INPUT, rShader::M_V_P_MATRIX );
 }
 
 bool rRenderNormal_3_3::testObject( rObjectBase *_obj ) {
    int lVert, lFlags, lMatrices, lnVBO, lnIBO;
 
    _obj->getHints(
-      rObjectBase::NUM_INDEXES, lVert,
-      rObjectBase::FLAGS,       lFlags,
-      rObjectBase::MATRICES,    lMatrices,
-      rObjectBase::NUM_VBO,     lnVBO,
-      rObjectBase::NUM_IBO,     lnIBO
+         rObjectBase::NUM_INDEXES, lVert,
+         rObjectBase::FLAGS,       lFlags,
+         rObjectBase::MATRICES,    lMatrices,
+         rObjectBase::NUM_VBO,     lnVBO,
+         rObjectBase::NUM_IBO,     lnIBO
    );
 
-   if ( !( lFlags & MESH_OBJECT ) )
+   if( !( lFlags & MESH_OBJECT ) )
       return false;
 
-   if ( lVert < 3 )
+   if( lVert < 3 )
       return false;
 
-   if ( !( lMatrices & FINAL_MATRIX_FLAG ) )
+   if( !( lMatrices & MODEL_VIEW_PROJECTION_MATRIX_FLAG ) )
       return false;
 
-   if ( lnVBO != 1 )
+   if( lnVBO != 1 )
       return false;
 
-   if ( lnIBO != 1 )
+   if( lnIBO != 1 )
       return false;
 
    return true;
@@ -98,20 +75,18 @@ bool rRenderNormal_3_3::testObject( rObjectBase *_obj ) {
 
 
 void rRenderNormal_3_3::setDataFromShader( rShader *_s ) {
-   if ( !_s->getProgram( vShader_OGL ) )
+   if( !_s->getProgram( vShader_OGL ) )
       return;
 
-   auto *info = _s->getShaderInfo();
-
-   vInputLocation_OGL   = info->vInputInfo[0].location;
-   vUniformLocation_OGL = info->vUniformInfo[0].location;
+   vInputLocation_OGL   = _s->getLocation( rShader::VERTEX_INPUT );
+   vUniformLocation_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
 }
 
 void rRenderNormal_3_3::setDataFromObject( rObjectBase *_obj ) {
    vVertexBufferObj_OGL = vIndexBufferObj_OGL = 0;
    _obj->getVBO( vVertexBufferObj_OGL );
    _obj->getIBO( vIndexBufferObj_OGL );
-   _obj->getMatrix( &vMatrix, rObjectBase::FINAL );
+   _obj->getMatrix( &vMatrix, rObjectBase::MODEL_VIEW_PROJECTION );
 
    int lTemp;
 

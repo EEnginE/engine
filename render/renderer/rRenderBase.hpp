@@ -19,6 +19,28 @@ enum RENDERER_ID {
    ___RENDERER_ENGINE_LAST___
 };
 
+template<class T>
+struct rRenderAmbientLight {
+   rVec3<T> *color = nullptr;
+
+   void setAmbient( rObjectBase *_obj ) {
+      _obj->getVector( &color,     rObjectBase::LIGHT_COLOR );
+   }
+};
+
+template<class T>
+struct rRenderLightSource : rRenderAmbientLight<T> {
+   rVec3<T> *position = nullptr;
+
+   using rRenderAmbientLight<T>::setAmbient;
+
+   void setLight( rObjectBase *_obj ) {
+      _obj->getVector( &position, rObjectBase::POSITION );
+
+      setAmbient( _obj );
+   }
+};
+
 /*!
  * \brief Basic renderer to provide an interface for other renderer classes
  */
@@ -26,6 +48,20 @@ class rRenderBase {
    protected:
       bool vNeedUpdateUniforms_B;
       bool vAlwaysUpdateUniforms_B;
+
+   protected:
+      template<class... ARGS>
+      static inline bool require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS && ... _args );
+      static inline bool require( rShader *_s );
+
+      template<class... ARGS>
+      static inline bool testUnifrom( GLint _u, std::string && _missing, ARGS && ... _args );
+      static inline bool testUnifrom();
+
+      template<class... ARGS, class T>
+      static inline bool testPointer( T *_p, std::string && _missing, ARGS && ... _args );
+      static inline bool testPointer();
+
    public:
       rRenderBase() : vNeedUpdateUniforms_B( false ), vAlwaysUpdateUniforms_B( false ) {}
       virtual ~rRenderBase() {}
@@ -35,9 +71,71 @@ class rRenderBase {
       virtual void        setDataFromShader( rShader *_s )       = 0;
       virtual void        setDataFromObject( rObjectBase *_obj ) = 0;
 
+      virtual void        setDataFromAdditionalObjects( rObjectBase *_obj ) {}
+
+      virtual bool        canRender() {return true;}
+
       void updateUniforms() {vNeedUpdateUniforms_B = true;}
       void updateUniformsAlways( bool _doit ) { vAlwaysUpdateUniforms_B = _doit; }
 };
+
+template<class... ARGS>
+bool rRenderBase::require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS && ... _args ) {
+   if( !( _s->getLocation( _inf ) >= 0 ) )
+      return false;
+
+   return require( _s, _args... );
+}
+
+bool rRenderBase::require( rShader *_s ) {
+   return true;
+}
+
+
+template<class... ARGS>
+bool rRenderBase::testUnifrom( GLint _u, std::string && _missing, ARGS && ... _args ) {
+#if E_DEBUG_LOGGING
+   dLOG( "Uniform: ", _missing, ": ", _u );
+#endif
+
+   if( _u < 0 ) {
+      eLOG( "MISSING Uniform: ", _missing );
+#if E_DEBUG_LOGGING
+      testUnifrom( _args... );
+#endif
+      return false;
+   }
+
+   return testUnifrom( _args... );
+}
+
+bool rRenderBase::testUnifrom() {
+   return true;
+}
+
+
+template<class... ARGS, class T>
+bool rRenderBase::testPointer( T *_p, std::string && _missing, ARGS && ... _args ) {
+#if E_DEBUG_LOGGING
+   dLOG( "Pointer: ", _missing, ": ", boost::lexical_cast<std::wstring>( _p ) );
+#endif
+
+   if( !_p ) {
+      eLOG( "MISSING Pointer: ", _missing );
+#if E_DEBUG_LOGGING
+      testPointer( _args... );
+#endif
+      return false;
+   }
+
+   return testPointer( _args... );
+}
+
+
+bool rRenderBase::testPointer() {
+   return true;
+}
+
 
 /*!
  * \fn rRenderBase::setDataFromShader
@@ -46,16 +144,16 @@ class rRenderBase {
  * \warning This function assumes that testShader (from the derived class) returned true
  */
 
- /*!
- * \fn rRenderBase::setDataFromObject
- * \brief Sets neccessary OpenGL information for the renderer from the object
- *
- * \warning This function assumes that testObject (from the derived class) returned true
- */
+/*!
+* \fn rRenderBase::setDataFromObject
+* \brief Sets neccessary OpenGL information for the renderer from the object
+*
+* \warning This function assumes that testObject (from the derived class) returned true
+*/
 
 
 }
 
 #endif // R_RENDER_NORMAL_OBJ_BASE_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

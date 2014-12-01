@@ -34,7 +34,7 @@ namespace ascii   = boost::spirit::ascii;
 namespace phoenix = boost::phoenix;
 
 template<class Iterator>
-struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
+struct objGrammar_float : qi::grammar<Iterator, internal::_3D_Data_RAWF()> {
    static void unsupported_f( std::string _what ) {
       wLOG( "OBJ Parser: '", _what, "' is not supported" );
    }
@@ -135,7 +135,7 @@ struct objGrammar_float : qi::grammar<Iterator, internal::_3D_DataF()> {
    qi::rule<Iterator, std::string()> other;
 #endif
 
-   qi::rule<Iterator, internal::_3D_DataF()> start;
+   qi::rule<Iterator, internal::_3D_Data_RAWF()> start;
 };
 
 
@@ -160,7 +160,7 @@ int rLoader_3D_f_OBJ::load() {
 
    uFileIO::C_ITERATOR lStartIter = lFile.begin();
    uFileIO::C_ITERATOR lEndIter   = lFile.end();
-   bool lReturn = qi::parse( lStartIter, lEndIter, lGrammar, vData );
+   bool lReturn = qi::parse( lStartIter, lEndIter, lGrammar, vDataRaw );
 
    if ( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
       eLOG( "Failed to parse '", vFilePath_str, "'" );

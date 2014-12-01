@@ -18,13 +18,14 @@ namespace e_engine {
 #define AMBIENT_LIGHT   ( 1 << 2 )
 
 // Matrix Flags:
-#define SCALE_MATRIX_FLAG       ( 1 << 0 )
-#define ROTATION_MATRIX_FLAG    ( 1 << 1 )
-#define TRANSLATION_MATRIX_FLAG ( 1 << 2 )
-#define CAMERA_MATRIX_FLAG      ( 1 << 3 )
-#define OBJECT_MATRIX_FLAG      ( 1 << 4 )
-#define FINAL_MATRIX_FLAG       ( 1 << 5 )
-
+#define SCALE_MATRIX_FLAG                 ( 1 << 0 )
+#define ROTATION_MATRIX_FLAG              ( 1 << 1 )
+#define TRANSLATION_MATRIX_FLAG           ( 1 << 2 )
+#define VIEW_MATRIX_FLAG                  ( 1 << 3 )
+#define PROJECTION_MATRIX_FLAG            ( 1 << 4 )
+#define CAMERA_MATRIX_FLAG                ( 1 << 5 )
+#define MODEL_MATRIX_FLAG                 ( 1 << 6 )
+#define MODEL_VIEW_PROJECTION_MATRIX_FLAG ( 1 << 7 )
 
 /*!
  * \brief Base class for creating objects
@@ -50,11 +51,16 @@ class rObjectBase {
          LIGHT_MODEL,
          NUM_VBO,
          NUM_IBO,
+         NUM_NBO,
          IS_DATA_READY,
          __LAST__
       };
 
-      enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE, SET_DATA_MANUALLY };
+      enum DATA_FILE_TYPE {
+         AUTODETECT,
+         OBJ_FILE,
+         SET_DATA_MANUALLY
+      };
 
       enum ERROR_FLAGS {
          ALL_OK                             = 0,
@@ -68,13 +74,21 @@ class rObjectBase {
          SCALE,
          ROTATION,
          TRANSLATION,
-         CAMERA_SPACE,
-         OBJECT_SPACE,
-         FINAL
+         VIEW_MATRIX,
+         PROJECTION_MATRIX,
+         CAMERA_MATRIX,
+         MODEL_MATRIX,
+         MODEL_VIEW_PROJECTION
       };
 
       enum VECTOR_TYPES {
-         AMBIENT_COLOR
+         LIGHT_COLOR,
+         POSITION
+      };
+
+      enum LIGHT_MODEL_T {
+         NO_LIGHTS = 0,
+         SIMPLE_ADS_LIGHT
       };
 
    protected:
@@ -87,7 +101,7 @@ class rObjectBase {
       bool vIsLoaded_B;
       bool vKeepDataInRAM_B;
 
-      internal::rLoaderBase<float> *vLoaderData;
+      internal::rLoaderBase<GLfloat,GLuint> *vLoaderData;
 
       DATA_FILE_TYPE detectFileTypeFromEnding( std::string const &_str );
 
@@ -98,9 +112,9 @@ class rObjectBase {
          vName_str( _name ),
          vFile_str( _file ),
          vFileType( _type ),
+         vIsLoaded_B( false ),
          vKeepDataInRAM_B( false ),
-         vLoaderData( nullptr ),
-         vIsLoaded_B( false ) {
+         vLoaderData( nullptr ) {
          for ( uint32_t i = 0; i < __LAST__; ++i )
             vObjectHints[i] = 0;
       }
@@ -138,12 +152,16 @@ class rObjectBase {
 
       virtual uint32_t getVBO( GLuint &_n );
       virtual uint32_t getIBO( GLuint &_n );
+      virtual uint32_t getNBO( GLuint &_n );
 
       virtual uint32_t getMatrix( rMat4f **_mat, MATRIX_TYPES _type );
       virtual uint32_t getMatrix( rMat4d **_mat, MATRIX_TYPES _type );
 
       virtual uint32_t getVector( rVec4f **_vec, VECTOR_TYPES _type );
       virtual uint32_t getVector( rVec4d **_vec, VECTOR_TYPES _type );
+      
+      virtual uint32_t getVector( rVec3f **_vec, VECTOR_TYPES _type );
+      virtual uint32_t getVector( rVec3d **_vec, VECTOR_TYPES _type );
 };
 
 template<class... ARGS>
