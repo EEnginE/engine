@@ -42,7 +42,7 @@ int main( int argc, char *argv[] ) {
 
    init.shutdown();
 
-   return 1;
+   return 0;
 }
 
 

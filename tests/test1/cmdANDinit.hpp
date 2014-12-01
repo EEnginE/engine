@@ -14,14 +14,16 @@ class cmdANDinit {
       string         argv0;
       string         dataRoot;
       string         meshToRender;
-      string         vShader;
+      string         vShader       = "shaderBasic";
+      string         vNormalShader = "normals";
 
       uJSON_data     vData_JSON;
 
       bool           vCanUseColor;
+      bool           vRenderNormals = false;
 
-      GLfloat        vNearZ;
-      GLfloat        vFarZ;
+      GLfloat        vNearZ         = 0.1;
+      GLfloat        vFarZ          = 100;
 
       cmdANDinit() {}
 
@@ -31,11 +33,14 @@ class cmdANDinit {
    public:
       cmdANDinit( int argc, char *argv[] );
 
-      string getMesh()     const {return dataRoot + meshToRender;}
-      string getShader()   const {return dataRoot + string( "shaders/" ) + vShader;}
+      string  getMesh()          const {return dataRoot + meshToRender;}
+      string  getShader()        const {return dataRoot + string( "shaders/" ) + vShader;}
+      string  getNormalShader()  const {return dataRoot + string( "shaders/" ) + vNormalShader;}
 
-      GLfloat getNearZ()   const {return vNearZ;}
-      GLfloat getFarZ()    const {return vFarZ;}
+      GLfloat getNearZ()         const {return vNearZ;}
+      GLfloat getFarZ()          const {return vFarZ;}
+
+      bool    getRenderNormals() const {return vRenderNormals;}
 
       bool parseArgsAndInit();
 

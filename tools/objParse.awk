@@ -1,7 +1,7 @@
 #!/usr/bin/gawk -f
 BEGIN {
     fEnd = "_f.obj"
-    scaleX = scaleY = scaleZ = 0
+    scaleX = scaleY = scaleZ = 1
     moveX = moveY = moveZ = 0
     shift = 0
 }

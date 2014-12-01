@@ -20,9 +20,9 @@ class rSceneBase {
       struct rObject {
          rObjectBase *vObjectPointer;
          rRenderBase *vRenderer;
-         GLuint                 vShaderIndex;
+         GLint       vShaderIndex;
 
-         rObject( rObjectBase *_obj, GLuint _index ) :
+         rObject( rObjectBase *_obj, GLint _index ) :
             vObjectPointer( _obj ),
             vRenderer( nullptr ),
             vShaderIndex( _index ) {}
@@ -55,7 +55,9 @@ class rSceneBase {
 
    private:
       std::vector<rObject> vObjects;
-      std::vector<rShader>  vShaders;
+      std::vector<rShader> vShaders;
+
+      std::vector<size_t>  vLightSourcesIndex;
 
       std::string vName_str;
 
@@ -72,10 +74,11 @@ class rSceneBase {
 
       bool canRenderScene();
 
-      int  addObject( rObjectBase *_obj, GLuint _shaderIndex );
+      int  addObject( rObjectBase *_obj, GLint _shaderIndex );
 
       int  addShader( std::string _shader );
       int  compileShaders();
+      int  parseShaders();
 
       GLuint getNumObjects() { return vObjects.size(); }
 
@@ -109,7 +112,7 @@ int rSceneBase::setObjectRenderer( GLuint _index ) {
    if ( ! vObjects[_index].vObjectPointer )
       return 2;
 
-   if ( vObjects[_index].vShaderIndex > vShaders.size() )
+   if ( vObjects[_index].vShaderIndex > vShaders.size() || vObjects[_index].vShaderIndex < 0 )
       return 3;
 
    rRenderBase *lRenderer = nullptr;

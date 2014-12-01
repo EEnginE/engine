@@ -24,9 +24,14 @@ class rMatrixObjectBase {
       rMat4<T>  vTranslationMatrix_MAT;
 
       rMat4<T> *vViewProjectionMatrix_MAT;
+      rMat4<T> *vViewMatrix_MAT;
+      rMat4<T> *vProjectionMatrix_MAT;
 
       rMat4<T>  vModelMatrix_MAT;
       rMat4<T>  vModelViewProjectionMatrix_MAT;
+      
+      rVec3<T>  vPosition;
+      rVec3<T>  vScale;
 
       rMatrixObjectBase();
    public:
@@ -34,14 +39,14 @@ class rMatrixObjectBase {
 
       inline void setPosition( const rVec3<T> &_pos );
       inline void getPosition( rVec3<T> &_pos );
-      inline rVec3<T> getPosition() {rVec3<T> lPos; getPosition( lPos ); return lPos;}
+      inline rVec3<T> *getPosition() {return &vPosition;}
       inline void addPositionDelta( const rVec3<T> &_pos );
 
       inline void setRotation( const rVec3<T> &_axis, T _angle );
 
       inline void setScale( T _scale );
       inline void setScale( const rVec3<T> &_scale );
-      inline void getScale( rVec3<T> &_scale );
+      inline rVec3<T> * getScale() {return &vScale;}
       inline void addScaleDelta( const rVec3<T> &_scale );
 
 
@@ -49,6 +54,8 @@ class rMatrixObjectBase {
       inline rMat4<T> *getRotationMatrix()            { return &vRotationMatrix_MAT; }
       inline rMat4<T> *getTranslationMatrix()         { return &vTranslationMatrix_MAT; }
       inline rMat4<T> *getModelMatrix()               { return &vModelMatrix_MAT; }
+      inline rMat4<T> *getViewMatrix()                { return vViewMatrix_MAT; }
+      inline rMat4<T> *getProjectionMatrix()          { return vProjectionMatrix_MAT; }
       inline rMat4<T> *getViewProjectionMatrix()      { return vViewProjectionMatrix_MAT; }
       inline rMat4<T> *getModelViewProjectionMatrix() { return &vModelViewProjectionMatrix_MAT; }
 
@@ -62,6 +69,8 @@ rMatrixObjectBase<T>::rMatrixObjectBase( rMatrixSceneBase<T> *_scene ) {
    vTranslationMatrix_MAT.toIdentityMatrix();
 
    vViewProjectionMatrix_MAT = _scene->getViewProjectionMatrix();
+   vViewMatrix_MAT           = _scene->getViewMatrix();
+   vProjectionMatrix_MAT     = _scene->getProjectionMatrix();
 
    vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
@@ -73,6 +82,8 @@ rMatrixObjectBase<T>::rMatrixObjectBase( rMatrixSceneBase<T> *_scene ) {
 
 template<class T>
 void rMatrixObjectBase<T>::setScale( T _scale ) {
+   vScale.fill( _scale );
+   
    vScaleMatrix_MAT.setMat(
       _scale, 0     , 0     , 0,
       0     , _scale, 0     , 0,
@@ -88,6 +99,8 @@ void rMatrixObjectBase<T>::setScale( T _scale ) {
 
 template<class T>
 void rMatrixObjectBase<T>::setScale( const rVec3< T > &_scale ) {
+   vScale = _scale;
+   
    vScaleMatrix_MAT.setMat(
       _scale.x, 0       , 0       , 0,
       0       , _scale.y, 0       , 0,
@@ -101,20 +114,16 @@ void rMatrixObjectBase<T>::setScale( const rVec3< T > &_scale ) {
       vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
-template<class T>
-void rMatrixObjectBase<T>::getScale( rVec3< T > &_scale ) {
-   _scale.x = vScaleMatrix_MAT.template get<0, 0>();
-   _scale.y = vScaleMatrix_MAT.template get<1, 1>();
-   _scale.z = vScaleMatrix_MAT.template get<2, 2>();
-}
 
 template<class T>
 void rMatrixObjectBase<T>::addScaleDelta( const rVec3< T > &_scale ) {
+   vScale += _scale;
+   
    vScaleMatrix_MAT.setMat(
-      vScaleMatrix_MAT( 0, 0 ) + _scale.x, 0                                   , 0                                  , 0,
-      0                                  , vScaleMatrix_MAT( 1, 1 ) +  _scale.y, 0                                  , 0,
-      0                                  , 0                                   , vScaleMatrix_MAT( 2, 2 ) + _scale.z, 0,
-      0                                  , 0                                   , 0                                  , 1
+      vScale.x, 0       , 0       , 0,
+      0       , vScale.y, 0       , 0,
+      0       , 0       , vScale.z, 0,
+      0       , 0       , 0       , 1
    );
 
    vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
@@ -136,6 +145,8 @@ void rMatrixObjectBase<T>::setRotation( const rVec3< T > &_axis, T _angle ) {
 
 template<class T>
 void rMatrixObjectBase<T>::setPosition( const rVec3< T > &_pos ) {
+   vPosition = _pos;
+   
    vTranslationMatrix_MAT.setMat
    (
       1, 0, 0, _pos.x,
@@ -150,20 +161,16 @@ void rMatrixObjectBase<T>::setPosition( const rVec3< T > &_pos ) {
       vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
 }
 
-template<class T>
-void rMatrixObjectBase<T>::getPosition( rVec3< T > &_pos ) {
-   _pos.x = vTranslationMatrix_MAT.template get<3, 0>();
-   _pos.y = vTranslationMatrix_MAT.template get<3, 1>();
-   _pos.z = vTranslationMatrix_MAT.template get<3, 2>();
-}
 
 template<class T>
 void rMatrixObjectBase<T>::addPositionDelta( const rVec3< T > &_pos ) {
+   vPosition += _pos;
+   
    vTranslationMatrix_MAT.setMat
    (
-      1, 0, 0, vTranslationMatrix_MAT.template get<3, 0>() + _pos.x,
-      0, 1, 0, vTranslationMatrix_MAT.template get<3, 1>() + _pos.y,
-      0, 0, 1, vTranslationMatrix_MAT.template get<3, 2>() + _pos.z,
+      1, 0, 0, vPosition.x,
+      0, 1, 0, vPosition.y,
+      0, 0, 1, vPosition.z,
       0, 0, 0, 1
    );
 
