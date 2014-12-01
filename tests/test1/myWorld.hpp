@@ -14,7 +14,7 @@ using namespace std;
 using namespace e_engine;
 using namespace OS_NAMESPACE;
 
-class myWorld final : public rWorld {
+class myWorld final : public rWorld, public rFrameCounter {
       typedef uSlot<void, myWorld, iEventInfo> _SLOT_;
    private:
       GLfloat vAlpha;
@@ -33,6 +33,7 @@ class myWorld final : public rWorld {
    public:
       myWorld( cmdANDinit &_cmd, iInit *_init ) :
          rWorld( _init ),
+         rFrameCounter(this),
          vScene( _init, _cmd ),
          vInitPointer( _init ),
          vNearZ( _cmd.getNearZ() ),

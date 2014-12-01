@@ -5,8 +5,8 @@ namespace e_engine {
 
 uExtensions::uExtensions() {
    vVersion = OGL_VERSION_NONE;
-   
-   
+
+
    vOpenGLExtList = new uExtensionData[__EXTENSIONS_END__];
 
    vOpenGLExtList[ ID_ARB_program_interface_query ] = { ID_ARB_program_interface_query, "GL_ARB_program_interface_query", false };
@@ -18,7 +18,7 @@ uExtensions::~uExtensions() {
 
 
 
-OPENGL_VERSIONS uExtensions::querryAll() {
+OPENGL_VERSIONS uExtensions::queryAll() {
    for ( unsigned int i = 0; i < __EXTENSIONS_END__; ++i ) {
       vOpenGLExtList[i].supported = glewIsSupported( vOpenGLExtList[i].extStr.c_str() );
    }

@@ -30,6 +30,8 @@ class rWorld {
       boost::mutex  vRenderLoopMutex_BT;
       boost::condition_variable vRenderLoopWait_BT;
 
+      uint64_t vRenderedFrames = 0;
+
       struct {
          bool vNeedUpdate_B;
          unsigned int x;
@@ -56,7 +58,6 @@ class rWorld {
 
       void pauseRenderLoop();
       void continueRenderLoop();
-
    public:
       rWorld( iInit *_init );
       virtual ~rWorld() {}
@@ -66,6 +67,8 @@ class rWorld {
       void setInitObj( iInit *_init );
 
       virtual void renderFrame() = 0;
+
+      uint64_t *getRenderedFramesPtr() { return &vRenderedFrames;}
 
       void updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
       void updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
