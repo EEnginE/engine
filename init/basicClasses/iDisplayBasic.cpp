@@ -26,11 +26,11 @@ void iDisplayBasic::setPositionAbsolute( unsigned int _posX, unsigned int _posY 
 //! \brief Set the position relative to another display
 void iDisplayBasic::setPositionRelative( iDisplayBasic::POSITON _where, iDisplayBasic &_disp ) {
    switch ( _where ) {
-      case LEFT_OFF:
+      case LEFT_OF:
          _disp.vPosX_uI = vPosX_uI + vCurrentWidth_uI;
          _disp.vPosY_uI = vPosY_uI;
          break;
-      case RIGHT_OFF:
+      case RIGHT_OF:
          vPosX_uI       = _disp.vPosX_uI + _disp.vCurrentWidth_uI;
          vPosY_uI       = _disp.vPosY_uI;
          break;
@@ -49,10 +49,10 @@ void iDisplayBasic::setPositionRelative( iDisplayBasic::POSITON _where, iDisplay
 
 /*!
  * \brief Returns the selected position via references
- * 
+ *
  * \param[out] _posX Position X in Pixels
  * \param[out] _posY Position Y in Pixels
- * 
+ *
  * \returns Nothing
  */
 void iDisplayBasic::getSelectedPosition( int &_posX, int &_posY ) const {
@@ -62,11 +62,11 @@ void iDisplayBasic::getSelectedPosition( int &_posX, int &_posY ) const {
 
 /*!
  * \brief Get the current width, height, and rate
- * 
+ *
  * \param[out] _width  The current width
  * \param[out] _height The current height
- * \param[out] _rate   The currnet rate
- * 
+ * \param[out] _rate   The current rate
+ *
  * \returns Nothing
  */
 void iDisplayBasic::getCurrentResolution( unsigned int &_width, unsigned int &_height, double &_rate ) const {

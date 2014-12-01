@@ -118,7 +118,7 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
 /*!
  * \brief Creates the window and the OpenGL context
  *
- * Creates a \c X11 connection first, then looks for then
+ * Creates a \c X11 connection first, then looks for the
  * best FB config, then creates the window and at last
  * it creates the \c OpenGL context and inits \c GLEW
  *
@@ -127,7 +127,7 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
  * More information iContext
  *
  * \par
- * \returns  1 -- All good
+ * \returns  1 -- Success
  * \returns -1 -- Unable to connect to the X-Server
  * \returns -2 -- Need a newer GLX version
  * \returns -3 -- Unable to find any matching fbConfig
@@ -138,8 +138,8 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
  */
 int iInit::init() {
 
-   signal( SIGINT, handluSignal );
-   signal( SIGTERM, handluSignal );
+   signal( SIGINT, handleSignal );
+   signal( SIGTERM, handleSignal );
 
    if( GlobConf.log.logFILE.logFileName.empty() ) {
       GlobConf.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
@@ -156,7 +156,7 @@ int iInit::init() {
    LOG.startLogLoop();
 
 #if WINDOWS
-   // Windows needs the PeekMessage call in the same thread, where the window is created
+   // Windows needs the PeekMessage call in the same thread where the window is created
    boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
    vEventLoop_BT  = boost::thread( &iInit::eventLoop, this );
 
@@ -169,7 +169,7 @@ int iInit::init() {
 
    if( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
 
-   if( GlobConf.extensions.querryAll() < OGL_VERSION_3_3 ) {
+   if( GlobConf.extensions.queryAll() < OGL_VERSION_3_3 ) {
       eLOG( "Bad OpenGL version. At least version 3.3 is needed. Try updating your driver" );
       destroyContext();
       return 5;
@@ -184,7 +184,7 @@ int iInit::shutdown() {
 }
 
 
-void iInit::handluSignal( int _signal ) {
+void iInit::handleSignal( int _signal ) {
    iInit *_THIS = internal::__iInit_Pointer_OBJ.get();;
 
    if( _signal == SIGINT ) {
@@ -200,20 +200,20 @@ void iInit::handluSignal( int _signal ) {
    }
    if( _signal == SIGTERM ) {
       if( GlobConf.handleSIGTERM == true ) {
-         wLOG( "Received SIGTERM => Closing Window and exit(6);" );
+         wLOG( "Received SIGTERM => Closing Window and exiting(6);" );
          _THIS->closeWindow( true );
          _THIS->destroyContext();
          _THIS->shutdown();
          exit( 6 );
       }
-      wLOG( "Received SIGTERM => Closing Window and exit(6);", 'B', 'Y', "DO NOTHING" );
+      wLOG( "Received SIGTERM => Closing Window and exiting(6);", 'B', 'Y', "DO NOTHING" );
       return;
    }
 }
 
 
 /*!
- * \brief Starts the main loop can wait until if finished
+ * \brief Starts the main loop
  * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
  */
 int iInit::startMainLoop( bool _wait ) {
@@ -277,7 +277,7 @@ int iInit::quitMainLoopCall( ) {
 
    if( ! vEventLoopHasFinished_B ) {
       vEventLoop_BT.interrupt();
-      wLOG( "Event Loop Timeout reached   -->  kill the thread" );
+      wLOG( "Event Loop Timeout reached   -->  killing the thread" );
       vEventLoopHasFinished_B = true;
    }
    iLOG( "Event loop finished" );

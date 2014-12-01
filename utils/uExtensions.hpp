@@ -51,7 +51,7 @@ class uExtensions {
       uExtensions();
       virtual ~uExtensions();
 
-      OPENGL_VERSIONS querryAll();
+      OPENGL_VERSIONS queryAll();
       bool isSupported( std::string _ext );
       bool isSupported( EXTENSIONS _id ) {return vOpenGLExtList[_id].supported;}
 

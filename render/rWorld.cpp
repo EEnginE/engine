@@ -30,6 +30,8 @@ rWorld::rWorld( iInit *_init ) {
    vClearColor.b              = 0;
    vClearColor.a              = 1;
 
+   vRenderedFrames            = 0;
+
    vRenderLoopStartSlot.setFunc( &rWorld::startRenderLoop, this );
    vRenderLoopStopSlot.setFunc( &rWorld::stopRenderLoop, this );
 
@@ -86,6 +88,8 @@ void rWorld::renderLoop() {
 
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 
+
+      ++vRenderedFrames;
       renderFrame();
       vInitPointer->swapBuffers();
    }
