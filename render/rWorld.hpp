@@ -69,6 +69,7 @@ class rWorld {
       virtual void renderFrame() = 0;
 
       uint64_t *getRenderedFramesPtr() { return &vRenderedFrames;}
+      bool      getIsRenderLoopPaused(){ return vRenderLoopIsPaused_B;}
 
       void updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
       void updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
