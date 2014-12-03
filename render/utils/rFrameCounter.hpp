@@ -3,46 +3,32 @@
  */
 
  #include "uLog.hpp"
+ #include "rWorld.hpp"
 
 namespace e_engine {
 
-    //\todo Add a signal for FPS output, make the loop pause when the renderloop is paused and fix the weird behavior when iInit restart() is called
+    // \todo Add a signal to output the FPS
 
 class rFrameCounter {
  private:
-      iInit               *vInit;
+      rWorld       *vWorld;
 
-      uint64_t            *vRenderedFrames;
+      uint64_t     *vRenderedFrames;
 
-      int    vSleepDelay = 1000;
-      double vHelper     = vSleepDelay/1000;    //vSleepDelay in seconds
+      int           vSleepDelay  = 1000;
+      double        vHelper      = vSleepDelay/1000;    //vSleepDelay in seconds
 
-      bool     vFrameCounterEnabled;
+      bool          vFrameCounterEnabled;
 
       boost::thread frameCounterThread;
 
-      void frameCounterLoop() {
-        while(vFrameCounterEnabled) {
-            iLOG("FPS: ", (int) (*vRenderedFrames / vHelper)); // Change this to output the resulting fps in a proper way (and as a double)
-            *vRenderedFrames = 0;
-            B_SLEEP(milliseconds, vSleepDelay);
-        }
-      }
+      void frameCounterLoop();
 
-      rFrameCounter() {}
+
  public:
-      rFrameCounter( rWorld *_rWorld) :
-          vRenderedFrames (_rWorld->getRenderedFramesPtr()),
-          vFrameCounterEnabled( true )  {
-
-          frameCounterThread = boost::thread(&rFrameCounter::frameCounterLoop, this);
-
-          iLOG( "Frame counter enabled" );
-
-      }
-
-      void enableFrameCounter()                  {*vRenderedFrames = 0; vFrameCounterEnabled = true;  frameCounterThread = boost::thread(&rFrameCounter::frameCounterLoop, this); iLOG( "Frame counter enabled" );}
-      void disableFrameCounter(bool _join)       {                      vFrameCounterEnabled = false; if(_join) frameCounterThread.join();                                        iLOG( "Frame counter disabled" );}
+      rFrameCounter( rWorld *_rWorld, bool _enable);
+      void enableFrameCounter();
+      void disableFrameCounter(bool _join = false);
 
       void setSleepDelay( double _newSleepDelay) {vSleepDelay = _newSleepDelay; vHelper = vSleepDelay/1000;}
 

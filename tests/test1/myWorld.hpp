@@ -23,7 +23,7 @@ class myWorld final : public rWorld, public rFrameCounter {
 
       myScene vScene;
       iInit  *vInitPointer;
-      
+
       GLfloat vNearZ;
       GLfloat vFarZ;
 
@@ -33,7 +33,7 @@ class myWorld final : public rWorld, public rFrameCounter {
    public:
       myWorld( cmdANDinit &_cmd, iInit *_init ) :
          rWorld( _init ),
-         rFrameCounter(this),
+         rFrameCounter(this, true),
          vScene( _init, _cmd ),
          vInitPointer( _init ),
          vNearZ( _cmd.getNearZ() ),
