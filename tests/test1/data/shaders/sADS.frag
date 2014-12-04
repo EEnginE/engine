@@ -1,8 +1,8 @@
 #version 330 core
 
-in  vec4 toFragColor;
+in  vec3 toFragColor;
 out vec4 oColor;
 
 void main() {
-   oColor = toFragColor;
+   oColor = vec4( toFragColor, 1 );
 }

@@ -92,8 +92,6 @@ bool cmdANDinit::parseArgsAndInit() {
       vData_JSON.merge( lTempData );
    }
 
-   meshToRender = "mesh_f.obj";
-
    for( auto const & arg : args ) {
       if( arg == "-h" || arg == "--help" ) {
          postInit();

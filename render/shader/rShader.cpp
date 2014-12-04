@@ -505,7 +505,7 @@ bool rShader::parseRawInformation() {
       }
    }
 
-   return true;
+   return lRet;
 }
 
 

@@ -1,4 +1,4 @@
 oglTestBind.hpp
 oglTestBind.cpp
-data/*_f.obj
-data/*.blend1
+data/obj/*.obj
+data/blendfiles/*.blend1

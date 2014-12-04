@@ -1,5 +1,5 @@
 #!/bin/bash
-OBJFILES=./data/*.obj
+OBJFILES=./data/obj_raw/*.obj
 
 if [ ! -x ../oglTest/oglTestBindings.sh ]; then
    echo "ERROR:     -- Unable to find ../oglTest/oglTestBindings.sh"
@@ -14,10 +14,14 @@ if [ -z "$ENGINE_ROOT" ]; then
    export ENGINE_ROOT=$(readlink -m ../../)
 fi
 
+if [ ! -d $(pwd)/data/obj ]; then
+   mkdir -p $(pwd)/data/obj
+fi
+
 for f in $OBJFILES
 do
    echo "INFO:      -- Processing on $f"
-   ${TOOLSPATH}/tools/objParse.awk $(readlink -m $f)
+   ${TOOLSPATH}/tools/objParsePrint.awk $(readlink -m $f) > $(pwd)/data/obj/$(basename $(readlink -m $f))
 done
 
 echo "INFO:      -- Generating oglTestBind.hpp and oglTestBind.cpp"
