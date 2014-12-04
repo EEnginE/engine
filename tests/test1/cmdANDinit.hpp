@@ -13,7 +13,7 @@ class cmdANDinit {
       vector<string> args;
       string         argv0;
       string         dataRoot;
-      string         meshToRender;
+      string         meshToRender  = "mesh2";
       string         vShader       = "shaderBasic";
       string         vNormalShader = "normals";
 
@@ -33,7 +33,7 @@ class cmdANDinit {
    public:
       cmdANDinit( int argc, char *argv[] );
 
-      string  getMesh()          const {return dataRoot + meshToRender;}
+      string  getMesh()          const {return dataRoot + string( "obj/" )     + meshToRender + string( ".obj" );}
       string  getShader()        const {return dataRoot + string( "shaders/" ) + vShader;}
       string  getNormalShader()  const {return dataRoot + string( "shaders/" ) + vNormalShader;}
 

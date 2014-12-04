@@ -33,7 +33,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
          rScene( "MAIN SCENE" ),
          rCameraHandler( this, _init ),
          vObject1( this, "OBJ 1", _cmd.getMesh() ),
-         vAmbient( "Ambient Light", rVec3f( 0.1, 0.05, 0.1 ) ),
+         vAmbient( "Ambient Light", rVec3f( 0.075, 0.05, 0.075 ) ),
          vLight1( this, "L1", rVec3f( 1, 0.75, 0.75 ) ),
          vShader_str( _cmd.getShader() ),
          vNormalShader_str( _cmd.getNormalShader() ),
