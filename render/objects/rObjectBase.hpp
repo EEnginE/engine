@@ -25,7 +25,8 @@ namespace e_engine {
 #define PROJECTION_MATRIX_FLAG            ( 1 << 4 )
 #define CAMERA_MATRIX_FLAG                ( 1 << 5 )
 #define MODEL_MATRIX_FLAG                 ( 1 << 6 )
-#define MODEL_VIEW_PROJECTION_MATRIX_FLAG ( 1 << 7 )
+#define MODEL_VIEW_MATRIX_FLAG            ( 1 << 7 )
+#define MODEL_VIEW_PROJECTION_MATRIX_FLAG ( 1 << 8 )
 
 /*!
  * \brief Base class for creating objects
@@ -78,12 +79,14 @@ class rObjectBase {
          PROJECTION_MATRIX,
          CAMERA_MATRIX,
          MODEL_MATRIX,
+         MODEL_VIEW_MATRIX,
          MODEL_VIEW_PROJECTION
       };
 
       enum VECTOR_TYPES {
          LIGHT_COLOR,
-         POSITION
+         POSITION,
+         POSITION_MODEL_VIEW
       };
 
       enum LIGHT_MODEL_T {

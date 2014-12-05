@@ -129,6 +129,7 @@ uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type 
       case MODEL_MATRIX:          *_mat = getModelMatrix();               return 0;
       case VIEW_MATRIX:           *_mat = getViewMatrix();                return 0;
       case PROJECTION_MATRIX:     *_mat = getProjectionMatrix();          return 0;
+      case MODEL_VIEW_MATRIX:     *_mat = getModelViewMatrix();           return 0;
       case MODEL_VIEW_PROJECTION: *_mat = getModelViewProjectionMatrix(); return 0;
       default: return INDEX_OUT_OF_RANGE;
    }
@@ -144,6 +145,7 @@ void rSimpleMesh::setFlags() {
       MODEL_MATRIX_FLAG       |
       VIEW_MATRIX_FLAG        |
       PROJECTION_MATRIX_FLAG  |
+      MODEL_VIEW_MATRIX_FLAG  |
       MODEL_VIEW_PROJECTION_MATRIX_FLAG;
    
    vObjectHints[IS_DATA_READY] = 0;

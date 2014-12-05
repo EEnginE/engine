@@ -11,8 +11,7 @@ void rRenderBasicLight_3_3::render() {
    glUseProgram( vShader_OGL );
 
    glUniformMatrix4fv( vUniformMVP_OGL,        1, false, vModelViewProjection->getMatrix() );
-   glUniformMatrix4fv( vUniformModel_OGL,      1, false, vModel->getMatrix() );
-   glUniformMatrix4fv( vUniformView_OGL,       1, false, vView->getMatrix() );
+   glUniformMatrix4fv( vUniformModelView_OGL,  1, false, vModelView->getMatrix() );
 
    glUniform3fv( vUniformAmbient_OGL,  1, vAmbientLight.color->getMatrix() );
    glUniform3fv( vUniformLight_OGL,    1, vLightSource.color->getMatrix() );
@@ -42,8 +41,7 @@ bool rRenderBasicLight_3_3::testShader( rShader *_shader ) {
          _shader,
          rShader::VERTEX_INPUT,
          rShader::NORMALS_INPUT,
-         rShader::MODEL_MATRIX,
-         rShader::VIEW_MATRIX,
+         rShader::MODEL_VIEW_MATRIX,
          rShader::M_V_P_MATRIX,
          rShader::AMBIENT_COLOR,
          rShader::LIGHT_COLOR,
@@ -72,8 +70,7 @@ bool rRenderBasicLight_3_3::testObject( rObjectBase *_obj ) {
 
    if( !(
          lMatrices & MODEL_VIEW_PROJECTION_MATRIX_FLAG &&
-         lMatrices & MODEL_MATRIX_FLAG                 &&
-         lMatrices & VIEW_MATRIX_FLAG
+         lMatrices & MODEL_VIEW_MATRIX_FLAG
          ) )
       return false;
 
@@ -96,8 +93,7 @@ bool rRenderBasicLight_3_3::canRender() {
    if( !testUnifrom(
          vInputVertexLocation_OGL,      "Input Vertex",
          vInputNormalsLocation_OGL,     "Input Normals",
-         vUniformModel_OGL,             "Model Matrix",
-         vUniformView_OGL,              "View Matrix",
+         vUniformModelView_OGL,         "Model View Matrix",
          vUniformMVP_OGL,               "Model View Projection Matrix",
          vUniformAmbient_OGL,           "Ambient collor",
          vUniformLight_OGL,             "Light collor",
@@ -110,8 +106,7 @@ bool rRenderBasicLight_3_3::canRender() {
       return false;
 
    if( !testPointer(
-         vModel,                "Model Matrix",
-         vView,                 "View Matrix",
+         vModelView,            "Model View Matrix",
          vModelViewProjection,  "Model View Projection Matrix",
          vAmbientLight.color,   "Ambient collor",
          vLightSource.color,    "Light collor",
@@ -129,8 +124,7 @@ void rRenderBasicLight_3_3::setDataFromShader( rShader *_s ) {
    vInputVertexLocation_OGL  = _s->getLocation( rShader::VERTEX_INPUT );
    vInputNormalsLocation_OGL = _s->getLocation( rShader::NORMALS_INPUT );
 
-   vUniformModel_OGL         = _s->getLocation( rShader::MODEL_MATRIX );
-   vUniformView_OGL          = _s->getLocation( rShader::VIEW_MATRIX );
+   vUniformModelView_OGL     = _s->getLocation( rShader::MODEL_VIEW_MATRIX );
    vUniformMVP_OGL           = _s->getLocation( rShader::M_V_P_MATRIX );
 
    vUniformAmbient_OGL       = _s->getLocation( rShader::AMBIENT_COLOR );
@@ -146,8 +140,7 @@ void rRenderBasicLight_3_3::setDataFromObject( rObjectBase *_obj ) {
    _obj->getIBO( vIndexBufferObj_OGL );
    _obj->getNBO( vNormalBufferObj_OGL );
    _obj->getMatrix( &vModelViewProjection, rObjectBase::MODEL_VIEW_PROJECTION );
-   _obj->getMatrix( &vModel,               rObjectBase::MODEL_MATRIX );
-   _obj->getMatrix( &vView,                rObjectBase::VIEW_MATRIX );
+   _obj->getMatrix( &vModelView,           rObjectBase::MODEL_VIEW_MATRIX );
 
    int lTemp;
 

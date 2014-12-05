@@ -8,7 +8,7 @@ int myScene::init() {
    vObject1.setOGLData();
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );
 
-   vLight1.setPosition( rVec3f( 2, 5, 0 ) );
+   vLight1.setPosition( rVec3f( 10, 10, 10 ) );
 
    int lLight;
    vObject1.getHints( rObjectBase::LIGHT_MODEL, lLight );
@@ -82,6 +82,7 @@ void myScene::keySlot( iEventInfo _inf ) {
 
 void myScene::afterCameraUpdate() {
    vObject1.updateFinalMatrix();
+   vLight1.updateFinalMatrix();
 }
 
 

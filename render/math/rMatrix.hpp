@@ -29,7 +29,7 @@ struct rMatrixData<T, 2, 1> {
    void normalize() {
       T lLength2 = x * x + y * y;
 
-      if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
+      if( lLength2 > ( T )( 1.0 + TOLERANCE ) && lLength2 < ( T )( 1.0 - TOLERANCE ) )
          return; // Nothing to do here
 
       T lLength = sqrt( lLength2 );
@@ -56,7 +56,7 @@ struct rMatrixData<T, 3, 1> {
    void normalize() {
       T lLength2 = x * x + y * y + z * z;
 
-      if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
+      if( lLength2 > ( T )( 1.0 + TOLERANCE ) && lLength2 < ( T )( 1.0 - TOLERANCE ) )
          return; // Nothing to do here
 
       T lLength = sqrt( lLength2 );
@@ -84,7 +84,7 @@ struct rMatrixData<T, 4, 1> {
    void normalize() {
       T lLength2 = x * x + y * y + z * z + w * w;
 
-      if( lLength2 > (T)(1.0 + TOLERANCE) && lLength2 < (T)(1.0 - TOLERANCE) )
+      if( lLength2 > ( T )( 1.0 + TOLERANCE ) && lLength2 < ( T )( 1.0 - TOLERANCE ) )
          return; // Nothing to do here
 
       T lLength = sqrt( lLength2 );
@@ -104,7 +104,7 @@ struct rMatrixData<T, 4, 1> {
 
 template <class TYPE, int ROWS, int COLLUMNS>
 class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
-      static_assert( ( ROWS * COLLUMNS ) >= 2 , "Matrix size (ROWS*COLLUMNS) must be at least 2" );
+      static_assert( ( ROWS *COLLUMNS ) >= 2 , "Matrix size (ROWS*COLLUMNS) must be at least 2" );
 
    private:
       template<uint32_t POS, class... ARGS>  inline void setHelper( TYPE && _arg, ARGS && ... _args );
@@ -153,7 +153,7 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
 
       int getRowSize()     {return ROWS;}
       int getCollumnSize() {return COLLUMNS;}
-      int getSize()        {return ROWS*COLLUMNS;}
+      int getSize()        {return ROWS * COLLUMNS;}
 
       // DTTSEIW = DUMMY_TEMPLATE_THAT_STD_ENABLE_IF_WORKS
       template<class DTTSEIW = void>
@@ -163,6 +163,11 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
       void fill( TYPE &_f )  {fill( std::forward<TYPE>( _f ) );}
       void fill( TYPE && _f );
 
+      template<int R, int C>
+      void downscale( rMatrix<TYPE, R, C> *_new );
+
+      template<int R, int C>
+      void upscale( rMatrix<TYPE, R, C> *_new );
 
       template <int COLLUMNS_NEW>
       void multiply( const rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_matrix, rMatrix<TYPE, ROWS, COLLUMNS_NEW> *_targetMatrix );
@@ -356,6 +361,28 @@ template <class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::fill( TYPE && _f ) {
    for( int i = 1; i < ROWS * COLLUMNS; ++i )
       vDataMat[i] = _f;
+}
+
+template <class TYPE, int ROWS, int COLLUMNS>
+template <int R, int C>
+void rMatrix<TYPE, ROWS, COLLUMNS>::downscale( rMatrix<TYPE, R, C> *_new ) {
+   static_assert( ( ROWS * COLLUMNS ) >= 2 , "Matrix size (R*C) must be at least 2" );
+   static_assert( R <= ROWS && C <= COLLUMNS, "The matrix to downscale must be smaller" );
+
+   for( int x = 0; x < C; ++x )
+      for( int y = 0; y < R; ++y )
+         _new->set( x, y, get( x, y ) );
+}
+
+template <class TYPE, int ROWS, int COLLUMNS>
+template <int R, int C>
+void rMatrix<TYPE, ROWS, COLLUMNS>::upscale( rMatrix<TYPE, R, C> *_new ) {
+   static_assert( ( ROWS * COLLUMNS ) >= 2 , "Matrix size (R*C) must be at least 2" );
+   static_assert( R >= ROWS && C >= COLLUMNS, "The matrix to upscale must be larger" );
+
+   for( int x = 0; x < COLLUMNS; ++x )
+      for( int y = 0; y < ROWS; ++y )
+         _new->set( x, y, get( x, y ) );
 }
 
 // =========================================================================================================================

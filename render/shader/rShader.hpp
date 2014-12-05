@@ -62,6 +62,7 @@ class rShader {
          // Matrices
          MODEL_MATRIX,
          VIEW_MATRIX,
+         MODEL_VIEW_MATRIX,
          PROJECTOIN_MATRIX,
          M_V_P_MATRIX,
 
