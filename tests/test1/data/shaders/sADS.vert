@@ -3,6 +3,7 @@
 // Matrixes
 
 uniform mat4 uModelView;
+uniform mat4 uView;
 uniform mat4 uMVP;
 
 // Light stuff
@@ -34,7 +35,7 @@ void main() {
    // Specular Light
    vec3  lNormalsEyeSpace  = mat3(lNormalMatrix) * iNormals;   // Get the normals in world space
    vec3  lVertexWorldSpace = (uModelView * vec4( iVertex, 1.0 )).xyz;
-   vec3  lLightDirection   = normalize( (uModelView * vec4(uLightPos,1)).xyz - lVertexWorldSpace );
+   vec3  lLightDirection   = normalize( (uView * vec4(uLightPos,1)).xyz - lVertexWorldSpace );
 
    vec3  lReflection       = normalize( reflect( -lLightDirection, lNormalsEyeSpace) );
    float spec              = max( 0.0, dot( lNormalsEyeSpace, lReflection ) );
@@ -45,7 +46,6 @@ void main() {
    // Diffuse Light
    float lDiffIntensity      = max( 0.0, dot( lNormalsEyeSpace, lLightDirection ) );
    vec3  lDiffuseLight       = lAmbientDiffuseMaterial * uLightColor * lDiffIntensity;
-
 
    toFragColor = lAmbientLight + lDiffuseLight + lSpecularLight;
 }

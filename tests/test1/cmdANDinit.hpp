@@ -14,7 +14,7 @@ class cmdANDinit {
       string         argv0;
       string         dataRoot;
       string         meshToRender  = "mesh2";
-      string         vShader       = "shaderBasic";
+      string         vShader       = "sADS";
       string         vNormalShader = "normals";
 
       uJSON_data     vData_JSON;
