@@ -2,8 +2,7 @@
 
 // Matrixes
 
-uniform mat4 uModel;
-uniform mat4 uView;
+uniform mat4 uModelView;
 uniform mat4 uMVP;
 
 // Light stuff
@@ -24,35 +23,28 @@ const vec3 cSpecularMaterial = vec3( 0.9, 0.9, 0.9 );
 void main() {
    gl_Position = uMVP * vec4( iVertex, 1.0 );
 
-   vec3 lAmbientDiffuseMaterial = clamp(iVertex, 0.0, 1.0);
-//    vec3 lAmbientDiffuseMaterial = vec3( 0.9, 0.4, 0.4 );
+   mat4 lNormalMatrix = transpose( inverse( uModelView ) ); // NEVER DO THIS IN A SHADER!! ONLY FOR TESTING
 
+   vec3 lAmbientDiffuseMaterial = clamp(iVertex, 0.0, 1.0);
 
    // Ambient Light
    vec3 lAmbientLight = lAmbientDiffuseMaterial * uAmbientColor;
 
 
    // Specular Light
-   vec3  lNormalsWorldSpace  = mat3(uModel) * iNormals;   // Get the normals in world space
-   vec3  lVertexWorldSpace   = (uModel * vec4( iVertex, 1.0 )).xyz;
-   vec3  lLightDirection     = normalize( uLightPos - lVertexWorldSpace );
-   vec3  lCameraPosition     = -(uView * vec4( lVertexWorldSpace, 1)).xyz;
-   vec3  lCameraDirection    = normalize( lCameraPosition - lVertexWorldSpace );
+   vec3  lNormalsEyeSpace  = mat3(lNormalMatrix) * iNormals;   // Get the normals in world space
+   vec3  lVertexWorldSpace = (uModelView * vec4( iVertex, 1.0 )).xyz;
+   vec3  lLightDirection   = normalize( (uModelView * vec4(uLightPos,1)).xyz - lVertexWorldSpace );
 
-   vec3  lReflection         = reflect( -lLightDirection, normalize( -lNormalsWorldSpace ) );
-   float spec                = max( 0.0, dot( lCameraDirection, lReflection ) );
+   vec3  lReflection       = normalize( reflect( -lLightDirection, lNormalsEyeSpace) );
+   float spec              = max( 0.0, dot( lNormalsEyeSpace, lReflection ) );
 
-   vec3  lSpecularLight      = cSpecularMaterial * pow( spec, 12.0 );
+   vec3  lSpecularLight    = cSpecularMaterial * pow( spec, 10.0 );
 
 
    // Diffuse Light
-   float lDiffIntensity      = max( 0.0, dot( normalize( lNormalsWorldSpace ), lLightDirection ) );
-
-   vec3  lDiffuseLight       = vec3(
-      lAmbientDiffuseMaterial.r * ( uLightColor.r * lDiffIntensity ),
-      lAmbientDiffuseMaterial.g * ( uLightColor.g * lDiffIntensity ),
-      lAmbientDiffuseMaterial.b * ( uLightColor.b * lDiffIntensity )
-   );
+   float lDiffIntensity      = max( 0.0, dot( lNormalsEyeSpace, lLightDirection ) );
+   vec3  lDiffuseLight       = lAmbientDiffuseMaterial * uLightColor * lDiffIntensity;
 
 
    toFragColor = lAmbientLight + lDiffuseLight + lSpecularLight;

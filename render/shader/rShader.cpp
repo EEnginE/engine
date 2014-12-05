@@ -60,6 +60,9 @@ rShader::rShader() {
    vLocationNames[VIEW_MATRIX]        = "uView";
    vLocationTypes[VIEW_MATRIX]        = GL_FLOAT_MAT4;
 
+   vLocationNames[MODEL_VIEW_MATRIX]  = "uModelView";
+   vLocationTypes[MODEL_VIEW_MATRIX]  = GL_FLOAT_MAT4;
+
    vLocationNames[PROJECTOIN_MATRIX]  = "uProjection";
    vLocationTypes[PROJECTOIN_MATRIX]  = GL_FLOAT_MAT4;
 

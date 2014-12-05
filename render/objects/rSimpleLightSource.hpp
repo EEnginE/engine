@@ -57,8 +57,9 @@ uint32_t rSimpleLightSource<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type )
    *_vec = nullptr;
 
    switch( _type ) {
-      case LIGHT_COLOR: *_vec = &vLightColor;  return ALL_OK;
-      case POSITION:    *_vec = getPosition(); return ALL_OK;
+      case LIGHT_COLOR:         *_vec = &vLightColor;                 return ALL_OK;
+      case POSITION_MODEL_VIEW: *_vec = this->getPositionModelView(); return ALL_OK;
+      case POSITION:            *_vec = this->getPosition();          return ALL_OK;
       default: return UNSUPPORTED_TYPE;
    }
 }
