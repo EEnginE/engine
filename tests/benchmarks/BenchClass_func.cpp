@@ -1,7 +1,7 @@
 #include "BenchClass.hpp"
 
-// Do it here so that the compiler can't do its inline optimisation
-// for inline we have an other function
+// Do it here so that the compiler can't do its inline optimization
+// for inline we have another function
 double BenchClass::funcToCall( int _a, double _b ) {
    for( auto i = 0; i < 100; ++i )
       ++_a;

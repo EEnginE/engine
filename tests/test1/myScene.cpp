@@ -62,7 +62,7 @@ int myScene::init() {
    }
 
    if( ! canRenderScene() ) {
-      eLOG( "Can not render scene!" );
+      eLOG( "Cannot render scene!" );
       return 2;
    }
 

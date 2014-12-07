@@ -218,10 +218,20 @@ void iInit::handleSignal( int _signal ) {
  */
 int iInit::startMainLoop( bool _wait ) {
    if( ! getHaveContext() ) {
-      wLOG( "Can not start the main loop. There is no OpenGL context!" );
+      wLOG( "Cannot start the main loop. There is no OpenGL context!" );
       return 0;
    }
    vMainLoopRunning_B = true;
+
+    // Send a resize signal to ensure that the viewport is updated
+    iEventInfo _tempInfo ( this );
+    _tempInfo.type           = E_EVENT_RESIZE;
+    _tempInfo.eResize.width  = GlobConf.win.width;
+    _tempInfo.eResize.height = GlobConf.win.height;
+    _tempInfo.eResize.posX   = GlobConf.win.posX;
+    _tempInfo.eResize.posY   = GlobConf.win.posY;
+
+    vResize_SIG.sendSignal( _tempInfo );
 
    if( !vAreRenderLoopSignalsConnected_B ) {
       eLOG( "iInit is not yet connected with a render system!" );

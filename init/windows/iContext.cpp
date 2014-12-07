@@ -43,10 +43,10 @@ iContext::iContext() {
    vWindowsCallbacksError_B       = false;
    vHasContext_B                  = false;
    vHasGLEW_B                     = false;
-   
+
    vIsCursorHidden_B              = false;
    vIsMouseGrabbed_B              = false;
-   
+
 
    vWindowRecreate_B              = false;
    vAThreadOwnsTheOpenGLContext_B = false;
@@ -133,7 +133,7 @@ void iContext::destroyContext() {
       return;
 
    iLOG( "Destroying everything" );
-   
+
    glDeleteVertexArrays( 1, &vVertexArray_OGL );
 
    wglDeleteContext( vOpenGLContext_WGL );
@@ -141,12 +141,12 @@ void iContext::destroyContext() {
    /*
     * DestroyWindow( vHWND_Window_win32 );
     *
-    * Wont work here because:
+    * Won't work here because:
     *
     *  1. Windows
     *  2. Must be called in the thread were the window was created
     *
-    * The rest is done in the event loop.
+    * Everything else is done in the event loop.
     */
 
    vHasContext_B = false;
@@ -163,7 +163,7 @@ bool iContext::makeContextCurrent() {
       return false;
    }
    if ( vAThreadOwnsTheOpenGLContext_B ) {
-      eLOG( "The OpenGL Context is already in use in an other or this thread! Can not make it currnet now!" );
+      eLOG( "The OpenGL Context is already in use in another or this thread! Cannot make it current now!" );
       return false;
    }
    bool lReturnVal_B = wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL ) == TRUE ? true : false;
@@ -482,17 +482,17 @@ bool iContext::grabMouse() {
       wLOG( "Mouse is already grabbed" );
       return false;
    }
-   
+
    RECT bounds; // The Rectangle that the Cursor will be forced to be in
-   
+
    //GetWindowRect(vHWND_Window_win32, &bounds);
-   
+
    //The following allows for more customization
     bounds.left   = GlobConf.win.posX;
     bounds.top    = GlobConf.win.posY;
     bounds.right  = GlobConf.win.posX + GlobConf.win.width;
     bounds.bottom = GlobConf.win.posY + GlobConf.win.height;
-   
+
    if(ClipCursor( &bounds ) == 0) {
       wLOG( "Error while grabbing mouse: ", (uint64_t)GetLastError() );
       return false;
@@ -541,9 +541,9 @@ bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
       wLOG( "_posX and/or _posY outside the window" );
       return false;
    }
-   
+
    int result = SetCursorPos(GlobConf.win.posX + _posX, GlobConf.win.posY + _posY);
-   
+
    if ( result == 0 ) {
       wLOG( "Error while setting mouse position: ", (uint64_t)GetLastError() );
       return false;
@@ -562,12 +562,12 @@ bool iContext::hideMouseCursor() {
       wLOG( "Cursor is already hidden" );
       return false;
    }
-   
+
    int showValue = ShowCursor(false);
    while(showValue > -1) {
-    showValue = ShowCursor(false);  
+    showValue = ShowCursor(false);
    }
-   
+
    vIsCursorHidden_B = true;
    iLOG( "Cursor hidden" );
    return true;
@@ -582,12 +582,12 @@ bool iContext::showMouseCursor() {
       wLOG( "Cursor is already visible" );
       return false;
    }
-   
+
    int showValue = ShowCursor(true);
    while(showValue < 0) {
-    showValue = ShowCursor(true);  
+    showValue = ShowCursor(true);
    }
-   
+
    vIsCursorHidden_B = false;
    iLOG( "Cursor visible" );
    return true;

@@ -130,7 +130,7 @@ int iInit::eventLoop() {
 
             case ConfigureNotify:
                if ( lEvent_X11.xconfigure.width   != ( int ) GlobConf.win.width  || lEvent_X11.xconfigure.height != ( int ) GlobConf.win.height ||
-                     lEvent_X11.xconfigure.x      != GlobConf.win.posX        || lEvent_X11.xconfigure.y      != GlobConf.win.posY ) {
+                     lEvent_X11.xconfigure.x      !=         GlobConf.win.posX   || lEvent_X11.xconfigure.y      !=         GlobConf.win.posY ) {
 
                   iEventInfo tempInfo( this );
                   tempInfo.type           = E_EVENT_RESIZE;
