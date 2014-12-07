@@ -406,14 +406,15 @@ template <int COLLUMNS_NEW>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_matrix, rMatrix<TYPE, ROWS, COLLUMNS_NEW> *_targetMatrix ) {
    int currentIndex = 0;
    TYPE currentSum = 0;
-   for( int i = 0; i < COLLUMNS_NEW; ++i )  //Second Matrix
+   for( int i = 0; i < COLLUMNS_NEW; ++i ) { //Second Matrix
       for( int j = 0; j < ROWS; ++j ) {  // First Matrix
          for( int k = 0; k < COLLUMNS; ++k )  //Both Matrices, this calculates the sum given to the target Matrix
-            currentSum += get( j, k ) * _matrix.get( k, i );
-         _targetMatrix->set( currentIndex, currentSum );
+            currentSum += get( k, j ) * _matrix.get( i, k );
+         _targetMatrix->set( i, j, currentSum );
          ++currentIndex;
          currentSum = 0;
       }
+   }
 }
 
 //HARDCODED 2x2
