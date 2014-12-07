@@ -178,9 +178,8 @@ void rMatrixObjectBase<T>::updateFinalMatrix() {
    if( vViewMatrix_MAT ) {
       vModelViewMatrix_MAT = *vViewMatrix_MAT * vModelMatrix_MAT;
 
-      rVec4<T> lTemp;
-      vPosition.upscale( &lTemp );
-      lTemp = *vViewMatrix_MAT * lTemp;
+      rVec4<T> lTemp( 0, 0, 0, 1 );
+      lTemp = vModelViewMatrix_MAT *  lTemp;
       lTemp.downscale( &vPositionModelView );
    }
 }
