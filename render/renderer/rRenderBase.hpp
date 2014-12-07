@@ -30,12 +30,12 @@ struct rRenderAmbientLight {
 
 template<class T>
 struct rRenderLightSource : rRenderAmbientLight<T> {
-   rVec3<T> *position = nullptr;
+   rVec3<T> *position  = nullptr;
 
    using rRenderAmbientLight<T>::setAmbient;
 
    void setLight( rObjectBase *_obj ) {
-      _obj->getVector( &position, rObjectBase::POSITION );
+      _obj->getVector( &position, rObjectBase::POSITION_MODEL_VIEW );
 
       setAmbient( _obj );
    }
