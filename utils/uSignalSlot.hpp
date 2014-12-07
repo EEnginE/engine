@@ -131,7 +131,7 @@ class uSignal {
          if ( vShowCopyError_B )
             internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
             ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (Constructor)", __FILE__, __LINE__, LOG_FUNCTION_NAME );
-         // signal = _e.signal; => Compiler ERROR: Can not copy signal_TD objects
+         // signal = _e.signal; => Compiler ERROR: Cannot copy signal_TD objects
       }
       uSignal &operator=( const uSignal &_e ) {
          vShowCopyError_B = _e.vShowCopyError_B;
@@ -140,7 +140,7 @@ class uSignal {
          if ( vShowCopyError_B )
             internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
             ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (operator=)", __FILE__, __LINE__, LOG_FUNCTION_NAME );
-         // signal = _e.signal; => Compiler ERROR: Can not copy signal_TD objects
+         // signal = _e.signal; => Compiler ERROR: Cannot copy signal_TD objects
          return *this;
       }
 

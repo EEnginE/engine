@@ -352,10 +352,10 @@ bool uLog::startLogLoop() {
 
    // Slow output fix
    if( setvbuf( stdout, 0, _IOLBF, 4096 ) != 0 ) {
-      wLOG( "Can not set Windows output buffer [stdout]" );
+      wLOG( "Cannot set Windows output buffer [stdout]" );
    }
    if( setvbuf( stderr, 0, _IOLBF, 4096 ) != 0 ) {
-      wLOG( "Can not set Windows output buffer [stderr]" );
+      wLOG( "Cannot set Windows output buffer [stderr]" );
    }
 
    vLogLoopRun_B = true;

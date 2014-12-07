@@ -11,9 +11,6 @@
 
 namespace e_engine {
 
-namespace {
-
-}
 
 int iInit::eventLoop() {
    //! \todo Move this in windows_win32
@@ -124,7 +121,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
    switch ( _uMsg ) {
 
       case WM_SIZE:
-         _tempInfo.type           = E_EVENT_RESIZE; 
+         _tempInfo.type           = E_EVENT_RESIZE;
          _tempInfo.eResize.width  = GlobConf.win.width  = _lParam & 0xFFFF; // Get the low order word as a width
          _tempInfo.eResize.height = GlobConf.win.height = _lParam >> 16; // Get the high order word as a height
          _tempInfo.eResize.posX   = GlobConf.win.posX;
@@ -133,7 +130,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          return 0;
 
       case WM_MOVE:
-         _tempInfo.type           = E_EVENT_MOUSE; 
+         _tempInfo.type           = E_EVENT_MOUSE;
          _tempInfo.eResize.posX   = GlobConf.win.posX = _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.eResize.posY   = GlobConf.win.posY = _lParam >> 16; // Get the high order word as the y-Position
          _tempInfo.eResize.width  = GlobConf.win.width;
@@ -142,7 +139,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          return 0;
 
       case WM_MOUSEMOVE: //Mouse moved, see http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
-         _tempInfo.type          = E_EVENT_MOUSE; 
+         _tempInfo.type          = E_EVENT_MOUSE;
          _tempInfo.iMouse.posX   = GlobConf.win.mousePosX = _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY = _lParam >> 16; // Get the high order word as the y-Position
          _tempInfo.iMouse.button = E_MOUSE_MOVE;
@@ -159,12 +156,12 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          return 0;
 
       case WM_SETFOCUS:
-         _tempInfo.type            = E_EVENT_FOCUS; 
+         _tempInfo.type            = E_EVENT_FOCUS;
          _tempInfo.eFocus.hasFocus = GlobConf.win.windowHasFocus = true;
          vFocus_SIG.sendSignal( _tempInfo );
          return 0;
       case WM_KILLFOCUS:
-         _tempInfo.type            = E_EVENT_FOCUS; 
+         _tempInfo.type            = E_EVENT_FOCUS;
          _tempInfo.eFocus.hasFocus = GlobConf.win.windowHasFocus = false;
          vFocus_SIG.sendSignal( _tempInfo );
          return 0;
@@ -173,7 +170,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_LBUTTONUP:
          key_state = E_RELEASED;
       case WM_LBUTTONDOWN:
-         _tempInfo.type          = E_EVENT_KEY; 
+         _tempInfo.type          = E_EVENT_KEY;
          _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = key_state;
@@ -184,7 +181,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_MBUTTONUP:
          key_state = E_RELEASED;
       case WM_MBUTTONDOWN:
-         _tempInfo.type          = E_EVENT_KEY; 
+         _tempInfo.type          = E_EVENT_KEY;
          _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = key_state;
@@ -195,7 +192,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_RBUTTONUP:
          key_state = E_RELEASED;
       case WM_RBUTTONDOWN:
-         _tempInfo.type          = E_EVENT_KEY; 
+         _tempInfo.type          = E_EVENT_KEY;
          _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = key_state;
@@ -206,7 +203,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
       case WM_XBUTTONUP:
          key_state = E_RELEASED;
       case WM_XBUTTONDOWN:
-         _tempInfo.type          = E_EVENT_KEY; 
+         _tempInfo.type          = E_EVENT_KEY;
          _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = key_state;
@@ -226,7 +223,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          return 0;
 
       case WM_MOUSEWHEEL:
-         _tempInfo.type          = E_EVENT_MOUSE; 
+         _tempInfo.type          = E_EVENT_MOUSE;
          _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = E_PRESSED;
@@ -247,7 +244,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          //!\todo Handle this output for text messages/text inputs
 
          if ( _wParam > 32 ) { //Check if the Char is an actual character; Enter, Backspace and others are excluded as they are already handled in WM_KEYDOWN
-            _tempInfo.type       = E_EVENT_KEY; 
+            _tempInfo.type       = E_EVENT_KEY;
             _tempInfo.eKey.state = E_PRESSED;
             _tempInfo.eKey.key   = _wParam;
             vKey_SIG.sendSignal( _tempInfo );
@@ -260,7 +257,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          return FALSE;
       case WM_KEYUP:   key_state = E_RELEASED;
       case WM_KEYDOWN:
-         _tempInfo.type       = E_EVENT_KEY; 
+         _tempInfo.type       = E_EVENT_KEY;
          _tempInfo.eKey.state = key_state;
          _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
 
