@@ -35,7 +35,7 @@ void main() {
    vec3  lLightDirection   = normalize( uLightPos - lVertexWorldSpace );
 
    vec3  lReflection       = normalize( reflect( -lLightDirection, lNormalsEyeSpace) );
-   float spec              = max( 0.0, dot( lNormalsEyeSpace, lReflection ) );
+   float spec              = max( 0.0, dot( -normalize(lVertexWorldSpace), lReflection ) );
 
    vec3  lSpecularLight    = cSpecularMaterial * pow( spec, 20.0 );
 
