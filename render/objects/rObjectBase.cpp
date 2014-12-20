@@ -291,6 +291,32 @@ uint32_t rObjectBase::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type 
 }
 
 /*!
+ * \brief Get the _type Matrix
+ *
+ * \param[out] _mat The Matrix pointer
+ * \param[in]  _type The Matrix type
+ * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
+ */
+uint32_t rObjectBase::getMatrix( rMat3d **_mat, rObjectBase::MATRIX_TYPES _type ) {
+   *_mat = nullptr;
+   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
+}
+
+/*!
+ * \brief Get the _type Matrix
+ *
+ * \param[out] _mat The Matrix pointer
+ * \param[in]  _type The Matrix type
+ * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
+ */
+uint32_t rObjectBase::getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) {
+   *_mat = nullptr;
+   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
+}
+
+
+
+/*!
  * \brief Get the _type Vector
  *
  * \param[out] _vec The Vector pointer

@@ -42,6 +42,7 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
       virtual uint32_t getIBO( uint32_t &_n );
       virtual uint32_t getNBO( uint32_t &_n );
       virtual uint32_t getMatrix( e_engine::rMat4f **_mat, rObjectBase::MATRIX_TYPES _type );
+      virtual uint32_t getMatrix( e_engine::rMat3f **_mat, rObjectBase::MATRIX_TYPES _type );
 };
 
 

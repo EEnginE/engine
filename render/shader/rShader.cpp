@@ -69,6 +69,9 @@ rShader::rShader() {
    vLocationNames[M_V_P_MATRIX]       = "uMVP";
    vLocationTypes[M_V_P_MATRIX]       = GL_FLOAT_MAT4;
 
+   vLocationNames[NORMAL_MATRIX]      = "uNormal";
+   vLocationTypes[NORMAL_MATRIX]      = GL_FLOAT_MAT3;
+
 
    vLocationNames[AMBIENT_COLOR]      = "uAmbientColor";
    vLocationTypes[AMBIENT_COLOR]      = GL_FLOAT_VEC3;

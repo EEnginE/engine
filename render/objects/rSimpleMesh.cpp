@@ -135,6 +135,13 @@ uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type 
    }
 }
 
+uint32_t rSimpleMesh::getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) {
+   switch ( _type ) {
+      case NORMAL_MATRIX:         *_mat = getNormalMatrix();              return 0;
+      default: return INDEX_OUT_OF_RANGE;
+   }
+}
+
 void rSimpleMesh::setFlags() {
    vObjectHints[FLAGS]    = MESH_OBJECT;
    vObjectHints[MATRICES] =
@@ -146,8 +153,9 @@ void rSimpleMesh::setFlags() {
       VIEW_MATRIX_FLAG        |
       PROJECTION_MATRIX_FLAG  |
       MODEL_VIEW_MATRIX_FLAG  |
+      NORMAL_MATRIX_FLAG      |
       MODEL_VIEW_PROJECTION_MATRIX_FLAG;
-   
+
    vObjectHints[IS_DATA_READY] = 0;
 }
 

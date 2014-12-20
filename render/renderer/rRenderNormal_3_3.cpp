@@ -3,9 +3,7 @@
  * \brief \b Classes: \a rRenderNormal_3_3
  */
 
-#include <vector>
 #include "rRenderNormal_3_3.hpp"
-#include "uLog.hpp"
 
 namespace e_engine {
 
@@ -41,7 +39,7 @@ bool rRenderNormal_3_3::testShader( rShader *_shader ) {
    if( !_shader->getIsLinked() )
       return false;
 
-   return require( _shader, rShader::VERTEX_INPUT, rShader::M_V_P_MATRIX );
+   return require( _shader, rShader::VERTEX_INPUT, rShader::M_V_P_MATRIX, rShader::NORMAL_MATRIX );
 }
 
 bool rRenderNormal_3_3::testObject( rObjectBase *_obj ) {

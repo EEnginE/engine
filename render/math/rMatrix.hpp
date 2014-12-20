@@ -137,10 +137,10 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
       TYPE       &get( uint32_t _x, uint32_t _y )               {return vDataMat[( _x * ROWS ) + _y];}
       TYPE const &get( uint32_t _x, uint32_t _y ) const         {return vDataMat[( _x * ROWS ) + _y];}
 
-      template<uint32_t I>             TYPE       &get()       {static_assert( I     < ROWS * COLLUMNS , "Out of range" ); return vDataMat[I];}
-      template<uint32_t I>             TYPE const &get() const {static_assert( I     < ROWS * COLLUMNS , "Out of range" ); return vDataMat[I];}
-      template<uint32_t X, uint32_t Y> TYPE       &get()       {static_assert( X * Y < ROWS * COLLUMNS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
-      template<uint32_t X, uint32_t Y> TYPE const &get() const {static_assert( X * Y < ROWS * COLLUMNS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
+      template<uint32_t I>             TYPE       &get()       {static_assert( I     < ROWS * COLLUMNS  , "Out of range" ); return vDataMat[I];}
+      template<uint32_t I>             TYPE const &get() const {static_assert( I     < ROWS * COLLUMNS  , "Out of range" ); return vDataMat[I];}
+      template<uint32_t X, uint32_t Y> TYPE       &get()       {static_assert( X < COLLUMNS && Y < ROWS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
+      template<uint32_t X, uint32_t Y> TYPE const &get() const {static_assert( X < COLLUMNS && Y < ROWS , "Out of range" ); return vDataMat[( X * ROWS ) + Y];}
 
       TYPE       *getMatrix()                                   {return vDataMat;}
       void        set( uint32_t _position, TYPE _newVal )       {vDataMat[_position] = _newVal;}
@@ -164,10 +164,10 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
       void fill( TYPE && _f );
 
       template<int R, int C>
-      void downscale( rMatrix<TYPE, R, C> *_new );
+      void downscale( rMatrix<TYPE, R, C> *_new ) const;
 
       template<int R, int C>
-      void upscale( rMatrix<TYPE, R, C> *_new );
+      void upscale( rMatrix<TYPE, R, C> *_new ) const;
 
       template <int COLLUMNS_NEW>
       void multiply( const rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_matrix, rMatrix<TYPE, ROWS, COLLUMNS_NEW> *_targetMatrix );
@@ -206,6 +206,7 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
       rMatrix<TYPE, ROWS, COLLUMNS> &operator-=( const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix );
       rMatrix<TYPE, ROWS, COLLUMNS> &operator*=( const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix );
       rMatrix<TYPE, ROWS, COLLUMNS> &operator*=( const TYPE                          &_rScalar );
+      rMatrix<TYPE, ROWS, COLLUMNS> &operator/=( const TYPE                          &_rScalar );
 
       TYPE &operator[]( uint32_t _x )                          {return get( _x );}
       TYPE &operator()( uint32_t _x, uint32_t _y )             {return get( _x, _y );}
@@ -296,6 +297,14 @@ rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=( const 
    return *this;
 }
 
+template <class TYPE, int ROWS, int COLLUMNS>
+rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator/=( const TYPE &_rScalar ) {
+   for( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
+      vDataMat[i] /= _rScalar;
+
+   return *this;
+}
+
 
 
 
@@ -316,7 +325,7 @@ rMatrix<TYPE, ROWS, COLLUMNS> operator*( TYPE _lScalar, const rMatrix<TYPE, ROWS
 
 template <class TYPE, int ROWS, int COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> operator*( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix, const TYPE &_rScalar ) {
-   return _lMatrix *= _rScalar;;
+   return _lMatrix *= _rScalar;
 }
 
 template <class TYPE, int ROWS, int COLLUMNS>
@@ -365,7 +374,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::fill( TYPE && _f ) {
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template <int R, int C>
-void rMatrix<TYPE, ROWS, COLLUMNS>::downscale( rMatrix<TYPE, R, C> *_new ) {
+void rMatrix<TYPE, ROWS, COLLUMNS>::downscale( rMatrix<TYPE, R, C> *_new ) const {
    static_assert( ( ROWS * COLLUMNS ) >= 2 , "Matrix size (R*C) must be at least 2" );
    static_assert( R <= ROWS && C <= COLLUMNS, "The matrix to downscale must be smaller" );
 
@@ -376,7 +385,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::downscale( rMatrix<TYPE, R, C> *_new ) {
 
 template <class TYPE, int ROWS, int COLLUMNS>
 template <int R, int C>
-void rMatrix<TYPE, ROWS, COLLUMNS>::upscale( rMatrix<TYPE, R, C> *_new ) {
+void rMatrix<TYPE, ROWS, COLLUMNS>::upscale( rMatrix<TYPE, R, C> *_new ) const {
    static_assert( ( ROWS * COLLUMNS ) >= 2 , "Matrix size (R*C) must be at least 2" );
    static_assert( R >= ROWS && C >= COLLUMNS, "The matrix to upscale must be larger" );
 
@@ -430,15 +439,15 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 2, 2> &_matrix
 //HARDCODED 3x3
 template<class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 3, 3> &_matrix, rMatrix<TYPE, 3, 3> *_targetMatrix ) {
-   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[3] * _matrix.vDataMat[1] ) + ( vDataMat[6]  * _matrix.vDataMat[2] ) )  ;
-   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) + ( vDataMat[7]  * _matrix.vDataMat[2] ) )  ;
+   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[3] * _matrix.vDataMat[1] ) + ( vDataMat[6] * _matrix.vDataMat[2] ) ) ;
+   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) + ( vDataMat[7] * _matrix.vDataMat[2] ) ) ;
    _targetMatrix->vDataMat[2] = ( ( vDataMat[2] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) + ( vDataMat[8] * _matrix.vDataMat[2] ) ) ;
    _targetMatrix->vDataMat[3] = ( ( vDataMat[0] * _matrix.vDataMat[3] ) + ( vDataMat[3] * _matrix.vDataMat[4] ) + ( vDataMat[6] * _matrix.vDataMat[5] ) ) ;
-   _targetMatrix->vDataMat[4] = ( ( vDataMat[1] * _matrix.vDataMat[3] ) + ( vDataMat[4] * _matrix.vDataMat[4] ) + ( vDataMat[7]  * _matrix.vDataMat[5] ) )  ;
-   _targetMatrix->vDataMat[5] = ( ( vDataMat[2] * _matrix.vDataMat[3] ) + ( vDataMat[5] * _matrix.vDataMat[4] ) + ( vDataMat[8]  * _matrix.vDataMat[5] ) )  ;
+   _targetMatrix->vDataMat[4] = ( ( vDataMat[1] * _matrix.vDataMat[3] ) + ( vDataMat[4] * _matrix.vDataMat[4] ) + ( vDataMat[7] * _matrix.vDataMat[5] ) ) ;
+   _targetMatrix->vDataMat[5] = ( ( vDataMat[2] * _matrix.vDataMat[3] ) + ( vDataMat[5] * _matrix.vDataMat[4] ) + ( vDataMat[8] * _matrix.vDataMat[5] ) ) ;
    _targetMatrix->vDataMat[6] = ( ( vDataMat[0] * _matrix.vDataMat[6] ) + ( vDataMat[3] * _matrix.vDataMat[7] ) + ( vDataMat[6] * _matrix.vDataMat[8] ) ) ;
    _targetMatrix->vDataMat[7] = ( ( vDataMat[1] * _matrix.vDataMat[6] ) + ( vDataMat[4] * _matrix.vDataMat[7] ) + ( vDataMat[7] * _matrix.vDataMat[8] ) ) ;
-   _targetMatrix->vDataMat[8] = ( ( vDataMat[2] * _matrix.vDataMat[6] ) + ( vDataMat[5] * _matrix.vDataMat[7] ) + ( vDataMat[8]  * _matrix.vDataMat[8] ) )  ;
+   _targetMatrix->vDataMat[8] = ( ( vDataMat[2] * _matrix.vDataMat[6] ) + ( vDataMat[5] * _matrix.vDataMat[7] ) + ( vDataMat[8] * _matrix.vDataMat[8] ) ) ;
 }
 
 

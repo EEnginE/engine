@@ -31,6 +31,8 @@ class rMatrixObjectBase {
       rMat4<T>  vModelViewMatrix_MAT;
       rMat4<T>  vModelViewProjectionMatrix_MAT;
 
+      rMat3<T>  vNormalMatrix;
+
       rVec3<T>  vPosition;
       rVec3<T>  vPositionModelView;
       rVec3<T>  vScale;
@@ -56,12 +58,16 @@ class rMatrixObjectBase {
       inline rMat4<T> *getScaleMatrix()               { return &vScaleMatrix_MAT; }
       inline rMat4<T> *getRotationMatrix()            { return &vRotationMatrix_MAT; }
       inline rMat4<T> *getTranslationMatrix()         { return &vTranslationMatrix_MAT; }
+
       inline rMat4<T> *getModelMatrix()               { return &vModelMatrix_MAT; }
       inline rMat4<T> *getModelViewMatrix()           { return &vModelViewMatrix_MAT; }
       inline rMat4<T> *getViewMatrix()                { return vViewMatrix_MAT; }
+
       inline rMat4<T> *getProjectionMatrix()          { return vProjectionMatrix_MAT; }
       inline rMat4<T> *getViewProjectionMatrix()      { return vViewProjectionMatrix_MAT; }
       inline rMat4<T> *getModelViewProjectionMatrix() { return &vModelViewProjectionMatrix_MAT; }
+
+      inline rMat3<T> *getNormalMatrix()              { return &vNormalMatrix; }
 
       inline void updateFinalMatrix();
 };
@@ -182,6 +188,8 @@ void rMatrixObjectBase<T>::updateFinalMatrix() {
       lTemp = vModelViewMatrix_MAT *  lTemp;
       lTemp.downscale( &vPositionModelView );
    }
+
+   rMatrixMath::getNormalMatrix( vModelViewMatrix_MAT, vNormalMatrix );
 }
 
 

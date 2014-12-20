@@ -24,7 +24,7 @@ class rRenderBasicLight_3_3 : public rRenderBase {
       GLint  vInputNormalsLocation_OGL = -1;
       GLint  vUniformMVP_OGL           = -1;
       GLint  vUniformModelView_OGL     = -1;
-//       GLint  vUniformView_OGL          = -1;
+      GLint  vUniformNormal_OGL        = -1;
 
       GLint  vUniformAmbient_OGL       = -1;
       GLint  vUniformLight_OGL         = -1;
@@ -34,7 +34,7 @@ class rRenderBasicLight_3_3 : public rRenderBase {
 
       rMat4f *vModelViewProjection     = nullptr;
       rMat4f *vModelView               = nullptr;
-//       rMat4f *vView                    = nullptr;
+      rMat3f *vNormal                  = nullptr;
 
       rRenderAmbientLight<float> vAmbientLight;
       rRenderLightSource<float>  vLightSource;

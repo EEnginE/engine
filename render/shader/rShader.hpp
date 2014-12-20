@@ -65,6 +65,7 @@ class rShader {
          MODEL_VIEW_MATRIX,
          PROJECTOIN_MATRIX,
          M_V_P_MATRIX,
+         NORMAL_MATRIX,
 
          // Light
          AMBIENT_COLOR,
