@@ -27,6 +27,7 @@ namespace e_engine {
 #define MODEL_MATRIX_FLAG                 ( 1 << 6 )
 #define MODEL_VIEW_MATRIX_FLAG            ( 1 << 7 )
 #define MODEL_VIEW_PROJECTION_MATRIX_FLAG ( 1 << 8 )
+#define NORMAL_MATRIX_FLAG                ( 1 << 9 )
 
 /*!
  * \brief Base class for creating objects
@@ -80,7 +81,8 @@ class rObjectBase {
          CAMERA_MATRIX,
          MODEL_MATRIX,
          MODEL_VIEW_MATRIX,
-         MODEL_VIEW_PROJECTION
+         MODEL_VIEW_PROJECTION,
+         NORMAL_MATRIX
       };
 
       enum VECTOR_TYPES {
@@ -160,9 +162,12 @@ class rObjectBase {
       virtual uint32_t getMatrix( rMat4f **_mat, MATRIX_TYPES _type );
       virtual uint32_t getMatrix( rMat4d **_mat, MATRIX_TYPES _type );
 
+      virtual uint32_t getMatrix( rMat3f **_mat, MATRIX_TYPES _type );
+      virtual uint32_t getMatrix( rMat3d **_mat, MATRIX_TYPES _type );
+
       virtual uint32_t getVector( rVec4f **_vec, VECTOR_TYPES _type );
       virtual uint32_t getVector( rVec4d **_vec, VECTOR_TYPES _type );
-      
+
       virtual uint32_t getVector( rVec3f **_vec, VECTOR_TYPES _type );
       virtual uint32_t getVector( rVec3d **_vec, VECTOR_TYPES _type );
 };

@@ -4,6 +4,7 @@
 
 uniform mat4 uModelView;
 uniform mat4 uMVP;
+uniform mat3 uNormal;
 
 // Light stuff
 
@@ -21,16 +22,14 @@ out vec4 toFragColor;
 const vec3 cSpecularMaterial = vec3( 0.9, 0.9, 0.9 );
 
 void main() {
-   mat4 lNormalMatrix = transpose( inverse( uModelView ) ); // NEVER DO THIS IN A SHADER!! ONLY FOR TESTING
-
-   vec3 lAmbientDiffuseMaterial = clamp(iVertex, 0.0, 1.0);
+   vec3 lAmbientDiffuseMaterial = clamp(iVertex, 0.0, 1.0); // Make some colors...
 
    // Ambient Light
    vec3 lAmbientLight = lAmbientDiffuseMaterial * uAmbientColor;
 
 
    // Specular Light
-   vec3  lNormalsEyeSpace  = mat3(lNormalMatrix) * iNormals;   // Get the normals in world space
+   vec3  lNormalsEyeSpace  = uNormal * iNormals;   // Get the normals in world space
    vec3  lVertexWorldSpace = (uModelView * vec4( iVertex, 1.0 )).xyz;
    vec3  lLightDirection   = normalize( uLightPos - lVertexWorldSpace );
 
