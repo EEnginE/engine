@@ -22,18 +22,18 @@ class iInit;
  * \sa iInit uSignal uSlot
  */
 struct iEventInfo {
-   EVENT_TYPE     type;
-   iInit *iInitPointer;
+   EVENT_TYPE     type = E_EVENT_UNKNOWN;
+   iInit *iInitPointer = nullptr;
 
    /*!
     * \struct e_engine::iEventInfo::_eRsize
     * \brief The resize part
     */
    struct _eRsize {
-      int          posX;
-      int          posY;
-      unsigned int height;
-      unsigned int width;
+      int          posX   = 0;
+      int          posY   = 0;
+      unsigned int height = 0;
+      unsigned int width  = 0;
    } eResize;
 
    /*!
@@ -41,8 +41,8 @@ struct iEventInfo {
     * \brief The key part
     */
    struct _eKey {
-      wchar_t      key;
-      unsigned int state;
+      wchar_t      key   = 0;
+      unsigned int state = 0;
    } eKey;
 
    /*!
@@ -50,10 +50,10 @@ struct iEventInfo {
     * \brief The mouse part
     */
    struct _iMouse {
-      int       posX;
-      int       posY;
-      int       state;
-      E_BUTTON button;
+      int       posX   = 0;
+      int       posY   = 0;
+      int       state  = 0;
+      E_BUTTON  button = E_MOUSE_UNKNOWN;
    } iMouse;
 
    struct _eFocus {
@@ -74,10 +74,7 @@ struct iEventInfo {
       eFocus.hasFocus = false;
    }
 
-   iEventInfo() {
-      iInitPointer = NULL;
-      reset();
-   }
+   iEventInfo() {}
    iEventInfo( iInit *_ptr ) {
       iInitPointer = _ptr;
       reset();

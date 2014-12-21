@@ -24,7 +24,7 @@ int iInit::eventLoop() {
 
    {
       // Make sure lLockWindow_BT will be destroyed
-      boost::lock_guard<boost::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
+      std::lock_guard<std::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
       vCreateWindowReturn_I = createContext();
       makeNOContextCurrent();
 
@@ -35,7 +35,7 @@ int iInit::eventLoop() {
 
    // Now wait until the main event loop is officially "started"
 
-   boost::unique_lock<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+   std::unique_lock<std::mutex> lLockEvent_BT( vStartEventMutex_BT );
    while ( !vContinueWithEventLoop_B ) vStartEventCondition_BT.wait( lLockEvent_BT );
 
 
@@ -49,7 +49,7 @@ int iInit::eventLoop() {
          DestroyWindow( getHWND_win32() );
 
       if ( vEventLoopPaused_B ) {
-         boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
+         std::unique_lock<std::mutex> lLock_BT( vEventLoopMutex_BT );
          vEventLoopISPaused_B = true;
          while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
          vEventLoopISPaused_B = false;

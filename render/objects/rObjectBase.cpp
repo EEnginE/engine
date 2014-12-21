@@ -6,15 +6,15 @@
 #include "uLog.hpp"
 #include "rLoader_3D_f_OBJ.hpp"
 #include "iInit.hpp"
-#include <boost/regex.hpp>
+#include <regex>
 #include <boost/filesystem.hpp>
 
 namespace e_engine {
 
 rObjectBase::DATA_FILE_TYPE rObjectBase::detectFileTypeFromEnding( const std::string &_str ) {
-   boost::regex lDataEndingOBJ_ex( "\\.obj" );
+   std::regex lDataEndingOBJ_ex( "\\.obj" );
 
-   if( boost::regex_match( _str.end() - 4, _str.end(), lDataEndingOBJ_ex ) ) {
+   if( std::regex_match( _str.end() - 4, _str.end(), lDataEndingOBJ_ex ) ) {
       return OBJ_FILE;
    }
 

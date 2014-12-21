@@ -43,7 +43,8 @@
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/filesystem.hpp>
-#include <boost/regex.hpp>
+#include <regex>
+#include <iostream>
 
 namespace e_engine {
 
@@ -115,9 +116,9 @@ std::string uSystem::getMainConfigDirPath() {
    if ( vMainConfigDir.empty() ) {
 
       // Replace all bad characters with '-'
-      boost::regex ex ( "[^A-Za-z0-9.\\*]" );
+      std::regex ex ( "[^A-Za-z0-9.\\*]" );
       const char *fmt =  "-";
-      std::string out = boost::regex_replace ( GlobConf.config.appName, ex, fmt );
+      std::string out = std::regex_replace ( GlobConf.config.appName, ex, fmt );
 
 #if UNIX
       std::string dir1_str = vUserHome + "/.";

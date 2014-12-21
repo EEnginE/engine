@@ -2,38 +2,42 @@
  * \file rFrameCounter.hpp
  */
 
- #include "uLog.hpp"
- #include "rWorld.hpp"
+#include "uLog.hpp"
+#include "rWorld.hpp"
 
 namespace e_engine {
 
-    // \todo Add a signal to output the FPS
+// \todo Add a signal to output the FPS
 
 class rFrameCounter {
- private:
+   private:
       rWorld       *vWorld;
 
       uint64_t     *vRenderedFrames;
 
       int           vSleepDelay  = 1000;
-      double        vHelper      = vSleepDelay/1000;    //vSleepDelay in seconds
+      double        vHelper      = vSleepDelay / 1000;  //vSleepDelay in seconds
 
-      bool          vFrameCounterEnabled;
+      bool          vFrameCounterEnabled = false;
 
-      boost::thread frameCounterThread;
+      std::thread   frameCounterThread;
 
       void frameCounterLoop();
 
+   public:
+      rFrameCounter( rWorld *_rWorld, bool _enable );
+      virtual ~rFrameCounter() {disableFrameCounter( true );}
 
- public:
-      rFrameCounter( rWorld *_rWorld, bool _enable);
+      rFrameCounter() = delete;
+
       void enableFrameCounter();
-      void disableFrameCounter(bool _join = false);
+      void disableFrameCounter( bool _join = false );
 
-      void setSleepDelay( double _newSleepDelay) {vSleepDelay = _newSleepDelay; vHelper = vSleepDelay/1000;}
+      void setSleepDelay( double _newSleepDelay ) {vSleepDelay = _newSleepDelay; vHelper = vSleepDelay / 1000;}
 
       bool getIsCounterEnabled()   const         {return vFrameCounterEnabled;}
 
 };
 
 }
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 

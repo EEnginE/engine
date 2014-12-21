@@ -1,6 +1,6 @@
 #include "cmdANDinit.hpp"
 #include "config.hpp"
-#include <boost/regex.hpp>
+#include <regex>
 
 cmdANDinit::cmdANDinit( int argc, char *argv[], testStarter &_starter, bool &_errors ) {
    argv0        = argv[0];
@@ -105,37 +105,37 @@ bool cmdANDinit::parseArgsAndInit( testStarter &_starter ) {
          continue;
       }
 
-      boost::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if ( boost::regex_match( arg, lLogRegex ) ) {
-         boost::regex lLogRegexRep( "^\\-\\-log=" );
+      std::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if ( std::regex_match( arg, lLogRegex ) ) {
+         std::regex lLogRegexRep( "^\\-\\-log=" );
          const char *lRep = "";
-         string logPath = boost::regex_replace( arg, lLogRegexRep, lRep );
+         string logPath = std::regex_replace( arg, lLogRegexRep, lRep );
          GlobConf.log.logFILE.logFileName = logPath;
          continue;
       }
       
-      boost::regex lDataRegex( "^\\-\\-data=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if ( boost::regex_match( arg, lDataRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-data=" );
+      std::regex lDataRegex( "^\\-\\-data=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if ( std::regex_match( arg, lDataRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-data=" );
          const char *lRep = "";
-         dataRoot = boost::regex_replace( arg, lDataRegexRep, lRep );
+         dataRoot = std::regex_replace( arg, lDataRegexRep, lRep );
          continue;
       }
       
-      boost::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
-      if ( boost::regex_match( arg, lMajorRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-glMajor=" );
+      std::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
+      if ( std::regex_match( arg, lMajorRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-glMajor=" );
          const char *lRep = "";
-         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         string version = std::regex_replace( arg, lDataRegexRep, lRep );
          GlobConf.versions.glMajorVersion = atoi( version.c_str() );
          continue;
       }
       
-      boost::regex lMinorRegex( "^\\-\\-glMinor=[0-9]+$" );
-      if ( boost::regex_match( arg, lMinorRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-glMinor=" );
+      std::regex lMinorRegex( "^\\-\\-glMinor=[0-9]+$" );
+      if ( std::regex_match( arg, lMinorRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-glMinor=" );
          const char *lRep = "";
-         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         string version = std::regex_replace( arg, lDataRegexRep, lRep );
          GlobConf.versions.glMinorVersion = atoi( version.c_str() );
          continue;
       }
@@ -147,19 +147,19 @@ bool cmdANDinit::parseArgsAndInit( testStarter &_starter ) {
       }
       
       
-      boost::regex lWithoutRegex( "^\\-\\-without\\-[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if ( boost::regex_match( arg, lWithoutRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-without\\-" );
+      std::regex lWithoutRegex( "^\\-\\-without\\-[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if ( std::regex_match( arg, lWithoutRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-without\\-" );
          const char *lRep = "";
-         _starter.disable( boost::regex_replace( arg, lDataRegexRep, lRep ) );
+         _starter.disable( std::regex_replace( arg, lDataRegexRep, lRep ) );
          continue;
       }
       
-      boost::regex lWithRegex( "^\\-\\-with\\-[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if ( boost::regex_match( arg, lWithRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-with\\-" );
+      std::regex lWithRegex( "^\\-\\-with\\-[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if ( std::regex_match( arg, lWithRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-with\\-" );
          const char *lRep = "";
-         _starter.enable( boost::regex_replace( arg, lDataRegexRep, lRep ) );
+         _starter.enable( std::regex_replace( arg, lDataRegexRep, lRep ) );
          continue;
       }
       

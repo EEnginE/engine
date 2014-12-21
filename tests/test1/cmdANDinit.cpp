@@ -1,7 +1,7 @@
 #include "cmdANDinit.hpp"
 #include "config.hpp"
 #include "oglTestBind.hpp"
-#include <boost/regex.hpp>
+#include <regex>
 
 cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
    argv0        = argv[0];
@@ -125,55 +125,55 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      boost::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lLogRegex ) ) {
-         boost::regex lLogRegexRep( "^\\-\\-log=" );
+      std::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if( std::regex_match( arg, lLogRegex ) ) {
+         std::regex lLogRegexRep( "^\\-\\-log=" );
          const char *lRep = "";
-         string logPath = boost::regex_replace( arg, lLogRegexRep, lRep );
+         string logPath = std::regex_replace( arg, lLogRegexRep, lRep );
          GlobConf.log.logFILE.logFileName = logPath;
          continue;
       }
 
-      boost::regex lDataRegex( "^\\-\\-data=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lDataRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-data=" );
+      std::regex lDataRegex( "^\\-\\-data=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if( std::regex_match( arg, lDataRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-data=" );
          const char *lRep = "";
-         dataRoot = boost::regex_replace( arg, lDataRegexRep, lRep );
+         dataRoot = std::regex_replace( arg, lDataRegexRep, lRep );
          iLOG( "Using custom data path: '", dataRoot, "'" );
          continue;
       }
 
-      boost::regex lMeshRegex( "^\\-\\-mesh=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lMeshRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-mesh=" );
+      std::regex lMeshRegex( "^\\-\\-mesh=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if( std::regex_match( arg, lMeshRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-mesh=" );
          const char *lRep = "";
-         meshToRender = boost::regex_replace( arg, lDataRegexRep, lRep );
+         meshToRender = std::regex_replace( arg, lDataRegexRep, lRep );
          continue;
       }
 
 
-      boost::regex lShaderRegex( "^\\-\\-shader=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lShaderRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-shader=" );
+      std::regex lShaderRegex( "^\\-\\-shader=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if( std::regex_match( arg, lShaderRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-shader=" );
          const char *lRep = "";
-         vShader = boost::regex_replace( arg, lDataRegexRep, lRep );
+         vShader = std::regex_replace( arg, lDataRegexRep, lRep );
          continue;
       }
 
-      boost::regex lNShaderRegex( "^\\-\\-Nshader=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lNShaderRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-Nshader=" );
+      std::regex lNShaderRegex( "^\\-\\-Nshader=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if( std::regex_match( arg, lNShaderRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-Nshader=" );
          const char *lRep = "";
-         vNormalShader = boost::regex_replace( arg, lDataRegexRep, lRep );
+         vNormalShader = std::regex_replace( arg, lDataRegexRep, lRep );
          continue;
       }
 
 
-      boost::regex lConfRegex( "^\\-\\-conf=[0-9]+$" );
-      if( boost::regex_match( arg, lConfRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-conf=" );
+      std::regex lConfRegex( "^\\-\\-conf=[0-9]+$" );
+      if( std::regex_match( arg, lConfRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-conf=" );
          const char *lRep = "";
-         string conf = boost::regex_replace( arg, lDataRegexRep, lRep );
+         string conf = std::regex_replace( arg, lDataRegexRep, lRep );
          uParserJSON parser( conf );
 
          if( parser.parse() == 1 ) {
@@ -187,39 +187,39 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      boost::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
-      if( boost::regex_match( arg, lMajorRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-glMajor=" );
+      std::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
+      if( std::regex_match( arg, lMajorRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-glMajor=" );
          const char *lRep = "";
-         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         string version = std::regex_replace( arg, lDataRegexRep, lRep );
          GlobConf.versions.glMajorVersion = atoi( version.c_str() );
          continue;
       }
 
-      boost::regex lMinorRegex( "^\\-\\-glMinor=[0-9]+$" );
-      if( boost::regex_match( arg, lMinorRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-glMinor=" );
+      std::regex lMinorRegex( "^\\-\\-glMinor=[0-9]+$" );
+      if( std::regex_match( arg, lMinorRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-glMinor=" );
          const char *lRep = "";
-         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         string version = std::regex_replace( arg, lDataRegexRep, lRep );
          GlobConf.versions.glMinorVersion = atoi( version.c_str() );
          continue;
       }
 
 
-      boost::regex lNearRegex( "^\\-\\-near=[0-9]+(\\.[0-9]+)?$" );
-      if( boost::regex_match( arg, lNearRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-near=" );
+      std::regex lNearRegex( "^\\-\\-near=[0-9]+(\\.[0-9]+)?$" );
+      if( std::regex_match( arg, lNearRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-near=" );
          const char *lRep = "";
-         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         string version = std::regex_replace( arg, lDataRegexRep, lRep );
          vNearZ = atof( version.c_str() );
          continue;
       }
 
-      boost::regex lFarRegex( "^\\-\\-far=[0-9]+(\\.[0-9]+)?$" );
-      if( boost::regex_match( arg, lFarRegex ) ) {
-         boost::regex lDataRegexRep( "^\\-\\-far=" );
+      std::regex lFarRegex( "^\\-\\-far=[0-9]+(\\.[0-9]+)?$" );
+      if( std::regex_match( arg, lFarRegex ) ) {
+         std::regex lDataRegexRep( "^\\-\\-far=" );
          const char *lRep = "";
-         string version = boost::regex_replace( arg, lDataRegexRep, lRep );
+         string version = std::regex_replace( arg, lDataRegexRep, lRep );
          vFarZ = atof( version.c_str() );
          continue;
       }

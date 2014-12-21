@@ -7,7 +7,6 @@
 #include "uLog.hpp"
 #include "defines.hpp"
 #include <iomanip>
-#include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -90,10 +89,10 @@ void uLogEntryRaw::end() {
       return;
    }
    {
-      boost::unique_lock<boost::mutex> lLock_BT( vWaitMutex_BT );
+      std::unique_lock<std::mutex> lLock_BT( vWaitMutex_BT );
       while( ! vIsPrinted_B ) vWaitUntilThisIsPrinted_BT.wait( lLock_BT );
    }
-   boost::lock_guard<boost::mutex> lLockWait_BT( vWaitEndMutex_BT );
+   std::lock_guard<std::mutex> lLockWait_BT( vWaitEndMutex_BT );
    vEndFinished_B = true;
    vWaitUntilEndFinisched_BT.notify_one();
 }
@@ -104,11 +103,11 @@ void uLogEntryRaw::endLogWaitAndSetPrinted() {
       return;
    }
    {
-      boost::lock_guard<boost::mutex> lLockWait_BT( vWaitMutex_BT );
+      std::lock_guard<std::mutex> lLockWait_BT( vWaitMutex_BT );
       vIsPrinted_B = true;
       vWaitUntilThisIsPrinted_BT.notify_one();
    }
-   boost::unique_lock<boost::mutex> lLockWait_BT( vWaitEndMutex_BT );
+   std::unique_lock<std::mutex> lLockWait_BT( vWaitEndMutex_BT );
    while( ! vEndFinished_B ) vWaitUntilEndFinisched_BT.wait( lLockWait_BT );
 }
 

@@ -7,7 +7,8 @@
 #define E_LOG_STRUCTS_HPP
 
 #include <boost/variant.hpp>
-#include <boost/thread.hpp>
+#include <thread>
+#include <condition_variable>
 #include <type_traits>
 #include "uSignalSlot.hpp"
 #include "uConfig.hpp"  // Only for internal::LOG_COLOR_TYPE and internal::LOG_PRINT_TYPE
@@ -177,12 +178,12 @@ class uLogEntryRaw {
       std::vector<internal::uLogPartData> vElements;
       char                                vType_C;
 
-      boost::condition_variable           vWaitUntilThisIsPrinted_BT;
-      boost::mutex                        vWaitMutex_BT;
+      std::condition_variable             vWaitUntilThisIsPrinted_BT;
+      std::mutex                          vWaitMutex_BT;
       bool                                vIsPrinted_B;
 
-      boost::condition_variable           vWaitUntilEndFinisched_BT;
-      boost::mutex                        vWaitEndMutex_BT;
+      std::condition_variable             vWaitUntilEndFinisched_BT;
+      std::mutex                          vWaitEndMutex_BT;
       bool                                vEndFinished_B;
 
       template<class T, class... ARGS>

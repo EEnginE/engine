@@ -53,14 +53,14 @@ class BenchClass : public BenchBaseVirtual {
 
       BenchClass() {}
 
-      
-      boost::mutex bMutex;
+
+      std::mutex bMutex;
       unsigned int vLoopsToDoMutex;
-      
+
       double funcNormal( int a, double b );
       double funcMutex( int a, double b );
       double funcLockGuard( int a, double b );
-      
+
       unsigned int vLoopsToDoCast;
 
       void doFunction();

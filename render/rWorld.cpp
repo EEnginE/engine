@@ -45,6 +45,7 @@ rWorld::rWorld( iInit *_init ) {
 void rWorld::renderLoop() {
    iLOG( "Render loop started" );
    vRenderLoopRunning_B = true;
+
    vInitPointer->makeContextCurrent();  // Only ONE thread can have a context
 
    if( GlobConf.win.VSync == true )
@@ -59,7 +60,7 @@ void rWorld::renderLoop() {
 
    while( vRenderLoopShouldRun_B ) {
       if( vRenderLoopShouldPaused_B ) {
-         boost::unique_lock<boost::mutex> lLock_BT( vRenderLoopMutex_BT );
+         std::unique_lock<std::mutex> lLock_BT( vRenderLoopMutex_BT );
          vInitPointer->makeNOContextCurrent();
          vRenderLoopIsPaused_B = true;
          while( vRenderLoopShouldPaused_B ) vRenderLoopWait_BT.wait( lLock_BT );
@@ -97,8 +98,8 @@ void rWorld::renderLoop() {
    if( vInitPointer->getHaveContext() )
       vInitPointer->makeNOContextCurrent();
 
+   iLOG( "Render Loop finished" );
    vRenderLoopRunning_B = false;
-
 }
 
 
@@ -106,36 +107,28 @@ void rWorld::startRenderLoop( bool _wait ) {
    vRenderLoopShouldRun_B = true;
 
    vInitPointer->makeNOContextCurrent();
-   vRenderLoop_BT = boost::thread( &rWorld::renderLoop, this );
+   vRenderLoop_BT = std::thread( &rWorld::renderLoop, this );
 
    if( _wait ) {
       vRenderLoop_BT.join();
       if( vInitPointer->getHaveContext() ) vInitPointer->makeContextCurrent();   // Only ONE thread can have a context
    }
-
 }
 
 void rWorld::stopRenderLoop() {
    vRenderLoopShouldRun_B = false;
 
-
-   if( vRenderLoopRunning_B )
-#if BOOST_VERSION < 105000
-   {
-      boost::posix_time::time_duration duration = boost::posix_time::milliseconds( GlobConf.timeoutForMainLoopThread_mSec );
-      vRenderLoop_BT.timed_join( duration );
-   }
+#if 0
+   if( vRenderLoop_BT.joinable() )
+      vRenderLoop_BT.join(); // Segfault here. Why!?
 #else
-      vRenderLoop_BT.try_join_for( boost::chrono::milliseconds( GlobConf.timeoutForMainLoopThread_mSec ) );
+   while( vRenderLoopRunning_B ) B_SLEEP( milliseconds, 100 ); /// \todo Fix this workaround
 #endif
 
    if( vRenderLoopRunning_B ) {
-      vRenderLoop_BT.interrupt();
-      wLOG( "Render Loop Timeout reached  -->  Killing the thread" );
+      wLOG( "Render Loop thread finished abnormaly" );
       vRenderLoopRunning_B = false;
    }
-
-   iLOG( "Render loop finished" );
 }
 
 void rWorld::pauseRenderLoop() {
@@ -150,7 +143,7 @@ void rWorld::pauseRenderLoop() {
 }
 
 void rWorld::continueRenderLoop() {
-   boost::lock_guard<boost::mutex> lLockMain_BT( vRenderLoopMutex_BT );
+   std::lock_guard<std::mutex> lLockMain_BT( vRenderLoopMutex_BT );
    vRenderLoopShouldPaused_B = false;
    vRenderLoopWait_BT.notify_one();
 }
@@ -189,4 +182,4 @@ void rWorld::setInitObj( iInit *_init ) {
 
 
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

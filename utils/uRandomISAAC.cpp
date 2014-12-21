@@ -4,7 +4,7 @@
  */
 
 #include "uRandomISAAC.hpp"
-#include <boost/chrono.hpp>
+#include <chrono>
 #if defined __liunx__
 #include <sys/time.h>
 #else
@@ -48,7 +48,7 @@ void uRandomISAAC::init( uint32_t _seed ) {
 #endif // __liunx__
    }
 
-   boost::chrono::system_clock::time_point lStart_bcTP = boost::chrono::system_clock::now();
+   std::chrono::system_clock::time_point lStart_bcTP = std::chrono::system_clock::now();
 
    // Init xorshift seeds:
    x = ( lTime_ulI % 2 == 0 ) ? ( lTime_ulI * lTime_ulI ) / 7 : lTime_ulI * 7 + lTime_ulI * ( lTime_ulI % 3 ) ;
@@ -66,7 +66,7 @@ void uRandomISAAC::init( uint32_t _seed ) {
 
    mixUp( lSeed_ulI );
 
-   boost::chrono::nanoseconds lNSec_bcNSEC = boost::chrono::system_clock::now() - lStart_bcTP;
+   std::chrono::nanoseconds lNSec_bcNSEC = std::chrono::system_clock::now() - lStart_bcTP;
 
    for ( unsigned int i = 0; i < lNSec_bcNSEC.count(); ++i ) {
       // make some random numbers
@@ -75,7 +75,7 @@ void uRandomISAAC::init( uint32_t _seed ) {
 
    for ( unsigned int i = 0; i < 256; ++i )
       lSeed_ulI[i] = get(); // this should generate the final complete random seeds
-      
+
    mixUp( lSeed_ulI );
 }
 

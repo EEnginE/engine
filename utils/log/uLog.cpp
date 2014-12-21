@@ -30,6 +30,8 @@
 
 #include <boost/filesystem.hpp>
 #include <cstdio> // for fileno
+#include <iostream>
+#include <sstream>
 
 #ifdef __linux__
 #include <unistd.h>
@@ -359,7 +361,7 @@ bool uLog::startLogLoop() {
    }
 
    vLogLoopRun_B = true;
-   vLogLoopThread_THREAD = boost::thread( &uLog::logLoop, this );
+   vLogLoopThread_THREAD = std::thread( &uLog::logLoop, this );
 
    return true;
 }
@@ -376,17 +378,7 @@ bool uLog::stopLogLoop() {
       return false;
 
    vLogLoopRun_B = false;
-
-#if BOOST_VERSION < 105000
-   boost::posix_time::time_duration duration = boost::posix_time::seconds( 60 );
-   vLogLoopThread_THREAD.timed_join( duration );
-#else
-   vLogLoopThread_THREAD.try_join_for( boost::chrono::seconds( 60 ) );
-#endif
-
-   if( vIsLogLoopRunning_B == true ) {
-      vLogLoopThread_THREAD.interrupt(); // 1s should be more than enough, so something went wrong
-   }
+   vLogLoopThread_THREAD.join();
 
    return true;
 }

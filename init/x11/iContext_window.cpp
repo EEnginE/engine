@@ -31,7 +31,7 @@
 #include "iContext.hpp"
 #include <X11/Xatom.h>
 #include "uLog.hpp"
-#include <boost/regex.hpp>
+#include <regex>
 #include "eCMDColor.hpp"
 
 /* Don't need this for icon anymore
@@ -304,7 +304,7 @@ int iContext::createWindow() {
 
 
    if( lWindowType_atom && lWhichWindowType_atom ) {
-      boost::regex lTypeRegex_EX( "^_[A-Z_]+_" );
+      std::regex lTypeRegex_EX( "^_[A-Z_]+_" );
       const char  *lReplace_C = "";
 
       // Apply window type
@@ -317,10 +317,10 @@ int iContext::createWindow() {
             ( unsigned char * ) &lWhichWindowType_atom,
             1 )
         ) {
-         wLOG( "Failed to set the window type to ", boost::regex_replace( lWindowType_str, lTypeRegex_EX, lReplace_C )
+         wLOG( "Failed to set the window type to ", std::regex_replace( lWindowType_str, lTypeRegex_EX, lReplace_C )
                ,  " ( XChangeProperty( ..., _NET_WM_WINDOW_TYPE, ", lWindowType_str, ", ...);" );
       } else {
-         iLOG( "Successfully set the Window type to ", boost::regex_replace( lWindowType_str, lTypeRegex_EX, lReplace_C ) );
+         iLOG( "Successfully set the Window type to ", std::regex_replace( lWindowType_str, lTypeRegex_EX, lReplace_C ) );
       }
    }
 

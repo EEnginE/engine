@@ -37,7 +37,7 @@
 #endif
 
 #include "uLog.hpp"
-#include <boost/thread.hpp>
+#include <thread>
 
 
 namespace e_engine {
@@ -66,29 +66,28 @@ class iInit : public unix_x11::iContext, public iMouse {
 class iInit : public windows_win32::iContext {
 #endif
    private:
-      bool              vMainLoopRunning_B;   //!< Should the main loop be running?
-      bool              vBoolCloseWindow_B;   //!< Clean up after the main loop finished?
+      bool        vMainLoopRunning_B;   //!< Should the main loop be running?
 
-      bool              vEventLoopHasFinished_B; //!< Has the event loop finished?
+      bool        vEventLoopHasFinished_B; //!< Has the event loop finished?
 
-      boost::thread     vEventLoop_BT;           //!< The thread for the event loop
-      boost::thread     vQuitMainLoop_BT;
+      std::thread vEventLoop_BT;           //!< The thread for the event loop
+      std::thread vQuitMainLoop_BT;
 
-      boost::thread     vRestartThread_BT;
-      boost::thread     vPauseThread_BT;
+      std::thread vRestartThread_BT;
+      std::thread vPauseThread_BT;
 
-      boost::mutex      vEventLoopMutex_BT;
+      std::mutex  vEventLoopMutex_BT;
 
-      boost::condition_variable vEventLoopWait_BT;
+      std::condition_variable vEventLoopWait_BT;
 
-      bool              vEventLoopPaused_B;    //!< SHOULD the event loop be paused?
-      bool              vEventLoopISPaused_B;
+      bool        vEventLoopPaused_B;    //!< SHOULD the event loop be paused?
+      bool        vEventLoopISPaused_B;
 
-      bool              vWasMouseGrabbed_B;
+      bool        vWasMouseGrabbed_B;
 
-      int               vCreateWindowReturn_I;
+      int         vCreateWindowReturn_I;
 
-      bool              vAreRenderLoopSignalsConnected_B;
+      bool        vAreRenderLoopSignalsConnected_B;
 
       uSignal<void, bool> vStartRenderLoopSignal_SIG;
       uSignal<void>       vStopRenderLoopSignal_SIG;
@@ -98,12 +97,12 @@ class iInit : public windows_win32::iContext {
 
 
 #if WINDOWS
-      boost::mutex              vCreateWindowMutex_BT;
-      boost::condition_variable vCreateWindowCondition_BT;
+      std::mutex              vCreateWindowMutex_BT;
+      std::condition_variable vCreateWindowCondition_BT;
 
-      boost::mutex              vStartEventMutex_BT;
-      boost::condition_variable vStartEventCondition_BT;
-      bool                      vContinueWithEventLoop_B;
+      std::mutex              vStartEventMutex_BT;
+      std::condition_variable vStartEventCondition_BT;
+      bool                    vContinueWithEventLoop_B;
 #endif
 
       // Thread Functions --------------------------------------------------------- ###
