@@ -64,7 +64,7 @@ void myWorld::key( iEventInfo info ) {
 
             // Quit
          case L'Q':
-         case E_KEY_ESCAPE: info.iInitPointer->closeWindow(); break;
+         case E_KEY_ESCAPE: info.iInitPointer->quitMainLoop(); break;
       }
    }
 }

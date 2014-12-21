@@ -1,10 +1,10 @@
 #include "BenchClass.hpp"
 #include "cmdANDinit.hpp"
 
-#define START( __VarName__ ) boost::chrono::system_clock::time_point __VarName__ = boost::chrono::system_clock::now();
-#define STOP( __VarName__ )  boost::chrono::duration_cast<boost::chrono::microseconds>(boost::chrono::system_clock::now() - __VarName__).count();
+#define START( __VarName__ ) std::chrono::system_clock::time_point __VarName__ = std::chrono::system_clock::now();
+#define STOP( __VarName__ )  std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - __VarName__).count();
 
-typedef boost::chrono::system_clock::duration TIME_DURATION;
+typedef std::chrono::system_clock::duration TIME_DURATION;
 
 BenchClass::BenchClass( cmdANDinit *_cmd ) {
    bool lDoFunctionBench = false;
@@ -222,7 +222,7 @@ double BenchClass::funcMutex( int a, double b ) {
 }
 
 double BenchClass::funcLockGuard( int a, double b ) {
-   boost::lock_guard<boost::mutex> guard1( bMutex );
+   std::lock_guard<std::mutex> guard1( bMutex );
    for( int i = 0; i < 100; ++i ) {
       b *= i + a;
    }

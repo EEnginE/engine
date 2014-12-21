@@ -27,7 +27,7 @@
  *  along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/regex.hpp>
+#include <regex>
 #include <GL/glxew.h>   // Must be included BEFORE e_context.hpp!!! (GLEW)
 #include "iContext.hpp"
 #include "uLog.hpp"
@@ -86,7 +86,7 @@ iContext::iContext() {
 
    vIsCursorHidden_B = false;
    vIsMouseGrabbed_B = false;
-   
+
    vWindowRecreate_B = false;
 }
 
@@ -419,9 +419,9 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       return false;
    }
 
-   Atom lAtomNetWmStateState1_X11;
-   Atom lAtomNetWmStateState2_X11;
-   boost::regex lTypeRegex_EX( "^_NET_WM_STATE_" );
+   Atom lAtomNetWmStateState1_X11 = 0;
+   Atom lAtomNetWmStateState2_X11 = 0;
+   std::regex lTypeRegex_EX( "^_NET_WM_STATE_" );
    const char  *lReplace_C = "";
 
    std::string lMode_STR;
@@ -459,7 +459,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
          return false;
       }
 
-      lState1_str = boost::regex_replace( lState1_str, lTypeRegex_EX, lReplace_C );
+      lState1_str = std::regex_replace( lState1_str, lTypeRegex_EX, lReplace_C );
    }
 
    if ( _type2 != NONE ) {
@@ -487,7 +487,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
          return false;
       }
 
-      lState2_str               = boost::regex_replace( lState2_str, lTypeRegex_EX, lReplace_C );
+      lState2_str               = std::regex_replace( lState2_str, lTypeRegex_EX, lReplace_C );
    }
 
    if ( !

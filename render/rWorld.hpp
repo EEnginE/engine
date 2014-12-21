@@ -27,8 +27,8 @@ class rWorld {
 
       bool          vRenderLoopIsPaused_B;
       bool          vRenderLoopShouldPaused_B;
-      boost::mutex  vRenderLoopMutex_BT;
-      boost::condition_variable vRenderLoopWait_BT;
+      std::mutex    vRenderLoopMutex_BT;
+      std::condition_variable vRenderLoopWait_BT;
 
       uint64_t vRenderedFrames = 0;
 
@@ -51,7 +51,7 @@ class rWorld {
       void renderLoop();
 
       iInit *vInitPointer;
-      boost::thread vRenderLoop_BT;
+      std::thread vRenderLoop_BT;
 
       void startRenderLoop( bool _wait );
       void stopRenderLoop( );

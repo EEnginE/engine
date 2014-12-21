@@ -24,6 +24,7 @@
 #include "uLog.hpp"
 
 #include <X11/XKBlib.h>
+#include <sys/time.h>
 
 /*
  * From class iInit (e_init.h)
@@ -97,7 +98,7 @@ int iInit::eventLoop() {
 
    while ( vMainLoopRunning_B ) {
       if ( vEventLoopPaused_B ) {
-         boost::unique_lock<boost::mutex> lLock_BT( vEventLoopMutex_BT );
+         std::unique_lock<std::mutex> lLock_BT( vEventLoopMutex_BT );
          vEventLoopISPaused_B = true;
          while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
          vEventLoopISPaused_B = false;

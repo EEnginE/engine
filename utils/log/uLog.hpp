@@ -26,17 +26,11 @@
 #define E_LOG_HPP
 
 #include <fstream>
-#include <boost/chrono.hpp>
+#include <chrono>
 #include "uLog_resources.hpp"
 #include "uMacros.hpp"
 
-#if BOOST_VERSION < 105000
-#define B_SLEEP( chrono_sleep, time ) {boost::posix_time::time_duration duration = boost::posix_time::chrono_sleep( time );\
-                                      boost::this_thread::sleep( duration );}
-#else
-#define B_SLEEP( chrono_sleep, time ) boost::this_thread::sleep_for( boost::chrono::chrono_sleep( time ) )
-#endif
-
+#define B_SLEEP( chrono_sleep, time ) std::this_thread::sleep_for( std::chrono::chrono_sleep( time ) )
 
 
 namespace e_engine {
@@ -113,9 +107,9 @@ class uLog {
       std::string                     vLogFielFullPath_str;
       std::wofstream                  vLogFileOutput_OS;
 
-      boost::mutex vLogMutex_BT;
+      std::mutex vLogMutex_BT;
 
-      boost::mutex vLogThreadSaveMutex_BT;
+      std::mutex vLogThreadSaveMutex_BT;
 
       bool vLogLoopRun_B;
       bool vIsLogLoopRunning_B;
@@ -126,7 +120,7 @@ class uLog {
 
       uint16_t vMaxTypeStringLength_usI; //!< The max string length of an \a Error \a type.
 
-      boost::thread vLogLoopThread_THREAD;
+      std::thread vLogLoopThread_THREAD;
 
       bool openLogFile( uint16_t i = 0 );
 
@@ -167,14 +161,14 @@ class uLog {
 
       template<class... ARGS>
       inline void operator()( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS && ... _data ) {
-         boost::lock_guard<boost::mutex> lLock( vLogThreadSaveMutex_BT );
+         std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
          vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<ARGS>( _data )... );
          vLogEntries.back().end();
       }
 
       template<class... ARGS>
       inline void addLogEntry( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS && ... _data ) {
-         boost::lock_guard<boost::mutex> lLock( vLogThreadSaveMutex_BT );
+         std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
          vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<ARGS>( _data )... );
          vLogEntries.back().end();
       }

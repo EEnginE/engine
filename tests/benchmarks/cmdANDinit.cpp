@@ -1,5 +1,5 @@
 #include "cmdANDinit.hpp"
-#include <boost/regex.hpp>
+#include <regex>
 
 cmdANDinit::cmdANDinit( int argc, char *argv[], bool _color ) {
    argv0        = argv[0];
@@ -96,11 +96,11 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      boost::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
-      if( boost::regex_match( arg, lLogRegex ) ) {
-         boost::regex lLogRegexRep( "^\\-\\-log=" );
+      std::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      if( std::regex_match( arg, lLogRegex ) ) {
+         std::regex lLogRegexRep( "^\\-\\-log=" );
          const char *lRep = "";
-         string logPath = boost::regex_replace( arg, lLogRegexRep, lRep );
+         string logPath = std::regex_replace( arg, lLogRegexRep, lRep );
          GlobConf.log.logFILE.logFileName = logPath;
          continue;
       }
@@ -129,29 +129,29 @@ bool cmdANDinit::parseArgsAndInit() {
       }
 
 
-      boost::regex lFuncRegex( "^\\-\\-funcLoops=[0-9 ]*$" );
-      if( boost::regex_match( arg, lFuncRegex ) ) {
-         boost::regex lFuncRegexRep( "^\\-\\-funcLoops=" );
+      std::regex lFuncRegex( "^\\-\\-funcLoops=[0-9 ]*$" );
+      if( std::regex_match( arg, lFuncRegex ) ) {
+         std::regex lFuncRegexRep( "^\\-\\-funcLoops=" );
          const char *lRep = "";
-         string funcString = boost::regex_replace( arg, lFuncRegexRep, lRep );
+         string funcString = std::regex_replace( arg, lFuncRegexRep, lRep );
          vFunctionLoops = atoi( funcString.c_str() );
          continue;
       }
 
-      boost::regex lMutexRegex( "^\\-\\-mutexLoops=[0-9 ]*$" );
-      if( boost::regex_match( arg, lFuncRegex ) ) {
-         boost::regex lFuncRegexRep( "^\\-\\-mutexLoops=" );
+      std::regex lMutexRegex( "^\\-\\-mutexLoops=[0-9 ]*$" );
+      if( std::regex_match( arg, lFuncRegex ) ) {
+         std::regex lFuncRegexRep( "^\\-\\-mutexLoops=" );
          const char *lRep = "";
-         string funcString = boost::regex_replace( arg, lFuncRegexRep, lRep );
+         string funcString = std::regex_replace( arg, lFuncRegexRep, lRep );
          vMutexLoops = atoi( funcString.c_str() );
          continue;
       }
 
-      boost::regex lCastRegex( "^\\-\\-castLoops=[0-9 ]*$" );
-      if( boost::regex_match( arg, lFuncRegex ) ) {
-         boost::regex lFuncRegexRep( "^\\-\\-castLoops=" );
+      std::regex lCastRegex( "^\\-\\-castLoops=[0-9 ]*$" );
+      if( std::regex_match( arg, lFuncRegex ) ) {
+         std::regex lFuncRegexRep( "^\\-\\-castLoops=" );
          const char *lRep = "";
-         string funcString = boost::regex_replace( arg, lFuncRegexRep, lRep );
+         string funcString = std::regex_replace( arg, lFuncRegexRep, lRep );
          vCastLoops = atoi( funcString.c_str() );
          continue;
       }

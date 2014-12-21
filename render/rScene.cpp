@@ -101,7 +101,7 @@ void rSceneBase::renderScene() {
  * \returns The index of the shader
  */
 int rSceneBase::addShader( std::string _shader ) {
-   boost::lock_guard<boost::mutex> lLockShaders( vShaders_MUT );
+   std::lock_guard<std::mutex> lLockShaders( vShaders_MUT );
 
    vShaders.emplace_back( _shader );
    return vShaders.size() - 1;
@@ -121,7 +121,7 @@ int rSceneBase::addShader( std::string _shader ) {
  * \returns The Index of the object
  */
 int rSceneBase::addObject( e_engine::rObjectBase *_obj, GLint _shaderIndex ) {
-   boost::lock_guard<boost::mutex> lLockObjects( vObjects_MUT );
+   std::lock_guard<std::mutex> lLockObjects( vObjects_MUT );
 
    vObjects.emplace_back( _obj, _shaderIndex );
 
@@ -142,7 +142,7 @@ int rSceneBase::addObject( e_engine::rObjectBase *_obj, GLint _shaderIndex ) {
  * \returns 1 on success or the error code of rShader::compile
  */
 int rSceneBase::compileShaders() {
-   boost::lock_guard<boost::mutex> lLockShaders( vShaders_MUT );
+   std::lock_guard<std::mutex> lLockShaders( vShaders_MUT );
 
    int lRet = 1;
    for( auto & d : vShaders ) {
@@ -202,7 +202,7 @@ int rSceneBase::assignObjectRenderer( GLuint _index, rRenderBase *_renderer ) {
  * \returns The number of failed shaders (0 == everything fine)
  */
 int rSceneBase::parseShaders() {
-   boost::lock_guard<boost::mutex> lLockShaders( vShaders_MUT );
+   std::lock_guard<std::mutex> lLockShaders( vShaders_MUT );
 
    int lErrors = 0;
    for( auto & d : vShaders ) {

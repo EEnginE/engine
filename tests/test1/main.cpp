@@ -35,8 +35,6 @@ int main( int argc, char *argv[] ) {
 
       if ( handler.initGL() == 0 )
          start.startMainLoop();
-
-      start.closeWindow();
    }
 
 //    iLOG( "Credits: "

@@ -56,7 +56,6 @@ iInit::iInit() {
    addFocusSlot( &vFocus_SLOT );
 
    vMainLoopRunning_B       = false;
-   vBoolCloseWindow_B       = false;
 
    vEventLoopHasFinished_B  = false;
    vEventLoopISPaused_B     = false;
@@ -157,8 +156,8 @@ int iInit::init() {
 
 #if WINDOWS
    // Windows needs the PeekMessage call in the same thread where the window is created
-   boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
-   vEventLoop_BT  = boost::thread( &iInit::eventLoop, this );
+   std::unique_lock<std::mutex> lLock_BT( vCreateWindowMutex_BT );
+   vEventLoop_BT  = std::thread( &iInit::eventLoop, this );
 
    while( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
 
@@ -180,6 +179,7 @@ int iInit::init() {
 }
 
 int iInit::shutdown() {
+   closeWindow();
    return LOG.stopLogLoop();
 }
 
@@ -223,15 +223,16 @@ int iInit::startMainLoop( bool _wait ) {
    }
    vMainLoopRunning_B = true;
 
-    // Send a resize signal to ensure that the viewport is updated
-    iEventInfo _tempInfo ( this );
-    _tempInfo.type           = E_EVENT_RESIZE;
-    _tempInfo.eResize.width  = GlobConf.win.width;
-    _tempInfo.eResize.height = GlobConf.win.height;
-    _tempInfo.eResize.posX   = GlobConf.win.posX;
-    _tempInfo.eResize.posY   = GlobConf.win.posY;
+   // Send a resize signal to ensure that the viewport is updated
+   iEventInfo _tempInfo( this );
+   _tempInfo.iInitPointer   = this;
+   _tempInfo.type           = E_EVENT_RESIZE;
+   _tempInfo.eResize.width  = GlobConf.win.width;
+   _tempInfo.eResize.height = GlobConf.win.height;
+   _tempInfo.eResize.posX   = GlobConf.win.posX;
+   _tempInfo.eResize.posY   = GlobConf.win.posY;
 
-    vResize_SIG.sendSignal( _tempInfo );
+   vResize_SIG.sendSignal( _tempInfo );
 
    if( !vAreRenderLoopSignalsConnected_B ) {
       eLOG( "iInit is not yet connected with a render system!" );
@@ -239,11 +240,11 @@ int iInit::startMainLoop( bool _wait ) {
    }
 
 #if UNIX_X11
-   vEventLoop_BT  = boost::thread( &iInit::eventLoop, this );
+   vEventLoop_BT  = std::thread( &iInit::eventLoop, this );
 #elif WINDOWS
    {
       // Make sure lLockEvent_BT will be destroyed
-      boost::lock_guard<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+      std::lock_guard<std::mutex> lLockEvent_BT( vStartEventMutex_BT );
       vContinueWithEventLoop_B = true;
       vStartEventCondition_BT.notify_one();
    }
@@ -251,18 +252,22 @@ int iInit::startMainLoop( bool _wait ) {
 
    if( _wait ) {
       vStartRenderLoopSignal_SIG( true );
-      vEventLoop_BT.join();
+      if( vEventLoop_BT.joinable() )
+         vEventLoop_BT.join();
+
+      // Wait for quit main loop to finish
+      if( vQuitMainLoop_BT.joinable() )
+         vQuitMainLoop_BT.join();
+
    } else {
       vStartRenderLoopSignal_SIG( false );
    }
-
-   if( vBoolCloseWindow_B ) {destroyContext();}  // iInit::closeWindow() called?
 
    return 1;
 }
 
 GLvoid iInit::quitMainLoop() {
-   vQuitMainLoop_BT = boost::thread( &iInit::quitMainLoopCall, this );
+   vQuitMainLoop_BT = std::thread( &iInit::quitMainLoopCall, this );
 }
 
 
@@ -276,25 +281,16 @@ int iInit::quitMainLoopCall( ) {
 
 #if ! WINDOWS
    if( ! vEventLoopHasFinished_B )
-#if BOOST_VERSION < 105000
-   {
-      boost::posix_time::time_duration duration = boost::posix_time::milliseconds( GlobConf.timeoutForMainLoopThread_mSec );
-      vEventLoop_BT.timed_join( duration );
-   }
-#else
-      vEventLoop_BT.try_join_for( boost::chrono::milliseconds( GlobConf.timeoutForMainLoopThread_mSec ) );
-#endif
+      vEventLoop_BT.join();
 
    if( ! vEventLoopHasFinished_B ) {
-      vEventLoop_BT.interrupt();
-      wLOG( "Event Loop Timeout reached   -->  killing the thread" );
+      wLOG( "Event Loop thread finished abnormaly" );
       vEventLoopHasFinished_B = true;
    }
    iLOG( "Event loop finished" );
 #endif
 
    vStopRenderLoopSignal_SIG();
-
 
    return 1;
 }
@@ -303,7 +299,6 @@ int iInit::quitMainLoopCall( ) {
 int iInit::closeWindow( bool _waitUntilClosed ) {
    if( ! getHaveContext() ) {return 0;}
    if( vMainLoopRunning_B ) {
-      vBoolCloseWindow_B = true;
       quitMainLoop();
       if( _waitUntilClosed ) {vQuitMainLoop_BT.join();}
 #if WINDOWS
@@ -338,7 +333,7 @@ void iInit::pauseMainLoop( bool _runInNewThread ) {
       return;
 
    if( _runInNewThread ) {
-      vPauseThread_BT = boost::thread( &iInit::pauseMainLoop, this, false );
+      vPauseThread_BT = std::thread( &iInit::pauseMainLoop, this, false );
       return;
    }
 
@@ -356,7 +351,7 @@ void iInit::pauseMainLoop( bool _runInNewThread ) {
  * \returns Nothing
  */
 void iInit::continueMainLoop() {
-   boost::lock_guard<boost::mutex> lLockEvent_BT( vEventLoopMutex_BT );
+   std::lock_guard<std::mutex> lLockEvent_BT( vEventLoopMutex_BT );
    vEventLoopPaused_B = false;
    vEventLoopWait_BT.notify_one();
 
@@ -383,7 +378,7 @@ void iInit::restart( bool _runInNewThread ) {
 
    // Calling restart in the eventloop can cause some problems
    if( _runInNewThread ) {
-      vRestartThread_BT = boost::thread( &iInit::restart, this, false );
+      vRestartThread_BT = std::thread( &iInit::restart, this, false );
       return;
    }
 
@@ -405,14 +400,14 @@ void iInit::restart( bool _runInNewThread ) {
    else
       eLOG( "Failed to join the event loop" );
 
-      boost::unique_lock<boost::mutex> lLock_BT( vCreateWindowMutex_BT );
-   vEventLoop_BT  = boost::thread( &iInit::eventLoop, this );
+   std::unique_lock<std::mutex> lLock_BT( vCreateWindowMutex_BT );
+   vEventLoop_BT  = std::thread( &iInit::eventLoop, this );
 
    while( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
 
    {
       // Make sure lLockEvent_BT will be destroyed
-      boost::lock_guard<boost::mutex> lLockEvent_BT( vStartEventMutex_BT );
+      std::lock_guard<std::mutex> lLockEvent_BT( vStartEventMutex_BT );
       vContinueWithEventLoop_B = true;
       vStartEventCondition_BT.notify_one();
    }
@@ -449,4 +444,4 @@ void iInit::restartIfNeeded( bool _runInNewThread ) {
 
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

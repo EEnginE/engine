@@ -11,7 +11,7 @@
 #include "rShader.hpp"
 #include <vector>
 #include <string>
-#include <boost/thread.hpp>
+#include <thread>
 
 namespace e_engine {
 
@@ -63,8 +63,8 @@ class rSceneBase {
 
       bool vReadyToRender_B;
 
-      boost::mutex vObjects_MUT;
-      boost::mutex vShaders_MUT;
+      std::mutex vObjects_MUT;
+      std::mutex vShaders_MUT;
 
       int assignObjectRenderer( GLuint _index, rRenderBase *_renderer );
    public:
@@ -102,8 +102,8 @@ class rSceneBase {
  */
 template<class T, class... RENDERERS>
 int rSceneBase::setObjectRenderer( GLuint _index ) {
-   boost::lock_guard<boost::mutex> lLockObjects( vObjects_MUT );
-   boost::lock_guard<boost::mutex> lLockShaders( vShaders_MUT );
+   std::lock_guard<std::mutex> lLockObjects( vObjects_MUT );
+   std::lock_guard<std::mutex> lLockShaders( vShaders_MUT );
 
    if ( _index > vObjects.size() )
       return 1;
@@ -112,7 +112,7 @@ int rSceneBase::setObjectRenderer( GLuint _index ) {
    if ( ! vObjects[_index].vObjectPointer )
       return 2;
 
-   if ( vObjects[_index].vShaderIndex > vShaders.size() || vObjects[_index].vShaderIndex < 0 )
+   if ( (size_t)vObjects[_index].vShaderIndex > vShaders.size() || vObjects[_index].vShaderIndex < 0 )
       return 3;
 
    rRenderBase *lRenderer = nullptr;
