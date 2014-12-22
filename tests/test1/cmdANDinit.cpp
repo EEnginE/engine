@@ -134,7 +134,7 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      std::regex lDataRegex( "^\\-\\-data=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      std::regex lDataRegex( "^\\-\\-data=[a-zA-Z_0-9 \\/\\.\\-\\+\\*]+$" );
       if( std::regex_match( arg, lDataRegex ) ) {
          std::regex lDataRegexRep( "^\\-\\-data=" );
          const char *lRep = "";
@@ -143,7 +143,7 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      std::regex lMeshRegex( "^\\-\\-mesh=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      std::regex lMeshRegex( "^\\-\\-mesh=[a-zA-Z_0-9 \\/\\.\\-\\+\\*]+$" );
       if( std::regex_match( arg, lMeshRegex ) ) {
          std::regex lDataRegexRep( "^\\-\\-mesh=" );
          const char *lRep = "";
@@ -151,8 +151,7 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-
-      std::regex lShaderRegex( "^\\-\\-shader=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      std::regex lShaderRegex( "^\\-\\-shader=[a-zA-Z_0-9 \\/\\.\\-\\+\\*]+$" );
       if( std::regex_match( arg, lShaderRegex ) ) {
          std::regex lDataRegexRep( "^\\-\\-shader=" );
          const char *lRep = "";
@@ -160,7 +159,7 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      std::regex lNShaderRegex( "^\\-\\-Nshader=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      std::regex lNShaderRegex( "^\\-\\-Nshader=[a-zA-Z_0-9 \\/\\.\\-\\+\\*]+$" );
       if( std::regex_match( arg, lNShaderRegex ) ) {
          std::regex lDataRegexRep( "^\\-\\-Nshader=" );
          const char *lRep = "";

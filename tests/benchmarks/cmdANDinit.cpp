@@ -96,7 +96,7 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      std::regex lLogRegex( "^\\-\\-log=[\\/a-zA-Z0-9 \\._\\-\\+\\*]+$" );
+      std::regex lLogRegex( "^\\-\\-log=[a-zA-Z_0-9 \\/\\.\\-\\+\\*]+$" );
       if( std::regex_match( arg, lLogRegex ) ) {
          std::regex lLogRegexRep( "^\\-\\-log=" );
          const char *lRep = "";
