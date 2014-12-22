@@ -8,6 +8,7 @@
 
 #include "rShader.hpp"
 #include "rObjectBase.hpp"
+#include "defines.hpp"
 
 
 namespace e_engine {

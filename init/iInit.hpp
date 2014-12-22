@@ -102,6 +102,10 @@ class iInit : public windows_win32::iContext {
 
       std::mutex              vStartEventMutex_BT;
       std::condition_variable vStartEventCondition_BT;
+
+      std::mutex              vStopEventLoopMutex;
+      std::condition_variable vStopEventLoopCondition;
+
       bool                    vContinueWithEventLoop_B;
 #endif
 

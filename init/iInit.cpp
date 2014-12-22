@@ -180,6 +180,10 @@ int iInit::init() {
 
 int iInit::shutdown() {
    closeWindow();
+
+   if( vEventLoop_BT.joinable() )
+      vEventLoop_BT.join();
+
    return LOG.stopLogLoop();
 }
 
@@ -252,8 +256,15 @@ int iInit::startMainLoop( bool _wait ) {
 
    if( _wait ) {
       vStartRenderLoopSignal_SIG( true );
+#if WINDOWS
+      {
+         std::unique_lock<std::mutex> lLockEvent_BT( vStopEventLoopMutex );
+         while( !vEventLoopHasFinished_B ) vStopEventLoopCondition.wait( lLockEvent_BT );
+      }
+#else
       if( vEventLoop_BT.joinable() )
          vEventLoop_BT.join();
+#endif
 
       // Wait for quit main loop to finish
       if( vQuitMainLoop_BT.joinable() )
@@ -277,9 +288,7 @@ int iInit::quitMainLoopCall( ) {
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
-#endif
-
-#if ! WINDOWS
+#else
    if( ! vEventLoopHasFinished_B )
       vEventLoop_BT.join();
 
@@ -300,13 +309,28 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
    if( ! getHaveContext() ) {return 0;}
    if( vMainLoopRunning_B ) {
       quitMainLoop();
-      if( _waitUntilClosed ) {vQuitMainLoop_BT.join();}
-#if WINDOWS
-      destroyContext();
-#endif
-      return 1;
+      if( _waitUntilClosed && vQuitMainLoop_BT.joinable() ) 
+         vQuitMainLoop_BT.join();
    }
    destroyContext();
+
+#if WINDOWS
+   // The event loop thread must do some stuff
+
+   {
+      std::lock_guard<std::mutex> lLockEvent_BT( vStartEventMutex_BT );
+      vContinueWithEventLoop_B = true;
+      vStartEventCondition_BT.notify_one();
+   }
+
+   if( vEventLoop_BT.joinable() && _waitUntilClosed )
+      vEventLoop_BT.join();
+
+   iLOG( "Done close window" );
+
+   vContinueWithEventLoop_B = false;
+#endif
+
    vCreateWindowReturn_I = -1000;
    return 1;
 }

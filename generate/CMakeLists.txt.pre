@@ -10,9 +10,9 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/generate/cmake )
 
 
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 
 ########################################################################################
@@ -54,17 +54,14 @@ if( NOT ENGINE_LINK_SHARED )
    set(Boost_USE_STATIC_LIBS ON)
 endif( NOT ENGINE_LINK_SHARED )
 
-find_package(GLEW2   REQUIRED) # The orginal FindGLEW.cmake has no options to set a Root path
-find_package(OpenGL  REQUIRED)
-find_package(Threads REQUIRED)
+find_package(GLEW2        REQUIRED) # The orginal FindGLEW.cmake has no options to set a Root path
+find_package(OpenGL       REQUIRED)
+find_package(Threads      REQUIRED)
+find_package(Boost 1.48.0 REQUIRED COMPONENTS filesystem system )
 
-if( WIN32 AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND CMAKE_CXX_COMPILER_ID MATCHES GNU )
-   find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread_win32 chrono filesystem )
-else()
-   find_package(X11   REQUIRED)
-   find_package(Boost 1.48.0 REQUIRED COMPONENTS system regex thread chrono filesystem )
-endif( WIN32 AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND CMAKE_CXX_COMPILER_ID MATCHES GNU )
-
+if( UNIX_X11 )
+   find_package(X11 REQUIRED)
+endif( UNIX_X11 )
 
 set(ENGINE_LINK 
    ${Boost_LIBRARIES}
@@ -131,7 +128,7 @@ if( CMAKE_CXX_COMPILER_ID MATCHES GNU )
    else( NOT DEFINED CMAKE_CXX_COMPILER_VERSION )
       set( GCC_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION} )
    endif( NOT DEFINED CMAKE_CXX_COMPILER_VERSION )
-   
+
    set( ENGINE_COMPILER_VERSION ${GCC_COMPILER_VERSION} )
 endif( CMAKE_CXX_COMPILER_ID MATCHES GNU )
 
@@ -216,7 +213,7 @@ elseif( CMAKE_CXX_COMPILER_ID MATCHES MSVC )
    #set( CMAKE_CXX_FLAGS_DEBUG   "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}   ${MSVC_COMPILER_OPTIONS_DEBUG}" )    # Uncomment this when making MSVC compatible
    #set( CMAKE_CXX_FLAGS_RELEASE "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_COMPILER_OPTIONS_RELEASE}" )  # Uncomment this when making MSVC compatible
    message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )           # Remove this when making MSVC compatible
-   
+
 else()
    message( WARNING "Unknown compiler ${CMAKE_CXX_COMPILER_ID}" )
 endif()
@@ -242,53 +239,53 @@ set( CM_VERSION_MINOR    0 )
 set( CM_VERSION_SUBMINOR 0 )
 set( CM_COMMIT_IS_TAGGED 0 )
 
-execute_process( 
+execute_process(
    COMMAND which git
    OUTPUT_VARIABLE GIT_EXECUTABLE
    RESULT_VARIABLE GIT_FOUND
 )
-         
+
 # Git functionality is not provided under Windows (yet)
 if( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
    # Remove newlines added by Git
    string( REGEX REPLACE "\n" "" GIT_EXECUTABLE ${GIT_EXECUTABLE} )
 
-   execute_process( 
+   execute_process(
       COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
       OUTPUT_VARIABLE CM_VERSION_GIT
       WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY}
       RESULT_VARIABLE GIT_RESULT
    )
-     
+
    # Remove newlines added by Git
    string( REGEX REPLACE "\n" "" CM_VERSION_GIT ${CM_VERSION_GIT} )
-   
-   execute_process( 
+
+   execute_process(
       COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
       OUTPUT_VARIABLE GIT_TAG_1
       WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY}
    )
-      
-   execute_process( 
+
+   execute_process(
       COMMAND ${GIT_EXECUTABLE} describe --tags
       OUTPUT_VARIABLE GIT_TAG_2
       WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY}
    )
-      
+
    string( REGEX REPLACE "\n" "" GIT_TAG_1 ${GIT_TAG_1} )
    string( REGEX REPLACE "\n" "" GIT_TAG_2 ${GIT_TAG_2} )
-      
+
    string( REGEX REPLACE "^v([0-9]+)[\\.0-9]+$" "\\1" CM_VERSION_MAJOR ${GIT_TAG_1} )
    string( REGEX REPLACE "^v[\\.0-9]+([0-9]+)[\\.0-9]+$" "\\1" CM_VERSION_MINOR ${GIT_TAG_1} )
    string( REGEX REPLACE "^v[\\.0-9]+([0-9]+)$" "\\1" CM_VERSION_SUBMINOR ${GIT_TAG_1} )
-         
+
    if( ${GIT_TAG_1} STREQUAL ${GIT_TAG_2} )
       set( CM_COMMIT_IS_TAGGED 1 )
       message( STATUS "VERSION: ${GIT_TAG_1} [RELEASE] ${CM_VERSION_GIT}" )
    else()
       message( STATUS "VERSION: ${GIT_TAG_1} +GIT ${CM_VERSION_GIT}" )
    endif( ${GIT_TAG_1} STREQUAL ${GIT_TAG_2} )
-   
+
 endif( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
 
 
