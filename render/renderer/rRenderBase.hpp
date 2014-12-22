@@ -10,6 +10,10 @@
 #include "rObjectBase.hpp"
 #include "defines.hpp"
 
+#if E_DEBUG_LOGGING
+#include <sstream>
+#endif
+
 
 namespace e_engine {
 
@@ -56,11 +60,11 @@ class rRenderBase {
       static inline bool require( rShader *_s );
 
       template<class... ARGS>
-      static inline bool testUnifrom( GLint _u, std::string && _missing, ARGS && ... _args );
+      static inline bool testUnifrom( GLint _u, std::wstring && _missing, ARGS && ... _args );
       static inline bool testUnifrom();
 
       template<class... ARGS, class T>
-      static inline bool testPointer( T *_p, std::string && _missing, ARGS && ... _args );
+      static inline bool testPointer( T *_p, std::wstring && _missing, ARGS && ... _args );
       static inline bool testPointer();
 
    public:
@@ -94,13 +98,13 @@ bool rRenderBase::require( rShader *_s ) {
 
 
 template<class... ARGS>
-bool rRenderBase::testUnifrom( GLint _u, std::string && _missing, ARGS && ... _args ) {
+bool rRenderBase::testUnifrom( GLint _u, std::wstring && _missing, ARGS && ... _args ) {
 #if E_DEBUG_LOGGING
-   dLOG( "Uniform: ", _missing, ": ", _u );
+   dLOG( L"Uniform: ", _missing, L": ", _u );
 #endif
 
    if( _u < 0 ) {
-      eLOG( "MISSING Uniform: ", _missing );
+      eLOG( L"MISSING Uniform: ", _missing );
 #if E_DEBUG_LOGGING
       testUnifrom( _args... );
 #endif
@@ -116,13 +120,15 @@ bool rRenderBase::testUnifrom() {
 
 
 template<class... ARGS, class T>
-bool rRenderBase::testPointer( T *_p, std::string && _missing, ARGS && ... _args ) {
+bool rRenderBase::testPointer( T *_p, std::wstring && _missing, ARGS && ... _args ) {
 #if E_DEBUG_LOGGING
-   dLOG( "Pointer: ", _missing, ": ", boost::lexical_cast<std::wstring>( _p ) );
+   std::wstringstream lConverter;
+   lConverter << _p;
+   dLOG( L"Pointer: ", _missing, L": ", lConverter.str() );
 #endif
 
    if( !_p ) {
-      eLOG( "MISSING Pointer: ", _missing );
+      eLOG( L"MISSING Pointer: ", _missing );
 #if E_DEBUG_LOGGING
       testPointer( _args... );
 #endif

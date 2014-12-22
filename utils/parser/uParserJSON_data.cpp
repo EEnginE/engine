@@ -5,7 +5,6 @@
 
 #include "uParserJSON_data.hpp"
 #include "uLog.hpp"
-#include <boost/lexical_cast.hpp>
 
 
 namespace e_engine {
@@ -25,7 +24,7 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
    if( type == JSON_ARRAY ) {
       for( unsigned int i = 0; i < value_obj.size(); ++i ) {
          // An array has no ID's
-         lReturn = value_obj[i].unique( _renoveDuplicates, _quiet, _patent_IDs + "[" + boost::lexical_cast<std::string>( i ) + "]." ) && lReturn;
+         lReturn = value_obj[i].unique( _renoveDuplicates, _quiet, _patent_IDs + "[" + std::to_string( i ) + "]." ) && lReturn;
       }
    } else if( type == JSON_OBJECT ) {
       std::vector<std::string>  lIDs;
@@ -42,11 +41,11 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
                   std::string lTypeStr, lValueStr;
                   switch( iter->type ) {
                      case JSON_STRING: lTypeStr = "string";  lValueStr = "'" + iter->value_str + "'";                                                      break;
-                     case JSON_NUMBER: lTypeStr = "number";  lValueStr = boost::lexical_cast<std::string>( iter->value_num );                              break;
+                     case JSON_NUMBER: lTypeStr = "number";  lValueStr = std::to_string( iter->value_num );                              break;
                      case JSON_BOOL:   lTypeStr = "boolean"; lValueStr = iter->value_bool ? "true" : "false";                                              break;
                      case JSON_NULL:   lTypeStr = "NULL";    lValueStr = "nil";                                                                            break;
-                     case JSON_ARRAY:  lTypeStr = "array";   lValueStr = "[...]; Elements: " + boost::lexical_cast<std::string>( iter->value_obj.size() ); break;
-                     case JSON_OBJECT: lTypeStr = "object";  lValueStr = "{...}; Elements: " + boost::lexical_cast<std::string>( iter->value_obj.size() ); break;
+                     case JSON_ARRAY:  lTypeStr = "array";   lValueStr = "[...]; Elements: " + std::to_string( iter->value_obj.size() ); break;
+                     case JSON_OBJECT: lTypeStr = "object";  lValueStr = "{...}; Elements: " + std::to_string( iter->value_obj.size() ); break;
                      default:          lTypeStr = "UNKNOWN"; lValueStr = "UNKNOWN";
                   }
                   wLOG(

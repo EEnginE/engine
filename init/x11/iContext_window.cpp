@@ -52,7 +52,7 @@ inline std::string StringLeft( T _val, unsigned int _size, char _fill ) {
 
 template<class T>
 inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill ) {
-   std::string lResult_STR = boost::lexical_cast<std::string> ( _val );
+   std::string lResult_STR = std::to_string( _val );
    if( _size > lResult_STR.size() )
       lResult_STR.append( ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;

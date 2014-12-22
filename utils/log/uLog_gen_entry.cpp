@@ -9,9 +9,8 @@
 
 #include "eCMDColor.hpp"
 
-
 #include <regex>
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
 
 
 namespace e_engine {
@@ -19,7 +18,7 @@ namespace e_engine {
 
 template<class T>
 inline std::wstring numToSizeString( T _val, unsigned int _size, wchar_t _fill ) {
-   std::wstring lResult_STR = boost::lexical_cast<std::wstring>( _val );
+   std::wstring lResult_STR = std::to_wstring( _val );
    if( _size > lResult_STR.size() )
       lResult_STR.insert( 0, ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;
@@ -149,7 +148,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
       std::wregex lReplace_EX( L"^(.+[/\\\\])*" );
       const wchar_t  *lReplaceChar = L"";
 
-      std::wstring lFilename_STR = boost::to_upper_copy( std::regex_replace( data.raw.vFilename_STR, lReplace_EX, lReplaceChar ) );
+      std::wstring lFilename_STR   = std::regex_replace( data.raw.vFilename_STR, lReplace_EX, lReplaceChar );
 
       if( lFilename_STR.size() > GlobConf.log.maxFilenameSize )
          lFilename_STR.resize( GlobConf.log.maxFilenameSize );
@@ -191,10 +190,9 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 // ========= Generate The Error Type Entry ========================================================================================================
    if( data.config.vErrorType_LPT != OFF ) {
-      vErrorType_str = lDefCol_STR +
-            boost::to_upper_copy( data.raw.vType_STR ) +
-            lResetColl_STR;
-
+      std::wstring lTemp = data.raw.vType_STR;
+      std::transform( lTemp.begin(), lTemp.end(), lTemp.begin(), ::toupper );
+      vErrorType_str = lDefCol_STR + lTemp + lResetColl_STR;
 
    } else vErrorType_str = L"";
 
@@ -436,9 +434,6 @@ void uLogEntryRaw::defaultEntryGenerator() {
           * IMHO, an empty field is the best solution
           */
 #if 0
-         boost::trim( lL_STR );
-         boost::trim( lR_STR );
-
          GLuint lLeftNewL_uI;
          GLuint lRightNewL_uI;
 

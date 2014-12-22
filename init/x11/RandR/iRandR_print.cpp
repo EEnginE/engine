@@ -89,7 +89,7 @@ void iRandR::printRandRStatus() {
    for( internal::_output const & fOutput : vOutput_V_RandR ) {
       internal::_crtc lCRTC_RandR;
 
-      std::string lCRTC_str      = ( fOutput.crtc == 0 )                         ? "OFF" : boost::lexical_cast<std::string>( fOutput.crtc ) ;
+      std::string lCRTC_str      = ( fOutput.crtc == 0 )                         ? "OFF" : std::to_string( fOutput.crtc ) ;
       std::string lPrimary_str   = ( vLatestConfig_RandR.primary == fOutput.id ) ? "YES" : "NO" ;
       std::string lConnected_str = ( fOutput.connection == 0 )                   ? "YES" : ( fOutput.connection == 2 ) ? "???" : "NO";
       std::string lPosition_str  = "   NONE";
@@ -105,12 +105,12 @@ void iRandR::printRandRStatus() {
                if( fCRTC.posX >= 0 )
                   lPosition_str += '+';
 
-               lPosition_str += boost::lexical_cast<std::string>( fCRTC.posX );
+               lPosition_str += std::to_string( fCRTC.posX );
 
                if( fCRTC.posY >= 0 )
                   lPosition_str += '+';
 
-               lPosition_str += boost::lexical_cast<std::string>( fCRTC.posY );
+               lPosition_str += std::to_string( fCRTC.posY );
                break;
             }
          }
@@ -140,7 +140,7 @@ void iRandR::printRandRStatus() {
       unsigned int lHeight_uI = 0;
 
       std::string lModeSize_str;
-      // Unfortunately boost::lexical_cast doesn't support precision, so we must use sprintf if we want to avoid the slow stringstreams
+      // Unfortunately std::to_string doesn't support precision, so we must use sprintf if we want to avoid the slow stringstreams
       char        lModeFreq_CSTR[15];
       std::string lModeFreq_str;
 
@@ -177,9 +177,9 @@ void iRandR::printRandRStatus() {
          } else {
             lWidth_uI      = fMode.width;
             lHeight_uI     = fMode.height;
-            lModeSize_str  = boost::lexical_cast<std::string>( lWidth_uI ) +
+            lModeSize_str  = std::to_string( lWidth_uI ) +
                   'x' +
-                  boost::lexical_cast<std::string>( lHeight_uI );
+                  std::to_string( lHeight_uI );
          }
 
          snprintf( lModeFreq_CSTR, 15, "%.2f", fMode.refresh );

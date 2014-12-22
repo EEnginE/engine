@@ -40,9 +40,6 @@ cmdANDinit::cmdANDinit( int argc, char *argv[], bool _color ) {
 
    vDoMutex       = false;
    vMutexLoops    = 10000000;
-
-   vDoCast        = false;
-   vCastLoops     = 5000000;
 }
 
 
@@ -63,13 +60,11 @@ void cmdANDinit::usage() {
          "\nall            : do all benchmarks"
          "\nfunc           : do the functions benchmark"
          "\nmutex          : do the mutex benchmark"
-         "\ncast           : do the number string cast benchmark"
    );
    iLOG( "" );
    iLOG( "BENCHMARK OPTIONS:" );
    dLOG( "    --funcLoops=<loops>  : ammount of loops to do in function benchmark (default: ", vFunctionLoops, ")" );
    dLOG( "    --mutexLoops=<loops> : ammount of loops to do in mutex benchmark    (default: ", vMutexLoops,    ")" );
-   dLOG( "    --castLoops=<loops>  : ammount of loops to do in cast benchmark     (default: ", vCastLoops,     ")\n" );
    wLOG( "You MUST define one ore more modes\n\n" );
 }
 
@@ -109,7 +104,6 @@ bool cmdANDinit::parseArgsAndInit() {
       if( arg == "all" ) {
          vDoFunction = true;
          vDoMutex    = true;
-         vDoCast     = true;
          continue;
       }
 
@@ -123,10 +117,6 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      if( arg == "cast" ) {
-         vDoCast = true;
-         continue;
-      }
 
 
       std::regex lFuncRegex( "^\\-\\-funcLoops=[0-9 ]*$" );
@@ -147,19 +137,10 @@ bool cmdANDinit::parseArgsAndInit() {
          continue;
       }
 
-      std::regex lCastRegex( "^\\-\\-castLoops=[0-9 ]*$" );
-      if( std::regex_match( arg, lFuncRegex ) ) {
-         std::regex lFuncRegexRep( "^\\-\\-castLoops=" );
-         const char *lRep = "";
-         string funcString = std::regex_replace( arg, lFuncRegexRep, lRep );
-         vCastLoops = atoi( funcString.c_str() );
-         continue;
-      }
-
       eLOG( "Unkonwn option '", arg, "'" );
    }
 
-   if( vDoFunction == false && vDoMutex == false && vDoCast == false ) {
+   if( vDoFunction == false && vDoMutex == false ) {
       postInit();
       usage();
       return false;
