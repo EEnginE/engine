@@ -7,7 +7,6 @@
 #include <list>
 #include <string>
 #include <type_traits>
-#include <boost/fusion/include/adapt_struct.hpp>
 #include "uLog.hpp"
 
 namespace e_engine {
@@ -363,22 +362,10 @@ void rLoaderBase<T, I>::reindex3(
 
 
 
-
-
 }
 
 }
 
-BOOST_FUSION_ADAPT_STRUCT(
-      e_engine::internal::_3D_Data_RAWF,
-      ( std::vector<GLfloat>, vVertexData )
-      ( std::vector<GLfloat>, vUVData )
-      ( std::vector<GLfloat>, vNormalesData )
-
-      ( std::vector<GLuint>,  vIndexVertexData )
-      ( std::vector<GLuint>,  vIndexUVData )
-      ( std::vector<GLuint>,  vIndexNormalData )
-)
 
 #endif // R_LOADER_BASE_HPP
 
