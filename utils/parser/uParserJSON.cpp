@@ -5,8 +5,6 @@
 
 #include "uParserJSON.hpp"
 
-#include <boost/lexical_cast.hpp>
-
 #include "uLog.hpp"
 #include "uFileIO.hpp"
 
@@ -499,7 +497,7 @@ void uParserJSON::writeValue( const uJSON_data &_data, std::string &_worker, std
          _worker += "\"" + lTemp_str + "\"";
          break;
       case JSON_NUMBER:
-         _worker += boost::lexical_cast<std::string>( _data.value_num );
+         _worker += std::to_string( _data.value_num );
          break;
       case JSON_BOOL:
          _worker += ( _data.value_bool ? "true" : "false" );

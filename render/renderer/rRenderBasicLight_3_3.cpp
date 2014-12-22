@@ -94,28 +94,28 @@ bool rRenderBasicLight_3_3::testObject( rObjectBase *_obj ) {
 
 bool rRenderBasicLight_3_3::canRender() {
    if( !testUnifrom(
-         vInputVertexLocation_OGL,      "Input Vertex",
-         vInputNormalsLocation_OGL,     "Input Normals",
-         vUniformModelView_OGL,         "Model View Matrix",
-         vUniformMVP_OGL,               "Model View Projection Matrix",
-         vUniformNormal_OGL,            "Normal Matrix",
-         vUniformAmbient_OGL,           "Ambient collor",
-         vUniformLight_OGL,             "Light collor",
-         vUniformLightPos_OGL,          "Light position",
-         vShader_OGL,                   "The shader",
-         vVertexBufferObj_OGL,          "Vertex buffer object",
-         vIndexBufferObj_OGL,           "Index buffer object",
-         vNormalBufferObj_OGL,          "Normal buffer object"
+         vInputVertexLocation_OGL,  L"Input Vertex",
+         vInputNormalsLocation_OGL, L"Input Normals",
+         vUniformModelView_OGL,     L"Model View Matrix",
+         vUniformMVP_OGL,           L"Model View Projection Matrix",
+         vUniformNormal_OGL,        L"Normal Matrix",
+         vUniformAmbient_OGL,       L"Ambient collor",
+         vUniformLight_OGL,         L"Light collor",
+         vUniformLightPos_OGL,      L"Light position",
+         vShader_OGL,               L"The shader",
+         vVertexBufferObj_OGL,      L"Vertex buffer object",
+         vIndexBufferObj_OGL,       L"Index buffer object",
+         vNormalBufferObj_OGL,      L"Normal buffer object"
          ) )
       return false;
 
    if( !testPointer(
-         vModelView,            "Model View Matrix",
-         vModelViewProjection,  "Model View Projection Matrix",
-         vNormal,               "Normal Matrix",
-         vAmbientLight.color,   "Ambient collor",
-         vLightSource.color,    "Light collor",
-         vLightSource.position, "Light position"
+         vModelView,            L"Model View Matrix",
+         vModelViewProjection,  L"Model View Projection Matrix",
+         vNormal,               L"Normal Matrix",
+         vAmbientLight.color,   L"Ambient collor",
+         vLightSource.color,    L"Light collor",
+         vLightSource.position, L"Light position"
          ) )
       return false;
 

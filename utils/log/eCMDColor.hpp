@@ -26,12 +26,12 @@
 
 #include <string>
 #include <GL/glew.h>
-#include <boost/lexical_cast.hpp>
 
 #include "defines.hpp"
 
 #if UNIX
 #include <sys/ioctl.h>
+#include <unistd.h>
 #endif
 
 #if 0
@@ -174,7 +174,7 @@ std::wstring eCMDColor::color( uint16_t _a1 ) {
    __IOCTL_TERMTEST__
 
    std::wstring temp = L"\x1b[" +
-                       boost::lexical_cast<std::wstring>( _a1 ) + L'm';
+                       std::to_wstring( _a1 ) + L'm';
    return temp;
 #else // E_COLOR_DISABLED
    return L"";
@@ -192,8 +192,8 @@ std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2 ) {
    __IOCTL_TERMTEST__
 
    std::wstring temp = L"\x1b[" +
-                       boost::lexical_cast<std::wstring>( _a1 ) + L';' +
-                       boost::lexical_cast<std::wstring>( _a2 ) + L'm';
+                       std::to_wstring( _a1 ) + L';' +
+                       std::to_wstring( _a2 ) + L'm';
    return temp;
 #else // E_COLOR_DISABLED
    return L"";
@@ -212,9 +212,9 @@ std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2, uint16_t _a3 ) {
    __IOCTL_TERMTEST__
 
    std::wstring temp = L"\x1b[" +
-                       boost::lexical_cast<std::wstring>( _a1 ) + L';' +
-                       boost::lexical_cast<std::wstring>( _a2 ) + L';' +
-                       boost::lexical_cast<std::wstring>( _a3 ) + L'm';
+                       std::to_wstring( _a1 ) + L';' +
+                       std::to_wstring( _a2 ) + L';' +
+                       std::to_wstring( _a3 ) + L'm';
    return temp;
 #else // E_COLOR_DISABLED
    return L"";

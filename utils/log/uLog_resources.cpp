@@ -7,8 +7,6 @@
 #include "uLog.hpp"
 #include "defines.hpp"
 #include <iomanip>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 #if UNIX
 #define E_COLOR_NO_TERMTEST
@@ -39,27 +37,27 @@ class Converter : public boost::static_visitor<> {
 
       void operator()( uint16_t &i ) {
          if( vIsSigned_B )
-            theSTR += boost::lexical_cast<std::wstring>( ( int16_t )i );
+            theSTR += std::to_wstring( ( int16_t )i );
          else
-            theSTR += boost::lexical_cast<std::wstring>( i );
+            theSTR += std::to_wstring( i );
       }
 
       void operator()( uint32_t &i ) {
          if( vIsSigned_B )
-            theSTR += boost::lexical_cast<std::wstring>( ( int32_t )i );
+            theSTR += std::to_wstring( ( int32_t )i );
          else
-            theSTR += boost::lexical_cast<std::wstring>( i );
+            theSTR += std::to_wstring( i );
       }
 
       void operator()( uint64_t &i ) {
          if( vIsSigned_B )
-            theSTR += boost::lexical_cast<std::wstring>( ( int64_t )i );
+            theSTR += std::to_wstring( ( int64_t )i );
          else
-            theSTR += boost::lexical_cast<std::wstring>( i );
+            theSTR += std::to_wstring( i );
       }
 
       void operator()( double &i ) {
-         theSTR += boost::lexical_cast<std::wstring>( i );
+         theSTR += std::to_wstring( i );
       }
 
       void operator()( std::string &i ) {

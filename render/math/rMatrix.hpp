@@ -3,7 +3,6 @@
 
 #include "uLog.hpp"
 #include <type_traits>
-#include <boost/lexical_cast.hpp>
 
 #define TOLERANCE 0.001
 
@@ -548,7 +547,7 @@ inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const TYPE &_arg ) {
 template <class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::TYPE2String( uint32_t && _pos, std::string &_str ) {
    static std::string lTempStr;
-   lTempStr = boost::lexical_cast<std::string>( vDataMat[_pos] );
+   lTempStr = std::to_string( vDataMat[_pos] );
 
    if( lTempStr.size() < 10 ) {
       lTempStr.insert( lTempStr.begin(), 10 - lTempStr.size(), ' ' );

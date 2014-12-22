@@ -9,10 +9,8 @@ typedef std::chrono::system_clock::duration TIME_DURATION;
 BenchClass::BenchClass( cmdANDinit *_cmd ) {
    bool lDoFunctionBench = false;
    bool lDoMutexBench = false;
-   bool lDoCastBench = false;
    _cmd->getFunctionInf( vLoopsToDo, lDoFunctionBench );
    _cmd->getMutexInf( vLoopsToDoMutex, lDoMutexBench );
-   _cmd->getCastInf( vLoopsToDoCast, lDoCastBench );
 
    if( lDoFunctionBench ) {
       vTheSlot.setFunc( &BenchClass::funcToCall, this );
@@ -34,9 +32,6 @@ BenchClass::BenchClass( cmdANDinit *_cmd ) {
 
    if( lDoMutexBench )
       doMutex();
-
-   if( lDoCastBench )
-      doCast();
 }
 
 void BenchClass::doFunction() {
@@ -156,21 +151,21 @@ void BenchClass::doFunction() {
    iLOG( "  = [INLINE] Boost Function:  ", lBoostFuncIn  );
    iLOG( "  = [INLINE] Std Function:    ", lStdFuncIn    );
 
-   string lSigSlot_str      = boost::lexical_cast<string>( lSigSlot );
-   string lFunc_str         = boost::lexical_cast<string>( lFunc );
-   string lCFunc_str        = boost::lexical_cast<string>( lCFunc );
-   string lNormal_str       = boost::lexical_cast<string>( lNormal );
-   string lVirt_str         = boost::lexical_cast<string>( lVirt );
-   string lBoostFunc_str    = boost::lexical_cast<string>( lBoostFunc );
-   string lStdFunc_str      = boost::lexical_cast<string>( lStdFunc );
+   string lSigSlot_str      = std::to_string( lSigSlot );
+   string lFunc_str         = std::to_string( lFunc );
+   string lCFunc_str        = std::to_string( lCFunc );
+   string lNormal_str       = std::to_string( lNormal );
+   string lVirt_str         = std::to_string( lVirt );
+   string lBoostFunc_str    = std::to_string( lBoostFunc );
+   string lStdFunc_str      = std::to_string( lStdFunc );
 
-   string lSigSlotIn_str    = boost::lexical_cast<string>( lSigSlotIn );
-   string lFuncIn_str       = boost::lexical_cast<string>( lFuncIn );
-   string lCFuncIn_str      = boost::lexical_cast<string>( lCFuncIn );
-   string lNormalIn_str     = boost::lexical_cast<string>( lNormalIn );
-   string lNormalVirtIn_str = boost::lexical_cast<string>( lNormalVirtIn );
-   string lBoostFuncIn_str  = boost::lexical_cast<string>( lBoostFuncIn );
-   string lStdFuncIn_str    = boost::lexical_cast<string>( lStdFuncIn );
+   string lSigSlotIn_str    = std::to_string( lSigSlotIn );
+   string lFuncIn_str       = std::to_string( lFuncIn );
+   string lCFuncIn_str      = std::to_string( lCFuncIn );
+   string lNormalIn_str     = std::to_string( lNormalIn );
+   string lNormalVirtIn_str = std::to_string( lNormalVirtIn );
+   string lBoostFuncIn_str  = std::to_string( lBoostFuncIn );
+   string lStdFuncIn_str    = std::to_string( lStdFuncIn );
 
    lSigSlot_str.resize( 10, ' ' );
    lFunc_str.resize( 10, ' ' );
@@ -264,48 +259,6 @@ void BenchClass::doMutex() {
    iLOG( "  = LockGuard: ", lLockGuard );
 
 }
-
-void BenchClass::doCast() {
-   int    a = 5;
-   double b = 6.6;
-
-   iLOG( "==== BEGIN FUNCTION BENCHMARK ====" );
-   iLOG( "" );
-   iLOG( "  - Loops: ", vLoopsToDoMutex );
-   iLOG( "  - Args:  ", a, ", ", to_string(b) );
-
-   START( lexical_int );
-   for( unsigned int i = 0; i < vLoopsToDoCast; ++i ) {
-      string c = boost::lexical_cast<string>( a );
-   }
-   uint64_t lLexical_int = STOP( lexical_int );
-
-   START( lexical_double );
-   for( unsigned int i = 0; i < vLoopsToDoCast; ++i ) {
-      string c = boost::lexical_cast<string>( b );
-   }
-   uint64_t lLexical_double = STOP( lexical_double );
-
-
-
-   START( toStr_int );
-   for( unsigned int i = 0; i < vLoopsToDoCast; ++i ) {
-      string c = to_string( a );
-   }
-   uint64_t lToStr_int = STOP( toStr_int );
-
-   START( toStr_double );
-   for( unsigned int i = 0; i < vLoopsToDoCast; ++i ) {
-      string c = to_string( b );
-   }
-   uint64_t lToStr_double = STOP( toStr_double );
-   
-   iLOG( "  = LEXICAL CAST -- int:    ", lLexical_int     );
-   iLOG( "  = LEXICAL CAST -- double: ", lLexical_double  );
-   iLOG( "  = TO STRING    -- int:    ", lToStr_int       );
-   iLOG( "  = TO STRING    -- double: ", lToStr_double    );
-}
-
 
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;

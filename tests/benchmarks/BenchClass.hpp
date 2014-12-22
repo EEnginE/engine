@@ -65,7 +65,6 @@ class BenchClass : public BenchBaseVirtual {
 
       void doFunction();
       void doMutex();
-      void doCast();
 
    public:
       BenchClass( cmdANDinit *_cmd );

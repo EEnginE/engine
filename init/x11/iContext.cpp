@@ -140,7 +140,7 @@ int iContext::createContext() {
       int lVRRmajor_I;
       int lVRRminor_I;
       getRandRVersion( lVRRmajor_I, lVRRminor_I );
-      lRandRVersionString_str = boost::lexical_cast<std::string>( lVRRmajor_I ) + '.' + boost::lexical_cast<std::string>( lVRRminor_I );
+      lRandRVersionString_str = std::to_string( lVRRmajor_I ) + '.' + std::to_string( lVRRminor_I );
    } else {
       lRandRVersionString_str = "!!! NOT SUPPORTED !!!";
    }

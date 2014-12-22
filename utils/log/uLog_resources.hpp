@@ -19,9 +19,7 @@
 #  endif
 #endif
 
-#ifdef LOG_FALLBACK
-#include <boost/lexical_cast.hpp>
-#else
+#ifndef LOG_FALLBACK
 #include <boost/variant.hpp>
 #endif
 
