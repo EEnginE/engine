@@ -24,21 +24,11 @@ rLoader_3D_f_OBJ::rLoader_3D_f_OBJ( std::string _file ) {
 bool rLoader_3D_f_OBJ::getNum( float &_num ) {
    std::string lNum;
 
-   bool lHasDot = false;
-
-   if( *vIter == '-' ) {
-      lNum += '-';
-      ++vIter;
-   }
-
    while( vIter != vEnd ) {
       switch( *vIter ) {
          case '.':
-            if( lHasDot ) {
-               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
-               return false;
-            }
-            lHasDot = true;
+         case '-':
+         case 'e':
          case '0':
          case '1':
          case '2':
@@ -58,7 +48,13 @@ bool rLoader_3D_f_OBJ::getNum( float &_num ) {
                eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": not a number" );
                return false;
             }
-            _num = std::stof( lNum );
+            try {
+               _num = std::stof( lNum );
+            } catch( ... ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": not a number" );
+               return false;
+            }
+
             return true;
       }
    }
