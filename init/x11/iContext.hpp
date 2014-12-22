@@ -162,11 +162,11 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       void       getX11Version( int *_major, int *_minor );
       void       getGLXVersion( int *_major, int *_minor );
 
-      Display   *getDisplay()     { return  vDisplay_X11; }        //!< \brief Get the display pointer         \returns The display pointer
-      Window     getWindow()      { return  vWindow_X11; }         //!< \brief Get the window handle          \returns The window handle
-      GLXContext getContext()     { return  vOpenGLContext_GLX; }  //!< \brief Get the context handle         \returns The context handle
-      bool       getHaveGLEW()    { return  vHaveGLEW_B; }         //!< \brief Check if GLEW is OK             \returns Whether GLEW is OK
-      bool       getHaveContext() { return  vHaveContext_B; }      //!< \brief Check if we have a OGL context \returns If there is a OpenGL context
+      Display          *getDisplay()           { return  vDisplay_X11; }        //!< \brief Get the display pointer         \returns The display pointer
+      Window     const &getWindow()      const { return  vWindow_X11; }         //!< \brief Get the window handle          \returns The window handle
+      GLXContext const &getContext()     const { return  vOpenGLContext_GLX; }  //!< \brief Get the context handle         \returns The context handle
+      bool       const &getHaveGLEW()    const { return  vHaveGLEW_B; }         //!< \brief Check if GLEW is OK             \returns Whether GLEW is OK
+      bool       const &getHaveContext() const { return  vHaveContext_B; }      //!< \brief Check if we have a OGL context \returns If there is a OpenGL context
 
       inline void swapBuffers() {glXSwapBuffers( vDisplay_X11, vWindow_X11 );} //!< Swaps the OGL buffers
 

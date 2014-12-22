@@ -14,10 +14,10 @@ namespace e_engine {
 
 int iInit::eventLoop() {
    //! \todo Move this in windows_win32
-   if ( ! vEventLoopHasFinished_B )
+   if( ! vEventLoopHasFinished_B )
       return -1;
 
-   vEventLoopHasFinished_B = false;
+   iLOG( "Event thread started" );
 
    vWindowsDestroy_B   = false;
    vWindowsNCDestrox_B = false;
@@ -35,48 +35,68 @@ int iInit::eventLoop() {
 
    // Now wait until the main event loop is officially "started"
 
-   std::unique_lock<std::mutex> lLockEvent_BT( vStartEventMutex_BT );
-   while ( !vContinueWithEventLoop_B ) vStartEventCondition_BT.wait( lLockEvent_BT );
-
-
-   iLOG( "Event loop started" );
-
    MSG msg;
 
+   while( true ) {
+      dLOG( "Event thread waiting" );
+      while( !vContinueWithEventLoop_B ) {
+         std::unique_lock<std::mutex> lLockEvent_BT( vStartEventMutex_BT );
+         vStartEventCondition_BT.wait( lLockEvent_BT );
+      }
+      dLOG( "Event thread continue" );
+
+      if( !getHaveContext() )
+         break;
+
+      vEventLoopHasFinished_B = false;
+      iLOG( "Event loop started" );
+
 //    while ( ( vMainLoopRunning_B && !vWindowRecreate_B ) || ( vMainLoopRunning_B || ( vWindowRecreate_B && ! ( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) ) ) {
-   while ( !( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) {
-      if ( !getHaveContext() )
-         DestroyWindow( getHWND_win32() );
+      while( !( vWindowsDestroy_B && vWindowsNCDestrox_B ) && vMainLoopRunning_B ) {
+         if( vEventLoopPaused_B ) {
+            std::unique_lock<std::mutex> lLock_BT( vEventLoopMutex_BT );
+            vEventLoopISPaused_B = true;
+            while( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
+            vEventLoopISPaused_B = false;
+         }
 
-      if ( vEventLoopPaused_B ) {
-         std::unique_lock<std::mutex> lLock_BT( vEventLoopMutex_BT );
-         vEventLoopISPaused_B = true;
-         while ( vEventLoopPaused_B ) vEventLoopWait_BT.wait( lLock_BT );
-         vEventLoopISPaused_B = false;
-      }
-      while ( PeekMessageW( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
-         TranslateMessage( &msg );
-         DispatchMessageW( &msg );
+         while( PeekMessageW( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
+            TranslateMessage( &msg );
+            DispatchMessageW( &msg );
+         }
+
+         B_SLEEP( milliseconds, 5 );
       }
 
-      B_SLEEP( milliseconds, 5 );
+      iLOG( "Event loop finished" );
+      vEventLoopHasFinished_B = true;
+
+      // Event loop finished; continue with startMainLoop();
+      std::lock_guard<std::mutex> lLockWindow_BT( vStopEventLoopMutex );
+      vStopEventLoopCondition.notify_one();
    }
 
+   DestroyWindow( getHWND_win32() );
+
    // Proccess the last messages
-   while ( PeekMessageW( &msg, NULL, 0, 0, PM_REMOVE ) ) {
+   while( PeekMessageW( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
       TranslateMessage( &msg );
       DispatchMessageW( &msg );
    }
 
-   iLOG( "Event loop finished!" );
-   vEventLoopHasFinished_B = true;
+   while( PeekMessageW( &msg, NULL, 0, 0, PM_REMOVE ) ) {
+      TranslateMessage( &msg );
+      DispatchMessageW( &msg );
+   }
+
+   iLOG( "Event thread done" );
    return 1;
 }
 
 namespace windows_win32 {
 
 LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   if ( _uMsg == WM_NCCREATE ) {
+   if( _uMsg == WM_NCCREATE ) {
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
       iContext *this__ = reinterpret_cast<iContext *>( lCreateParam_win32 );
@@ -84,11 +104,11 @@ LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
       this__->vHWND_Window_win32 = _hwnd;
 
       SetWindowLongPtrW( _hwnd,
-                         GWLP_USERDATA,
-                         reinterpret_cast<LONG_PTR>( this__ ) );
+            GWLP_USERDATA,
+            reinterpret_cast<LONG_PTR>( this__ ) );
       SetWindowLongPtrW( _hwnd,
-                         GWLP_WNDPROC,
-                         reinterpret_cast<LONG_PTR>( &iContext::staticWndProc ) );
+            GWLP_WNDPROC,
+            reinterpret_cast<LONG_PTR>( &iContext::staticWndProc ) );
       iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
       return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
    }
@@ -102,7 +122,7 @@ LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    iContext *this__ = reinterpret_cast<iContext *>( lUserData_win32 );
    iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
 
-   if ( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
+   if( ! this__ || _hwnd != this__->vHWND_Window_win32 ) {
       eLOG( "Bad Windows callback error" );
    }
 
@@ -113,12 +133,12 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
    unsigned int key_state = E_PRESSED;
 
 
-   if ( _tempInfo.iInitPointer == 0 ) {
+   if( _tempInfo.iInitPointer == 0 ) {
       eLOG( "iInit-pointer is not yet initialized" );
       return 0;
    }
 
-   switch ( _uMsg ) {
+   switch( _uMsg ) {
 
       case WM_SIZE:
          _tempInfo.type           = E_EVENT_RESIZE;
@@ -207,7 +227,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = key_state;
-         switch ( _wParam >> 16 ) {
+         switch( _wParam >> 16 ) {
             case XBUTTON1:
                _tempInfo.iMouse.button = E_MOUSE_1;
                break;
@@ -228,7 +248,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = E_PRESSED;
 
-         if ( ( ( short signed )( _wParam >> 16 ) ) >= 0 )
+         if( ( ( short signed )( _wParam >> 16 ) ) >= 0 )
             _tempInfo.iMouse.button = E_MOUSE_WHEEL_UP;
          else
             _tempInfo.iMouse.button = E_MOUSE_WHEEL_DOWN;
@@ -243,7 +263,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
 
          //!\todo Handle this output for text messages/text inputs
 
-         if ( _wParam > 32 ) { //Check if the Char is an actual character; Enter, Backspace and others are excluded as they are already handled in WM_KEYDOWN
+         if( _wParam > 32 ) {  //Check if the Char is an actual character; Enter, Backspace and others are excluded as they are already handled in WM_KEYDOWN
             _tempInfo.type       = E_EVENT_KEY;
             _tempInfo.eKey.state = E_PRESSED;
             _tempInfo.eKey.key   = _wParam;
@@ -251,7 +271,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          }
          return 0;
       case WM_UNICHAR: //Gives other programs the information that Unicode is supported by this
-         if ( _wParam == UNICODE_NOCHAR ) {
+         if( _wParam == UNICODE_NOCHAR ) {
             return TRUE;
          }
          return FALSE;
@@ -261,7 +281,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.eKey.state = key_state;
          _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
 
-         if ( _tempInfo.eKey.key != 0 ) // Dont send the signal if a character was found
+         if( _tempInfo.eKey.key != 0 )  // Dont send the signal if a character was found
             vKey_SIG.sendSignal( _tempInfo );
 
          //MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR)
@@ -285,4 +305,4 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
 
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

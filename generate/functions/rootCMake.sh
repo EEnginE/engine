@@ -8,7 +8,7 @@ rootCMake() {
     echo "INFO: Generating root CMake file" >&2
 
     cat <<EOF
-# 
+#
 # This is an automatically gnererated file
 # !!! DO NOT EDIT !!!
 #
@@ -18,10 +18,8 @@ cmake_minimum_required(VERSION 2.8.7)
 project(${PROJECT_NAME})
 
 EOF
-    
-    cat $(pwd)/generate/CMakeLists.txt.pre   
 
-    cat <<EOF    
+    cat <<EOF
 
 ########################################################################################
 ############################################################################################################################
@@ -38,17 +36,17 @@ EOF
 
     local DEFAULT_DS
     for i in "${OS[@]}"; do
-	eval "DEFAULT_DS=\${DS_${i}[0]}"
-	cat <<EOF
+        eval "DEFAULT_DS=\${DS_${i}[0]}"
+        cat <<EOF
    if( $i )
       set( DISPLAY_SERVER ${i^^}_${DEFAULT_DS^^} )
    endif( $i )
 
 EOF
-	eval "DEFAULT_DS=( \"\${DS_${i}[@]}\" )"
-	for I in "${DEFAULT_DS[@]}"; do
-	    DS_AND_OS+=( "${i^^}_${I^^}" )
-	done
+        eval "DEFAULT_DS=( \"\${DS_${i}[@]}\" )"
+        for I in "${DEFAULT_DS[@]}"; do
+            DS_AND_OS+=( "${i^^}_${I^^}" )
+        done
     done
 
     cat <<EOF
@@ -58,7 +56,7 @@ endif( NOT DISPLAY_SERVER )
 EOF
 
     local IF_STRING=""
-    
+
     for i in "${DS_AND_OS[@]}"; do
 	IF_STRING="$IF_STRING NOT DISPLAY_SERVER MATCHES ${i} AND"
     done
@@ -88,6 +86,7 @@ EOF
     done
 
 
+    cat $(pwd)/generate/CMakeLists.txt.pre
 
 
     cat <<EOF

@@ -76,12 +76,12 @@ class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
       int  enableVSync();
       int  disableVSync();
       void destroyContext();
-      bool getHaveContext() { return vHasContext_B; }
+      bool const &getHaveContext() const { return vHasContext_B; }
 
       bool makeContextCurrent();
       bool makeNOContextCurrent();
 
-	  static bool isAContextCurrentForThisThread();
+      static bool isAContextCurrentForThisThread();
 
       bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
 

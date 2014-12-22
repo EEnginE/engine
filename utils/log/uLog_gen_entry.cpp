@@ -38,7 +38,7 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
    unsigned int lFileSize_uI     = 0;
    unsigned int lFileSizeNext_uI = 0;
 
-   LOG_PRINT_TYPE lTimeNext_LPT, lFileNext_LPT = OFF;
+   LOG_PRINT_TYPE lTimeNext_LPT = OFF, lFileNext_LPT = OFF;
 
    switch( data->data.config.vTime_LPT ) {
       case LEFT_FULL:
