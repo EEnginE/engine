@@ -5,11 +5,6 @@
 
 #include "uParserJSON.hpp"
 
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include "uLog.hpp"
@@ -60,92 +55,334 @@ void uParserJSON::clear() {
    vIsParsed = false;
    vData.value_str.clear();
    vData.id.clear();
-   vData.value_array.clear();
+   vData.value_obj.clear();
    vData.value_obj.clear();
    vData.type = __JSON_NOT_SET__;
 }
 
 
-namespace spirit  = boost::spirit;
-namespace qi      = boost::spirit::qi;
-namespace ascii   = boost::spirit::ascii;
-namespace phoenix = boost::phoenix;
-
-template<class ITER>
-struct json_grammar : qi::grammar<ITER, uJSON_data(), ascii::space_type> {
-
-   json_grammar() : json_grammar::base_type( start ) {
-      using qi::lexeme;
-      using qi::lit;
-      using qi::double_;
-      using ascii::char_;
-
-      using qi::_val;
-
-      using phoenix::at_c;
-      using phoenix::push_back;
-      using phoenix::ref;
-
-      string     = lexeme[ '"' >> +( ( char_ - '"' - '\\' ) | ( '\\' >> char_ ) )[_val += qi::_1 ] >> '"' ];
-      number     = lexeme[ double_[ _val = qi::_1 ] ];
-      boolean    = lexeme[( lit( "true" )[_val = true] | lit( "false" )[_val = false] ) ];
-      undefined  = lexeme[ "null" ];
-
-      valueArray =
-            ( ( string    [ at_c<1>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_STRING ] ) |
-            ( ( number    [ at_c<2>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_NUMBER ] ) |
-            ( ( boolean   [ at_c<3>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_BOOL   ] ) |
-            ( ( undefined ) [ at_c<6>( _val ) = JSON_NULL   ] ) |
-            (
-                  '['
-                  >>           valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ]
-                  >> *( ',' >> valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ] )
-                  >> lit( ']' )    [ at_c<6>( _val ) = JSON_ARRAY ]
-            ) |
-            (
-                  '{'
-                  >>           value      [ push_back( at_c<5>( _val ), qi::_1 ) ]
-                  >> *( ',' >> value      [ push_back( at_c<5>( _val ), qi::_1 ) ] )
-                  >> lit( '}' )    [ at_c<6>( _val ) = JSON_OBJECT ]
-            );
-
-      value      =
-            string[at_c<0>( _val ) = qi::_1] >> ':' >>
-            (
-                  ( ( string    [ at_c<1>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_STRING ] ) |
-                  ( ( number    [ at_c<2>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_NUMBER ] ) |
-                  ( ( boolean   [ at_c<3>( _val ) = qi::_1 ] ) [ at_c<6>( _val ) = JSON_BOOL   ] ) |
-                  ( ( undefined ) [ at_c<6>( _val ) = JSON_NULL   ] ) |
-                  (
-                        '['
-                        >>           valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ]
-                        >> *( ',' >> valueArray [ push_back( at_c<4>( _val ), qi::_1 ) ] )
-                        >> lit( ']' )    [ at_c<6>( _val ) = JSON_ARRAY ]
-                  ) |
-                  (
-                        '{'
-                        >>           value      [ push_back( at_c<5>( _val ), qi::_1 ) ]
-                        >> *( ',' >> value      [ push_back( at_c<5>( _val ), qi::_1 ) ] )
-                        >> lit( '}' )    [ at_c<6>( _val ) = JSON_OBJECT ]
-                  )
-            );
-
-      start    =
-            '{'
-            >>           value[push_back( at_c<5>( _val ), qi::_1 )]
-            >> *( ',' >> value[push_back( at_c<5>( _val ), qi::_1 )] )
-            >> lit( '}' )[at_c<6>( _val ) = JSON_OBJECT] ;
+bool uParserJSON::continueWhitespace() {
+   while( vIter != vEnd ) {
+      switch( *vIter ) {
+         case '\n': ++vCurrentLine;
+         case '\t':
+         case ' ':
+            ++vIter;
+            break;
+         default:
+            return true;
+      }
    }
 
-   qi::rule<ITER, std::string(), ascii::space_type> string;
-   qi::rule<ITER, double(),      ascii::space_type> number;
-   qi::rule<ITER, bool(),        ascii::space_type> boolean;
-   qi::rule<ITER, void(),        ascii::space_type> undefined;
+   // End of file
+   return false;
+}
 
-   qi::rule<ITER, uJSON_data(),  ascii::space_type> value;
-   qi::rule<ITER, uJSON_data(),  ascii::space_type> valueArray;
-   qi::rule<ITER, uJSON_data(),  ascii::space_type> start;
-};
+bool uParserJSON::parseValue( e_engine::uJSON_data &_currentObject, const std::string &_name ) {
+   bool lFound = false;
+
+   switch( *vIter ) {
+
+         // String
+      case '"': {
+         _currentObject.value_obj.emplace_back( _name, JSON_STRING );
+
+         ++vIter;
+
+         // Get String
+         while( vIter != vEnd ) {
+            switch( *vIter ) {
+               case '\\':
+                  ++vIter;
+
+                  if( vIter == vEnd )
+                     break;
+
+                  switch( *vIter ) {
+                     case '\\': _currentObject.value_obj.back().value_str += '\\'; ++vIter; break;
+                     case '"':  _currentObject.value_obj.back().value_str += '"';  ++vIter; break;
+                     default:
+                        eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+                        return false;
+                  }
+               case '"':
+                  lFound = true;
+                  ++vIter;
+                  break;
+
+               case '\n': ++vCurrentLine;
+               default:
+                  _currentObject.value_obj.back().value_str += *vIter;
+                  ++vIter;
+            }
+
+            if( lFound )
+               break;
+         }
+         break;
+      }
+
+      // true
+      case 't': {
+         std::string lTemp = "rue";
+         ++vIter;
+
+         for( auto const & c : lTemp ) {
+            if( vIter == vEnd ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+               return false;
+            }
+
+            if( c != *vIter ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+               return false;
+            }
+            ++vIter;
+         }
+
+         _currentObject.value_obj.emplace_back( _name, JSON_BOOL );
+         _currentObject.value_obj.back().value_bool = true;
+
+         break;
+      }
+
+      // false
+      case 'f': {
+         std::string lTemp = "alse";
+         ++vIter;
+
+         for( auto const & c : lTemp ) {
+            if( vIter == vEnd ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+               return false;
+            }
+
+            if( c != *vIter ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+               return false;
+            }
+            ++vIter;
+         }
+
+         _currentObject.value_obj.emplace_back( _name, JSON_BOOL );
+         _currentObject.value_obj.back().value_bool = false;
+
+         break;
+      }
+
+      // Nil
+      case 'n': {
+         std::string lTemp = "il";
+         ++vIter;
+
+         for( auto const & c : lTemp ) {
+            if( vIter == vEnd ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+               return false;
+            }
+
+            if( c != *vIter ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+               return false;
+            }
+            ++vIter;
+         }
+
+         _currentObject.value_obj.emplace_back( _name, JSON_NULL );
+         break;
+      }
+      case '{':
+         ++vIter;
+         _currentObject.value_obj.emplace_back( _name, JSON_OBJECT );
+         if( !parseObject( _currentObject.value_obj.back() ) )
+            return false;
+
+         break;
+      case '[':
+         ++vIter;
+         _currentObject.value_obj.emplace_back( _name, JSON_ARRAY );
+         if( ! parseArray( _currentObject.value_obj.back() ) )
+            return false;
+
+         break;
+
+         // Number
+      default: {
+         std::string lNum;
+         bool lHasDot = false;
+         while( vIter != vEnd ) {
+            switch( *vIter ) {
+               case '.':
+                  if( lHasDot ) {
+                     eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+                     return false;
+                  }
+                  lHasDot = true;
+               case '0':
+               case '1':
+               case '2':
+               case '3':
+               case '4':
+               case '5':
+               case '6':
+               case '7':
+               case '8':
+               case '9':
+                  lNum += *vIter;
+                  ++vIter;
+                  break;
+
+               case '\n': ++vCurrentLine;
+               case '\t':
+               case ' ':
+               case ',':
+                  lFound = true;
+                  break;
+
+               default:
+                  eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+                  return false;
+            }
+
+            if( lFound )
+               break;
+         }
+
+         // Must have reached EOF
+         if( !lFound ) {
+            eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+            return false;
+         }
+
+         _currentObject.value_obj.emplace_back( _name, JSON_NUMBER );
+         _currentObject.value_obj.back().value_num = std::stod( lNum );
+      }
+   }
+
+   return true;
+}
+
+bool uParserJSON::parseArray( uJSON_data &_currentObject ) {
+   if( !continueWhitespace() ) {
+      eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+      return false;
+   }
+
+   if( *vIter == ']' )
+      return true;
+
+   if( !parseValue( _currentObject, "" ) )
+      return false;
+
+   while( *vIter == ',' ) {
+      ++vIter;
+      if( !continueWhitespace() ) {
+         eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+         return false;
+      }
+
+      if( !parseValue( _currentObject, "" ) )
+         return false;
+
+      if( !continueWhitespace() ) {
+         eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+         return false;
+      }
+   }
+
+   if( !continueWhitespace() ) {
+      eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+      return false;
+   }
+
+   if( *vIter != ']' ) {
+      eLOG( "Failed parsing file '", vFilePath_str, "': expected ']'" );
+      return false;
+   }
+
+   ++vIter;
+   return true;
+}
+
+
+bool uParserJSON::parseObject( uJSON_data &lCurrentObject ) {
+   if( !continueWhitespace() )
+      return false;
+
+   // Empty object
+   if( *vIter == '}' )
+      return true;
+
+   while( true ) {
+      if( !continueWhitespace() )
+         return false;
+
+      if( *vIter != '"' ) {
+         eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+         return true;
+      }
+
+      std::string lName;
+      bool lFound = false;
+
+      ++vIter;
+
+      // Get Name
+      while( vIter != vEnd ) {
+         switch( *vIter ) {
+            case '\\':
+               ++vIter;
+
+               if( vIter == vEnd )
+                  break;
+
+               switch( *vIter ) {
+                  case '\\': lName += '\\'; ++vIter; break;
+                  case '"':  lName += '"';  ++vIter; break;
+                  default:
+                     eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+                     return false;
+               }
+            case '"':
+               lFound = true;
+               ++vIter;
+               break;
+
+            case '\n': ++vCurrentLine;
+            default:
+               lName += *vIter;
+               ++vIter;
+         }
+
+         if( lFound )
+            break;
+      }
+
+      continueWhitespace();
+      if( *vIter != ':' ) {
+         eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+         return false;
+      }
+
+      ++vIter;
+      continueWhitespace();
+
+      parseValue( lCurrentObject, lName );
+
+      continueWhitespace();
+      switch( *vIter ) {
+         case '}': ++vIter; return true;
+         case ',': ++vIter; break;
+         default:
+            eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+            return false;
+      }
+   }
+
+   eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+   return false;
+}
+
 
 /*!
  * \brief loads the content of the JSON file
@@ -164,19 +401,33 @@ int uParserJSON::parse() {
    int lRet = lFile();
    if( lRet != 1 ) return lRet;
 
-   using boost::spirit::ascii::space;
+   vIter = lFile.begin();
+   vEnd  = lFile.end();
 
-   json_grammar<uFileIO::C_ITERATOR> lGrammar;
+   bool lHasPrimaryObject = false;
 
-   uFileIO::C_ITERATOR lStartIter = lFile.begin();
-   uFileIO::C_ITERATOR lEndIter   = lFile.end();
-   bool lReturn = qi::phrase_parse( lStartIter, lEndIter, lGrammar, space, vData );
+   while( vIter != vEnd ) {
+      switch( *vIter ) {
+         case ' ':  ++vIter;                 break;
+         case '\n': ++vIter; ++vCurrentLine; break;
+         case '\t': ++vIter;                 break;
+         case '{':
+            if( lHasPrimaryObject ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, "; Only one primary object is allowed" );
+               return 2;
+            }
+            ++vIter;
 
-   if( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
-      eLOG( "Failed to parse '", vFilePath_str, "'", " At '", *lStartIter, "'", " (", lStartIter - lFile.begin(), ")" );
-      return 2;
+            vData.type = JSON_OBJECT;
+            if( !parseObject( vData ) )
+               return 2;
+
+            break;
+         default:
+            eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+            return 2;
+      }
    }
-   iLOG( "Successfully parsed '", vFilePath_str, "' (JSON)" );
 
    vIsParsed = true;
 
@@ -254,9 +505,9 @@ void uParserJSON::writeValue( const uJSON_data &_data, std::string &_worker, std
          break;
       case JSON_ARRAY:
          _worker += "[\n";
-         for( i = 0; i < _data.value_array.size(); ++i ) {
-            writeValue( _data.value_array[i], _worker, _level  + vWriteIndent_str, true );
-            if( i != ( _data.value_array.size() - 1 ) )
+         for( i = 0; i < _data.value_obj.size(); ++i ) {
+            writeValue( _data.value_obj[i], _worker, _level  + vWriteIndent_str, true );
+            if( i != ( _data.value_obj.size() - 1 ) )
                _worker += ",";
 
             _worker += "\n";
@@ -286,6 +537,8 @@ void uParserJSON::writeValue( const uJSON_data &_data, std::string &_worker, std
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+
+
 
 

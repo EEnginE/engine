@@ -23,9 +23,9 @@ namespace e_engine {
 bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _patent_IDs ) {
    bool lReturn = true;
    if( type == JSON_ARRAY ) {
-      for( unsigned int i = 0; i < value_array.size(); ++i ) {
+      for( unsigned int i = 0; i < value_obj.size(); ++i ) {
          // An array has no ID's
-         lReturn = value_array[i].unique( _renoveDuplicates, _quiet, _patent_IDs + "[" + boost::lexical_cast<std::string>( i ) + "]." ) && lReturn;
+         lReturn = value_obj[i].unique( _renoveDuplicates, _quiet, _patent_IDs + "[" + boost::lexical_cast<std::string>( i ) + "]." ) && lReturn;
       }
    } else if( type == JSON_OBJECT ) {
       std::vector<std::string>  lIDs;
@@ -41,12 +41,12 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
                if( !_quiet ) {
                   std::string lTypeStr, lValueStr;
                   switch( iter->type ) {
-                     case JSON_STRING: lTypeStr = "string";  lValueStr = "'" + iter->value_str + "'";                                                        break;
-                     case JSON_NUMBER: lTypeStr = "number";  lValueStr = boost::lexical_cast<std::string>( iter->value_num );                                break;
-                     case JSON_BOOL:   lTypeStr = "boolean"; lValueStr = iter->value_bool ? "true" : "false";                                                break;
-                     case JSON_NULL:   lTypeStr = "NULL";    lValueStr = "nil";                                                                              break;
-                     case JSON_ARRAY:  lTypeStr = "array";   lValueStr = "[...]; Elements: " + boost::lexical_cast<std::string>( iter->value_array.size() ); break;
-                     case JSON_OBJECT: lTypeStr = "object";  lValueStr = "{...}; Elements: " + boost::lexical_cast<std::string>( iter->value_obj.size() );   break;
+                     case JSON_STRING: lTypeStr = "string";  lValueStr = "'" + iter->value_str + "'";                                                      break;
+                     case JSON_NUMBER: lTypeStr = "number";  lValueStr = boost::lexical_cast<std::string>( iter->value_num );                              break;
+                     case JSON_BOOL:   lTypeStr = "boolean"; lValueStr = iter->value_bool ? "true" : "false";                                              break;
+                     case JSON_NULL:   lTypeStr = "NULL";    lValueStr = "nil";                                                                            break;
+                     case JSON_ARRAY:  lTypeStr = "array";   lValueStr = "[...]; Elements: " + boost::lexical_cast<std::string>( iter->value_obj.size() ); break;
+                     case JSON_OBJECT: lTypeStr = "object";  lValueStr = "{...}; Elements: " + boost::lexical_cast<std::string>( iter->value_obj.size() ); break;
                      default:          lTypeStr = "UNKNOWN"; lValueStr = "UNKNOWN";
                   }
                   wLOG(
@@ -84,7 +84,7 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
  */
 void uJSON_data::merge( uJSON_data &_toMerge, bool _overWrite ) {
    if( _toMerge.type == JSON_ARRAY && type == JSON_ARRAY ) {
-      value_array.insert( value_array.end(), _toMerge.value_array.begin(), _toMerge.value_array.end() );
+      value_obj.insert( value_obj.end(), _toMerge.value_obj.begin(), _toMerge.value_obj.end() );
       return;
    }
 
@@ -111,7 +111,6 @@ void uJSON_data::merge( uJSON_data &_toMerge, bool _overWrite ) {
       value_str   = _toMerge.value_str;
       value_num   = _toMerge.value_num;
       value_bool  = _toMerge.value_bool;
-      value_array = _toMerge.value_array;
       value_obj   = _toMerge.value_obj;
    }
 

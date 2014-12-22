@@ -37,16 +37,6 @@ int main( int argc, char *argv[] ) {
          start.startMainLoop();
    }
 
-//    iLOG( "Credits: "
-//    POINT "Daniel ( Mense ) Mensinger"
-//    POINT "Dennis Schunder"
-//    POINT "Silas Bartel"
-//    );
-
-//    B_SLEEP( seconds, 1 );
-
-//    B_SLEEP( seconds, 1 );
-
    start.shutdown();
 
    return EXIT_SUCCESS;
