@@ -5,12 +5,6 @@
 
 #include "rLoader_3D_f_OBJ.hpp"
 
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-
 #include "uLog.hpp"
 #include "uFileIO.hpp"
 
@@ -27,116 +21,84 @@ rLoader_3D_f_OBJ::rLoader_3D_f_OBJ( std::string _file ) {
    vFilePath_str   = _file;
 }
 
+bool rLoader_3D_f_OBJ::getNum( float &_num ) {
+   std::string lNum;
 
-namespace spirit  = boost::spirit;
-namespace qi      = boost::spirit::qi;
-namespace ascii   = boost::spirit::ascii;
-namespace phoenix = boost::phoenix;
+   bool lHasDot = false;
 
-template<class Iterator>
-struct objGrammar_float : qi::grammar<Iterator, internal::_3D_Data_RAWF()> {
-   static void unsupported_f( std::string _what ) {
-      wLOG( "OBJ Parser: '", _what, "' is not supported" );
+   if( *vIter == '-' ) {
+      lNum += '-';
+      ++vIter;
    }
 
-   static void objName_f( std::string _name ) {
-      dLOG( "Found object ", _name );
+   while( vIter != vEnd ) {
+      switch( *vIter ) {
+         case '.':
+            if( lHasDot ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+               return false;
+            }
+            lHasDot = true;
+         case '0':
+         case '1':
+         case '2':
+         case '3':
+         case '4':
+         case '5':
+         case '6':
+         case '7':
+         case '8':
+         case '9':
+            lNum += *vIter;
+            ++vIter;
+            break;
+
+         default:
+            if( lNum.empty() ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": not a number" );
+               return false;
+            }
+            _num = std::stof( lNum );
+            return true;
+      }
    }
 
-   static void mtllib_f( std::string _lib ) {
-      wLOG( "The 'mtllib' command in obj files is currently not supported (do not load '", _lib, "')" );
+   eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+   return false;
+}
+
+bool rLoader_3D_f_OBJ::getInt( unsigned int &_num ) {
+   std::string lNum;
+
+   while( vIter != vEnd ) {
+      switch( *vIter ) {
+         case '0':
+         case '1':
+         case '2':
+         case '3':
+         case '4':
+         case '5':
+         case '6':
+         case '7':
+         case '8':
+         case '9':
+            lNum += *vIter;
+            ++vIter;
+            break;
+
+         default:
+            if( lNum.empty() ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": not a number" );
+               return false;
+            }
+            _num = std::stoi( lNum );
+            return true;
+      }
    }
 
-   static void usemtl_f( std::string _mtl ) {
-      wLOG( "The 'usemtl' command in obj files is currently not supported (do not set the material to '", _mtl, "')" );
-   }
-
-   static void smooth_f( std::string _smooth ) {
-      wLOG( "The 's' command in obj files is currently not supported (do not set the smoothing group to '", _smooth, "')" );
-   }
-
-   objGrammar_float() : objGrammar_float::base_type( start ) {
-      using ascii::char_;
-      using qi::float_;
-      using qi::uint_;
-      using qi::int_;
-      using phoenix::push_back;
-      using phoenix::at_c;
-
-      string    = +( char_ - '\n' );
-      comment   = qi::lit( "#" ) >> *string >> '\n';
-      space     = ( char_( ' ' ) | char_( '\t' ) );
-
-      objName   = qi::lit( "o" ) >> +space >> string[&objGrammar_float::objName_f] >> '\n';
-      groupName = qi::lit( "g" ) >> +space >> string[&objGrammar_float::objName_f] >> '\n';
-
-      mtllib    = qi::lit( "mtllib" ) >> +space >> string[&objGrammar_float::mtllib_f] >> '\n';
-      usemtl    = qi::lit( "usemtl" ) >> +space >> string[&objGrammar_float::usemtl_f] >> '\n';
-      smooth    = qi::lit( "s" )      >> +space >> string[&objGrammar_float::smooth_f] >> '\n';
-
-#if DO_NOT_FAIL_PARSING
-      other     = *ascii::space >> string[&objGrammar_float::unsupported_f] >> '\n';
-#endif
-
-      start     =
-         +( *ascii::space >>
-            ( qi::lit( "v" ) >> +space
-              >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
-              >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> +space
-              >> float_[push_back( at_c<0>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
-
-              ( qi::lit( "vt" ) >> +space
-              >> float_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> +space
-              >> float_[push_back( at_c<1>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
-
-              ( qi::lit( "vn" ) >> +space
-              >> float_[push_back( at_c<2>( spirit::_val ), spirit::_1 )] >> +space
-              >> float_[push_back( at_c<2>( spirit::_val ), spirit::_1 )] >> +space
-              >> float_[push_back( at_c<2>( spirit::_val ), spirit::_1 )] >> *space >> '\n' ) |
-
-            ( qi::lit( "f" ) >> +space
-              >> uint_[push_back( at_c<3>( spirit::_val ), spirit::_1 )]
-              >> -( qi::lit( "/" ) >> -uint_[push_back( at_c<4>( spirit::_val ), spirit::_1 )] >> -( qi::lit( "/" ) >> uint_[push_back( at_c<5>( spirit::_val ), spirit::_1 )] ) )
-              >> +space
-
-              >> uint_[push_back( at_c<3>( spirit::_val ), spirit::_1 )]
-              >> -( qi::lit( "/" ) >> -uint_[push_back( at_c<4>( spirit::_val ), spirit::_1 )] >> -( qi::lit( "/" ) >> uint_[push_back( at_c<5>( spirit::_val ), spirit::_1 )] ) )
-              >> +space
-
-              >> uint_[push_back( at_c<3>( spirit::_val ), spirit::_1 )]
-              >> -( qi::lit( "/" ) >> -uint_[push_back( at_c<4>( spirit::_val ), spirit::_1 )] >> -( qi::lit( "/" ) >> uint_[push_back( at_c<5>( spirit::_val ), spirit::_1 )] ) )
-              >> *space >> '\n' )  |
-
-            objName   |
-            groupName |
-            mtllib    |
-            comment   |
-            usemtl    |
-            smooth
-#if DO_NOT_FAIL_PARSING
-            | other
-#endif
-          );
-
-   }
-
-   qi::rule<Iterator, std::string()> string;
-   qi::rule<Iterator, std::string()> comment;
-   qi::rule<Iterator, std::string()> space;
-
-   qi::rule<Iterator, std::string()> objName;
-   qi::rule<Iterator, std::string()> groupName;
-
-   qi::rule<Iterator, std::string()> mtllib;
-   qi::rule<Iterator, std::string()> usemtl;
-   qi::rule<Iterator, std::string()> smooth;
-
-#if DO_NOT_FAIL_PARSING
-   qi::rule<Iterator, std::string()> other;
-#endif
-
-   qi::rule<Iterator, internal::_3D_Data_RAWF()> start;
-};
+   eLOG( "Failed parsing file '", vFilePath_str, "': unexpected end of file" );
+   return false;
+}
 
 
 /*!
@@ -149,26 +111,150 @@ struct objGrammar_float : qi::grammar<Iterator, internal::_3D_Data_RAWF()> {
  * \returns 6 if already loaded
  */
 int rLoader_3D_f_OBJ::load() {
-   if ( vIsDataLoaded_B )
+   if( vIsDataLoaded_B )
       return 6;
 
    uFileIO lFile( vFilePath_str );
    int lRet = lFile();
-   if ( lRet != 1 ) return lRet;
+   if( lRet != 1 ) return lRet;
 
-   objGrammar_float<uFileIO::C_ITERATOR> lGrammar;
+   vIter = lFile.begin();
+   vEnd  = lFile.end();
 
-   uFileIO::C_ITERATOR lStartIter = lFile.begin();
-   uFileIO::C_ITERATOR lEndIter   = lFile.end();
-   bool lReturn = qi::parse( lStartIter, lEndIter, lGrammar, vDataRaw );
+   float        lWorker;
+   unsigned int lIWorker;
 
-   if ( ( ! lReturn ) || ( lStartIter != lEndIter ) ) {
-      eLOG( "Failed to parse '", vFilePath_str, "'" );
-      return 2;
+   std::vector<GLfloat> *lPointer;
+   unsigned short int lMax = 3;
+
+   while( vIter != vEnd ) {
+      switch( *vIter ) {
+
+            // Comments
+         case 'o':
+         case 's':
+         case '#':
+            while( *vIter != '\n' && vIter != vEnd )
+               ++vIter;
+
+            ++vCurrentLine;
+            ++vIter;
+            break;
+
+            // Vertex and normals
+         case 'v':
+            ++vIter;
+
+            // Normals
+            if( *vIter == 'n' ) {
+               lPointer = &vDataRaw.vNormalesData;
+               ++vIter;
+               lMax = 3;
+            } else if( *vIter == 't' ) {
+               lPointer = &vDataRaw.vUVData;
+               ++vIter;
+               lMax = 2;
+            } else if( *vIter == ' ' ) {
+               lPointer = &vDataRaw.vVertexData;
+               lMax = 3;
+            } else {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": expected ' ' or 'n'" );
+               return 2;
+            }
+
+            while( *vIter == ' ' && vIter != vEnd )
+               ++vIter;
+
+            for( short unsigned int i = 0; i < lMax; ++i ) {
+               if( !getNum( lWorker ) )
+                  return 2;
+
+               lPointer->emplace_back( lWorker );
+
+               while( *vIter == ' ' && vIter != vEnd )
+                  ++vIter;
+            }
+
+            if( *vIter != '\n' ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": expected a newline" );
+               return false;
+            }
+
+            ++vIter;
+            ++vCurrentLine;
+            break;
+
+            // Face
+         case 'f':
+            ++vIter;
+
+            // Normals
+            if( *vIter != ' ' ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": expected ' ' or 'n'" );
+               return 2;
+            }
+
+            while( *vIter == ' ' && vIter != vEnd )
+               ++vIter;
+
+            for( short unsigned int i = 0; i < 3; ++i ) {
+               if( !getInt( lIWorker ) )
+                  return 2;
+
+               vDataRaw.vIndexVertexData.emplace_back( lIWorker );
+
+               if( *vIter == '/' ) {
+                  ++vIter;
+
+                  // Normal Index
+                  if( *vIter == '/' ) {
+                     ++vIter;
+
+                     if( !getInt( lIWorker ) )
+                        return 2;
+
+                     vDataRaw.vIndexNormalData.emplace_back( lIWorker );
+                  } else {
+                     // UV index
+                     ++vIter;
+
+                     if( !getInt( lIWorker ) )
+                        return 2;
+
+                     vDataRaw.vIndexUVData.emplace_back( lIWorker );
+
+                     // Normal index
+                     if( *vIter == '/' ) {
+                        ++vIter;
+
+                        if( !getInt( lIWorker ) )
+                           return 2;
+
+                        vDataRaw.vIndexNormalData.emplace_back( lIWorker );
+                     }
+                  }
+               }
+
+               while( *vIter == ' ' && vIter != vEnd )
+                  ++vIter;
+            }
+
+            if( *vIter != '\n' ) {
+               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": expected a newline" );
+               return false;
+            }
+
+            ++vCurrentLine;
+            ++vIter;
+            break;
+
+         default:
+            eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+            return 2;
+      }
    }
 
    vIsDataLoaded_B = true;
-
    return 1;
 }
 

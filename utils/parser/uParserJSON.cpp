@@ -209,6 +209,10 @@ bool uParserJSON::parseValue( e_engine::uJSON_data &_currentObject, const std::s
          // Number
       default: {
          std::string lNum;
+         if( *vIter == '-' ) {
+            lNum += '-';
+            ++vIter;
+         }
          bool lHasDot = false;
          while( vIter != vEnd ) {
             switch( *vIter ) {

@@ -15,6 +15,14 @@
 namespace e_engine {
 
 class rLoader_3D_f_OBJ : public internal::rLoaderBase<GLfloat, GLuint> {
+   private:
+      bool getNum( float &_num );
+      bool getInt( unsigned int &_num );
+      unsigned int vCurrentLine = 1;
+
+      std::string::const_iterator vIter;
+      std::string::const_iterator vEnd;
+
    public:
       rLoader_3D_f_OBJ();
       rLoader_3D_f_OBJ( std::string _file );
