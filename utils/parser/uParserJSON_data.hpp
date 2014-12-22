@@ -8,7 +8,6 @@
 
 #include <string>
 #include <vector>
-#include <boost/fusion/include/adapt_struct.hpp>
 #include "uLog.hpp"
 
 #define G_STR(  _out_, _def_ ) ::e_engine::JSON_STRING,  &_out_, std::string( _def_ ), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
@@ -48,7 +47,6 @@ struct uJSON_data {
    std::string value_str;
    double      value_num;
    bool        value_bool;
-   VALUES      value_array;
    VALUES      value_obj;
 
    JSON_DATA_TYPE type;
@@ -117,11 +115,11 @@ void uJSON_data::_( uJSON_data *_first, int _id, ARGS... _args ) {
    if( type == __JSON_NOT_SET__ )
       type = JSON_ARRAY;
 
-   if( _id < value_array.size() && _id >= 0 && type == JSON_ARRAY )
-      return value_array[_id]._( _first, _args... );
+   if( _id < value_obj.size() && _id >= 0 && type == JSON_ARRAY )
+      return value_obj[_id]._( _first, _args... );
 
-   value_array.emplace_back( "", __JSON_NOT_SET__ );
-   value_array.back()._( _first, _args... );
+   value_obj.emplace_back( "", __JSON_NOT_SET__ );
+   value_obj.back()._( _first, _args... );
 }
 
 template<class... ARGS, class T, class D>
@@ -137,7 +135,7 @@ void uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE _type, T *_pointer, D con
          case JSON_STRING: value_str   = *( const std::string * )lData; break;
          case JSON_NUMBER: value_num   = *( const double * )lData;      break;
          case JSON_BOOL:   value_bool  = *( const bool * )lData;        break;
-         case JSON_ARRAY:  value_array = *( const VALUES * )lData;      break;
+         case JSON_ARRAY:
          case JSON_OBJECT: value_obj   = *( const VALUES * )lData;      break;
          default: break;
       }
@@ -150,7 +148,7 @@ void uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE _type, T *_pointer, D con
       case JSON_STRING: lData = ( void * )&value_str;   break;
       case JSON_NUMBER: lData = ( void * )&value_num;   break;
       case JSON_BOOL:   lData = ( void * )&value_bool;  break;
-      case JSON_ARRAY:  lData = ( void * )&value_array; break;
+      case JSON_ARRAY:
       case JSON_OBJECT: lData = ( void * )&value_obj;   break;
       default: lData = ( void * )0;
    }
@@ -176,27 +174,13 @@ void uJSON_data::_( uJSON_data *_first, int &_size, END_MARKER_TYPE _what, ARGS.
    _size = -1;
 
    if( type == JSON_ARRAY )
-      _size = value_array.size();
+      _size = value_obj.size();
 
    _first->_( _first, _args... );
 }
 
 
-
 }
-
-
-BOOST_FUSION_ADAPT_STRUCT(
-      e_engine::uJSON_data,
-      ( std::string,              id )
-      ( std::string,              value_str )
-      ( double,                   value_num )
-      ( bool,                     value_bool )
-      ( VALUES,                   value_array )
-      ( VALUES,                   value_obj )
-      ( e_engine::JSON_DATA_TYPE, type )
-)
-
 
 #endif
 

@@ -19,8 +19,19 @@ class uParserJSON {
 
       uJSON_data vData;
 
-      void writeValue( uJSON_data const& _data, std::string &_worker, std::string _level, bool _array );
-      void prepareString( std::string const& _in, std::string &_out );
+      std::string::const_iterator vIter;
+      std::string::const_iterator vEnd;
+
+      unsigned int vCurrentLine = 1;
+
+      void writeValue( uJSON_data const &_data, std::string &_worker, std::string _level, bool _array );
+      void prepareString( std::string const &_in, std::string &_out );
+
+      bool continueWhitespace();
+
+      bool parseObject( e_engine::uJSON_data &lCurrentObject );
+      bool parseArray( e_engine::uJSON_data &_currentObject );
+      bool parseValue( e_engine::uJSON_data &_currentObject, const std::string &_name );
 
    public:
       virtual ~uParserJSON() {}
@@ -31,7 +42,7 @@ class uParserJSON {
       int  parse();
       void clear();
 
-      int  write( uJSON_data const& _data, bool _overwriteIfNeeded = false );
+      int  write( uJSON_data const &_data, bool _overwriteIfNeeded = false );
 
       uJSON_data  getData()   {return vData;}
       uJSON_data  *getDataP() {return &vData;}
@@ -45,4 +56,4 @@ class uParserJSON {
 }
 
 #endif // U_PARSER_JSON_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

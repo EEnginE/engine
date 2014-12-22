@@ -35,10 +35,12 @@ int main( int argc, char *argv[] ) {
    tests.run( data, parseCMD.getDataRoot() );
 
    parseCMD.generate( data );
-   
+
    iLOG( "" );
    iLOG( "Tipp: You can use the output of 'oglTestBindings.sh' to 'parse' all data this program produced into GlobConf" );
    iLOG( "" );
+
+   B_SLEEP( milliseconds, 100 ); /// \todo Fix this segfault hack
 
    init.shutdown();
 
@@ -48,11 +50,11 @@ int main( int argc, char *argv[] ) {
 
 /*
  * Begin recommended Bindings
- * 
+ *
  * Syntax: '//#!BIND ' <location in json file> , G_<TYPE>( <GlobConf value>, <default> )
  */
 //#!BIND "oglTest", "init", "version", "major", G_NUM( GlobConf.versions.glMajorVersion, 4 )
 //#!BIND "oglTest", "init", "version", "minor", G_NUM( GlobConf.versions.glMinorVersion, 6 )
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

@@ -59,7 +59,6 @@ void ShaderInfo::runTest( uJSON_data &_data, string _dataRoot ) {
 
    _data( "oglTest", "shader", "queryType",  S_NUM( 2 ) );
    iLOG( "New shader query succeeded" );
-
 }
 
 /*
