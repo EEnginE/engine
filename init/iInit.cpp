@@ -40,15 +40,7 @@ void iInit::_setThisForHandluSignal() {
    }
 }
 
-iInit::iInit() {
-   vWindowClose_SLOT.setFunc( &iInit::s_standardWindowClose, this );
-   vResize_SLOT.setFunc( &iInit::s_standardResize, this );
-   vKey_SLOT.setFunc( &iInit::s_standardKey, this );
-   vMouse_SLOT.setFunc( &iInit::s_standardMouse, this );
-   vFocus_SLOT.setFunc( &iInit::s_standardFocus, this );
-
-   vGrabControl_SLOT.setFunc( &iInit::s_advancedGrabControl, this );
-
+iInit::iInit() : iInitEventBasic( this ) {
    addWindowCloseSlot( &vWindowClose_SLOT );
    addResizeSlot( &vResize_SLOT );
    addKeySlot( &vKey_SLOT );
@@ -88,7 +80,7 @@ iInit::iInit() {
  *
  * Use iInit::addFocusSlot( iInit::getAdvancedGrabControlSlot() );
  */
-GLvoid iInit::s_advancedGrabControl( iEventInfo _info ) {
+GLvoid iInit::s_advancedGrabControl( iEventInfo const &_info ) {
    if( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
       // Focus restored
       vWasMouseGrabbed_B = false;
@@ -236,7 +228,7 @@ int iInit::startMainLoop( bool _wait ) {
    _tempInfo.eResize.posX   = GlobConf.win.posX;
    _tempInfo.eResize.posY   = GlobConf.win.posY;
 
-   vResize_SIG.sendSignal( _tempInfo );
+   vResize_SIG.send( _tempInfo );
 
    if( !vAreRenderLoopSignalsConnected_B ) {
       eLOG( "iInit is not yet connected with a render system!" );
@@ -309,7 +301,7 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
    if( ! getHaveContext() ) {return 0;}
    if( vMainLoopRunning_B ) {
       quitMainLoop();
-      if( _waitUntilClosed && vQuitMainLoop_BT.joinable() ) 
+      if( _waitUntilClosed && vQuitMainLoop_BT.joinable() )
          vQuitMainLoop_BT.join();
    }
    destroyContext();
@@ -336,7 +328,7 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
 }
 
 
-void iInit::s_standardWindowClose( iEventInfo _info )  {
+void iInit::s_standardWindowClose( iEventInfo const& _info )  {
    wLOG( "Standard WindowClose slot! Closing the window!" );
    _info.iInitPointer->closeWindow();
 }

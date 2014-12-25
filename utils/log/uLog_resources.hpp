@@ -57,7 +57,7 @@ class uLogType {
       uLogType() {}
    public:
       uLogType( char _type, std::wstring _typeString, char _color, bool _bold )
-         : vType_C( _type ), vType_STR( _typeString ), vColor_C( _color ), vBold_B( _bold ) , vSignal_eSIG( false ) {}
+         : vType_C( _type ), vType_STR( _typeString ), vColor_C( _color ), vBold_B( _bold ) {}
 
       inline char         getType()   const { return vType_C; }
       inline std::wstring getString() const { return vType_STR; }

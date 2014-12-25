@@ -19,7 +19,7 @@ namespace e_engine {
 
 template<class T>
 class rCameraHandler {
-      typedef uSlot<void, rCameraHandler<T>, iEventInfo>  _SLOT_;
+      typedef iInit::SLOT_C<rCameraHandler> SLOT;
    public:
       enum KEY_MOVEMENT {
          UP = 0,
@@ -40,15 +40,15 @@ class rCameraHandler {
 
       bool     vCameraMovementEnabled;
 
-      _SLOT_   vMouseSlot;
-      _SLOT_   vKeySlot;
+      SLOT     vMouseSlot;
+      SLOT     vKeySlot;
 
       wchar_t  keys[KEY_MOVEMENT::__LAST__];
 
       void updateDirectionAndUp();
 
-      void mouse( iEventInfo _event );
-      void key( iEventInfo _event );
+      void mouse( iEventInfo const &_event );
+      void key( iEventInfo   const &_event );
 
       rCameraHandler() {}
    public:
@@ -92,7 +92,7 @@ class rCameraHandler {
 
 template<class T>
 void rCameraHandler<T>::setCameraKey( KEY_MOVEMENT _key, wchar_t _what ) {
-   if ( _key >= __LAST__ || _key < 0 )
+   if( _key >= __LAST__ || _key < 0 )
       return;
 
    keys[_key] = _what;
@@ -100,7 +100,7 @@ void rCameraHandler<T>::setCameraKey( KEY_MOVEMENT _key, wchar_t _what ) {
 
 template<class T>
 void rCameraHandler<T>::updateCamera() {
-   if ( vCameraMovementEnabled )
+   if( vCameraMovementEnabled )
       vScene->setCamera( vPosition, vPosition + vDirection, vUp );
 
    afterCameraUpdate();
@@ -108,8 +108,8 @@ void rCameraHandler<T>::updateCamera() {
 
 
 template<class T>
-void rCameraHandler<T>::key( iEventInfo _event ) {
-   if ( !vCameraMovementEnabled || _event.eKey.state == E_RELEASED )
+void rCameraHandler<T>::key( iEventInfo const &_event ) {
+   if( !vCameraMovementEnabled || _event.eKey.state == E_RELEASED )
       return;
 
    T lSpeed = GlobConf.camera.movementSpeed;
@@ -117,14 +117,14 @@ void rCameraHandler<T>::key( iEventInfo _event ) {
 
    rVec3<T> lTempVector;
 
-   for ( uint8_t i = 0; i < __LAST__; ++i ) {
-      if ( _event.eKey.key == keys[i] ) {
+   for( uint8_t i = 0; i < __LAST__; ++i ) {
+      if( _event.eKey.key == keys[i] ) {
          _action = ( KEY_MOVEMENT )i;
          break;
       }
    }
 
-   switch ( _action ) {
+   switch( _action ) {
       case DOWN: lSpeed *= -1;
       case UP:
          lTempVector = lSpeed * vUp;
@@ -174,10 +174,10 @@ void rCameraHandler<T>::updateDirectionAndUp() {
 
 
 template<class T>
-void rCameraHandler<T>::mouse( iEventInfo _event ) {
+void rCameraHandler<T>::mouse( iEventInfo const &_event ) {
    int lDifX = signed( GlobConf.win.width  / 2 ) - _event.iMouse.posX;
    int lDifY = signed( GlobConf.win.height / 2 ) - _event.iMouse.posY;
-   if ( ( lDifX == 0 && lDifY == 0 ) || !vCameraMovementEnabled )
+   if( ( lDifX == 0 && lDifY == 0 ) || !vCameraMovementEnabled )
       return;
 
    GlobConf.camera.angleHorizontal += GlobConf.camera.mouseSensitivity * lDifX;

@@ -15,7 +15,7 @@ using namespace e_engine;
 using namespace OS_NAMESPACE;
 
 class myWorld final : public rWorld, public rFrameCounter {
-      typedef uSlot<void, myWorld, iEventInfo> _SLOT_;
+      typedef uSlot<void, myWorld, iEventInfo const&> _SLOT_;
    private:
       GLfloat vAlpha;
 
@@ -53,12 +53,12 @@ class myWorld final : public rWorld, public rFrameCounter {
       myWorld() = delete;
 
 
-      void windowClose( iEventInfo info ) {
+      void windowClose( iEventInfo const& info ) {
          iLOG( "User closed window" );
          info.iInitPointer->closeWindow();
       }
-      void key( iEventInfo info );
-      void resize( iEventInfo info ) {
+      void key( iEventInfo const& info );
+      void resize( iEventInfo const& info ) {
          iLOG( "Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height );
          updateViewPort( 0, 0, GlobConf.win.width, GlobConf.win.height );
          vScene.calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, vNearZ, vFarZ, 35.0 );

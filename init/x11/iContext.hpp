@@ -88,7 +88,7 @@ extern Atom atom_wmDeleteWindow;
  * functions and in the other file ( iContext.cpp ) the
  * rest of the functions.
  */
-class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
+class iContext : public iRandR, public iKeyboard {
    private:
 
       // X11 variables
@@ -146,8 +146,6 @@ class iContext : public iRandR, public iInitEventBasic, public iKeyboard {
       int createOGLContext();     //!< Creates the OpenGL context             \returns \c SUCCESS: \a 1 -- \c ERRORS: \a 3
 
       bool sendX11Event( std::string _atom, GLint64 _l0 = 0, GLint64 _l1 = 0, GLint64 _l2 = 0, GLint64 _l3 = 0, GLint64 _l4 = 0 );
-
-      virtual void makeEInitEventBasicAbstract() {}
 
    protected:
       bool vWindowRecreate_B;

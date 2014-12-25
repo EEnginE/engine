@@ -2,6 +2,8 @@
 #define BENCHCLASS_H
 
 #include <functional>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 #include "cmdANDinit.hpp"
 
 class BenchBaseVirtual {
@@ -50,10 +52,6 @@ class BenchClass : public BenchBaseVirtual {
          return _b * _a;
       }
 
-
-      BenchClass() {}
-
-
       std::mutex bMutex;
       unsigned int vLoopsToDoMutex;
 
@@ -67,6 +65,7 @@ class BenchClass : public BenchBaseVirtual {
       void doMutex();
 
    public:
+      BenchClass() = delete;
       BenchClass( cmdANDinit *_cmd );
 
 };
@@ -80,4 +79,4 @@ inline double cFuncToCallInline( int _a, double _b ) {
 
 #endif // BENCHCLASS_H
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

@@ -9,7 +9,14 @@
 
 namespace e_engine {
 
-rWorld::rWorld( iInit *_init ) {
+rWorld::rWorld( iInit *_init ) :
+   vRenderLoopStartSlot( &rWorld::startRenderLoop, this ),
+   vRenderLoopStopSlot( &rWorld::stopRenderLoop, this ),
+
+   vPauseRenderLoopSlot( &rWorld::pauseRenderLoop, this ),
+   vContinueRenderLoopSlot( &rWorld::continueRenderLoop, this ) {
+
+
    vInitObjSet_B               = false; // Will be set true in setInitObj
 
    vRenderLoopRunning_B        = false;
@@ -31,12 +38,6 @@ rWorld::rWorld( iInit *_init ) {
    vClearColor.a              = 1;
 
    vRenderedFrames            = 0;
-
-   vRenderLoopStartSlot.setFunc( &rWorld::startRenderLoop, this );
-   vRenderLoopStopSlot.setFunc( &rWorld::stopRenderLoop, this );
-
-   vPauseRenderLoopSlot.setFunc( &rWorld::pauseRenderLoop, this );
-   vContinueRenderLoopSlot.setFunc( &rWorld::continueRenderLoop, this );
 
    setInitObj( _init );
 }

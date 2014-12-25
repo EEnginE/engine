@@ -6,22 +6,24 @@
 
 typedef std::chrono::system_clock::duration TIME_DURATION;
 
-BenchClass::BenchClass( cmdANDinit *_cmd ) {
+BenchClass::BenchClass( cmdANDinit *_cmd ) :
+   vTheSlot( &BenchClass::funcToCall, this ),
+   vTheSlotInline( &BenchClass::funcToCallInline, this ) {
+
+
    bool lDoFunctionBench = false;
    bool lDoMutexBench = false;
    _cmd->getFunctionInf( vLoopsToDo, lDoFunctionBench );
    _cmd->getMutexInf( vLoopsToDoMutex, lDoMutexBench );
 
    if( lDoFunctionBench ) {
-      vTheSlot.setFunc( &BenchClass::funcToCall, this );
-      vTheSignal.connectWith( &vTheSlot );
+      vTheSignal.connect( &vTheSlot );
       vFunctionPointer  = &BenchClass::funcToCall;
       vCFunctionPointer = &cFuncToCall;
       vBoostFunc        = boost::bind( &BenchClass::funcToCall, this, _1, _2 );
       vStdFunc          = std::bind( &BenchClass::funcToCall , this, std::placeholders::_1, std::placeholders::_2 );
 
-      vTheSlotInline.setFunc( &BenchClass::funcToCallInline, this );
-      vTheSignalInline.connectWith( &vTheSlotInline );
+      vTheSignalInline.connect( &vTheSlotInline );
       vFunctionPointerInline  = &BenchClass::funcToCallInline;
       vCFunctionPointerInline = &cFuncToCallInline;
       vBoostFuncInline        = boost::bind( &BenchClass::funcToCallInline, this, _1, _2 );
@@ -135,21 +137,21 @@ void BenchClass::doFunction() {
    iLOG( "  - Time: microseconds" );
 
 
-   iLOG( "  = [NORMAL] Signal Slot:     ", lSigSlot      );
-   iLOG( "  = [NORMAL] Functionpointer: ", lFunc         );
-   iLOG( "  = [NORMAL] C F Ptr:         ", lCFunc        );
-   iLOG( "  = [NORMAL] Normal call:     ", lNormal       );
-   iLOG( "  = [NORMAL] Virtual call:    ", lVirt         );
-   iLOG( "  = [NORMAL] Boost Function:  ", lBoostFunc    );
-   iLOG( "  = [NORMAL] Std Function:    ", lStdFunc      );
+   iLOG( "  = [NORMAL] Signal Slot:     ", lSigSlot );
+   iLOG( "  = [NORMAL] Functionpointer: ", lFunc );
+   iLOG( "  = [NORMAL] C F Ptr:         ", lCFunc );
+   iLOG( "  = [NORMAL] Normal call:     ", lNormal );
+   iLOG( "  = [NORMAL] Virtual call:    ", lVirt );
+   iLOG( "  = [NORMAL] Boost Function:  ", lBoostFunc );
+   iLOG( "  = [NORMAL] Std Function:    ", lStdFunc );
 
-   iLOG( "  = [INLINE] Signal Slot:     ", lSigSlotIn    );
-   iLOG( "  = [INLINE] Functionpointer: ", lFuncIn       );
-   iLOG( "  = [INLINE] C F Ptr:         ", lCFuncIn      );
-   iLOG( "  = [INLINE] Normal call:     ", lNormalIn     );
+   iLOG( "  = [INLINE] Signal Slot:     ", lSigSlotIn );
+   iLOG( "  = [INLINE] Functionpointer: ", lFuncIn );
+   iLOG( "  = [INLINE] C F Ptr:         ", lCFuncIn );
+   iLOG( "  = [INLINE] Normal call:     ", lNormalIn );
    iLOG( "  = [INLINE] Virtual call:    ", lNormalVirtIn );
-   iLOG( "  = [INLINE] Boost Function:  ", lBoostFuncIn  );
-   iLOG( "  = [INLINE] Std Function:    ", lStdFuncIn    );
+   iLOG( "  = [INLINE] Boost Function:  ", lBoostFuncIn );
+   iLOG( "  = [INLINE] Std Function:    ", lStdFuncIn );
 
    string lSigSlot_str      = std::to_string( lSigSlot );
    string lFunc_str         = std::to_string( lFunc );
@@ -185,17 +187,17 @@ void BenchClass::doFunction() {
 
 
    dLOG(
-   "\n   |==================|============|============|"
-   "\n   |       Type       |   normal   |   inline   |"
-   "\n   |------------------|------------|------------|"
-   "\n   | Signal Slot      | ", lSigSlot_str  , " | ", lSigSlotIn_str   , " |"
-   "\n   | Function Pointer | ", lFunc_str     , " | ", lFuncIn_str      , " |"
-   "\n   | C Func. Pointer  | ", lCFunc_str    , " | ", lCFuncIn_str     , " |"
-   "\n   | Normal           | ", lNormal_str   , " | ", lNormalIn_str    , " |"
-   "\n   | Virtual          | ", lVirt_str     , " | ", lNormalVirtIn_str, " |"
-   "\n   | Boost Function   | ", lBoostFunc_str, " | ", lBoostFuncIn_str , " |"
-   "\n   | STD Function     | ", lStdFunc_str  , " | ", lStdFuncIn_str   , " |"
-   "\n   |==================|============|============|"
+         "\n   |==================|============|============|"
+         "\n   |       Type       |   normal   |   inline   |"
+         "\n   |------------------|------------|------------|"
+         "\n   | Signal Slot      | ", lSigSlot_str  , " | ", lSigSlotIn_str   , " |"
+         "\n   | Function Pointer | ", lFunc_str     , " | ", lFuncIn_str      , " |"
+         "\n   | C Func. Pointer  | ", lCFunc_str    , " | ", lCFuncIn_str     , " |"
+         "\n   | Normal           | ", lNormal_str   , " | ", lNormalIn_str    , " |"
+         "\n   | Virtual          | ", lVirt_str     , " | ", lNormalVirtIn_str, " |"
+         "\n   | Boost Function   | ", lBoostFunc_str, " | ", lBoostFuncIn_str , " |"
+         "\n   | STD Function     | ", lStdFunc_str  , " | ", lStdFuncIn_str   , " |"
+         "\n   |==================|============|============|"
    );
 }
 
@@ -254,11 +256,11 @@ void BenchClass::doMutex() {
    iLOG( "  - Time: microseconds" );
 
 
-   iLOG( "  = Normal:    ", lNormal    );
-   iLOG( "  = Mutex:     ", lMutex     );
+   iLOG( "  = Normal:    ", lNormal );
+   iLOG( "  = Mutex:     ", lMutex );
    iLOG( "  = LockGuard: ", lLockGuard );
 
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

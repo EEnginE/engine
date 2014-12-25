@@ -140,7 +140,7 @@ int iInit::eventLoop() {
                   tempInfo.eResize.posX   = GlobConf.win.posX   = lEvent_X11.xconfigure.x;
                   tempInfo.eResize.posY   = GlobConf.win.posY   = lEvent_X11.xconfigure.y;
 
-                  vResize_SIG.sendSignal( tempInfo );
+                  vResize_SIG( tempInfo );
                }
                break;
 
@@ -150,7 +150,7 @@ int iInit::eventLoop() {
                   tempInfo.type       = E_EVENT_KEY;
                   tempInfo.eKey.state = lKeyState_uI;
                   tempInfo.eKey.key   = processX11KeyInput( lEvent_X11.xkey, lKeyState_uI, getDisplay() );
-                  vKey_SIG.sendSignal( tempInfo );
+                  vKey_SIG( tempInfo );
                }
                break;
 
@@ -178,7 +178,7 @@ int iInit::eventLoop() {
                         wLOG( "Unknown mouse button: ", lEvent_X11.xbutton.button );
                   }
 
-                  vMouse_SIG.sendSignal( tempInfo );
+                  vMouse_SIG( tempInfo );
                }
                break;
 
@@ -194,7 +194,7 @@ int iInit::eventLoop() {
 
                   GlobConf.win.mouseIsInWindow = true;
 
-                  vMouse_SIG.sendSignal( tempInfo );
+                  vMouse_SIG( tempInfo );
                }
                break;
 
@@ -209,7 +209,7 @@ int iInit::eventLoop() {
 
                   GlobConf.win.mouseIsInWindow = true;
 
-                  vMouse_SIG.sendSignal( tempInfo );
+                  vMouse_SIG( tempInfo );
                }
                break;
 
@@ -224,7 +224,7 @@ int iInit::eventLoop() {
 
                   GlobConf.win.mouseIsInWindow = false;
 
-                  vMouse_SIG.sendSignal( tempInfo );
+                  vMouse_SIG( tempInfo );
                }
                break;
 
@@ -232,7 +232,7 @@ int iInit::eventLoop() {
                   iEventInfo tempInfo( this );
                   tempInfo.type = E_EVENT_FOCUS;
                   GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = true;
-                  vFocus_SIG.sendSignal( tempInfo );
+                  vFocus_SIG( tempInfo );
                }
                break;
 
@@ -240,7 +240,7 @@ int iInit::eventLoop() {
                   iEventInfo tempInfo( this );
                   tempInfo.type = E_EVENT_FOCUS;
                   GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = false;
-                  vFocus_SIG.sendSignal( tempInfo );
+                  vFocus_SIG( tempInfo );
                }
                break;
 
@@ -251,7 +251,7 @@ int iInit::eventLoop() {
                   iLOG( "User pressed the close button" );
                   iEventInfo tempInfo( this );
                   tempInfo.type = E_EVENT_WINDOWCLOSE;
-                  vWindowClose_SIG.sendSignal( tempInfo );
+                  vWindowClose_SIG( tempInfo );
                }
                break;
 

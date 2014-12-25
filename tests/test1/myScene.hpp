@@ -11,7 +11,7 @@
 using namespace e_engine;
 
 class myScene final : public rScene<float>, public rCameraHandler<float> {
-      typedef uSlot<void, myScene, iEventInfo> _SLOT_;
+      typedef uSlot<void, myScene, iEventInfo const&> _SLOT_;
 
    private:
       rSimpleMesh vObject1;
@@ -44,7 +44,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
 
       int init();
 
-      void keySlot( iEventInfo _inf );
+      void keySlot( iEventInfo const& _inf );
 
       virtual void afterCameraUpdate();
 };

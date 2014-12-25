@@ -14,7 +14,7 @@
 myWorld::~myWorld() {}
 
 
-void myWorld::key( iEventInfo info ) {
+void myWorld::key( iEventInfo const& info ) {
    if ( vDisp_RandR.empty() )
       vDisp_RandR = info.iInitPointer->getDisplayResolutions();
 

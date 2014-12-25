@@ -69,7 +69,7 @@ int myScene::init() {
    return 0;
 }
 
-void myScene::keySlot( iEventInfo _inf ) {
+void myScene::keySlot( const iEventInfo &_inf ) {
    if( _inf.eKey.state != E_PRESSED )
       return;
 
