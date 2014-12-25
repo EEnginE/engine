@@ -66,17 +66,16 @@ uLog LOG;
  * This only generates ID's for the main modes of this
  * project and generates the output types \c 'I', \c 'W', \c 'E'
  */
-uLog::uLog() {
+uLog::uLog() :
+   vStdOut_eSLOT( &uLog::stdOutStandard, this ),
+   vStdErr_eSLOT( &uLog::stdErrStandard, this ),
+   vStdLog_eSLOT( &uLog::stdLogStandard, this ) {
    vMaxTypeStringLength_usI = 0;
 
    vIsLogLoopRunning_B = false;
    vLogLoopRun_B       = false;
 
    vLogFileName_str = "standard_Engine_Log_File";
-
-   vStdOut_eSLOT.setFunc( &uLog::stdOutStandard, this );
-   vStdErr_eSLOT.setFunc( &uLog::stdErrStandard, this );
-   vStdLog_eSLOT.setFunc( &uLog::stdLogStandard, this );
 
    vLogEntries.clear();
 }
@@ -125,7 +124,7 @@ void uLog::devInit() {
 void uLog::addType( char _type, std::wstring _name, char _color, bool _bold ) {
    vLogTypes_V_eLT.push_back( internal::uLogType( _type, _name, _color, _bold ) );
    if( _name.size() > vMaxTypeStringLength_usI )
-      vMaxTypeStringLength_usI = (unsigned short int) _name.size();
+      vMaxTypeStringLength_usI = ( unsigned short int ) _name.size();
 }
 
 bool uLog::openLogFile( uint16_t i ) {
@@ -330,7 +329,7 @@ void uLog::logLoop() {
 
          try {
             lLogTypeId_uI = vLogEntries.front().getLogEntry( vLogTypes_V_eLT );
-            vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->sendSignal( vLogEntries.front() );
+            vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->send( vLogEntries.front() );
             vLogEntries.front().endLogWaitAndSetPrinted();
          } catch( std::bad_alloc e ) {
             std::cerr << "Received bad_alloc exeption in log Loop -- FILE: " << __FILE__ << " -- LINE: " << __LINE__ << std::endl;
@@ -387,4 +386,4 @@ bool uLog::stopLogLoop() {
 
 
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

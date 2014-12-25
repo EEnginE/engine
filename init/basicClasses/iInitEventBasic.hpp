@@ -15,70 +15,74 @@ namespace e_engine {
 class iInit;
 
 class iInitEventBasic {
-      typedef uSignal<void, iEventInfo>      _SIGNAL_;
-      typedef uSlot<void, iInit, iEventInfo> _SLOT_;
+   public:
+      typedef uSignal<void, iEventInfo const &>      SIGNAL;
+
+      template<class __C> using SLOT_C = uSlot<void, __C, iEventInfo const &>;
+      typedef SLOT_C<iInit> SLOT;
 
    private:
       virtual void makeEInitEventBasicAbstract() = 0;
 
    protected:
-      _SIGNAL_ vWindowClose_SIG;     //!< The signal for Window close
-      _SIGNAL_ vResize_SIG;          //!< The signal for Resize
-      _SIGNAL_ vKey_SIG;             //!< The signal for Key
-      _SIGNAL_ vMouse_SIG;           //!< The signal for Mouse
-      _SIGNAL_ vFocus_SIG;           //!< The signal for focus change
+      SIGNAL vWindowClose_SIG;     //!< The signal for Window close
+      SIGNAL vResize_SIG;          //!< The signal for Resize
+      SIGNAL vKey_SIG;             //!< The signal for Key
+      SIGNAL vMouse_SIG;           //!< The signal for Mouse
+      SIGNAL vFocus_SIG;           //!< The signal for focus change
 
-      _SLOT_   vWindowClose_SLOT;    //!< The standard slot for Window close
-      _SLOT_   vResize_SLOT;         //!< The standard slot for Resize
-      _SLOT_   vKey_SLOT;            //!< The standard slot for Key
-      _SLOT_   vMouse_SLOT;          //!< The standard slot for Mouse
-      _SLOT_   vFocus_SLOT;          //!< The standard slot for focus change
+      SLOT   vWindowClose_SLOT;    //!< The standard slot for Window close
+      SLOT   vResize_SLOT;         //!< The standard slot for Resize
+      SLOT   vKey_SLOT;            //!< The standard slot for Key
+      SLOT   vMouse_SLOT;          //!< The standard slot for Mouse
+      SLOT   vFocus_SLOT;          //!< The standard slot for focus change
 
-      _SLOT_   vGrabControl_SLOT;   //!< Slot for grab control \sa iInit::s_advancedGrabControl
+      SLOT   vGrabControl_SLOT;   //!< Slot for grab control \sa iInit::s_advancedGrabControl
 
    public:
-
+      iInitEventBasic() = delete;
+      iInitEventBasic( iInit *_init );
       virtual ~iInitEventBasic();
 
       template<class __C>
-      void addWindowCloseSlot( uSlot<void, __C, iEventInfo> *_slot ) {
+      void addWindowCloseSlot( uSlot<void, __C, iEventInfo const &> *_slot ) {
          vWindowClose_SLOT.disconnectAll();
-         _slot->connectWith( &vWindowClose_SIG );
+         _slot->connect( &vWindowClose_SIG );
       }
 
       template<class __C>
-      void addResizeSlot( uSlot<void, __C, iEventInfo> *_slot ) {
+      void addResizeSlot( uSlot<void, __C, iEventInfo const &> *_slot ) {
          vResize_SLOT.disconnectAll();
-         _slot->connectWith( &vResize_SIG );
+         _slot->connect( &vResize_SIG );
       }
 
       template<class __C>
-      void addKeySlot( uSlot<void, __C, iEventInfo> *_slot ) {
+      void addKeySlot( uSlot<void, __C, iEventInfo const &> *_slot ) {
          vKey_SLOT.disconnectAll();
-         _slot->connectWith( &vKey_SIG );
+         _slot->connect( &vKey_SIG );
       }
 
       template<class __C>
-      void addMouseSlot( uSlot<void, __C, iEventInfo> *_slot ) {
+      void addMouseSlot( uSlot<void, __C, iEventInfo const &> *_slot ) {
          vMouse_SLOT.disconnectAll();
-         _slot->connectWith( &vMouse_SIG );
+         _slot->connect( &vMouse_SIG );
       }
 
       template<class __C>
-      void addFocusSlot( uSlot<void, __C, iEventInfo> *_slot ) {
+      void addFocusSlot( uSlot<void, __C, iEventInfo const &> *_slot ) {
          vFocus_SLOT.disconnectAll();
-         _slot->connectWith( &vFocus_SIG );
+         _slot->connect( &vFocus_SIG );
       }
 
       void removeAllSlots();
 
-      _SLOT_ *getAdvancedGrabControlSlot() {return &vGrabControl_SLOT;}
+      SLOT *getAdvancedGrabControlSlot() {return &vGrabControl_SLOT;}
 
-      template<class __C> bool removeWindowCloseSlot( uSlot<void, __C, iEventInfo> *_slot ) {return vWindowClose_SIG.disconnect( _slot );}
-      template<class __C> bool removeResizeSlot( uSlot<void, __C, iEventInfo> *_slot )      {return vResize_SIG.disconnect( _slot );}
-      template<class __C> bool removeKeySlot( uSlot<void, __C, iEventInfo> *_slot )         {return vKey_SIG.disconnect( _slot );}
-      template<class __C> bool removeMousuSlot( uSlot<void, __C, iEventInfo> *_slot )       {return vMouse_SIG.disconnect( _slot );}
-      template<class __C> bool removeFocusSlot( uSlot<void, __C, iEventInfo> *_slot )       {return vFocus_SIG.disconnect( _slot );}
+      template<class __C> bool removeWindowCloseSlot( uSlot<void, __C, iEventInfo const &> *_slot ) {return vWindowClose_SIG.disconnect( _slot );}
+      template<class __C> bool removeResizeSlot( uSlot<void, __C, iEventInfo const &> *_slot )      {return vResize_SIG.disconnect( _slot );}
+      template<class __C> bool removeKeySlot( uSlot<void, __C, iEventInfo const &> *_slot )         {return vKey_SIG.disconnect( _slot );}
+      template<class __C> bool removeMousuSlot( uSlot<void, __C, iEventInfo const &> *_slot )       {return vMouse_SIG.disconnect( _slot );}
+      template<class __C> bool removeFocusSlot( uSlot<void, __C, iEventInfo const &> *_slot )       {return vFocus_SIG.disconnect( _slot );}
 };
 
 /*!
@@ -178,4 +182,4 @@ class iInitEventBasic {
 
 #endif // E_INIT_EVENT_BASIC_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

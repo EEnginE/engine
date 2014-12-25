@@ -61,9 +61,9 @@ typedef GLvoid( *RENDER_FUNC )( iEventInfo info );
  * \sa iContext uConfig e_iInit.cpp e_event.cpp
  */
 #if UNIX_X11
-class iInit : public unix_x11::iContext, public iMouse {
+class iInit : public unix_x11::iContext, public iInitEventBasic, public iMouse {
 #elif WINDOWS
-class iInit : public windows_win32::iContext {
+class iInit : public windows_win32::iContext, public iInitEventBasic {
 #endif
    private:
       bool        vMainLoopRunning_B;   //!< Should the main loop be running?
@@ -120,30 +120,32 @@ class iInit : public windows_win32::iContext {
       // Standart callbacks NEW --------------------------------------------------- ###
 
       //! The standard render function
-      static inline GLvoid standardRender( iEventInfo _info ) {
+      static inline GLvoid standardRender( iEventInfo const &_info ) {
          glClearColor( 0, 0, 0, 1 );
          glClear( GL_COLOR_BUFFER_BIT );
          _info.iInitPointer->swapBuffers();
       }
 
       //! The standard Resize function
-      GLvoid s_standardResize( iEventInfo _info ) {}
+      GLvoid s_standardResize( iEventInfo const &_info ) {}
 
       //! The standard Window close function
-      GLvoid s_standardWindowClose( iEventInfo _info );
+      GLvoid s_standardWindowClose( iEventInfo const &_info );
 
       //! The standard Key function
-      GLvoid s_standardKey( iEventInfo _info ) {}
+      GLvoid s_standardKey( iEventInfo const &_info ) {}
 
       //! The standard Mouse function
-      GLvoid s_standardMouse( iEventInfo _info ) {}
+      GLvoid s_standardMouse( iEventInfo const &_info ) {}
 
       //! The standard Focus function
-      GLvoid s_standardFocus( iEventInfo _info ) {
+      GLvoid s_standardFocus( iEventInfo const &_info ) {
          iLOG( "Focus ", _info.eFocus.hasFocus ? "got" : "lost" );
       }
 
-      GLvoid s_advancedGrabControl( iEventInfo _info );
+      GLvoid s_advancedGrabControl( iEventInfo const &_info );
+
+      virtual void makeEInitEventBasicAbstract() {}
 
    public:
       iInit();
@@ -170,14 +172,15 @@ class iInit : public windows_win32::iContext {
 
       template<class __C>
       void   addRenderSlots( uSlot<void, __C, bool> *_start, uSlot<void, __C> *_stop, uSlot<void, __C> *_pause, uSlot<void, __C> *_continue ) {
-         vStartRenderLoopSignal_SIG.connectWith<__C>( _start );
-         vStopRenderLoopSignal_SIG.connectWith<__C>( _stop );
-         vPauseRenderLoop_SIG.connectWith<__C>( _pause );
-         vContinueRenderLoop_SIG.connectWith<__C>( _continue );
+         vStartRenderLoopSignal_SIG.connect( _start );
+         vStopRenderLoopSignal_SIG.connect( _stop );
+         vPauseRenderLoop_SIG.connect( _pause );
+         vContinueRenderLoop_SIG.connect( _continue );
 
          vAreRenderLoopSignalsConnected_B = true;
       }
 
+      friend class iInitEventBasic; // Garant access to slot functions
 };
 
 //    #########################
@@ -205,7 +208,7 @@ class __iInit_Pointer {
       }
       ~__iInit_Pointer() {pointer = 0;}
       bool set( iInit *_THIS ) {
-         if ( is_set == true ) {return false;}
+         if( is_set == true ) {return false;}
          pointer = _THIS;
          is_set = true;
          return true;

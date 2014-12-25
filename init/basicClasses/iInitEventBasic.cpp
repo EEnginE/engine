@@ -5,6 +5,7 @@
  */
 
 #include "iInitEventBasic.hpp"
+#include "iInit.hpp"
 
 namespace e_engine {
 
@@ -23,6 +24,15 @@ void iInitEventBasic::removeAllSlots() {
 iInitEventBasic::~iInitEventBasic() {
    removeAllSlots();
 }
+
+iInitEventBasic::iInitEventBasic( iInit *_init ) :
+   vWindowClose_SLOT( &iInit::s_standardWindowClose, _init ),
+   vResize_SLOT( &iInit::s_standardResize, _init ),
+   vKey_SLOT( &iInit::s_standardKey, _init ),
+   vMouse_SLOT( &iInit::s_standardMouse, _init ),
+   vFocus_SLOT( &iInit::s_standardFocus, _init ),
+
+   vGrabControl_SLOT( &iInit::s_advancedGrabControl, _init ) {}
 
 
 }

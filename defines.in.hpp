@@ -211,7 +211,22 @@ enum E_BUTTON {
 };
 
 
+namespace templates {
+
+// Make variadic int Sequenz (from variadic templates)
+template<int... sequenze>
+struct intSequenze {};
+
+template<int __I, int... sequenze>
+struct makeIntSequenze : makeIntSequenze<__I - 1, __I - 1,sequenze...> {};
+
+template<int... sequenze>
+struct makeIntSequenze<0, sequenze...> : intSequenze<sequenze...> {};
+
+}
+
+
 
 #endif // DEFINES_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

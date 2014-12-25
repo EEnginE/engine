@@ -24,24 +24,9 @@
 #ifndef U_SGNAL_SLOT_HPP
 #define U_SGNAL_SLOT_HPP
 
-#include <functional>
-
-// This stuff is needed for our std::bind stuff so that we can use "Variadic templates"
-// More information https://stackoverflow.com/questions/21192659/variadic-templates-and-stdbind
-template<int...>           struct int_sequence                                                            {};
-template<int N, int... Is> struct make_int_sequence           : make_int_sequence < N - 1, N - 1, Is... > {};
-template<int... Is>        struct make_int_sequence<0, Is...> : int_sequence<Is...>                       {};
-template<int>              struct placeholder_template                                                    {};
-
-
-namespace std {
-template<int N> struct is_placeholder< placeholder_template<N> > : integral_constant < int, N + 1 >       {};
-}
-
-
-#include <boost/signals2.hpp>
+#include <list>
 #include <vector>
-
+#include <mutex>
 #include "defines.hpp"
 
 namespace e_engine {
@@ -55,43 +40,198 @@ class uSignal;
 
 namespace internal {
 
-/*!
- * \brief Moves uLog logging to \c signal_slot.cpp
- *
- * uLog needs Signals and Slots, so it is impossible to use uLog in this File
- */
-class __uSigSlotLogFunctionClass {
-   public:
-      static void sigSlotLogFunktion( std::string _errStr, const char *_file, const int _line, const char *_function );
+template<class __R>
+struct __uReturnStruct {__R value;};
+
+template<>
+struct __uReturnStruct<void> {};
+
+template<class __R>
+struct __uSlotReturnHelper {
+   template<class __C, class... __A>
+   static __uReturnStruct<__R> call( __R( __C::*_CALL )( __A... _arg ), __C *_obj, __A && ... _arg ) {
+      __uReturnStruct<__R> lRet;
+      lRet.value = ( *_obj.*_CALL )( std::forward<__A>( _arg )... );
+      return lRet;
+   }
 };
 
+template<>
+struct __uSlotReturnHelper<void> {
+   template<class __C, class... __A>
+   static __uReturnStruct<void> call( void( __C::*_CALL )( __A... _arg ), __C *_obj, __A && ... _arg ) {
+      __uReturnStruct<void> lRet;
+      ( *_obj.*_CALL )( std::forward<__A>( _arg )... );
+      return lRet;
+   }
+};
 
+//   _____ _       _     _   _      _
+//  /  ___| |     | |   | | | |    | |
+//  \ `--.| | ___ | |_  | |_| | ___| |_ __   ___ _ __
+//   `--. \ |/ _ \| __| |  _  |/ _ \ | '_ \ / _ \ '__|
+//  /\__/ / | (_) | |_  | | | |  __/ | |_) |  __/ |
+//  \____/|_|\___/ \__| \_| |_/\___|_| .__/ \___|_|
+//                                   | |
+//                                   |_|
 
-class __uSigSlotConnection {
-	#ifndef _MSC_VER
-		typedef typename boost::signals2::connection connection_TD;
-	#else
-		typedef boost::signals2::connection connection_TD;
-	#endif
+template<class __R, class... __A>
+class uSlotBase {
    private:
-      //! Counter for Signals
-      static unsigned int vSignalsCounter_uI;
+      typedef uSignal<__R, __A...> SIGNAL;
+      typedef __uReturnStruct<__R> RETURN;
 
-      __uSigSlotConnection() {}
+   private:
+      std::list<SIGNAL *> vSignals;      //!< The signals connected to
 
-      connection_TD vConnection_CON;
-      unsigned int  vSignalID_uI;
+      void addSignal( SIGNAL *_sig );    //!< Only called from uSignal
+      void rmSignal( SIGNAL *_sig );     //!< Only called from uSignal
+
+      bool isConnectedP( SIGNAL const *_sig );
+
+   protected:
+      std::mutex vSlotMutex;
+
+      uSlotBase() {}
    public:
+      virtual ~uSlotBase() {} //!< disconnectAll in the final class!
 
-      __uSigSlotConnection( connection_TD _connection, unsigned int _signalID ) : vConnection_CON( _connection ), vSignalID_uI( _signalID ) {}
-      connection_TD getConnection() {return vConnection_CON;}
-      unsigned int  getSignalId()   {return vSignalID_uI;}
+      /*
+       * template<class... __a>
+       * virtual RETURN call( __a && ... _args ) = 0;
+       *
+       * Unfortunately this is not possible beacuse the function is virtual
+       */
+      //! \todo enable perfect forwading with rvalue (&&) and std::forward
 
-      static void         increment()  {vSignalsCounter_uI++;}
-      static unsigned int getCounter() {return vSignalsCounter_uI;}
+      virtual RETURN call( __A... _args ) = 0;
+
+      bool connect( SIGNAL *_sig );
+      bool disconnect( SIGNAL *_sig );
+      bool isConnected( SIGNAL const *_sig );
+      void disconnectAll();
+
+      friend class uSignal<__R, __A...>;
 };
+
+template<class __R, class... __A>
+void uSlotBase<__R, __A...>::addSignal( SIGNAL *_sig ) {
+   std::lock_guard<std::mutex> lLock( vSlotMutex );
+   vSignals.emplace_back( _sig );
+}
+
+template<class __R, class... __A>
+void uSlotBase<__R, __A...>::rmSignal( SIGNAL *_sig ) {
+   std::lock_guard<std::mutex> lLock( vSlotMutex );
+
+   typename std::list<SIGNAL *>::iterator lIT = vSignals.begin();
+   while( lIT != vSignals.end() ) {
+      if( *lIT == _sig ) {
+         vSignals.erase( lIT );
+         return;
+      }
+      ++lIT;
+   }
+}
+
+
+template<class __R, class... __A>
+bool uSlotBase<__R, __A...>::isConnectedP( SIGNAL const *_sig ) {
+   // Asume that mutex is locked
+   for( auto * s : vSignals )
+      if( _sig == s )
+         return true;
+
+   return false;
+}
+
+
+/*!
+ * \brief Connect with a signal
+ *
+ * Connects this slot with a \c uSignal.
+ *
+ * \note A slot can have multiple signal
+ *
+ * \warning A slot \b must have set a function before connecting
+ *
+ * \param[in] _sig A Pointer to the \c uSignal object
+ * \returns If connection was successfull
+ */
+template<class __R, class... __A>
+bool uSlotBase<__R, __A...>::connect( SIGNAL *_sig ) {
+   std::lock_guard<std::mutex> lLock( vSlotMutex );
+
+   if( isConnectedP( _sig ) )
+      return false;
+
+   vSignals.emplace_back( _sig );
+   _sig->addSlot( this );
+
+   return true;
+}
+
+/*!
+ * \brief Break the connection
+ *
+ * Breaks the connection.
+ *
+ * \param[in] _sig The \c uSignal object which should break the connection
+ * \returns \c SUCCES: \a true -- \c FAIL: \a false
+ */
+template<class __R, class... __A>
+bool uSlotBase<__R, __A...>::disconnect( SIGNAL *_sig ) {
+   std::lock_guard<std::mutex> lLock( vSlotMutex );
+
+   if( !isConnectedP( _sig ) )
+      return false;
+
+   typename std::list<SIGNAL *>::iterator lIT = vSignals.begin();
+   while( lIT != vSignals.end() ) {
+      if( *lIT == _sig ) {
+         _sig->rmSlot( this );
+         vSignals.erase( lIT );
+         return true;
+      }
+   }
+
+   return false;
+}
+
+/*!
+ * \brief Tests if there is a connection
+ *
+ * \param[in] _sig A pointer to the \c uSignal object
+ * \returns \c Connected: \a true -- \c FAIL: \a false
+ */
+template<class __R, class... __A>
+bool uSlotBase<__R, __A...>::isConnected( SIGNAL const *_sig ) {
+   std::lock_guard<std::mutex> lLock( vSlotMutex );
+   return isConnectedP( _sig );
+}
+
+template<class __R, class... __A>
+void uSlotBase<__R, __A...>::disconnectAll() {
+   std::lock_guard<std::mutex> lLock( vSlotMutex );
+
+   for( auto * s : vSignals )
+      s->rmSlot( this );
+
+   vSignals.clear();
+}
 
 }
+
+
+
+//   _____ _                   _   _____ _
+//  /  ___(_)                 | | /  __ \ |
+//  \ `--. _  __ _ _ __   __ _| | | /  \/ | __ _ ___ ___
+//   `--. \ |/ _` | '_ \ / _` | | | |   | |/ _` / __/ __|
+//  /\__/ / | (_| | | | | (_| | | | \__/\ | (_| \__ \__ \
+//  \____/|_|\__, |_| |_|\__,_|_|  \____/_|\__,_|___/___/
+//            __/ |
+//           |___/
 
 /*!
  * \class e_engine::uSignal
@@ -103,128 +243,222 @@ class __uSigSlotConnection {
  * \sa uSlot
  */
 template<class __R, class... __A>
-class uSignal {
-      typedef typename boost::signals2::signal<__R( __A... )>            signal_TD;
-      typedef typename boost::signals2::signal<__R( __A... )>::slot_type slotType_TD;
-      typedef typename boost::signals2::connection                       connection_TD;
-      typedef typename signal_TD::result_type                            signalReturn_TD;
+class uSignal final {
+   public:
+      typedef internal::uSlotBase<__R, __A...> SLOT;
+      typedef internal::__uReturnStruct<__R>   RETURN;
+
    private:
+      std::mutex          vSignalMutex;
+      std::list<SLOT *>   vSlots;
 
-      //! The signal
-      signal_TD    vSignal_SIG;
+      std::vector<RETURN> vReturns;
 
-      bool         vShowCopyError_B;
+      void addSlot( SLOT *_slot );  //!< Only called from uSlot
+      void rmSlot( SLOT *_slot );   //!< Only called from uSlot
 
-      unsigned int vThisSignalId_uI;
+      bool isConnectedP( SLOT const *_slot );
 
    public:
-      //! The Constructor of the class
-      uSignal( bool _showCopyError = true ) : vShowCopyError_B( _showCopyError ) {
-         vThisSignalId_uI = internal::__uSigSlotConnection::getCounter();
-         internal::__uSigSlotConnection::increment();
-      }
+      uSignal() {}                  //!< Nothing fancy to do here
+      ~uSignal() {disconnectAll();} //!< Destructor will break all connections
 
-      uSignal( const uSignal &_e ) {
-         vShowCopyError_B = _e.vShowCopyError_B;
-         vThisSignalId_uI = internal::__uSigSlotConnection::getCounter();
-         internal::__uSigSlotConnection::increment();
-         if ( vShowCopyError_B )
-            internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
-            ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (Constructor)", __FILE__, __LINE__, LOG_FUNCTION_NAME );
-         // signal = _e.signal; => Compiler ERROR: Cannot copy signal_TD objects
-      }
-      uSignal &operator=( const uSignal &_e ) {
-         vShowCopyError_B = _e.vShowCopyError_B;
-         vThisSignalId_uI = internal::__uSigSlotConnection::getCounter();
-         internal::__uSigSlotConnection::increment();
-         if ( vShowCopyError_B )
-            internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
-            ( "Because it is impossible to copy a boost::signals2::signal a compleatly new one will be created! (operator=)", __FILE__, __LINE__, LOG_FUNCTION_NAME );
-         // signal = _e.signal; => Compiler ERROR: Cannot copy signal_TD objects
-         return *this;
-      }
+      uSignal( const uSignal &_e ) = delete;
+      uSignal( const uSignal && _e );
 
-      //! Destructor will break all connections
-      virtual ~uSignal() {
-         disconnectAll();
-      }
+      uSignal &operator=( const uSignal &_e ) = delete;
+      uSignal &operator=( const uSignal && _e );
 
-      /*!
-       * \brief Connect with a slot
-       *
-       * From the \c uSlot object we get a boost function pointer for
-       * the member function pointer stored in th slot object and
-       * say the boost signal to connect with this function pointer.
-       * The connection is finally sent to the slot object,
-       * where it will be stored.
-       *
-       * \param slot The \c uSlot object
-       * \returns The conne object
-       */
-      template<class __C>
-      bool connectWith( uSlot<__R, __C, __A...> *slot ) {
-         if ( slot->testIfAlreadyConnected( vThisSignalId_uI ) )
-            return false;
+      bool connect( SLOT *_slot );
+      bool disconnect( SLOT *_slot );
+      bool isConnected( SLOT const *_slot );
+      void disconnectAll();
 
-         connection_TD con;
-         con = vSignal_SIG.connect( slot->getSlotType() );
-         slot->setConnection( &con, vThisSignalId_uI );
-         return true;
-      }
+      template<class... __a>
+      std::vector<RETURN> &operator()( __a && ... _args ) {return send( std::forward<__a>( _args )... );}
 
-      /*!
-       * \brief Send the signal
-       *
-       * Sends a signal that causes all functions connected to
-       * this signal to be executed and receive the user defined
-       * object \c atr as an argument
-       *
-       * \param atr What needs to be sent to all connected functions
-       * \returns The return value of one function
-       */
-       signalReturn_TD operator()( __A... _atr ) {
-         return vSignal_SIG( _atr... );
-      }
+      template<class... __a>
+      std::vector<RETURN> &send( __a && ... _args );
 
-      /*!
-       * \brief Send the signal
-       *
-       * Sends a signal that causes all functions connected to
-       * this signal to be executed and receive the user defined
-       * object \c atr as argument
-       *
-       * \param atr What needs to be sent to all connected functions
-       * \returns The return value of one fnction
-       */
-      signalReturn_TD sendSignal( __A... _atr ) {
-         return vSignal_SIG( _atr... );
-      }
-
-      /*!
-       * \brief Break the connection
-       *
-       * Tells the \c uSlot object to break the connection it has stored
-       *
-       * \param slot The \c uSlot object which should break the connection
-       * \returns \c SUCCES: \a true -- \c FAIL: \a false
-       */
-      template<class __C>
-      bool disconnect( uSlot<__R, __C, __A...> *slot ) {
-         return slot->disconnectSignal( this );
-      }
-
-      /*!
-       * \brief Disconnect all slots
-       * \returns Nothing
-       */
-      void disconnectAll() {
-         vSignal_SIG.disconnect_all_slots();
-      }
-
-      unsigned int getSignalId() const { return vThisSignalId_uI; }
+      friend class internal::uSlotBase<__R, __A...>;
 };
 
+template<class __R, class... __A>
+uSignal<__R, __A...>::uSignal( const uSignal && _e ) {
+   std::lock_guard<std::mutex> lLock2( vSignalMutex );
+   vSlots   = std::move( _e.vSlots );
+   vReturns = std::move( _e.vReturns );
+}
 
+template<class __R, class... __A>
+uSignal<__R, __A...> &uSignal<__R, __A...>::operator=( const uSignal && _e ) {
+   std::lock_guard<std::mutex> lLock2( vSignalMutex );
+   vSlots   = std::move( _e.vSlots );
+   vReturns = std::move( _e.vReturns );
+   return *this;
+}
+
+
+template<class __R, class... __A>
+void uSignal<__R, __A...>::addSlot( SLOT *_slot ) {
+   std::lock_guard<std::mutex> lLock( vSignalMutex );
+   vSlots.emplace_back( _slot );
+}
+
+template<class __R, class... __A>
+void uSignal<__R, __A...>::rmSlot( SLOT *_slot ) {
+   std::lock_guard<std::mutex> lLock( vSignalMutex );
+
+   typename std::list<SLOT *>::iterator lIT = vSlots.begin();
+   while( lIT != vSlots.end() ) {
+      if( *lIT == _slot ) {
+         vSlots.erase( lIT );
+         return;
+      }
+      ++lIT;
+   }
+}
+
+template<class __R, class... __A>
+bool uSignal<__R, __A...>::isConnectedP( SLOT const *_slot ) {
+   // Asume that mutex is locked
+   for( auto * s : vSlots )
+      if( _slot == s )
+         return true;
+
+   return false;
+}
+
+
+/*!
+ * \brief Connect with a slot
+ *
+ * Connects this signal with a \c uSlot.
+ *
+ * \note A Signal can have multiple slots
+ *
+ * \warning A slot \b must have set a function before connecting
+ *
+ * \param[in] _slot A Pointer to the \c uSlot object
+ * \returns If connection was successfull
+ */
+template<class __R, class... __A>
+bool uSignal<__R, __A...>::connect( SLOT *_slot ) {
+   std::lock_guard<std::mutex> lLock( vSignalMutex );
+
+   if( isConnectedP( _slot ) )
+      return false;
+
+   vSlots.emplace_back( _slot );
+   _slot->addSignal( this );
+   vReturns.resize( vSlots.size() );
+
+   return true;
+}
+
+/*!
+ * \brief Break the connection
+ *
+ * Breaks the connection.
+ *
+ * \param[in] _slot The \c uSlot object which should break the connection
+ * \returns \c SUCCES: \a true -- \c FAIL: \a false
+ */
+template<class __R, class... __A>
+bool uSignal<__R, __A...>::disconnect( SLOT *_slot ) {
+   std::lock_guard<std::mutex> lLock( vSignalMutex );
+
+   if( !isConnectedP( _slot ) )
+      return false;
+
+   typename std::list<SLOT *>::iterator lIT = vSlots.begin();
+   while( lIT != vSlots.end() ) {
+      if( *lIT == _slot ) {
+         _slot->rmSignal( this );
+         vSlots.erase( lIT );
+         vReturns.resize( vSlots.size() );
+         return true;
+      }
+   }
+
+   return false;
+}
+
+/*!
+ * \brief Tests if there is a connection
+ * *
+ * \param[in] _slot A pointer to the \c uSlot object
+ * \returns \c Connected: \a true -- \c FAIL: \a false
+ */
+template<class __R, class... __A>
+bool uSignal<__R, __A...>::isConnected( SLOT const *_slot ) {
+   std::lock_guard<std::mutex> lLock( vSignalMutex );
+   return isConnectedP( _slot );
+}
+
+template<class __R, class... __A>
+void uSignal<__R, __A...>::disconnectAll() {
+   std::lock_guard<std::mutex> lLock( vSignalMutex );
+
+   for( auto * s : vSlots )
+      s->rmSignal( this );
+
+   vSlots.clear();
+   vReturns.resize( 0 );
+}
+
+
+
+/*!
+ * \fn uSignal::operator()
+ * \brief Send the signal
+ *
+ * Sends a signal that causes all functions connected to
+ * this signal to be executed and receive the user defined
+ * objects \c _atr as argument
+ *
+ * The result of every slot will be stored in a vector and can be
+ * accessed with ::value (if __R is not void)
+ *
+ * \param _atr What needs to be sent to all connected functions
+ * \returns A reference to the result vector
+ */
+
+/*!
+ * \brief Send the signal
+ *
+ * Sends a signal that causes all functions connected to
+ * this signal to be executed and receive the user defined
+ * objects \c _atr as argument
+ *
+ * The result of every slot will be stored in a vector and can be
+ * accessed with ::value (if __R is not void)
+ *
+ * \param _atr What needs to be sent to all connected functions
+ * \returns A reference to the result vector
+ */
+template<class __R, class... __A>
+template<class... __a>
+std::vector<internal::__uReturnStruct<__R>> &uSignal<__R, __A...>::send( __a && ... _args ) {
+   std::lock_guard<std::mutex> lLock( vSignalMutex );
+
+   unsigned int lCounter = 0;
+
+   for( auto * s : vSlots ) {
+      vReturns[lCounter] = s->call( std::forward<__a>( _args )... );
+      ++lCounter;
+   }
+
+   return vReturns;
+}
+
+
+//   _____ _       _     _____ _
+//  /  ___| |     | |   /  __ \ |
+//  \ `--.| | ___ | |_  | /  \/ | __ _ ___ ___
+//   `--. \ |/ _ \| __| | |   | |/ _` / __/ __|
+//  /\__/ / | (_) | |_  | \__/\ | (_| \__ \__ \
+//  \____/|_|\___/ \__|  \____/_|\__,_|___/___/
 
 /*!
  * \class e_engine::uSlot
@@ -236,161 +470,63 @@ class uSignal {
  * \sa uSignal
  */
 template<class __R, class __C, class... __A>
-class uSlot {
-      typedef typename boost::signals2::signal<__R( __A... )>            signal_TD;
-      typedef typename boost::signals2::signal<__R( __A... )>::slot_type slotType_TD;
-      typedef typename boost::signals2::connection                    connection_TD;
-//       typedef __R( __C::*CALL_TYPE )( __A... _arg );
-   private:
-      //! The signal connection
-      std::vector<internal::__uSigSlotConnection> vConnections_eCON;
-
-      //! This object pointer is needed to call the function pointer
-      __C *classObjPointer;
-
-      //! This is the member function pointer
-      __R( __C::*CALL )( __A... _arg );
-
-      bool functionSet;
-
-      template<int... Is>
-      slotType_TD bindHelper( __R( __C::*CLASS_2 )( __A... ), int_sequence<Is...> ) {
-         return std::bind( CLASS_2, classObjPointer, placeholder_template<Is> {} ... );
-      }
-
-      slotType_TD getSlotType() {
-         return bindHelper( CALL, make_int_sequence< sizeof...( __A ) > {} );
-      }
-
-
-      inline bool testIfAlreadyConnected( unsigned int _signalID ) {
-         for ( size_t i = 0; i < vConnections_eCON.size(); ++i ) {
-            if ( vConnections_eCON[i].getSignalId() == _signalID ) {
-               internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
-               ( "The Signal is already connected => Ignore", __FILE__, __LINE__, LOG_FUNCTION_NAME );
-               return true;
-            }
-         }
-         return false;
-      }
-
-      void setConnection( connection_TD *_con, unsigned int _signalID ) {
-         vConnections_eCON.push_back( internal::__uSigSlotConnection( *_con, _signalID ) );
-      }
-
-      void removeOld() {
-         for ( size_t i = 0; i < vConnections_eCON.size(); ++i ) {
-            if ( ! vConnections_eCON[i].getConnection().connected() ) {
-               vConnections_eCON.erase( vConnections_eCON.begin() + i );
-            }
-         }
-      }
+class uSlot final : public internal::uSlotBase<__R, __A...> {
+      static_assert( std::is_class<__C>::value, "template argument __C MUST be a class!" );
 
    public:
-      //! The most basic constructor
-      uSlot() {
-         functionSet = false;
-      }
+      typedef uSignal<__R, __A...>           SIGNAL;
+      typedef internal::__uReturnStruct<__R> RETURN;
 
-      /*!
-       * \brief Constructor
-       *
-       * Constructor sets the function pointer.
-       * Pointer format:
-       * \code
-       * &Class::function // No brackets!
-       * \endcode
-       *
-       * \param _CALL The function pointer
-       * \param _obj  Object pointer, which is needed to call the function pointer
-       */
-      uSlot( __R( __C::*_CALL )( __A... _arg ), __C *_obj ) {
-         CALL            = _CALL;
-         classObjPointer = _obj;
-         functionSet     = true;
-      }
+   private:
+      __R( __C::*CALL )( __A... _arg ); //!< This is the member function pointer
+      __C *classPointer;                //!< This object pointer is needed to call the function pointer
 
-      //! Break the connection at the end of life
-      virtual ~uSlot() {
-         disconnectAll();
-      }
+      using internal::uSlotBase<__R, __A...>::vSlotMutex;
+   public:
+      using internal::uSlotBase<__R, __A...>::disconnectAll;
 
-      /*!
-       * \brief Set a (new) function pointer
-       *
-       * Pointer format:
-       * \code
-       * &Class::function // No brackets!
-       * \endcode
-       *
-       * \param _CALL The function pointer
-       * \param _obj  Object pointer, which is needed to call the function pointer
-       * \returns Nothing
-       */
-      inline void setFunc( __R( __C::*_CALL )( __A... _arg ), __C *_obj ) {
-         CALL            = _CALL;
-         classObjPointer = _obj;
-         functionSet     = true;
-      }
+      uSlot() = delete; //!< We need a function pointer
+      uSlot( __R( __C::*_CALL )( __A... _arg ), __C *_obj ) : CALL( _CALL ), classPointer( _obj ) {}
 
-      /*!
-       * \brief Connect with a \c uSignal object
-       *
-       * This function checks if the slot can be connected to and then tells
-       * the \c uSignal object to connect with \a this slot.
-       *
-       * \sa uSlot::connectWith
-       *
-       * \param signal The \c uSignal object
-       * \returns \c SUCCESS: \a true -- \c FAIL: \a false
-       */
-      bool connectWith( uSignal<__R, __A...> *_signal ) {
-         if ( !functionSet ) {
-            internal::__uSigSlotLogFunctionClass::sigSlotLogFunktion
-            ( "SLOT Function Pointer is undefined! Do nothing!", __FILE__, __LINE__, LOG_FUNCTION_NAME );
-            return false;
-         }
-         _signal->connectWith( this ); // Sets the connection automatically
-         return true;
-      }
+      ~uSlot() {disconnectAll();} //!< Break the connection at the end of life
 
-      /*!
-       * \brief Break the connection
-       * \returns \c SUCCESS: \a true -- \c FAIL: \a false
-       */
-      bool disconnectSignal( uSignal<__R, __A...> *_signal ) {
-         bool lSuccess_B = false;
-         for ( size_t i = 0; i < vConnections_eCON.size(); ++i ) {
-            if ( vConnections_eCON[i].getSignalId() == _signal->getSignalId() ) {
-               if ( vConnections_eCON[i].getConnection().connected() ) {
-                  vConnections_eCON[i].getConnection().disconnect();
-                  lSuccess_B = true;
-               }
-            }
-         }
-         removeOld();
-         return  lSuccess_B;
-      }
-
-      bool disconnectAll() {
-         if ( vConnections_eCON.empty() )
-            return false;
-         for ( size_t i = 0; i < vConnections_eCON.size(); ++i ) {
-            if ( vConnections_eCON[i].getConnection().connected() )
-               vConnections_eCON[i].getConnection().disconnect();
-         }
-         vConnections_eCON.clear();
-         return true;
-      }
-
-      //! Get if the slot is already connected  \returns Whether the slot is connected or not
+      virtual RETURN call( __A... _args );
 
       friend class uSignal<__R, __A...>;
 };
 
+/*!
+ * \brief calls the function pointer
+ *
+ * \param[in] _args The arguments for the function
+ * \returns a return structue with the return value of the function in RETURN::value (if __R != void)
+ */
+template<class __R, class __C, class... __A>
+typename uSlot<__R, __C, __A...>::RETURN uSlot<__R, __C, __A...>::call( __A... _args ) {
+   std::lock_guard<std::mutex> lLock( vSlotMutex );
+   return internal::__uSlotReturnHelper<__R>::call( CALL, classPointer, std::forward<__A>( _args )... );
+}
+
+
+/*!
+ * \fn uSlot::uSlot
+ * \brief Constructor
+ *
+ * Constructor sets the function pointer.
+ * Pointer format:
+ * \code
+ * &Class::function // No brackets!
+ * \endcode
+ *
+ * \param _CALL The function pointer
+ * \param _obj  Object pointer, which is needed to call the function pointer
+ */
+
+
 }
 
 #endif
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+
 
 
