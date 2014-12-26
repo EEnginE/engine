@@ -30,9 +30,6 @@
 #include "uLog_resources.hpp"
 #include "uMacros.hpp"
 
-#define B_SLEEP( chrono_sleep, time ) std::this_thread::sleep_for( std::chrono::chrono_sleep( time ) )
-
-
 namespace e_engine {
 
 

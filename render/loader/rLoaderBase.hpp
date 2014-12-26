@@ -1,6 +1,11 @@
+/*!
+ * \file rLoaderBase.hpp
+ */
 
 #ifndef R_LOADER_BASE_HPP
 #define R_LOADER_BASE_HPP
+
+#include "defines.hpp"
 
 #include <GL/glew.h>
 #include <vector>

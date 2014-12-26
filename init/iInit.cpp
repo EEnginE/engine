@@ -40,12 +40,8 @@ void iInit::_setThisForHandluSignal() {
    }
 }
 
-iInit::iInit() : iInitEventBasic( this ) {
-   addWindowCloseSlot( &vWindowClose_SLOT );
-   addResizeSlot( &vResize_SLOT );
-   addKeySlot( &vKey_SLOT );
-   addMouseSlot( &vMouse_SLOT );
-   addFocusSlot( &vFocus_SLOT );
+iInit::iInit() :
+   vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
 
    vMainLoopRunning_B       = false;
 
@@ -77,8 +73,6 @@ iInit::iInit() : iInitEventBasic( this ) {
  *
  * This function makes sure that when focus was lost, the mouse will
  * be ungrabbed and when focus is restored that it will be locked again.
- *
- * Use iInit::addFocusSlot( iInit::getAdvancedGrabControlSlot() );
  */
 GLvoid iInit::s_advancedGrabControl( iEventInfo const &_info ) {
    if( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
@@ -104,6 +98,25 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo const &_info ) {
       return;
    }
 }
+
+/*!
+ * \brief Enables the default grab control
+ * \returns true if grab control changed and false if not
+ * \sa iInit::s_advancedGrabControl
+ */
+bool iInit::enableDefaultGrabControl() {
+   return addFocusSlot( &vGrabControl_SLOT );
+}
+
+/*!
+ * \brief Disables the default grab control
+ * \returns true if grab control changed and false if not
+ * \sa iInit::s_advancedGrabControl
+ */
+bool iInit::disableDefaultGrabControl() {
+   return removeFocusSlot( &vGrabControl_SLOT );
+}
+
 
 
 /*!
@@ -325,12 +338,6 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
 
    vCreateWindowReturn_I = -1000;
    return 1;
-}
-
-
-void iInit::s_standardWindowClose( iEventInfo const& _info )  {
-   wLOG( "Standard WindowClose slot! Closing the window!" );
-   _info.iInitPointer->closeWindow();
 }
 
 

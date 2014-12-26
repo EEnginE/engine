@@ -6,6 +6,8 @@
 #ifndef E_RANDR_WIN32_HPP
 #define E_RANDR_WIN32_HPP
 
+#include "defines.hpp"
+
 #include "iDisplays.hpp"
 
 namespace e_engine {

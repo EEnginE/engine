@@ -6,6 +6,8 @@
 #ifndef E_RANDR_STRUCTS_HPP
 #define E_RANDR_STRUCTS_HPP
 
+#include "defines.hpp"
+
 #include <X11/extensions/Xrandr.h>
 #include <vector>
 #include <list>

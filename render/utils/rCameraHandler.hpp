@@ -5,11 +5,8 @@
 #ifndef R_CAMERA_HANDLER_HPP
 #define R_CAMERA_HANDLER_HPP
 
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES
-#endif
+#include "defines.hpp"
 
-#include <math.h>
 #include "rMatrixSceneBase.hpp"
 #include "iInit.hpp"
 #include "uSignalSlot.hpp"
@@ -164,9 +161,11 @@ void rCameraHandler<T>::updateDirectionAndUp() {
 #ifdef M_PIl
    lTempRight.x = sin( GlobConf.camera.angleHorizontal - ( T )( M_PIl / 2 ) );
    lTempRight.z = cos( GlobConf.camera.angleHorizontal - ( T )( M_PIl / 2 ) );
-#else
+#elif defined M_PI
    lTempRight.x = sin( GlobConf.camera.angleHorizontal - ( T )( M_PI / 2 ) );
    lTempRight.z = cos( GlobConf.camera.angleHorizontal - ( T )( M_PI / 2 ) );
+#else
+#error "M_PI is not defined!"
 #endif
 
    vUp = rVectorMath::crossProduct( lTempRight, vDirection );

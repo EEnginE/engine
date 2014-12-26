@@ -6,9 +6,10 @@
 #ifndef R_MATRIX_MATH_HPP
 #define R_MATRIX_MATH_HPP
 
+#include "defines.hpp"
+
 #include "rMatrix.hpp"
 #include "rVectorMath.hpp"
-#include "defines.hpp"
 
 namespace e_engine {
 

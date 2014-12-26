@@ -6,6 +6,8 @@
 #ifndef KEYBOARD_WIN
 #define KEYBOARD_WIN
 
+#include "defines.hpp"
+
 #include <windows.h>
 #include "iKeyboardBasic.hpp"
 #include "uLog.hpp"

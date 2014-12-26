@@ -6,6 +6,8 @@
 #ifndef E_RANDR_HPP
 #define E_RANDR_HPP
 
+#include "defines.hpp"
+
 #include "iRandR_structs.hpp"
 #include "iDisplays.hpp"
 

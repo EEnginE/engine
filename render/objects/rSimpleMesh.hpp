@@ -6,6 +6,8 @@
 #ifndef R_NORMAL_OBJECT_HPP
 #define R_NORMAL_OBJECT_HPP
 
+#include "defines.hpp"
+
 #include <string>
 #include "rRenderBase.hpp"
 #include "rMatrixObjectBase.hpp"

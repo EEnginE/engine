@@ -1,5 +1,11 @@
+/*!
+ * \file rMatrix.hpp
+ */
+
 #ifndef RMATRIX_H
 #define RMATRIX_H
+
+#include "defines.hpp"
 
 #include "uLog.hpp"
 #include <type_traits>

@@ -23,6 +23,8 @@
 #ifndef E_KEYSYM_TO_UNICODE_HPP
 #define E_KEYSYM_TO_UNICODE_HPP
 
+#include "defines.hpp"
+
 #include "iKeyboardBasic.hpp"
 #include <X11/XKBlib.h>
 

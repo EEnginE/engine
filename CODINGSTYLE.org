@@ -65,3 +65,14 @@ You should use something like this:
 #+END_SRC
 
 
+* Includes and etc
+
+** ALWAYS include defines.hpp and include it first
+
+You should *ALWAYS* include defines.hpp as the first header file. There are some specific
+(system) header files requiring some defines (cmath or math.h and M_PI). All this defines
+will be handled in defines.hpp.
+
+** Move all defines and macros to defines.in.hpp
+
+All defines, global enums and constants shoud be located in defines.in.hpp.

@@ -14,7 +14,7 @@ engineHPP() {
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#define _USE_MATH_DEFINES
+#include "defines.hpp"
 
 // For all display servers:
 

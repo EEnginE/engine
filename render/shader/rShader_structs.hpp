@@ -5,6 +5,8 @@
 #ifndef R_LINKER_STRUCTS_HPP
 #define R_LINKER_STRUCTS_HPP
 
+#include "defines.hpp"
+
 #include <GL/glew.h>
 #include <string>
 #include <vector>

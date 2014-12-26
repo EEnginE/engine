@@ -6,6 +6,8 @@
 #ifndef RRENDERNORMAL_3_3_HPP
 #define RRENDERNORMAL_3_3_HPP
 
+#include "defines.hpp"
+
 #include <GL/glew.h>
 #include "rRenderBase.hpp"
 #include "rObjectBase.hpp"

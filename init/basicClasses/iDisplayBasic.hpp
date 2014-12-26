@@ -6,6 +6,8 @@
 #ifndef DISPLAYS_BASIC_HPP
 #define DISPLAYS_BASIC_HPP
 
+#include "defines.hpp"
+
 #include <vector>
 #include <string>
 
