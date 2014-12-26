@@ -58,6 +58,14 @@
 #endif
 
 
+// Enable math defines
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+
+#include <cmath>
+
+
 namespace e_engine {
 
 
@@ -94,10 +102,18 @@ enum ACTION {
 
 }
 
-// Useful constants
-#define E_VAR_PI 3.14159265358979323846
+// Some useful macros
 
-#define DEG_TO_RAD( _x ) _x * ( E_VAR_PI / 180.0 )
+#ifdef M_PIl
+#   define DEG_TO_RAD( _x ) _x * ( M_PIl / 180.0 )
+#elif defined M_PI
+#   define DEG_TO_RAD( _x ) _x * ( M_PI / 180.0 )
+#else
+#   error "PI is not defined! Make sure to include defines.hpp or engine.hpp first"
+#endif
+
+#define B_SLEEP( chrono_sleep, time ) std::this_thread::sleep_for( std::chrono::chrono_sleep( time ) )
+
 
 //Global
 #define E_UNKNOWN      -1

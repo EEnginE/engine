@@ -5,6 +5,8 @@
 #ifndef R_OBJECT_BASE_HPP
 #define R_OBJECT_BASE_HPP
 
+#include "defines.hpp"
+
 #include <string>
 #include <GL/glew.h>
 #include "rLoaderBase.hpp"

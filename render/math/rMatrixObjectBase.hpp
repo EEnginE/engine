@@ -6,6 +6,8 @@
 #ifndef R_MATRIX_OBJECT_BASE_HPP
 #define R_MATRIX_OBJECT_BASE_HPP
 
+#include "defines.hpp"
+
 #include "rMatrixMath.hpp"
 #include "rMatrixSceneBase.hpp"
 

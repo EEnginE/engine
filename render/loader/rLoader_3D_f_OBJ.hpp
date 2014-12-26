@@ -6,6 +6,8 @@
 #ifndef R_LOADER_3D_F_OBJ_H
 #define R_LOADER_3D_F_OBJ_H
 
+#include "defines.hpp"
+
 #include "rLoaderBase.hpp"
 #include <string>
 #include <vector>

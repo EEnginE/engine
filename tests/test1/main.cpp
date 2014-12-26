@@ -31,7 +31,7 @@ int main( int argc, char *argv[] ) {
 
    if ( start.init() == 1 ) {
       myWorld handler( cmd, &start );
-      start.addFocusSlot( start.getAdvancedGrabControlSlot() );
+      start.enableDefaultGrabControl();
 
       if ( handler.initGL() == 0 )
          start.startMainLoop();

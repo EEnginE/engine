@@ -5,6 +5,8 @@
 #ifndef R_SIMPLE_LIGHT_SOURCE_HPP
 #define R_SIMPLE_LIGHT_SOURCE_HPP
 
+#include "defines.hpp"
+
 #include "rObjectBase.hpp"
 #include "rMatrixObjectBase.hpp"
 

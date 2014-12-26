@@ -15,7 +15,7 @@ class cmdANDinit {
       vector<string> args;
       string         argv0;
       string         dataRoot;
-      
+
       vector<string> outputFiles;
 
       bool           vCanUseColor;

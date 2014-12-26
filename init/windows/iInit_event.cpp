@@ -146,7 +146,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.eResize.height = GlobConf.win.height = _lParam >> 16; // Get the high order word as a height
          _tempInfo.eResize.posX   = GlobConf.win.posX;
          _tempInfo.eResize.posY   = GlobConf.win.posY;
-         vResize_SIG.sendSignal( _tempInfo );
+         vResize_SIG.send( _tempInfo );
          return 0;
 
       case WM_MOVE:
@@ -155,7 +155,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.eResize.posY   = GlobConf.win.posY = _lParam >> 16; // Get the high order word as the y-Position
          _tempInfo.eResize.width  = GlobConf.win.width;
          _tempInfo.eResize.height = GlobConf.win.height;
-         vResize_SIG.sendSignal( _tempInfo );
+         vResize_SIG.send( _tempInfo );
          return 0;
 
       case WM_MOUSEMOVE: //Mouse moved, see http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
@@ -167,23 +167,23 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
 
          //!\todo Check if the coords are right, see the article above
 
-         vMouse_SIG.sendSignal( _tempInfo );
+         vMouse_SIG.send( _tempInfo );
          return 0;
 
       case WM_CLOSE:
          _tempInfo.type = E_EVENT_WINDOWCLOSE;
-         vWindowClose_SIG.sendSignal( _tempInfo );
+         vWindowClose_SIG.send( _tempInfo );
          return 0;
 
       case WM_SETFOCUS:
          _tempInfo.type            = E_EVENT_FOCUS;
          _tempInfo.eFocus.hasFocus = GlobConf.win.windowHasFocus = true;
-         vFocus_SIG.sendSignal( _tempInfo );
+         vFocus_SIG.send( _tempInfo );
          return 0;
       case WM_KILLFOCUS:
          _tempInfo.type            = E_EVENT_FOCUS;
          _tempInfo.eFocus.hasFocus = GlobConf.win.windowHasFocus = false;
-         vFocus_SIG.sendSignal( _tempInfo );
+         vFocus_SIG.send( _tempInfo );
          return 0;
 
 
@@ -195,7 +195,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = key_state;
          _tempInfo.iMouse.button = E_MOUSE_LEFT;
-         vMouse_SIG.sendSignal( _tempInfo );
+         vMouse_SIG.send( _tempInfo );
          return 0;
 
       case WM_MBUTTONUP:
@@ -206,7 +206,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = key_state;
          _tempInfo.iMouse.button = E_MOUSE_MIDDLE;
-         vMouse_SIG.sendSignal( _tempInfo );
+         vMouse_SIG.send( _tempInfo );
          return 0;
 
       case WM_RBUTTONUP:
@@ -217,7 +217,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state  = key_state;
          _tempInfo.iMouse.button = E_MOUSE_RIGHT;
-         vMouse_SIG.sendSignal( _tempInfo );
+         vMouse_SIG.send( _tempInfo );
          return 0;
 
       case WM_XBUTTONUP:
@@ -239,7 +239,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
                _tempInfo.iMouse.button = E_MOUSE_UNKNOWN;
                break;
          }
-         vMouse_SIG.sendSignal( _tempInfo );
+         vMouse_SIG.send( _tempInfo );
          return 0;
 
       case WM_MOUSEWHEEL:
@@ -253,7 +253,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          else
             _tempInfo.iMouse.button = E_MOUSE_WHEEL_DOWN;
 
-         vMouse_SIG.sendSignal( _tempInfo );
+         vMouse_SIG.send( _tempInfo );
          return 0;
       case WM_SYSCHAR:
       case WM_CHAR:
@@ -267,7 +267,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
             _tempInfo.type       = E_EVENT_KEY;
             _tempInfo.eKey.state = E_PRESSED;
             _tempInfo.eKey.key   = _wParam;
-            vKey_SIG.sendSignal( _tempInfo );
+            vKey_SIG.send( _tempInfo );
          }
          return 0;
       case WM_UNICHAR: //Gives other programs the information that Unicode is supported by this
@@ -282,7 +282,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lP
          _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
 
          if( _tempInfo.eKey.key != 0 )  // Dont send the signal if a character was found
-            vKey_SIG.sendSignal( _tempInfo );
+            vKey_SIG.send( _tempInfo );
 
          //MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR)
          //The above returns 0 when a function key is pressed, may be useful

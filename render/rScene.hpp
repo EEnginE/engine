@@ -5,6 +5,8 @@
 #ifndef R_SCENE_HPP
 #define R_SCENE_HPP
 
+#include "defines.hpp"
+
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
 #include "rRenderBase.hpp"

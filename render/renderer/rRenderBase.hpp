@@ -6,9 +6,10 @@
 #ifndef R_RENDER_NORMAL_OBJ_BASE_HPP
 #define R_RENDER_NORMAL_OBJ_BASE_HPP
 
+#include "defines.hpp"
+
 #include "rShader.hpp"
 #include "rObjectBase.hpp"
-#include "defines.hpp"
 
 #if E_DEBUG_LOGGING
 #include <sstream>

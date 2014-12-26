@@ -5,6 +5,8 @@
 #ifndef R_AMBIENT_LIGHT_HPP
 #define R_AMBIENT_LIGHT_HPP
 
+#include "defines.hpp"
+
 #include "rObjectBase.hpp"
 #include "rMatrixMath.hpp"
 

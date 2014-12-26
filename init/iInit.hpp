@@ -31,9 +31,13 @@
 #include <GL/glxew.h>
 #include "x11/iContext.hpp"
 #include "iMouse.hpp"
+#include "iInitSignals.hpp"
 
 #elif WINDOWS
 #include "windows/iContext.hpp"
+
+#else
+#error "PLATFORM not supported"
 #endif
 
 #include "uLog.hpp"
@@ -61,10 +65,15 @@ typedef GLvoid( *RENDER_FUNC )( iEventInfo info );
  * \sa iContext uConfig e_iInit.cpp e_event.cpp
  */
 #if UNIX_X11
-class iInit : public unix_x11::iContext, public iInitEventBasic, public iMouse {
+class iInit : public unix_x11::iContext, public iInitSignals, public iMouse {
 #elif WINDOWS
-class iInit : public windows_win32::iContext, public iInitEventBasic {
+class iInit : public windows_win32::iContext {
+#else
+#error "PLATFORM not supported"
 #endif
+   public:
+      SLOT   vGrabControl_SLOT;   //!< Slot for grab control \sa iInit::s_advancedGrabControl
+
    private:
       bool        vMainLoopRunning_B;   //!< Should the main loop be running?
 
@@ -126,23 +135,6 @@ class iInit : public windows_win32::iContext, public iInitEventBasic {
          _info.iInitPointer->swapBuffers();
       }
 
-      //! The standard Resize function
-      GLvoid s_standardResize( iEventInfo const &_info ) {}
-
-      //! The standard Window close function
-      GLvoid s_standardWindowClose( iEventInfo const &_info );
-
-      //! The standard Key function
-      GLvoid s_standardKey( iEventInfo const &_info ) {}
-
-      //! The standard Mouse function
-      GLvoid s_standardMouse( iEventInfo const &_info ) {}
-
-      //! The standard Focus function
-      GLvoid s_standardFocus( iEventInfo const &_info ) {
-         iLOG( "Focus ", _info.eFocus.hasFocus ? "got" : "lost" );
-      }
-
       GLvoid s_advancedGrabControl( iEventInfo const &_info );
 
       virtual void makeEInitEventBasicAbstract() {}
@@ -163,6 +155,9 @@ class iInit : public windows_win32::iContext, public iInitEventBasic {
       void   restart( bool _runInNewThread = false );
       void   restartIfNeeded( bool _runInNewThread = false );
 
+      bool   enableDefaultGrabControl();
+      bool   disableDefaultGrabControl();
+
       /*!
        * \brief Quit the main loop and close the window
        * \param waitUntilClosed Wait until window is closed  \c DEFAULT: \b false
@@ -179,8 +174,6 @@ class iInit : public windows_win32::iContext, public iInitEventBasic {
 
          vAreRenderLoopSignalsConnected_B = true;
       }
-
-      friend class iInitEventBasic; // Garant access to slot functions
 };
 
 //    #########################

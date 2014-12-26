@@ -2,6 +2,8 @@
  * \file rFrameCounter.hpp
  */
 
+#include "defines.hpp"
+
 #include "uLog.hpp"
 #include "rWorld.hpp"
 

@@ -12,9 +12,11 @@
 #define CONTEXT_HPP
 
 #include "defines.hpp"
-#include "iInitEventBasic.hpp"
+
+#include "iEventInfo.hpp"
 #include "iKeyboard.hpp"
 #include "iRandR.hpp"
+#include "iInitSignals.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -24,7 +26,7 @@ namespace e_engine {
 namespace windows_win32 {
 
 
-class iContext : public iInitEventBasic, public iKeyboard, public iRandR {
+class iContext : public iKeyboard, public iRandR, public iInitSignals {
    private:
       PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
       HINSTANCE             vInstance_win32;

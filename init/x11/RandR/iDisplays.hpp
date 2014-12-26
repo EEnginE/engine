@@ -6,6 +6,8 @@
 #ifndef E_RANDR_DISPLAY_HPP
 #define E_RANDR_DISPLAY_HPP
 
+#include "defines.hpp"
+
 #include <X11/extensions/Xrandr.h>
 #include "iDisplayBasic.hpp"
 

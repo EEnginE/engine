@@ -28,10 +28,9 @@
 #ifndef E_CONTEXT_HPP
 #define E_CONTEXT_HPP
 
+#include "defines.hpp"
 
 #include "iRandR.hpp"
-#include "defines.hpp"
-#include "iInitEventBasic.hpp"
 #include "iKeyboard.hpp"
 #include <GL/glew.h>
 // WARNING Can not include <glxew.h> because it would overwrite all <glx.h> macros

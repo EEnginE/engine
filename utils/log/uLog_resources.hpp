@@ -6,6 +6,8 @@
 #ifndef E_LOG_STRUCTS_HPP
 #define E_LOG_STRUCTS_HPP
 
+#include "defines.hpp"
+
 #include <boost/variant.hpp>
 #include <thread>
 #include <condition_variable>

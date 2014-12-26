@@ -5,6 +5,8 @@
 #ifndef R_RENDER_BASIC_LIGHT_3_3_HPP
 #define R_RENDER_BASIC_LIGHT_3_3_HPP
 
+#include "defines.hpp"
+
 #include <GL/glew.h>
 #include "rRenderBase.hpp"
 #include "rObjectBase.hpp"

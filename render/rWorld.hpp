@@ -6,6 +6,8 @@
 #ifndef R_WORLD_H
 #define R_WORLD_H
 
+#include "defines.hpp"
+
 #include "uSignalSlot.hpp"
 #include "iInit.hpp"
 

@@ -25,6 +25,8 @@
 #ifndef LINKER_HPP
 #define LINKER_HPP
 
+#include "defines.hpp"
+
 #include <vector>
 #include <string>
 #include "rShader_structs.hpp"

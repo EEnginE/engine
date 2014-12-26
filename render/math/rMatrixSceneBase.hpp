@@ -6,6 +6,8 @@
 #ifndef R_MATRIX_WORLD_BASE_HPP
 #define R_MATRIX_WORLD_BASE_HPP
 
+#include "defines.hpp"
+
 #include "rMatrixMath.hpp"
 
 namespace e_engine {
