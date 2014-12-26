@@ -5,6 +5,7 @@
 
 #include "iRandR.hpp"
 #include "uLog.hpp"
+#include <strings.h>
 
 namespace e_engine {
 
