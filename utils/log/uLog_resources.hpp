@@ -8,22 +8,12 @@
 
 #include "defines.hpp"
 
-#include <boost/variant.hpp>
 #include <thread>
 #include <condition_variable>
-#include <type_traits>
+#include <tuple>
 #include "uSignalSlot.hpp"
+#include "uLog_converters.hpp"
 #include "uConfig.hpp"  // Only for internal::LOG_COLOR_TYPE and internal::LOG_PRINT_TYPE
-
-#ifdef _MSC_VER
-#  ifndef LOG_FALLBACK
-#     define LOG_FALLBACK
-#  endif
-#endif
-
-#ifndef LOG_FALLBACK
-#include <boost/variant.hpp>
-#endif
 
 
 namespace e_engine {
@@ -33,7 +23,6 @@ class uLogEntryRaw;
 namespace internal {
 
 enum LOG_OBJECT_TYPE { STRING, NEW_LINE, NEW_POINT };
-
 
 
 /*!
@@ -71,55 +60,52 @@ class uLogType {
       //void send( uLogEntryStruct _data )   { vSignal_eSIG( _data ); }
 };
 
-#ifndef LOG_FALLBACK
+template<class __A, class... __T>
+struct uConverter {
+   static void convert( std::wstring &_str, __A&&_toConvert, __T&&... _rest ) {
+      uLogConverter<__A>::convert( _str, std::forward<__A>( _toConvert ) );
+      uConverter<__T...>::convert( _str, std::forward<__T>( _rest )... );
+   }
+};
+
+template<class __A>
+struct uConverter<__A> {
+   static void convert( std::wstring &_str, __A&& _toConvert ) {
+      uLogConverter<__A>::convert( _str, std::forward<__A>( _toConvert ) );
+   }
+};
+
+
 /*!
  * \brief Contains raw data for a log entry
  *
  * Stores the raw input data with boost::variant and uses some
  * template metaprogramming.
  */
-struct uLogPartData {
-   typedef boost::variant<bool, wchar_t, uint8_t, uint16_t, uint32_t, uint64_t, std::string, std::wstring, double, const char *, const wchar_t *> B_VAR;
-
-   bool vIsSigned_B;
-   B_VAR vData;
-
-   template<class T>
-   inline typename std::enable_if < std::is_signed<T>::value && !std::is_floating_point<T>::value, void >::type
-   __INRERNAL__( T &_what, B_VAR &_data ) {
-      _data = ( typename std::make_unsigned<T>::type )_what;
-   }
-
-   template<class T>
-   inline typename std::enable_if < !std::is_signed<T>::value && !std::is_floating_point<T>::value, void >::type
-   __INRERNAL__( T &_what, B_VAR &_data ) {
-      _data = _what;
-   }
-
-   template<class T>
-   inline typename std::enable_if <std::is_floating_point<T>::value, void >::type
-   __INRERNAL__( T &_what, B_VAR &_data ) {
-      _data = ( double )_what;
-   }
-
-   template<class T>
-   uLogPartData( T &_what ) : vIsSigned_B( std::is_signed<T>::value ) {__INRERNAL__( _what, vData );}
-
-   template<class T>
-   uLogPartData( T && _what ) : vIsSigned_B( std::is_signed<T>::value ) {__INRERNAL__( _what, vData );}
-
-   uLogPartData() : vIsSigned_B( false ), vData( false ) {}
-
-   // Only for Windows (mingw) WHY!?!?!
-   uLogPartData( uLogPartData &_what ) : vIsSigned_B( _what.vIsSigned_B ), vData( _what.vData ) {}
-
-   template<class T>
-   uLogPartData( const T *_str ) : vIsSigned_B( false ), vData( _str ) {}
-
+struct uLogRawData {
+   virtual std::wstring get() = 0;
+   virtual ~uLogRawData() {}
 };
 
-#endif
+template<class... T>
+struct uLogRawDataT : uLogRawData {
+   std::tuple < T... > vData;
 
+   uLogRawDataT( T&&... _d ) : vData( std::forward<T>(_d)... ) {}
+
+   template<int... sequenze>
+   void get( std::wstring &_str, templates::intSequenze<sequenze...> ) {
+      uConverter<T...>::convert( _str, std::forward<T>( std::get<sequenze>( vData ) )... );
+   }
+
+   std::wstring get() {
+      std::wstring lTempStr;
+      get( lTempStr, templates::makeIntSequenze<sizeof...(T)>{} );
+      return lTempStr;
+   }
+
+   virtual ~uLogRawDataT() {}
+};
 }
 
 class uLog;
@@ -174,36 +160,26 @@ class uLogEntryRaw {
       } data;
 
    private:
-      bool                                vComplete_B;
-      std::vector<internal::uLogPartData> vElements;
-      char                                vType_C;
+      bool                    vComplete_B;
+      internal::uLogRawData  *vElements = nullptr;
+      char                    vType_C;
 
-      std::condition_variable             vWaitUntilThisIsPrinted_BT;
-      std::mutex                          vWaitMutex_BT;
-      bool                                vIsPrinted_B;
+      std::condition_variable vWaitUntilThisIsPrinted_BT;
+      std::mutex              vWaitMutex_BT;
+      bool                    vIsPrinted_B;
 
-      std::condition_variable             vWaitUntilEndFinisched_BT;
-      std::mutex                          vWaitEndMutex_BT;
-      bool                                vEndFinished_B;
+      std::condition_variable vWaitUntilEndFinisched_BT;
+      std::mutex              vWaitEndMutex_BT;
+      bool                    vEndFinished_B;
 
-      template<class T, class... ARGS>
-      void add( T && _what, ARGS && ... _args ) {
-         vElements.emplace_back( _what );
-         add( std::forward<ARGS>( _args )... );
-      }
-
-      template<class T, class... ARGS>
-      void add( T && _what ) {
-         vElements.emplace_back( _what );
-         vComplete_B = true;
-      }
+      const unsigned int      vSize;
 
       void end();
       void endLogWaitAndSetPrinted();
 
    public:
       template<class... ARGS>
-      uLogEntryRaw( char _type, bool _onlyText, std::string _rawFilename, int _logLine, std::string _functionName, ARGS && ... _args ) :
+      uLogEntryRaw( char _type, bool _onlyText, std::string _rawFilename, int _logLine, std::string _functionName, ARGS&&... _args ) :
          data(
                std::wstring( _rawFilename.begin(), _rawFilename.end() ),
                _logLine,
@@ -213,14 +189,20 @@ class uLogEntryRaw {
          vComplete_B( false ),
          vType_C( _type ),
          vIsPrinted_B( false ),
-         vEndFinished_B( false ) {
+         vEndFinished_B( false ),
+         vSize( sizeof...( ARGS ) ) {
 
-         add( std::forward<ARGS>( _args )... );
+         vElements = new internal::uLogRawDataT<ARGS...>( std::forward<ARGS>(_args)... );
+         vComplete_B = true;
       }
+
+      uLogEntryRaw() = delete;
+
+      ~uLogEntryRaw();
 
       inline bool   getIsComplete()   const   { return vComplete_B; }
       inline bool   getIsPrinted()    const   { return vIsPrinted_B; }
-      inline size_t getElementsSize() const   { return vElements.size(); }
+      inline size_t getElementsSize() const   { return vSize; }
       unsigned int  getLogEntry( std::vector< e_engine::internal::uLogType > &_vLogTypes_V_eLT );
 
       void          defaultEntryGenerator();

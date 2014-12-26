@@ -75,13 +75,7 @@ $ make install
      Build the engine ...
        - 0: static
        - 1: shared - default
-     
-   -DLOG_FALLBACK=<0/1>
 
-     Compile fallback to avoid compile errors ...
-       - 0: disabled - default
-       - 1: enabled
-   
    -DEXTRA_CXX_FLAGS=<Extra CXX compiler options>
 
 

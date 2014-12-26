@@ -157,14 +157,14 @@ class uLog {
 
 
       template<class... ARGS>
-      inline void operator()( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS && ... _data ) {
+      inline void operator()( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS ... _data ) {
          std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
          vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<ARGS>( _data )... );
          vLogEntries.back().end();
       }
 
       template<class... ARGS>
-      inline void addLogEntry( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS && ... _data ) {
+      inline void addLogEntry( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS ... _data ) {
          std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
          vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<ARGS>( _data )... );
          vLogEntries.back().end();
