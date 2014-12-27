@@ -157,6 +157,8 @@ rm_save() {
 clean() {
     echo "INFO: Cleaning"
 
+    local I
+
     for (( I = 0; I < ${#LIBS[@]}; ++I )); do
         rm_save ${LIBS[$I]}/CMakeLists.txt
     done
@@ -167,7 +169,20 @@ clean() {
     rm_save defines.hpp
     rm_save Doxyfile
 
-    local TEMP=$( ls -d tests/*/ )
+    local TEMP
+
+    TEMP=$( ls -d ${COMPILER_TESTS_DIR}/*/ )
+
+    for I in $TEMP; do
+       rm_save $I/CMakeLists.txt
+       if [ -f $I/.gitignore ]; then
+          for J in $( cat $I/.gitignore ); do
+             rm_save "$I/$J"
+          done
+       fi
+    done
+
+    TEMP=$( ls -d ${TESTS_DIR}/*/ )
 
     for I in $TEMP; do
        rm_save $I/CMakeLists.txt
