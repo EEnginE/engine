@@ -13,11 +13,13 @@ rootCMake() {
 # !!! DO NOT EDIT !!!
 #
 
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION ${CMAKE_VERSION})
 
 project(${PROJECT_NAME})
 
 EOF
+
+    cat $(pwd)/generate/CMakeLists.txt.pre
 
     cat <<EOF
 
@@ -58,7 +60,7 @@ EOF
     local IF_STRING=""
 
     for i in "${DS_AND_OS[@]}"; do
-	IF_STRING="$IF_STRING NOT DISPLAY_SERVER MATCHES ${i} AND"
+        IF_STRING="$IF_STRING NOT DISPLAY_SERVER MATCHES ${i} AND"
     done
 
     IF_STRING="$(echo -n "$IF_STRING" | sed 's/AND$//g' )"
@@ -72,7 +74,7 @@ endif( $IF_STRING )
 EOF
 
     for i in "${DS_AND_OS[@]}"; do
-	cat <<EOF
+        cat <<EOF
 # ${i}:
 set( CM_${i} 0 )
 
@@ -82,11 +84,13 @@ endif( DISPLAY_SERVER MATCHES ${i} )
 
 
 EOF
-	echo "INFO:   -- Possible Display Server: ${i}" >&2
+        echo "INFO:   -- Possible Display Server: ${i}" >&2
     done
 
 
-    cat $(pwd)/generate/CMakeLists.txt.pre
+    cat $(pwd)/generate/CMakeLists.txt.flags
+    cat $(pwd)/generate/CMakeLists.txt.dep
+    cat $(pwd)/generate/CMakeLists.txt.git
 
 
     cat <<EOF
@@ -107,38 +111,69 @@ EOF
     local TEMP_A=()
 
     echo "-I$(pwd)" > $CLANG_COMPLETE
-    
-    for i in "${DISPLAY_SERVER[@]}"; do
-	eval "TEMP_SIZE=\${#${i^^}_DIRS[@]}"
 
-	if (( TEMP_SIZE != 0 )); then
-	    echo "# ${i} dirs:"
-	    echo "if( DISPLAY_SERVER MATCHES ${i^^} )"
-	    echo ""
-	    echo "include_directories("
-	    eval "TEMP_A=( \${${i^^}_DIRS[@]} )"
-	    for I in "${TEMP_A[@]}"; do
-		echo "  $I"
-		echo "-I$(pwd)/${I}" >> $CLANG_COMPLETE
-	    done
-	    echo ")"
-	    echo ""
-	    echo "endif( DISPLAY_SERVER MATCHES ${i^^} )"
-	    echo ""
-	    echo ""
-	fi
+    for i in "${DISPLAY_SERVER[@]}"; do
+        eval "TEMP_SIZE=\${#${i^^}_DIRS[@]}"
+
+        if (( TEMP_SIZE != 0 )); then
+            echo "# ${i} dirs:"
+            echo "if( DISPLAY_SERVER MATCHES ${i^^} )"
+            echo ""
+            echo "include_directories("
+            eval "TEMP_A=( \${${i^^}_DIRS[@]} )"
+            for I in "${TEMP_A[@]}"; do
+                echo "  $I"
+                echo "-I$(pwd)/${I}" >> $CLANG_COMPLETE
+            done
+            echo ")"
+            echo ""
+            echo "endif( DISPLAY_SERVER MATCHES ${i^^} )"
+            echo ""
+            echo ""
+        fi
 
     done
-    
+
     echo ""
     echo "# All Display_Servers"
     echo "include_directories("
     for I in "${ALL_DIRS[@]}"; do
-	echo "  $I"
-	echo "-I$(pwd)/${I}" >> $CLANG_COMPLETE
+        echo "  $I"
+        echo "-I$(pwd)/${I}" >> $CLANG_COMPLETE
     done
     echo ")"
 
+    cat <<EOF
+
+
+
+########################################################################################
+############################################################################################################################
+#####                 ###############################################################################################################
+###  Test the compiler  ################################################################################################################
+#####                 ###############################################################################################################
+############################################################################################################################
+########################################################################################
+EOF
+
+    if (( COMPILER_TESTS == 1 )); then
+        local TEST_TO_DO
+        for i in "${C_TESTS[@]}"; do
+            TEST_TO_DO=${i^^}
+            cat << EOF
+
+
+try_compile( ${TEST_TO_DO}_RET \${PROJECT_BINARY_DIR}/bin/compilerTests $(pwd)/$COMPILER_TESTS_DIR/$i $i OUTPUT_VARIABLE ${TEST_TO_DO}_OUTPUT )
+
+if( ${TEST_TO_DO}_RET )
+    message( STATUS "Compiler test '${i}' passed" )
+else( ${TEST_TO_DO}_RET )
+    message( SEND_ERROR "Compiler test '${i}' failed \n\n \${${TEST_TO_DO}_OUTPUT}" )
+endif( ${TEST_TO_DO}_RET )
+
+EOF
+        done
+    fi
 
     cat <<EOF
 
@@ -156,16 +191,16 @@ EOF
 EOF
 
     for i in "${LIBS[@]}"; do
-	echo "add_subdirectory( $i )"
+        echo "add_subdirectory( $i )"
     done
 
     if (( DO_TESTS == 1 )); then
-	echo ""
-	for i in "${TESTS[@]}"; do
-	    echo "add_subdirectory( $TESTS_DIR/$i )"
-	done
+        echo ""
+        for i in "${TESTS[@]}"; do
+            echo "add_subdirectory( $TESTS_DIR/$i )"
+        done
     fi
-    
+
     echo "INFO: Generating file $OUT_INSTALL_TOOLS for tools to install..." >&2
 
 cat << EOF
@@ -194,3 +229,4 @@ EOF
 
 }
 
+# kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

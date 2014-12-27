@@ -1,19 +1,23 @@
 #!/bin/bash
 
+compilerTests() {
+    # generate tests?
+    if (( COMPILER_TESTS != 1 )); then
+        return
+    fi
 
-tests() {
-    local I i
+    local I i PRE_GEN POST_GEN
 
-    for (( i = 0; i < ${#TESTS[@]}; ++i )); do
-        I=$( echo "$TESTS_DIR/${TESTS[$i]}" | sed 's/\/$//g' )
+    for (( i = 0; i < ${#C_TESTS[@]}; ++i )); do
+        local I=$( echo "$COMPILER_TESTS_DIR/${C_TESTS[$i]}" | sed 's/\/$//g' )
 
         if [ ! -d $I ]; then
-            echo "ERROR: $I is not a directory!"
+            echo "ERROR: $I is not a directory! (Compiler tests)"
             continue
         fi
 
-        local TEST_NAME="${TESTS[$i]}"
-        echo "INFO: Found test module $TEST_NAME"
+        local TEST_NAME="${C_TESTS[$i]}"
+        echo "INFO: Found compiler test module $TEST_NAME"
 
         PRE_GEN="$(pwd)/${I}/generate.pre.sh"
         POST_GEN="$(pwd)/${I}/generate.post.sh"
@@ -31,12 +35,23 @@ tests() {
 
         local CMAKE_FILE="$(pwd)/${I}/$CMAKE_LISTS_NAME"
         echo "INFO:    -- Generating CMakeLists.txt"
+
+        TEST_NAME=${TEST_NAME}
+
         cat > $CMAKE_FILE << EOF
 # Automatically generated file; DO NOT EDIT
 
-project( $TEST_NAME )
+cmake_minimum_required(VERSION ${CMAKE_VERSION})
+
+project( ${TEST_NAME} )
+
+set( CMAKE_MODULE_PATH \${CMAKE_MODULE_PATH} $(pwd)/generate/cmake )
+set( CMAKE_BUILD_TYPE DEBUG )
 
 EOF
+
+        cat $(pwd)/generate/CMakeLists.txt.flags >> $CMAKE_FILE
+
         local CUSTOM_FILE="$(pwd)/$I/$CMAKE_CUSTOM_FILE"
 
         if [ -f $CUSTOM_FILE ]; then
@@ -58,40 +73,7 @@ endif( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/config.in.hpp )
 
 add_executable( $TEST_NAME \${${TEST_NAME^^}_SRC} \${${TEST_NAME^^}_INC} )
 
-target_link_libraries(
- $TEST_NAME
-
- ${ENGINE_LIBS}
- \${ENGINE_LINK}
-)
-
-if(CMAKE_CXX_COMPILER_ID MATCHES MSVC) 
-set_target_properties(
- $TEST_NAME
- PROPERTIES
-  INSTALL_RPATH \${CMAKE_INSTALL_PREFIX}/lib
-  INSTALL_RPATH_USE_LINK_PATH TRUE
- LINK_FLAGS	  "/LIBPATH:\${Boost_LIBRARY_DIRS} /FORCE:MULTIPLE"
-  )
-else()
-set_target_properties(
- $TEST_NAME
- PROPERTIES
-  INSTALL_RPATH \${CMAKE_INSTALL_PREFIX}/lib
-  INSTALL_RPATH_USE_LINK_PATH TRUE
-)
-endif(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-
-
-install( TARGETS $TEST_NAME RUNTIME DESTINATION \${CMAKE_INSTALL_PREFIX}/bin )
-
-if( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/data AND IS_DIRECTORY \${CMAKE_CURRENT_SOURCE_DIR}/data )
-   install( DIRECTORY \${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION \${CMAKE_INSTALL_PREFIX}/share/engineTests/$TEST_NAME )
-endif( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/data AND IS_DIRECTORY \${CMAKE_CURRENT_SOURCE_DIR}/data )
-
 EOF
-
-
         if [ -f $POST_GEN ]; then
             if [ ! -x $POST_GEN ]; then
                 chmod +x $POST_GEN
@@ -103,7 +85,6 @@ EOF
             cd $CURRENT_TEMP_PATH
         fi
     done
-
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;
