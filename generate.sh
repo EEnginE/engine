@@ -7,37 +7,11 @@ ARGV=$*
 #### BEGIN Config Part ####
 ###########################
 
-PROJECT_NAME=engine
-
-INCLUDE_FILE="engine.hpp"
-
-CMAKE_LISTS_NAME="CMakeLists.txt"
-
 CONFIG_FILE="generate.cfg"
-CLANG_COMPLETE=".clang"
-
-LIBS=()
-LIBS_DEP=()
-
-TESTS_DIR="tests"
-TESTS=()
-
-OS=()
-
-
-TOOLS_DIRECTORY="tools"
-
-DISPLAY_SERVER=()
-
-## Log macro config ##
-LOG_MACRO_PATH="utils/log/uMacros.hpp"
-LOG_TYPES="d i w e"
-LOG_GEN_UNDEF=1
 
 ###########################
 ####  END Config Part  ####
 ###########################
-
 
 STARTDIR="$PWD"
 
@@ -59,91 +33,107 @@ fi
 
 parseCFG() {
     if [ ! -f "$CONFIG_FILE" ]; then
-	echo "ERROR: Cannot find libs file $CONFIG_FILE"
-	exit 2
+        echo "ERROR: Cannot find config file $CONFIG_FILE"
+        exit 2
     fi
 
     echo "INFO: Parsing Config file $CONFIG_FILE"
 
     local LINE
     while read LINE; do
-	LINE="$(echo "$LINE" | sed 's/#.*//g')"   # Remove comments
-	LINE="$(echo "$LINE" | sed 's/[ ]*$//g')" # Remove ' ' at the end of line
-	
-	if [ -z "$LINE" ]; then
-	    continue
-	fi
+        LINE="$(echo "$LINE" | sed 's/#.*//g')"   # Remove comments
+        LINE="$(echo "$LINE" | sed 's/[ ]*$//g')" # Remove ' ' at the end of line
 
-	local TEMP="$(echo "$LINE" | sed 's/^[a-zA-Z 0-9_\.]*:[ ]*//g' )"
-	
-	case "$(echo "$LINE" | sed 's/:[a-zA-Z 0-9_;\.\/]*$//g' )" in
-	    CM)
-		echo "INFO:   -- Name of CMake files to generate: '$TEMP'"
-		CMAKE_LISTS_NAME="$TEMP"
-		;;
-	    CLA)
-		echo "INFO:   -- Name of the clang autocomplete file: '$TEMP'"
-		CLANG_COMPLETE="$TEMP"
-		;;
-	    PRO)
-		echo "INFO:   -- Project Name: $TEMP"
-		PROJECT_NAME=$TEMP
-		;;
-	    P)
-		echo "INFO:   -- Added target platform: $TEMP"
-		DISPLAY_SERVER+=( "$TEMP" )
-		;;
-	    OS)
-		local T_OS=$(echo $TEMP | sed 's/;[a-zA-Z 0-9_\/\.]*$//g' )
-		local T_DS=$(echo $TEMP | sed 's/^[a-zA-Z 0-9_\/\.]*;//g' )
-		echo "INFO:   -- Added Operating System $T_OS"
-		OS+=( $T_OS )
-		eval "DS_${T_OS}=( $T_DS )"
-		;;
-	    L)
-		local T_LIB_NAME="$(echo "$TEMP" | sed 's/;[a-z A-Z 0-9]*$//g')"
-		local T_LIB_DEP="$(echo "$TEMP"  | sed 's/^[a-zA-Z0-g]*;[ ]*//g')"
-		echo "INFO:   -- Added lib: $T_LIB_NAME [$T_LIB_DEP]"
-		LIBS+=( "$T_LIB_NAME" )
-		LIBS_DEP+=( "$T_LIB_DEP" )
-		;;
-	    T)
-		echo "INFO:   -- Added Test: $TEMP"
-		TESTS+=( "$TEMP" )
-		;;
-	    E_INC)
-		echo "INFO:   -- Main engine include file: '$TEMP'"
-		INCLUDE_FILE="$TEMP"
-		;;
-	    T_DIR)
-		echo "INFO:   -- Tests dir: '$TEMP'"
-		TESTS_DIR="$TEMP"
-		;;
-	    TOOLS_D)
-		echo "INFO:   -- Tools dir: '$TEMP'"
-		TOOLS_DIRECTORY="$TEMP"
-		;;
-	    LOG_PATH)
-		echo "INFO:   -- Log macros file: '$TEMP'"
-		LOG_MACRO_PATH="$TEMP"
-		;;
-	    LOG_UNDEF)
-		echo "INFO:   -- Create undefs for log macros: $TEMP (1 -- true; 0 -- false)"
-		LOG_GEN_UNDEF=$TEMP
-		;;
-	    LOG)
-		echo "INFO:   -- Log types: $TEMP"
-		LOG_TYPES="$TEMP"
-		;;
-	    *)
-		echo "ERROR: Unknown option"
-		exit
-		;;
-	esac
-	
+        if [ -z "$LINE" ]; then
+            continue
+        fi
+
+        local TEMP="$(echo "$LINE" | sed 's/^[a-zA-Z 0-9_\.]*:[ ]*//g' )"
+
+        case "$(echo "$LINE" | sed 's/:[a-zA-Z 0-9_;\.\/]*$//g' )" in
+            CM)
+                echo "INFO:   -- Name of CMake files to generate: '$TEMP'"
+                CMAKE_LISTS_NAME="$TEMP"
+                ;;
+            CM_V)
+                echo "INFO:   -- CMake version to use: '$TEMP'"
+                CMAKE_VERSION="$TEMP"
+                ;;
+            CLA)
+                echo "INFO:   -- Name of the clang autocomplete file: '$TEMP'"
+                CLANG_COMPLETE="$TEMP"
+                ;;
+            PRO)
+                echo "INFO:   -- Project Name: $TEMP"
+                PROJECT_NAME=$TEMP
+                ;;
+            P)
+                echo "INFO:   -- Added target platform: $TEMP"
+                DISPLAY_SERVER+=( "$TEMP" )
+                ;;
+            OS)
+                local T_OS=$(echo $TEMP | sed 's/;[a-zA-Z 0-9_\/\.]*$//g' )
+                local T_DS=$(echo $TEMP | sed 's/^[a-zA-Z 0-9_\/\.]*;//g' )
+                echo "INFO:   -- Added Operating System $T_OS"
+                OS+=( $T_OS )
+                eval "DS_${T_OS}=( $T_DS )"
+                ;;
+            L)
+                local T_LIB_NAME="$(echo "$TEMP" | sed 's/;[a-z A-Z 0-9]*$//g')"
+                local T_LIB_DEP="$(echo "$TEMP"  | sed 's/^[a-zA-Z0-g]*;[ ]*//g')"
+                echo "INFO:   -- Added lib: $T_LIB_NAME [$T_LIB_DEP]"
+                LIBS+=( "$T_LIB_NAME" )
+                LIBS_DEP+=( "$T_LIB_DEP" )
+                ;;
+            T)
+                echo "INFO:   -- Added Test: $TEMP"
+                TESTS+=( "$TEMP" )
+                ;;
+            E_INC)
+                echo "INFO:   -- Main engine include file: '$TEMP'"
+                INCLUDE_FILE="$TEMP"
+                ;;
+            T_DIR)
+                echo "INFO:   -- Tests dir: '$TEMP'"
+                TESTS_DIR="$TEMP"
+                ;;
+            CT)
+                echo "INFO:   -- Added Compiler Test: $TEMP"
+                C_TESTS+=( "$TEMP" )
+                ;;
+            CT_DO)
+                echo "INFO:   -- Using compiler tests: '$TEMP' (1 -- true; 0 -- false)"
+                COMPILER_TESTS=$TEMP
+                ;;
+            CT_DIR)
+                echo "INFO:   -- Using compiler tests directory: '$TEMP'"
+                COMPILER_TESTS_DIR=$TEMP
+                ;;
+            TOOLS_D)
+                echo "INFO:   -- Tools dir: '$TEMP'"
+                TOOLS_DIRECTORY="$TEMP"
+                ;;
+            LOG_PATH)
+                echo "INFO:   -- Log macros file: '$TEMP'"
+                LOG_MACRO_PATH="$TEMP"
+                ;;
+            LOG_UNDEF)
+                echo "INFO:   -- Create undefs for log macros: $TEMP (1 -- true; 0 -- false)"
+                LOG_GEN_UNDEF=$TEMP
+                ;;
+            LOG)
+                echo "INFO:   -- Log types: $TEMP"
+                LOG_TYPES="$TEMP"
+                ;;
+            *)
+                echo "ERROR: Unknown option"
+                exit
+                ;;
+        esac
+
     done < "$CONFIG_FILE"
 }
-    
+
 
 rm_save() {
     if [[ $1 == *'*'* ]]; then
@@ -166,9 +156,9 @@ rm_save() {
 
 clean() {
     echo "INFO: Cleaning"
-    
+
     for (( I = 0; I < ${#LIBS[@]}; ++I )); do
-	rm_save ${LIBS[$I]}/CMakeLists.txt
+        rm_save ${LIBS[$I]}/CMakeLists.txt
     done
 
     rm_save $INCLUDE_FILE
@@ -176,9 +166,9 @@ clean() {
     rm_save CMakeLists.txt
     rm_save defines.hpp
     rm_save Doxyfile
-    
+
     local TEMP=$( ls -d tests/*/ )
-    
+
     for I in $TEMP; do
        rm_save $I/CMakeLists.txt
        if [ -f $I/.gitignore ]; then
@@ -187,11 +177,11 @@ clean() {
           done
        fi
     done
-    
+
     cd GLEW
-    
+
     make clean &> /dev/null
-    
+
     cd ..
 }
 
@@ -245,7 +235,7 @@ countLines() {
         CALC_ALL="$(echo $CALC_ALL    | sed 's/ /\+/g')"
         echo ""
         echo "TOTAL: $(echo $CALC_ALL | bc )"
-    
+
         if [ -e temp_cloc.txt ]; then
             rm temp_cloc.txt
         fi
@@ -289,38 +279,38 @@ DO_CLEAN=0
 for I in $@; do
 
     case $I in
-        all) 
-	    DO_TESTS=1
-	    DO_LIBS=1
-	    DO_CLOC=1
-	    DO_GLEW=1
-	    DO_CLEAN=1
+        all)
+            DO_TESTS=1
+            DO_LIBS=1
+            DO_CLOC=1
+            DO_GLEW=1
+            DO_CLEAN=1
             ;;
-	none)
-	    DO_TESTS=0
-	    DO_LIBS=0
-	    DO_CLOC=0
-	    DO_GLEW=0
-	    DO_CLEAN=0
-	    ;;
+        none)
+            DO_TESTS=0
+            DO_LIBS=0
+            DO_CLOC=0
+            DO_GLEW=0
+            DO_CLEAN=0
+            ;;
         help)
             help_text
-	    exit
+            exit
             ;;
-        glew)	    DO_GLEW=1  ;;
-	noGlew)	    DO_GLEW=0  ;;
-	libs)	    DO_LIBS=1  ;;
-	noLibs)	    DO_LIBS=0  ;;
-	tests)	    DO_TESTS=1 ;;
-	noTests)    DO_TESTS=0 ;;
+        glew)       DO_GLEW=1  ;;
+        noGlew)     DO_GLEW=0  ;;
+        libs)       DO_LIBS=1  ;;
+        noLibs)     DO_LIBS=0  ;;
+        tests)      DO_TESTS=1 ;;
+        noTests)    DO_TESTS=0 ;;
         count)      DO_CLOC=1  ;;
-	noCount)    DO_CLOC=0  ;;
-	clean)      DO_CLEAN=1 ;;
-	noClean)    DO_CLEAN=0 ;;
+        noCount)    DO_CLOC=0  ;;
+        clean)      DO_CLEAN=1 ;;
+        noClean)    DO_CLEAN=0 ;;
         *)
-	    echo "ERROR: Unknown Argument $I"
+            echo "ERROR: Unknown Argument $I"
             help_text
-	    exit
+            exit
             ;;
     esac
 
@@ -335,6 +325,7 @@ fi
 
 if (( DO_LIBS == 1 )); then
     generateLogMacros $LOG_MACRO_PATH "$LOG_TYPES" $LOG_GEN_UNDEF
+    compilerTests
     addTarget
     echo "INFO: Generating main include file $INCLUDE_FILE"
     engineHPP         1> $INCLUDE_FILE
@@ -364,4 +355,4 @@ if [ -d $STARTDIR ]; then
     cd $STARTDIR
 fi
 
-# kate: indent-mode shell; indent-width 4; replace-tabs on;
+# kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;
