@@ -51,9 +51,11 @@ void uLogEntryRaw::endLogWaitAndSetPrinted() {
    while( ! vEndFinished_B ) vWaitUntilEndFinisched_BT.wait( lLockWait_BT );
 }
 
-unsigned int uLogEntryRaw::getLogEntry( std::vector< internal::uLogType > &_vLogTypes_V_eLT ) {
+unsigned int uLogEntryRaw::getLogEntry( std::vector< internal::uLogType > &_vLogTypes_V_eLT, std::map<std::thread::id, std::wstring> &_threads ) {
    data.raw.vDataString_STR.clear();
-   data.raw.vType_STR  = L"UNKNOWN";
+   data.raw.vType_STR       = L"UNKNOWN";
+   data.raw.vThreadName_STR = L"noname";
+   data.raw.vFunctionName_STR = std::wstring( data.raw.vFunctionNameTemp_STR.begin(), data.raw.vFunctionNameTemp_STR.end() );
 
    data.raw.vDataString_STR += vElements->get();
 
@@ -61,6 +63,11 @@ unsigned int uLogEntryRaw::getLogEntry( std::vector< internal::uLogType > &_vLog
       eLOG( "No Log type found!! Please add at least one manually or run 'uLog.devInit();', which will be run now to prevent further Errors" );
       LOG.devInit();
    }
+
+   if( _threads.find( vThreadId ) != _threads.end() )
+      if( ! _threads[vThreadId].empty() )
+         data.raw.vThreadName_STR = _threads[vThreadId];
+
 
    for( unsigned int i = 0; i < _vLogTypes_V_eLT.size(); ++i ) {
       if( _vLogTypes_V_eLT[i].getType() == vType_C ) {
@@ -79,12 +86,20 @@ unsigned int uLogEntryRaw::getLogEntry( std::vector< internal::uLogType > &_vLog
 }
 
 
-void uLogEntryRaw::__DATA__::configure( LOG_COLOR_TYPE _color, LOG_PRINT_TYPE _time, LOG_PRINT_TYPE _file, LOG_PRINT_TYPE _errorType, int _columns ) {
+void uLogEntryRaw::__DATA__::configure(
+      e_engine::LOG_COLOR_TYPE _color,
+      e_engine::LOG_PRINT_TYPE _time,
+      e_engine::LOG_PRINT_TYPE _file,
+      e_engine::LOG_PRINT_TYPE _errorType,
+      e_engine::LOG_PRINT_TYPE _thread,
+      int _columns
+) {
    config.vColor_LCT     = _color;
    config.vTime_LPT      = _time;
    config.vFile_LPT      = _file;
    config.vErrorType_LPT = _errorType;
    config.vColumns_uI    = _columns;
+   config.vThread_LPT    = _thread;
 }
 
 

@@ -567,7 +567,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::TYPE2String( uint32_t && _pos, std::string &
 
 template <class TYPE, int ROWS, int COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::print( std::string _name, char _type ) {
-   LOG( _type, false, __FILE__, __LINE__, LOG_FUNCTION_NAME, _name, ": " );
+   LOG( _type, false, W_FILE, __LINE__, W_FUNC, _name, ": " );
 
    std::string lRowStr;
 
@@ -576,10 +576,10 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::print( std::string _name, char _type ) {
       for( size_t collumn = 0; collumn < COLLUMNS; ++collumn ) {
          TYPE2String( ( collumn * ROWS ) + row, lRowStr );
       }
-      LOG( _type, true, __FILE__, __LINE__, LOG_FUNCTION_NAME, "( ", lRowStr, " )" );
+      LOG( _type, true, W_FILE, __LINE__, W_FUNC, "( ", lRowStr, " )" );
    }
 
-   LOG( _type, true, __FILE__, __LINE__, LOG_FUNCTION_NAME, "" );
+   LOG( _type, true, W_FILE, __LINE__, W_FUNC, "" );
 }
 
 }

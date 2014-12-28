@@ -17,6 +17,8 @@ int iInit::eventLoop() {
    if( ! vEventLoopHasFinished_B )
       return -1;
 
+   LOG.nameThread( L"EVENT" );
+
    iLOG( "Event thread started" );
 
    vWindowsDestroy_B   = false;

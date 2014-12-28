@@ -19,6 +19,7 @@ rFrameCounter::rFrameCounter( rWorld *_rWorld, bool _enable ) :
  * \brief The loop that outputs the frames per second in the interval defined through vSleepDelay
  */
 void rFrameCounter::frameCounterLoop() {
+   LOG.nameThread( L"fps" );
    while( vFrameCounterEnabled ) {
       if( !vWorld->getIsRenderLoopPaused() ) {
          iLOG( "FPS: ", ( int )( *vRenderedFrames / vHelper ) ); // Change this to output the resulting fps in a proper way (and as a double)

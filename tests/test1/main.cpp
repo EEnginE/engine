@@ -14,6 +14,7 @@ using namespace std;
 using namespace e_engine;
 
 int main( int argc, char *argv[] ) {
+   LOG.nameThread( L"MAIN" );
    cmdANDinit cmd( argc, argv );
 
    if ( ! cmd.parseArgsAndInit() ) {

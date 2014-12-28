@@ -74,6 +74,8 @@ int iInit::eventLoop() {
    unsigned int lKeyState_uI, lButtonState_uI;
    timeval tv_select, tv, periode;
 
+   LOG.nameThread( L"EVENT" );
+
    iLOG( "Event loop started" );
 
    int x11_fd;
