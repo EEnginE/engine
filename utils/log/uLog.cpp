@@ -122,10 +122,26 @@ void uLog::devInit() {
  * \returns Nothing
  */
 void uLog::addType( char _type, std::wstring _name, char _color, bool _bold ) {
-   vLogTypes_V_eLT.push_back( internal::uLogType( _type, _name, _color, _bold ) );
+   vLogTypes_V_eLT.emplace_back( _type, _name, _color, _bold );
    if( _name.size() > vMaxTypeStringLength_usI )
       vMaxTypeStringLength_usI = ( unsigned short int ) _name.size();
 }
+
+/*!
+ * \brief Names / renames a thread
+ *
+ * \param[in] _id   the id of the thread
+ * \param[in] _name the name of the thread
+ */
+void uLog::nameThread( std::wstring _name ) {
+   vThreads[std::this_thread::get_id()] = _name;
+
+   if( _name.empty() )
+      iLOG( L"Removing name from thread" );
+   else
+      iLOG( L"New Thread name: '", _name, L"'" );
+}
+
 
 bool uLog::openLogFile( uint16_t i ) {
    std::stringstream lThisLog_SS;
@@ -214,6 +230,7 @@ void uLog::stdOutStandard( e_engine::uLogEntryRaw &_e ) {
          GlobConf.log.logOUT.Time,
          GlobConf.log.logOUT.File,
          GlobConf.log.logOUT.ErrorType,
+         GlobConf.log.logOUT.Thread,
          GlobConf.log.width );
 
 #if UNIX
@@ -243,6 +260,7 @@ void uLog::stdErrStandard( e_engine::uLogEntryRaw &_e ) {
          GlobConf.log.logERR.Time,
          GlobConf.log.logERR.File,
          GlobConf.log.logERR.ErrorType,
+         GlobConf.log.logERR.Thread,
          GlobConf.log.width );
 
 #ifdef __linux__
@@ -284,6 +302,7 @@ void uLog::stdLogStandard( e_engine::uLogEntryRaw &_e ) {
          GlobConf.log.logFILE.Time,
          GlobConf.log.logFILE.File,
          GlobConf.log.logFILE.ErrorType,
+         GlobConf.log.logFILE.Thread,
          -1 );
 
    _e.defaultEntryGenerator();
@@ -313,6 +332,7 @@ void uLog::stdLogStandard( e_engine::uLogEntryRaw &_e ) {
 
 
 void uLog::logLoop() {
+   nameThread( L"log" );
    if( vIsLogLoopRunning_B )
       return;
 
@@ -328,7 +348,7 @@ void uLog::logLoop() {
             B_SLEEP( milliseconds, 50 );
 
          try {
-            lLogTypeId_uI = vLogEntries.front().getLogEntry( vLogTypes_V_eLT );
+            lLogTypeId_uI = vLogEntries.front().getLogEntry( vLogTypes_V_eLT, vThreads );
             vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->send( vLogEntries.front() );
             vLogEntries.front().endLogWaitAndSetPrinted();
          } catch( std::bad_alloc e ) {

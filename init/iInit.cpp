@@ -290,6 +290,7 @@ GLvoid iInit::quitMainLoop() {
 
 int iInit::quitMainLoopCall( ) {
    vMainLoopRunning_B = false;
+   LOG.nameThread( L"kill" );
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;

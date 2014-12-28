@@ -25,6 +25,8 @@
 #ifndef E_LOG_HPP
 #define E_LOG_HPP
 
+#include "defines.hpp"
+
 #include <fstream>
 #include <chrono>
 #include "uLog_resources.hpp"
@@ -99,13 +101,15 @@ class uLog {
       typedef uSignal<void, uLogEntryRaw &> _SIGNAL_;
       typedef uSlot<void, uLog , uLogEntryRaw &> _SLOT_;
    private:
-      std::vector<internal::uLogType> vLogTypes_V_eLT;
-      std::string                     vLogFileName_str;
-      std::string                     vLogFielFullPath_str;
-      std::wofstream                  vLogFileOutput_OS;
+      std::vector<internal::uLogType>         vLogTypes_V_eLT;
+      std::map<std::thread::id, std::wstring> vThreads;
+      std::string                             vLogFileName_str;
+      std::string                             vLogFielFullPath_str;
+      std::wofstream                          vLogFileOutput_OS;
+
+      unsigned int                            vThreadCounter = 0;
 
       std::mutex vLogMutex_BT;
-
       std::mutex vLogThreadSaveMutex_BT;
 
       bool vLogLoopRun_B;
@@ -145,6 +149,7 @@ class uLog {
       void devInit();
 
       void addType( char _type, std::wstring _name, char _color, bool _bold );
+      void nameThread( std::wstring _name );
 
       template<class __C>
       bool connectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot );
@@ -157,16 +162,16 @@ class uLog {
 
 
       template<class... ARGS>
-      inline void operator()( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS ... _data ) {
+      inline void operator()( char _type, bool _onlyText, const wchar_t *_file, const int _line, const char *_function, std::thread::id &&_thread, ARGS ... _data ) {
          std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
-         vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<ARGS>( _data )... );
+         vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<std::thread::id>( _thread ), std::forward<ARGS>( _data )... );
          vLogEntries.back().end();
       }
 
       template<class... ARGS>
-      inline void addLogEntry( char _type, bool _onlyText, const char *_file, const int _line, const char *_function, ARGS ... _data ) {
+      inline void addLogEntry( char _type, bool _onlyText, const wchar_t *_file, const int _line, const char *_function, std::thread::id &&_thread, ARGS ... _data ) {
          std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
-         vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<ARGS>( _data )... );
+         vLogEntries.emplace_back( _type, _onlyText, _file, _line, _function, std::forward<std::thread::id>( _thread ), std::forward<ARGS>( _data )... );
          vLogEntries.back().end();
       }
 

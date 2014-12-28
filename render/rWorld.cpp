@@ -44,6 +44,7 @@ rWorld::rWorld( iInit *_init ) :
 
 
 void rWorld::renderLoop() {
+   LOG.nameThread( L"RENDER" );
    iLOG( "Render loop started" );
    vRenderLoopRunning_B = true;
 

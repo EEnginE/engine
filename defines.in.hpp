@@ -42,19 +42,28 @@
 
 
 
+#define WIDEN2(x) L##x
+#define WIDEN(x) WIDEN2(x)
+
+#define W_FILE WIDEN(__FILE__)
+
 // Detect compiler function macro
 #if defined __clang__
-// #define LOG_FUNCTION_NAME __PRETTY_FUNCTION__ // A bit to long ...
-#define LOG_FUNCTION_NAME __func__
+// #    define W_FUNC __PRETTY_FUNCTION__ // A bit to long ...
+#       define W_FUNC __func__
 #elif defined __GNUC__
-// #define LOG_FUNCTION_NAME __PRETTY_FUNCTION__ // A bit to long ...
-#define LOG_FUNCTION_NAME __func__
+// #    define W_FUNC __PRETTY_FUNCTION__ // A bit to long ...
+#       define W_FUNC __func__
 #elif defined _MSC_VER
-// #define LOG_FUNCTION_NAME __PRETTY_FUNCTION__ // A bit to long ...
-#define LOG_FUNCTION_NAME __FUNCTION__
+// #    define W_FUNC __PRETTY_FUNCTION__ // A bit to long ...
+#       define W_FUNC __FUNCTION__
 #else
 // This is int the C++11 standard, so every compiler should / must have this
-#define LOG_FUNCTION_NAME __func__
+#       define W_FUNC __func__
+#endif
+
+#ifndef W_FUNC
+#error "Can not get functuon name"
 #endif
 
 

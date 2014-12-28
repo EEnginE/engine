@@ -93,7 +93,7 @@ void _uConfig::__uConfig_FBA::reset() {
    FBA_VISUAL_TYPE           = GLX_TRUE_COLOR;
 #endif
    //FBA_STEREO                = GL_TRUE;
-   
+
 #if WINDOWS
    FBA_DRAW_TO_WINDOW        = 1;
    FBA_ACCELERATION          = WGL_FULL_ACCELERATION_ARB;
@@ -115,60 +115,65 @@ void _uConfig::__uConfig_Window::reset() {
    minHeight                 = 50;
    posX                      = 0;
    posY                      = 0;
-   
+
    mousePosX                 = 0;
    mousePosY                 = 0;
-   
+
    mouseIsInWindow           = false;
    windowHasFocus            = true;
 
    fullscreen                = false;
    VSync                     = true;
    windowDecoration          = true;
-   
+
    winType                   = NORMAL;
 
    windowName                = "E Engine Window";
    xlibWindowName            = "E Engine Window";
    iconName                  = "E Engine Window";
-   
+
    restoreOldScreenRes       = true;
    //iconPath.clear();
 }
 
 void _uConfig::__uLogData_Config::reset() {
    standardTimeColor        = 'M';
-   
+
    maxFilenameSize          = 20;
-   maxFunctionNameSize      = 25;
-   
+   maxFunctionNameSize      = 20;
+
+   threadNameWidth          = 6;
+
    standardShowTime         = true;
    standardShowFile         = true;
    standardShowLine         = true;
-   
+
    standardWarningsToStdErr = false;
-   
+
    logDefaultInit           = true;
-   
+
    useHistory               = true;
-   
+
    waitUntilLogEntryPrinted = false;
-   
+
    width                    = -1;
-   
+
    logOUT.colors            = DISABLED;
    logOUT.Time              = LEFT_REDUCED;
    logOUT.File              = RIGHT_REDUCED;
    logOUT.ErrorType         = LEFT_FULL;
-   
+   logOUT.Thread            = RIGHT_FULL;
+
    logERR.colors            = REDUCED;
    logERR.Time              = LEFT_REDUCED;
    logERR.File              = RIGHT_REDUCED;
    logERR.ErrorType         = LEFT_FULL;
-   
+   logERR.Thread            = RIGHT_FULL;
+
    logFILE.Time             = LEFT_FULL;
    logFILE.File             = LEFT_FULL;
    logFILE.ErrorType        = LEFT_FULL;
+   logFILE.Thread           = LEFT_FULL;
    logFILE.logFileName.clear();
 }
 
@@ -197,7 +202,7 @@ void _uConfig::__uConfig_OpenGL::reset() {
 void _uConfig::__uConfig_Camera::reset() {
    movementSpeed    = 0.2;
    mouseSensitivity = 0.001;
-   
+
 #ifdef M_PIl
    angleHorizontal  = M_PIl;
 #else
@@ -218,4 +223,4 @@ _uConfig::_uConfig() {
 _uConfig GlobConf;
 
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

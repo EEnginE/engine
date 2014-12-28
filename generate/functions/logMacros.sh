@@ -31,14 +31,14 @@ __macro_func() {
 generateLogMacros() {
     local ARGC=$#
     local I
-    
+
     if (( ARGC != 3 )); then
         echo "ERROR generateLogMacros needs 3 Arguments"
         return 4
     fi
-    
+
     echo "INFO: Generating file $1..."
-    
+
     local MACRO_PATH=$1
     local TYPES=$2
     local DO_UNDEF=$3
@@ -65,6 +65,8 @@ generateLogMacros() {
     echo " * \\warning This is an automatically generated file of '$0'! DO NOT EDIT"   >> $MACRO_PATH
     echo " */"                                                                         >> $MACRO_PATH
     echo ""                                                                            >> $MACRO_PATH
+    echo "#include \"defines.hpp\""                                                    >> $MACRO_PATH
+    echo ""                                                                            >> $MACRO_PATH
     echo ""                                                                            >> $MACRO_PATH
     echo "#ifndef $IFNDEF_HEADDER"                                                     >> $MACRO_PATH
     echo "#define $IFNDEF_HEADDER"                                                     >> $MACRO_PATH
@@ -76,21 +78,21 @@ generateLogMacros() {
     echo "" >> $MACRO_DEFINE_PATH
 
     for I in $TYPES; do
-        #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH    "_$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH " _$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',false,__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
+        #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH    "_$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',W_FILE,__LINE__,W_FUNC" $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH " _$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',false,W_FILE,__LINE__,W_FUNC,std::this_thread::get_id()" $DO_UNDEF
     done
 
     echo "" >> $MACRO_DEFINE_PATH
 
     for I in $TYPES; do
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_h$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',true ,__FILE__,__LINE__,LOG_FUNCTION_NAME" $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_h$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',true ,W_FILE,__LINE__,W_FUNC,std::this_thread::get_id()" $DO_UNDEF
     done
 
     echo -e "\n" >> $MACRO_DEFINE_PATH
 
     for I in $TYPES; do
-        #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH  "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',__FILE__,__LINE__,LOG_FUNCTION_NAME," $DO_UNDEF
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG(...)" "LOG.addLogEntry('$( echo -n ${I^^} )',false,__FILE__,__LINE__,LOG_FUNCTION_NAME,__VA_ARGS__)" $DO_UNDEF 
+        #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH  "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',W_FILE,__LINE__,W_FUNC," $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG(...)" "LOG.addLogEntry(_$( echo -n ${I^^} ),__VA_ARGS__)" $DO_UNDEF 
     done
 
     #### Footer ####

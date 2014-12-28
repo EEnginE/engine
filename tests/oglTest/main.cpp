@@ -4,6 +4,7 @@
 using namespace e_engine;
 
 int main( int argc, char *argv[] ) {
+   LOG.nameThread( L"MAIN" );
    testStarter tests;
    bool errors;
 

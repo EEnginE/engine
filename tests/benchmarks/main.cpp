@@ -11,17 +11,18 @@ using namespace std;
 
 
 int main( int argc, char *argv[] ) {
+   LOG.nameThread( L"MAIN" );
    cmdANDinit initStuff( argc, argv, COLOR );
-   
-   if ( !initStuff.parseArgsAndInit() ) {
+
+   if( !initStuff.parseArgsAndInit() ) {
       // help called or to less arguments
       return 1;
    }
-   
+
    BenchClass benchs( &initStuff );
 
    LOG.stopLogLoop();
-   
+
    return 0;
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;

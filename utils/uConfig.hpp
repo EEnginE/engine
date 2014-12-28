@@ -199,6 +199,8 @@ struct _uConfig {
       unsigned int maxFilenameSize;
       unsigned int maxFunctionNameSize;
 
+      unsigned int threadNameWidth;
+
       bool         standardShowTime;
       bool         standardShowFile;
       bool         standardShowLine;
@@ -218,6 +220,7 @@ struct _uConfig {
          LOG_PRINT_TYPE Time;
          LOG_PRINT_TYPE File;
          LOG_PRINT_TYPE ErrorType;
+         LOG_PRINT_TYPE Thread;
       } logOUT;
 
       struct __uLogDataErrorOut {
@@ -225,12 +228,14 @@ struct _uConfig {
          LOG_PRINT_TYPE Time;
          LOG_PRINT_TYPE File;
          LOG_PRINT_TYPE ErrorType;
+         LOG_PRINT_TYPE Thread;
       } logERR;
 
       struct __uLogDataFileOut {
          LOG_PRINT_TYPE Time;
          LOG_PRINT_TYPE File;
          LOG_PRINT_TYPE ErrorType;
+         LOG_PRINT_TYPE Thread;
 
          std::string logFileName;   //!< The BASIC name (without .log, etc.) of the log file ( changes will be ignored after the 1st log entry ) \c CLASSES: \a uLog
       } logFILE;

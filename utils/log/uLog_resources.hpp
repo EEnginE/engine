@@ -11,6 +11,7 @@
 #include <thread>
 #include <condition_variable>
 #include <tuple>
+#include <map>
 #include "uSignalSlot.hpp"
 #include "uLog_converters.hpp"
 #include "uConfig.hpp"  // Only for internal::LOG_COLOR_TYPE and internal::LOG_PRINT_TYPE
@@ -60,9 +61,10 @@ class uLogType {
       //void send( uLogEntryStruct _data )   { vSignal_eSIG( _data ); }
 };
 
+
 template<class __A, class... __T>
 struct uConverter {
-   static void convert( std::wstring &_str, __A&&_toConvert, __T&&... _rest ) {
+   static void convert( std::wstring &_str, __A && _toConvert, __T && ... _rest ) {
       uLogConverter<__A>::convert( _str, std::forward<__A>( _toConvert ) );
       uConverter<__T...>::convert( _str, std::forward<__T>( _rest )... );
    }
@@ -70,7 +72,7 @@ struct uConverter {
 
 template<class __A>
 struct uConverter<__A> {
-   static void convert( std::wstring &_str, __A&& _toConvert ) {
+   static void convert( std::wstring &_str, __A && _toConvert ) {
       uLogConverter<__A>::convert( _str, std::forward<__A>( _toConvert ) );
    }
 };
@@ -91,7 +93,7 @@ template<class... T>
 struct uLogRawDataT : uLogRawData {
    std::tuple < T... > vData;
 
-   uLogRawDataT( T&&... _d ) : vData( std::forward<T>(_d)... ) {}
+   uLogRawDataT( T && ... _d ) : vData( std::forward<T>( _d )... ) {}
 
    template<int... sequenze>
    void get( std::wstring &_str, templates::intSequenze<sequenze...> ) {
@@ -100,7 +102,7 @@ struct uLogRawDataT : uLogRawData {
 
    std::wstring get() {
       std::wstring lTempStr;
-      get( lTempStr, templates::makeIntSequenze<sizeof...(T)>{} );
+      get( lTempStr, templates::makeIntSequenze<sizeof...( T )> {} );
       return lTempStr;
    }
 
@@ -118,16 +120,18 @@ class uLogEntryRaw {
          struct __DATA_RAW__ {
             std::wstring vDataString_STR;
             std::wstring vFilename_STR;
+            std::string  vFunctionNameTemp_STR;
             std::wstring vFunctionName_STR;
+            std::wstring vThreadName_STR;
             std::wstring vType_STR;
             char         vBasicColor_C;
             bool         vBold_B;
             int          vLine_I;
             std::time_t  vTime_lI;
 
-            __DATA_RAW__( std::wstring &_filename, int &_line, std::wstring &_funcName ) :
+            __DATA_RAW__( std::wstring &_filename, int &_line, std::string &_funcName ) :
                vFilename_STR( _filename ),
-               vFunctionName_STR( _funcName ),
+               vFunctionNameTemp_STR( _funcName ),
                vLine_I( _line ) {
 
                std::time( &vTime_lI );
@@ -139,15 +143,23 @@ class uLogEntryRaw {
             LOG_PRINT_TYPE vTime_LPT;
             LOG_PRINT_TYPE vFile_LPT;
             LOG_PRINT_TYPE vErrorType_LPT;
+            LOG_PRINT_TYPE vThread_LPT;
             int            vColumns_uI;
             uint16_t       vMaxTypeStringLength_usI;
             bool           vTextOnly_B;
             __DATA_CONF__( bool &_onlyText ) : vTextOnly_B( _onlyText ) {}
          } config;
 
-         void configure( e_engine::LOG_COLOR_TYPE _color, e_engine::LOG_PRINT_TYPE _time, e_engine::LOG_PRINT_TYPE _file, e_engine::LOG_PRINT_TYPE _errorType, int _columns );
+         void configure(
+               e_engine::LOG_COLOR_TYPE _color,
+               e_engine::LOG_PRINT_TYPE _time,
+               e_engine::LOG_PRINT_TYPE _file,
+               e_engine::LOG_PRINT_TYPE _errorType,
+               e_engine::LOG_PRINT_TYPE _thread,
+               int _columns
+         );
 
-         __DATA__( std::wstring && _filename, int &_line, std::wstring && _funcName, bool &_textOnly ) :
+         __DATA__( std::wstring &_filename, int &_line, std::string &_funcName, bool &_textOnly ) :
             raw(
                   _filename,
                   _line,
@@ -163,6 +175,7 @@ class uLogEntryRaw {
       bool                    vComplete_B;
       internal::uLogRawData  *vElements = nullptr;
       char                    vType_C;
+      std::thread::id         vThreadId;
 
       std::condition_variable vWaitUntilThisIsPrinted_BT;
       std::mutex              vWaitMutex_BT;
@@ -179,20 +192,21 @@ class uLogEntryRaw {
 
    public:
       template<class... ARGS>
-      uLogEntryRaw( char _type, bool _onlyText, std::string _rawFilename, int _logLine, std::string _functionName, ARGS&&... _args ) :
+      uLogEntryRaw( char _type, bool _onlyText, std::wstring && _rawFilename, int _logLine, std::string && _functionName, std::thread::id && _thread, ARGS && ... _args ) :
          data(
-               std::wstring( _rawFilename.begin(), _rawFilename.end() ),
+               _rawFilename,
                _logLine,
-               std::wstring( _functionName.begin(), _functionName.end() ),
+               _functionName,
                _onlyText
          ),
          vComplete_B( false ),
          vType_C( _type ),
+         vThreadId( _thread ),
          vIsPrinted_B( false ),
          vEndFinished_B( false ),
          vSize( sizeof...( ARGS ) ) {
 
-         vElements = new internal::uLogRawDataT<ARGS...>( std::forward<ARGS>(_args)... );
+         vElements = new internal::uLogRawDataT<ARGS...>( std::forward<ARGS>( _args )... );
          vComplete_B = true;
       }
 
@@ -203,7 +217,7 @@ class uLogEntryRaw {
       inline bool   getIsComplete()   const   { return vComplete_B; }
       inline bool   getIsPrinted()    const   { return vIsPrinted_B; }
       inline size_t getElementsSize() const   { return vSize; }
-      unsigned int  getLogEntry( std::vector< e_engine::internal::uLogType > &_vLogTypes_V_eLT );
+      unsigned int  getLogEntry( std::vector< e_engine::internal::uLogType > &_vLogTypes_V_eLT, std::map<std::thread::id, std::wstring> &_threads );
 
       void          defaultEntryGenerator();
 
