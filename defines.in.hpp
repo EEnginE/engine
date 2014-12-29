@@ -40,6 +40,9 @@
 
 #define E_DEBUG_LOGGING     @DEBUG_LOGGING@
 
+// Compiler specific stuff
+#define E_COMPILER_SUPPORTS_WREGEX @COMPILER_TEST_WREGEX_PASSED@
+
 
 
 #define WIDEN2(x) L##x

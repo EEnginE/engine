@@ -166,9 +166,11 @@ EOF
 try_compile( ${TEST_TO_DO}_RET \${PROJECT_BINARY_DIR}/bin/compilerTests $(pwd)/$COMPILER_TESTS_DIR/$i $i OUTPUT_VARIABLE ${TEST_TO_DO}_OUTPUT )
 
 if( ${TEST_TO_DO}_RET )
+    set( COMPILER_TEST_${TEST_TO_DO}_PASSED 1 )
     message( STATUS "Compiler test '${i}' passed" )
 else( ${TEST_TO_DO}_RET )
-    message( SEND_ERROR "Compiler test '${i}' failed \n\n \${${TEST_TO_DO}_OUTPUT}" )
+    set( COMPILER_TEST_${TEST_TO_DO}_PASSED 0 )
+    message( WARNING "Compiler test '${i}' failed!" )
 endif( ${TEST_TO_DO}_RET )
 
 EOF

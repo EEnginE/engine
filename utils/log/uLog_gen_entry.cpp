@@ -151,10 +151,18 @@ void uLogEntryRaw::defaultEntryGenerator() {
 // ========= Generate The File Entry ==============================================================================================================
 
    if( data.config.vFile_LPT != OFF ) {
+#if E_COMPILER_SUPPORTS_WREGEX
       std::wregex lReplace_EX( L"^(.+[/\\\\])*" );
       const wchar_t  *lReplaceChar = L"";
 
       std::wstring lFilename_STR   = std::regex_replace( data.raw.vFilename_STR, lReplace_EX, lReplaceChar );
+#else
+      std::regex lReplace_EX( "^(.+[/\\\\])*" );
+      const char *lReplaceChar = "";
+
+      std::string lFilenameTemp_STR   = std::regex_replace( std::string( data.raw.vFilename_STR.begin(), data.raw.vFilename_STR.end() ), lReplace_EX, lReplaceChar );
+      std::wstring lFilename_STR( lFilenameTemp_STR.begin(), lFilenameTemp_STR.end() );
+#endif
 
       if( lFilename_STR.size() > GlobConf.log.maxFilenameSize )
          lFilename_STR.resize( GlobConf.log.maxFilenameSize );
@@ -229,8 +237,13 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 // ========= Prepare Variables ====================================================================================================================
 
+#if E_COMPILER_SUPPORTS_WREGEX
    std::wregex lRmExcape_REGEX( L"\x1b\\[[0-9;]+m" );
    const wchar_t *lRegexReplace_CSTR = L"";
+#else
+   std::regex lRmExcape_REGEX( "\x1b\\[[0-9;]+m" );
+   const char *lRegexReplace_CSTR = "";
+#endif
 
    std::wstring BR_OPEN  = L"[";
    std::wstring BR_CLOSE = L"]";
@@ -299,8 +312,13 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
    // Get Size information (without escape sequences)
    if( data.config.vColor_LCT != DISABLED ) {
+#if E_COMPILER_SUPPORTS_WREGEX
       lErrTypeL_uI = std::regex_replace( lErrorType_str, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
       lFileL_uI    = std::regex_replace( lFile_str,      lRmExcape_REGEX, lRegexReplace_CSTR ).size();
+#else
+      lErrTypeL_uI = std::regex_replace( std::string( lErrorType_str.begin(), lErrorType_str.end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
+      lFileL_uI    = std::regex_replace( std::string( lFile_str.begin(),      lFile_str.end() ),      lRmExcape_REGEX, lRegexReplace_CSTR ).size();
+#endif
    } else {
       lErrTypeL_uI = lErrorType_str.size();
       lFileL_uI    = lFile_str.size();
@@ -381,8 +399,13 @@ void uLogEntryRaw::defaultEntryGenerator() {
    unsigned int lMaxMessageSize_uI = std::numeric_limits<unsigned int>::max();
 
    if( data.config.vColor_LCT != DISABLED ) {
+#if E_COMPILER_SUPPORTS_WREGEX
       lLeftL_uI  = std::regex_replace( lL_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
       lRightL_uI = std::regex_replace( lR_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
+#else
+      lLeftL_uI  = std::regex_replace( std::string( lL_STR.begin(), lL_STR.end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
+      lRightL_uI = std::regex_replace( std::string( lR_STR.begin(), lR_STR.end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
+#endif
    } else {
       lLeftL_uI  = lL_STR.size();
       lRightL_uI = lR_STR.size();
@@ -412,7 +435,12 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
    // Remove color escape sequences from string
    if( data.config.vColor_LCT == DISABLED ) {
+#if E_COMPILER_SUPPORTS_WREGEX
       data.raw.vDataString_STR = std::regex_replace( data.raw.vDataString_STR, lRmExcape_REGEX, lRegexReplace_CSTR );
+#else
+      std::string lTempDataString = std::regex_replace( std::string( data.raw.vDataString_STR.begin(), data.raw.vDataString_STR.end() ), lRmExcape_REGEX, lRegexReplace_CSTR );
+      data.raw.vDataString_STR    = std::wstring( lTempDataString.begin(), lTempDataString.end() );
+#endif
    }
 
    lMessage_VEC.emplace_back( lDefCol_STR );
@@ -451,10 +479,15 @@ void uLogEntryRaw::defaultEntryGenerator() {
 // ========= Put Everything Together ==============================================================================================================
    for( unsigned int i = 0; i < lMessage_VEC.size(); ++i ) {
       unsigned int lTempMessageSize_uI;
-      if( data.config.vColor_LCT != DISABLED )
+      if( data.config.vColor_LCT != DISABLED ) {
+#if E_COMPILER_SUPPORTS_WREGEX
          lTempMessageSize_uI = std::regex_replace( lMessage_VEC[i], lRmExcape_REGEX, lRegexReplace_CSTR ).size();
-      else
+#else
+         lTempMessageSize_uI = std::regex_replace( std::string( lMessage_VEC[i].begin(), lMessage_VEC[i].end() ), lRmExcape_REGEX, lRegexReplace_CSTR ).size();
+#endif
+      } else {
          lTempMessageSize_uI = lMessage_VEC[i].size();
+      }
 
 #if UNIX
       if( isatty( fileno( stdout ) ) != 0 && data.config.vColor_LCT != DISABLED ) {
