@@ -8,12 +8,12 @@ tests() {
         I=$( echo "$TESTS_DIR/${TESTS[$i]}" | sed 's/\/$//g' )
 
         if [ ! -d $I ]; then
-            echo "ERROR: $I is not a directory!"
+            error " $I is not a directory!"
             continue
         fi
 
         local TEST_NAME="${TESTS[$i]}"
-        echo "INFO: Found test module $TEST_NAME"
+        msg1 "Found test module $TEST_NAME"
 
         PRE_GEN="$(pwd)/${I}/generate.pre.sh"
         POST_GEN="$(pwd)/${I}/generate.post.sh"
@@ -23,14 +23,14 @@ tests() {
                 chmod +x $PRE_GEN
             fi
             CURRENT_TEMP_PATH="$(pwd)"
-            echo "INFO:    -- Running pre generate script $PRE_GEN"
+            msg2 "Running pre generate script $PRE_GEN"
             cd $(dirname $PRE_GEN)
-            $PRE_GEN
+            ( source $PRE_GEN )
             cd $CURRENT_TEMP_PATH
         fi
 
         local CMAKE_FILE="$(pwd)/${I}/$CMAKE_LISTS_NAME"
-        echo "INFO:    -- Generating CMakeLists.txt"
+        msg2 "Generating CMakeLists.txt"
         cat > $CMAKE_FILE << EOF
 # Automatically generated file; DO NOT EDIT
 
@@ -97,9 +97,9 @@ EOF
                 chmod +x $POST_GEN
             fi
             CURRENT_TEMP_PATH="$(pwd)"
-            echo "INFO:    -- Running post generate script $POST_GEN"
+            msg2 "Running post generate script $POST_GEN"
             cd $(dirname $POST_GEN)
-            $POST_GEN
+            ( source $POST_GEN )
             cd $CURRENT_TEMP_PATH
         fi
     done

@@ -11,50 +11,51 @@ namespace unix_x11 {
 
 
 bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
-   if ( ! vIsRandRSupported_B )
+   if ( !vIsRandRSupported_B )
       return false;
 
    SizeID lTemoID_suI;
-   int    lTempSizes_I;
+   int lTempSizes_I;
 
    Rotation lTempRotate_XRR; // Exists only for XRRConfigCurrentConfiguration(...); to make it happy
 
-   vConfig_XRR    = XRRGetScreenInfo( vDisplay_X11, vRootWindow_X11 );
+   vConfig_XRR = XRRGetScreenInfo( vDisplay_X11, vRootWindow_X11 );
    vResources_XRR = XRRGetScreenResources( vDisplay_X11, vRootWindow_X11 );
 
-   lTemoID_suI                     = XRRConfigCurrentConfiguration( vConfig_XRR, &lTempRotate_XRR );
-   XRRScreenSize *lTempSizes_XRR   = XRRSizes( vDisplay_X11, 0, &lTempSizes_I );
+   lTemoID_suI = XRRConfigCurrentConfiguration( vConfig_XRR, &lTempRotate_XRR );
+   XRRScreenSize *lTempSizes_XRR = XRRSizes( vDisplay_X11, 0, &lTempSizes_I );
 
    if ( lTemoID_suI < lTempSizes_I ) {
-      vScreenWidth_uI  = lTempSizes_XRR[lTemoID_suI].width;
+      vScreenWidth_uI = lTempSizes_XRR[lTemoID_suI].width;
       vScreenHeight_uI = lTempSizes_XRR[lTemoID_suI].height;
    }
 
    if ( _overwriteLatest ) {
-      vLatestConfig_RandR.primary     = XRRGetOutputPrimary( vDisplay_X11, vWindow_X11 );
+      vLatestConfig_RandR.primary = XRRGetOutputPrimary( vDisplay_X11, vWindow_X11 );
 
-      for (auto & elem : vLatestConfig_RandR.gamma)
+      for ( auto &elem : vLatestConfig_RandR.gamma )
          XRRFreeGamma( elem );
 
       vLatestConfig_RandR.gamma.clear();
 
       for ( int i = 0; i < vResources_XRR->ncrtc; ++i ) {
-         vLatestConfig_RandR.gamma.push_back( XRRGetCrtcGamma( vDisplay_X11, vResources_XRR->crtcs[i] ) );
+         vLatestConfig_RandR.gamma.push_back(
+               XRRGetCrtcGamma( vDisplay_X11, vResources_XRR->crtcs[i] ) );
       }
    }
 
    if ( _overwriteDefaults ) {
-      vDefaultConfig_RandR.primary        = XRRGetOutputPrimary( vDisplay_X11, vWindow_X11 );
+      vDefaultConfig_RandR.primary = XRRGetOutputPrimary( vDisplay_X11, vWindow_X11 );
 
-      for (auto & elem : vDefaultConfig_RandR.gamma)
+      for ( auto &elem : vDefaultConfig_RandR.gamma )
          XRRFreeGamma( elem );
 
       vDefaultConfig_RandR.gamma.clear();
 
       for ( int i = 0; i < vResources_XRR->ncrtc; ++i ) {
-         vDefaultConfig_RandR.gamma.push_back( XRRGetCrtcGamma( vDisplay_X11, vResources_XRR->crtcs[i] ) );
+         vDefaultConfig_RandR.gamma.push_back(
+               XRRGetCrtcGamma( vDisplay_X11, vResources_XRR->crtcs[i] ) );
       }
-
    }
 
    // Clear old data
@@ -65,20 +66,21 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
 
    // CRTC
-   for ( int i = 0; i < vResources_XRR->ncrtc ; ++i ) {
+   for ( int i = 0; i < vResources_XRR->ncrtc; ++i ) {
       internal::_crtc lTempCRTC_RandR;
 
-      XRRCrtcInfo *lTempCRTCInfo_XRR     = XRRGetCrtcInfo( vDisplay_X11, vResources_XRR, vResources_XRR->crtcs[i] );
+      XRRCrtcInfo *lTempCRTCInfo_XRR =
+            XRRGetCrtcInfo( vDisplay_X11, vResources_XRR, vResources_XRR->crtcs[i] );
 
-      lTempCRTC_RandR.id                 = vResources_XRR->crtcs[i];
-      lTempCRTC_RandR.timestamp          = lTempCRTCInfo_XRR->timestamp;
-      lTempCRTC_RandR.posX               = lTempCRTCInfo_XRR->x;
-      lTempCRTC_RandR.posY               = lTempCRTCInfo_XRR->y;
-      lTempCRTC_RandR.width              = lTempCRTCInfo_XRR->width;
-      lTempCRTC_RandR.height             = lTempCRTCInfo_XRR->height;
-      lTempCRTC_RandR.mode               = lTempCRTCInfo_XRR->mode;
-      lTempCRTC_RandR.rotation           = lTempCRTCInfo_XRR->rotation;
-      lTempCRTC_RandR.rotations          = lTempCRTCInfo_XRR->rotations;
+      lTempCRTC_RandR.id = vResources_XRR->crtcs[i];
+      lTempCRTC_RandR.timestamp = lTempCRTCInfo_XRR->timestamp;
+      lTempCRTC_RandR.posX = lTempCRTCInfo_XRR->x;
+      lTempCRTC_RandR.posY = lTempCRTCInfo_XRR->y;
+      lTempCRTC_RandR.width = lTempCRTCInfo_XRR->width;
+      lTempCRTC_RandR.height = lTempCRTCInfo_XRR->height;
+      lTempCRTC_RandR.mode = lTempCRTCInfo_XRR->mode;
+      lTempCRTC_RandR.rotation = lTempCRTCInfo_XRR->rotation;
+      lTempCRTC_RandR.rotations = lTempCRTCInfo_XRR->rotations;
 
       for ( int j = 0; j < lTempCRTCInfo_XRR->noutput; ++j ) {
          lTempCRTC_RandR.outputs.push_back( lTempCRTCInfo_XRR->outputs[j] );
@@ -94,20 +96,21 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
 
    // Output
-   for ( int i = 0; i < vResources_XRR->noutput ; ++i ) {
+   for ( int i = 0; i < vResources_XRR->noutput; ++i ) {
       internal::_output lTempOutput_RandR;
 
-      XRROutputInfo *lTempOutputInfo_XRR = XRRGetOutputInfo( vDisplay_X11, vResources_XRR, vResources_XRR->outputs[i] );
+      XRROutputInfo *lTempOutputInfo_XRR =
+            XRRGetOutputInfo( vDisplay_X11, vResources_XRR, vResources_XRR->outputs[i] );
 
-      lTempOutput_RandR.id               = vResources_XRR->outputs[i];
-      lTempOutput_RandR.timestamp        = lTempOutputInfo_XRR->timestamp;
-      lTempOutput_RandR.crtc             = lTempOutputInfo_XRR->crtc;
-      lTempOutput_RandR.name             = lTempOutputInfo_XRR->name;
-      lTempOutput_RandR.mm_width         = lTempOutputInfo_XRR->mm_width;
-      lTempOutput_RandR.mm_height        = lTempOutputInfo_XRR->mm_height;
-      lTempOutput_RandR.connection       = lTempOutputInfo_XRR->connection;
-      lTempOutput_RandR.subpixel_order   = lTempOutputInfo_XRR->subpixel_order;
-      lTempOutput_RandR.npreferred       = lTempOutputInfo_XRR->npreferred;
+      lTempOutput_RandR.id = vResources_XRR->outputs[i];
+      lTempOutput_RandR.timestamp = lTempOutputInfo_XRR->timestamp;
+      lTempOutput_RandR.crtc = lTempOutputInfo_XRR->crtc;
+      lTempOutput_RandR.name = lTempOutputInfo_XRR->name;
+      lTempOutput_RandR.mm_width = lTempOutputInfo_XRR->mm_width;
+      lTempOutput_RandR.mm_height = lTempOutputInfo_XRR->mm_height;
+      lTempOutput_RandR.connection = lTempOutputInfo_XRR->connection;
+      lTempOutput_RandR.subpixel_order = lTempOutputInfo_XRR->subpixel_order;
+      lTempOutput_RandR.npreferred = lTempOutputInfo_XRR->npreferred;
 
       for ( int j = 0; j < lTempOutputInfo_XRR->ncrtc; ++j ) {
          lTempOutput_RandR.crtcs.push_back( lTempOutputInfo_XRR->crtcs[j] );
@@ -127,24 +130,24 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
 
    // Modes
-   for ( int i = 0; i < vResources_XRR->nmode ; ++i ) {
+   for ( int i = 0; i < vResources_XRR->nmode; ++i ) {
       internal::_mode lTempMode_RandR;
 
-      XRRModeInfo lTempModeInfo_XRR     = vResources_XRR->modes[i];
+      XRRModeInfo lTempModeInfo_XRR = vResources_XRR->modes[i];
 
-      lTempMode_RandR.id                = lTempModeInfo_XRR.id;
-      lTempMode_RandR.width             = lTempModeInfo_XRR.width;
-      lTempMode_RandR.height            = lTempModeInfo_XRR.height;
-      lTempMode_RandR.dotClock          = lTempModeInfo_XRR.dotClock;
-      lTempMode_RandR.hSyncStart        = lTempModeInfo_XRR.hSyncStart;
-      lTempMode_RandR.hSyncEnd          = lTempModeInfo_XRR.hSyncEnd;
-      lTempMode_RandR.hTotal            = lTempModeInfo_XRR.hTotal;
-      lTempMode_RandR.hSkew             = lTempModeInfo_XRR.hSkew;
-      lTempMode_RandR.vSyncStart        = lTempModeInfo_XRR.vSyncStart;
-      lTempMode_RandR.vSyncEnd          = lTempModeInfo_XRR.vSyncEnd;
-      lTempMode_RandR.vTotal            = lTempModeInfo_XRR.vTotal;
-      lTempMode_RandR.name              = lTempModeInfo_XRR.name;
-      lTempMode_RandR.modeFlags         = lTempModeInfo_XRR.modeFlags;
+      lTempMode_RandR.id = lTempModeInfo_XRR.id;
+      lTempMode_RandR.width = lTempModeInfo_XRR.width;
+      lTempMode_RandR.height = lTempModeInfo_XRR.height;
+      lTempMode_RandR.dotClock = lTempModeInfo_XRR.dotClock;
+      lTempMode_RandR.hSyncStart = lTempModeInfo_XRR.hSyncStart;
+      lTempMode_RandR.hSyncEnd = lTempModeInfo_XRR.hSyncEnd;
+      lTempMode_RandR.hTotal = lTempModeInfo_XRR.hTotal;
+      lTempMode_RandR.hSkew = lTempModeInfo_XRR.hSkew;
+      lTempMode_RandR.vSyncStart = lTempModeInfo_XRR.vSyncStart;
+      lTempMode_RandR.vSyncEnd = lTempModeInfo_XRR.vSyncEnd;
+      lTempMode_RandR.vTotal = lTempModeInfo_XRR.vTotal;
+      lTempMode_RandR.name = lTempModeInfo_XRR.name;
+      lTempMode_RandR.modeFlags = lTempModeInfo_XRR.modeFlags;
 
 
       /* v refresh frequency in Hz */
@@ -157,7 +160,8 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
          lVTotalTemp /= 2;
 
       if ( lTempMode_RandR.hTotal && lVTotalTemp )
-         lTempMode_RandR.refresh = ( ( double )lTempMode_RandR.dotClock / ( ( double )lTempMode_RandR.hTotal * ( double )lVTotalTemp ) );
+         lTempMode_RandR.refresh = ( (double)lTempMode_RandR.dotClock /
+                                     ( (double)lTempMode_RandR.hTotal * (double)lVTotalTemp ) );
       else
          lTempMode_RandR.refresh = 0;
 
@@ -186,4 +190,4 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

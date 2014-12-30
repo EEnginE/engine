@@ -9,11 +9,11 @@ namespace e_engine {
 
 rRenderNormal_3_3::rRenderNormal_3_3() {
    vVertexBufferObj_OGL = 0;
-   vIndexBufferObj_OGL  = 0;
-   vShader_OGL          = 0;
-   vInputLocation_OGL   = 0;
+   vIndexBufferObj_OGL = 0;
+   vShader_OGL = 0;
+   vInputLocation_OGL = 0;
    vUniformLocation_OGL = 0;
-   vDataSize_uI         = 0;
+   vDataSize_uI = 0;
 
    vMatrix = nullptr;
 }
@@ -36,7 +36,7 @@ void rRenderNormal_3_3::render() {
 
 
 bool rRenderNormal_3_3::testShader( rShader *_shader ) {
-   if( !_shader->getIsLinked() )
+   if ( !_shader->getIsLinked() )
       return false;
 
    return require( _shader, rShader::VERTEX_INPUT, rShader::M_V_P_MATRIX, rShader::NORMAL_MATRIX );
@@ -45,27 +45,30 @@ bool rRenderNormal_3_3::testShader( rShader *_shader ) {
 bool rRenderNormal_3_3::testObject( rObjectBase *_obj ) {
    int lVert, lFlags, lMatrices, lnVBO, lnIBO;
 
-   _obj->getHints(
-         rObjectBase::NUM_INDEXES, lVert,
-         rObjectBase::FLAGS,       lFlags,
-         rObjectBase::MATRICES,    lMatrices,
-         rObjectBase::NUM_VBO,     lnVBO,
-         rObjectBase::NUM_IBO,     lnIBO
-   );
+   _obj->getHints( rObjectBase::NUM_INDEXES,
+                   lVert,
+                   rObjectBase::FLAGS,
+                   lFlags,
+                   rObjectBase::MATRICES,
+                   lMatrices,
+                   rObjectBase::NUM_VBO,
+                   lnVBO,
+                   rObjectBase::NUM_IBO,
+                   lnIBO );
 
-   if( !( lFlags & MESH_OBJECT ) )
+   if ( !( lFlags & MESH_OBJECT ) )
       return false;
 
-   if( lVert < 3 )
+   if ( lVert < 3 )
       return false;
 
-   if( !( lMatrices & MODEL_VIEW_PROJECTION_MATRIX_FLAG ) )
+   if ( !( lMatrices & MODEL_VIEW_PROJECTION_MATRIX_FLAG ) )
       return false;
 
-   if( lnVBO != 1 )
+   if ( lnVBO != 1 )
       return false;
 
-   if( lnIBO != 1 )
+   if ( lnIBO != 1 )
       return false;
 
    return true;
@@ -73,10 +76,10 @@ bool rRenderNormal_3_3::testObject( rObjectBase *_obj ) {
 
 
 void rRenderNormal_3_3::setDataFromShader( rShader *_s ) {
-   if( !_s->getProgram( vShader_OGL ) )
+   if ( !_s->getProgram( vShader_OGL ) )
       return;
 
-   vInputLocation_OGL   = _s->getLocation( rShader::VERTEX_INPUT );
+   vInputLocation_OGL = _s->getLocation( rShader::VERTEX_INPUT );
    vUniformLocation_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
 }
 
@@ -90,15 +93,7 @@ void rRenderNormal_3_3::setDataFromObject( rObjectBase *_obj ) {
 
    _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );
 
-   vDataSize_uI = ( GLuint ) lTemp;
+   vDataSize_uI = (GLuint)lTemp;
 }
-
-
-
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
-
-
-
-
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

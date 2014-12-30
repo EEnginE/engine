@@ -18,25 +18,20 @@
 
 namespace e_engine {
 
-// Usage: render_<RenderType>_<V. Major>_<V. Minor>_<Other Stuff>_<Min num Shader>[_<Max num Shader (n for arbitrary)>]S_<Min num Data>[_<Max num Data (n for arbitrary)>]D
-enum RENDERER_ID {
-   render_NONE,
-   render_OGL_3_3_Normal_Basic_1S_1D,
-   ___RENDERER_ENGINE_LAST___
-};
+// Usage: render_<RenderType>_<V. Major>_<V. Minor>_<Other Stuff>_<Min num Shader>[_<Max num Shader
+// (n for arbitrary)>]S_<Min num Data>[_<Max num Data (n for arbitrary)>]D
+enum RENDERER_ID { render_NONE, render_OGL_3_3_Normal_Basic_1S_1D, ___RENDERER_ENGINE_LAST___ };
 
-template<class T>
+template <class T>
 struct rRenderAmbientLight {
    rVec3<T> *color = nullptr;
 
-   void setAmbient( rObjectBase *_obj ) {
-      _obj->getVector( &color,     rObjectBase::LIGHT_COLOR );
-   }
+   void setAmbient( rObjectBase *_obj ) { _obj->getVector( &color, rObjectBase::LIGHT_COLOR ); }
 };
 
-template<class T>
+template <class T>
 struct rRenderLightSource : rRenderAmbientLight<T> {
-   rVec3<T> *position  = nullptr;
+   rVec3<T> *position = nullptr;
 
    using rRenderAmbientLight<T>::setAmbient;
 
@@ -51,60 +46,58 @@ struct rRenderLightSource : rRenderAmbientLight<T> {
  * \brief Basic renderer to provide an interface for other renderer classes
  */
 class rRenderBase {
-   protected:
-      bool vNeedUpdateUniforms_B;
-      bool vAlwaysUpdateUniforms_B;
+ protected:
+   bool vNeedUpdateUniforms_B;
+   bool vAlwaysUpdateUniforms_B;
 
-   protected:
-      template<class... ARGS>
-      static inline bool require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS && ... _args );
-      static inline bool require( rShader *_s );
+ protected:
+   template <class... ARGS>
+   static inline bool require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS &&... _args );
+   static inline bool require( rShader *_s );
 
-      template<class... ARGS>
-      static inline bool testUnifrom( GLint _u, std::wstring && _missing, ARGS && ... _args );
-      static inline bool testUnifrom();
+   template <class... ARGS>
+   static inline bool testUnifrom( GLint _u, std::wstring &&_missing, ARGS &&... _args );
+   static inline bool testUnifrom();
 
-      template<class... ARGS, class T>
-      static inline bool testPointer( T *_p, std::wstring && _missing, ARGS && ... _args );
-      static inline bool testPointer();
+   template <class... ARGS, class T>
+   static inline bool testPointer( T *_p, std::wstring &&_missing, ARGS &&... _args );
+   static inline bool testPointer();
 
-   public:
-      rRenderBase() : vNeedUpdateUniforms_B( false ), vAlwaysUpdateUniforms_B( false ) {}
-      virtual ~rRenderBase() {}
+ public:
+   rRenderBase() : vNeedUpdateUniforms_B( false ), vAlwaysUpdateUniforms_B( false ) {}
+   virtual ~rRenderBase() {}
 
-      virtual void        render()                               = 0;
-      virtual RENDERER_ID getRendererID() const                  = 0;
-      virtual void        setDataFromShader( rShader *_s )       = 0;
-      virtual void        setDataFromObject( rObjectBase *_obj ) = 0;
+   virtual void render() = 0;
+   virtual RENDERER_ID getRendererID() const = 0;
+   virtual void setDataFromShader( rShader *_s ) = 0;
+   virtual void setDataFromObject( rObjectBase *_obj ) = 0;
 
-      virtual void        setDataFromAdditionalObjects( rObjectBase *_obj ) {}
+   virtual void setDataFromAdditionalObjects( rObjectBase *_obj ) {}
 
-      virtual bool        canRender() {return true;}
+   virtual bool canRender() { return true; }
 
-      void updateUniforms() {vNeedUpdateUniforms_B = true;}
-      void updateUniformsAlways( bool _doit ) { vAlwaysUpdateUniforms_B = _doit; }
+   void updateUniforms() { vNeedUpdateUniforms_B = true; }
+   void updateUniformsAlways( bool _doit ) { vAlwaysUpdateUniforms_B = _doit; }
 };
 
-template<class... ARGS>
-bool rRenderBase::require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS && ... _args ) {
-   if( !( _s->getLocation( _inf ) >= 0 ) )
+template <class... ARGS>
+bool rRenderBase::require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS &&... _args ) {
+   if ( !( _s->getLocation( _inf ) >= 0 ) )
       return false;
 
    return require( _s, _args... );
 }
 
-bool rRenderBase::require( rShader *_s ) {
-   return true;
-}
+bool rRenderBase::require( rShader *_s ) { return true; }
 
 
-template<class... ARGS>
-bool rRenderBase::testUnifrom( GLint _u, std::wstring && _missing, ARGS && ... _args ) {
+template <class... ARGS>
+bool rRenderBase::testUnifrom( GLint _u, std::wstring &&_missing, ARGS &&... _args ) {
 #if E_DEBUG_LOGGING
    dLOG( L"Uniform: ", _missing, L": ", _u );
 #endif
 
-   if( _u < 0 ) {
+   if ( _u < 0 ) {
       eLOG( L"MISSING Uniform: ", _missing );
 #if E_DEBUG_LOGGING
       testUnifrom( _args... );
@@ -115,20 +108,18 @@ bool rRenderBase::testUnifrom( GLint _u, std::wstring && _missing, ARGS && ... _
    return testUnifrom( _args... );
 }
 
-bool rRenderBase::testUnifrom() {
-   return true;
-}
+bool rRenderBase::testUnifrom() { return true; }
 
 
-template<class... ARGS, class T>
-bool rRenderBase::testPointer( T *_p, std::wstring && _missing, ARGS && ... _args ) {
+template <class... ARGS, class T>
+bool rRenderBase::testPointer( T *_p, std::wstring &&_missing, ARGS &&... _args ) {
 #if E_DEBUG_LOGGING
    std::wstringstream lConverter;
    lConverter << _p;
    dLOG( L"Pointer: ", _missing, L": ", lConverter.str() );
 #endif
 
-   if( !_p ) {
+   if ( !_p ) {
       eLOG( L"MISSING Pointer: ", _missing );
 #if E_DEBUG_LOGGING
       testPointer( _args... );
@@ -140,9 +131,7 @@ bool rRenderBase::testPointer( T *_p, std::wstring && _missing, ARGS && ... _arg
 }
 
 
-bool rRenderBase::testPointer() {
-   return true;
-}
+bool rRenderBase::testPointer() { return true; }
 
 
 /*!
@@ -158,10 +147,8 @@ bool rRenderBase::testPointer() {
 *
 * \warning This function assumes that testObject (from the derived class) returned true
 */
-
-
 }
 
 #endif // R_RENDER_NORMAL_OBJ_BASE_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

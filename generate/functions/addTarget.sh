@@ -4,27 +4,26 @@
 addTarget() {
     local I T DEP CMAKE_FILE
     for (( I = 0; I < ${#LIBS[@]}; ++I )); do
-	T="${LIBS[$I]}"
-	DEP="${LIBS_DEP[$I]}"
-	CMAKE_FILE="$T/${CMAKE_LISTS_NAME}"
-	
-	echo "INFO: Adding Target $T [$DEP]"
-	echo "INFO:    -- Generating $CMAKE_FILE"
+        T="${LIBS[$I]}"
+        DEP="${LIBS_DEP[$I]}"
+        CMAKE_FILE="$T/${CMAKE_LISTS_NAME}"
 
-	cat > $CMAKE_FILE <<EOF
+        msg1 "Generating ${CMAKE_LISTS_NAME} for target $T [$DEP]"
+
+        cat > $CMAKE_FILE <<EOF
 # Automatically generated file; DO NOT EDIT
 
 EOF
 
-	finSources $T ${T^^} 1>> $CMAKE_FILE
-	local TMP_NAME="${PROJECT_NAME}_${T}"
+        finSources $T ${T^^} 1>> $CMAKE_FILE
+        local TMP_NAME="${PROJECT_NAME}_${T}"
 
-	local LINK_LIBS=""
-	for i in $DEP; do
-	    LINK_LIBS="$LINK_LIBS ${PROJECT_NAME}_${i}"
-	done
+        local LINK_LIBS=""
+        for i in $DEP; do
+            LINK_LIBS="$LINK_LIBS ${PROJECT_NAME}_${i}"
+        done
 
-	cat >> $CMAKE_FILE <<EOF
+        cat >> $CMAKE_FILE <<EOF
 
 if( NOT DEFINED ENGINE_BUILD_SHARED )
   set( ENGINE_BUILD_SHARED 1 )          # DEFAULT: We create a shared library ( .so or a .dll )
@@ -39,7 +38,7 @@ else( ENGINE_BUILD_SHARED )
   add_library( ${TMP_NAME} STATIC \${${T^^}_SRC} \${${T^^}_INC} ) # Create a static library
   set( _BUILD_TYPE "static" )
 endif( ENGINE_BUILD_SHARED )
-	 
+
 if(CMAKE_CXX_COMPILER_ID MATCHES MSVC) 
   set_target_properties(
     ${TMP_NAME}
@@ -48,7 +47,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
       SOVERSION     \${CM_VERSION_MAJOR} 
     LINK_FLAGS	  "/LIBPATH:\${Boost_LIBRARY_DIRS} /FORCE:MULTIPLE"
   )
-else() 
+else()
 # Set some variables so that Cmake can do some fancy stuff with versions and filenames
   set_target_properties(
     ${TMP_NAME}
@@ -57,7 +56,7 @@ else()
         SOVERSION     \${CM_VERSION_MAJOR}
   )
 endif(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
- 
+
 # Windows also needs some linking...
 if( WIN32 )
   target_link_libraries(${TMP_NAME} \${ENGINE_LINK} \${LIBS_TO_LINK} )
@@ -65,7 +64,7 @@ endif( WIN32 )
 
 install( FILES \${${T^^}_INC} DESTINATION \${CMAKE_INSTALL_PREFIX}/include/engine)
 
-install( 
+install(
   TARGETS  ${TMP_NAME}
   RUNTIME  DESTINATION \${CMAKE_INSTALL_PREFIX}/bin/
   LIBRARY  DESTINATION \${CMAKE_INSTALL_PREFIX}/lib/ 
@@ -83,5 +82,6 @@ EOF
 
 }
 
+# kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;
 
 

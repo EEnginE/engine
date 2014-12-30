@@ -5,32 +5,30 @@ REGEX_HPP_1=".*/[a-zA-Z0-9_\-]+\.hpp"
 
 finSources() {
     local ARGC=$#
-    
+
     local ALL_CPP=() ALL_HPP=()
     local i
     for i in "${DISPLAY_SERVER[@]}"; do
-	eval "local ${i^^}_CPP=()"
-	eval "local ${i^^}_HPP=()"
-	eval "local ${i^^}_DIRECTORY=${1}/${i}"
+        eval "local ${i^^}_CPP=()"
+        eval "local ${i^^}_HPP=()"
+        eval "local ${i^^}_DIRECTORY=${1}/${i}"
     done
-    
-    
+
+
     local TEMP TEMP_CPP TEMP_HPP SERACH_IN I
-    
+
     if (( ARGC != 2 )); then
-        echo "ERROR: findSources needs 2 arguments!" >&2
-	exit
-    fi
-    
-    echo "INFO:    -- Generating sources for target ${1}..." >&2
-    
-    if [ ! -d $1 ]; then
-        echo "ERROR: $1 does not exist!" >&2
+        error "findSources needs 2 arguments!" >&2
         exit
     fi
-    
+
+    if [ ! -d $1 ]; then
+        error "$1 does not exist!" >&2
+        exit
+    fi
+
     local BASENAME_VARS=$2
-    
+
     ########################################################################################
     ############################################################################################################################
     #####                      ##########################################################################################################
@@ -39,17 +37,17 @@ finSources() {
     ############################################################################################################################
     ########################################################################################
 
-    echo "INFO:      -- Searching everything..." >&2
+    processBar 0 1 "sarching..." >&2
 
-    TEMP="$(find $1 -regex $REGEX_HPP_1 -printf '%h\n' | sort -u | sed 's/^\.\///g')"
+    TEMP=($(find $1 -regex $REGEX_HPP_1 -printf '%h\n' | sort -u | sed 's/^\.\///g'))
 
     cd $1
-    
-    TEMP_CPP="$(find . -regex $REGEX_CPP_1 -type f -print | sort | sed 's/^\.\///g')"
-    TEMP_HPP="$(find . -regex $REGEX_HPP_1 -type f -print | sort | sed 's/^\.\///g')"
+
+    TEMP_CPP=($(find . -regex $REGEX_CPP_1 -type f -print | sort | sed 's/^\.\///g'))
+    TEMP_HPP=($(find . -regex $REGEX_HPP_1 -type f -print | sort | sed 's/^\.\///g'))
 
     cd - &> /dev/null
-    
+
     ########################################################################################
     ############################################################################################################################
     #####                                     ###########################################################################################
@@ -61,21 +59,27 @@ finSources() {
     #########
     ## CPP ##
     #########
-    echo "INFO:      -- Assigning files to OS..." >&2
 
-    for I in $TEMP_CPP; do
-	for i in "${DISPLAY_SERVER[@]}"; do
-	    echo $I | grep "${i}/" &> /dev/null
-	    if (( $? == 0 )); then
-		eval "${i^^}_CPP+=( '$I' )"
-		i=0
-		break
-	    fi 
-	done
+    local P_COUNTER=1
+    local P_MAX=$(( ${#TEMP_CPP[@]} + ${#TEMP_HPP[@]} + ${#TEMP[@]} ))
 
-	if [[ "$i" != "0" ]]; then
-	    ALL_CPP+=( "$I" )
-	fi
+    for I in ${TEMP_CPP[@]}; do
+        processBar $P_COUNTER $P_MAX $I >&2
+        (( P_COUNTER++ ))
+
+        ALL_SOURCE_FILES+=( $1/$I )
+        for i in "${DISPLAY_SERVER[@]}"; do
+            echo $I | grep "${i}/" &> /dev/null
+            if (( $? == 0 )); then
+                eval "${i^^}_CPP+=( '$I' )"
+                i=0
+                break
+            fi
+        done
+
+        if [[ "$i" != "0" ]]; then
+            ALL_CPP+=( "$I" )
+        fi
     done
 
 
@@ -84,19 +88,23 @@ finSources() {
     ## HPP ##
     #########
 
-    for I in $TEMP_HPP; do
-	for i in "${DISPLAY_SERVER[@]}"; do
-	    echo $I | grep "${i}/" &> /dev/null
-	    if (( $? == 0 )); then
-		eval "${i^^}_HPP+=( '$I' )"
-		i=0
-		break
-	    fi 
-	done
+    for I in ${TEMP_HPP[@]}; do
+        processBar $P_COUNTER $P_MAX $I >&2
+        (( P_COUNTER++ ))
 
-	if [[ "$i" != "0" ]]; then
-	    ALL_HPP+=( "$I" )
-	fi
+        ALL_SOURCE_FILES+=( $1/$I )
+        for i in "${DISPLAY_SERVER[@]}"; do
+            echo $I | grep "${i}/" &> /dev/null
+            if (( $? == 0 )); then
+                eval "${i^^}_HPP+=( '$I' )"
+                i=0
+                break
+            fi
+        done
+
+        if [[ "$i" != "0" ]]; then
+            ALL_HPP+=( "$I" )
+        fi
     done
 
 
@@ -111,9 +119,9 @@ finSources() {
 
 
     ALL_ALL_HPP+=( "${ALL_HPP[@]}" )
-    
+
     for i in "${DISPLAY_SERVER[@]}"; do
-	eval "ALL_${i^^}_HPP+=( \"\${${i^^}_HPP[@]}\" )"
+        eval "ALL_${i^^}_HPP+=( \"\${${i^^}_HPP[@]}\" )"
     done
 
 
@@ -126,27 +134,26 @@ finSources() {
     ############################################################################################################################
     ########################################################################################
 
-    echo "INFO:      -- Assigning directories to OS..." >&2
+    for I in ${TEMP[@]}; do
+        processBar $P_COUNTER $P_MAX $I >&2
+        (( P_COUNTER++ ))
 
-    for I in $TEMP; do
-	for i in "${DISPLAY_SERVER[@]}"; do
-	    echo $I | grep "${i}" &> /dev/null
-	    if (( $? == 0 )); then
-		eval "${i^^}_DIRS+=( '$I' )"
-		i=0
-		break
-	    fi 
-	done
+        for i in "${DISPLAY_SERVER[@]}"; do
+            echo $I | grep "${i}" &> /dev/null
+            if (( $? == 0 )); then
+                eval "${i^^}_DIRS+=( '$I' )"
+                i=0
+                break
+            fi
+        done
 
-	if [[ "$i" != "0" ]]; then
-	    ALL_DIRS+=( "$I" )
-	fi
+        if [[ "$i" != "0" ]]; then
+            ALL_DIRS+=( "$I" )
+        fi
     done
-    
+
 
     # = Print =====
-
-    echo "INFO:      -- Printing sources..." >&2
 
     echo ""
     echo "###########################################"
@@ -156,43 +163,43 @@ finSources() {
 
     local TEMP_SIZE=()
     local TEMP_A=()
-    
+
     for i in "${DISPLAY_SERVER[@]}"; do
-	eval "TEMP_SIZE[0]=\${#${i^^}_CPP[@]}"
-	eval "TEMP_SIZE[1]=\${#${i^^}_HPP[@]}"
+        eval "TEMP_SIZE[0]=\${#${i^^}_CPP[@]}"
+        eval "TEMP_SIZE[1]=\${#${i^^}_HPP[@]}"
 
-	if (( ${TEMP_SIZE[0]} != 0 || ${TEMP_SIZE[1]} != 0 )); then
-	    echo "# ${i} files:"
-	    echo "if( DISPLAY_SERVER MATCHES ${i^^} )"
-	    echo ""
-	    echo "set( ${BASENAME_VARS}_CPP_P"
-	    eval "TEMP_A=( \${${i^^}_CPP[@]} )"
-	    for I in "${TEMP_A[@]}"; do
-		echo "  $I"
-	    done
-	    echo ")"
+        if (( ${TEMP_SIZE[0]} != 0 || ${TEMP_SIZE[1]} != 0 )); then
+            echo "# ${i} files:"
+            echo "if( DISPLAY_SERVER MATCHES ${i^^} )"
+            echo ""
+            echo "set( ${BASENAME_VARS}_CPP_P"
+            eval "TEMP_A=( \${${i^^}_CPP[@]} )"
+            for I in "${TEMP_A[@]}"; do
+                echo "  $I"
+            done
+            echo ")"
 
-	    echo ""
-	    echo "set( ${BASENAME_VARS}_HPP_P"
-	    eval "TEMP_A=( \${${i^^}_HPP[@]} )"
-	    for I in "${TEMP_A[@]}"; do
-		echo "  $I"
-	    done
-	    echo ")"
-	    echo ""
-	    echo "endif( DISPLAY_SERVER MATCHES ${i^^} )"
-	    echo ""
-	    echo ""
-	fi
+            echo ""
+            echo "set( ${BASENAME_VARS}_HPP_P"
+            eval "TEMP_A=( \${${i^^}_HPP[@]} )"
+            for I in "${TEMP_A[@]}"; do
+                echo "  $I"
+            done
+            echo ")"
+            echo ""
+            echo "endif( DISPLAY_SERVER MATCHES ${i^^} )"
+            echo ""
+            echo ""
+        fi
 
     done
-    
+
     echo ""
     echo "set( ${BASENAME_VARS}_SRC"
     echo "  \${${BASENAME_VARS}_CPP_P}"
     echo ""
     for I in "${ALL_CPP[@]}"; do
-	echo "  $I"
+        echo "  $I"
     done
     echo ")"
 
@@ -201,7 +208,7 @@ finSources() {
     echo "  \${${BASENAME_VARS}_CPP_P}"
     echo ""
     for I in "${ALL_HPP[@]}"; do
-	echo "  $I"
+        echo "  $I"
     done
     echo ")"
     echo ""
@@ -211,3 +218,5 @@ finSources() {
     echo "#########################################"
     echo ""
 }
+
+# kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

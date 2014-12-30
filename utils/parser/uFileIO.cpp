@@ -15,13 +15,9 @@ void uFileIO::clear() {
    vData.resize( 0 );
 }
 
-std::string uFileIO::getFilePath() {
-   return vFilePath_str;
-}
+std::string uFileIO::getFilePath() { return vFilePath_str; }
 
-void uFileIO::setFilePath( std::string _file ) {
-   vFilePath_str = _file;
-}
+void uFileIO::setFilePath( std::string _file ) { vFilePath_str = _file; }
 
 /*!
  * \brief Reads the file
@@ -35,31 +31,31 @@ void uFileIO::setFilePath( std::string _file ) {
  * \returns 5 if the file is not readable
  */
 int uFileIO::read( bool _autoReload ) {
-   if( vFileRead_B == true && _autoReload == false )
+   if ( vFileRead_B == true && _autoReload == false )
       return 2;
 
    boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
 
-   if( ! boost::filesystem::exists( lFilePath_BFS ) ) {
+   if ( !boost::filesystem::exists( lFilePath_BFS ) ) {
       eLOG( "File ", vFilePath_str, " does not exists" );
       return 3;
    }
 
-   if( ! boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
+   if ( !boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
       eLOG( vFilePath_str, " is not a file!" );
       return 4;
    }
 
    FILE *lFile = fopen( vFilePath_str.c_str(), "r" );
-   if( lFile == nullptr ) {
+   if ( lFile == nullptr ) {
       eLOG( "Unable to open ", vFilePath_str );
       return 5;
    }
 
    int c;
 
-   while( ( c = fgetc( lFile ) ) != EOF )
-      vData += ( char )c;
+   while ( ( c = fgetc( lFile ) ) != EOF )
+      vData += (char)c;
 
    fclose( lFile );
 
@@ -83,39 +79,37 @@ int uFileIO::read( bool _autoReload ) {
 int uFileIO::write( const uFileIO::TYPE &_data, bool _overWrite ) {
    boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
 
-   if( boost::filesystem::exists( lFilePath_BFS ) ) {
-      if( ! _overWrite ) {
+   if ( boost::filesystem::exists( lFilePath_BFS ) ) {
+      if ( !_overWrite ) {
          eLOG( "File ", vFilePath_str, " already exists -- do not overwrite" );
          return 2;
       }
 
-      if( ! boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
+      if ( !boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
          eLOG( vFilePath_str, " is not a file! -- can not overwrite" );
          return 3;
       }
-      
+
       wLOG( "File ", vFilePath_str, " already exists -- overwrite" );
-      
-      if( ! boost::filesystem::remove( lFilePath_BFS ) ) {
+
+      if ( !boost::filesystem::remove( lFilePath_BFS ) ) {
          eLOG( "Failed to remove '", vFilePath_str, "'" );
          return 4;
       }
    }
 
    FILE *lFile = fopen( vFilePath_str.c_str(), "w" );
-   if( lFile == nullptr ) {
+   if ( lFile == nullptr ) {
       eLOG( "Unable to open ", vFilePath_str );
       return 5;
    }
 
-   for( char ch : _data )
+   for ( char ch : _data )
       fputc( ch, lFile );
 
    fclose( lFile );
 
    return 1;
 }
-
-
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

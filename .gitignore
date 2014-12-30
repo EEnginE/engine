@@ -33,6 +33,7 @@ FindEngine.cmake
 .*.kate-swp
 
 .clang_complete
+.clang-format
 *_flymake.cpp
 *_flymake.hpp
 

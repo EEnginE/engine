@@ -32,7 +32,7 @@ namespace e_engine {
 
 enum LOG_COLOR_TYPE { DISABLED, REDUCED, FULL };
 enum LOG_PRINT_TYPE { OFF, LEFT_FULL, RIGHT_FULL, LEFT_REDUCED, RIGHT_REDUCED };
-enum WINDOW_TYPE    {
+enum WINDOW_TYPE {
    DESKTOP,
    DOCK,
    TOOLBAR,
@@ -50,9 +50,7 @@ enum WINDOW_TYPE    {
 };
 
 
-namespace internal {
-
-}
+namespace internal {}
 
 /*!
  * \struct e_engine::_uConfig
@@ -67,42 +65,46 @@ namespace internal {
  *
  * Only variables like height, width and windowName should be changed.
  *
- * \note Only the object \c GlobConf will be used! You should never create other instances of this structure
+ * \note Only the object \c GlobConf will be used! You should never create other instances of this
+ *structure
  *
  * \sa iInit iContext GlobConf
  */
 struct _uConfig {
 
-   bool         handleSIGINT;  // Crt - C
-   bool         handleSIGTERM;
+   bool handleSIGINT; // Crt - C
+   bool handleSIGTERM;
 
-   long int     timeoutForMainLoopThread_mSec;
+   long int timeoutForMainLoopThread_mSec;
 
    // =============================================================================
    // ==================================================================================================================
-   // =======           ================================================================================================================
-   // =====  Framebuffer  =================================================================================================================
-   // =======           ================================================================================================================
+   // =======
+   // ================================================================================================================
+   // =====  Framebuffer
+   // =================================================================================================================
+   // =======
+   // ================================================================================================================
    // ==================================================================================================================
    // =============================================================================
 
    struct __uConfig_FBA {
-      int          FBA_RENDER_TYPE;
-      int          FBA_RENDERABLE;
-      int          FBA_DRAWABLE_TYPE;
-      int          FBA_DOUBLEBUFFER;
-      int          FBA_RED;
-      int          FBA_GREEN;
-      int          FBA_BLUE;
-      int          FBA_ALPHA;
-      int          FBA_DEPTH;
-      int          FBA_STENCIL;
-      int          FBA_VISUAL_TYPE;
-      //int         FBA_STEREO;
+      int FBA_RENDER_TYPE;
+      int FBA_RENDERABLE;
+      int FBA_DRAWABLE_TYPE;
+      int FBA_DOUBLEBUFFER;
+      int FBA_RED;
+      int FBA_GREEN;
+      int FBA_BLUE;
+      int FBA_ALPHA;
+      int FBA_DEPTH;
+      int FBA_STENCIL;
+      int FBA_VISUAL_TYPE;
+      // int         FBA_STEREO;
 
-      int          FBA_DRAW_TO_WINDOW;
-      int          FBA_ACCELERATION;
-      int          FBA_OGL_SUPPORTED;
+      int FBA_DRAW_TO_WINDOW;
+      int FBA_ACCELERATION;
+      int FBA_OGL_SUPPORTED;
 
 
       __uConfig_FBA();
@@ -116,17 +118,20 @@ struct _uConfig {
 
    // =============================================================================
    // ==================================================================================================================
-   // =======        ===================================================================================================================
-   // =====  Versions  ====================================================================================================================
-   // =======        ===================================================================================================================
+   // =======
+   // ===================================================================================================================
+   // =====  Versions
+   // ====================================================================================================================
+   // =======
+   // ===================================================================================================================
    // ==================================================================================================================
    // =============================================================================
 
    struct __uConfig_Versions {
-      int          minGlxMajorVer;
-      int          minGlxMinorVer;
-      int          glMajorVersion;
-      int          glMinorVersion;
+      int minGlxMajorVer;
+      int minGlxMinorVer;
+      int glMajorVersion;
+      int glMinorVersion;
 
       __uConfig_Versions();
 
@@ -140,40 +145,60 @@ struct _uConfig {
 
    // =============================================================================
    // ==================================================================================================================
-   // =======      =====================================================================================================================
-   // =====  Window  ======================================================================================================================
-   // =======      =====================================================================================================================
+   // =======
+   // =====================================================================================================================
+   // =====  Window
+   // ======================================================================================================================
+   // =======
+   // =====================================================================================================================
    // ==================================================================================================================
    // =============================================================================
 
    struct __uConfig_Window {
-      unsigned int width;     //!< The width  ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
-      unsigned int height;    //!< The height ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
-      unsigned int minWidth;  //!< The min width of the window                        \c CLASSES: \a iInit, \a iContext
-      unsigned int minHeight; //!< The min height of the window                       \c CLASSES: \a iInit, \a iContext
-      int          posX;      //!< The posX   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
-      int          posY;      //!< The posY   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
+      unsigned int width;     //!< The width  ( will be updated when window changed ) \c CLASSES: \a
+                              //iInit, \a iContext
+      unsigned int height;    //!< The height ( will be updated when window changed ) \c CLASSES: \a
+                              //iInit, \a iContext
+      unsigned int minWidth;  //!< The min width of the window                        \c CLASSES: \a
+                              //iInit, \a iContext
+      unsigned int minHeight; //!< The min height of the window                       \c CLASSES: \a
+                              //iInit, \a iContext
+      int posX; //!< The posX   ( will be updated when window changed ) \c CLASSES: \a iInit, \a
+                //iContext
+      int posY; //!< The posY   ( will be updated when window changed ) \c CLASSES: \a iInit, \a
+                //iContext
 
-      unsigned int mousePosX; //!< The mouse posX   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
-      unsigned int mousePosY; //!< The mouse posY   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
+      unsigned int mousePosX; //!< The mouse posX   ( will be updated when mouse moved ) \c CLASSES:
+                              //\a iInit, \a iContext
+      unsigned int mousePosY; //!< The mouse posY   ( will be updated when mouse moved ) \c CLASSES:
+                              //\a iInit, \a iContext
 
-      bool         mouseIsInWindow; //!< Is the mouse in the window? ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
-      bool         windowHasFocus;  //!< Has our window the focus?   ( will be updated when mouse moved ) \c CLASSES: \a iInit, \a iContext
+      bool mouseIsInWindow; //!< Is the mouse in the window? ( will be updated when mouse moved ) \c
+                            //CLASSES: \a iInit, \a iContext
+      bool windowHasFocus;  //!< Has our window the focus?   ( will be updated when mouse moved ) \c
+                            //CLASSES: \a iInit, \a iContext
 
 
 
-      bool         fullscreen;       //!< Fullscreen?          ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit
-      bool         VSync;            //!< VSync?               ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit
-      bool         windowDecoration; //!< Has a window border? ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit
+      bool fullscreen; //!< Fullscreen?          ( changes will be ignored after iInit::init()
+                       //called ) \c CLASSES: \a iInit
+      bool VSync; //!< VSync?               ( changes will be ignored after iInit::init() called )
+                  //\c CLASSES: \a iInit
+      bool windowDecoration; //!< Has a window border? ( changes will be ignored after iInit::init()
+                             //called ) \c CLASSES: \a iInit
 
-      WINDOW_TYPE  winType;
+      WINDOW_TYPE winType;
 
-      std::string  windowName;      //!< Name of the window ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit, \a iContext
-      std::string  xlibWindowName;  //!< Name of the window ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit, \a iContext
-      std::string  iconName;        //!< Name of the window ( changes will be ignored after iInit::init() called ) \c CLASSES: \a iInit, \a iContext
-      //std::string  iconPath;       //!< Name of the window ( changes will be ignored after iInit::init() called )
+      std::string windowName; //!< Name of the window ( changes will be ignored after iInit::init()
+                              //called ) \c CLASSES: \a iInit, \a iContext
+      std::string xlibWindowName; //!< Name of the window ( changes will be ignored after
+                                  //iInit::init() called ) \c CLASSES: \a iInit, \a iContext
+      std::string iconName; //!< Name of the window ( changes will be ignored after iInit::init()
+                            //called ) \c CLASSES: \a iInit, \a iContext
+      // std::string  iconPath;       //!< Name of the window ( changes will be ignored after
+      // iInit::init() called )
 
-      bool         restoreOldScreenRes;
+      bool restoreOldScreenRes;
 
       __uConfig_Window();
 
@@ -187,33 +212,36 @@ struct _uConfig {
 
    // =============================================================================
    // ==================================================================================================================
-   // =======   ========================================================================================================================
-   // =====  Log  =========================================================================================================================
-   // =======   ========================================================================================================================
+   // =======
+   // ========================================================================================================================
+   // =====  Log
+   // =========================================================================================================================
+   // =======
+   // ========================================================================================================================
    // ==================================================================================================================
    // =============================================================================
 
    struct __uLogData_Config {
-      char         standardTimeColor;
+      char standardTimeColor;
 
       unsigned int maxFilenameSize;
       unsigned int maxFunctionNameSize;
 
       unsigned int threadNameWidth;
 
-      bool         standardShowTime;
-      bool         standardShowFile;
-      bool         standardShowLine;
+      bool standardShowTime;
+      bool standardShowFile;
+      bool standardShowLine;
 
-      bool         standardWarningsToStdErr;
+      bool standardWarningsToStdErr;
 
-      bool         logDefaultInit;
+      bool logDefaultInit;
 
-      bool         useHistory;
+      bool useHistory;
 
-      bool         waitUntilLogEntryPrinted;
+      bool waitUntilLogEntryPrinted;
 
-      int          width;                       //!< If width < 0, then the automatically determined size will be used
+      int width; //!< If width < 0, then the automatically determined size will be used
 
       struct __uLogDataStandardOut {
          LOG_COLOR_TYPE colors;
@@ -237,7 +265,8 @@ struct _uConfig {
          LOG_PRINT_TYPE ErrorType;
          LOG_PRINT_TYPE Thread;
 
-         std::string logFileName;   //!< The BASIC name (without .log, etc.) of the log file ( changes will be ignored after the 1st log entry ) \c CLASSES: \a uLog
+         std::string logFileName; //!< The BASIC name (without .log, etc.) of the log file ( changes
+                                  //will be ignored after the 1st log entry ) \c CLASSES: \a uLog
       } logFILE;
 
       void reset();
@@ -248,21 +277,26 @@ struct _uConfig {
 
    // =============================================================================
    // ==================================================================================================================
-   // =======      =====================================================================================================================
-   // =====  Config  ======================================================================================================================
-   // =======      =====================================================================================================================
+   // =======
+   // =====================================================================================================================
+   // =====  Config
+   // ======================================================================================================================
+   // =======
+   // =====================================================================================================================
    // ==================================================================================================================
    // =============================================================================
 
    struct __uConfig_Config {
-      std::string appName;          //!< The name of the program
-      std::string configSubFolder;  //!< Sub folder in the main configuration folder ( clear for none )
-      std::string logSubFolder;     //!< Sub folder in the main configuration folder ( clear for none ) ( changes will be ignored after the 1st log entry )
+      std::string appName; //!< The name of the program
+      std::string
+            configSubFolder;    //!< Sub folder in the main configuration folder ( clear for none )
+      std::string logSubFolder; //!< Sub folder in the main configuration folder ( clear for none )
+                                //( changes will be ignored after the 1st log entry )
 
-      bool useTimeAtCMD;            //!< Time on commandline when log entry starts. \c CLASSES: \a uLog
-      bool useTimeAtLog;            //!< Time in logfile when log entry starts.     \c CLASSES: \a uLog
+      bool useTimeAtCMD; //!< Time on commandline when log entry starts. \c CLASSES: \a uLog
+      bool useTimeAtLog; //!< Time in logfile when log entry starts.     \c CLASSES: \a uLog
 
-      bool useCMDColor;             //!< Turns all functions off \a eCMD useless if set \c false
+      bool useCMDColor; //!< Turns all functions off \a eCMD useless if set \c false
 
       /*!
        * \brief \c UNIX Main config path mode
@@ -278,7 +312,7 @@ struct _uConfig {
        * name of the app is used for the folder (only if \a $HOME/.config exists)
        *
        */
-      bool           unixPathType;
+      bool unixPathType;
 
       __uConfig_Config();
       unsigned short maxNumOfLogFileBackshift;
@@ -294,11 +328,12 @@ struct _uConfig {
    struct __uConfig_OpenGL {
       /*!
        * 1: - force OLD shader query style - should always work
-       * 2: - force NEW shader query style - even if the extension is not supported ==> may cause segfault
+       * 2: - force NEW shader query style - even if the extension is not supported ==> may cause
+       * segfault
        * 0: Let rShader decide [default]
        */
       unsigned char shaderInfoQueryType;
-      bool    useShaders;
+      bool useShaders;
 
       __uConfig_OpenGL();
       /*!
@@ -311,9 +346,12 @@ struct _uConfig {
 
    // =============================================================================
    // ==================================================================================================================
-   // =======      =====================================================================================================================
-   // =====  Camera  ======================================================================================================================
-   // =======      =====================================================================================================================
+   // =======
+   // =====================================================================================================================
+   // =====  Camera
+   // ======================================================================================================================
+   // =======
+   // =====================================================================================================================
    // ==================================================================================================================
    // =============================================================================
 
@@ -334,7 +372,10 @@ struct _uConfig {
 
 
    _uConfig();
-   void useAutoOpenGLVersion() {versions.glMajorVersion = -5; versions.glMinorVersion = -5;}
+   void useAutoOpenGLVersion() {
+      versions.glMajorVersion = -5;
+      versions.glMinorVersion = -5;
+   }
 };
 
 /*!
@@ -342,8 +383,7 @@ struct _uConfig {
  * \sa _uConfig __uConfig_FBA
  */
 extern _uConfig GlobConf;
-
 }
 
 #endif // U_CONFIG_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

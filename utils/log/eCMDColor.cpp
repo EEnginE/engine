@@ -8,8 +8,8 @@
 
 namespace e_engine {
 #ifdef E_COLOR_DISABLED
-   const std::wstring eCMDColor::RESET = L"";
+const std::wstring eCMDColor::RESET = L"";
 #else
-   const std::wstring eCMDColor::RESET = L"\x1b[0m";
+const std::wstring eCMDColor::RESET = L"\x1b[0m";
 #endif
 }

@@ -9,9 +9,7 @@
 namespace e_engine {
 
 
-rSimpleMesh::~rSimpleMesh() {
-   clearOGLData();
-}
+rSimpleMesh::~rSimpleMesh() { clearOGLData(); }
 
 
 
@@ -21,14 +19,14 @@ int rSimpleMesh::clearOGLData__() {
 
    if ( vHasNormals ) {
       glDeleteBuffers( 1, &vNormalBufferObject );
-      vHasNormals= false;
+      vHasNormals = false;
    }
 
    vObjectHints[IS_DATA_READY] = 0;
-   vObjectHints[LIGHT_MODEL]   = NO_LIGHTS;
-   vObjectHints[NUM_VBO]       = 0;
-   vObjectHints[NUM_IBO]       = 0;
-   vObjectHints[NUM_NBO]       = 0;
+   vObjectHints[LIGHT_MODEL] = NO_LIGHTS;
+   vObjectHints[NUM_VBO] = 0;
+   vObjectHints[NUM_IBO] = 0;
+   vObjectHints[NUM_NBO] = 0;
 
    return 1;
 }
@@ -49,27 +47,36 @@ int rSimpleMesh::setOGLData__() {
 
    auto *lData = vLoaderData->getData();
 
-   glBindBuffer( GL_ARRAY_BUFFER,         vVertexBufferObject );
-   glBufferData( GL_ARRAY_BUFFER,         sizeof( GLfloat ) * lData->vVertexData.size(), &lData->vVertexData.at( 0 ), GL_STATIC_DRAW );
+   glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObject );
+   glBufferData( GL_ARRAY_BUFFER,
+                 sizeof( GLfloat ) * lData->vVertexData.size(),
+                 &lData->vVertexData.at( 0 ),
+                 GL_STATIC_DRAW );
 
    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObject );
-   glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( GLuint )  * lData->vIndex.size(), &lData->vIndex.at( 0 ), GL_STATIC_DRAW );
+   glBufferData( GL_ELEMENT_ARRAY_BUFFER,
+                 sizeof( GLuint ) * lData->vIndex.size(),
+                 &lData->vIndex.at( 0 ),
+                 GL_STATIC_DRAW );
 
    if ( lData->vNormalesData.size() > 0 ) {
       glGenBuffers( 1, &vNormalBufferObject );
 
       glBindBuffer( GL_ARRAY_BUFFER, vNormalBufferObject );
-      glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * lData->vNormalesData.size(), &lData->vNormalesData.at( 0 ), GL_STATIC_DRAW );
+      glBufferData( GL_ARRAY_BUFFER,
+                    sizeof( GLfloat ) * lData->vNormalesData.size(),
+                    &lData->vNormalesData.at( 0 ),
+                    GL_STATIC_DRAW );
 
       vHasNormals = true;
       vObjectHints[LIGHT_MODEL] = SIMPLE_ADS_LIGHT;
-      vObjectHints[NUM_NBO]     = 1;
+      vObjectHints[NUM_NBO] = 1;
    }
 
    vObjectHints[IS_DATA_READY] = 1;
 
-   vObjectHints[NUM_VBO]       = 1;
-   vObjectHints[NUM_IBO]       = 1;
+   vObjectHints[NUM_VBO] = 1;
+   vObjectHints[NUM_IBO] = 1;
 
    return 1;
 }
@@ -122,47 +129,57 @@ uint32_t rSimpleMesh::getNBO( uint32_t &_n ) {
 
 uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) {
    switch ( _type ) {
-      case SCALE:                 *_mat = getScaleMatrix();               return 0;
-      case ROTATION:              *_mat = getRotationMatrix();            return 0;
-      case TRANSLATION:           *_mat = getTranslationMatrix();         return 0;
-      case CAMERA_MATRIX:         *_mat = getViewProjectionMatrix();      return 0;
-      case MODEL_MATRIX:          *_mat = getModelMatrix();               return 0;
-      case VIEW_MATRIX:           *_mat = getViewMatrix();                return 0;
-      case PROJECTION_MATRIX:     *_mat = getProjectionMatrix();          return 0;
-      case MODEL_VIEW_MATRIX:     *_mat = getModelViewMatrix();           return 0;
-      case MODEL_VIEW_PROJECTION: *_mat = getModelViewProjectionMatrix(); return 0;
-      default: return INDEX_OUT_OF_RANGE;
+      case SCALE:
+         *_mat = getScaleMatrix();
+         return 0;
+      case ROTATION:
+         *_mat = getRotationMatrix();
+         return 0;
+      case TRANSLATION:
+         *_mat = getTranslationMatrix();
+         return 0;
+      case CAMERA_MATRIX:
+         *_mat = getViewProjectionMatrix();
+         return 0;
+      case MODEL_MATRIX:
+         *_mat = getModelMatrix();
+         return 0;
+      case VIEW_MATRIX:
+         *_mat = getViewMatrix();
+         return 0;
+      case PROJECTION_MATRIX:
+         *_mat = getProjectionMatrix();
+         return 0;
+      case MODEL_VIEW_MATRIX:
+         *_mat = getModelViewMatrix();
+         return 0;
+      case MODEL_VIEW_PROJECTION:
+         *_mat = getModelViewProjectionMatrix();
+         return 0;
+      default:
+         return INDEX_OUT_OF_RANGE;
    }
 }
 
 uint32_t rSimpleMesh::getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) {
    switch ( _type ) {
-      case NORMAL_MATRIX:         *_mat = getNormalMatrix();              return 0;
-      default: return INDEX_OUT_OF_RANGE;
+      case NORMAL_MATRIX:
+         *_mat = getNormalMatrix();
+         return 0;
+      default:
+         return INDEX_OUT_OF_RANGE;
    }
 }
 
 void rSimpleMesh::setFlags() {
-   vObjectHints[FLAGS]    = MESH_OBJECT;
-   vObjectHints[MATRICES] =
-      SCALE_MATRIX_FLAG       |
-      ROTATION_MATRIX_FLAG    |
-      TRANSLATION_MATRIX_FLAG |
-      CAMERA_MATRIX_FLAG      |
-      MODEL_MATRIX_FLAG       |
-      VIEW_MATRIX_FLAG        |
-      PROJECTION_MATRIX_FLAG  |
-      MODEL_VIEW_MATRIX_FLAG  |
-      NORMAL_MATRIX_FLAG      |
-      MODEL_VIEW_PROJECTION_MATRIX_FLAG;
+   vObjectHints[FLAGS] = MESH_OBJECT;
+   vObjectHints[MATRICES] = SCALE_MATRIX_FLAG | ROTATION_MATRIX_FLAG | TRANSLATION_MATRIX_FLAG |
+                            CAMERA_MATRIX_FLAG | MODEL_MATRIX_FLAG | VIEW_MATRIX_FLAG |
+                            PROJECTION_MATRIX_FLAG | MODEL_VIEW_MATRIX_FLAG | NORMAL_MATRIX_FLAG |
+                            MODEL_VIEW_PROJECTION_MATRIX_FLAG;
 
    vObjectHints[IS_DATA_READY] = 0;
 }
-
-
-
-
-
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

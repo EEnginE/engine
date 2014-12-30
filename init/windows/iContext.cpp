@@ -17,15 +17,13 @@
 
 namespace {
 
-template<class T>
+template <class T>
 inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill ) {
    std::string lResult_STR = std::to_string( _val );
    if ( _size > lResult_STR.size() )
       lResult_STR.append( ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;
 }
-
-
 }
 
 namespace e_engine {
@@ -39,15 +37,15 @@ eWindowClassRegister CLASS_REGISTER;
 
 
 iContext::iContext() {
-   vWindowsCallbacksError_B       = false;
-   vHasContext_B                  = false;
-   vHasGLEW_B                     = false;
+   vWindowsCallbacksError_B = false;
+   vHasContext_B = false;
+   vHasGLEW_B = false;
 
-   vIsCursorHidden_B              = false;
-   vIsMouseGrabbed_B              = false;
+   vIsCursorHidden_B = false;
+   vIsMouseGrabbed_B = false;
 
 
-   vWindowRecreate_B              = false;
+   vWindowRecreate_B = false;
    vAThreadOwnsTheOpenGLContext_B = false;
 }
 
@@ -62,20 +60,24 @@ iContext::iContext() {
  * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
  */
 int iContext::enableVSync() {
-   if ( ! vHasContext_B )
+   if ( !vHasContext_B )
       return 0;
 
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
       if ( wglSwapIntervalEXT( 1 ) != TRUE ) {
          switch ( GetLastError() ) {
             case ERROR_INVALID_DATA:
-               wLOG(    "VSync Error [WGL] ERROR_INVALID_DATA; 1 seams to be not a good value on this System\n==> VSync NOT enabled" );
+               wLOG( "VSync Error [WGL] ERROR_INVALID_DATA; 1 seams to be not a good value on this "
+                     "System\n==> VSync NOT enabled" );
                return 3;
             case ERROR_DC_NOT_FOUND:
-               wLOG(    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT enabled" );
+               wLOG( "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context "
+                     "in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT "
+                     "enabled" );
                return 4;
             default:
-               wLOG(    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> VSync NOT enabled" );
+               wLOG( "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> "
+                     "VSync NOT enabled" );
                return 5;
          }
       }
@@ -84,7 +86,8 @@ int iContext::enableVSync() {
       return 1;
 
    } else {
-      wLOG(    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported\n==> VSync NOT enabled" );
+      wLOG( "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported\n==> VSync NOT "
+            "enabled" );
       return 2;
    }
 }
@@ -99,20 +102,24 @@ int iContext::enableVSync() {
  * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
  */
 int iContext::disableVSync() {
-   if ( ! vHasContext_B )
+   if ( !vHasContext_B )
       return 0;
 
    if ( wglewIsSupported( "WGL_EXT_swap_control" ) ) {
       if ( wglSwapIntervalEXT( 0 ) != TRUE ) {
          switch ( GetLastError() ) {
             case ERROR_INVALID_DATA:
-               wLOG(    "VSync Error [WGL] ERROR_INVALID_DATA; 0 seams to be not a good value on this System\n==> VSync NOT disabled" );
+               wLOG( "VSync Error [WGL] ERROR_INVALID_DATA; 0 seams to be not a good value on this "
+                     "System\n==> VSync NOT disabled" );
                return 3;
             case ERROR_DC_NOT_FOUND:
-               wLOG(    "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT disabled" );
+               wLOG( "VSync Error [WGL] ERROR_DC_NOT_FOUND; There is no *current* OpenGL context "
+                     "in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT "
+                     "disabled" );
                return 4;
             default:
-               wLOG(    "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> VSync NOT disabled" );
+               wLOG( "VSync Error [WGL] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> "
+                     "VSync NOT disabled" );
                return 5;
          }
       }
@@ -121,14 +128,15 @@ int iContext::disableVSync() {
       return 1;
 
    } else {
-      wLOG(    "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported\n==> VSync NOT disabled" );
+      wLOG( "VSync Error [WGL]; Extention WGL_EXT_swap_control not supported\n==> VSync NOT "
+            "disabled" );
       return 2;
    }
 }
 
 
 void iContext::destroyContext() {
-   if ( ! vHasContext_B )
+   if ( !vHasContext_B )
       return;
 
    iLOG( "Destroying everything" );
@@ -157,12 +165,14 @@ void iContext::destroyContext() {
  * \returns false when there was an error
  */
 bool iContext::makeContextCurrent() {
-   if ( ! vHasContext_B ) {
-      eLOG( "OpenGL context Error [WGL]; We do not have any context. Please create it with iInit::init() before you run this!" );
+   if ( !vHasContext_B ) {
+      eLOG( "OpenGL context Error [WGL]; We do not have any context. Please create it with "
+            "iInit::init() before you run this!" );
       return false;
    }
    if ( vAThreadOwnsTheOpenGLContext_B ) {
-      eLOG( "The OpenGL Context is already in use in another or this thread! Cannot make it current now!" );
+      eLOG( "The OpenGL Context is already in use in another or this thread! Cannot make it "
+            "current now!" );
       return false;
    }
    bool lReturnVal_B = wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL ) == TRUE ? true : false;
@@ -178,8 +188,9 @@ bool iContext::makeContextCurrent() {
  * \returns false when there was an error
  */
 bool iContext::makeNOContextCurrent() {
-   if ( ! vHasContext_B ) {
-      eLOG( "OpenGL context Error [WGL]; We do not have any context. Please create it with iInit::init() before you run this!" );
+   if ( !vHasContext_B ) {
+      eLOG( "OpenGL context Error [WGL]; We do not have any context. Please create it with "
+            "iInit::init() before you run this!" );
       return false;
    }
    bool lReturnVal_B = wglMakeCurrent( NULL, NULL ) == TRUE ? true : false;
@@ -206,13 +217,15 @@ bool iContext::isAContextCurrentForThisThread() {
  * \param _posY   The new Y coordinate
  * \returns The return value of \c SetWindowPos
  */
-int iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
-   GlobConf.win.width  = _width;
+int
+iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
+   GlobConf.win.width = _width;
    GlobConf.win.height = _height;
-   GlobConf.win.posX   = _posX;
-   GlobConf.win.posY   = _posY;
+   GlobConf.win.posX = _posX;
+   GlobConf.win.posY = _posY;
 
-   return SetWindowPos( vHWND_Window_win32, HWND_TOP, _posX, _posY, _width, _height, SWP_SHOWWINDOW );
+   return SetWindowPos(
+         vHWND_Window_win32, HWND_TOP, _posX, _posY, _width, _height, SWP_SHOWWINDOW );
 }
 
 
@@ -229,7 +242,7 @@ int iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int
  * \returns the return falue of SetWindowPos
  */
 bool iContext::setWindowState( UINT _flags, HWND _pos ) {
-   if ( _pos == ( HWND )1000 )
+   if ( _pos == (HWND)1000 )
       _flags |= SWP_NOZORDER;
 
    return SetWindowPos( vHWND_Window_win32, _pos, 0, 0, 10, 10, _flags | SWP_NOSIZE | SWP_NOMOVE );
@@ -250,53 +263,87 @@ bool iContext::setWindowState( UINT _flags, HWND _pos ) {
  * \sa e_engine::ACTION, e_engine::WINDOW_ATTRIBUTE
  */
 bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 ) {
-   if ( ! vHasGLEW_B )
+   if ( !vHasGLEW_B )
       return false;
 
    if ( _type1 == _type2 ) {
-      eLOG( "Changing the same attribute at the same time makes completely no sense. ==> Do nothing" );
+      eLOG( "Changing the same attribute at the same time makes completely no sense. ==> Do "
+            "nothing" );
       return false;
    }
 
    std::string lMode_STR;
    std::string lState1_str = "NOTHING", lState2_str = "NOTHING";
-   bool        lState1Supported_B = false, lState2Supported_B = false ;
+   bool lState1Supported_B = false, lState2Supported_B = false;
 
    switch ( _type1 ) {
-      case MODAL:         lState1_str = "MODAL"        ; break;
-      case STICKY:        lState1_str = "STICKY"       ; break;
-      case SHADED:        lState1_str = "SHADED"       ; break;
-      case SKIP_TASKBAR:  lState1_str = "SKIP_TASKBAR" ; break;
-      case SKIP_PAGER:    lState1_str = "SKIP_PAGER"   ; break;
-      default:            lState1Supported_B = true    ; break;
+      case MODAL:
+         lState1_str = "MODAL";
+         break;
+      case STICKY:
+         lState1_str = "STICKY";
+         break;
+      case SHADED:
+         lState1_str = "SHADED";
+         break;
+      case SKIP_TASKBAR:
+         lState1_str = "SKIP_TASKBAR";
+         break;
+      case SKIP_PAGER:
+         lState1_str = "SKIP_PAGER";
+         break;
+      default:
+         lState1Supported_B = true;
+         break;
    }
 
    switch ( _type2 ) {
-      case MODAL:         lState2_str = "MODAL"        ; break;
-      case STICKY:        lState2_str = "STICKY"       ; break;
-      case SHADED:        lState2_str = "SHADED"       ; break;
-      case SKIP_TASKBAR:  lState2_str = "SKIP_TASKBAR" ; break;
-      case SKIP_PAGER:    lState2_str = "SKIP_PAGER"   ; break;
-      default:            lState2Supported_B = true    ; break;
+      case MODAL:
+         lState2_str = "MODAL";
+         break;
+      case STICKY:
+         lState2_str = "STICKY";
+         break;
+      case SHADED:
+         lState2_str = "SHADED";
+         break;
+      case SKIP_TASKBAR:
+         lState2_str = "SKIP_TASKBAR";
+         break;
+      case SKIP_PAGER:
+         lState2_str = "SKIP_PAGER";
+         break;
+      default:
+         lState2Supported_B = true;
+         break;
    }
 
    if ( !lState1Supported_B ) {
-      wLOG( "Window attribute ", lState1_str, " not suppored on Windows ==> change it to NONE, do (if possible) type2, and return false" );
-      _type1      = NONE;
+      wLOG( "Window attribute ", lState1_str, " not suppored on Windows ==> change it to NONE, do "
+                                              "(if possible) type2, and return false" );
+      _type1 = NONE;
       lState1_str = "NOT_SUPPORTED";
    }
 
    if ( !lState2Supported_B ) {
-      wLOG( "Window attribute ", lState1_str, " not suppored on Windows ==> change it to NONE, do (if possible) type1, and return false" );
-      _type2      = NONE;
+      wLOG( "Window attribute ", lState1_str, " not suppored on Windows ==> change it to NONE, do "
+                                              "(if possible) type1, and return false" );
+      _type2 = NONE;
       lState2_str = "NOT_SUPPORTED";
    }
 
    switch ( _action ) {
-      case C_REMOVE:   lMode_STR = "Removed";  break;
-      case C_ADD:      lMode_STR = "Enabled";  break;
-      case C_TOGGLE:   lMode_STR = "Toggled";  break;
-      default: return -1;
+      case C_REMOVE:
+         lMode_STR = "Removed";
+         break;
+      case C_ADD:
+         lMode_STR = "Enabled";
+         break;
+      case C_TOGGLE:
+         lMode_STR = "Toggled";
+         break;
+      default:
+         return -1;
    }
 
    HWND lDesktopHWND_win32 = GetDesktopWindow();
@@ -326,29 +373,27 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
             ShowWindow( vHWND_Window_win32, SW_SHOW );
             SetForegroundWindow( vHWND_Window_win32 );
             SetFocus( vHWND_Window_win32 );
-            if ( lState1_str != "DEMANDS_ATTENTION" ) lState1_str = "FOCUSED";
+            if ( lState1_str != "DEMANDS_ATTENTION" )
+               lState1_str = "FOCUSED";
             break;
          case MAXIMIZED_VERT:
             GetWindowRect( lDesktopHWND_win32, &lDesktopRect_win32 );
-            changeWindowConfig(
-               GlobConf.win.width,
-               lDesktopRect_win32.bottom - lDesktopRect_win32.top,
-               GlobConf.win.posX,
-               lDesktopRect_win32.top
-            );
+            changeWindowConfig( GlobConf.win.width,
+                                lDesktopRect_win32.bottom - lDesktopRect_win32.top,
+                                GlobConf.win.posX,
+                                lDesktopRect_win32.top );
             lState1_str = "MAXIMIZED_VERT";
             break;
          case MAXIMIZED_HORZ:
             GetWindowRect( lDesktopHWND_win32, &lDesktopRect_win32 );
-            changeWindowConfig(
-               lDesktopRect_win32.right  - lDesktopRect_win32.left,
-               GlobConf.win.height,
-               lDesktopRect_win32.left,
-               GlobConf.win.posY
-            );
+            changeWindowConfig( lDesktopRect_win32.right - lDesktopRect_win32.left,
+                                GlobConf.win.height,
+                                lDesktopRect_win32.left,
+                                GlobConf.win.posY );
             lState1_str = "MAXIMIZED_HORZ";
             break;
-         default: return false;
+         default:
+            return false;
       }
    }
 
@@ -379,29 +424,27 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
             ShowWindow( vHWND_Window_win32, SW_SHOW );
             SetForegroundWindow( vHWND_Window_win32 );
             SetFocus( vHWND_Window_win32 );
-            if ( lState2_str != "DEMANDS_ATTENTION" ) lState2_str = "FOCUSED";
+            if ( lState2_str != "DEMANDS_ATTENTION" )
+               lState2_str = "FOCUSED";
             break;
          case MAXIMIZED_VERT:
             GetWindowRect( lDesktopHWND_win32, &lDesktopRect_win32 );
-            changeWindowConfig(
-               GlobConf.win.width,
-               lDesktopRect_win32.bottom - lDesktopRect_win32.top,
-               GlobConf.win.posX,
-               lDesktopRect_win32.top
-            );
+            changeWindowConfig( GlobConf.win.width,
+                                lDesktopRect_win32.bottom - lDesktopRect_win32.top,
+                                GlobConf.win.posX,
+                                lDesktopRect_win32.top );
             lState2_str = "MAXIMIZED_VERT";
             break;
          case MAXIMIZED_HORZ:
             GetWindowRect( lDesktopHWND_win32, &lDesktopRect_win32 );
-            changeWindowConfig(
-               lDesktopRect_win32.right  - lDesktopRect_win32.left,
-               GlobConf.win.height,
-               lDesktopRect_win32.left,
-               GlobConf.win.posY
-            );
+            changeWindowConfig( lDesktopRect_win32.right - lDesktopRect_win32.left,
+                                GlobConf.win.height,
+                                lDesktopRect_win32.left,
+                                GlobConf.win.posY );
             lState2_str = "MAXIMIZED_HORZ";
             break;
-         default: return false;
+         default:
+            return false;
       }
    }
 
@@ -427,12 +470,15 @@ bool iContext::setDecoration( ACTION _action ) {
          break;
 
       default:
-         eLOG( "This message is theoretically totally impossible! [bool iContext::setDecoration( ACTION _action )]" );
+         eLOG( "This message is theoretically totally impossible! [bool iContext::setDecoration( "
+               "ACTION _action )]" );
          return false;
    }
 
    if ( lGlobConfOld_B != GlobConf.win.windowDecoration ) {
-      iLOG( "Window decoration ( ", GlobConf.win.windowDecoration ? "enabled" : "disabled", " ) needs window restart!" );
+      iLOG( "Window decoration ( ",
+            GlobConf.win.windowDecoration ? "enabled" : "disabled",
+            " ) needs window restart!" );
       vWindowRecreate_B = true;
    }
 
@@ -455,12 +501,15 @@ int iContext::fullScreen( ACTION _action, bool _allMonitors ) {
          break;
 
       default:
-         eLOG( "This message is theoretically totally impossible! [bool iContext::setDecoration( ACTION _action )]" );
+         eLOG( "This message is theoretically totally impossible! [bool iContext::setDecoration( "
+               "ACTION _action )]" );
          return false;
    }
 
    if ( lGlobConfOld_B != GlobConf.win.fullscreen ) {
-      iLOG( "Fullscreen ( ", GlobConf.win.fullscreen ? "enabled" : "disabled", " ) needs window restart!" );
+      iLOG( "Fullscreen ( ",
+            GlobConf.win.fullscreen ? "enabled" : "disabled",
+            " ) needs window restart!" );
       vWindowRecreate_B = true;
    }
 
@@ -484,15 +533,15 @@ bool iContext::grabMouse() {
 
    RECT bounds; // The Rectangle that the Cursor will be forced to be in
 
-   //GetWindowRect(vHWND_Window_win32, &bounds);
+   // GetWindowRect(vHWND_Window_win32, &bounds);
 
-   //The following allows for more customization
-    bounds.left   = GlobConf.win.posX;
-    bounds.top    = GlobConf.win.posY;
-    bounds.right  = GlobConf.win.posX + GlobConf.win.width;
-    bounds.bottom = GlobConf.win.posY + GlobConf.win.height;
+   // The following allows for more customization
+   bounds.left = GlobConf.win.posX;
+   bounds.top = GlobConf.win.posY;
+   bounds.right = GlobConf.win.posX + GlobConf.win.width;
+   bounds.bottom = GlobConf.win.posY + GlobConf.win.height;
 
-   if(ClipCursor( &bounds ) == 0) {
+   if ( ClipCursor( &bounds ) == 0 ) {
       wLOG( "Error while grabbing mouse: ", (uint64_t)GetLastError() );
       return false;
    }
@@ -506,7 +555,7 @@ bool iContext::freeMouse() {
       wLOG( "Mouse is not grabbed" );
       return false;
    }
-   if ( ClipCursor(NULL) == 0 ) { //Reset the bounds
+   if ( ClipCursor( NULL ) == 0 ) { // Reset the bounds
       wLOG( "Error while freeing mouse: ", (uint64_t)GetLastError() );
       return false;
    }
@@ -520,9 +569,7 @@ bool iContext::freeMouse() {
  * \brief Get if the mouse is grabbed
  * \returns if the mouse is grabbed
  */
-bool iContext::getIsMouseGrabbed() const {
-   return vIsMouseGrabbed_B;
-}
+bool iContext::getIsMouseGrabbed() const { return vIsMouseGrabbed_B; }
 
 
 /*!
@@ -541,7 +588,7 @@ bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
       return false;
    }
 
-   int result = SetCursorPos(GlobConf.win.posX + _posX, GlobConf.win.posY + _posY);
+   int result = SetCursorPos( GlobConf.win.posX + _posX, GlobConf.win.posY + _posY );
 
    if ( result == 0 ) {
       wLOG( "Error while setting mouse position: ", (uint64_t)GetLastError() );
@@ -557,14 +604,14 @@ bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
  * \returns true if successful and false if not
  */
 bool iContext::hideMouseCursor() {
-   if( vIsCursorHidden_B ) {
+   if ( vIsCursorHidden_B ) {
       wLOG( "Cursor is already hidden" );
       return false;
    }
 
-   int showValue = ShowCursor(false);
-   while(showValue > -1) {
-    showValue = ShowCursor(false);
+   int showValue = ShowCursor( false );
+   while ( showValue > -1 ) {
+      showValue = ShowCursor( false );
    }
 
    vIsCursorHidden_B = true;
@@ -582,9 +629,9 @@ bool iContext::showMouseCursor() {
       return false;
    }
 
-   int showValue = ShowCursor(true);
-   while(showValue < 0) {
-    showValue = ShowCursor(true);
+   int showValue = ShowCursor( true );
+   while ( showValue < 0 ) {
+      showValue = ShowCursor( true );
    }
 
    vIsCursorHidden_B = false;
@@ -596,9 +643,7 @@ bool iContext::showMouseCursor() {
  * \brief Get if the cursor is hidden
  * \returns true if the cursor is hidden
  */
-bool iContext::getIsCursorHidden() const {
-   return vIsCursorHidden_B;
-}
+bool iContext::getIsCursorHidden() const { return vIsCursorHidden_B; }
 
 
 
@@ -607,5 +652,4 @@ bool iContext::getIsCursorHidden() const {
 
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

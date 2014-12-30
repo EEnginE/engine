@@ -10,26 +10,24 @@ namespace e_engine {
 
 /*!
  * \brief Constructor from uSHA_2
- * 
+ *
  * \note If _type is not a SHA2 function, SHA-256 wil be used
  */
 uSHA_2::uSHA_2( HASH_FUNCTION _type ) {
    if ( _type == SHA2_224 || _type == SHA2_256 || _type == SHA2_384 || _type == SHA2_512 ) {
-      vType          = _type;
-   } else {
-      vType          = SHA2_256;
-   }
+      vType = _type;
+   } else { vType = SHA2_256; }
    vBlockCounter_ulI = 0;
 
-   vEnded_B          = false;
+   vEnded_B = false;
 
    if ( vType == SHA2_224 || vType == SHA2_256 ) {
-      vBlockSize_uI = 512  / 8; // 64
+      vBlockSize_uI = 512 / 8; // 64
    } else {
       vBlockSize_uI = 1024 / 8; // 128
    }
 
-   vCurrentPos512_A_IT  = vBuffer512_A_uC.begin();
+   vCurrentPos512_A_IT = vBuffer512_A_uC.begin();
    vCurrentPos1024_A_IT = vBuffer1024_A_uC.begin();
 
    init();
@@ -47,7 +45,7 @@ bool uSHA_2::add( std::string const &_message ) {
       return false;
 
    if ( vType == SHA2_224 || vType == SHA2_256 ) {
-      for ( unsigned char const & c : _message ) {
+      for ( unsigned char const &c : _message ) {
 
          if ( vCurrentPos512_A_IT == vBuffer512_A_uC.end() ) {
             block( vBuffer512_A_uC );
@@ -58,7 +56,7 @@ bool uSHA_2::add( std::string const &_message ) {
          ++vCurrentPos512_A_IT;
       }
    } else {
-      for ( unsigned char const & c : _message ) {
+      for ( unsigned char const &c : _message ) {
 
          if ( vCurrentPos1024_A_IT == vBuffer1024_A_uC.end() ) {
             block( vBuffer1024_A_uC );
@@ -79,12 +77,12 @@ bool uSHA_2::add( std::string const &_message ) {
  * \param _binary What should be hashed
  * \returns false if the hash is already calculated or true if all went fine
  */
-bool uSHA_2::add( std::vector< unsigned char > const &_binary ) {
+bool uSHA_2::add( std::vector<unsigned char> const &_binary ) {
    if ( vEnded_B )
       return false;
 
    if ( vType == SHA2_224 || vType == SHA2_256 ) {
-      for ( unsigned char const & c : _binary ) {
+      for ( unsigned char const &c : _binary ) {
 
          if ( vCurrentPos512_A_IT == vBuffer512_A_uC.end() ) {
             block( vBuffer512_A_uC );
@@ -95,7 +93,7 @@ bool uSHA_2::add( std::vector< unsigned char > const &_binary ) {
          ++vCurrentPos512_A_IT;
       }
    } else {
-      for ( unsigned char const & c : _binary ) {
+      for ( unsigned char const &c : _binary ) {
 
          if ( vCurrentPos1024_A_IT == vBuffer1024_A_uC.end() ) {
             block( vBuffer1024_A_uC );
@@ -111,14 +109,15 @@ bool uSHA_2::add( std::vector< unsigned char > const &_binary ) {
 }
 
 
-std::vector< unsigned char > uSHA_2::quickHash( HASH_FUNCTION _type, std::string _message ) {
+std::vector<unsigned char> uSHA_2::quickHash( HASH_FUNCTION _type, std::string _message ) {
    reset( _type );
    add( _message );
    return end();
 }
 
 
-std::vector< unsigned char > uSHA_2::quickHash( HASH_FUNCTION _type, std::vector< unsigned char > _binary ) {
+std::vector<unsigned char> uSHA_2::quickHash( HASH_FUNCTION _type,
+                                              std::vector<unsigned char> _binary ) {
    reset( _type );
    add( _binary );
    return end();
@@ -181,21 +180,19 @@ void uSHA_2::init() {
  */
 void uSHA_2::reset( HASH_FUNCTION _type ) {
    if ( _type == SHA2_224 || _type == SHA2_256 || _type == SHA2_384 || _type == SHA2_512 ) {
-      vType             = _type;
+      vType = _type;
    }
    vBlockCounter_ulI = 0;
 
-   vEnded_B          = false;
+   vEnded_B = false;
 
-   vCurrentPos512_A_IT  = vBuffer512_A_uC.begin();
+   vCurrentPos512_A_IT = vBuffer512_A_uC.begin();
    vCurrentPos1024_A_IT = vBuffer1024_A_uC.begin();
    vResult_str.clear();
 
    if ( vType == SHA2_224 || vType == SHA2_256 ) {
-      vBlockSize_uI = 512  / 8;
-   } else {
-      vBlockSize_uI = 1024 / 8;
-   }
+      vBlockSize_uI = 512 / 8;
+   } else { vBlockSize_uI = 1024 / 8; }
 
    init();
 }
@@ -204,24 +201,23 @@ namespace {
 
 void int32ToString( std::vector<unsigned char> &_str, uint32_t const &_num, uint32_t _level ) {
    _level *= 4;
-   _str[_level]     = ( unsigned char )( _num >> 24 );
-   _str[_level + 1] = ( unsigned char )( _num >> 16 );
-   _str[_level + 2] = ( unsigned char )( _num >> 8 );
-   _str[_level + 3] = ( unsigned char )( _num );
+   _str[_level] = (unsigned char)( _num >> 24 );
+   _str[_level + 1] = (unsigned char)( _num >> 16 );
+   _str[_level + 2] = (unsigned char)( _num >> 8 );
+   _str[_level + 3] = (unsigned char)( _num );
 }
 
 void int64ToString( std::vector<unsigned char> &_str, uint64_t const &_num, uint32_t _level ) {
    _level *= 8;
-   _str[_level]     = ( unsigned char )( _num >> 56 );
-   _str[_level + 1] = ( unsigned char )( _num >> 48 );
-   _str[_level + 2] = ( unsigned char )( _num >> 40 );
-   _str[_level + 3] = ( unsigned char )( _num >> 32 );
-   _str[_level + 4] = ( unsigned char )( _num >> 24 );
-   _str[_level + 5] = ( unsigned char )( _num >> 16 );
-   _str[_level + 6] = ( unsigned char )( _num >> 8 );
-   _str[_level + 7] = ( unsigned char )( _num );
+   _str[_level] = (unsigned char)( _num >> 56 );
+   _str[_level + 1] = (unsigned char)( _num >> 48 );
+   _str[_level + 2] = (unsigned char)( _num >> 40 );
+   _str[_level + 3] = (unsigned char)( _num >> 32 );
+   _str[_level + 4] = (unsigned char)( _num >> 24 );
+   _str[_level + 5] = (unsigned char)( _num >> 16 );
+   _str[_level + 6] = (unsigned char)( _num >> 8 );
+   _str[_level + 7] = (unsigned char)( _num );
 }
-
 }
 
 /*!
@@ -237,9 +233,7 @@ std::vector<unsigned char> uSHA_2::end() {
 
    if ( vType == SHA2_224 || vType == SHA2_256 ) {
       padd512();
-   } else {
-      padd1024();
-   }
+   } else { padd1024(); }
 
    switch ( vType ) {
       case SHA2_224:
@@ -299,7 +293,7 @@ std::vector<unsigned char> uSHA_2::end() {
  * \returns The hash as a string or an empty string when not already terminated
  */
 std::string uSHA_2::get( bool _space ) {
-   if ( ! vEnded_B )
+   if ( !vEnded_B )
       return "";
 
    std::string lString_str;
@@ -307,14 +301,15 @@ std::string uSHA_2::get( bool _space ) {
    uint16_t lEnd_suI = 8;
 
    switch ( vType ) {
-      case SHA2_224: lEnd_suI = 7;
+      case SHA2_224:
+         lEnd_suI = 7;
       case SHA2_256:
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
-		#ifdef _MSC_VER
-			_snprintf(lBuffer_CSTR, 9, "%08x", h_512[i] );
-		#else
+#ifdef _MSC_VER
+            _snprintf( lBuffer_CSTR, 9, "%08x", h_512[i] );
+#else
             snprintf( lBuffer_CSTR, 9, "%08x", h_512[i] );
-		#endif
+#endif
 
             lString_str += lBuffer_CSTR;
 
@@ -323,27 +318,28 @@ std::string uSHA_2::get( bool _space ) {
          }
          break;
 
-      case SHA2_384: lEnd_suI = 6;
+      case SHA2_384:
+         lEnd_suI = 6;
       case SHA2_512:
          uint32_t v1, v2;
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
             v1 = ( uint32_t )( h_1024[i] >> 32 );
             v2 = ( uint32_t )( h_1024[i] );
-			#ifdef _MSC_VER
-				_snprintf(lBuffer_CSTR, 9, "%08x", v1);
-			#else
-				snprintf( lBuffer_CSTR, 9, "%08x", v1 );
-			#endif
+#ifdef _MSC_VER
+            _snprintf( lBuffer_CSTR, 9, "%08x", v1 );
+#else
+            snprintf( lBuffer_CSTR, 9, "%08x", v1 );
+#endif
             lString_str += lBuffer_CSTR;
 
             if ( _space )
                lString_str += ' ';
 
-			#ifdef _MSC_VER
-				_snprintf(lBuffer_CSTR, 9, "%08x", v2);
-			#else
-				snprintf(lBuffer_CSTR, 9, "%08x", v2);
-			#endif
+#ifdef _MSC_VER
+            _snprintf( lBuffer_CSTR, 9, "%08x", v2 );
+#else
+            snprintf( lBuffer_CSTR, 9, "%08x", v2 );
+#endif
             lString_str += lBuffer_CSTR;
 
             if ( _space && i != ( lEnd_suI - 1 ) )
@@ -356,18 +352,19 @@ std::string uSHA_2::get( bool _space ) {
 }
 
 unsigned int uSHA_2::getHashLength() {
-   switch( vType ) {
-      case SHA2_224: return 224 / 8;
-      case SHA2_256: return 256 / 8;
-      case SHA2_384: return 384 / 8;
-      case SHA2_512: return 512 / 8;
-      default: return 0;
+   switch ( vType ) {
+      case SHA2_224:
+         return 224 / 8;
+      case SHA2_256:
+         return 256 / 8;
+      case SHA2_384:
+         return 384 / 8;
+      case SHA2_512:
+         return 512 / 8;
+      default:
+         return 0;
    }
 }
-
-
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
-
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

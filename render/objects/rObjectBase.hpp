@@ -15,21 +15,21 @@
 namespace e_engine {
 
 // Object Flags:
-#define MESH_OBJECT     ( 1 << 0 )
-#define LIGHT_SOURCE    ( 1 << 1 )
-#define AMBIENT_LIGHT   ( 1 << 2 )
+#define MESH_OBJECT ( 1 << 0 )
+#define LIGHT_SOURCE ( 1 << 1 )
+#define AMBIENT_LIGHT ( 1 << 2 )
 
 // Matrix Flags:
-#define SCALE_MATRIX_FLAG                 ( 1 << 0 )
-#define ROTATION_MATRIX_FLAG              ( 1 << 1 )
-#define TRANSLATION_MATRIX_FLAG           ( 1 << 2 )
-#define VIEW_MATRIX_FLAG                  ( 1 << 3 )
-#define PROJECTION_MATRIX_FLAG            ( 1 << 4 )
-#define CAMERA_MATRIX_FLAG                ( 1 << 5 )
-#define MODEL_MATRIX_FLAG                 ( 1 << 6 )
-#define MODEL_VIEW_MATRIX_FLAG            ( 1 << 7 )
+#define SCALE_MATRIX_FLAG ( 1 << 0 )
+#define ROTATION_MATRIX_FLAG ( 1 << 1 )
+#define TRANSLATION_MATRIX_FLAG ( 1 << 2 )
+#define VIEW_MATRIX_FLAG ( 1 << 3 )
+#define PROJECTION_MATRIX_FLAG ( 1 << 4 )
+#define CAMERA_MATRIX_FLAG ( 1 << 5 )
+#define MODEL_MATRIX_FLAG ( 1 << 6 )
+#define MODEL_VIEW_MATRIX_FLAG ( 1 << 7 )
 #define MODEL_VIEW_PROJECTION_MATRIX_FLAG ( 1 << 8 )
-#define NORMAL_MATRIX_FLAG                ( 1 << 9 )
+#define NORMAL_MATRIX_FLAG ( 1 << 9 )
 
 /*!
  * \brief Base class for creating objects
@@ -40,153 +40,146 @@ namespace e_engine {
  * The data will be loaded into RAM from this class and can than be accessed via vLoaderData
  *
  * You should also return 1 if everything went fine. Values < 0 mean there where errors but data
- * can be safely set / cleared. Values > 1 mean that the data can still be used and may be successfully
+ * can be safely set / cleared. Values > 1 mean that the data can still be used and may be
+ *successfully
  * cleared later. Value = 0 means that this object is completely broken!
  *
  */
 class rObjectBase {
-   public:
-      enum OBJECT_HINTS {
-         FLAGS,
-         MATRICES,
-         NUM_VERTICES,
-         NUM_INDEXES,
-         NUM_NORMALS,
-         LIGHT_MODEL,
-         NUM_VBO,
-         NUM_IBO,
-         NUM_NBO,
-         IS_DATA_READY,
-         __LAST__
-      };
+ public:
+   enum OBJECT_HINTS {
+      FLAGS,
+      MATRICES,
+      NUM_VERTICES,
+      NUM_INDEXES,
+      NUM_NORMALS,
+      LIGHT_MODEL,
+      NUM_VBO,
+      NUM_IBO,
+      NUM_NBO,
+      IS_DATA_READY,
+      __LAST__
+   };
 
-      enum DATA_FILE_TYPE {
-         AUTODETECT,
-         OBJ_FILE,
-         SET_DATA_MANUALLY
-      };
+   enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE, SET_DATA_MANUALLY };
 
-      enum ERROR_FLAGS {
-         ALL_OK                             = 0,
-         FUNCTION_NOT_VALID_FOR_THIS_OBJECT = ( 1 << 0 ),
-         INDEX_OUT_OF_RANGE                 = ( 1 << 1 ),
-         DATA_NOT_LOADED                    = ( 1 << 2 ),
-         UNSUPPORTED_TYPE                   = ( 1 << 3 ),
-      };
+   enum ERROR_FLAGS {
+      ALL_OK = 0,
+      FUNCTION_NOT_VALID_FOR_THIS_OBJECT = ( 1 << 0 ),
+      INDEX_OUT_OF_RANGE = ( 1 << 1 ),
+      DATA_NOT_LOADED = ( 1 << 2 ),
+      UNSUPPORTED_TYPE = ( 1 << 3 ),
+   };
 
-      enum MATRIX_TYPES {
-         SCALE,
-         ROTATION,
-         TRANSLATION,
-         VIEW_MATRIX,
-         PROJECTION_MATRIX,
-         CAMERA_MATRIX,
-         MODEL_MATRIX,
-         MODEL_VIEW_MATRIX,
-         MODEL_VIEW_PROJECTION,
-         NORMAL_MATRIX
-      };
+   enum MATRIX_TYPES {
+      SCALE,
+      ROTATION,
+      TRANSLATION,
+      VIEW_MATRIX,
+      PROJECTION_MATRIX,
+      CAMERA_MATRIX,
+      MODEL_MATRIX,
+      MODEL_VIEW_MATRIX,
+      MODEL_VIEW_PROJECTION,
+      NORMAL_MATRIX
+   };
 
-      enum VECTOR_TYPES {
-         LIGHT_COLOR,
-         POSITION,
-         POSITION_MODEL_VIEW
-      };
+   enum VECTOR_TYPES { LIGHT_COLOR, POSITION, POSITION_MODEL_VIEW };
 
-      enum LIGHT_MODEL_T {
-         NO_LIGHTS = 0,
-         SIMPLE_ADS_LIGHT
-      };
+   enum LIGHT_MODEL_T { NO_LIGHTS = 0, SIMPLE_ADS_LIGHT };
 
-   protected:
-      uint64_t vObjectHints[__LAST__];
-      std::string vName_str;
+ protected:
+   uint64_t vObjectHints[__LAST__];
+   std::string vName_str;
 
-      std::string vFile_str;
-      DATA_FILE_TYPE vFileType;
+   std::string vFile_str;
+   DATA_FILE_TYPE vFileType;
 
-      bool vIsLoaded_B;
-      bool vKeepDataInRAM_B;
+   bool vIsLoaded_B;
+   bool vKeepDataInRAM_B;
 
-      internal::rLoaderBase<GLfloat,GLuint> *vLoaderData;
+   internal::rLoaderBase<GLfloat, GLuint> *vLoaderData;
 
-      DATA_FILE_TYPE detectFileTypeFromEnding( std::string const &_str );
+   DATA_FILE_TYPE detectFileTypeFromEnding( std::string const &_str );
 
-      virtual int clearOGLData__() = 0;
-      virtual int setOGLData__()   = 0;
-   public:
-      rObjectBase( std::string _name, std::string _file, DATA_FILE_TYPE _type = AUTODETECT ) :
-         vName_str( _name ),
+   virtual int clearOGLData__() = 0;
+   virtual int setOGLData__() = 0;
+
+ public:
+   rObjectBase( std::string _name, std::string _file, DATA_FILE_TYPE _type = AUTODETECT )
+       : vName_str( _name ),
          vFile_str( _file ),
          vFileType( _type ),
          vIsLoaded_B( false ),
          vKeepDataInRAM_B( false ),
          vLoaderData( nullptr ) {
-         for ( uint32_t i = 0; i < __LAST__; ++i )
-            vObjectHints[i] = 0;
-      }
+      for ( uint32_t i = 0; i < __LAST__; ++i )
+         vObjectHints[i] = 0;
+   }
 
-      rObjectBase() = delete;
+   rObjectBase() = delete;
 
-      // Forbid copying
-      rObjectBase( const rObjectBase & ) = delete;
-      rObjectBase &operator=( const rObjectBase & ) = delete;
+   // Forbid copying
+   rObjectBase( const rObjectBase & ) = delete;
+   rObjectBase &operator=( const rObjectBase & ) = delete;
 
-      // Allow moving
-      rObjectBase( rObjectBase&& ) {}
-      rObjectBase &operator=( rObjectBase&& ) {return *this;}
+   // Allow moving
+   rObjectBase( rObjectBase && ) {}
+   rObjectBase &operator=( rObjectBase && ) { return *this; }
 
-      virtual ~rObjectBase() {clearRAMData();}
+   virtual ~rObjectBase() { clearRAMData(); }
 
-      int  loadData();
-      void clearRAMData();
-      int  clearAllData();
+   int loadData();
+   void clearRAMData();
+   int clearAllData();
 
-      int clearOGLData();
-      int setOGLData();
+   int clearOGLData();
+   int setOGLData();
 
-      template<class... ARGS>
-      inline void getHints( OBJECT_HINTS _hint, int &_ret, ARGS&&... _args );
+   template <class... ARGS>
+   inline void getHints( OBJECT_HINTS _hint, int &_ret, ARGS &&... _args );
 
-      inline void getHints( OBJECT_HINTS _hint, int &_ret );
+   inline void getHints( OBJECT_HINTS _hint, int &_ret );
 
-      bool getIsDataInRAM()  const { if ( vLoaderData ) return true; return false; }
-      bool getIsDataLoaded() const { return vIsLoaded_B; }
+   bool getIsDataInRAM() const {
+      if ( vLoaderData )
+         return true;
+      return false;
+   }
+   bool getIsDataLoaded() const { return vIsLoaded_B; }
 
-      void setKeepDataInRAM( bool _keep ) { vKeepDataInRAM_B = _keep; }
+   void setKeepDataInRAM( bool _keep ) { vKeepDataInRAM_B = _keep; }
 
-      std::string getName()  const { return vName_str; }
+   std::string getName() const { return vName_str; }
 
-      virtual uint32_t getVBO( GLuint &_n );
-      virtual uint32_t getIBO( GLuint &_n );
-      virtual uint32_t getNBO( GLuint &_n );
+   virtual uint32_t getVBO( GLuint &_n );
+   virtual uint32_t getIBO( GLuint &_n );
+   virtual uint32_t getNBO( GLuint &_n );
 
-      virtual uint32_t getMatrix( rMat4f **_mat, MATRIX_TYPES _type );
-      virtual uint32_t getMatrix( rMat4d **_mat, MATRIX_TYPES _type );
+   virtual uint32_t getMatrix( rMat4f **_mat, MATRIX_TYPES _type );
+   virtual uint32_t getMatrix( rMat4d **_mat, MATRIX_TYPES _type );
 
-      virtual uint32_t getMatrix( rMat3f **_mat, MATRIX_TYPES _type );
-      virtual uint32_t getMatrix( rMat3d **_mat, MATRIX_TYPES _type );
+   virtual uint32_t getMatrix( rMat3f **_mat, MATRIX_TYPES _type );
+   virtual uint32_t getMatrix( rMat3d **_mat, MATRIX_TYPES _type );
 
-      virtual uint32_t getVector( rVec4f **_vec, VECTOR_TYPES _type );
-      virtual uint32_t getVector( rVec4d **_vec, VECTOR_TYPES _type );
+   virtual uint32_t getVector( rVec4f **_vec, VECTOR_TYPES _type );
+   virtual uint32_t getVector( rVec4d **_vec, VECTOR_TYPES _type );
 
-      virtual uint32_t getVector( rVec3f **_vec, VECTOR_TYPES _type );
-      virtual uint32_t getVector( rVec3d **_vec, VECTOR_TYPES _type );
+   virtual uint32_t getVector( rVec3f **_vec, VECTOR_TYPES _type );
+   virtual uint32_t getVector( rVec3d **_vec, VECTOR_TYPES _type );
 };
 
-template<class... ARGS>
-void rObjectBase::getHints( OBJECT_HINTS _hint, int &_ret, ARGS&&... _args ) {
+template <class... ARGS>
+void rObjectBase::getHints( OBJECT_HINTS _hint, int &_ret, ARGS &&... _args ) {
    _ret = vObjectHints[_hint];
    getHints( std::forward<ARGS>( _args )... );
 }
 
-void rObjectBase::getHints( OBJECT_HINTS _hint, int &_ret ) {
-   _ret = vObjectHints[_hint];
-}
+void rObjectBase::getHints( OBJECT_HINTS _hint, int &_ret ) { _ret = vObjectHints[_hint]; }
 
 
 } // e_engine
 
 #endif
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

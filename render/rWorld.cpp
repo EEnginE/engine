@@ -9,35 +9,35 @@
 
 namespace e_engine {
 
-rWorld::rWorld( iInit *_init ) :
-   vRenderLoopStartSlot( &rWorld::startRenderLoop, this ),
-   vRenderLoopStopSlot( &rWorld::stopRenderLoop, this ),
+rWorld::rWorld( iInit *_init )
+    : vRenderLoopStartSlot( &rWorld::startRenderLoop, this ),
+      vRenderLoopStopSlot( &rWorld::stopRenderLoop, this ),
 
-   vPauseRenderLoopSlot( &rWorld::pauseRenderLoop, this ),
-   vContinueRenderLoopSlot( &rWorld::continueRenderLoop, this ) {
+      vPauseRenderLoopSlot( &rWorld::pauseRenderLoop, this ),
+      vContinueRenderLoopSlot( &rWorld::continueRenderLoop, this ) {
 
 
-   vInitObjSet_B               = false; // Will be set true in setInitObj
+   vInitObjSet_B = false; // Will be set true in setInitObj
 
-   vRenderLoopRunning_B        = false;
-   vRenderLoopShouldRun_B      = false;
+   vRenderLoopRunning_B = false;
+   vRenderLoopShouldRun_B = false;
 
-   vRenderLoopIsPaused_B       = false;
-   vRenderLoopShouldPaused_B   = false;
+   vRenderLoopIsPaused_B = false;
+   vRenderLoopShouldPaused_B = false;
 
-   vViewPort.vNeedUpdate_B     = false;
-   vViewPort.x                 = 0;
-   vViewPort.y                 = 0;
-   vViewPort.width             = 0;
-   vViewPort.height            = 0;
+   vViewPort.vNeedUpdate_B = false;
+   vViewPort.x = 0;
+   vViewPort.y = 0;
+   vViewPort.width = 0;
+   vViewPort.height = 0;
 
-   vClearColor.vNeedUpdate_B  = false;
-   vClearColor.r              = 0;
-   vClearColor.g              = 0;
-   vClearColor.b              = 0;
-   vClearColor.a              = 1;
+   vClearColor.vNeedUpdate_B = false;
+   vClearColor.r = 0;
+   vClearColor.g = 0;
+   vClearColor.b = 0;
+   vClearColor.a = 1;
 
-   vRenderedFrames            = 0;
+   vRenderedFrames = 0;
 
    setInitObj( _init );
 }
@@ -48,9 +48,9 @@ void rWorld::renderLoop() {
    iLOG( "Render loop started" );
    vRenderLoopRunning_B = true;
 
-   vInitPointer->makeContextCurrent();  // Only ONE thread can have a context
+   vInitPointer->makeContextCurrent(); // Only ONE thread can have a context
 
-   if( GlobConf.win.VSync == true )
+   if ( GlobConf.win.VSync == true )
       vInitPointer->enableVSync();
 
 
@@ -60,33 +60,43 @@ void rWorld::renderLoop() {
    glEnable( GL_DEPTH_TEST );
    glEnable( GL_MULTISAMPLE );
 
-   while( vRenderLoopShouldRun_B ) {
-      if( vRenderLoopShouldPaused_B ) {
+   while ( vRenderLoopShouldRun_B ) {
+      if ( vRenderLoopShouldPaused_B ) {
          std::unique_lock<std::mutex> lLock_BT( vRenderLoopMutex_BT );
          vInitPointer->makeNOContextCurrent();
          vRenderLoopIsPaused_B = true;
-         while( vRenderLoopShouldPaused_B ) vRenderLoopWait_BT.wait( lLock_BT );
-         while( !vInitPointer->getHaveContext() /*|| vInitPointer->vWindowRecreate_B*/ ) B_SLEEP( milliseconds, 10 );
+         while ( vRenderLoopShouldPaused_B )
+            vRenderLoopWait_BT.wait( lLock_BT );
+         while ( !vInitPointer->getHaveContext() /*|| vInitPointer->vWindowRecreate_B*/ )
+            B_SLEEP( milliseconds, 10 );
 #if WINDOWS
-         B_SLEEP( milliseconds, 100 ); //!< \todo Remove this workaround for Windows (problem with iContext::makeContextCurrent)
+         B_SLEEP( milliseconds, 100 ); //!< \todo Remove this workaround for Windows (problem with
+                                       //iContext::makeContextCurrent)
 #endif
          vRenderLoopIsPaused_B = false;
-         if( ! vInitPointer->makeContextCurrent() ) {
+         if ( !vInitPointer->makeContextCurrent() ) {
             eLOG( "Failed to make context current ==> Quitting render loop" );
             return;
          }
       }
 
-      if( vViewPort.vNeedUpdate_B ) {
+      if ( vViewPort.vNeedUpdate_B ) {
          vViewPort.vNeedUpdate_B = false;
          glViewport( vViewPort.x, vViewPort.y, vViewPort.width, vViewPort.height );
          dLOG( "Viewport updated" );
       }
 
-      if( vClearColor.vNeedUpdate_B ) {
+      if ( vClearColor.vNeedUpdate_B ) {
          vClearColor.vNeedUpdate_B = false;
          glClearColor( vClearColor.r, vClearColor.g, vClearColor.b, vClearColor.a );
-         dLOG( "Updated clear color: [RGBA] ",  vClearColor.r, "; ", vClearColor.g, "; ", vClearColor.b, "; ", vClearColor.a );
+         dLOG( "Updated clear color: [RGBA] ",
+               vClearColor.r,
+               "; ",
+               vClearColor.g,
+               "; ",
+               vClearColor.b,
+               "; ",
+               vClearColor.a );
       }
 
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -97,7 +107,7 @@ void rWorld::renderLoop() {
       vInitPointer->swapBuffers();
    }
 
-   if( vInitPointer->getHaveContext() )
+   if ( vInitPointer->getHaveContext() )
       vInitPointer->makeNOContextCurrent();
 
    iLOG( "Render Loop finished" );
@@ -111,9 +121,10 @@ void rWorld::startRenderLoop( bool _wait ) {
    vInitPointer->makeNOContextCurrent();
    vRenderLoop_BT = std::thread( &rWorld::renderLoop, this );
 
-   if( _wait ) {
+   if ( _wait ) {
       vRenderLoop_BT.join();
-      if( vInitPointer->getHaveContext() ) vInitPointer->makeContextCurrent();   // Only ONE thread can have a context
+      if ( vInitPointer->getHaveContext() )
+         vInitPointer->makeContextCurrent(); // Only ONE thread can have a context
    }
 }
 
@@ -124,23 +135,24 @@ void rWorld::stopRenderLoop() {
    if( vRenderLoop_BT.joinable() )
       vRenderLoop_BT.join(); // Segfault here. Why!?
 #else
-   while( vRenderLoopRunning_B ) B_SLEEP( milliseconds, 100 ); /// \todo Fix this workaround
+   while ( vRenderLoopRunning_B )
+      B_SLEEP( milliseconds, 100 ); /// \todo Fix this workaround
 #endif
 
-   if( vRenderLoopRunning_B ) {
+   if ( vRenderLoopRunning_B ) {
       wLOG( "Render Loop thread finished abnormaly" );
       vRenderLoopRunning_B = false;
    }
 }
 
 void rWorld::pauseRenderLoop() {
-   if( ! vRenderLoopShouldRun_B )
+   if ( !vRenderLoopShouldRun_B )
       return;
 
    vRenderLoopShouldPaused_B = true;
 
 
-   while( !vRenderLoopIsPaused_B )
+   while ( !vRenderLoopIsPaused_B )
       B_SLEEP( milliseconds, 10 );
 }
 
@@ -151,37 +163,39 @@ void rWorld::continueRenderLoop() {
 }
 
 
-void rWorld::updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height ) {
+void rWorld::updateViewPort( unsigned int _x,
+                             unsigned int _y,
+                             unsigned int _width,
+                             unsigned int _height ) {
    vViewPort.vNeedUpdate_B = true;
-   vViewPort.x             = _x;
-   vViewPort.y             = _y;
-   vViewPort.width         = _width;
-   vViewPort.height        = _height;
+   vViewPort.x = _x;
+   vViewPort.y = _y;
+   vViewPort.width = _width;
+   vViewPort.height = _height;
 }
 
 void rWorld::updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a ) {
    vClearColor.vNeedUpdate_B = true;
-   vClearColor.r             = _r;
-   vClearColor.g             = _b;
-   vClearColor.b             = _g;
-   vClearColor.a             = _a;
+   vClearColor.r = _r;
+   vClearColor.g = _b;
+   vClearColor.b = _g;
+   vClearColor.a = _a;
 }
 
 
 void rWorld::setInitObj( iInit *_init ) {
-   if( vInitObjSet_B ) {
+   if ( vInitObjSet_B ) {
       eLOG( "iInit object is already set and can't be reset! Doing nothing" );
       return;
    }
 
    vInitPointer = _init;
-   vInitPointer->addRenderSlots<e_engine::rWorld>( &vRenderLoopStartSlot, &vRenderLoopStopSlot, &vPauseRenderLoopSlot, &vContinueRenderLoopSlot );
+   vInitPointer->addRenderSlots<e_engine::rWorld>( &vRenderLoopStartSlot,
+                                                   &vRenderLoopStopSlot,
+                                                   &vPauseRenderLoopSlot,
+                                                   &vContinueRenderLoopSlot );
 
    vInitObjSet_B = true;
 }
-
-
-
-
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

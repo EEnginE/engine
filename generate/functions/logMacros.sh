@@ -37,7 +37,7 @@ generateLogMacros() {
         return 4
     fi
 
-    echo "INFO: Generating file $1..."
+    msg1 "Generating file $1..."
 
     local MACRO_PATH=$1
     local TYPES=$2

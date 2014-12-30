@@ -13,9 +13,12 @@
 
 namespace e_engine {
 
-template<class T> using rMat2 = rMatrix<T, 2, 2>;
-template<class T> using rMat3 = rMatrix<T, 3, 3>;
-template<class T> using rMat4 = rMatrix<T, 4, 4>;
+template <class T>
+using rMat2 = rMatrix<T, 2, 2>;
+template <class T>
+using rMat3 = rMatrix<T, 3, 3>;
+template <class T>
+using rMat4 = rMatrix<T, 4, 4>;
 
 typedef rMatrix<float, 2, 2> rMat2f;
 typedef rMatrix<float, 3, 3> rMat3f;
@@ -25,68 +28,60 @@ typedef rMatrix<double, 2, 2> rMat2d;
 typedef rMatrix<double, 3, 3> rMat3d;
 typedef rMatrix<double, 4, 4> rMat4d;
 
-template<int N>
+template <int N>
 using rMatNf = rMatrix<float, N, N>;
 
-template<int N>
+template <int N>
 using rMatNd = rMatrix<double, N, N>;
 
 
-template<class T, int N>
-using rMat   = rMatrix<T, N, N>;
+template <class T, int N>
+using rMat = rMatrix<T, N, N>;
 
 class rMatrixMath {
-   public:
-      template<class T> static void scale( T _n, rMat4<T> &_out );
-      template<class T> static void scale( const rVec3<T> &_n, rMat4<T> &_out );
+ public:
+   template <class T>
+   static void scale( T _n, rMat4<T> &_out );
+   template <class T>
+   static void scale( const rVec3<T> &_n, rMat4<T> &_out );
 
-      template<class T> static void translate( const rVec3<T> &_n, rMat4<T> &_out );
+   template <class T>
+   static void translate( const rVec3<T> &_n, rMat4<T> &_out );
 
-      template<class T> static void rotate( const rVec3<T> &_axis, T _angle , rMat4<T> &_out );
+   template <class T>
+   static void rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out );
 
-      template<class T> static void perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4< T > &_out );
+   template <class T>
+   static void perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4<T> &_out );
 
-      template<class T> static void getNormalMatrix( rMat4< T > const &_in, rMat3< T > &_out );
-      template<class T> static void getNormalMatrix( rMat3< T > const &_in, rMat3< T > &_out );
+   template <class T>
+   static void getNormalMatrix( rMat4<T> const &_in, rMat3<T> &_out );
+   template <class T>
+   static void getNormalMatrix( rMat3<T> const &_in, rMat3<T> &_out );
 
-      template<class T>
-      static void camera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector, rMat4< T > &_out );
+   template <class T>
+   static void camera( const rVec3<T> &_position,
+                       const rVec3<T> &_lookAt,
+                       const rVec3<T> &_upVector,
+                       rMat4<T> &_out );
 };
 
-template<class T>
+template <class T>
 void rMatrixMath::scale( T _n, rMat4<T> &_out ) {
-   _out.setMat
-   (
-         _n, 0 , 0,  0,
-         0,  _n, 0,  0,
-         0,  0,  _n, 0,
-         0,  0,  0,  1
-   );
+   _out.setMat( _n, 0, 0, 0, 0, _n, 0, 0, 0, 0, _n, 0, 0, 0, 0, 1 );
 }
 
-template<class T>
+template <class T>
 void rMatrixMath::scale( const rVec3<T> &_n, rMat4<T> &_out ) {
-   _out.setMat
-   (
-         _n.x, 0 ,   0,    0,
-         0,    _n.y, 0,    0,
-         0,    0,    _n.z, 0,
-         0,    0,    0,    1
-   );
+   _out.setMat( _n.x, 0, 0, 0, 0, _n.y, 0, 0, 0, 0, _n.z, 0, 0, 0, 0, 1 );
 }
 
-template<class T>
+template <class T>
 void rMatrixMath::translate( const rVec3<T> &_n, rMat4<T> &_out ) {
-   _out.setMat
-   (
-         1, 0, 0,  _n.x,
-         0, 1, 0,  _n.y,
-         0, 0, 1,  _n.z,
-         0, 0, 0, 1
-   );
+   _out.setMat( 1, 0, 0, _n.x, 0, 1, 0, _n.y, 0, 0, 1, _n.z, 0, 0, 0, 1 );
 }
 
-template<class T>
+template <class T>
 void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    rVec3<T> lAxis = _axis;
    lAxis.normalize();
@@ -113,17 +108,17 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    T wz = lTemp.w * lTemp.z;
 
    _out.template get<0, 0>() = 1 - 2 * y2 - 2 * z2;
-   _out.template get<1, 0>() =     2 * xy - 2 * wz;
-   _out.template get<2, 0>() =     2 * xz + 2 * wy;
+   _out.template get<1, 0>() = 2 * xy - 2 * wz;
+   _out.template get<2, 0>() = 2 * xz + 2 * wy;
    _out.template get<3, 0>() = 0;
 
-   _out.template get<0, 1>() =     2 * xy + 2 * wz;
+   _out.template get<0, 1>() = 2 * xy + 2 * wz;
    _out.template get<1, 1>() = 1 - 2 * x2 - 2 * z2;
-   _out.template get<2, 1>() =     2 * yz + 2 * wx;
+   _out.template get<2, 1>() = 2 * yz + 2 * wx;
    _out.template get<3, 1>() = 0;
 
-   _out.template get<0, 2>() =     2 * xz - 2 * wy;
-   _out.template get<1, 2>() =     2 * yz - 2 * wx;
+   _out.template get<0, 2>() = 2 * xz - 2 * wy;
+   _out.template get<1, 2>() = 2 * yz - 2 * wx;
    _out.template get<2, 2>() = 1 - 2 * x2 - 2 * y2;
    _out.template get<3, 2>() = 0;
 
@@ -133,8 +128,8 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    _out.template get<3, 3>() = 1;
 }
 
-template<class T>
-void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4< T > &_out ) {
+template <class T>
+void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4<T> &_out ) {
    T f = ( 1.0f / tan( DEG_TO_RAD( _fofy / 2 ) ) );
 
    _out.fill( 0 );
@@ -145,8 +140,11 @@ void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4
    _out.template get<2, 3>() = -1;
 }
 
-template<class T>
-void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt, const rVec3< T > &_upVector, rMat4< T > &_out ) {
+template <class T>
+void rMatrixMath::camera( const rVec3<T> &_position,
+                          const rVec3<T> &_lookAt,
+                          const rVec3<T> &_upVector,
+                          rMat4<T> &_out ) {
    rVec3<T> f = _lookAt - _position;
    f.normalize();
 
@@ -173,35 +171,44 @@ void rMatrixMath::camera( const rVec3< T > &_position, const rVec3< T > &_lookAt
 }
 
 
-template<class T>
-void rMatrixMath::getNormalMatrix( rMat4< T > const &_in, rMat3< T > &_out ) {
-   rMat3< T > lTemp;
+template <class T>
+void rMatrixMath::getNormalMatrix( rMat4<T> const &_in, rMat3<T> &_out ) {
+   rMat3<T> lTemp;
    _in.downscale( &lTemp );
    getNormalMatrix( lTemp, _out );
 }
 
-template<class T>
-void rMatrixMath::getNormalMatrix( rMat3< T > const &_in, rMat3< T > &_out ) {
+template <class T>
+void rMatrixMath::getNormalMatrix( rMat3<T> const &_in, rMat3<T> &_out ) {
    T lDeterminante =
-         + _in.template get<0, 0>() * ( _in.template get<1, 1>() * _in.template get<2, 2>() - _in.template get<1, 2>() * _in.template get<2, 1>() )
-         - _in.template get<0, 1>() * ( _in.template get<1, 0>() * _in.template get<2, 2>() - _in.template get<1, 2>() * _in.template get<2, 0>() )
-         + _in.template get<0, 2>() * ( _in.template get<1, 0>() * _in.template get<2, 1>() - _in.template get<1, 1>() * _in.template get<2, 0>() );
+         +_in.template get<0, 0>() * ( _in.template get<1, 1>() * _in.template get<2, 2>() -
+                                       _in.template get<1, 2>() * _in.template get<2, 1>() ) -
+         _in.template get<0, 1>() * ( _in.template get<1, 0>() * _in.template get<2, 2>() -
+                                      _in.template get<1, 2>() * _in.template get<2, 0>() ) +
+         _in.template get<0, 2>() * ( _in.template get<1, 0>() * _in.template get<2, 1>() -
+                                      _in.template get<1, 1>() * _in.template get<2, 0>() );
 
-   _out.template get<0, 0>() = + ( _in.template get<1, 1>() * _in.template get<2, 2>() - _in.template get<2, 1>() * _in.template get<1, 2>() );
-   _out.template get<0, 1>() = - ( _in.template get<1, 0>() * _in.template get<2, 2>() - _in.template get<2, 0>() * _in.template get<1, 2>() );
-   _out.template get<0, 2>() = + ( _in.template get<1, 0>() * _in.template get<2, 1>() - _in.template get<2, 0>() * _in.template get<1, 1>() );
-   _out.template get<1, 0>() = - ( _in.template get<0, 1>() * _in.template get<2, 2>() - _in.template get<2, 1>() * _in.template get<0, 2>() );
-   _out.template get<1, 1>() = + ( _in.template get<0, 0>() * _in.template get<2, 2>() - _in.template get<2, 0>() * _in.template get<0, 2>() );
-   _out.template get<1, 2>() = - ( _in.template get<0, 0>() * _in.template get<2, 1>() - _in.template get<2, 0>() * _in.template get<0, 1>() );
-   _out.template get<2, 0>() = + ( _in.template get<0, 1>() * _in.template get<1, 2>() - _in.template get<1, 1>() * _in.template get<0, 2>() );
-   _out.template get<2, 1>() = - ( _in.template get<0, 0>() * _in.template get<1, 2>() - _in.template get<1, 0>() * _in.template get<0, 2>() );
-   _out.template get<2, 2>() = + ( _in.template get<0, 0>() * _in.template get<1, 1>() - _in.template get<1, 0>() * _in.template get<0, 1>() );
+   _out.template get<0, 0>() = +( _in.template get<1, 1>() * _in.template get<2, 2>() -
+                                  _in.template get<2, 1>() * _in.template get<1, 2>() );
+   _out.template get<0, 1>() = -( _in.template get<1, 0>() * _in.template get<2, 2>() -
+                                  _in.template get<2, 0>() * _in.template get<1, 2>() );
+   _out.template get<0, 2>() = +( _in.template get<1, 0>() * _in.template get<2, 1>() -
+                                  _in.template get<2, 0>() * _in.template get<1, 1>() );
+   _out.template get<1, 0>() = -( _in.template get<0, 1>() * _in.template get<2, 2>() -
+                                  _in.template get<2, 1>() * _in.template get<0, 2>() );
+   _out.template get<1, 1>() = +( _in.template get<0, 0>() * _in.template get<2, 2>() -
+                                  _in.template get<2, 0>() * _in.template get<0, 2>() );
+   _out.template get<1, 2>() = -( _in.template get<0, 0>() * _in.template get<2, 1>() -
+                                  _in.template get<2, 0>() * _in.template get<0, 1>() );
+   _out.template get<2, 0>() = +( _in.template get<0, 1>() * _in.template get<1, 2>() -
+                                  _in.template get<1, 1>() * _in.template get<0, 2>() );
+   _out.template get<2, 1>() = -( _in.template get<0, 0>() * _in.template get<1, 2>() -
+                                  _in.template get<1, 0>() * _in.template get<0, 2>() );
+   _out.template get<2, 2>() = +( _in.template get<0, 0>() * _in.template get<1, 1>() -
+                                  _in.template get<1, 0>() * _in.template get<0, 1>() );
    _out /= lDeterminante;
 }
-
-
 }
 
 #endif
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

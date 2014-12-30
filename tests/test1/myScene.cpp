@@ -12,15 +12,15 @@ int myScene::init() {
 
    int lLight;
    vObject1.getHints( rObjectBase::LIGHT_MODEL, lLight );
-   if( lLight != rObjectBase::SIMPLE_ADS_LIGHT ) {
+   if ( lLight != rObjectBase::SIMPLE_ADS_LIGHT ) {
       wLOG( "Light not supported! Normals missing!" );
       vRenderNormals = false;
    }
 
-   GLuint lShaderID     = addShader( vShader_str );
+   GLuint lShaderID = addShader( vShader_str );
    GLuint lNormalShader = addShader( vNormalShader_str );
 
-   if( !compileShaders() ) {
+   if ( !compileShaders() ) {
       eLOG( "Failed to compile the shaders" );
       return 5;
    }
@@ -31,12 +31,9 @@ int myScene::init() {
    addObject( &vLight1, -1 );
 
    int lObjID = addObject( &vObject1, lShaderID );
-   int lRet = setObjectRenderer <
-         rRenderNormal_3_3,
-         rRenderBasicLight_3_3
-         > ( lObjID );
+   int lRet = setObjectRenderer<rRenderNormal_3_3, rRenderBasicLight_3_3>( lObjID );
 
-   switch( lRet ) {
+   switch ( lRet ) {
       case 0:
          iLOG( "setObjectRenderer(): DONE" );
          break;
@@ -57,11 +54,11 @@ int myScene::init() {
          return 10;
    }
 
-   if( vRenderNormals ) {
+   if ( vRenderNormals ) {
       setObjectRenderer<rRenderVertexNormal_3_3>( addObject( &vObject1, lNormalShader ) );
    }
 
-   if( ! canRenderScene() ) {
+   if ( !canRenderScene() ) {
       eLOG( "Cannot render scene!" );
       return 2;
    }
@@ -70,12 +67,18 @@ int myScene::init() {
 }
 
 void myScene::keySlot( const iEventInfo &_inf ) {
-   if( _inf.eKey.state != E_PRESSED )
+   if ( _inf.eKey.state != E_PRESSED )
       return;
 
-   switch( _inf.eKey.key ) {
-      case L'z': vRotationAngle += 0.25; vObject1.setRotation( rVec3f( 0, 1, 0 ), vRotationAngle ); break;
-      case L't': vRotationAngle -= 0.25; vObject1.setRotation( rVec3f( 0, 1, 0 ), vRotationAngle ); break;
+   switch ( _inf.eKey.key ) {
+      case L'z':
+         vRotationAngle += 0.25;
+         vObject1.setRotation( rVec3f( 0, 1, 0 ), vRotationAngle );
+         break;
+      case L't':
+         vRotationAngle -= 0.25;
+         vObject1.setRotation( rVec3f( 0, 1, 0 ), vRotationAngle );
+         break;
    }
 }
 
@@ -86,5 +89,4 @@ void myScene::afterCameraUpdate() {
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

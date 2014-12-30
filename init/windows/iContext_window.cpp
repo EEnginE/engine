@@ -20,27 +20,26 @@ namespace windows_win32 {
 
 namespace {
 
-template<class T>
+template <class T>
 inline std::string StringLeft( T _val, unsigned int _size, char _fill ) {
-   std::string lResult_STR =  _val;
-   if( _size > lResult_STR.size() )
+   std::string lResult_STR = _val;
+   if ( _size > lResult_STR.size() )
       lResult_STR.append( ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;
 }
 
-template<class T>
+template <class T>
 inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill ) {
    std::string lResult_STR = std::to_string( _val );
-   if( _size > lResult_STR.size() )
+   if ( _size > lResult_STR.size() )
       lResult_STR.append( ( _size - lResult_STR.size() ), _fill );
    return lResult_STR;
 }
-
 }
 
 // Temp wndProc
 LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   switch( _uMsg ) {
+   switch ( _uMsg ) {
       default:
          break;
    }
@@ -59,22 +58,23 @@ LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lPar
  * \returns 8  if there was no good pixel format descriptor
  */
 int iContext::createContext() {
-   if( vHasContext_B )
+   if ( vHasContext_B )
       return 2;
 
-   vHWND_Window_win32       = 0;
-   vHDC_win32               = 0;
-   vInstance_win32          = 0;
-   vOpenGLContext_WGL       = 0;
+   vHWND_Window_win32 = 0;
+   vHDC_win32 = 0;
+   vInstance_win32 = 0;
+   vOpenGLContext_WGL = 0;
 
-   vClassName_win32             =  L"OGL_CLASS";
+   vClassName_win32 = L"OGL_CLASS";
    LPCSTR lClassName_TEMP_win32 = "OGL_CLASS_TEMP";
 
-   DWORD  lWinStyle;
-   DWORD  lExtStyle;
+   DWORD lWinStyle;
+   DWORD lExtStyle;
 
-   if( GlobConf.win.windowDecoration && ! GlobConf.win.fullscreen ) {
-      lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+   if ( GlobConf.win.windowDecoration && !GlobConf.win.fullscreen ) {
+      lWinStyle = WS_OVERLAPPEDWINDOW | WS_MAXIMIZEBOX | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU |
+                  WS_MINIMIZEBOX;
       lExtStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
    } else {
       lWinStyle = WS_POPUP;
@@ -83,24 +83,25 @@ int iContext::createContext() {
 
 
    HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
-   WNDCLASS  lWindowClass_TEMP_win32;
-   RECT      lWindowRect_TEMP_win32;
-   HWND      lHWND_Window_TEMP_win32;
+   WNDCLASS lWindowClass_TEMP_win32;
+   RECT lWindowRect_TEMP_win32;
+   HWND lHWND_Window_TEMP_win32;
 
 
-   if( !internal::CLASS_REGISTER.getC1() ) {
-      lWindowClass_TEMP_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // we want a unique DC and redraw on window changes
-      lWindowClass_TEMP_win32.lpfnWndProc   = &__WndProc;
-      lWindowClass_TEMP_win32.cbClsExtra    = 0; // We do not need this
-      lWindowClass_TEMP_win32.cbWndExtra    = sizeof( iContext * );
-      lWindowClass_TEMP_win32.hInstance     = lInstance_TEMP_win32;
-      lWindowClass_TEMP_win32.hIcon         = NULL;  // We dont have a special icon
-      lWindowClass_TEMP_win32.hCursor       = NULL;  // We dont have a special cursor
-      lWindowClass_TEMP_win32.hbrBackground = NULL;  // We dont need a background
-      lWindowClass_TEMP_win32.lpszMenuName  = NULL;  // We dont want a menu
+   if ( !internal::CLASS_REGISTER.getC1() ) {
+      lWindowClass_TEMP_win32.style =
+            CS_OWNDC | CS_HREDRAW | CS_VREDRAW; // we want a unique DC and redraw on window changes
+      lWindowClass_TEMP_win32.lpfnWndProc = &__WndProc;
+      lWindowClass_TEMP_win32.cbClsExtra = 0; // We do not need this
+      lWindowClass_TEMP_win32.cbWndExtra = sizeof( iContext * );
+      lWindowClass_TEMP_win32.hInstance = lInstance_TEMP_win32;
+      lWindowClass_TEMP_win32.hIcon = NULL;         // We dont have a special icon
+      lWindowClass_TEMP_win32.hCursor = NULL;       // We dont have a special cursor
+      lWindowClass_TEMP_win32.hbrBackground = NULL; // We dont need a background
+      lWindowClass_TEMP_win32.lpszMenuName = NULL;  // We dont want a menu
       lWindowClass_TEMP_win32.lpszClassName = lClassName_TEMP_win32;
 
-      if( !RegisterClass( &lWindowClass_TEMP_win32 ) ) {
+      if ( !RegisterClass( &lWindowClass_TEMP_win32 ) ) {
          eLOG( "Failed to register the (temporary) new class" );
          return -1;
       }
@@ -108,48 +109,48 @@ int iContext::createContext() {
       internal::CLASS_REGISTER.setC1();
    }
 
-   if( vWindowsCallbacksError_B ) {
+   if ( vWindowsCallbacksError_B ) {
       eLOG( "Problems with window callback" );
       return 5;
    }
 
 
-   lWindowRect_TEMP_win32.left   = 0;
-   lWindowRect_TEMP_win32.right  = 640;
-   lWindowRect_TEMP_win32.top    = 0;
+   lWindowRect_TEMP_win32.left = 0;
+   lWindowRect_TEMP_win32.right = 640;
+   lWindowRect_TEMP_win32.top = 0;
    lWindowRect_TEMP_win32.bottom = 480;
 
    AdjustWindowRectEx( &lWindowRect_TEMP_win32, lWinStyle, false, lExtStyle );
 
-   lHWND_Window_TEMP_win32 = CreateWindowEx(
-         lExtStyle,                      // Extended window style
-         lClassName_TEMP_win32,          // Window class name
-         GlobConf.config.appName.c_str(), // Window Name
-         lWinStyle,                      // Window style
-         0,                              // X
-         0,                              // Y
-         640,                            // Width
-         480,                            // Height
-         NULL,                           // No parent window
-         NULL,                           // No menu
-         lInstance_TEMP_win32,           // The instance
-         NULL                            // We dont want special window creation
-         );
+   lHWND_Window_TEMP_win32 = CreateWindowEx( lExtStyle,             // Extended window style
+                                             lClassName_TEMP_win32, // Window class name
+                                             GlobConf.config.appName.c_str(), // Window Name
+                                             lWinStyle,                       // Window style
+                                             0,                               // X
+                                             0,                               // Y
+                                             640,                             // Width
+                                             480,                             // Height
+                                             NULL,                            // No parent window
+                                             NULL,                            // No menu
+                                             lInstance_TEMP_win32,            // The instance
+                                             NULL // We dont want special window creation
+                                             );
 
 
-   vHDC_win32 = GetDC( lHWND_Window_TEMP_win32 );       // Get the device context
-   SetPixelFormat( vHDC_win32, 1 , &vPixelFormat_PFD ); // Set a dummy Pixel format
-   vOpenGLContext_WGL = wglCreateContext( vHDC_win32 ); // Create a simple OGL Context so that we can access windowsgl
-   wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL );    // Make the temporary context current
+   vHDC_win32 = GetDC( lHWND_Window_TEMP_win32 );      // Get the device context
+   SetPixelFormat( vHDC_win32, 1, &vPixelFormat_PFD ); // Set a dummy Pixel format
+   vOpenGLContext_WGL = wglCreateContext(
+         vHDC_win32 ); // Create a simple OGL Context so that we can access windowsgl
+   wglMakeCurrent( vHDC_win32, vOpenGLContext_WGL ); // Make the temporary context current
 
-   if( vHDC_win32 == 0 ) {
+   if ( vHDC_win32 == 0 ) {
       eLOG( "Failed to create a temporary OpenGL context! Unable to proceed!" );
       return 6;
    }
 
-   if( ! vHasGLEW_B ) {
+   if ( !vHasGLEW_B ) {
       GLenum lGLEWReturn_ENUM = glewInit();
-      if( lGLEWReturn_ENUM != GLEW_OK ) {
+      if ( lGLEWReturn_ENUM != GLEW_OK ) {
          eLOG( "Failed to init GLEW. Unable to proceed!" );
          return 7;
       }
@@ -173,20 +174,21 @@ int iContext::createContext() {
 
    vInstance_win32 = GetModuleHandle( NULL );
 
-   if( !internal::CLASS_REGISTER.getC2() ) {
-      vWindowClass_win32.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;  // We want a unique DC and redraw on window changes
-      vWindowClass_win32.lpfnWndProc   = &iContext::initialWndProc;
-      vWindowClass_win32.cbClsExtra    = 0; // We do not need this
-      vWindowClass_win32.cbWndExtra    = sizeof( iContext * );
-      vWindowClass_win32.hInstance     = vInstance_win32;
-      vWindowClass_win32.hIcon         = NULL;                         // We dont have a special icon
-      vWindowClass_win32.hCursor       = LoadCursor( NULL, IDC_ARROW ); // Take the default mouse cursor
-      vWindowClass_win32.hbrBackground = NULL;                         // We dont need a background
-      vWindowClass_win32.lpszMenuName  = NULL;                         // We dont want a menu
+   if ( !internal::CLASS_REGISTER.getC2() ) {
+      vWindowClass_win32.style =
+            CS_OWNDC | CS_HREDRAW | CS_VREDRAW; // We want a unique DC and redraw on window changes
+      vWindowClass_win32.lpfnWndProc = &iContext::initialWndProc;
+      vWindowClass_win32.cbClsExtra = 0; // We do not need this
+      vWindowClass_win32.cbWndExtra = sizeof( iContext * );
+      vWindowClass_win32.hInstance = vInstance_win32;
+      vWindowClass_win32.hIcon = NULL;                            // We dont have a special icon
+      vWindowClass_win32.hCursor = LoadCursor( NULL, IDC_ARROW ); // Take the default mouse cursor
+      vWindowClass_win32.hbrBackground = NULL;                    // We dont need a background
+      vWindowClass_win32.lpszMenuName = NULL;                     // We dont want a menu
       vWindowClass_win32.lpszClassName = vClassName_win32;
 
 
-      if( RegisterClassW( &vWindowClass_win32 ) == 0 ) {
+      if ( RegisterClassW( &vWindowClass_win32 ) == 0 ) {
          eLOG( "Failed to register the (final) window class ", (uint64_t)GetLastError() );
          return -1;
       }
@@ -195,48 +197,48 @@ int iContext::createContext() {
       internal::CLASS_REGISTER.setC2();
    }
 
-   if( vWindowsCallbacksError_B ) {
+   if ( vWindowsCallbacksError_B ) {
       eLOG( "Problems with window callback" );
       return 5;
    }
 
-   if( GlobConf.win.fullscreen ) {
+   if ( GlobConf.win.fullscreen ) {
       HWND lDesktopHWND_win32 = GetDesktopWindow();
 
-      if( GetWindowRect( lDesktopHWND_win32, &vWindowRect_win32 ) == 0 ) {
-         vWindowRect_win32.left   = GlobConf.win.posX;
-         vWindowRect_win32.right  = GlobConf.win.posX + GlobConf.win.width;
-         vWindowRect_win32.top    = GlobConf.win.posY;
+      if ( GetWindowRect( lDesktopHWND_win32, &vWindowRect_win32 ) == 0 ) {
+         vWindowRect_win32.left = GlobConf.win.posX;
+         vWindowRect_win32.right = GlobConf.win.posX + GlobConf.win.width;
+         vWindowRect_win32.top = GlobConf.win.posY;
          vWindowRect_win32.bottom = GlobConf.win.posY + GlobConf.win.height;
          wLOG( "Fullscreen failed" );
       }
 
       ChangeDisplaySettings( NULL, CDS_FULLSCREEN );
    } else {
-      vWindowRect_win32.left   = GlobConf.win.posX;
-      vWindowRect_win32.right  = GlobConf.win.posX + GlobConf.win.width;
-      vWindowRect_win32.top    = GlobConf.win.posY;
+      vWindowRect_win32.left = GlobConf.win.posX;
+      vWindowRect_win32.right = GlobConf.win.posX + GlobConf.win.width;
+      vWindowRect_win32.top = GlobConf.win.posY;
       vWindowRect_win32.bottom = GlobConf.win.posY + GlobConf.win.height;
    }
 
-   GlobConf.win.posX   = vWindowRect_win32.left;
-   GlobConf.win.posY   = vWindowRect_win32.top;
-   GlobConf.win.width  = vWindowRect_win32.right  - vWindowRect_win32.left;
+   GlobConf.win.posX = vWindowRect_win32.left;
+   GlobConf.win.posY = vWindowRect_win32.top;
+   GlobConf.win.width = vWindowRect_win32.right - vWindowRect_win32.left;
    GlobConf.win.height = vWindowRect_win32.bottom - vWindowRect_win32.top;
 
    // Now do the same again, but this time create the actual window
    AdjustWindowRectEx( &vWindowRect_win32, lWinStyle, false, lExtStyle );
    std::wstring lWindowName_wstr( GlobConf.config.appName.begin(), GlobConf.config.appName.end() );
    iLOG( "Window Name: ", lWindowName_wstr );
-   vHWND_Window_win32 = CreateWindowExW( //The W  is required for it to be a Unicode window
+   vHWND_Window_win32 = CreateWindowExW( // The W  is required for it to be a Unicode window
          lExtStyle,                                     // Extended window style
          vClassName_win32,                              // Window class name
          lWindowName_wstr.c_str(),                      // Window Name (converted to a wide string)
          lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, // Window style
-         GlobConf.win.posX,                              // X
-         GlobConf.win.posY,                              // Y
-         GlobConf.win.width,                             // Width
-         GlobConf.win.height,                            // Height
+         GlobConf.win.posX,                             // X
+         GlobConf.win.posY,                             // Y
+         GlobConf.win.width,                            // Width
+         GlobConf.win.height,                           // Height
          NULL,                                          // No parent window
          NULL,                                          // No menu
          vInstance_win32,                               // The instance
@@ -253,121 +255,174 @@ int iContext::createContext() {
 
    ShowCursor( TRUE );
 
-   vHDC_win32 = GetDC( vHWND_Window_win32 );            // Get the device context
+   vHDC_win32 = GetDC( vHWND_Window_win32 ); // Get the device context
 
 
    int lNumberOfPixelFormats_I = -10;
 
-   int lAttributesCount[] = { WGL_NUMBER_PIXEL_FORMATS_ARB };
-   int lAttributes[] = {
-      // Must be true
-      WGL_DRAW_TO_WINDOW_ARB,
-      WGL_DOUBLE_BUFFER_ARB,
-      WGL_SUPPORT_OPENGL_ARB,
-      WGL_ACCELERATION_ARB,
-      // Should be as big as possible
-      WGL_DEPTH_BITS_ARB,
-      WGL_STENCIL_BITS_ARB,
-      WGL_RED_BITS_ARB,
-      WGL_GREEN_BITS_ARB,
-      WGL_BLUE_BITS_ARB,
-      WGL_ALPHA_BITS_ARB,
-      WGL_SAMPLES_ARB,
+   int lAttributesCount[] = {WGL_NUMBER_PIXEL_FORMATS_ARB};
+   int lAttributes[] = {// Must be true
+                        WGL_DRAW_TO_WINDOW_ARB,
+                        WGL_DOUBLE_BUFFER_ARB,
+                        WGL_SUPPORT_OPENGL_ARB,
+                        WGL_ACCELERATION_ARB,
+                        // Should be as big as possible
+                        WGL_DEPTH_BITS_ARB,
+                        WGL_STENCIL_BITS_ARB,
+                        WGL_RED_BITS_ARB,
+                        WGL_GREEN_BITS_ARB,
+                        WGL_BLUE_BITS_ARB,
+                        WGL_ALPHA_BITS_ARB,
+                        WGL_SAMPLES_ARB,
    };
 
    wglGetPixelFormatAttribivARB( vHDC_win32, 1, 0, 1, lAttributesCount, &lNumberOfPixelFormats_I );
 
    std::wstring lOFF_C = eCMDColor::color( 'O', 'W' );
-   std::wstring lBW_C  = eCMDColor::color( 'B', 'W' );
-   std::wstring lBR_C  = eCMDColor::color( 'B', 'R' );
-   std::wstring lBG_C  = eCMDColor::color( 'B', 'G' );
-   std::wstring lBB_C  = eCMDColor::color( 'B', 'B' );
-   std::wstring lBC_C  = eCMDColor::color( 'B', 'C' );
+   std::wstring lBW_C = eCMDColor::color( 'B', 'W' );
+   std::wstring lBR_C = eCMDColor::color( 'B', 'R' );
+   std::wstring lBG_C = eCMDColor::color( 'B', 'G' );
+   std::wstring lBB_C = eCMDColor::color( 'B', 'B' );
+   std::wstring lBC_C = eCMDColor::color( 'B', 'C' );
 
-   std::wstring lR_C   = eCMDColor::color( 'O', 'R' );
-   std::wstring lG_C   = eCMDColor::color( 'O', 'G' );
-   std::wstring lB_C   = eCMDColor::color( 'O', 'B' );
-   std::wstring lC_C   = eCMDColor::color( 'O', 'C' );
+   std::wstring lR_C = eCMDColor::color( 'O', 'R' );
+   std::wstring lG_C = eCMDColor::color( 'O', 'G' );
+   std::wstring lB_C = eCMDColor::color( 'O', 'B' );
+   std::wstring lC_C = eCMDColor::color( 'O', 'C' );
 
-   iLOG(
-         "Found ", lBG_C, lNumberOfPixelFormats_I, lG_C, " pixel format descriptors:\n\n",
+   iLOG( "Found ",
+         lBG_C,
+         lNumberOfPixelFormats_I,
+         lG_C,
+         " pixel format descriptors:\n\n",
          lOFF_C,
-         "   |========|=========|=======|=========|=======================|\n", lOFF_C,
-         "   |   ", lBW_C, "ID",      lOFF_C,
-         "   | " , lBW_C, "Samples", lOFF_C, " | "  ,  lBW_C, "Depth", lOFF_C,
-         " | "   , lBW_C, "Stencil", lOFF_C,
-         " |  "  , lBR_C, "R", lOFF_C,
-         "  -  " , lBG_C, "G", lOFF_C,
-         "  -  " , lBB_C, "B", lOFF_C,
-         "  -  " , lBC_C, "A", lOFF_C,
-         "  |\n" , lOFF_C,
+         "   |========|=========|=======|=========|=======================|\n",
+         lOFF_C,
+         "   |   ",
+         lBW_C,
+         "ID",
+         lOFF_C,
+         "   | ",
+         lBW_C,
+         "Samples",
+         lOFF_C,
+         " | ",
+         lBW_C,
+         "Depth",
+         lOFF_C,
+         " | ",
+         lBW_C,
+         "Stencil",
+         lOFF_C,
+         " |  ",
+         lBR_C,
+         "R",
+         lOFF_C,
+         "  -  ",
+         lBG_C,
+         "G",
+         lOFF_C,
+         "  -  ",
+         lBB_C,
+         "B",
+         lOFF_C,
+         "  -  ",
+         lBC_C,
+         "A",
+         lOFF_C,
+         "  |\n",
+         lOFF_C,
          "   |--------|---------|-------|---------|-----------------------|"
 
-   );
+         );
 
    int lPixelFormat[11];
 
-   int lBestSamples_I = 0, lBestDepth = 0, lBestR_I = 0, lBestG_I = 0, lBestB_I = 0, lBestA_I = 0, lBestStencil_I = 0;
+   int lBestSamples_I = 0, lBestDepth = 0, lBestR_I = 0, lBestG_I = 0, lBestB_I = 0, lBestA_I = 0,
+       lBestStencil_I = 0;
    int lBestFBConfig_I = -1;
 
-   for( int i = 1; i < lNumberOfPixelFormats_I; ++i ) {
+   for ( int i = 1; i < lNumberOfPixelFormats_I; ++i ) {
       wglGetPixelFormatAttribivARB( vHDC_win32, i, 0, 11, lAttributes, lPixelFormat );
-      if( lPixelFormat[0] != 1 || lPixelFormat[1] != 1 || lPixelFormat[2] != 1 || lPixelFormat[3] != GlobConf.framebuffer.FBA_ACCELERATION )
+      if ( lPixelFormat[0] != 1 || lPixelFormat[1] != 1 || lPixelFormat[2] != 1 ||
+           lPixelFormat[3] != GlobConf.framebuffer.FBA_ACCELERATION )
          continue;
 
       int samples, depth, stencil, r, g, b, a;
 
-      depth   = lPixelFormat[ 4 ];
-      stencil = lPixelFormat[ 5 ];
-      r       = lPixelFormat[ 6 ];
-      g       = lPixelFormat[ 7 ];
-      b       = lPixelFormat[ 8 ];
-      a       = lPixelFormat[ 9 ];
-      samples = lPixelFormat[ 10 ];
+      depth = lPixelFormat[4];
+      stencil = lPixelFormat[5];
+      r = lPixelFormat[6];
+      g = lPixelFormat[7];
+      b = lPixelFormat[8];
+      a = lPixelFormat[9];
+      samples = lPixelFormat[10];
 
-      LOG(
-            _hD, "   |  ",
-            numToSizeStringLeft( i, 6, ' ' ) , "|    ",
-            numToSizeStringLeft( samples, 5, ' ' )    , "|   " ,
-            numToSizeStringLeft( depth, 4, ' ' ), "|    ",
-            numToSizeStringLeft( stencil, 5, ' ' ), "|  ",
-            lR_C, numToSizeStringLeft( r, 3, ' ' ), lOFF_C, "-  ",
-            lG_C, numToSizeStringLeft( g, 3, ' ' ), lOFF_C, "-  ",
-            lB_C, numToSizeStringLeft( b, 3, ' ' ), lOFF_C, "-  ",
-            lC_C, numToSizeStringLeft( a, 3, ' ' ), lOFF_C, "|"
-      );
+      LOG( _hD,
+           "   |  ",
+           numToSizeStringLeft( i, 6, ' ' ),
+           "|    ",
+           numToSizeStringLeft( samples, 5, ' ' ),
+           "|   ",
+           numToSizeStringLeft( depth, 4, ' ' ),
+           "|    ",
+           numToSizeStringLeft( stencil, 5, ' ' ),
+           "|  ",
+           lR_C,
+           numToSizeStringLeft( r, 3, ' ' ),
+           lOFF_C,
+           "-  ",
+           lG_C,
+           numToSizeStringLeft( g, 3, ' ' ),
+           lOFF_C,
+           "-  ",
+           lB_C,
+           numToSizeStringLeft( b, 3, ' ' ),
+           lOFF_C,
+           "-  ",
+           lC_C,
+           numToSizeStringLeft( a, 3, ' ' ),
+           lOFF_C,
+           "|" );
 
-      if( samples > lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I && b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
+      if ( samples > lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
+           b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
          lBestFBConfig_I = i;
          lBestSamples_I = samples;
       }
-      if( samples >= lBestSamples_I && depth > lBestDepth && r >= lBestR_I && g >= lBestG_I && b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
+      if ( samples >= lBestSamples_I && depth > lBestDepth && r >= lBestR_I && g >= lBestG_I &&
+           b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
          lBestFBConfig_I = i;
          lBestDepth = depth;
       }
-      if( samples >= lBestSamples_I && depth >= lBestDepth && r > lBestR_I && g >= lBestG_I && b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
+      if ( samples >= lBestSamples_I && depth >= lBestDepth && r > lBestR_I && g >= lBestG_I &&
+           b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
          lBestFBConfig_I = i;
          lBestR_I = r;
       }
-      if( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g > lBestG_I && b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
+      if ( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g > lBestG_I &&
+           b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
          lBestFBConfig_I = i;
          lBestG_I = g;
       }
-      if( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I && b > lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
+      if ( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
+           b > lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
          lBestFBConfig_I = i;
          lBestB_I = b;
       }
-      if( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I && b >= lBestB_I && a > lBestA_I && stencil >= lBestStencil_I ) {
+      if ( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
+           b >= lBestB_I && a > lBestA_I && stencil >= lBestStencil_I ) {
          lBestFBConfig_I = i;
          lBestA_I = a;
       }
-      if( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I && b >= lBestB_I && a >= lBestA_I && stencil > lBestStencil_I ) {
+      if ( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
+           b >= lBestB_I && a >= lBestA_I && stencil > lBestStencil_I ) {
          lBestFBConfig_I = i;
          lBestStencil_I = stencil;
       }
    }
 
-   if( lBestFBConfig_I < 0 ) {
+   if ( lBestFBConfig_I < 0 ) {
       eLOG( "No suitable Pixel format descriptor found!" );
       return 8;
    }
@@ -381,25 +436,38 @@ int iContext::createContext() {
 
    // Set new Error Handler
    GLushort version_list[][2] = {
-      {4, 6}, {4, 5}, {4, 4}, {4, 3}, {4, 2}, {4, 1},
-      {3, 3}, {3, 2}, {3, 1}, {3, 0},
-      {2, 1}, {2, 0},
-      {1, 5}, {1, 4}, {1, 3}, {1, 2},
-      {0, 0} // End marker
+         {4, 6},
+         {4, 5},
+         {4, 4},
+         {4, 3},
+         {4, 2},
+         {4, 1},
+         {3, 3},
+         {3, 2},
+         {3, 1},
+         {3, 0},
+         {2, 1},
+         {2, 0},
+         {1, 5},
+         {1, 4},
+         {1, 3},
+         {1, 2},
+         {0, 0} // End marker
    };
 
 
 
    // Extension supported:
    GLint lAttributes_A_I[5];
-   if(
-         ( GlobConf.versions.glMinorVersion  < 0 || GlobConf.versions.glMajorVersion  < 0 ) &&
-            ( GlobConf.versions.glMinorVersion != 0 && GlobConf.versions.glMajorVersion != 0 )
-      ) {
+   if ( ( GlobConf.versions.glMinorVersion < 0 || GlobConf.versions.glMajorVersion < 0 ) &&
+        ( GlobConf.versions.glMinorVersion != 0 && GlobConf.versions.glMajorVersion != 0 ) ) {
       lAttributes_A_I[0] = 0;
       iLOG( "No OpenGL Context options --> select the version automatically" );
    } else {
-      iLOG( "Trying to use OpenGL version ", GlobConf.versions.glMajorVersion, '.', GlobConf.versions.glMinorVersion );
+      iLOG( "Trying to use OpenGL version ",
+            GlobConf.versions.glMajorVersion,
+            '.',
+            GlobConf.versions.glMinorVersion );
       lAttributes_A_I[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
       lAttributes_A_I[1] = GlobConf.versions.glMajorVersion;
       lAttributes_A_I[2] = WGL_CONTEXT_MINOR_VERSION_ARB;
@@ -407,19 +475,26 @@ int iContext::createContext() {
       lAttributes_A_I[4] = 0;
    }
 
-   for( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
+   for ( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
       vOpenGLContext_WGL = wglCreateContextAttribsARB( vHDC_win32, 0, lAttributes_A_I );
 
       // Errors ?
-      if( !vOpenGLContext_WGL ) {
+      if ( !vOpenGLContext_WGL ) {
          // Select the next lower version
-         while(
-               ( version_list[i][0] >= lAttributes_A_I[1] && version_list[i][1] >= lAttributes_A_I[3] ) &&
-               ( version_list[i][0] != 0 || version_list[i][1] != 0 )
-         ) {i++;}
+         while ( ( version_list[i][0] >= lAttributes_A_I[1] &&
+                   version_list[i][1] >= lAttributes_A_I[3] ) &&
+                 ( version_list[i][0] != 0 || version_list[i][1] != 0 ) ) {
+            i++;
+         }
 
-         wLOG( "Failed to create an OpenGl version "  , lAttributes_A_I[1], '.', lAttributes_A_I[3]
-               ,  " context. Try to fall back to OpenGl ", version_list[i][0], '.', version_list[i][1] );
+         wLOG( "Failed to create an OpenGl version ",
+               lAttributes_A_I[1],
+               '.',
+               lAttributes_A_I[3],
+               " context. Try to fall back to OpenGl ",
+               version_list[i][0],
+               '.',
+               version_list[i][1] );
 
 
          lAttributes_A_I[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
@@ -431,9 +506,7 @@ int iContext::createContext() {
          GlobConf.versions.glMajorVersion = version_list[i][0];
          GlobConf.versions.glMinorVersion = version_list[i][1];
 
-      } else {
-         break;
-      }
+      } else { break; }
    }
 
 
@@ -448,13 +521,25 @@ int iContext::createContext() {
 
    std::wstring lC1_C = eCMDColor::color( 'B', 'C' );
 
-   iLOG(
-         "Versions:",
-         "\n  - Engine: ", lC1_C, E_VERSION_MAJOR , ".", E_VERSION_MINOR, ".", E_VERSION_SUBMINOR, ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ), E_VERSION_GIT,
-         "\n  - OpenGL: ", lC1_C, (char *)glGetString( GL_VERSION ),
-         "\n  - GLSL:   ", lC1_C, (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
-         "\n  - GLEW:   ", lC1_C, (char *)glewGetString( GLEW_VERSION )
-   );
+   iLOG( "Versions:",
+         "\n  - Engine: ",
+         lC1_C,
+         E_VERSION_MAJOR,
+         ".",
+         E_VERSION_MINOR,
+         ".",
+         E_VERSION_SUBMINOR,
+         ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ),
+         E_VERSION_GIT,
+         "\n  - OpenGL: ",
+         lC1_C,
+         (char *)glGetString( GL_VERSION ),
+         "\n  - GLSL:   ",
+         lC1_C,
+         (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
+         "\n  - GLEW:   ",
+         lC1_C,
+         (char *)glewGetString( GLEW_VERSION ) );
 
 
    iLOG( "OpenGL context created" );
@@ -464,8 +549,8 @@ int iContext::createContext() {
 
    vHasContext_B = true;
 
-   vWindowsDestroy_B        = false;
-   vWindowsNCDestrox_B      = false;
+   vWindowsDestroy_B = false;
+   vWindowsNCDestrox_B = false;
 
    return 1;
 }
@@ -476,4 +561,4 @@ int iContext::createContext() {
 
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

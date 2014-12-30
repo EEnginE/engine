@@ -42,8 +42,10 @@ namespace e_engine {
 
 namespace unix_x11 {
 
-typedef GLXContext( *glXCreateContextAttribsARBProc )( Display *, GLXFBConfig, GLXContext, bool, const int * );  // <= Old Style
-// using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool, const int * );   // <= C++11 style (doesnt work with older gcc versions)
+typedef GLXContext ( *glXCreateContextAttribsARBProc )(
+      Display *, GLXFBConfig, GLXContext, bool, const int * ); // <= Old Style
+// using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool,
+// const int * );   // <= C++11 style (doesnt work with older gcc versions)
 
 
 /*!
@@ -88,119 +90,141 @@ extern Atom atom_wmDeleteWindow;
  * rest of the functions.
  */
 class iContext : public iRandR, public iKeyboard {
-   private:
+ private:
+   // X11 variables
+   Display *vDisplay_X11;        //!< The connection to the X-Server
+   Window vWindow_X11;           //!< The window handle
+   Window vRootWindow_X11;       //!< The root window handle
+   int vScreen_X11;              //!< The screen handel
+   XVisualInfo *vVisualInfo_X11; //!< A structure containing information about the visual
+   int vWindowMask_X11;          //!< The Window mask
+   XSetWindowAttributes vWindowAttributes_X11; //!< A window attribute structure
+   XTextProperty vWindowNameTP_X11;            //!< The window name text property
+   XTextProperty vWindowIconTP_X11;            //!< The window icon text property
+   XSizeHints *vSizeHints_X11;                 //!< The window size WM hints structure
+   XWMHints *vWmHints_X11;                     //!< The WM hints structure
+   XClassHint *vClassHints_X11;                //!< The class hints structure
+   Colormap vColorMap_X11;                     //!< The clormap handle
+   GLXContext vOpenGLContext_GLX;              //!< The context handle
+   GLXFBConfig *vFBConfig_GLX;                 //!< The framebuffer handle
+   int vNumOfFBConfigs_I;                      //!< Number of found matching framebuffer configs
+   long int vEventMask_lI;                     //!< The X11 event mask (needed to recieve events)
 
-      // X11 variables
-      Display              *vDisplay_X11;             //!< The connection to the X-Server
-      Window               vWindow_X11;               //!< The window handle
-      Window               vRootWindow_X11;           //!< The root window handle
-      int                  vScreen_X11;               //!< The screen handel
-      XVisualInfo          *vVisualInfo_X11;          //!< A structure containing information about the visual
-      int                  vWindowMask_X11;           //!< The Window mask
-      XSetWindowAttributes vWindowAttributes_X11;     //!< A window attribute structure
-      XTextProperty        vWindowNameTP_X11;         //!< The window name text property
-      XTextProperty        vWindowIconTP_X11;         //!< The window icon text property
-      XSizeHints           *vSizeHints_X11;           //!< The window size WM hints structure
-      XWMHints             *vWmHints_X11;             //!< The WM hints structure
-      XClassHint           *vClassHints_X11;          //!< The class hints structure
-      Colormap             vColorMap_X11;             //!< The clormap handle
-      GLXContext           vOpenGLContext_GLX;        //!< The context handle
-      GLXFBConfig          *vFBConfig_GLX;            //!< The framebuffer handle
-      int                  vNumOfFBConfigs_I;         //!< Number of found matching framebuffer configs
-      long int             vEventMask_lI;             //!< The X11 event mask (needed to recieve events)
-
-      glXCreateContextAttribsARBProc glXCreateContextAttribsARB; //! The context creation function pointer
-      
-      
-      GLuint               vVertexArray_OGL;
-
-      int    vBestFBConfig_I;       //!< The Integer ID of the best FB config we have found
-
-      bool   vWindowHasBorder_B;
-
-      bool   vHaveContext_B;
-      bool   vWindowCreated_B;
-      bool   vColorMapCreated_B;
-      bool   vDisplayCreated_B;
-      bool   vHaveGLEW_B;
-
-      int    vGLXVersionMajor_I;
-      int    vGLXVersionMinor_I;
-      int    vX11VersionMajor_I;
-      int    vX11VersionMinor_I;
-
-      bool   vIsMouseGrabbed_B;
-      bool   vIsCursorHidden_B;
-
-      bool   isExtensionSupported( const char *_extension ); //!< Function checking if extension is supported
-
-      //! \todo create a function for setting an icon
-
-      //bool createIconPixmap();  //! Does NOT work until now
-      //void pixmaps2(unsigned int Width, unsigned int Height, const Uint8* Pixels);
-
-      int createDisplay();        //!< Creates the connection to the X-Server \returns \c SUCCESS: \a 1 -- \c ERRORS: \a -1 , \a -2
-      int createFrameBuffer();    //!< Looks for the best FB config           \returns \c SUCCESS: \a 1 -- \c ERRORS: \a -3
-      int createWindow();         //!< Creates the Window                     \returns \c SUCCESS: \a 1 -- \c ERRORS: \a -4
-      int createOGLContext();     //!< Creates the OpenGL context             \returns \c SUCCESS: \a 1 -- \c ERRORS: \a 3
-
-      bool sendX11Event( std::string _atom, GLint64 _l0 = 0, GLint64 _l1 = 0, GLint64 _l2 = 0, GLint64 _l3 = 0, GLint64 _l4 = 0 );
-
-   protected:
-      bool vWindowRecreate_B;
-
-   public:
-      iContext();
-      virtual ~iContext() {destroyContext();}
-
-      int createContext();
+   glXCreateContextAttribsARBProc
+         glXCreateContextAttribsARB; //! The context creation function pointer
 
 
-      void       getX11Version( int *_major, int *_minor );
-      void       getGLXVersion( int *_major, int *_minor );
+   GLuint vVertexArray_OGL;
 
-      Display          *getDisplay()           { return  vDisplay_X11; }        //!< \brief Get the display pointer         \returns The display pointer
-      Window     const &getWindow()      const { return  vWindow_X11; }         //!< \brief Get the window handle          \returns The window handle
-      GLXContext const &getContext()     const { return  vOpenGLContext_GLX; }  //!< \brief Get the context handle         \returns The context handle
-      bool       const &getHaveGLEW()    const { return  vHaveGLEW_B; }         //!< \brief Check if GLEW is OK             \returns Whether GLEW is OK
-      bool       const &getHaveContext() const { return  vHaveContext_B; }      //!< \brief Check if we have a OGL context \returns If there is a OpenGL context
+   int vBestFBConfig_I; //!< The Integer ID of the best FB config we have found
 
-      inline void swapBuffers() {glXSwapBuffers( vDisplay_X11, vWindow_X11 );} //!< Swaps the OGL buffers
+   bool vWindowHasBorder_B;
+
+   bool vHaveContext_B;
+   bool vWindowCreated_B;
+   bool vColorMapCreated_B;
+   bool vDisplayCreated_B;
+   bool vHaveGLEW_B;
+
+   int vGLXVersionMajor_I;
+   int vGLXVersionMinor_I;
+   int vX11VersionMajor_I;
+   int vX11VersionMinor_I;
+
+   bool vIsMouseGrabbed_B;
+   bool vIsCursorHidden_B;
+
+   bool
+   isExtensionSupported( const char *_extension ); //!< Function checking if extension is supported
+
+   //! \todo create a function for setting an icon
+
+   // bool createIconPixmap();  //! Does NOT work until now
+   // void pixmaps2(unsigned int Width, unsigned int Height, const Uint8* Pixels);
+
+   int createDisplay(); //!< Creates the connection to the X-Server \returns \c SUCCESS: \a 1 -- \c
+                        //ERRORS: \a -1 , \a -2
+   int createFrameBuffer(); //!< Looks for the best FB config           \returns \c SUCCESS: \a 1 --
+                            //\c ERRORS: \a -3
+   int createWindow(); //!< Creates the Window                     \returns \c SUCCESS: \a 1 -- \c
+                       //ERRORS: \a -4
+   int createOGLContext(); //!< Creates the OpenGL context             \returns \c SUCCESS: \a 1 --
+                           //\c ERRORS: \a 3
+
+   bool sendX11Event( std::string _atom,
+                      GLint64 _l0 = 0,
+                      GLint64 _l1 = 0,
+                      GLint64 _l2 = 0,
+                      GLint64 _l3 = 0,
+                      GLint64 _l4 = 0 );
+
+ protected:
+   bool vWindowRecreate_B;
+
+ public:
+   iContext();
+   virtual ~iContext() { destroyContext(); }
+
+   int createContext();
 
 
-      bool makeContextCurrent();
-      bool makeNOContextCurrent();
+   void getX11Version( int *_major, int *_minor );
+   void getGLXVersion( int *_major, int *_minor );
 
-      static bool isAContextCurrentForThisThread();
+   Display *getDisplay() {
+      return vDisplay_X11;
+   } //!< \brief Get the display pointer         \returns The display pointer
+   Window const &getWindow() const {
+      return vWindow_X11;
+   } //!< \brief Get the window handle          \returns The window handle
+   GLXContext const &getContext() const {
+      return vOpenGLContext_GLX;
+   } //!< \brief Get the context handle         \returns The context handle
+   bool const &getHaveGLEW() const {
+      return vHaveGLEW_B;
+   } //!< \brief Check if GLEW is OK             \returns Whether GLEW is OK
+   bool const &getHaveContext() const {
+      return vHaveContext_B;
+   } //!< \brief Check if we have a OGL context \returns If there is a OpenGL context
 
-
-      void destroyContext();
-
-      int  enableVSync();
-      int  disableVSync();
-
-      int  changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
-
-      bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
-
-      bool fullScreen( ACTION _action, bool _allMonitors = false );
-      bool fullScreenMultiMonitor();
-      int  setFullScreenMonitor( iDisplays _disp );
-      bool maximize( ACTION _action );
-      bool setDecoration( ACTION _action );
-
-      bool grabMouse();
-      bool freeMouse();
-      bool getIsMouseGrabbed()  const;
-
-      bool moveMouse( unsigned int _posX, unsigned int _posY );
-
-      bool hideMouseCursor();
-      bool showMouseCursor();
-      bool getIsCursorHidden() const;
+   inline void swapBuffers() {
+      glXSwapBuffers( vDisplay_X11, vWindow_X11 );
+   } //!< Swaps the OGL buffers
 
 
-//       GLuint getVertexArrayOpenGL() { return vVertexArray_OGL; }
+   bool makeContextCurrent();
+   bool makeNOContextCurrent();
+
+   static bool isAContextCurrentForThisThread();
+
+
+   void destroyContext();
+
+   int enableVSync();
+   int disableVSync();
+
+   int changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
+
+   bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
+
+   bool fullScreen( ACTION _action, bool _allMonitors = false );
+   bool fullScreenMultiMonitor();
+   int setFullScreenMonitor( iDisplays _disp );
+   bool maximize( ACTION _action );
+   bool setDecoration( ACTION _action );
+
+   bool grabMouse();
+   bool freeMouse();
+   bool getIsMouseGrabbed() const;
+
+   bool moveMouse( unsigned int _posX, unsigned int _posY );
+
+   bool hideMouseCursor();
+   bool showMouseCursor();
+   bool getIsCursorHidden() const;
+
+
+   //       GLuint getVertexArrayOpenGL() { return vVertexArray_OGL; }
 };
 
 
@@ -211,5 +235,4 @@ class iContext : public iRandR, public iKeyboard {
 
 
 #endif // E_CONTEXT_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

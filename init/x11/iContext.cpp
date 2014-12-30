@@ -28,7 +28,7 @@
  */
 
 #include <regex>
-#include <GL/glxew.h>   // Must be included BEFORE e_context.hpp!!! (GLEW)
+#include <GL/glxew.h> // Must be included BEFORE e_context.hpp!!! (GLEW)
 #include "iContext.hpp"
 #include "uLog.hpp"
 #include "eCMDColor.hpp"
@@ -50,7 +50,7 @@ bool iContext::isExtensionSupported( const char *_extension ) {
    /* It takes a bit of care to be fool-proof about parsing the
       OpenGL extensions string. Don't be fooled by sub-strings,
       etc. */
-   for ( lStart_CSTR = lExtList_CSTR; ; ) {
+   for ( lStart_CSTR = lExtList_CSTR;; ) {
       lWhere_CSTR = strstr( lStart_CSTR, _extension );
 
       if ( !lWhere_CSTR )
@@ -68,21 +68,21 @@ bool iContext::isExtensionSupported( const char *_extension ) {
 }
 
 iContext::iContext() {
-   vNumOfFBConfigs_I      = 0;
-   vDisplay_X11           = nullptr;
-   vWindow_X11            = 0;
-   vWindowHasBorder_B     = true;
-   vHaveContext_B         = false;
-   vHaveGLEW_B            = false;
-   vDisplayCreated_B      = false;
-   vWindowCreated_B       = false;
-   vColorMapCreated_B     = false;
-   vWindowRecreate_B      = false;
-   vIsMouseGrabbed_B      = false;
-   vEventMask_lI          = KeyPressMask           | KeyReleaseMask       | ButtonPressMask     | ButtonReleaseMask   |
-                            PointerMotionMask      | ButtonMotionMask     | ExposureMask        | StructureNotifyMask |
-                            SubstructureNotifyMask | VisibilityChangeMask | EnterWindowMask     | LeaveWindowMask     |
-                            FocusChangeMask;
+   vNumOfFBConfigs_I = 0;
+   vDisplay_X11 = nullptr;
+   vWindow_X11 = 0;
+   vWindowHasBorder_B = true;
+   vHaveContext_B = false;
+   vHaveGLEW_B = false;
+   vDisplayCreated_B = false;
+   vWindowCreated_B = false;
+   vColorMapCreated_B = false;
+   vWindowRecreate_B = false;
+   vIsMouseGrabbed_B = false;
+   vEventMask_lI = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
+                   PointerMotionMask | ButtonMotionMask | ExposureMask | StructureNotifyMask |
+                   SubstructureNotifyMask | VisibilityChangeMask | EnterWindowMask |
+                   LeaveWindowMask | FocusChangeMask;
 
    vIsCursorHidden_B = false;
    vIsMouseGrabbed_B = false;
@@ -131,22 +131,28 @@ int iContext::createContext() {
       wLOG( "Failed to call XInitThreads();" );
    }
 
-   if ( ( lReturnValue_I = createDisplay() )     != 1 ) {return lReturnValue_I;}
-   if ( ( lReturnValue_I = createFrameBuffer() ) != 1 ) {return lReturnValue_I;}
-   if ( ( lReturnValue_I = createWindow() )      != 1 ) {return lReturnValue_I;}
-   if ( ( lReturnValue_I = createOGLContext() )  != 1 ) {return lReturnValue_I;}
+   if ( ( lReturnValue_I = createDisplay() ) != 1 ) {
+      return lReturnValue_I;
+   }
+   if ( ( lReturnValue_I = createFrameBuffer() ) != 1 ) {
+      return lReturnValue_I;
+   }
+   if ( ( lReturnValue_I = createWindow() ) != 1 ) {
+      return lReturnValue_I;
+   }
+   if ( ( lReturnValue_I = createOGLContext() ) != 1 ) {
+      return lReturnValue_I;
+   }
 
    if ( initRandR( vDisplay_X11, vWindow_X11, vRootWindow_X11 ) ) {
       int lVRRmajor_I;
       int lVRRminor_I;
       getRandRVersion( lVRRmajor_I, lVRRminor_I );
       lRandRVersionString_str = std::to_string( lVRRmajor_I ) + '.' + std::to_string( lVRRminor_I );
-   } else {
-      lRandRVersionString_str = "!!! NOT SUPPORTED !!!";
-   }
+   } else { lRandRVersionString_str = "!!! NOT SUPPORTED !!!"; }
 
 
-   if ( ! vHaveGLEW_B ) {
+   if ( !vHaveGLEW_B ) {
       // Init GLEW
       glewExperimental = GL_TRUE;
       vHaveGLEW_B = true;
@@ -159,16 +165,38 @@ int iContext::createContext() {
 
    std::wstring lC1_C = eCMDColor::color( 'B', 'C' );
 
-   iLOG(
-      "Versions:",
-      "\n  - Engine: ", lC1_C, E_VERSION_MAJOR , ".", E_VERSION_MINOR, ".", E_VERSION_SUBMINOR, ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ), E_VERSION_GIT,
-      "\n  - OpenGL: ", lC1_C, (char *)glGetString( GL_VERSION ),
-      "\n  - GLSL:   ", lC1_C, (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
-      "\n  - GLX:    ", lC1_C, vGLXVersionMajor_I, ".", vGLXVersionMinor_I,
-      "\n  - X11:    ", lC1_C, vX11VersionMajor_I, ".", vX11VersionMinor_I,
-      "\n  - GLEW:   ", lC1_C, (char *)glewGetString( GLEW_VERSION ),
-      "\n  - RandR:  ", lC1_C, lRandRVersionString_str
-   );
+   iLOG( "Versions:",
+         "\n  - Engine: ",
+         lC1_C,
+         E_VERSION_MAJOR,
+         ".",
+         E_VERSION_MINOR,
+         ".",
+         E_VERSION_SUBMINOR,
+         ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ),
+         E_VERSION_GIT,
+         "\n  - OpenGL: ",
+         lC1_C,
+         (char *)glGetString( GL_VERSION ),
+         "\n  - GLSL:   ",
+         lC1_C,
+         (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
+         "\n  - GLX:    ",
+         lC1_C,
+         vGLXVersionMajor_I,
+         ".",
+         vGLXVersionMinor_I,
+         "\n  - X11:    ",
+         lC1_C,
+         vX11VersionMajor_I,
+         ".",
+         vX11VersionMinor_I,
+         "\n  - GLEW:   ",
+         lC1_C,
+         (char *)glewGetString( GLEW_VERSION ),
+         "\n  - RandR:  ",
+         lC1_C,
+         lRandRVersionString_str );
 
    if ( GlobConf.win.fullscreen == true ) {
       fullScreen( C_ADD );
@@ -176,9 +204,7 @@ int iContext::createContext() {
 
    if ( GlobConf.win.windowDecoration == true ) {
       setDecoration( C_ADD );
-   } else {
-      setDecoration( C_REMOVE );
-   }
+   } else { setDecoration( C_REMOVE ); }
 
    glGenVertexArrays( 1, &vVertexArray_OGL );
    glBindVertexArray( vVertexArray_OGL );
@@ -195,17 +221,19 @@ int iContext::createContext() {
  * \param _posY   The new Y coordinate
  * \returns The return value of \c XConfigureWindow
  */
-int iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
-   if ( ! vHaveGLEW_B )
+int
+iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
+   if ( !vHaveGLEW_B )
       return 0;
 
    XWindowChanges lWindowChanges_X11;
-   GlobConf.win.width  = lWindowChanges_X11.width  = ( int )_width;
-   GlobConf.win.height = lWindowChanges_X11.height = ( int )_height;
-   GlobConf.win.posX   = lWindowChanges_X11.x      = _posX;
-   GlobConf.win.posY   = lWindowChanges_X11.y      = _posY;
+   GlobConf.win.width = lWindowChanges_X11.width = (int)_width;
+   GlobConf.win.height = lWindowChanges_X11.height = (int)_height;
+   GlobConf.win.posX = lWindowChanges_X11.x = _posX;
+   GlobConf.win.posY = lWindowChanges_X11.y = _posY;
 
-   return XConfigureWindow( vDisplay_X11, vWindow_X11, CWX | CWY | CWWidth | CWHeight, &lWindowChanges_X11 );
+   return XConfigureWindow(
+         vDisplay_X11, vWindow_X11, CWX | CWY | CWWidth | CWHeight, &lWindowChanges_X11 );
 }
 
 
@@ -250,7 +278,7 @@ void iContext::destroyContext() {
  * \returns 5 glXSwapIntervalSGI (main VSync function) returned something unknown (!= 0)
  */
 int iContext::enableVSync() {
-   if ( ! vHaveGLEW_B )
+   if ( !vHaveGLEW_B )
       return 0;
 
    if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
@@ -259,17 +287,21 @@ int iContext::enableVSync() {
             iLOG( "VSync [GLX] enabled" );
             return 1;
          case GLX_BAD_VALUE:
-            wLOG( "VSync Error [GLX] GLX_BAD_VALUE; 1 seams to be not a good value on this System\n==> VSync NOT enabled" );
+            wLOG( "VSync Error [GLX] GLX_BAD_VALUE; 1 seams to be not a good value on this "
+                  "System\n==> VSync NOT enabled" );
             return 3;
          case GLX_BAD_CONTEXT:
-            wLOG( "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT enabled" );
+            wLOG( "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this "
+                  "thread. Use makeContextCurrent() to fix this\n==> VSync NOT enabled" );
             return 4;
          default:
-            wLOG( "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> VSync NOT enabled" );
+            wLOG( "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> "
+                  "VSync NOT enabled" );
             return 5;
       }
    } else {
-      wLOG( "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported\n==> VSync NOT enabled" );
+      wLOG( "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported\n==> VSync NOT "
+            "enabled" );
       return 2;
    }
 }
@@ -284,7 +316,7 @@ int iContext::enableVSync() {
  * \returns 5 glXSwapIntervalSGI (main VSync function) returned something unknown (!= 0)
  */
 int iContext::disableVSync() {
-   if ( ! vHaveGLEW_B )
+   if ( !vHaveGLEW_B )
       return 0;
 
    if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
@@ -293,17 +325,21 @@ int iContext::disableVSync() {
             iLOG( "VSync [GLX] disabled" );
             return 1;
          case GLX_BAD_VALUE:
-            wLOG( "VSync Error [GLX] GLX_BAD_VALUE; 0 seams to be not a good value on this System\n==> VSync NOT disabled" );
+            wLOG( "VSync Error [GLX] GLX_BAD_VALUE; 0 seams to be not a good value on this "
+                  "System\n==> VSync NOT disabled" );
             return 3;
          case GLX_BAD_CONTEXT:
-            wLOG( "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this thread. Use makeContextCurrent() to fix this\n==> VSync NOT disabled" );
+            wLOG( "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this "
+                  "thread. Use makeContextCurrent() to fix this\n==> VSync NOT disabled" );
             return 4;
          default:
-            wLOG( "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> VSync NOT disabled" );
+            wLOG( "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> "
+                  "VSync NOT disabled" );
             return 5;
       }
    } else {
-      wLOG( "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported\n==> VSync NOT disabled" );
+      wLOG( "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported\n==> VSync NOT "
+            "disabled" );
       return 2;
    }
 }
@@ -326,11 +362,11 @@ const long unsigned int MWM_HINTS_DECORATIONS = ( 1L << 1 );
  * \returns \c Success: \a true -- \c Failed: \a false
  */
 bool iContext::setDecoration( e_engine::ACTION _action ) {
-   if ( ! vHaveGLEW_B )
+   if ( !vHaveGLEW_B )
       return false;
 
    Atom lAtomMwmHints_X11 = XInternAtom( vDisplay_X11, "_MOTIF_WM_HINTS", True );
-   if ( ! lAtomMwmHints_X11 ) {
+   if ( !lAtomMwmHints_X11 ) {
       wLOG( "Failed to create X11 Atom _MOTIF_WM_HINTS ==> Cannot set / remove window border" );
       return false;
    }
@@ -343,29 +379,36 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
 
    struct MwmHints lHints_X11;
 
-   lHints_X11.flags       = MWM_HINTS_DECORATIONS;
+   lHints_X11.flags = MWM_HINTS_DECORATIONS;
    lHints_X11.decorations = _action;
 
-   if ( ! XChangeProperty( vDisplay_X11,
-                           vWindow_X11,
-                           lAtomMwmHints_X11,
-                           lAtomMwmHints_X11,
-                           32,
-                           PropModeReplace,
-                           ( unsigned char * )&lHints_X11,
-                           5 )
-      ) {
-      wLOG( "Failed to set XChangeProperty( ..., _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,...); ==> Can not set / remove window border " );
+   if ( !XChangeProperty( vDisplay_X11,
+                          vWindow_X11,
+                          lAtomMwmHints_X11,
+                          lAtomMwmHints_X11,
+                          32,
+                          PropModeReplace,
+                          (unsigned char *)&lHints_X11,
+                          5 ) ) {
+      wLOG( "Failed to set XChangeProperty( ..., _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,...); ==> Can "
+            "not set / remove window border " );
       return false;
    }
 
    switch ( _action ) {
-      case C_ADD:    GlobConf.win.windowDecoration = true;  break;
-      case C_REMOVE: GlobConf.win.windowDecoration = false; break;
-      case C_TOGGLE: GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration; break;
+      case C_ADD:
+         GlobConf.win.windowDecoration = true;
+         break;
+      case C_REMOVE:
+         GlobConf.win.windowDecoration = false;
+         break;
+      case C_TOGGLE:
+         GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration;
+         break;
    }
 
-   iLOG( "Successfully ", ( _action == C_REMOVE ) ? "removed window decoration" : "added window decoration" );
+   iLOG( "Successfully ",
+         ( _action == C_REMOVE ) ? "removed window decoration" : "added window decoration" );
 
    return true;
 }
@@ -411,50 +454,85 @@ bool iContext::maximize( e_engine::ACTION _action ) {
  * \sa e_engine::ACTION, e_engine::WINDOW_ATTRIBUTE
  */
 bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 ) {
-   if ( ! vHaveGLEW_B )
+   if ( !vHaveGLEW_B )
       return false;
 
    if ( _type1 == _type2 ) {
-      eLOG( "Changing the same attribute at the same time makes completely no sense. ==> Do nothing" );
+      eLOG( "Changing the same attribute at the same time makes completely no sense. ==> Do "
+            "nothing" );
       return false;
    }
 
    Atom lAtomNetWmStateState1_X11 = 0;
    Atom lAtomNetWmStateState2_X11 = 0;
    std::regex lTypeRegex_EX( "^_NET_WM_STATE_" );
-   const char  *lReplace_C = "";
+   const char *lReplace_C = "";
 
    std::string lMode_STR;
    std::string lState1_str = "NOTHING", lState2_str = "NOTHING";
 
    switch ( _action ) {
-      case C_REMOVE:   lMode_STR = "Removing";  break;
-      case C_ADD:      lMode_STR = "Enabling";  break;
-      case C_TOGGLE:   lMode_STR = "Toggling";  break;
-      default: return -1;
+      case C_REMOVE:
+         lMode_STR = "Removing";
+         break;
+      case C_ADD:
+         lMode_STR = "Enabling";
+         break;
+      case C_TOGGLE:
+         lMode_STR = "Toggling";
+         break;
+      default:
+         return -1;
    }
 
    if ( _type1 != NONE ) {
       switch ( _type1 ) {
-         case MODAL:                lState1_str = "_NET_WM_STATE_MODAL"             ; break;
-         case STICKY:               lState1_str = "_NET_WM_STATE_STICKY"            ; break;
-         case MAXIMIZED_VERT:       lState1_str = "_NET_WM_STATE_MAXIMIZED_VERT"    ; break;
-         case MAXIMIZED_HORZ:       lState1_str = "_NET_WM_STATE_MAXIMIZED_HORZ"    ; break;
-         case SHADED:               lState1_str = "_NET_WM_STATE_SHADED"            ; break;
-         case SKIP_TASKBAR:         lState1_str = "_NET_WM_STATE_SKIP_TASKBAR"      ; break;
-         case SKIP_PAGER:           lState1_str = "_NET_WM_STATE_SKIP_PAGER"        ; break;
-         case HIDDEN:               lState1_str = "_NET_WM_STATE_HIDDEN"            ; break;
-         case FULLSCREEN:           lState1_str = "_NET_WM_STATE_FULLSCREEN"        ; break;
-         case ABOVE:                lState1_str = "_NET_WM_STATE_ABOVE"             ; break;
-         case BELOW:                lState1_str = "_NET_WM_STATE_BELOW"             ; break;
-         case DEMANDS_ATTENTION:    lState1_str = "_NET_WM_STATE_DEMANDS_ATTENTION" ; break;
-         case FOCUSED:              lState1_str = "_NET_WM_STATE_FOCUSED"           ; break;
-         default: return false;
+         case MODAL:
+            lState1_str = "_NET_WM_STATE_MODAL";
+            break;
+         case STICKY:
+            lState1_str = "_NET_WM_STATE_STICKY";
+            break;
+         case MAXIMIZED_VERT:
+            lState1_str = "_NET_WM_STATE_MAXIMIZED_VERT";
+            break;
+         case MAXIMIZED_HORZ:
+            lState1_str = "_NET_WM_STATE_MAXIMIZED_HORZ";
+            break;
+         case SHADED:
+            lState1_str = "_NET_WM_STATE_SHADED";
+            break;
+         case SKIP_TASKBAR:
+            lState1_str = "_NET_WM_STATE_SKIP_TASKBAR";
+            break;
+         case SKIP_PAGER:
+            lState1_str = "_NET_WM_STATE_SKIP_PAGER";
+            break;
+         case HIDDEN:
+            lState1_str = "_NET_WM_STATE_HIDDEN";
+            break;
+         case FULLSCREEN:
+            lState1_str = "_NET_WM_STATE_FULLSCREEN";
+            break;
+         case ABOVE:
+            lState1_str = "_NET_WM_STATE_ABOVE";
+            break;
+         case BELOW:
+            lState1_str = "_NET_WM_STATE_BELOW";
+            break;
+         case DEMANDS_ATTENTION:
+            lState1_str = "_NET_WM_STATE_DEMANDS_ATTENTION";
+            break;
+         case FOCUSED:
+            lState1_str = "_NET_WM_STATE_FOCUSED";
+            break;
+         default:
+            return false;
       }
 
       lAtomNetWmStateState1_X11 = XInternAtom( vDisplay_X11, lState1_str.c_str(), True );
 
-      if ( ! lAtomNetWmStateState1_X11 ) {
+      if ( !lAtomNetWmStateState1_X11 ) {
          wLOG( "Failed to create X11 Atom ", lState1_str );
          return false;
       }
@@ -464,50 +542,79 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    if ( _type2 != NONE ) {
       switch ( _type2 ) {
-         case MODAL:                lState2_str = "_NET_WM_STATE_MODAL"             ; break;
-         case STICKY:               lState2_str = "_NET_WM_STATE_STICKY"            ; break;
-         case MAXIMIZED_VERT:       lState2_str = "_NET_WM_STATE_MAXIMIZED_VERT"    ; break;
-         case MAXIMIZED_HORZ:       lState2_str = "_NET_WM_STATE_MAXIMIZED_HORZ"    ; break;
-         case SHADED:               lState2_str = "_NET_WM_STATE_SHADED"            ; break;
-         case SKIP_TASKBAR:         lState2_str = "_NET_WM_STATE_SKIP_TASKBAR"      ; break;
-         case SKIP_PAGER:           lState2_str = "_NET_WM_STATE_SKIP_PAGER"        ; break;
-         case HIDDEN:               lState2_str = "_NET_WM_STATE_HIDDEN"            ; break;
-         case FULLSCREEN:           lState2_str = "_NET_WM_STATE_FULLSCREEN"        ; break;
-         case ABOVE:                lState2_str = "_NET_WM_STATE_ABOVE"             ; break;
-         case BELOW:                lState2_str = "_NET_WM_STATE_BELOW"             ; break;
-         case DEMANDS_ATTENTION:    lState2_str = "_NET_WM_STATE_DEMANDS_ATTENTION" ; break;
-         case FOCUSED:              lState2_str = "_NET_WM_STATE_FOCUSED"           ; break;
-         default: return false;
+         case MODAL:
+            lState2_str = "_NET_WM_STATE_MODAL";
+            break;
+         case STICKY:
+            lState2_str = "_NET_WM_STATE_STICKY";
+            break;
+         case MAXIMIZED_VERT:
+            lState2_str = "_NET_WM_STATE_MAXIMIZED_VERT";
+            break;
+         case MAXIMIZED_HORZ:
+            lState2_str = "_NET_WM_STATE_MAXIMIZED_HORZ";
+            break;
+         case SHADED:
+            lState2_str = "_NET_WM_STATE_SHADED";
+            break;
+         case SKIP_TASKBAR:
+            lState2_str = "_NET_WM_STATE_SKIP_TASKBAR";
+            break;
+         case SKIP_PAGER:
+            lState2_str = "_NET_WM_STATE_SKIP_PAGER";
+            break;
+         case HIDDEN:
+            lState2_str = "_NET_WM_STATE_HIDDEN";
+            break;
+         case FULLSCREEN:
+            lState2_str = "_NET_WM_STATE_FULLSCREEN";
+            break;
+         case ABOVE:
+            lState2_str = "_NET_WM_STATE_ABOVE";
+            break;
+         case BELOW:
+            lState2_str = "_NET_WM_STATE_BELOW";
+            break;
+         case DEMANDS_ATTENTION:
+            lState2_str = "_NET_WM_STATE_DEMANDS_ATTENTION";
+            break;
+         case FOCUSED:
+            lState2_str = "_NET_WM_STATE_FOCUSED";
+            break;
+         default:
+            return false;
       }
 
       lAtomNetWmStateState2_X11 = XInternAtom( vDisplay_X11, lState2_str.c_str(), True );
 
-      if ( ! lAtomNetWmStateState2_X11 ) {
+      if ( !lAtomNetWmStateState2_X11 ) {
          wLOG( "Failed to create X11 Atom ", lState2_str );
          return false;
       }
 
-      lState2_str               = std::regex_replace( lState2_str, lTypeRegex_EX, lReplace_C );
+      lState2_str = std::regex_replace( lState2_str, lTypeRegex_EX, lReplace_C );
    }
 
-   if ( !
-         sendX11Event(
-            "_NET_WM_STATE",
-            _action,
-            ( _type1 != NONE ) ? lAtomNetWmStateState1_X11 : 0,
-            ( _type2 != NONE ) ? lAtomNetWmStateState2_X11 : 0,
-            1
-         )
-      ) {
+   if ( !sendX11Event( "_NET_WM_STATE",
+                       _action,
+                       ( _type1 != NONE ) ? lAtomNetWmStateState1_X11 : 0,
+                       ( _type2 != NONE ) ? lAtomNetWmStateState2_X11 : 0,
+                       1 ) ) {
       wLOG( lMode_STR, ' ', lState1_str, " and ", lState2_str, " mode FAILED" );
       return false;
    }
 
    if ( _type1 == FULLSCREEN || _type2 == FULLSCREEN ) {
       switch ( _action ) {
-         case C_ADD:    GlobConf.win.fullscreen = true;  break;
-         case C_REMOVE: GlobConf.win.fullscreen = false; break;
-         case C_TOGGLE: GlobConf.win.fullscreen = !GlobConf.win.fullscreen; break;
+         case C_ADD:
+            GlobConf.win.fullscreen = true;
+            break;
+         case C_REMOVE:
+            GlobConf.win.fullscreen = false;
+            break;
+         case C_TOGGLE:
+            GlobConf.win.fullscreen = !GlobConf.win.fullscreen;
+            break;
       }
    }
 
@@ -521,7 +628,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
  * \returns \a true when successful and \a false when not
  */
 bool iContext::fullScreenMultiMonitor() {
-   if ( ! vHaveGLEW_B )
+   if ( !vHaveGLEW_B )
       return false;
 
    unsigned int lLeft_I;
@@ -531,7 +638,7 @@ bool iContext::fullScreenMultiMonitor() {
 
    getMostLeftRightTopBottomCRTC( lLeft_I, lRight_I, lTop_I, lBot_I );
 
-   if ( ! sendX11Event( "_NET_WM_FULLSCREEN_MONITORS", lTop_I, lBot_I, lLeft_I, lRight_I ) ) {
+   if ( !sendX11Event( "_NET_WM_FULLSCREEN_MONITORS", lTop_I, lBot_I, lLeft_I, lRight_I ) ) {
       wLOG( "Unable to map the fullscreen window to all monitors" );
       return false;
    }
@@ -552,17 +659,19 @@ bool iContext::fullScreenMultiMonitor() {
  * \returns the result of iRandR::getIndexOfDisplay() when there was a failure
  */
 int iContext::setFullScreenMonitor( iDisplays _disp ) {
-   if ( ! vHaveGLEW_B )
+   if ( !vHaveGLEW_B )
       return 0;
 
    int lDisp_I = getIndexOfDisplay( _disp );
 
    if ( lDisp_I < 0 ) {
-      wLOG( "No valid iDisplays [ setFullScreenMonitor(...) ] ==> Return iRandR::getIndexOfDisplay( _disp ) = ", lDisp_I );
+      wLOG( "No valid iDisplays [ setFullScreenMonitor(...) ] ==> Return "
+            "iRandR::getIndexOfDisplay( _disp ) = ",
+            lDisp_I );
       return lDisp_I;
    }
 
-   if ( ! sendX11Event( "_NET_WM_FULLSCREEN_MONITORS", lDisp_I, lDisp_I, lDisp_I, lDisp_I ) ) {
+   if ( !sendX11Event( "_NET_WM_FULLSCREEN_MONITORS", lDisp_I, lDisp_I, lDisp_I, lDisp_I ) ) {
       wLOG( "Unable to map the fullscreen window to monitor ", lDisp_I );
       return 2;
    }
@@ -573,10 +682,11 @@ int iContext::setFullScreenMonitor( iDisplays _disp ) {
 }
 
 
-bool iContext::sendX11Event( std::string _atom, GLint64 _l0, GLint64 _l1, GLint64 _l2, GLint64 _l3, GLint64 _l4 ) {
-   Atom   lAtom_X11   = XInternAtom( vDisplay_X11, _atom.c_str(), True );
+bool iContext::sendX11Event(
+      std::string _atom, GLint64 _l0, GLint64 _l1, GLint64 _l2, GLint64 _l3, GLint64 _l4 ) {
+   Atom lAtom_X11 = XInternAtom( vDisplay_X11, _atom.c_str(), True );
 
-   if ( ! lAtom_X11 ) {
+   if ( !lAtom_X11 ) {
       wLOG( "Failed to create X11 Atom ", _atom );
       return false;
    }
@@ -584,18 +694,22 @@ bool iContext::sendX11Event( std::string _atom, GLint64 _l0, GLint64 _l1, GLint6
    XEvent lEvent_X11;
 
    memset( &lEvent_X11, 0, sizeof( lEvent_X11 ) );
-   lEvent_X11.type                 = ClientMessage;
-   lEvent_X11.xclient.window       = vWindow_X11;
+   lEvent_X11.type = ClientMessage;
+   lEvent_X11.xclient.window = vWindow_X11;
 
    lEvent_X11.xclient.message_type = lAtom_X11;
-   lEvent_X11.xclient.format       = 32;
-   lEvent_X11.xclient.data.l[0]    = _l0;
-   lEvent_X11.xclient.data.l[1]    = _l1;
-   lEvent_X11.xclient.data.l[2]    = _l2;
-   lEvent_X11.xclient.data.l[3]    = _l3;
-   lEvent_X11.xclient.data.l[4]    = _l4;
+   lEvent_X11.xclient.format = 32;
+   lEvent_X11.xclient.data.l[0] = _l0;
+   lEvent_X11.xclient.data.l[1] = _l1;
+   lEvent_X11.xclient.data.l[2] = _l2;
+   lEvent_X11.xclient.data.l[3] = _l3;
+   lEvent_X11.xclient.data.l[4] = _l4;
 
-   return XSendEvent( vDisplay_X11, DefaultRootWindow( vDisplay_X11 ), False, SubstructureRedirectMask | SubstructureNotifyMask, &lEvent_X11 );
+   return XSendEvent( vDisplay_X11,
+                      DefaultRootWindow( vDisplay_X11 ),
+                      False,
+                      SubstructureRedirectMask | SubstructureNotifyMask,
+                      &lEvent_X11 );
 }
 
 
@@ -607,7 +721,7 @@ bool iContext::sendX11Event( std::string _atom, GLint64 _l0, GLint64 _l1, GLint6
  * \param[out] _major The major version number
  * \param[out] _minor The minor version number
  */
-void iContext::getX11Version( int *_major, int *_minor )  {
+void iContext::getX11Version( int *_major, int *_minor ) {
    if ( !vDisplayCreated_B ) {
       *_major = -1;
       *_minor = -1;
@@ -639,8 +753,9 @@ void iContext::getGLXVersion( int *_major, int *_minor ) {
  * \returns false when there was an error
  */
 bool iContext::makeContextCurrent() {
-   if ( ! vHaveContext_B ) {
-      eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" );
+   if ( !vHaveContext_B ) {
+      eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with "
+            "iInit::init() before you run this!" );
       return false;
    }
    return glXMakeCurrent( vDisplay_X11, vWindow_X11, vOpenGLContext_GLX ) == True ? true : false;
@@ -651,9 +766,10 @@ bool iContext::makeContextCurrent() {
  * \returns true on success
  * \returns false when there was an error
  */
-bool iContext::makeNOContextCurrent()  {
-   if ( ! vHaveContext_B ) {
-      eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" );
+bool iContext::makeNOContextCurrent() {
+   if ( !vHaveContext_B ) {
+      eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with "
+            "iInit::init() before you run this!" );
       return false;
    }
    return glXMakeCurrent( vDisplay_X11, 0, nullptr ) == True ? true : false;
@@ -681,21 +797,17 @@ bool iContext::grabMouse() {
       return false;
    }
 
-   int lReturn_I =
-      XGrabPointer(
-         vDisplay_X11,       // Our connection to the X server
-         vWindow_X11,        // The window owning the grab
-         False,              // Send some additional events
-         ButtonPressMask   |
-         ButtonReleaseMask |
-         PointerMotionMask |
-         ButtonMotionMask,   // We dont need a special event mask
-         GrabModeAsync,      // Mouse grabbing should be async (easier for us)
-         GrabModeAsync,      // Key grabbing should be async (easier for us)
-         vWindow_X11,        // Lock the cursor in this window
-         None,               // Use the default window cursor icon
-         CurrentTime         // X11 needs a time
-      );
+   int lReturn_I = XGrabPointer( vDisplay_X11, // Our connection to the X server
+                                 vWindow_X11,  // The window owning the grab
+                                 False,        // Send some additional events
+                                 ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
+                                       ButtonMotionMask, // We dont need a special event mask
+                                 GrabModeAsync, // Mouse grabbing should be async (easier for us)
+                                 GrabModeAsync, // Key grabbing should be async (easier for us)
+                                 vWindow_X11,   // Lock the cursor in this window
+                                 None,          // Use the default window cursor icon
+                                 CurrentTime    // X11 needs a time
+                                 );
 
    if ( lReturn_I != GrabSuccess ) {
       wLOG( "Failed to grab the mouse" );
@@ -746,17 +858,16 @@ bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
       return false;
    }
 
-   XWarpPointer(
-      vDisplay_X11,  // Our connection to the X server
-      None,          // Move it from this window (unknown)...
-      vWindow_X11,   // ...to the window
-      0,             // We dont...
-      0,             // ...have any...
-      0,             // ...information about...
-      0,             // ...the source window!
-      _posX,         // Posx in the window
-      _posY          // Posy in the window
-   );
+   XWarpPointer( vDisplay_X11, // Our connection to the X server
+                 None,         // Move it from this window (unknown)...
+                 vWindow_X11,  // ...to the window
+                 0,            // We dont...
+                 0,            // ...have any...
+                 0,            // ...information about...
+                 0,            // ...the source window!
+                 _posX,        // Posx in the window
+                 _posY         // Posy in the window
+                 );
 
    return false;
 }
@@ -765,9 +876,7 @@ bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
  * \brief Get if the mouse is grabbed
  * \returns if the mouse is grabbed
  */
-bool iContext::getIsMouseGrabbed() const {
-   return vIsMouseGrabbed_B;
-}
+bool iContext::getIsMouseGrabbed() const { return vIsMouseGrabbed_B; }
 
 
 
@@ -781,26 +890,25 @@ bool iContext::hideMouseCursor() {
       return false;
    }
 
-   Pixmap   lNoMouseCursorPixmap_X11;
+   Pixmap lNoMouseCursorPixmap_X11;
    Colormap lColorMap_X11;
-   Cursor   lTransparrentCursor_X11;
-   XColor   lBlackColor_X11, lDummyColor_X11;
-   char     lNoRealData_C[] = {0, 0, 0, 0, 0, 0, 0, 0};
+   Cursor lTransparrentCursor_X11;
+   XColor lBlackColor_X11, lDummyColor_X11;
+   char lNoRealData_C[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
    lColorMap_X11 = DefaultColormap( vDisplay_X11, DefaultScreen( vDisplay_X11 ) );
 
    XAllocNamedColor( vDisplay_X11, lColorMap_X11, "black", &lBlackColor_X11, &lDummyColor_X11 );
-   lNoMouseCursorPixmap_X11 = XCreateBitmapFromData( vDisplay_X11, vWindow_X11, lNoRealData_C, 8, 8 );
+   lNoMouseCursorPixmap_X11 =
+         XCreateBitmapFromData( vDisplay_X11, vWindow_X11, lNoRealData_C, 8, 8 );
 
-   lTransparrentCursor_X11  = XCreatePixmapCursor(
-                                 vDisplay_X11,
-                                 lNoMouseCursorPixmap_X11,
-                                 lNoMouseCursorPixmap_X11,
-                                 &lBlackColor_X11,
-                                 &lBlackColor_X11,
-                                 0,
-                                 0
-                              );
+   lTransparrentCursor_X11 = XCreatePixmapCursor( vDisplay_X11,
+                                                  lNoMouseCursorPixmap_X11,
+                                                  lNoMouseCursorPixmap_X11,
+                                                  &lBlackColor_X11,
+                                                  &lBlackColor_X11,
+                                                  0,
+                                                  0 );
 
    XDefineCursor( vDisplay_X11, vWindow_X11, lTransparrentCursor_X11 );
    XFreeCursor( vDisplay_X11, lTransparrentCursor_X11 );
@@ -834,9 +942,7 @@ bool iContext::showMouseCursor() {
  * \brief Get if the cursor is hidden
  * \returns true if the cursor is hidden
  */
-bool iContext::getIsCursorHidden() const {
-   return vIsCursorHidden_B;
-}
+bool iContext::getIsCursorHidden() const { return vIsCursorHidden_B; }
 
 
 
@@ -846,4 +952,4 @@ bool iContext::getIsCursorHidden() const {
 
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

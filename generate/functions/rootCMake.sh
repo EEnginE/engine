@@ -5,7 +5,7 @@ rootCMake() {
     local FILE i I
     FILE="$(pwd)/$CMAKE_LISTS_NAME"
 
-    echo "INFO: Generating root CMake file" >&2
+    msg1 "Generating root CMake file" >&2
 
     cat <<EOF
 #
@@ -84,7 +84,6 @@ endif( DISPLAY_SERVER MATCHES ${i} )
 
 
 EOF
-        echo "INFO:   -- Possible Display Server: ${i}" >&2
     done
 
 
@@ -203,7 +202,6 @@ EOF
         done
     fi
 
-    echo "INFO: Generating file $OUT_INSTALL_TOOLS for tools to install..." >&2
 
 cat << EOF
 
@@ -217,7 +215,6 @@ EOF
         if [ ! -f $TOOLS_DIRECTORY/$I ]; then
             continue
         fi
-        echo "INFO:    -- Found tool: $I" >&2
         echo "      $TOOLS_DIRECTORY/$I"
     done
 

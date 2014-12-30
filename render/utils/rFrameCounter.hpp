@@ -12,34 +12,35 @@ namespace e_engine {
 // \todo Add a signal to output the FPS
 
 class rFrameCounter {
-   private:
-      rWorld       *vWorld;
+ private:
+   rWorld *vWorld;
 
-      uint64_t     *vRenderedFrames;
+   uint64_t *vRenderedFrames;
 
-      int           vSleepDelay  = 1000;
-      double        vHelper      = vSleepDelay / 1000;  //vSleepDelay in seconds
+   int vSleepDelay = 1000;
+   double vHelper = vSleepDelay / 1000; // vSleepDelay in seconds
 
-      bool          vFrameCounterEnabled = false;
+   bool vFrameCounterEnabled = false;
 
-      std::thread   frameCounterThread;
+   std::thread frameCounterThread;
 
-      void frameCounterLoop();
+   void frameCounterLoop();
 
-   public:
-      rFrameCounter( rWorld *_rWorld, bool _enable );
-      virtual ~rFrameCounter() {disableFrameCounter( true );}
+ public:
+   rFrameCounter( rWorld *_rWorld, bool _enable );
+   virtual ~rFrameCounter() { disableFrameCounter( true ); }
 
-      rFrameCounter() = delete;
+   rFrameCounter() = delete;
 
-      void enableFrameCounter();
-      void disableFrameCounter( bool _join = false );
+   void enableFrameCounter();
+   void disableFrameCounter( bool _join = false );
 
-      void setSleepDelay( double _newSleepDelay ) {vSleepDelay = _newSleepDelay; vHelper = vSleepDelay / 1000;}
+   void setSleepDelay( double _newSleepDelay ) {
+      vSleepDelay = _newSleepDelay;
+      vHelper = vSleepDelay / 1000;
+   }
 
-      bool getIsCounterEnabled()   const         {return vFrameCounterEnabled;}
-
+   bool getIsCounterEnabled() const { return vFrameCounterEnabled; }
 };
-
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on;

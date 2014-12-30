@@ -37,25 +37,26 @@ namespace unix_x11 {
  * \brief Stores information about the state of the keys
  */
 class iKeyboard : public iKeyboardBasic {
-   private:
-      wchar_t keysym2unicode( KeySym keysym );
+ private:
+   wchar_t keysym2unicode( KeySym keysym );
 
-   protected:
-      /*!
-       * \brief Convert a X11 keyevent to a key and set the state of it
-       * \param _kEv       The key event
-       * \param _key_state The new state
-       * \param _display   The connection to the X-Server
-       * \return The key in wchar
-       */
-      wchar_t processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int _key_state, Display *_display );
+ protected:
+   /*!
+    * \brief Convert a X11 keyevent to a key and set the state of it
+    * \param _kEv       The key event
+    * \param _key_state The new state
+    * \param _display   The connection to the X-Server
+    * \return The key in wchar
+    */
+   wchar_t
+   processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int _key_state, Display *_display );
 
 
-   public:
-      iKeyboard() {}
-      virtual ~iKeyboard() {}
+ public:
+   iKeyboard() {}
+   virtual ~iKeyboard() {}
 
-      inline unsigned short int getKeyState( wchar_t _key ) { return getKeyStateArray( _key ); }
+   inline unsigned short int getKeyState( wchar_t _key ) { return getKeyStateArray( _key ); }
 };
 
 } // unix_x11
@@ -63,4 +64,4 @@ class iKeyboard : public iKeyboardBasic {
 } // e_engine
 
 #endif // E_KEYSYM_TO_UNICODE_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

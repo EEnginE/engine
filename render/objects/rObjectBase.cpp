@@ -14,7 +14,7 @@ namespace e_engine {
 rObjectBase::DATA_FILE_TYPE rObjectBase::detectFileTypeFromEnding( const std::string &_str ) {
    std::regex lDataEndingOBJ_ex( "\\.obj" );
 
-   if( std::regex_match( _str.end() - 4, _str.end(), lDataEndingOBJ_ex ) ) {
+   if ( std::regex_match( _str.end() - 4, _str.end(), lDataEndingOBJ_ex ) ) {
       return OBJ_FILE;
    }
 
@@ -27,7 +27,7 @@ rObjectBase::DATA_FILE_TYPE rObjectBase::detectFileTypeFromEnding( const std::st
  * \note This function does NOT need a working OpenGL context
  */
 void rObjectBase::clearRAMData() {
-   if( vLoaderData ) {
+   if ( vLoaderData ) {
       vLoaderData->unLoad();
       delete vLoaderData;
       vLoaderData = nullptr;
@@ -63,49 +63,56 @@ int rObjectBase::clearAllData() {
  * \returns the return value of the loader if something went wrong during the load process
  */
 int rObjectBase::loadData() {
-   if( vLoaderData ) {
+   if ( vLoaderData ) {
       wLOG( "Object '", vName_str, "' is already loaded! You need to clear the data first" );
       return 100;
    }
 
-   if( vFileType == SET_DATA_MANUALLY ) {
-      eLOG( "loadData was called for object '", vName_str, "' but the data file type for this object is SET_DATA_MANUALLY; return 100" );
+   if ( vFileType == SET_DATA_MANUALLY ) {
+      eLOG( "loadData was called for object '",
+            vName_str,
+            "' but the data file type for this object is SET_DATA_MANUALLY; return 100" );
       return 101;
    }
 
-   if( vFileType == AUTODETECT )
+   if ( vFileType == AUTODETECT )
       vFileType = detectFileTypeFromEnding( vFile_str );
 
-   if( vFileType == AUTODETECT ) {
-      eLOG( "Failed to autodetect file type from suffix! (", vFile_str, ") [OBJECT: '", vName_str, "']" );
+   if ( vFileType == AUTODETECT ) {
+      eLOG( "Failed to autodetect file type from suffix! (",
+            vFile_str,
+            ") [OBJECT: '",
+            vName_str,
+            "']" );
       return 102;
    }
 
    boost::filesystem::path lPath( vFile_str.c_str() );
 
-   if( ! boost::filesystem::exists( lPath ) ) {
+   if ( !boost::filesystem::exists( lPath ) ) {
       eLOG( "Data File '", vFile_str, "' does not exist [OBJECT: '", vName_str, "']" );
       return false;
    }
 
-   if( ! boost::filesystem::is_regular_file( lPath ) ) {
+   if ( !boost::filesystem::is_regular_file( lPath ) ) {
       eLOG( "Data File '", vFile_str, "' is not a regular file [OBJECT: '", vName_str, "']" );
       return false;
    }
 
-   switch( vFileType ) {
+   switch ( vFileType ) {
       case OBJ_FILE: {
          vLoaderData = new rLoader_3D_f_OBJ( vFile_str );
          int lRet = vLoaderData->load();
-         if( lRet != 1 ) {
+         if ( lRet != 1 ) {
             delete vLoaderData;
             vLoaderData = nullptr;
             return lRet;
          }
-      }
-      break;
+      } break;
       default:
-         eLOG( "You should never ever see this line. Please report a bug. [OBJECT: '", vName_str, "']" );
+         eLOG( "You should never ever see this line. Please report a bug. [OBJECT: '",
+               vName_str,
+               "']" );
          return 1002;
    }
 
@@ -113,9 +120,9 @@ int rObjectBase::loadData() {
 
    auto *lData = vLoaderData->getData();
 
-   vObjectHints[NUM_VERTICES]     = lData->vVertexData.size();
-   vObjectHints[NUM_INDEXES]      = lData->vIndex.size();
-   vObjectHints[NUM_NORMALS]      = lData->vNormalesData.size();
+   vObjectHints[NUM_VERTICES] = lData->vVertexData.size();
+   vObjectHints[NUM_INDEXES] = lData->vIndex.size();
+   vObjectHints[NUM_NORMALS] = lData->vNormalesData.size();
 
    return 1;
 }
@@ -134,30 +141,39 @@ int rObjectBase::loadData() {
  * \returns the result of clearOGLData__();
  */
 int rObjectBase::clearOGLData() {
-   if( !vIsLoaded_B ) {
+   if ( !vIsLoaded_B ) {
       wLOG( "Data is already cleared [OBJECT: '", vName_str, "']" );
       return 100;
    }
 
-   if( !iInit::isAContextCurrentForThisThread() ) {
-      eLOG( "Can NOT FREE data because no OpenGL context is current for this thread!\nThis function may be called from the destructor!  [OBJECT: '", vName_str, "']" );
+   if ( !iInit::isAContextCurrentForThisThread() ) {
+      eLOG( "Can NOT FREE data because no OpenGL context is current for this thread!\nThis "
+            "function may be called from the destructor!  [OBJECT: '",
+            vName_str,
+            "']" );
       return 101;
    }
 
    int lRet = clearOGLData__();
 
-   if( lRet < 0 ) {
-      wLOG( "There where errors while clearing the OpenGL data, but data is successfully cleard [OBJECT: '", vName_str, "']" );
+   if ( lRet < 0 ) {
+      wLOG( "There where errors while clearing the OpenGL data, but data is successfully cleard "
+            "[OBJECT: '",
+            vName_str,
+            "']" );
       vIsLoaded_B = false;
       return lRet;
    }
 
-   if( lRet > 1 ) {
-      eLOG( "There where errors while clearing the OpenGL data, and the data was NOT cleard and can still be used or cleard later [OBJECT: '", vName_str, "']" );
+   if ( lRet > 1 ) {
+      eLOG( "There where errors while clearing the OpenGL data, and the data was NOT cleard and "
+            "can still be used or cleard later [OBJECT: '",
+            vName_str,
+            "']" );
       return lRet;
    }
 
-   if( lRet == 0 ) {
+   if ( lRet == 0 ) {
       eLOG( "OBJECT '", vName_str, "' IS COMPLETELY BROKEN!" );
       return lRet;
    }
@@ -184,36 +200,44 @@ int rObjectBase::clearOGLData() {
  * \returns the result of setOGLData__();
  */
 int rObjectBase::setOGLData() {
-   if( vIsLoaded_B ) {
+   if ( vIsLoaded_B ) {
       wLOG( "Data is already present in the OpenGL buffers [OBJECT: '", vName_str, "']" );
       return 101;
    }
 
-   if( !iInit::isAContextCurrentForThisThread() ) {
+   if ( !iInit::isAContextCurrentForThisThread() ) {
       eLOG( "Cannot init data because no OpenGL context is current for this thread!" );
       return 100;
    }
 
-   if( !vLoaderData ) {
-      eLOG( "The OpenGL Data is not present in RAM! Cannot copy to OpenGL buffers! [OBJECT: '", vName_str, "']" );
+   if ( !vLoaderData ) {
+      eLOG( "The OpenGL Data is not present in RAM! Cannot copy to OpenGL buffers! [OBJECT: '",
+            vName_str,
+            "']" );
       eLOG( "Use loadData() to load the data." );
       return 102;
    }
 
    int lRet = setOGLData__();
 
-   if( lRet < 0 ) {
-      wLOG( "There where errors while setting the OpenGL data, but data is successfully set [OBJECT: '", vName_str, "']" );
+   if ( lRet < 0 ) {
+      wLOG( "There where errors while setting the OpenGL data, but data is successfully set "
+            "[OBJECT: '",
+            vName_str,
+            "']" );
       vIsLoaded_B = true;
       return lRet;
    }
 
-   if( lRet > 1 ) {
-      eLOG( "There where errors while setting the OpenGL data, and the data was NOT set and can still be used or set later [OBJECT: '", vName_str, "']" );
+   if ( lRet > 1 ) {
+      eLOG( "There where errors while setting the OpenGL data, and the data was NOT set and can "
+            "still be used or set later [OBJECT: '",
+            vName_str,
+            "']" );
       return lRet;
    }
 
-   if( lRet == 0 ) {
+   if ( lRet == 0 ) {
       eLOG( "OBJECT '", vName_str, "' IS COMPLETELY BROKEN!" );
       return lRet;
    }
@@ -222,7 +246,7 @@ int rObjectBase::setOGLData() {
 
    vIsLoaded_B = true;
 
-   if( !vKeepDataInRAM_B )
+   if ( !vKeepDataInRAM_B )
       clearRAMData();
 
    return lRet;
@@ -238,9 +262,7 @@ int rObjectBase::setOGLData() {
  * \returns 0 if the requested VBO exists and ERROR_FLAGS flags if not
  *
  */
-uint32_t rObjectBase::getVBO( GLuint &_n ) {
-   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
-}
+uint32_t rObjectBase::getVBO( GLuint &_n ) { return FUNCTION_NOT_VALID_FOR_THIS_OBJECT; }
 
 /*!
  * \brief Get the _n'th IBO
@@ -250,9 +272,7 @@ uint32_t rObjectBase::getVBO( GLuint &_n ) {
  * \param[in,out] _n In: which (starting at 0) IBO; Out: the IBO
  * \returns 0 if the requested IBO exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getIBO( GLuint &_n ) {
-   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
-}
+uint32_t rObjectBase::getIBO( GLuint &_n ) { return FUNCTION_NOT_VALID_FOR_THIS_OBJECT; }
 
 /*!
  * \brief Get the _n'th NBO
@@ -262,9 +282,7 @@ uint32_t rObjectBase::getIBO( GLuint &_n ) {
  * \param[in,out] _n In: which (starting at 0) NBO; Out: the NBO
  * \returns 0 if the requested NBO exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getNBO( GLuint &_n ) {
-   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
-}
+uint32_t rObjectBase::getNBO( GLuint &_n ) { return FUNCTION_NOT_VALID_FOR_THIS_OBJECT; }
 
 /*!
  * \brief Get the _type Matrix
@@ -369,10 +387,6 @@ uint32_t rObjectBase::getVector( rVec3f **_vec, rObjectBase::VECTOR_TYPES _type 
 
 
 
-
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
-
-
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

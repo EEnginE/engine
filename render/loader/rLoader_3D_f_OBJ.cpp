@@ -12,20 +12,18 @@
 
 namespace e_engine {
 
-rLoader_3D_f_OBJ::rLoader_3D_f_OBJ() {
-   vIsDataLoaded_B = false;
-}
+rLoader_3D_f_OBJ::rLoader_3D_f_OBJ() { vIsDataLoaded_B = false; }
 
 rLoader_3D_f_OBJ::rLoader_3D_f_OBJ( std::string _file ) {
    vIsDataLoaded_B = false;
-   vFilePath_str   = _file;
+   vFilePath_str = _file;
 }
 
 bool rLoader_3D_f_OBJ::getNum( float &_num ) {
    std::string lNum;
 
-   while( vIter != vEnd ) {
-      switch( *vIter ) {
+   while ( vIter != vEnd ) {
+      switch ( *vIter ) {
          case '.':
          case '-':
          case 'e':
@@ -44,14 +42,26 @@ bool rLoader_3D_f_OBJ::getNum( float &_num ) {
             break;
 
          default:
-            if( lNum.empty() ) {
-               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": not a number" );
+            if ( lNum.empty() ) {
+               eLOG( "Failed parsing file '",
+                     vFilePath_str,
+                     "' at char '",
+                     *vIter,
+                     "' Line ",
+                     vCurrentLine,
+                     ": not a number" );
                return false;
             }
             try {
                _num = std::stof( lNum );
-            } catch( ... ) {
-               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": not a number" );
+            } catch ( ... ) {
+               eLOG( "Failed parsing file '",
+                     vFilePath_str,
+                     "' at char '",
+                     *vIter,
+                     "' Line ",
+                     vCurrentLine,
+                     ": not a number" );
                return false;
             }
 
@@ -66,8 +76,8 @@ bool rLoader_3D_f_OBJ::getNum( float &_num ) {
 bool rLoader_3D_f_OBJ::getInt( unsigned int &_num ) {
    std::string lNum;
 
-   while( vIter != vEnd ) {
-      switch( *vIter ) {
+   while ( vIter != vEnd ) {
+      switch ( *vIter ) {
          case '0':
          case '1':
          case '2':
@@ -83,8 +93,14 @@ bool rLoader_3D_f_OBJ::getInt( unsigned int &_num ) {
             break;
 
          default:
-            if( lNum.empty() ) {
-               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": not a number" );
+            if ( lNum.empty() ) {
+               eLOG( "Failed parsing file '",
+                     vFilePath_str,
+                     "' at char '",
+                     *vIter,
+                     "' Line ",
+                     vCurrentLine,
+                     ": not a number" );
                return false;
             }
             _num = std::stoi( lNum );
@@ -107,72 +123,85 @@ bool rLoader_3D_f_OBJ::getInt( unsigned int &_num ) {
  * \returns 6 if already loaded
  */
 int rLoader_3D_f_OBJ::load() {
-   if( vIsDataLoaded_B )
+   if ( vIsDataLoaded_B )
       return 6;
 
    uFileIO lFile( vFilePath_str );
    int lRet = lFile();
-   if( lRet != 1 ) return lRet;
+   if ( lRet != 1 )
+      return lRet;
 
    vIter = lFile.begin();
-   vEnd  = lFile.end();
+   vEnd = lFile.end();
 
-   float        lWorker;
+   float lWorker;
    unsigned int lIWorker;
 
    std::vector<GLfloat> *lPointer;
    unsigned short int lMax = 3;
 
-   while( vIter != vEnd ) {
-      switch( *vIter ) {
+   while ( vIter != vEnd ) {
+      switch ( *vIter ) {
 
-            // Comments
+         // Comments
          case 'o':
          case 's':
          case '#':
-            while( *vIter != '\n' && vIter != vEnd )
+            while ( *vIter != '\n' && vIter != vEnd )
                ++vIter;
 
             ++vCurrentLine;
             ++vIter;
             break;
 
-            // Vertex and normals
+         // Vertex and normals
          case 'v':
             ++vIter;
 
             // Normals
-            if( *vIter == 'n' ) {
+            if ( *vIter == 'n' ) {
                lPointer = &vDataRaw.vNormalesData;
                ++vIter;
                lMax = 3;
-            } else if( *vIter == 't' ) {
+            } else if ( *vIter == 't' ) {
                lPointer = &vDataRaw.vUVData;
                ++vIter;
                lMax = 2;
-            } else if( *vIter == ' ' ) {
+            } else if ( *vIter == ' ' ) {
                lPointer = &vDataRaw.vVertexData;
                lMax = 3;
             } else {
-               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": expected ' ' or 'n'" );
+               eLOG( "Failed parsing file '",
+                     vFilePath_str,
+                     "' at char '",
+                     *vIter,
+                     "' Line ",
+                     vCurrentLine,
+                     ": expected ' ' or 'n'" );
                return 2;
             }
 
-            while( *vIter == ' ' && vIter != vEnd )
+            while ( *vIter == ' ' && vIter != vEnd )
                ++vIter;
 
-            for( short unsigned int i = 0; i < lMax; ++i ) {
-               if( !getNum( lWorker ) )
+            for ( short unsigned int i = 0; i < lMax; ++i ) {
+               if ( !getNum( lWorker ) )
                   return 2;
 
                lPointer->emplace_back( lWorker );
 
-               while( *vIter == ' ' && vIter != vEnd )
+               while ( *vIter == ' ' && vIter != vEnd )
                   ++vIter;
             }
 
-            if( *vIter != '\n' ) {
-               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": expected a newline" );
+            if ( *vIter != '\n' ) {
+               eLOG( "Failed parsing file '",
+                     vFilePath_str,
+                     "' at char '",
+                     *vIter,
+                     "' Line ",
+                     vCurrentLine,
+                     ": expected a newline" );
                return false;
             }
 
@@ -180,33 +209,39 @@ int rLoader_3D_f_OBJ::load() {
             ++vCurrentLine;
             break;
 
-            // Face
+         // Face
          case 'f':
             ++vIter;
 
             // Normals
-            if( *vIter != ' ' ) {
-               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": expected ' ' or 'n'" );
+            if ( *vIter != ' ' ) {
+               eLOG( "Failed parsing file '",
+                     vFilePath_str,
+                     "' at char '",
+                     *vIter,
+                     "' Line ",
+                     vCurrentLine,
+                     ": expected ' ' or 'n'" );
                return 2;
             }
 
-            while( *vIter == ' ' && vIter != vEnd )
+            while ( *vIter == ' ' && vIter != vEnd )
                ++vIter;
 
-            for( short unsigned int i = 0; i < 3; ++i ) {
-               if( !getInt( lIWorker ) )
+            for ( short unsigned int i = 0; i < 3; ++i ) {
+               if ( !getInt( lIWorker ) )
                   return 2;
 
                vDataRaw.vIndexVertexData.emplace_back( lIWorker );
 
-               if( *vIter == '/' ) {
+               if ( *vIter == '/' ) {
                   ++vIter;
 
                   // Normal Index
-                  if( *vIter == '/' ) {
+                  if ( *vIter == '/' ) {
                      ++vIter;
 
-                     if( !getInt( lIWorker ) )
+                     if ( !getInt( lIWorker ) )
                         return 2;
 
                      vDataRaw.vIndexNormalData.emplace_back( lIWorker );
@@ -214,16 +249,16 @@ int rLoader_3D_f_OBJ::load() {
                      // UV index
                      ++vIter;
 
-                     if( !getInt( lIWorker ) )
+                     if ( !getInt( lIWorker ) )
                         return 2;
 
                      vDataRaw.vIndexUVData.emplace_back( lIWorker );
 
                      // Normal index
-                     if( *vIter == '/' ) {
+                     if ( *vIter == '/' ) {
                         ++vIter;
 
-                        if( !getInt( lIWorker ) )
+                        if ( !getInt( lIWorker ) )
                            return 2;
 
                         vDataRaw.vIndexNormalData.emplace_back( lIWorker );
@@ -231,12 +266,18 @@ int rLoader_3D_f_OBJ::load() {
                   }
                }
 
-               while( *vIter == ' ' && vIter != vEnd )
+               while ( *vIter == ' ' && vIter != vEnd )
                   ++vIter;
             }
 
-            if( *vIter != '\n' ) {
-               eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine, ": expected a newline" );
+            if ( *vIter != '\n' ) {
+               eLOG( "Failed parsing file '",
+                     vFilePath_str,
+                     "' at char '",
+                     *vIter,
+                     "' Line ",
+                     vCurrentLine,
+                     ": expected a newline" );
                return false;
             }
 
@@ -245,7 +286,12 @@ int rLoader_3D_f_OBJ::load() {
             break;
 
          default:
-            eLOG( "Failed parsing file '", vFilePath_str, "' at char '", *vIter, "' Line ", vCurrentLine );
+            eLOG( "Failed parsing file '",
+                  vFilePath_str,
+                  "' at char '",
+                  *vIter,
+                  "' Line ",
+                  vCurrentLine );
             return 2;
       }
    }
@@ -253,14 +299,5 @@ int rLoader_3D_f_OBJ::load() {
    vIsDataLoaded_B = true;
    return 1;
 }
-
-
-
-
-
-
-
-
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

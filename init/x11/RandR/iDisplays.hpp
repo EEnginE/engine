@@ -29,54 +29,67 @@ class iRandR;
  *       first and then iRandR::applyNewSettings()
  */
 class iDisplays : public iDisplayBasic {
-   private:
-      //! \brief internal structure for storing important mode information.
-      struct mode : mode_basic {
-         RRMode       id;
-      };
+ private:
+   //! \brief internal structure for storing important mode information.
+   struct mode : mode_basic {
+      RRMode id;
+   };
 
-      std::vector<mode>     vModes_V_mode;      //!< all possible modes
-      
-      RROutput              vID_XRR;
-      std::vector<RROutput> vClones_V_XRR;
+   std::vector<mode> vModes_V_mode; //!< all possible modes
 
-      RRMode                vModeToUse_XRR;
+   RROutput vID_XRR;
+   std::vector<RROutput> vClones_V_XRR;
+
+   RRMode vModeToUse_XRR;
 
 
-      iDisplays() {}
-      iDisplays( std::string _name, RROutput _id, bool _enabled ) : vID_XRR( _id ) {vModeToUse_XRR = None; vEnabled_B = _enabled; vName_str = _name;}
+   iDisplays() {}
+   iDisplays( std::string _name, RROutput _id, bool _enabled ) : vID_XRR( _id ) {
+      vModeToUse_XRR = None;
+      vEnabled_B = _enabled;
+      vName_str = _name;
+   }
 
-      void addClone( RROutput _clone );
-      void addMode( RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate );
+   void addClone( RROutput _clone );
+   void
+   addMode( RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate );
 
-      std::vector<RROutput> getClones()    const { return vClones_V_XRR; }
-      RRMode                getMode()      const { return vModeToUse_XRR; }
-      RROutput              getOutput()    const { return vID_XRR; }
-      bool                  getIsEnabled() const { return vEnabled_B; }
+   std::vector<RROutput> getClones() const { return vClones_V_XRR; }
+   RRMode getMode() const { return vModeToUse_XRR; }
+   RROutput getOutput() const { return vID_XRR; }
+   bool getIsEnabled() const { return vEnabled_B; }
 
-      double                findNearestFreqTo( double _rate, unsigned int _width, unsigned int _height, RRMode &_mode, double &_diff ) const;
-   public:
-      virtual ~iDisplays() {}
-      
-      void autoSelectBest();
+   double findNearestFreqTo( double _rate,
+                             unsigned int _width,
+                             unsigned int _height,
+                             RRMode &_mode,
+                             double &_diff ) const;
 
-      void disable();
-      void enable();
+ public:
+   virtual ~iDisplays() {}
 
-      std::vector<iDisplayBasic::res> getPossibleResolutions() const;
-      bool isSizeSupported( unsigned int _width, unsigned int _height ) const;
+   void autoSelectBest();
 
-      std::vector<double> getPossibleRates( unsigned int _width, unsigned int _height ) const;
+   void disable();
+   void enable();
 
-      double autoSelectBySize( unsigned int _width, unsigned int _height, double _preferedRate = 0, double _maxDiff = 1 );
-      bool   select( unsigned int _width, unsigned int _height, double _rate );
+   std::vector<iDisplayBasic::res> getPossibleResolutions() const;
+   bool isSizeSupported( unsigned int _width, unsigned int _height ) const;
 
-      void setNoClones() { vClones_V_XRR.clear(); }
-      void setCloneOf( iDisplays const &_disp );
+   std::vector<double> getPossibleRates( unsigned int _width, unsigned int _height ) const;
 
-      void getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) const;
-      
-      friend class iRandR;
+   double autoSelectBySize( unsigned int _width,
+                            unsigned int _height,
+                            double _preferedRate = 0,
+                            double _maxDiff = 1 );
+   bool select( unsigned int _width, unsigned int _height, double _rate );
+
+   void setNoClones() { vClones_V_XRR.clear(); }
+   void setCloneOf( iDisplays const &_disp );
+
+   void getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) const;
+
+   friend class iRandR;
 };
 
 //    #########################
@@ -95,4 +108,4 @@ class iDisplays : public iDisplayBasic {
 } // e_engine
 
 #endif // E_RANDR_DISPLAY_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
