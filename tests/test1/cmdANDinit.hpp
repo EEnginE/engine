@@ -9,43 +9,43 @@ using namespace std;
 using namespace e_engine;
 
 class cmdANDinit {
-   private:
-      vector<string> args;
-      string         argv0;
-      string         dataRoot;
-      string         meshToRender  = "mesh2";
-      string         vShader       = "sADS";
-      string         vNormalShader = "normals";
+ private:
+   vector<string> args;
+   string argv0;
+   string dataRoot;
+   string meshToRender = "mesh2";
+   string vShader = "sADS";
+   string vNormalShader = "normals";
 
-      uJSON_data     vData_JSON;
+   uJSON_data vData_JSON;
 
-      bool           vCanUseColor;
-      bool           vRenderNormals = false;
+   bool vCanUseColor;
+   bool vRenderNormals = false;
 
-      GLfloat        vNearZ         = 0.1;
-      GLfloat        vFarZ          = 100;
+   GLfloat vNearZ = 0.1;
+   GLfloat vFarZ = 100;
 
-      cmdANDinit() {}
+   cmdANDinit() {}
 
-      void postInit();
-      void preInit();
-      void usage();
-   public:
-      cmdANDinit( int argc, char *argv[] );
+   void postInit();
+   void preInit();
+   void usage();
 
-      string  getMesh()          const {return dataRoot + string( "obj/" )     + meshToRender + string( ".obj" );}
-      string  getShader()        const {return dataRoot + string( "shaders/" ) + vShader;}
-      string  getNormalShader()  const {return dataRoot + string( "shaders/" ) + vNormalShader;}
+ public:
+   cmdANDinit( int argc, char *argv[] );
 
-      GLfloat getNearZ()         const {return vNearZ;}
-      GLfloat getFarZ()          const {return vFarZ;}
+   string getMesh() const { return dataRoot + string( "obj/" ) + meshToRender + string( ".obj" ); }
+   string getShader() const { return dataRoot + string( "shaders/" ) + vShader; }
+   string getNormalShader() const { return dataRoot + string( "shaders/" ) + vNormalShader; }
 
-      bool    getRenderNormals() const {return vRenderNormals;}
+   GLfloat getNearZ() const { return vNearZ; }
+   GLfloat getFarZ() const { return vFarZ; }
 
-      bool parseArgsAndInit();
+   bool getRenderNormals() const { return vRenderNormals; }
 
+   bool parseArgsAndInit();
 };
 
 #endif // CMDANDINIT_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

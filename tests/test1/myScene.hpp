@@ -11,26 +11,26 @@
 using namespace e_engine;
 
 class myScene final : public rScene<float>, public rCameraHandler<float> {
-      typedef uSlot<void, myScene, iEventInfo const&> _SLOT_;
+   typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
 
-   private:
-      rSimpleMesh vObject1;
+ private:
+   rSimpleMesh vObject1;
 
-      rAmbientLight<float>      vAmbient;
-      rSimpleLightSource<float> vLight1;
+   rAmbientLight<float> vAmbient;
+   rSimpleLightSource<float> vLight1;
 
-      std::string vShader_str;
-      std::string vNormalShader_str;
+   std::string vShader_str;
+   std::string vNormalShader_str;
 
-      _SLOT_ vKeySlot;
-      float  vRotationAngle;
-      bool   vRenderNormals;
+   _SLOT_ vKeySlot;
+   float vRotationAngle;
+   bool vRenderNormals;
 
-   public:
-      myScene() = delete;
+ public:
+   myScene() = delete;
 
-      myScene( iInit *_init, cmdANDinit &_cmd ) :
-         rScene( "MAIN SCENE" ),
+   myScene( iInit *_init, cmdANDinit &_cmd )
+       : rScene( "MAIN SCENE" ),
          rCameraHandler( this, _init ),
          vObject1( this, "OBJ 1", _cmd.getMesh() ),
          vAmbient( "Ambient Light", rVec3f( 0.075, 0.05, 0.075 ) ),
@@ -39,17 +39,17 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
          vNormalShader_str( _cmd.getNormalShader() ),
          vKeySlot( &myScene::keySlot, this ),
          vRotationAngle( 0 ),
-         vRenderNormals( _cmd.getRenderNormals() )
-         { _init->addKeySlot( &vKeySlot ); }
+         vRenderNormals( _cmd.getRenderNormals() ) {
+      _init->addKeySlot( &vKeySlot );
+   }
 
-      int init();
+   int init();
 
-      void keySlot( iEventInfo const& _inf );
+   void keySlot( iEventInfo const &_inf );
 
-      virtual void afterCameraUpdate();
+   virtual void afterCameraUpdate();
 };
 
 #endif
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

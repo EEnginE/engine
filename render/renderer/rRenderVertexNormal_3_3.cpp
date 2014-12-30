@@ -29,63 +29,67 @@ void rRenderVertexNormal_3_3::render() {
 
 
 bool rRenderVertexNormal_3_3::testShader( rShader *_shader ) {
-   if( !_shader->getIsLinked() )
+   if ( !_shader->getIsLinked() )
       return false;
 
-   return require(
-         _shader,
-         rShader::VERTEX_INPUT,
-         rShader::NORMALS_INPUT,
-         rShader::M_V_P_MATRIX
-         );
+   return require( _shader, rShader::VERTEX_INPUT, rShader::NORMALS_INPUT, rShader::M_V_P_MATRIX );
 }
 
 bool rRenderVertexNormal_3_3::testObject( rObjectBase *_obj ) {
    int lVert, lFlags, lMatrices, lnVBO, lnIBO, lnNBO;
 
-   _obj->getHints(
-         rObjectBase::NUM_INDEXES, lVert,
-         rObjectBase::FLAGS,       lFlags,
-         rObjectBase::MATRICES,    lMatrices,
-         rObjectBase::NUM_VBO,     lnVBO,
-         rObjectBase::NUM_IBO,     lnIBO,
-         rObjectBase::NUM_NBO,     lnNBO
-   );
+   _obj->getHints( rObjectBase::NUM_INDEXES,
+                   lVert,
+                   rObjectBase::FLAGS,
+                   lFlags,
+                   rObjectBase::MATRICES,
+                   lMatrices,
+                   rObjectBase::NUM_VBO,
+                   lnVBO,
+                   rObjectBase::NUM_IBO,
+                   lnIBO,
+                   rObjectBase::NUM_NBO,
+                   lnNBO );
 
-   if( !( lFlags & MESH_OBJECT ) )
+   if ( !( lFlags & MESH_OBJECT ) )
       return false;
 
-   if( lVert < 3 )
+   if ( lVert < 3 )
       return false;
 
-   if( !( lMatrices & MODEL_VIEW_PROJECTION_MATRIX_FLAG ) )
+   if ( !( lMatrices & MODEL_VIEW_PROJECTION_MATRIX_FLAG ) )
       return false;
 
-   if( lnVBO != 1 )
+   if ( lnVBO != 1 )
       return false;
 
-   if( lnIBO != 1 )
+   if ( lnIBO != 1 )
       return false;
 
-   if( lnNBO != 1 )
+   if ( lnNBO != 1 )
       return false;
 
    return true;
 }
 
 bool rRenderVertexNormal_3_3::canRender() {
-   if( !testUnifrom(
-         vInputVertexLocation_OGL,   L"Input Vertex",
-         vInputNormalsLocation_OGL,  L"Input Normals",
-         vUniformMVP_OGL,            L"Model View Projection Matrix",
-         vShader_OGL,                L"The shader",
-         vVertexBufferObj_OGL,       L"Vertex buffer object",
-         vIndexBufferObj_OGL,        L"Index buffer object",
-         vNormalBufferObj_OGL,       L"Normal buffer object"
-         ) )
+   if ( !testUnifrom( vInputVertexLocation_OGL,
+                      L"Input Vertex",
+                      vInputNormalsLocation_OGL,
+                      L"Input Normals",
+                      vUniformMVP_OGL,
+                      L"Model View Projection Matrix",
+                      vShader_OGL,
+                      L"The shader",
+                      vVertexBufferObj_OGL,
+                      L"Vertex buffer object",
+                      vIndexBufferObj_OGL,
+                      L"Index buffer object",
+                      vNormalBufferObj_OGL,
+                      L"Normal buffer object" ) )
       return false;
 
-   if( !testPointer( vModelViewProjection,  L"Model View Projection Matrix" ) )
+   if ( !testPointer( vModelViewProjection, L"Model View Projection Matrix" ) )
       return false;
 
    return true;
@@ -95,10 +99,10 @@ bool rRenderVertexNormal_3_3::canRender() {
 
 
 void rRenderVertexNormal_3_3::setDataFromShader( rShader *_s ) {
-   vInputVertexLocation_OGL  = _s->getLocation( rShader::VERTEX_INPUT );
+   vInputVertexLocation_OGL = _s->getLocation( rShader::VERTEX_INPUT );
    vInputNormalsLocation_OGL = _s->getLocation( rShader::NORMALS_INPUT );
 
-   vUniformMVP_OGL           = _s->getLocation( rShader::M_V_P_MATRIX );
+   vUniformMVP_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
 
    _s->getProgram( vShader_OGL );
 }
@@ -114,12 +118,8 @@ void rRenderVertexNormal_3_3::setDataFromObject( rObjectBase *_obj ) {
 
    _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );
 
-   vDataSize_uI = ( GLuint ) lTemp;
+   vDataSize_uI = (GLuint)lTemp;
+}
 }
 
-
-
-
-}
-
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

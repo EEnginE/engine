@@ -17,7 +17,7 @@ int main( int argc, char *argv[] ) {
    LOG.nameThread( L"MAIN" );
    cmdANDinit cmd( argc, argv );
 
-   if ( ! cmd.parseArgsAndInit() ) {
+   if ( !cmd.parseArgsAndInit() ) {
       B_SLEEP( seconds, 1 );
       return 1;
    }
@@ -43,7 +43,4 @@ int main( int argc, char *argv[] ) {
    return EXIT_SUCCESS;
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
-
-
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

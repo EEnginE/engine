@@ -6,14 +6,11 @@
 
 namespace e_engine {
 
-enum EXTENSIONS {
-   ID_ARB_program_interface_query = 0,
-   __EXTENSIONS_END__
-};
+enum EXTENSIONS { ID_ARB_program_interface_query = 0, __EXTENSIONS_END__ };
 
 enum OPENGL_VERSIONS {
    OGL_VERSION_NONE = -1,
-   OGL_VERSION_1_2  = 0,
+   OGL_VERSION_1_2 = 0,
    OGL_VERSION_1_3,
    OGL_VERSION_1_4,
    OGL_VERSION_1_5,
@@ -37,30 +34,27 @@ enum OPENGL_VERSIONS {
 
 
 struct uExtensionData {
-   EXTENSIONS  id;
+   EXTENSIONS id;
    std::string extStr;
-   bool        supported;
+   bool supported;
 };
 
 class uExtensions {
-   private:
-      uExtensionData *vOpenGLExtList;
-      OPENGL_VERSIONS vVersion;
+ private:
+   uExtensionData *vOpenGLExtList;
+   OPENGL_VERSIONS vVersion;
 
-   public:
-      uExtensions();
-      virtual ~uExtensions();
+ public:
+   uExtensions();
+   virtual ~uExtensions();
 
-      OPENGL_VERSIONS queryAll();
-      bool isSupported( std::string _ext );
-      bool isSupported( EXTENSIONS _id ) {return vOpenGLExtList[_id].supported;}
+   OPENGL_VERSIONS queryAll();
+   bool isSupported( std::string _ext );
+   bool isSupported( EXTENSIONS _id ) { return vOpenGLExtList[_id].supported; }
 
-      OPENGL_VERSIONS getOpenGLVersion() {return vVersion;}
+   OPENGL_VERSIONS getOpenGLVersion() { return vVersion; }
 };
-
 }
 
 #endif // UEXTENSIONS_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
-
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

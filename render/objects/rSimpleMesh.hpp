@@ -18,38 +18,39 @@
 namespace e_engine {
 
 class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
-   private:
-      GLuint vVertexBufferObject;
-      GLuint vIndexBufferObject;
-      GLuint vNormalBufferObject;
+ private:
+   GLuint vVertexBufferObject;
+   GLuint vIndexBufferObject;
+   GLuint vNormalBufferObject;
 
-      void setFlags();
+   void setFlags();
 
-      bool vHasNormals;
+   bool vHasNormals;
 
-   public:
-      rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name, std::string _file, DATA_FILE_TYPE _type = AUTODETECT ) :
-         rMatrixObjectBase( _scene ),
-         rObjectBase( _name, _file, _type ),
-         vHasNormals( false ) {setFlags();}
+ public:
+   rSimpleMesh( rMatrixSceneBase<float> *_scene,
+                std::string _name,
+                std::string _file,
+                DATA_FILE_TYPE _type = AUTODETECT )
+       : rMatrixObjectBase( _scene ), rObjectBase( _name, _file, _type ), vHasNormals( false ) {
+      setFlags();
+   }
 
-      rSimpleMesh() = delete;
+   rSimpleMesh() = delete;
 
-      virtual ~rSimpleMesh();
+   virtual ~rSimpleMesh();
 
-      int clearOGLData__();
-      int setOGLData__();
+   int clearOGLData__();
+   int setOGLData__();
 
-      virtual uint32_t getVBO( uint32_t &_n );
-      virtual uint32_t getIBO( uint32_t &_n );
-      virtual uint32_t getNBO( uint32_t &_n );
-      virtual uint32_t getMatrix( e_engine::rMat4f **_mat, rObjectBase::MATRIX_TYPES _type );
-      virtual uint32_t getMatrix( e_engine::rMat3f **_mat, rObjectBase::MATRIX_TYPES _type );
+   virtual uint32_t getVBO( uint32_t &_n );
+   virtual uint32_t getIBO( uint32_t &_n );
+   virtual uint32_t getNBO( uint32_t &_n );
+   virtual uint32_t getMatrix( e_engine::rMat4f **_mat, rObjectBase::MATRIX_TYPES _type );
+   virtual uint32_t getMatrix( e_engine::rMat3f **_mat, rObjectBase::MATRIX_TYPES _type );
 };
-
-
 }
 
 #endif // R_NORMAL_OBJECT_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

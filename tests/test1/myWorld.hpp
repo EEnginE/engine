@@ -15,25 +15,27 @@ using namespace e_engine;
 using namespace OS_NAMESPACE;
 
 class myWorld final : public rWorld, public rFrameCounter {
-      typedef uSlot<void, myWorld, iEventInfo const&> _SLOT_;
-   private:
-      GLfloat vAlpha;
+   typedef uSlot<void, myWorld, iEventInfo const &> _SLOT_;
 
-      std::vector<iDisplays> vDisp_RandR;
+ private:
+   GLfloat vAlpha;
 
-      myScene vScene;
-      iInit  *vInitPointer;
+   std::vector<iDisplays> vDisp_RandR;
 
-      GLfloat vNearZ;
-      GLfloat vFarZ;
+   myScene vScene;
+   iInit *vInitPointer;
 
-      _SLOT_ slotWindowClose;
-      _SLOT_ slotResize;
-      _SLOT_ slotKey;
-   public:
-      myWorld( cmdANDinit &_cmd, iInit *_init ) :
-         rWorld( _init ),
-         rFrameCounter(this, true),
+   GLfloat vNearZ;
+   GLfloat vFarZ;
+
+   _SLOT_ slotWindowClose;
+   _SLOT_ slotResize;
+   _SLOT_ slotKey;
+
+ public:
+   myWorld( cmdANDinit &_cmd, iInit *_init )
+       : rWorld( _init ),
+         rFrameCounter( this, true ),
          vScene( _init, _cmd ),
          vInitPointer( _init ),
          vNearZ( _cmd.getNearZ() ),
@@ -42,35 +44,34 @@ class myWorld final : public rWorld, public rFrameCounter {
          slotResize( &myWorld::resize, this ),
          slotKey( &myWorld::key, this ) {
 
-         _init->addWindowCloseSlot( &slotWindowClose );
-         _init->addResizeSlot( &slotResize );
-         _init->addKeySlot( &slotKey );
+      _init->addWindowCloseSlot( &slotWindowClose );
+      _init->addResizeSlot( &slotResize );
+      _init->addKeySlot( &slotKey );
 
-         vAlpha        = 1;
-      }
+      vAlpha = 1;
+   }
 
-      ~myWorld();
-      myWorld() = delete;
+   ~myWorld();
+   myWorld() = delete;
 
 
-      void windowClose( iEventInfo const& info ) {
-         iLOG( "User closed window" );
-         info.iInitPointer->closeWindow();
-      }
-      void key( iEventInfo const& info );
-      void resize( iEventInfo const& info ) {
-         iLOG( "Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height );
-         updateViewPort( 0, 0, GlobConf.win.width, GlobConf.win.height );
-         vScene.calculateProjectionPerspective( GlobConf.win.width, GlobConf.win.height, vNearZ, vFarZ, 35.0 );
-      }
+   void windowClose( iEventInfo const &info ) {
+      iLOG( "User closed window" );
+      info.iInitPointer->closeWindow();
+   }
+   void key( iEventInfo const &info );
+   void resize( iEventInfo const &info ) {
+      iLOG( "Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height );
+      updateViewPort( 0, 0, GlobConf.win.width, GlobConf.win.height );
+      vScene.calculateProjectionPerspective(
+            GlobConf.win.width, GlobConf.win.height, vNearZ, vFarZ, 35.0 );
+   }
 
-      int initGL();
+   int initGL();
 
-      virtual void renderFrame() {
-         vScene.renderScene();
-      }
+   virtual void renderFrame() { vScene.renderScene(); }
 };
 
 
 #endif // HANDLER_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

@@ -34,83 +34,85 @@
 namespace e_engine {
 
 rShader::rShader() {
-   vShaderProgram_OGL    = 0;
-   vIsShaderLinked_B     = false;
+   vShaderProgram_OGL = 0;
+   vIsShaderLinked_B = false;
 
-   vShaderEndings[VERT]  = VERT_END;
-   vShaderEndings[FRAG]  = FRAG_END;
-   vShaderEndings[GEOM]  = GEOM_END;
+   vShaderEndings[VERT] = VERT_END;
+   vShaderEndings[FRAG] = FRAG_END;
+   vShaderEndings[GEOM] = GEOM_END;
 
-   for(auto & elem : vLocationInformation)
+   for ( auto &elem : vLocationInformation )
       elem = -1;
 
    // Inputs:
 
-   vLocationNames[VERTEX_INPUT]       = "iVertex";
-   vLocationTypes[VERTEX_INPUT]       = GL_FLOAT_VEC3;
+   vLocationNames[VERTEX_INPUT] = "iVertex";
+   vLocationTypes[VERTEX_INPUT] = GL_FLOAT_VEC3;
 
-   vLocationNames[NORMALS_INPUT]      = "iNormals";
-   vLocationTypes[NORMALS_INPUT]      = GL_FLOAT_VEC3;
+   vLocationNames[NORMALS_INPUT] = "iNormals";
+   vLocationTypes[NORMALS_INPUT] = GL_FLOAT_VEC3;
 
    // Uniforms:
 
-   vLocationNames[MODEL_MATRIX]       = "uModel";
-   vLocationTypes[MODEL_MATRIX]       = GL_FLOAT_MAT4;
+   vLocationNames[MODEL_MATRIX] = "uModel";
+   vLocationTypes[MODEL_MATRIX] = GL_FLOAT_MAT4;
 
-   vLocationNames[VIEW_MATRIX]        = "uView";
-   vLocationTypes[VIEW_MATRIX]        = GL_FLOAT_MAT4;
+   vLocationNames[VIEW_MATRIX] = "uView";
+   vLocationTypes[VIEW_MATRIX] = GL_FLOAT_MAT4;
 
-   vLocationNames[MODEL_VIEW_MATRIX]  = "uModelView";
-   vLocationTypes[MODEL_VIEW_MATRIX]  = GL_FLOAT_MAT4;
+   vLocationNames[MODEL_VIEW_MATRIX] = "uModelView";
+   vLocationTypes[MODEL_VIEW_MATRIX] = GL_FLOAT_MAT4;
 
-   vLocationNames[PROJECTOIN_MATRIX]  = "uProjection";
-   vLocationTypes[PROJECTOIN_MATRIX]  = GL_FLOAT_MAT4;
+   vLocationNames[PROJECTOIN_MATRIX] = "uProjection";
+   vLocationTypes[PROJECTOIN_MATRIX] = GL_FLOAT_MAT4;
 
-   vLocationNames[M_V_P_MATRIX]       = "uMVP";
-   vLocationTypes[M_V_P_MATRIX]       = GL_FLOAT_MAT4;
+   vLocationNames[M_V_P_MATRIX] = "uMVP";
+   vLocationTypes[M_V_P_MATRIX] = GL_FLOAT_MAT4;
 
-   vLocationNames[NORMAL_MATRIX]      = "uNormal";
-   vLocationTypes[NORMAL_MATRIX]      = GL_FLOAT_MAT3;
+   vLocationNames[NORMAL_MATRIX] = "uNormal";
+   vLocationTypes[NORMAL_MATRIX] = GL_FLOAT_MAT3;
 
 
-   vLocationNames[AMBIENT_COLOR]      = "uAmbientColor";
-   vLocationTypes[AMBIENT_COLOR]      = GL_FLOAT_VEC3;
+   vLocationNames[AMBIENT_COLOR] = "uAmbientColor";
+   vLocationTypes[AMBIENT_COLOR] = GL_FLOAT_VEC3;
 
-   vLocationNames[LIGHT_COLOR]        = "uLightColor";
-   vLocationTypes[LIGHT_COLOR]        = GL_FLOAT_VEC3;
+   vLocationNames[LIGHT_COLOR] = "uLightColor";
+   vLocationTypes[LIGHT_COLOR] = GL_FLOAT_VEC3;
 
-   vLocationNames[LIGHT_POSITION]     = "uLightPos";
-   vLocationTypes[LIGHT_POSITION]     = GL_FLOAT_VEC3;
+   vLocationNames[LIGHT_POSITION] = "uLightPos";
+   vLocationTypes[LIGHT_POSITION] = GL_FLOAT_VEC3;
 }
 
-rShader::rShader( rShader && _s ) :
-   vShaders( std::move( _s.vShaders ) ),
-   vPath_str( std::move( _s.vPath_str ) ),
-   vShaderProgram_OGL( std::move( _s.vShaderProgram_OGL ) ),
-   vIsShaderLinked_B( std::move( _s.vIsShaderLinked_B ) ),
-   vProgramInformation( std::move( _s.vProgramInformation ) ),
-   vHasProgramInformation_B( std::move( _s.vHasProgramInformation_B ) ) {
+rShader::rShader( rShader &&_s )
+    : vShaders( std::move( _s.vShaders ) ),
+      vPath_str( std::move( _s.vPath_str ) ),
+      vShaderProgram_OGL( std::move( _s.vShaderProgram_OGL ) ),
+      vIsShaderLinked_B( std::move( _s.vIsShaderLinked_B ) ),
+      vProgramInformation( std::move( _s.vProgramInformation ) ),
+      vHasProgramInformation_B( std::move( _s.vHasProgramInformation_B ) ) {
 
-   for( unsigned int i = 0; i < 3; ++i )
+   for ( unsigned int i = 0; i < 3; ++i )
       vShaderEndings[i] = std::move( _s.vShaderEndings[i] );
 
-   for( unsigned int i = 0; i < __END_INF__; ++i )
+   for ( unsigned int i = 0; i < __END_INF__; ++i )
       vLocationInformation[i] = std::move( _s.vLocationInformation[i] );
 
-   for( unsigned int i = 0; i < __END_INF__; ++i )
+   for ( unsigned int i = 0; i < __END_INF__; ++i )
       vLocationNames[i] = std::move( _s.vLocationNames[i] );
 
-   for( unsigned int i = 0; i < __END_INF__; ++i )
+   for ( unsigned int i = 0; i < __END_INF__; ++i )
       vLocationTypes[i] = std::move( _s.vLocationTypes[i] );
-
 }
 
 
 // =========================================================================================================================
 // ==============================================================================================================================================
-// =========                =================================================================================================================================
-// =======   Link the shader  ====================================================================================================================================
-// =========                =================================================================================================================================
+// =========
+// =================================================================================================================================
+// =======   Link the shader
+// ====================================================================================================================================
+// =========
+// =================================================================================================================================
 // ==============================================================================================================================================
 // =========================================================================================================================
 
@@ -130,26 +132,24 @@ int rShader::search_shaders() {
    boost::filesystem::path geom( temp[GEOM] );
 
    try {
-      if( boost::filesystem::exists( vert ) )     // Look for the vertex-shader
-         if( boost::filesystem::is_regular_file( vert ) )
+      if ( boost::filesystem::exists( vert ) ) // Look for the vertex-shader
+         if ( boost::filesystem::is_regular_file( vert ) )
             vShaders.emplace_back( temp[VERT], GL_VERTEX_SHADER );
 
-      if( boost::filesystem::exists( frag ) )     // Look for the fragment-shader
-         if( boost::filesystem::is_regular_file( vert ) )
+      if ( boost::filesystem::exists( frag ) ) // Look for the fragment-shader
+         if ( boost::filesystem::is_regular_file( vert ) )
             vShaders.emplace_back( temp[FRAG], GL_FRAGMENT_SHADER );
 
-      if( boost::filesystem::exists( geom ) )     // Look for the geometry-shader
-         if( boost::filesystem::is_regular_file( geom ) )
+      if ( boost::filesystem::exists( geom ) ) // Look for the geometry-shader
+         if ( boost::filesystem::is_regular_file( geom ) )
             vShaders.emplace_back( temp[GEOM], GL_GEOMETRY_SHADER );
 
 
-   } catch( const boost::filesystem::filesystem_error &ex ) {
-      eLOG( ex.what() );
-   } catch( ... ) {
+   } catch ( const boost::filesystem::filesystem_error &ex ) { eLOG( ex.what() ); } catch ( ... ) {
       eLOG( "Caught unknown exception" );
    }
 
-   if( vShaders.size() == 0 ) {
+   if ( vShaders.size() == 0 ) {
       wLOG( "No shaders found! WARNING!" );
    }
 
@@ -161,22 +161,26 @@ bool rShader::addShader( std::string _filename, GLenum _shaderType ) {
    boost::filesystem::path lShaderPath( _filename );
 
    try {
-      if( boost::filesystem::exists( lShaderPath ) ) {     // Look for the vertex-shader
-         if( boost::filesystem::is_regular_file( lShaderPath ) ) {
+      if ( boost::filesystem::exists( lShaderPath ) ) { // Look for the vertex-shader
+         if ( boost::filesystem::is_regular_file( lShaderPath ) ) {
 
-            switch( _shaderType ) {
-               case GL_VERTEX_SHADER:   vShaders.emplace_back( _filename, GL_VERTEX_SHADER );   return true;
-               case GL_FRAGMENT_SHADER: vShaders.emplace_back( _filename, GL_FRAGMENT_SHADER ); return true;
-               case GL_GEOMETRY_SHADER: vShaders.emplace_back( _filename, GL_GEOMETRY_SHADER ); return true;
+            switch ( _shaderType ) {
+               case GL_VERTEX_SHADER:
+                  vShaders.emplace_back( _filename, GL_VERTEX_SHADER );
+                  return true;
+               case GL_FRAGMENT_SHADER:
+                  vShaders.emplace_back( _filename, GL_FRAGMENT_SHADER );
+                  return true;
+               case GL_GEOMETRY_SHADER:
+                  vShaders.emplace_back( _filename, GL_GEOMETRY_SHADER );
+                  return true;
                default:
                   eLOG( "Unknown shader type ", _shaderType, " of ", _filename );
                   return false;
             }
          }
       }
-   } catch( const boost::filesystem::filesystem_error &ex ) {
-      eLOG( ex.what() );
-   } catch( ... ) {
+   } catch ( const boost::filesystem::filesystem_error &ex ) { eLOG( ex.what() ); } catch ( ... ) {
       eLOG( "Caught unknown exception" );
    }
 
@@ -185,8 +189,10 @@ bool rShader::addShader( std::string _filename, GLenum _shaderType ) {
 }
 
 
-/* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
- ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
+/* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
+ ***
+ ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
+ */
 /*!
  * \brief Test if program is OK
  * \returns 1 When successful
@@ -195,26 +201,27 @@ bool rShader::addShader( std::string _filename, GLenum _shaderType ) {
 unsigned int rShader::testProgram() {
    int status;
    glGetProgramiv( vShaderProgram_OGL, GL_LINK_STATUS, &status );
-   if( status == GL_FALSE ) {
+   if ( status == GL_FALSE ) {
       GLint lLinkLogLength;
       glGetProgramiv( vShaderProgram_OGL, GL_INFO_LOG_LENGTH, &lLinkLogLength );
       auto log = new GLchar[lLinkLogLength];
       glGetProgramInfoLog( vShaderProgram_OGL, lLinkLogLength, nullptr, log );
 
-      eLOG(
-            "Linking failure:\n"
-            "###################################################################################\n\n",
+      eLOG( "Linking failure:\n"
+            "###################################################################################"
+            "\n\n",
             std::string( log ),
-            "\n\n###################################################################################"
+            "\n\n##################################################################################"
+            "#"
 
-      );
+            );
       glDeleteProgram( vShaderProgram_OGL );
 
       vIsShaderLinked_B = false;
 
       delete[] log;
 
-      //Return a shader linking error
+      // Return a shader linking error
       return -5;
    }
    return 1;
@@ -250,21 +257,21 @@ int rShader::compile( GLuint &_vShader_OGL ) {
  * \returns -6 When the shaders were not set
  */
 int rShader::compile() {
-   if( vPath_str.empty() && vShaders.empty() ) {
+   if ( vPath_str.empty() && vShaders.empty() ) {
       eLOG( "No shaders set for compilation" );
       return -6;
    }
 
-   if( search_shaders() == 0  && vShaders.empty() ) {
+   if ( search_shaders() == 0 && vShaders.empty() ) {
       eLOG( "Unable to find any shader file ( Path: ", vPath_str, " )" );
-      //Return a file not found error
+      // Return a file not found error
       return -3;
    }
 
-   for( auto & s : vShaders ) {
+   for ( auto &s : vShaders ) {
       // Compile shaders
-      //Check for errors
-      if( s.compileShader() != 1 )
+      // Check for errors
+      if ( s.compileShader() != 1 )
          return -4;
    }
 
@@ -273,7 +280,7 @@ int rShader::compile() {
    vShaderProgram_OGL = glCreateProgram();
 
    // Adding shaders
-   for( auto & s : vShaders ) {
+   for ( auto &s : vShaders ) {
       glAttachShader( vShaderProgram_OGL, s.vShader_OGL );
    }
 
@@ -281,18 +288,18 @@ int rShader::compile() {
    glLinkProgram( vShaderProgram_OGL );
 
    // Delete old shaders. Not needed anymore
-   for( auto & s : vShaders ) {
+   for ( auto &s : vShaders ) {
       glDeleteShader( s.vShader_OGL );
    }
 
    // Linking successful? Returns a shader linking error if unsuccessful
-   if( testProgram() != 1 )
+   if ( testProgram() != 1 )
       return -5;
 
 
    // Output
    iLOG( "Program with the ", vShaders.size(), " shader(s) successfully linked" );
-   for( auto & s : vShaders ) {
+   for ( auto &s : vShaders ) {
       LOG( _hI, eCMDColor::color( 'O', 'C' ), "  - ", s.vFilename_str );
    }
    vIsShaderLinked_B = true;
@@ -310,7 +317,7 @@ int rShader::compile() {
  * \returns Nothing
  */
 void rShader::deleteProgram() {
-   if( !vIsShaderLinked_B )
+   if ( !vIsShaderLinked_B )
       return; // Don't delete twice
    glDeleteProgram( vShaderProgram_OGL );
    vIsShaderLinked_B = false;
@@ -318,24 +325,31 @@ void rShader::deleteProgram() {
 
 // =========================================================================================================================
 // ==============================================================================================================================================
-// =========                    =============================================================================================================================
-// =======   Compile the Shaders  ================================================================================================================================
-// =========                    =============================================================================================================================
+// =========
+// =============================================================================================================================
+// =======   Compile the Shaders
+// ================================================================================================================================
+// =========
+// =============================================================================================================================
 // ==============================================================================================================================================
 // =========================================================================================================================
 
 std::string getShaderTypeString( GLenum _type ) {
-   switch( _type ) {
-      case GL_VERTEX_SHADER_ARB:   return "vertex";
-      case GL_FRAGMENT_SHADER_ARB: return "fragment";
-      case GL_GEOMETRY_SHADER_ARB: return "geometry";
-      default:                     return "unknown";
+   switch ( _type ) {
+      case GL_VERTEX_SHADER_ARB:
+         return "vertex";
+      case GL_FRAGMENT_SHADER_ARB:
+         return "fragment";
+      case GL_GEOMETRY_SHADER_ARB:
+         return "geometry";
+      default:
+         return "unknown";
    }
 }
 
 bool rShader::singleShader::readShader() {
    FILE *lFile = fopen( vFilename_str.c_str(), "r" );
-   if( lFile == nullptr ) {
+   if ( lFile == nullptr ) {
       eLOG( "Unable to open ", vFilename_str );
       return false;
    }
@@ -343,8 +357,8 @@ bool rShader::singleShader::readShader() {
    int c;
    vData_str.clear();
 
-   while( ( c = fgetc( lFile ) ) != EOF )
-      vData_str.append( 1, ( char )c );
+   while ( ( c = fgetc( lFile ) ) != EOF )
+      vData_str.append( 1, (char)c );
 
    fclose( lFile );
 
@@ -360,23 +374,27 @@ bool rShader::singleShader::readShader() {
 bool rShader::singleShader::testShader() {
    int test;
    glGetShaderiv( vShader_OGL, GL_COMPILE_STATUS, &test );
-   if( test == GL_FALSE ) {
+   if ( test == GL_FALSE ) {
       GLint logLength = 0;
       glGetShaderiv( vShader_OGL, GL_INFO_LOG_LENGTH, &logLength );
       auto log = new GLchar[logLength];
       glGetShaderInfoLog( vShader_OGL, logLength, nullptr, log );
 
-      eLOG(
-            "Compile failure in the ", getShaderTypeString( vShaderType ), " shader ", vFilename_str, ":\n",
-            "###################################################################################\n\n",
+      eLOG( "Compile failure in the ",
+            getShaderTypeString( vShaderType ),
+            " shader ",
+            vFilename_str,
+            ":\n",
+            "###################################################################################"
+            "\n\n",
             std::string( log ),
-            "\n\n###################################################################################"
-      );
+            "\n\n##################################################################################"
+            "#" );
       glDeleteShader( vShader_OGL );
 
       delete[] log;
 
-      //Returns a shader compilation error
+      // Returns a shader compilation error
       return false;
    }
    return true;
@@ -393,9 +411,9 @@ bool rShader::singleShader::testShader() {
  */
 int rShader::singleShader::compileShader() {
    vData_str.clear();
-   if( readShader() == false ) {
+   if ( readShader() == false ) {
       eLOG( "Error while reading source file '", vFilename_str, "'" );
-      //Return the file-reading error
+      // Return the file-reading error
       return 2;
    }
 
@@ -416,15 +434,13 @@ int rShader::singleShader::compileShader() {
 
 
 
-
-
 /*!
  * \brief Get the linked program
  * \param[out] _program The linked shader program
  * \returns true if the program was linked and false if not
  */
-bool rShader::getProgram( unsigned int &_program ) const  {
-   if( !vIsShaderLinked_B )
+bool rShader::getProgram( unsigned int &_program ) const {
+   if ( !vIsShaderLinked_B )
       return false;
    _program = vShaderProgram_OGL;
    return true;
@@ -432,15 +448,17 @@ bool rShader::getProgram( unsigned int &_program ) const  {
 
 
 
-/* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
- ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
+/* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
+ ***
+ ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **
+ */
 
 
 void rShader::setLocationString( SHADER_INFORMATION _type, std::string &_str ) {
    vLocationNames[_type] = _str;
 }
 
-void rShader::setLocationString( SHADER_INFORMATION _type, std::string && _str ) {
+void rShader::setLocationString( SHADER_INFORMATION _type, std::string &&_str ) {
    vLocationNames[_type] = _str;
 }
 
@@ -465,7 +483,7 @@ void rShader::setLocationString( SHADER_INFORMATION _type, std::string && _str )
  * \returns true if everything went fine and false when at least one value could not be assigned
  */
 bool rShader::parseRawInformation() {
-   if( !vIsShaderLinked_B )
+   if ( !vIsShaderLinked_B )
       return false;
 
 #if E_DEBUG_LOGGING
@@ -475,47 +493,56 @@ bool rShader::parseRawInformation() {
    GLint j;
    bool lRet = true;
 
-   for( auto const & i : vProgramInformation.vInputInfo ) {
-      for( j = 0; j < __BEGIN_UNIFORMS__; ++j ) {
-         if( vLocationInformation[j] >= 0 )
+   for ( auto const &i : vProgramInformation.vInputInfo ) {
+      for ( j = 0; j < __BEGIN_UNIFORMS__; ++j ) {
+         if ( vLocationInformation[j] >= 0 )
             continue;
 
-         if( i.name == vLocationNames[j] && i.type == vLocationTypes[j] ) {
+         if ( i.name == vLocationNames[j] && i.type == vLocationTypes[j] ) {
             vLocationInformation[j] = i.location;
             j = -1;
             break;
          }
       }
 
-      if( j >= 0 ) {
-         wLOG( "  - Failed to assign input '", i.name, "' [", i.location, "; ", getTypeString( i.type ), "]" );
+      if ( j >= 0 ) {
+         wLOG( "  - Failed to assign input '",
+               i.name,
+               "' [",
+               i.location,
+               "; ",
+               getTypeString( i.type ),
+               "]" );
          lRet = false;
       }
    }
 
-   for( auto const & i : vProgramInformation.vUniformInfo ) {
-      for( j = __BEGIN_UNIFORMS__ + 1; j < __END_INF__; ++j ) {
-         if( vLocationInformation[j] >= 0 )
+   for ( auto const &i : vProgramInformation.vUniformInfo ) {
+      for ( j = __BEGIN_UNIFORMS__ + 1; j < __END_INF__; ++j ) {
+         if ( vLocationInformation[j] >= 0 )
             continue;
 
-         if( i.name == vLocationNames[j] && i.type == vLocationTypes[j] ) {
+         if ( i.name == vLocationNames[j] && i.type == vLocationTypes[j] ) {
             vLocationInformation[j] = i.location;
             j = -1;
             break;
          }
       }
 
-      if( j >= 0 ) {
-         wLOG( "  - Failed to assign uniform '", i.name, "' [", i.location, "; ", getTypeString( i.type ), "]" );
+      if ( j >= 0 ) {
+         wLOG( "  - Failed to assign uniform '",
+               i.name,
+               "' [",
+               i.location,
+               "; ",
+               getTypeString( i.type ),
+               "]" );
          lRet = false;
       }
    }
 
    return lRet;
 }
-
-
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

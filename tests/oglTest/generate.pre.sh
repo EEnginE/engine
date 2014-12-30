@@ -13,7 +13,7 @@ NUM_OF_TESTS=${#TESTS[*]}
 
 source ./genBindings.sh
 
-echo "INFO:      -- Generating $HPP_FILE"
+msg3 "Generating $HPP_FILE and $CPP_FILE"
 
 cat > $HPP_FILE << EOF
 /*!
@@ -72,9 +72,6 @@ class $CLASS_NAME {
 EOF
 
 
-
-
-echo "INFO:      -- Generating $CPP_FILE"
 
 cat > $CPP_FILE << EOF
 /*!
@@ -150,10 +147,11 @@ EOF
 
 
 
-echo "INFO:      -- Found $NUM_OF_TESTS tests"
+msg3 "Found $NUM_OF_TESTS tests"
 
 for (( i=0; i < NUM_OF_TESTS; ++i )); do
    TEST=$(echo ${TESTS[$i]} | sed 's/\.hpp//g')
+   processBar $i $NUM_OF_TESTS $TEST
 
    HPP="$(pwd)/${TESTS_DIR}/${TEST}.hpp"
    CPP="$(pwd)/${TESTS_DIR}/${TEST}.cpp"
@@ -161,8 +159,6 @@ for (( i=0; i < NUM_OF_TESTS; ++i )); do
    if [ ! -f $HPP -o ! -f $CPP ]; then
       continue
    fi
-
-   echo "INFO:        -- Process test '$TEST'"
 
    OBJ="l${TEST}_obj"
 

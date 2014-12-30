@@ -15,29 +15,30 @@ namespace unix_x11 {
  * \brief sets only some basic values.
  */
 iRandR::iRandR() {
-   vIsRandRSupported_B  = false;
-   
+   vIsRandRSupported_B = false;
+
    vRandRVersionMajor_I = -1;
    vRandRVersionMinor_I = -1;
-   
-   vScreenHeight_uI     = 0;
-   vScreenWidth_uI      = 0;
-   
-   vDisplay_X11         = nullptr;
-   vWasScreenChanged_B  = false;
+
+   vScreenHeight_uI = 0;
+   vScreenWidth_uI = 0;
+
+   vDisplay_X11 = nullptr;
+   vWasScreenChanged_B = false;
 }
 
-iRandR::~iRandR() {
-   endRandR();
-}
+iRandR::~iRandR() { endRandR(); }
 
 
 
 // =========================================================================================================================
 // ==============================================================================================================================================
-// =========                      ===========================================================================================================================
-// =======   Init End and Restore   ==============================================================================================================================
-// =========                      ===========================================================================================================================
+// =========
+// ===========================================================================================================================
+// =======   Init End and Restore
+// ==============================================================================================================================
+// =========
+// ===========================================================================================================================
 // ==============================================================================================================================================
 // =========================================================================================================================
 
@@ -59,12 +60,13 @@ bool iRandR::initRandR( Display *_display, Window _window, Window _root ) {
 
    int lTempVersion_I;
 
-   vDisplay_X11    = _display;
-   vWindow_X11     = _window;
+   vDisplay_X11 = _display;
+   vWindow_X11 = _window;
    vRootWindow_X11 = _root;
 
-   if ( XQueryExtension( vDisplay_X11, "RANDR", &lTempVersion_I, &lTempVersion_I, &lTempVersion_I ) ) {
-      XRRQueryVersion( vDisplay_X11 , &vRandRVersionMajor_I, &vRandRVersionMinor_I );
+   if ( XQueryExtension(
+              vDisplay_X11, "RANDR", &lTempVersion_I, &lTempVersion_I, &lTempVersion_I ) ) {
+      XRRQueryVersion( vDisplay_X11, &vRandRVersionMajor_I, &vRandRVersionMinor_I );
       vIsRandRSupported_B = true;
    } else {
       wLOG( "X11 RandR standard not supported. Screen resolution wont be changed" );
@@ -89,21 +91,21 @@ bool iRandR::initRandR( Display *_display, Window _window, Window _root ) {
  * the RandR support.
  */
 void iRandR::endRandR() {
-   if ( ! vIsRandRSupported_B )
+   if ( !vIsRandRSupported_B )
       return;
 
    if ( GlobConf.win.restoreOldScreenRes && vWasScreenChanged_B )
       restore( vDefaultConfig_RandR );
 
 
-   for (auto & elem : vDefaultConfig_RandR.gamma)
+   for ( auto &elem : vDefaultConfig_RandR.gamma )
       XRRFreeGamma( elem );
 
    vDefaultConfig_RandR.gamma.clear();
    vDefaultConfig_RandR.CRTCInfo.clear();
 
 
-   for (auto & elem : vLatestConfig_RandR.gamma)
+   for ( auto &elem : vLatestConfig_RandR.gamma )
       XRRFreeGamma( elem );
 
 
@@ -121,13 +123,13 @@ void iRandR::endRandR() {
 }
 
 bool iRandR::restore( internal::_config _conf ) {
-   if ( ! isRandRSupported() )
+   if ( !isRandRSupported() )
       return false;
 
    vChangeCRTC_V_RandR.clear();
    vChangeCRTC_V_RandR = _conf.CRTCInfo;
 
-   if ( ! applyNewRandRSettings() )
+   if ( !applyNewRandRSettings() )
       return false;
 
    // Who is primary?
@@ -141,7 +143,7 @@ bool iRandR::restore( internal::_config _conf ) {
    }
 
    for ( unsigned int i = 0; i < _conf.CRTCInfo.size(); ++i ) {
-      for (auto & elem : _conf.gamma) {
+      for ( auto &elem : _conf.gamma ) {
          XRRSetCrtcGamma( vDisplay_X11, vCRTC_V_RandR[i].id, elem );
       }
    }
@@ -151,9 +153,12 @@ bool iRandR::restore( internal::_config _conf ) {
 
 // =========================================================================================================================
 // ==============================================================================================================================================
-// =========                   ==============================================================================================================================
-// =======   GET Display Sizes   =================================================================================================================================
-// =========                   ==============================================================================================================================
+// =========
+// ==============================================================================================================================
+// =======   GET Display Sizes
+// =================================================================================================================================
+// =========
+// ==============================================================================================================================
 // ==============================================================================================================================================
 // =========================================================================================================================
 
@@ -165,45 +170,37 @@ bool iRandR::restore( internal::_config _conf ) {
  *
  * \sa iRandRDisplay
  */
-std::vector< iDisplays > iRandR::getDisplayResolutions() {
+std::vector<iDisplays> iRandR::getDisplayResolutions() {
    std::vector<iDisplays> lTempSizes_eWS;
-   if ( ! isRandRSupported() )
+   if ( !isRandRSupported() )
       return lTempSizes_eWS;
    reload( false );
 
    vMode_V_RandR.sort();
 
-   for ( internal::_output const & fOutput : vOutput_V_RandR ) {
+   for ( internal::_output const &fOutput : vOutput_V_RandR ) {
       if ( fOutput.connection != 0 )
          continue;
 
       iDisplays lTempDisplay_eRRD(
-         fOutput.name,
-         fOutput.id,
-         ( fOutput.crtc != None ) ? true : false
-      );
+            fOutput.name, fOutput.id, ( fOutput.crtc != None ) ? true : false );
 
       if ( fOutput.crtc != None ) {
 
          // Find the CRTC of the output
-         for ( internal::_crtc const & fCRTC : vCRTC_V_RandR ) {
+         for ( internal::_crtc const &fCRTC : vCRTC_V_RandR ) {
             if ( fOutput.crtc == fCRTC.id ) {
 
-               for ( internal::_mode const & fMode : vMode_V_RandR ) {
+               for ( internal::_mode const &fMode : vMode_V_RandR ) {
                   if ( fCRTC.mode == fMode.id ) {
                      lTempDisplay_eRRD.setCurrentSizeAndPosition(
-                        fMode.width,
-                        fMode.height,
-                        fCRTC.posX,
-                        fCRTC.posY,
-                        fMode.refresh
-                     );
+                           fMode.width, fMode.height, fCRTC.posX, fCRTC.posY, fMode.refresh );
                      break;
                   }
                }
 
                // Clones
-               for ( RROutput const & fClone : fCRTC.outputs ) {
+               for ( RROutput const &fClone : fCRTC.outputs ) {
                   if ( fClone != fOutput.id )
                      lTempDisplay_eRRD.addClone( fClone );
                }
@@ -213,31 +210,25 @@ std::vector< iDisplays > iRandR::getDisplayResolutions() {
          }
       }
 
-      for ( internal::_mode const & fMode : vMode_V_RandR ) {
+      for ( internal::_mode const &fMode : vMode_V_RandR ) {
          // Is mode supported and / or preferred ?
          bool lModeSupported_B = false;
-         bool lModePrefered_B  = false;
+         bool lModePrefered_B = false;
          for ( unsigned int j = 0; j < fOutput.modes.size(); ++j ) {
             if ( fOutput.modes[j] == fMode.id ) {
                lModeSupported_B = true;
-               if ( j == ( unsigned int )fOutput.npreferred - 1 ) {
+               if ( j == (unsigned int)fOutput.npreferred - 1 ) {
                   lModePrefered_B = true;
                }
                break;
             }
          }
 
-         if ( ! lModeSupported_B )
+         if ( !lModeSupported_B )
             continue;
 
          lTempDisplay_eRRD.addMode(
-            fMode.id,
-            lModePrefered_B,
-            fMode.width,
-            fMode.height,
-            fMode.refresh
-         );
-
+               fMode.id, lModePrefered_B, fMode.width, fMode.height, fMode.refresh );
       }
 
       lTempSizes_eWS.push_back( lTempDisplay_eRRD );
@@ -249,9 +240,12 @@ std::vector< iDisplays > iRandR::getDisplayResolutions() {
 
 // =========================================================================================================================
 // ==============================================================================================================================================
-// =========         ========================================================================================================================================
-// =======   Primary   ===========================================================================================================================================
-// =========         ========================================================================================================================================
+// =========
+// ========================================================================================================================================
+// =======   Primary
+// ===========================================================================================================================================
+// =========
+// ========================================================================================================================================
 // ==============================================================================================================================================
 // =========================================================================================================================
 
@@ -262,10 +256,11 @@ std::vector< iDisplays > iRandR::getDisplayResolutions() {
  *
  * \returns true if everything went fine
  *
- * \note This function will change the primary display IMMEDIATELY; Calling applyNewSettings() will have no effect to this.
+ * \note This function will change the primary display IMMEDIATELY; Calling applyNewSettings() will
+ *have no effect to this.
  */
 bool iRandR::setPrimary( iDisplays const &_disp ) {
-   if ( ! isRandRSupported() )
+   if ( !isRandRSupported() )
       return false;
    XRRSetOutputPrimary( vDisplay_X11, vRootWindow_X11, _disp.getOutput() );
    return true;
@@ -275,49 +270,55 @@ bool iRandR::setPrimary( iDisplays const &_disp ) {
 
 // =========================================================================================================================
 // ==============================================================================================================================================
-// =========                                  ===============================================================================================================
-// =======   Get CRTC position for fullscreen   ==================================================================================================================
-// =========                                  ===============================================================================================================
+// =========
+// ===============================================================================================================
+// =======   Get CRTC position for fullscreen
+// ==================================================================================================================
+// =========
+// ===============================================================================================================
 // ==============================================================================================================================================
 // =========================================================================================================================
 
 /*!
  * \brief Find the most left, right, top, bottom CRTC
- * 
+ *
  * \param[out] _left   Index of the most left CRTC
  * \param[out] _right  Index of the most right CRTC
  * \param[out] _top    Index of the most top CRTC
  * \param[out] _bottom Index of the most bottom CRTC
  */
-void iRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left, unsigned int &_right, unsigned int &_top, unsigned int &_bottom ) {
+void iRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left,
+                                            unsigned int &_right,
+                                            unsigned int &_top,
+                                            unsigned int &_bottom ) {
    reload();
-   
+
    int lMinX = -1;
    int lMaxX = -1;
    int lMinY = -1;
    int lMaxY = -1;
-   
+
    _left = _right = _top = _bottom = 0;
-   
-   for( unsigned int index = 0; index < vCRTC_V_RandR.size(); ++index ) {
-      if( vCRTC_V_RandR[index].posX < lMinX || lMinX == -1 ) {
+
+   for ( unsigned int index = 0; index < vCRTC_V_RandR.size(); ++index ) {
+      if ( vCRTC_V_RandR[index].posX < lMinX || lMinX == -1 ) {
          _left = index;
          lMinX = vCRTC_V_RandR[index].posX;
       }
-      
-      if( vCRTC_V_RandR[index].posY < lMinY || lMinY == -1 ) {
-         _top    = index;
-         lMinY   = vCRTC_V_RandR[index].posY;
+
+      if ( vCRTC_V_RandR[index].posY < lMinY || lMinY == -1 ) {
+         _top = index;
+         lMinY = vCRTC_V_RandR[index].posY;
       }
-      
-      if( vCRTC_V_RandR[index].posX > lMaxX || lMaxX == -1 ) {
-         _right  = index;
-         lMaxX   = vCRTC_V_RandR[index].posX;
+
+      if ( vCRTC_V_RandR[index].posX > lMaxX || lMaxX == -1 ) {
+         _right = index;
+         lMaxX = vCRTC_V_RandR[index].posX;
       }
-      
-      if( vCRTC_V_RandR[index].posY > lMaxY || lMaxY == -1 ) {
+
+      if ( vCRTC_V_RandR[index].posY > lMaxY || lMaxY == -1 ) {
          _bottom = index;
-         lMaxY   = vCRTC_V_RandR[index].posY;
+         lMaxY = vCRTC_V_RandR[index].posY;
       }
    }
 }
@@ -331,32 +332,32 @@ void iRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left, unsigned int &_
  */
 int iRandR::getIndexOfDisplay( iDisplays const &_disp ) {
    reload();
-   
-   RRCrtc lCRTC_XRR    = None;
-   bool   lOutputFound = false;
-   
-   for( internal::_output fOut : vOutput_V_RandR ) {
-      if( _disp.getOutput() == fOut.id ) {
+
+   RRCrtc lCRTC_XRR = None;
+   bool lOutputFound = false;
+
+   for ( internal::_output fOut : vOutput_V_RandR ) {
+      if ( _disp.getOutput() == fOut.id ) {
          lOutputFound = true;
-         lCRTC_XRR    = fOut.crtc;
+         lCRTC_XRR = fOut.crtc;
          break;
       }
    }
-   
+
    // Invalid iRandRDisplay. (Should never happen)
-   if( ! lOutputFound )
+   if ( !lOutputFound )
       return -2;
-   
+
    // The output is not connected or disabled
-   if( lCRTC_XRR == None )
+   if ( lCRTC_XRR == None )
       return -1;
-   
-   
-   for( unsigned int i = 0; i < vCRTC_V_RandR.size(); ++i ) {
-      if( vCRTC_V_RandR[i].id == lCRTC_XRR )
+
+
+   for ( unsigned int i = 0; i < vCRTC_V_RandR.size(); ++i ) {
+      if ( vCRTC_V_RandR[i].id == lCRTC_XRR )
          return i; // The index
    }
-   
+
    // Well... this should be impossible, because we have a reload() at top of this function!
    return -10;
 }
@@ -366,12 +367,4 @@ int iRandR::getIndexOfDisplay( iDisplays const &_disp ) {
 } // unix_x11
 
 } // e_engine
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
-
-
-
-
-
-
-
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

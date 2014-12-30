@@ -10,7 +10,7 @@ int main( int argc, char *argv[] ) {
 
    cmdANDinit parseCMD( argc, argv, tests, errors );
 
-   if( errors ) {
+   if ( errors ) {
       LOG.devInit();
       LOG.startLogLoop();
       LOG.stopLogLoop();
@@ -21,24 +21,31 @@ int main( int argc, char *argv[] ) {
 
    uJSON_data data;
 
-   if( init.init() == 1 ) {
+   if ( init.init() == 1 ) {
       data( "oglTest", "init", "canCreateWindow", S_BOOL( true ) );
    } else {
       eLOG( "Failed to create a window" );
       data( "oglTest", "init", "canCreateWindow", S_BOOL( false ) );
    }
 
-   data(
-         "oglTest", "init", "version", "major", S_NUM( GlobConf.versions.glMajorVersion ),
-         "oglTest", "init", "version", "minor", S_NUM( GlobConf.versions.glMinorVersion )
-   );
+   data( "oglTest",
+         "init",
+         "version",
+         "major",
+         S_NUM( GlobConf.versions.glMajorVersion ),
+         "oglTest",
+         "init",
+         "version",
+         "minor",
+         S_NUM( GlobConf.versions.glMinorVersion ) );
 
    tests.run( data, parseCMD.getDataRoot() );
 
    parseCMD.generate( data );
 
    iLOG( "" );
-   iLOG( "Tipp: You can use the output of 'oglTestBindings.sh' to 'parse' all data this program produced into GlobConf" );
+   iLOG( "Tipp: You can use the output of 'oglTestBindings.sh' to 'parse' all data this program "
+         "produced into GlobConf" );
    iLOG( "" );
 
    B_SLEEP( milliseconds, 100 ); /// \todo Fix this segfault hack
@@ -58,4 +65,4 @@ int main( int argc, char *argv[] ) {
 //#!BIND "oglTest", "init", "version", "minor", G_NUM( GlobConf.versions.glMinorVersion, 6 )
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

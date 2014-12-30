@@ -17,23 +17,23 @@ namespace unix_x11 {
  * \returns false when there was an error
  */
 bool iRandR::applyNewRandRSettings() {
-   if ( ! isRandRSupported() )
+   if ( !isRandRSupported() )
       return false;
 
    std::vector<internal::_crtc> lTempAllCRTC_V_RandR;
-   int    lMinWidth_I,     lMinHeight_I;
-   int    lMaxWidth_I,     lMaxHeight_I;
+   int lMinWidth_I, lMinHeight_I;
+   int lMaxWidth_I, lMaxHeight_I;
 
    double lDPI_D;
-   int    lNewWidth_I,     lNewHeight_I;
-   int    lCurrentWidth_I, lCurrentHeight_I;
+   int lNewWidth_I, lNewHeight_I;
+   int lCurrentWidth_I, lCurrentHeight_I;
 
    reload();
 
-   for ( internal::_crtc const & fCRTC : vChangeCRTC_V_RandR ) {
+   for ( internal::_crtc const &fCRTC : vChangeCRTC_V_RandR ) {
       bool lAppend_B = true;
       // Check for duplicates
-      for ( internal::_crtc const & fCRTCTemp : lTempAllCRTC_V_RandR ) {
+      for ( internal::_crtc const &fCRTCTemp : lTempAllCRTC_V_RandR ) {
          if ( fCRTC.id == fCRTCTemp.id ) {
             lAppend_B = false;
             wLOG( "RandR: Duplicate of a CRTC id in vChangeCRTC_V_RandR --> Only change first" );
@@ -48,15 +48,15 @@ bool iRandR::applyNewRandRSettings() {
    vChangeCRTC_V_RandR.clear();
 
    // Add mising CRTCs
-   for ( internal::_crtc const & fCRTC1 : vCRTC_V_RandR ) {
+   for ( internal::_crtc const &fCRTC1 : vCRTC_V_RandR ) {
       bool lFound_B = false;
-      for ( internal::_crtc const & fCRTC2 : lTempAllCRTC_V_RandR ) {
+      for ( internal::_crtc const &fCRTC2 : lTempAllCRTC_V_RandR ) {
          if ( fCRTC1.id == fCRTC2.id ) {
             lFound_B = true;
             break;
          }
       }
-      if ( ! lFound_B )
+      if ( !lFound_B )
          lTempAllCRTC_V_RandR.push_back( fCRTC1 );
    }
 
@@ -64,57 +64,61 @@ bool iRandR::applyNewRandRSettings() {
       return false;
 
    XRRGetScreenSizeRange(
-      vDisplay_X11, vRootWindow_X11,
-      &lMinWidth_I, &lMinHeight_I,
-      &lMaxWidth_I, &lMaxHeight_I
-   );
+         vDisplay_X11, vRootWindow_X11, &lMinWidth_I, &lMinHeight_I, &lMaxWidth_I, &lMaxHeight_I );
 
-   lNewWidth_I  = 0;
+   lNewWidth_I = 0;
    lNewHeight_I = 0;
 
-   for ( internal::_crtc const & fCRTC : lTempAllCRTC_V_RandR ) {
+   for ( internal::_crtc const &fCRTC : lTempAllCRTC_V_RandR ) {
       internal::_mode lTempMode_RandR;
-      bool                     lModeFound_B = false;
+      bool lModeFound_B = false;
 
       if ( fCRTC.mode == None ) {
          lModeFound_B = true;
-         lTempMode_RandR.width  = 0;
+         lTempMode_RandR.width = 0;
          lTempMode_RandR.height = 0;
       } else {
-         for ( internal::_mode const & fMode : vMode_V_RandR ) {
+         for ( internal::_mode const &fMode : vMode_V_RandR ) {
             if ( fCRTC.mode == fMode.id ) {
                lTempMode_RandR = fMode;
-               lModeFound_B    = true;
+               lModeFound_B = true;
                break;
             }
          }
       }
 
-      if ( ! lModeFound_B ) {
-         wLOG( "RandR: Unable to find mode ( fCRTC.mode = ", fCRTC.mode, ") in vMode_V_RandR --> Do not change Screen size" );
+      if ( !lModeFound_B ) {
+         wLOG( "RandR: Unable to find mode ( fCRTC.mode = ",
+               fCRTC.mode,
+               ") in vMode_V_RandR --> Do not change Screen size" );
          return false;
       }
 
 
-      int lTempWidth_I  = fCRTC.posX + lTempMode_RandR.width;
+      int lTempWidth_I = fCRTC.posX + lTempMode_RandR.width;
       int lTempHeight_I = fCRTC.posY + lTempMode_RandR.height;
-      lNewWidth_I         = ( lTempWidth_I  > lNewWidth_I )  ? lTempWidth_I  : lNewWidth_I ;
-      lNewHeight_I        = ( lTempHeight_I > lNewHeight_I ) ? lTempHeight_I : lNewHeight_I ;
+      lNewWidth_I = ( lTempWidth_I > lNewWidth_I ) ? lTempWidth_I : lNewWidth_I;
+      lNewHeight_I = ( lTempHeight_I > lNewHeight_I ) ? lTempHeight_I : lNewHeight_I;
    }
 
    // Get current size
-   int      lCountSizes_I;
-   SizeID   lCurrentSizePossition_suI;
+   int lCountSizes_I;
+   SizeID lCurrentSizePossition_suI;
    Rotation lUselessRotationInfo_XRR;
    XRRScreenSize *sizes = XRRSizes( vDisplay_X11, 0, &lCountSizes_I );
-   lCurrentSizePossition_suI = XRRConfigCurrentConfiguration( vConfig_XRR, &lUselessRotationInfo_XRR );
+   lCurrentSizePossition_suI =
+         XRRConfigCurrentConfiguration( vConfig_XRR, &lUselessRotationInfo_XRR );
 
    if ( !( lCurrentSizePossition_suI < lCountSizes_I ) ) {
-      wLOG( "XRandR ERROR: ! lCurrentSizePossition_suI < lCountSizes_I ( ", lCurrentSizePossition_suI, " < ", lCountSizes_I, " )" );
+      wLOG( "XRandR ERROR: ! lCurrentSizePossition_suI < lCountSizes_I ( ",
+            lCurrentSizePossition_suI,
+            " < ",
+            lCountSizes_I,
+            " )" );
       return false;
    }
 
-   lCurrentWidth_I  = sizes[lCurrentSizePossition_suI].width;
+   lCurrentWidth_I = sizes[lCurrentSizePossition_suI].width;
    lCurrentHeight_I = sizes[lCurrentSizePossition_suI].height;
 
    /* Only for debugging
@@ -129,40 +133,40 @@ bool iRandR::applyNewRandRSettings() {
    POINT "CurrentHeight - ", lCurrentHeight_I
    ); */
 
-   if (
-      ( lNewWidth_I  >= lMinWidth_I     && lNewWidth_I  <= lMaxWidth_I        &&
-        lNewHeight_I >= lMinHeight_I    && lNewHeight_I <= lMaxHeight_I )     &&
-      ( lNewWidth_I  != lCurrentWidth_I || lNewHeight_I != lCurrentHeight_I )
-   ) {
-      lDPI_D = ( 25.4 * DefaultScreenOfDisplay( vDisplay_X11 )->height ) / DefaultScreenOfDisplay( vDisplay_X11 )->mheight;
+   if ( ( lNewWidth_I >= lMinWidth_I && lNewWidth_I <= lMaxWidth_I &&
+          lNewHeight_I >= lMinHeight_I && lNewHeight_I <= lMaxHeight_I ) &&
+        ( lNewWidth_I != lCurrentWidth_I || lNewHeight_I != lCurrentHeight_I ) ) {
+      lDPI_D = ( 25.4 * DefaultScreenOfDisplay( vDisplay_X11 )->height ) /
+               DefaultScreenOfDisplay( vDisplay_X11 )->mheight;
 
       XRRSetScreenSize(
-         vDisplay_X11, vRootWindow_X11,
-         ( lNewWidth_I   > lCurrentWidth_I )  ? lNewWidth_I  : lCurrentWidth_I,
-         ( lNewHeight_I  > lCurrentHeight_I ) ? lNewHeight_I : lCurrentHeight_I,
-         ( 25.4 * ( ( lNewWidth_I   > lCurrentWidth_I )  ? lNewWidth_I  : lCurrentWidth_I ) )  / lDPI_D,
-         ( 25.4 * ( ( lNewHeight_I  > lCurrentHeight_I ) ? lNewHeight_I : lCurrentHeight_I ) ) / lDPI_D
-      );
+            vDisplay_X11,
+            vRootWindow_X11,
+            ( lNewWidth_I > lCurrentWidth_I ) ? lNewWidth_I : lCurrentWidth_I,
+            ( lNewHeight_I > lCurrentHeight_I ) ? lNewHeight_I : lCurrentHeight_I,
+            ( 25.4 * ( ( lNewWidth_I > lCurrentWidth_I ) ? lNewWidth_I : lCurrentWidth_I ) ) /
+                  lDPI_D,
+            ( 25.4 * ( ( lNewHeight_I > lCurrentHeight_I ) ? lNewHeight_I : lCurrentHeight_I ) ) /
+                  lDPI_D );
    }
 
-   for ( internal::_crtc const & fCRTC : lTempAllCRTC_V_RandR )
+   for ( internal::_crtc const &fCRTC : lTempAllCRTC_V_RandR )
       changeCRTC( fCRTC );
 
-   if (
-      ( lNewWidth_I  >= lMinWidth_I     && lNewWidth_I  <= lMaxWidth_I        &&
-        lNewHeight_I >= lMinHeight_I    && lNewHeight_I <= lMaxHeight_I )     &&
-      ( lNewWidth_I  != lCurrentWidth_I || lNewHeight_I != lCurrentHeight_I )
-   ) {
-      lDPI_D = ( 25.4 * DefaultScreenOfDisplay( vDisplay_X11 )->height ) / DefaultScreenOfDisplay( vDisplay_X11 )->mheight;
+   if ( ( lNewWidth_I >= lMinWidth_I && lNewWidth_I <= lMaxWidth_I &&
+          lNewHeight_I >= lMinHeight_I && lNewHeight_I <= lMaxHeight_I ) &&
+        ( lNewWidth_I != lCurrentWidth_I || lNewHeight_I != lCurrentHeight_I ) ) {
+      lDPI_D = ( 25.4 * DefaultScreenOfDisplay( vDisplay_X11 )->height ) /
+               DefaultScreenOfDisplay( vDisplay_X11 )->mheight;
 
-      XRRSetScreenSize(
-         vDisplay_X11, vRootWindow_X11,
-         lNewWidth_I,  lNewHeight_I,
-         ( 25.4 * lNewWidth_I )  / lDPI_D,
-         ( 25.4 * lNewHeight_I ) / lDPI_D
-      );
+      XRRSetScreenSize( vDisplay_X11,
+                        vRootWindow_X11,
+                        lNewWidth_I,
+                        lNewHeight_I,
+                        ( 25.4 * lNewWidth_I ) / lDPI_D,
+                        ( 25.4 * lNewHeight_I ) / lDPI_D );
    }
-   
+
    // We now work with lTempAllCRTC_V_RandR only
    vChangeCRTC_V_RandR.clear();
 
@@ -177,4 +181,4 @@ bool iRandR::applyNewRandRSettings() {
 } // e_engine
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

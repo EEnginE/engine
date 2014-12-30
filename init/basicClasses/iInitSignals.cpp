@@ -21,8 +21,6 @@ void iInitSignals::removeAllSlots() {
    vMouse_SIG.disconnectAll();
    vFocus_SIG.disconnectAll();
 }
-
-
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

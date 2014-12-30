@@ -12,29 +12,15 @@ compilerTests() {
         local I=$( echo "$COMPILER_TESTS_DIR/${C_TESTS[$i]}" | sed 's/\/$//g' )
 
         if [ ! -d $I ]; then
-            echo "ERROR: $I is not a directory! (Compiler tests)"
+            error " $I is not a directory! (Compiler tests)"
             continue
         fi
 
         local TEST_NAME="${C_TESTS[$i]}"
-        echo "INFO: Found compiler test module $TEST_NAME"
-
-        PRE_GEN="$(pwd)/${I}/generate.pre.sh"
-        POST_GEN="$(pwd)/${I}/generate.post.sh"
-
-        if [ -f $PRE_GEN ]; then
-            if [ ! -x $PRE_GEN ]; then
-                chmod +x $PRE_GEN
-            fi
-            CURRENT_TEMP_PATH="$(pwd)"
-            echo "INFO:    -- Running pre generate script $PRE_GEN"
-            cd $(dirname $PRE_GEN)
-            $PRE_GEN
-            cd $CURRENT_TEMP_PATH
-        fi
+        msg2 "Found compiler test module $TEST_NAME"
 
         local CMAKE_FILE="$(pwd)/${I}/$CMAKE_LISTS_NAME"
-        echo "INFO:    -- Generating CMakeLists.txt"
+        msg2 "Generating CMakeLists.txt"
 
         TEST_NAME=${TEST_NAME}
 
@@ -74,16 +60,6 @@ endif( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/config.in.hpp )
 add_executable( $TEST_NAME \${${TEST_NAME^^}_SRC} \${${TEST_NAME^^}_INC} )
 
 EOF
-        if [ -f $POST_GEN ]; then
-            if [ ! -x $POST_GEN ]; then
-                chmod +x $POST_GEN
-            fi
-            CURRENT_TEMP_PATH="$(pwd)"
-            echo "INFO:    -- Running post generate script $POST_GEN"
-            cd $(dirname $POST_GEN)
-            $POST_GEN
-            cd $CURRENT_TEMP_PATH
-        fi
     done
 }
 

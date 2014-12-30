@@ -11,17 +11,33 @@
 #include <ctime>
 #endif // __liunx__
 
-#define mix(a,b,c,d,e,f,g,h) \
-{ \
-   a^=b<<11; d+=a; b+=c; \
-   b^=c>>2;  e+=b; c+=d; \
-   c^=d<<8;  f+=c; d+=e; \
-   d^=e>>16; g+=d; e+=f; \
-   e^=f<<10; h+=e; f+=g; \
-   f^=g>>4;  a+=f; g+=h; \
-   g^=h<<8;  b+=g; h+=a; \
-   h^=a>>9;  c+=h; a+=b; \
-}
+#define mix( a, b, c, d, e, f, g, h )                                                              \
+   {                                                                                               \
+      a ^= b << 11;                                                                                \
+      d += a;                                                                                      \
+      b += c;                                                                                      \
+      b ^= c >> 2;                                                                                 \
+      e += b;                                                                                      \
+      c += d;                                                                                      \
+      c ^= d << 8;                                                                                 \
+      f += c;                                                                                      \
+      d += e;                                                                                      \
+      d ^= e >> 16;                                                                                \
+      g += d;                                                                                      \
+      e += f;                                                                                      \
+      e ^= f << 10;                                                                                \
+      h += e;                                                                                      \
+      f += g;                                                                                      \
+      f ^= g >> 4;                                                                                 \
+      a += f;                                                                                      \
+      g += h;                                                                                      \
+      g ^= h << 8;                                                                                 \
+      b += g;                                                                                      \
+      h += a;                                                                                      \
+      h ^= a >> 9;                                                                                 \
+      c += h;                                                                                      \
+      a += b;                                                                                      \
+   }
 
 namespace e_engine {
 
@@ -51,15 +67,19 @@ void uRandomISAAC::init( uint32_t _seed ) {
    std::chrono::system_clock::time_point lStart_bcTP = std::chrono::system_clock::now();
 
    // Init xorshift seeds:
-   x = ( lTime_ulI % 2 == 0 ) ? ( lTime_ulI * lTime_ulI ) / 7 : lTime_ulI * 7 + lTime_ulI * ( lTime_ulI % 3 ) ;
-   y = ( lTime_ulI % 3 == 0 || x % 2 == 1 ) ? ( ( lTime_ulI << 3 ) + ( lTime_ulI * 6 )  * lTime_ulI ) : lTime_ulI * x;
+   x = ( lTime_ulI % 2 == 0 ) ? ( lTime_ulI * lTime_ulI ) / 7
+                              : lTime_ulI * 7 + lTime_ulI * ( lTime_ulI % 3 );
+   y = ( lTime_ulI % 3 == 0 || x % 2 == 1 ) ? ( ( lTime_ulI << 3 ) + ( lTime_ulI * 6 ) * lTime_ulI )
+                                            : lTime_ulI * x;
    z = ( x < y || y % 3 == 0 ) ? lTime_ulI * ( y << x ) : ( x * ( y % 2 ) ) + lTime_ulI * x;
    w = ( ( x * y % 2 ) == 0 ) ? lTime_ulI * z + z * ( x >> z ) : ( y << z ) * x;
 
-   for (auto & elem : lSeed_ulI) {
+   for ( auto &elem : lSeed_ulI ) {
       unsigned int t;
       t = x ^ ( x << 11 );
-      x = y; y = z; z = w;
+      x = y;
+      y = z;
+      z = w;
       w ^= ( w >> 19 ) ^ t ^ ( t >> 8 );
       elem = w;
    }
@@ -73,7 +93,7 @@ void uRandomISAAC::init( uint32_t _seed ) {
       get();
    }
 
-   for (auto & elem : lSeed_ulI)
+   for ( auto &elem : lSeed_ulI )
       elem = get(); // this should generate the final complete random seeds
 
    mixUp( lSeed_ulI );
@@ -83,30 +103,54 @@ void uRandomISAAC::mixUp( uint32_t _seed[256] ) {
    int i;
    uint32_t a, b, c, d, e, f, g, h;
    aa = bb = cc = 0;
-   a = b = c = d = e = f = g = h = 0x9e3779b9;   // the golden ratio
+   a = b = c = d = e = f = g = h = 0x9e3779b9; // the golden ratio
 
-   for ( i = 0; i < 8; ++i )    // scramble it
+   for ( i = 0; i < 8; ++i ) // scramble it
       mix( a, b, c, d, e, f, g, h );
 
-   for ( i = 0; i < 256; i += 8 ) {   // fill in mm[] with messy stuff
+   for ( i = 0; i < 256; i += 8 ) { // fill in mm[] with messy stuff
       // use all the information in the seed
-      a += _seed[i  ]; b += _seed[i + 1]; c += _seed[i + 2]; d += _seed[i + 3];
-      e += _seed[i + 4]; f += _seed[i + 5]; g += _seed[i + 6]; h += _seed[i + 7];
+      a += _seed[i];
+      b += _seed[i + 1];
+      c += _seed[i + 2];
+      d += _seed[i + 3];
+      e += _seed[i + 4];
+      f += _seed[i + 5];
+      g += _seed[i + 6];
+      h += _seed[i + 7];
 
       mix( a, b, c, d, e, f, g, h );
 
-      mm[i  ] = a; mm[i + 1] = b; mm[i + 2] = c; mm[i + 3] = d;
-      mm[i + 4] = e; mm[i + 5] = f; mm[i + 6] = g; mm[i + 7] = h;
+      mm[i] = a;
+      mm[i + 1] = b;
+      mm[i + 2] = c;
+      mm[i + 3] = d;
+      mm[i + 4] = e;
+      mm[i + 5] = f;
+      mm[i + 6] = g;
+      mm[i + 7] = h;
    }
 
    for ( i = 0; i < 256; i += 8 ) { // do a second pass to make the seed affect all of mm
-      a += mm[i  ]; b += mm[i + 1]; c += mm[i + 2]; d += mm[i + 3];
-      e += mm[i + 4]; f += mm[i + 5]; g += mm[i + 6]; h += mm[i + 7];
+      a += mm[i];
+      b += mm[i + 1];
+      c += mm[i + 2];
+      d += mm[i + 3];
+      e += mm[i + 4];
+      f += mm[i + 5];
+      g += mm[i + 6];
+      h += mm[i + 7];
 
       mix( a, b, c, d, e, f, g, h );
 
-      mm[i  ] = a; mm[i + 1] = b; mm[i + 2] = c; mm[i + 3] = d;
-      mm[i + 4] = e; mm[i + 5] = f; mm[i + 6] = g; mm[i + 7] = h;
+      mm[i] = a;
+      mm[i + 1] = b;
+      mm[i + 2] = c;
+      mm[i + 3] = d;
+      mm[i + 4] = e;
+      mm[i + 5] = f;
+      mm[i + 6] = g;
+      mm[i + 7] = h;
    }
 
    // count and discard the first 256 numbers
@@ -125,14 +169,22 @@ uint32_t uRandomISAAC::get() {
 
    x = mm[step];
    switch ( step % 4 ) {
-      case 0: aa = aa ^ ( aa << 13 ); break;
-      case 1: aa = aa ^ ( aa >> 6 ); break;
-      case 2: aa = aa ^ ( aa << 2 ); break;
-      case 3: aa = aa ^ ( aa >> 16 ); break;
+      case 0:
+         aa = aa ^ ( aa << 13 );
+         break;
+      case 1:
+         aa = aa ^ ( aa >> 6 );
+         break;
+      case 2:
+         aa = aa ^ ( aa << 2 );
+         break;
+      case 3:
+         aa = aa ^ ( aa >> 16 );
+         break;
    }
-   aa       =      mm[( step + 128 ) % 256] + aa;
-   mm[step] = y  = mm[( x >> 2 ) % 256] + aa + bb;
-   bb       =      mm[( y >> 10 ) % 256] + x;
+   aa = mm[( step + 128 ) % 256] + aa;
+   mm[step] = y = mm[( x >> 2 ) % 256] + aa + bb;
+   bb = mm[( y >> 10 ) % 256] + x;
 
    /* Note that bits 2..9 are chosen from x but 10..17 are chosen
       from y.  The only important thing here is that 2..9 and 10..17
@@ -143,7 +195,6 @@ uint32_t uRandomISAAC::get() {
    ++step;
    return bb;
 }
-
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

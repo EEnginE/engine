@@ -1,7 +1,7 @@
 /*!
  * \file ShaderInfo.hpp
  * \brief \b Classes: \a ShaderInfo
- * 
+ *
  * Class for testing:
  * Tests if it is possible to query shader information
  *
@@ -18,18 +18,17 @@ using namespace std;
 using namespace e_engine;
 
 class ShaderInfo {
-   private:
-      // Private stuff goes here
-      
-   public:
-      ShaderInfo() {}
-      
-      const static string desc;
-      
-      void runTest( uJSON_data &_data, string _dataRoot );
+ private:
+   // Private stuff goes here
+
+ public:
+   ShaderInfo() {}
+
+   const static string desc;
+
+   void runTest( uJSON_data &_data, string _dataRoot );
 };
 
 #endif // SHADERINFO_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
-
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

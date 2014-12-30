@@ -37,34 +37,35 @@ namespace e_engine {
  *
  */
 class uSystem {
-private:
-   std::string  vUserName;  //!< The user name var
-   std::string  vUserLogin; //!< The user login name var
-   std::string  vUserHome;  //!< The user home dir var
+ private:
+   std::string vUserName;  //!< The user name var
+   std::string vUserLogin; //!< The user login name var
+   std::string vUserHome;  //!< The user home dir var
 
-   std::string  vMainConfigDir;
-   std::string  vLogFilePath;
-   std::string  vConfigFilePath;
-public:
+   std::string vMainConfigDir;
+   std::string vLogFilePath;
+   std::string vConfigFilePath;
+
+ public:
    uSystem();
 
    /*!
     * \brief Get the user name
     * \returns User name
     */
-   std::string  getUserName() {return vUserName;}
+   std::string getUserName() { return vUserName; }
 
    /*!
     * \brief Get the user login name
     * \returns User login name
     */
-   std::string  getUserLogin() {return vUserLogin;}
+   std::string getUserLogin() { return vUserLogin; }
 
    /*!
     * \brief Get the user home dir
     * \returns User home dir
     */
-   std::string  getUserHomeDirectory() {return vUserHome;}
+   std::string getUserHomeDirectory() { return vUserHome; }
 
 
    std::string getMainConfigDirPath();
@@ -78,7 +79,6 @@ public:
  * The standard \c uSystem object
  */
 extern uSystem SYSTEM;
-
 }
 
 #endif // U_SYSTEM_HPP

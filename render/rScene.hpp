@@ -18,74 +18,64 @@
 namespace e_engine {
 
 class rSceneBase {
-   public:
-      struct rObject {
-         rObjectBase *vObjectPointer;
-         rRenderBase *vRenderer;
-         GLint       vShaderIndex;
+ public:
+   struct rObject {
+      rObjectBase *vObjectPointer;
+      rRenderBase *vRenderer;
+      GLint vShaderIndex;
 
-         rObject( rObjectBase *_obj, GLint _index ) :
-            vObjectPointer( _obj ),
-            vRenderer( nullptr ),
-            vShaderIndex( _index ) {}
-         virtual ~rObject() {}
-      };
+      rObject( rObjectBase *_obj, GLint _index )
+          : vObjectPointer( _obj ), vRenderer( nullptr ), vShaderIndex( _index ) {}
+      virtual ~rObject() {}
+   };
 
-      template<class... R>
-      struct select {
-         template<class... T>
-         select( T... ) {}
-      };
+   template <class... R>
+   struct select {
+      template <class... T>
+      select( T... ) {}
+   };
 
-      template<class T, class... R>
-      struct select<T, R...> : select<R...> {
-         select(
-            rRenderBase **_p,
-            rShader      *_s,
-            rObjectBase  *_o
-         ) :
-            select<R...>( _p, _s, _o ) {
-            if (
-               !*_p                &&
-               T::testShader( _s ) &&
-               T::testObject( _o )
-            ) {
-               *_p = new T();
-            }
+   template <class T, class... R>
+   struct select<T, R...> : select<R...> {
+      select( rRenderBase **_p, rShader *_s, rObjectBase *_o ) : select<R...>( _p, _s, _o ) {
+         if ( !*_p && T::testShader( _s ) && T::testObject( _o ) ) {
+            *_p = new T();
          }
-      };
+      }
+   };
 
-   private:
-      std::vector<rObject> vObjects;
-      std::vector<rShader> vShaders;
+ private:
+   std::vector<rObject> vObjects;
+   std::vector<rShader> vShaders;
 
-      std::vector<size_t>  vLightSourcesIndex;
+   std::vector<size_t> vLightSourcesIndex;
 
-      std::string vName_str;
+   std::string vName_str;
 
-      bool vReadyToRender_B;
+   bool vReadyToRender_B;
 
-      std::mutex vObjects_MUT;
-      std::mutex vShaders_MUT;
+   std::mutex vObjects_MUT;
+   std::mutex vShaders_MUT;
 
-      int assignObjectRenderer( GLuint _index, rRenderBase *_renderer );
-   public:
-      rSceneBase( std::string _name ) : vName_str( _name ), vReadyToRender_B( false ) {}
-      virtual ~rSceneBase();
-      void renderScene();
+   int assignObjectRenderer( GLuint _index, rRenderBase *_renderer );
 
-      bool canRenderScene();
+ public:
+   rSceneBase( std::string _name ) : vName_str( _name ), vReadyToRender_B( false ) {}
+   virtual ~rSceneBase();
+   void renderScene();
 
-      int  addObject( rObjectBase *_obj, GLint _shaderIndex );
+   bool canRenderScene();
 
-      int  addShader( std::string _shader );
-      int  compileShaders();
-      int  parseShaders();
+   int addObject( rObjectBase *_obj, GLint _shaderIndex );
 
-      GLuint getNumObjects() { return vObjects.size(); }
+   int addShader( std::string _shader );
+   int compileShaders();
+   int parseShaders();
 
-      template<class T, class... RENDERERS>
-      int  setObjectRenderer( GLuint _index );
+   GLuint getNumObjects() { return vObjects.size(); }
+
+   template <class T, class... RENDERERS>
+   int setObjectRenderer( GLuint _index );
 };
 
 /*!
@@ -102,7 +92,7 @@ class rSceneBase {
  * \returns 3 if the shader does not exist
  * \returns 4 if no matching renderer was found
  */
-template<class T, class... RENDERERS>
+template <class T, class... RENDERERS>
 int rSceneBase::setObjectRenderer( GLuint _index ) {
    std::lock_guard<std::mutex> lLockObjects( vObjects_MUT );
    std::lock_guard<std::mutex> lLockShaders( vShaders_MUT );
@@ -111,18 +101,16 @@ int rSceneBase::setObjectRenderer( GLuint _index ) {
       return 1;
 
 
-   if ( ! vObjects[_index].vObjectPointer )
+   if ( !vObjects[_index].vObjectPointer )
       return 2;
 
-   if ( (size_t)vObjects[_index].vShaderIndex > vShaders.size() || vObjects[_index].vShaderIndex < 0 )
+   if ( (size_t)vObjects[_index].vShaderIndex > vShaders.size() ||
+        vObjects[_index].vShaderIndex < 0 )
       return 3;
 
    rRenderBase *lRenderer = nullptr;
    select<T, RENDERERS...> selecter(
-      &lRenderer,
-      &vShaders[vObjects[_index].vShaderIndex],
-      vObjects[_index].vObjectPointer
-   );
+         &lRenderer, &vShaders[vObjects[_index].vShaderIndex], vObjects[_index].vObjectPointer );
 
    if ( !lRenderer )
       return 4;
@@ -134,15 +122,13 @@ int rSceneBase::setObjectRenderer( GLuint _index ) {
 
 
 
-
-template<class T>
-class rScene : public rSceneBase, public rMatrixSceneBase<float>  {
-   public:
-      rScene( std::string _name ) : rSceneBase( _name ) {}
+template <class T>
+class rScene : public rSceneBase, public rMatrixSceneBase<float> {
+ public:
+   rScene( std::string _name ) : rSceneBase( _name ) {}
 };
-
 }
 
 #endif
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

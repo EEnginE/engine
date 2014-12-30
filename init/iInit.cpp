@@ -34,26 +34,25 @@ __iInit_Pointer __iInit_Pointer_OBJ;
 }
 
 void iInit::_setThisForHandluSignal() {
-   if( ! internal::__iInit_Pointer_OBJ.set( this ) ) {
+   if ( !internal::__iInit_Pointer_OBJ.set( this ) ) {
       eLOG( "There can only be ONE iInit Class" );
       throw std::string( "There can only be ONE iInit Class" );
    }
 }
 
-iInit::iInit() :
-   vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
+iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
 
-   vMainLoopRunning_B       = false;
+   vMainLoopRunning_B = false;
 
-   vEventLoopHasFinished_B  = false;
-   vEventLoopISPaused_B     = false;
-   vEventLoopPaused_B       = false;
+   vEventLoopHasFinished_B = false;
+   vEventLoopISPaused_B = false;
+   vEventLoopPaused_B = false;
 
-   vEventLoopHasFinished_B  = true;
+   vEventLoopHasFinished_B = true;
 
-   vWasMouseGrabbed_B       = false;
+   vWasMouseGrabbed_B = false;
 
-   vCreateWindowReturn_I    = -1000;
+   vCreateWindowReturn_I = -1000;
 
    vAreRenderLoopSignalsConnected_B = false;
 
@@ -75,23 +74,22 @@ iInit::iInit() :
  * be ungrabbed and when focus is restored that it will be locked again.
  */
 GLvoid iInit::s_advancedGrabControl( iEventInfo const &_info ) {
-   if( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
+   if ( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
       // Focus restored
       vWasMouseGrabbed_B = false;
-      if( ! grabMouse() ) {
+      if ( !grabMouse() ) {
          // Cannot grab again when X11 has not handled some events
 
-         for( unsigned short int i = 0; i < 25; ++i ) {
+         for ( unsigned short int i = 0; i < 25; ++i ) {
             iLOG( "Try Grab ", i + 1, " of 25" );
-            if( grabMouse() )
+            if ( grabMouse() )
                break; // Grab success
             B_SLEEP( milliseconds, 100 );
          }
-
       }
       return;
    }
-   if( ( _info.type == E_EVENT_FOCUS ) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
+   if ( ( _info.type == E_EVENT_FOCUS ) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
       // Focus lost
       vWasMouseGrabbed_B = true;
       freeMouse();
@@ -104,18 +102,14 @@ GLvoid iInit::s_advancedGrabControl( iEventInfo const &_info ) {
  * \returns true if grab control changed and false if not
  * \sa iInit::s_advancedGrabControl
  */
-bool iInit::enableDefaultGrabControl() {
-   return addFocusSlot( &vGrabControl_SLOT );
-}
+bool iInit::enableDefaultGrabControl() { return addFocusSlot( &vGrabControl_SLOT ); }
 
 /*!
  * \brief Disables the default grab control
  * \returns true if grab control changed and false if not
  * \sa iInit::s_advancedGrabControl
  */
-bool iInit::disableDefaultGrabControl() {
-   return removeFocusSlot( &vGrabControl_SLOT );
-}
+bool iInit::disableDefaultGrabControl() { return removeFocusSlot( &vGrabControl_SLOT ); }
 
 
 
@@ -145,8 +139,8 @@ int iInit::init() {
    signal( SIGINT, handleSignal );
    signal( SIGTERM, handleSignal );
 
-   if( GlobConf.log.logFILE.logFileName.empty() ) {
-      GlobConf.log.logFILE.logFileName =  SYSTEM.getLogFilePath();
+   if ( GlobConf.log.logFILE.logFileName.empty() ) {
+      GlobConf.log.logFILE.logFileName = SYSTEM.getLogFilePath();
 #if UNIX
       GlobConf.log.logFILE.logFileName += "/Log";
 #elif WINDOWS
@@ -154,7 +148,7 @@ int iInit::init() {
 #endif
    }
 
-   if( GlobConf.log.logDefaultInit )
+   if ( GlobConf.log.logDefaultInit )
       LOG.devInit();
 
    LOG.startLogLoop();
@@ -162,18 +156,21 @@ int iInit::init() {
 #if WINDOWS
    // Windows needs the PeekMessage call in the same thread where the window is created
    std::unique_lock<std::mutex> lLock_BT( vCreateWindowMutex_BT );
-   vEventLoop_BT  = std::thread( &iInit::eventLoop, this );
+   vEventLoop_BT = std::thread( &iInit::eventLoop, this );
 
-   while( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
+   while ( vCreateWindowReturn_I == -1000 )
+      vCreateWindowCondition_BT.wait( lLock_BT );
 
    makeContextCurrent();
 #else
    vCreateWindowReturn_I = createContext();
 #endif
 
-   if( vCreateWindowReturn_I != 1 ) { return vCreateWindowReturn_I; }
+   if ( vCreateWindowReturn_I != 1 ) {
+      return vCreateWindowReturn_I;
+   }
 
-   if( GlobConf.extensions.queryAll() < OGL_VERSION_3_3 ) {
+   if ( GlobConf.extensions.queryAll() < OGL_VERSION_3_3 ) {
       eLOG( "Bad OpenGL version. At least version 3.3 is needed. Try updating your driver" );
       destroyContext();
       return 5;
@@ -186,7 +183,7 @@ int iInit::init() {
 int iInit::shutdown() {
    closeWindow();
 
-   if( vEventLoop_BT.joinable() )
+   if ( vEventLoop_BT.joinable() )
       vEventLoop_BT.join();
 
    return LOG.stopLogLoop();
@@ -194,10 +191,11 @@ int iInit::shutdown() {
 
 
 void iInit::handleSignal( int _signal ) {
-   iInit *_THIS = internal::__iInit_Pointer_OBJ.get();;
+   iInit *_THIS = internal::__iInit_Pointer_OBJ.get();
+   ;
 
-   if( _signal == SIGINT ) {
-      if( GlobConf.handleSIGINT == true ) {
+   if ( _signal == SIGINT ) {
+      if ( GlobConf.handleSIGINT == true ) {
          wLOG( "Received SIGINT (Crt-C) => Closing Window and exiting(5);" );
          _THIS->closeWindow( true );
          _THIS->destroyContext();
@@ -207,8 +205,8 @@ void iInit::handleSignal( int _signal ) {
       wLOG( "Received SIGINT (Crt-C) => ", 'B', 'Y', "DO NOTHING" );
       return;
    }
-   if( _signal == SIGTERM ) {
-      if( GlobConf.handleSIGTERM == true ) {
+   if ( _signal == SIGTERM ) {
+      if ( GlobConf.handleSIGTERM == true ) {
          wLOG( "Received SIGTERM => Closing Window and exiting(6);" );
          _THIS->closeWindow( true );
          _THIS->destroyContext();
@@ -226,7 +224,7 @@ void iInit::handleSignal( int _signal ) {
  * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
  */
 int iInit::startMainLoop( bool _wait ) {
-   if( ! getHaveContext() ) {
+   if ( !getHaveContext() ) {
       wLOG( "Cannot start the main loop. There is no OpenGL context!" );
       return 0;
    }
@@ -234,22 +232,22 @@ int iInit::startMainLoop( bool _wait ) {
 
    // Send a resize signal to ensure that the viewport is updated
    iEventInfo _tempInfo( this );
-   _tempInfo.iInitPointer   = this;
-   _tempInfo.type           = E_EVENT_RESIZE;
-   _tempInfo.eResize.width  = GlobConf.win.width;
+   _tempInfo.iInitPointer = this;
+   _tempInfo.type = E_EVENT_RESIZE;
+   _tempInfo.eResize.width = GlobConf.win.width;
    _tempInfo.eResize.height = GlobConf.win.height;
-   _tempInfo.eResize.posX   = GlobConf.win.posX;
-   _tempInfo.eResize.posY   = GlobConf.win.posY;
+   _tempInfo.eResize.posX = GlobConf.win.posX;
+   _tempInfo.eResize.posY = GlobConf.win.posY;
 
    vResize_SIG.send( _tempInfo );
 
-   if( !vAreRenderLoopSignalsConnected_B ) {
+   if ( !vAreRenderLoopSignalsConnected_B ) {
       eLOG( "iInit is not yet connected with a render system!" );
       return 0;
    }
 
 #if UNIX_X11
-   vEventLoop_BT  = std::thread( &iInit::eventLoop, this );
+   vEventLoop_BT = std::thread( &iInit::eventLoop, this );
 #elif WINDOWS
    {
       // Make sure lLockEvent_BT will be destroyed
@@ -259,46 +257,43 @@ int iInit::startMainLoop( bool _wait ) {
    }
 #endif
 
-   if( _wait ) {
+   if ( _wait ) {
       vStartRenderLoopSignal_SIG( true );
 #if WINDOWS
       {
          std::unique_lock<std::mutex> lLockEvent_BT( vStopEventLoopMutex );
-         while( !vEventLoopHasFinished_B ) vStopEventLoopCondition.wait( lLockEvent_BT );
+         while ( !vEventLoopHasFinished_B )
+            vStopEventLoopCondition.wait( lLockEvent_BT );
       }
 #else
-      if( vEventLoop_BT.joinable() )
+      if ( vEventLoop_BT.joinable() )
          vEventLoop_BT.join();
 #endif
 
       // Wait for quit main loop to finish
-      if( vQuitMainLoop_BT.joinable() )
+      if ( vQuitMainLoop_BT.joinable() )
          vQuitMainLoop_BT.join();
 
-   } else {
-      vStartRenderLoopSignal_SIG( false );
-   }
+   } else { vStartRenderLoopSignal_SIG( false ); }
 
    return 1;
 }
 
-GLvoid iInit::quitMainLoop() {
-   vQuitMainLoop_BT = std::thread( &iInit::quitMainLoopCall, this );
-}
+GLvoid iInit::quitMainLoop() { vQuitMainLoop_BT = std::thread( &iInit::quitMainLoopCall, this ); }
 
 
 
-int iInit::quitMainLoopCall( ) {
+int iInit::quitMainLoopCall() {
    vMainLoopRunning_B = false;
    LOG.nameThread( L"kill" );
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
 #else
-   if( ! vEventLoopHasFinished_B )
+   if ( !vEventLoopHasFinished_B )
       vEventLoop_BT.join();
 
-   if( ! vEventLoopHasFinished_B ) {
+   if ( !vEventLoopHasFinished_B ) {
       wLOG( "Event Loop thread finished abnormaly" );
       vEventLoopHasFinished_B = true;
    }
@@ -312,10 +307,12 @@ int iInit::quitMainLoopCall( ) {
 
 
 int iInit::closeWindow( bool _waitUntilClosed ) {
-   if( ! getHaveContext() ) {return 0;}
-   if( vMainLoopRunning_B ) {
+   if ( !getHaveContext() ) {
+      return 0;
+   }
+   if ( vMainLoopRunning_B ) {
       quitMainLoop();
-      if( _waitUntilClosed && vQuitMainLoop_BT.joinable() )
+      if ( _waitUntilClosed && vQuitMainLoop_BT.joinable() )
          vQuitMainLoop_BT.join();
    }
    destroyContext();
@@ -329,7 +326,7 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
       vStartEventCondition_BT.notify_one();
    }
 
-   if( vEventLoop_BT.joinable() && _waitUntilClosed )
+   if ( vEventLoop_BT.joinable() && _waitUntilClosed )
       vEventLoop_BT.join();
 
    iLOG( "Done close window" );
@@ -345,18 +342,20 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
 /*!
  * \brief Paused the main loop
  *
- * \param[in] _runInNewThread set this to true if wish to run the pause in e new thread (default: false)
+ * \param[in] _runInNewThread set this to true if wish to run the pause in e new thread (default:
+ *false)
  *
- * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
+ * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
+ *because
  *          there are some problems with Windows and the event loop.
  *
  * \returns Nothing
  */
 void iInit::pauseMainLoop( bool _runInNewThread ) {
-   if( ! vMainLoopRunning_B )
+   if ( !vMainLoopRunning_B )
       return;
 
-   if( _runInNewThread ) {
+   if ( _runInNewThread ) {
       vPauseThread_BT = std::thread( &iInit::pauseMainLoop, this, false );
       return;
    }
@@ -364,7 +363,7 @@ void iInit::pauseMainLoop( bool _runInNewThread ) {
    vEventLoopPaused_B = true;
    vPauseRenderLoop_SIG();
 
-   while( !vEventLoopISPaused_B )
+   while ( !vEventLoopISPaused_B )
       B_SLEEP( milliseconds, 10 );
 
    iLOG( "Loops paused" );
@@ -389,19 +388,21 @@ void iInit::continueMainLoop() {
  *
  * Does nothing when the main loop is not running
  *
- * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default: false)
+ * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default:
+ *false)
  *
- * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
+ * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
+ *because
  *          there are some problems with Windows and the event loop.
  *
  * \returns Nothing
  */
 void iInit::restart( bool _runInNewThread ) {
-   if( !vMainLoopRunning_B )
+   if ( !vMainLoopRunning_B )
       return;
 
    // Calling restart in the eventloop can cause some problems
-   if( _runInNewThread ) {
+   if ( _runInNewThread ) {
       vRestartThread_BT = std::thread( &iInit::restart, this, false );
       return;
    }
@@ -419,15 +420,16 @@ void iInit::restart( bool _runInNewThread ) {
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
-   if( vEventLoop_BT.joinable() )
+   if ( vEventLoop_BT.joinable() )
       vEventLoop_BT.join();
    else
       eLOG( "Failed to join the event loop" );
 
    std::unique_lock<std::mutex> lLock_BT( vCreateWindowMutex_BT );
-   vEventLoop_BT  = std::thread( &iInit::eventLoop, this );
+   vEventLoop_BT = std::thread( &iInit::eventLoop, this );
 
-   while( vCreateWindowReturn_I == -1000 ) vCreateWindowCondition_BT.wait( lLock_BT );
+   while ( vCreateWindowReturn_I == -1000 )
+      vCreateWindowCondition_BT.wait( lLock_BT );
 
    {
       // Make sure lLockEvent_BT will be destroyed
@@ -446,26 +448,23 @@ void iInit::restart( bool _runInNewThread ) {
  * Does nothing when the main loop is not running
  * (runs iInit::restart)
  *
- * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default: false)
+ * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default:
+ *false)
  *
- * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot) because
+ * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
+ *because
  *          there are some problems with Windows and the event loop.
  *
  * \returns Nothing
  */
 void iInit::restartIfNeeded( bool _runInNewThread ) {
-   if( vWindowRecreate_B )
+   if ( vWindowRecreate_B )
       restart( _runInNewThread );
 }
-
-
-
-
 }
 
 
 
 
 
-
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

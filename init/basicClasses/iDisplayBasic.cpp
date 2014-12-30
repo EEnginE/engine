@@ -8,18 +8,22 @@
 namespace e_engine {
 
 // --- private ---
-void iDisplayBasic::setCurrentSizeAndPosition( unsigned int _width, unsigned int _height, unsigned int _posX, unsigned int _posY, unsigned int _rate ) {
-   vCurrentWidth_uI  = _width;
+void iDisplayBasic::setCurrentSizeAndPosition( unsigned int _width,
+                                               unsigned int _height,
+                                               unsigned int _posX,
+                                               unsigned int _posY,
+                                               unsigned int _rate ) {
+   vCurrentWidth_uI = _width;
    vCurrentHeight_uI = _height;
-   vPosX_uI          = _posX;
-   vPosY_uI          = _posY;
-   vCurrentRate_D    = _rate;
+   vPosX_uI = _posX;
+   vPosY_uI = _posY;
+   vCurrentRate_D = _rate;
 }
 
 //! \brief Set the absolute position of this display
 void iDisplayBasic::setPositionAbsolute( unsigned int _posX, unsigned int _posY ) {
-   vPosX_uI           = _posX;
-   vPosY_uI           = _posY;
+   vPosX_uI = _posX;
+   vPosY_uI = _posY;
    vPositionChanged_B = true;
 }
 
@@ -31,16 +35,16 @@ void iDisplayBasic::setPositionRelative( iDisplayBasic::POSITON _where, iDisplay
          _disp.vPosY_uI = vPosY_uI;
          break;
       case RIGHT_OF:
-         vPosX_uI       = _disp.vPosX_uI + _disp.vCurrentWidth_uI;
-         vPosY_uI       = _disp.vPosY_uI;
+         vPosX_uI = _disp.vPosX_uI + _disp.vCurrentWidth_uI;
+         vPosY_uI = _disp.vPosY_uI;
          break;
       case ABOVE:
          _disp.vPosX_uI = vPosX_uI;
          _disp.vPosY_uI = vPosY_uI + vCurrentHeight_uI;
          break;
       case BELOW:
-         vPosX_uI       = _disp.vPosX_uI;
-         vPosY_uI       = _disp.vPosY_uI + _disp.vCurrentHeight_uI;
+         vPosX_uI = _disp.vPosX_uI;
+         vPosY_uI = _disp.vPosY_uI + _disp.vCurrentHeight_uI;
          break;
    }
    vPositionChanged_B = true;
@@ -69,13 +73,12 @@ void iDisplayBasic::getSelectedPosition( int &_posX, int &_posY ) const {
  *
  * \returns Nothing
  */
-void iDisplayBasic::getCurrentResolution( unsigned int &_width, unsigned int &_height, double &_rate ) const {
-   _width  = vCurrentWidth_uI;
+void iDisplayBasic::getCurrentResolution( unsigned int &_width,
+                                          unsigned int &_height,
+                                          double &_rate ) const {
+   _width = vCurrentWidth_uI;
    _height = vCurrentHeight_uI;
-   _rate   = vCurrentRate_D;
+   _rate = vCurrentRate_D;
 }
-
-
-
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on; remove-trailing-spaces on;
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
