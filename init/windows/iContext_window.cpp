@@ -231,9 +231,9 @@ int iContext::createContext() {
    std::wstring lWindowName_wstr( GlobConf.config.appName.begin(), GlobConf.config.appName.end() );
    iLOG( "Window Name: ", lWindowName_wstr );
    vHWND_Window_win32 = CreateWindowExW( // The W  is required for it to be a Unicode window
-         lExtStyle,                                     // Extended window style
-         vClassName_win32,                              // Window class name
-         lWindowName_wstr.c_str(),                      // Window Name (converted to a wide string)
+         lExtStyle,                      // Extended window style
+         vClassName_win32,               // Window class name
+         lWindowName_wstr.c_str(),       // Window Name (converted to a wide string)
          lWinStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, // Window style
          GlobConf.win.posX,                             // X
          GlobConf.win.posY,                             // Y

@@ -34,8 +34,9 @@ class iDisplays : public iDisplayBasic {
    std::vector<DEVMODEW> vModes_V_win32;    //!< all possible modes
    DEVMODEW vCurrentSettings_win32;         //!< The current display settings
    DEVMODEW vSelectedDisplaySettings_win32; //!< The selected display settings
-   DISPLAY_DEVICEW
-         vDisplayDevice_win32; //!< The Winapi display device (stores information about the display)
+
+   //! The Winapi display device (stores information about the display)
+   DISPLAY_DEVICEW vDisplayDevice_win32;
 
    iDisplays() {}
    iDisplays( std::wstring _name, bool _enabled, bool _isPrimary );

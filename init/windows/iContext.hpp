@@ -144,7 +144,7 @@ namespace internal {
 class eWindowClassRegister {
  private:
    bool vClass1Registered; //!< Is the temporary window class registered (used for the temporary
-                           //OpenGL context)
+   // OpenGL context)
    bool vClass2Registered; //!< Is the final window class registered (the "real" window class)
  public:
    //! Both window classes are not registered when the application starts

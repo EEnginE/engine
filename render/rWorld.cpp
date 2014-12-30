@@ -71,7 +71,7 @@ void rWorld::renderLoop() {
             B_SLEEP( milliseconds, 10 );
 #if WINDOWS
          B_SLEEP( milliseconds, 100 ); //!< \todo Remove this workaround for Windows (problem with
-                                       //iContext::makeContextCurrent)
+// iContext::makeContextCurrent)
 #endif
          vRenderLoopIsPaused_B = false;
          if ( !vInitPointer->makeContextCurrent() ) {
