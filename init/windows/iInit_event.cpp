@@ -166,7 +166,7 @@ LRESULT CALLBACK
          return 0;
 
       case WM_MOUSEMOVE: // Mouse moved, see
-                         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
+         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
          _tempInfo.type = E_EVENT_MOUSE;
          _tempInfo.iMouse.posX = GlobConf.win.mousePosX =
                _lParam & 0xFFFF; // Get the low order word as the x-Position

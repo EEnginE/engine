@@ -125,7 +125,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
       testLogSize( this, LOG.getMaxTypeStingLength() );
 
    // ========= Generate The Time Entry
-   // ==============================================================================================================
+   // =============================================================================================
 
    if ( data.config.vTime_LPT != OFF ) {
       if ( data.config.vColor_LCT == FULL && data.raw.vBold_B == false )
@@ -153,7 +153,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 
    // ========= Generate The File Entry
-   // ==============================================================================================================
+   // =============================================================================================
 
    if ( data.config.vFile_LPT != OFF ) {
 #if E_COMPILER_SUPPORTS_WREGEX
@@ -211,7 +211,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
    }
 
    // ========= Generate The Error Type Entry
-   // ========================================================================================================
+   // =============================================================================================
    if ( data.config.vErrorType_LPT != OFF ) {
       std::wstring lTemp = data.raw.vType_STR;
       std::transform( lTemp.begin(), lTemp.end(), lTemp.begin(), ::toupper );
@@ -222,7 +222,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 
    // ========= Generate The Thread Entry
-   // ============================================================================================================
+   // =============================================================================================
 
    if ( data.config.vThread_LPT != OFF ) {
       std::wstring lTempThread_str = data.raw.vThreadName_STR;
@@ -244,7 +244,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
    }
 
 // ========= Prepare Variables
-// ====================================================================================================================
+// ================================================================================================
 
 #if E_COMPILER_SUPPORTS_WREGEX
    std::wregex lRmExcape_REGEX( L"\x1b\\[[0-9;]+m" );
@@ -361,7 +361,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 
    // ========= Generate Left String
-   // =================================================================================================================
+   // =============================================================================================
    if ( lTimeD_I == -1 ) {
       lL_STR += lTime_str;
    }
@@ -398,7 +398,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 
    // ========= Generate Right String
-   // ================================================================================================================
+   // =============================================================================================
    if ( lTimeD_I == 1 ) {
       lR_STR += lTime_str;
    }
@@ -433,7 +433,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 
    // ========= Prepare Variables
-   // ====================================================================================================================
+   // =============================================================================================
    unsigned int lMaxMessageSize_uI = std::numeric_limits<unsigned int>::max();
 
    if ( data.config.vColor_LCT != DISABLED ) {
@@ -469,7 +469,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 
    // ========= Generate The Message Strings
-   // =========================================================================================================
+   // =============================================================================================
    std::wstring lTempMessageString_STR;
    unsigned int lCurrentStringSize = 0;
    std::wstring lTempColor_STR = lDefCol_STR;
@@ -524,7 +524,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 
    // ========= Put Everything Together
-   // ==============================================================================================================
+   // =============================================================================================
    for ( unsigned int i = 0; i < lMessage_VEC.size(); ++i ) {
       unsigned int lTempMessageSize_uI;
       if ( data.config.vColor_LCT != DISABLED ) {

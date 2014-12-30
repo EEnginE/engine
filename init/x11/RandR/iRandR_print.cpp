@@ -146,8 +146,9 @@ void iRandR::printRandRStatus() {
       std::wstring lC2_C = eCMDColor::color( lBold_C, lCRTC_C );
 
       if ( lBold_C == 'B' ) {
-         LOG( _hD, "|            |      |         |           |            |               |       "
-                   "  |" );
+         LOG( _hD,
+              "|            |      |         |           |            |               |       "
+              "  |" );
       }
 
 

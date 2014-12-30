@@ -143,11 +143,11 @@ class iContext : public iRandR, public iKeyboard {
    // void pixmaps2(unsigned int Width, unsigned int Height, const Uint8* Pixels);
 
    int createDisplay(); //!< Creates the connection to the X-Server \returns \c SUCCESS: \a 1 -- \c
-                        //ERRORS: \a -1 , \a -2
+   // ERRORS: \a -1 , \a -2
    int createFrameBuffer(); //!< Looks for the best FB config           \returns \c SUCCESS: \a 1 --
                             //\c ERRORS: \a -3
    int createWindow(); //!< Creates the Window                     \returns \c SUCCESS: \a 1 -- \c
-                       //ERRORS: \a -4
+   // ERRORS: \a -4
    int createOGLContext(); //!< Creates the OpenGL context             \returns \c SUCCESS: \a 1 --
                            //\c ERRORS: \a 3
 

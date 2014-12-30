@@ -109,8 +109,10 @@ bool uSHA_2::selftest() {
    // SHA 384: abc
    // Hash:    CB00753F 45A35E8B B5A03D69 9AC65007 272C32AB 0EDED163 1A8B605A 43FF5BED 8086072B
    // A1E7CC23 58BAECA1 34C825A7
-   if ( !test( SHA2_384, "abc", "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed80"
-                                "86072ba1e7cc2358baeca134c825a7" ) ) {
+   if ( !test( SHA2_384,
+               "abc",
+               "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed80"
+               "86072ba1e7cc2358baeca134c825a7" ) ) {
       lReturn_B = false;
    }
 
@@ -131,9 +133,11 @@ bool uSHA_2::selftest() {
    // SHA 512: abc
    // Hash:    DDAF35A1 93617ABA CC417349 AE204131 12E6FA4E 89A97EA2 0A9EEEE6 4B55D39A 2192992A
    // 274FC1A8 36BA3C23 A3FEEBBD 454D4423 643CE80E 2A9AC94F A54CA49F
-   if ( !test( SHA2_512, "abc", "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a21"
-                                "92992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49"
-                                "f" ) ) {
+   if ( !test( SHA2_512,
+               "abc",
+               "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a21"
+               "92992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49"
+               "f" ) ) {
       lReturn_B = false;
    }
 

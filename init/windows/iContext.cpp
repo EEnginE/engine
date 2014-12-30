@@ -319,15 +319,19 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
    }
 
    if ( !lState1Supported_B ) {
-      wLOG( "Window attribute ", lState1_str, " not suppored on Windows ==> change it to NONE, do "
-                                              "(if possible) type2, and return false" );
+      wLOG( "Window attribute ",
+            lState1_str,
+            " not suppored on Windows ==> change it to NONE, do "
+            "(if possible) type2, and return false" );
       _type1 = NONE;
       lState1_str = "NOT_SUPPORTED";
    }
 
    if ( !lState2Supported_B ) {
-      wLOG( "Window attribute ", lState1_str, " not suppored on Windows ==> change it to NONE, do "
-                                              "(if possible) type1, and return false" );
+      wLOG( "Window attribute ",
+            lState1_str,
+            " not suppored on Windows ==> change it to NONE, do "
+            "(if possible) type1, and return false" );
       _type2 = NONE;
       lState2_str = "NOT_SUPPORTED";
    }

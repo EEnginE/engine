@@ -104,14 +104,14 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    }
 
    // ========== Disable something disabled
-   // ===================================================================================================
+   // =============================================================================================
    if ( !_disp.getIsEnabled() && lSingleMatch_XRR == None && lClonesMatch_XRR == None ) {
       // Nothing to do here ( we dont need a change from diabled to disabled )
       return true;
    }
 
    // ========== Disable something enabled
-   // ====================================================================================================
+   // =============================================================================================
    if ( !_disp.getIsEnabled() && lSingleMatch_XRR != None && lClonesMatch_XRR == None ) {
       // We disable an enabled Output
       lTempCRTC_RandR.id = lSingleMatch_XRR;
@@ -126,7 +126,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    }
 
    // ========== Disable something cloned
-   // =====================================================================================================
+   // =============================================================================================
    if ( !_disp.getIsEnabled() && lSingleMatch_XRR == None && lClonesMatch_XRR != None ) {
       // We disable an enabled Output but not the clone
       std::vector<RROutput> lTempOutputs_V_XRR;
@@ -153,7 +153,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    }
 
    // ========== Enable something disabled
-   // ====================================================================================================
+   // =============================================================================================
    if ( _disp.getIsEnabled() && lSingleMatch_XRR == None && lClonesMatch_XRR == None ) {
       // We want to enable a disabled output
       if ( !lEmptyCRTC_V_XRR.empty() ) {
@@ -209,7 +209,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    }
 
    // ========== Change something enabled
-   // =====================================================================================================
+   // =============================================================================================
    if ( _disp.getIsEnabled() && lSingleMatch_XRR != None && lClonesMatch_XRR == None ) {
       // We want to change a enabled output
       lTempCRTC_RandR.id = lSingleMatch_XRR;
@@ -224,7 +224,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    }
 
    // ========== Change something cloned
-   // ======================================================================================================
+   // =============================================================================================
    if ( _disp.getIsEnabled() && lSingleMatch_XRR == None && lClonesMatch_XRR != None ) {
       std::vector<RROutput> lTempOutputs_V_XRR;
       for ( internal::_crtc const &fCRTC : vCRTC_V_RandR ) {
