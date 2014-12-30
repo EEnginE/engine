@@ -51,7 +51,7 @@ int uFileIO::read( bool _autoReload ) {
    }
 
    FILE *lFile = fopen( vFilePath_str.c_str(), "r" );
-   if( lFile == NULL ) {
+   if( lFile == nullptr ) {
       eLOG( "Unable to open ", vFilePath_str );
       return 5;
    }
@@ -103,7 +103,7 @@ int uFileIO::write( const uFileIO::TYPE &_data, bool _overWrite ) {
    }
 
    FILE *lFile = fopen( vFilePath_str.c_str(), "w" );
-   if( lFile == NULL ) {
+   if( lFile == nullptr ) {
       eLOG( "Unable to open ", vFilePath_str );
       return 5;
    }

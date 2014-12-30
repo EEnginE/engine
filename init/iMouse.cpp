@@ -9,8 +9,8 @@
 namespace e_engine {
 
 iMouse::iMouse()  {
-   for ( unsigned short int i = 0; i < E_MOUSE_UNKNOWN; i++ )
-      button_state[i] = E_RELEASED;
+   for (auto & elem : button_state)
+      elem = E_RELEASED;
 }
 
 }

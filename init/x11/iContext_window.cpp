@@ -71,8 +71,8 @@ int iContext::createDisplay() {
    // Needed for XSetWMProperties
    vSizeHints_X11  = XAllocSizeHints();
    vWmHints_X11    = XAllocWMHints();
-   vDisplay_X11    = XOpenDisplay( NULL );
-   if( vDisplay_X11 == 0 ) {
+   vDisplay_X11    = XOpenDisplay( nullptr );
+   if( vDisplay_X11 == nullptr ) {
       eLOG( "Can not connect to the X-Server. Abort. (return -1)" );
       return -1;
    }
@@ -391,7 +391,7 @@ int iContext::createOGLContext() {
 
    if( ! vHaveGLEW_B ) {
       // Make the function pointer
-      glXCreateContextAttribsARB = 0;
+      glXCreateContextAttribsARB = nullptr;
       glXCreateContextAttribsARB = ( glXCreateContextAttribsARBProc ) glXGetProcAddressARB( ( GLubyte * ) "glXCreateContextAttribsARB" );
    }
 
@@ -402,7 +402,7 @@ int iContext::createOGLContext() {
       // Extension not supported:
       wLOG( "glXCreateContextAttribsARB not found => Fall back to old-style context creation" );
 
-      vOpenGLContext_GLX = glXCreateNewContext( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_RGBA_TYPE, 0, true );
+      vOpenGLContext_GLX = glXCreateNewContext( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_RGBA_TYPE, nullptr, true );
    } else {
 
       // Extension supported:
@@ -423,7 +423,7 @@ int iContext::createOGLContext() {
       }
 
       for( unsigned short int i = 0; version_list[i][0] != 0 || version_list[i][1] != 0; i++ ) {
-         vOpenGLContext_GLX = glXCreateContextAttribsARB( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], 0, true, lAttributes_A_I );
+         vOpenGLContext_GLX = glXCreateContextAttribsARB( vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], nullptr, true, lAttributes_A_I );
 
          // Errors ?
          XSync( vDisplay_X11, false );

@@ -69,7 +69,7 @@ bool iContext::isExtensionSupported( const char *_extension ) {
 
 iContext::iContext() {
    vNumOfFBConfigs_I      = 0;
-   vDisplay_X11           = NULL;
+   vDisplay_X11           = nullptr;
    vWindow_X11            = 0;
    vWindowHasBorder_B     = true;
    vHaveContext_B         = false;
@@ -217,7 +217,7 @@ void iContext::destroyContext() {
    endRandR();
    if ( vHaveContext_B == true ) {
       glDeleteVertexArrays( 1, &vVertexArray_OGL );
-      glXMakeCurrent( vDisplay_X11, 0, 0 );
+      glXMakeCurrent( vDisplay_X11, 0, nullptr );
       glXDestroyContext( vDisplay_X11, vOpenGLContext_GLX );
       vHaveContext_B = false;
    }
@@ -233,7 +233,7 @@ void iContext::destroyContext() {
    if ( vDisplayCreated_B == true ) {
       XCloseDisplay( vDisplay_X11 );
       vDisplayCreated_B = false;
-      vDisplay_X11 = NULL;
+      vDisplay_X11 = nullptr;
       iLOG( "Everything destroyed" );
    }
    vHaveContext_B = false;
@@ -656,7 +656,7 @@ bool iContext::makeNOContextCurrent()  {
       eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with iInit::init() before you run this!" );
       return false;
    }
-   return glXMakeCurrent( vDisplay_X11, 0, 0 ) == True ? true : false;
+   return glXMakeCurrent( vDisplay_X11, 0, nullptr ) == True ? true : false;
 }
 
 /*!
@@ -664,7 +664,7 @@ bool iContext::makeNOContextCurrent()  {
  * \returns true if a OpenGL context is current for this thread
  */
 bool iContext::isAContextCurrentForThisThread() {
-   return glXGetCurrentContext() == NULL ? false : true;
+   return glXGetCurrentContext() == nullptr ? false : true;
 }
 
 

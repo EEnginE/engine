@@ -23,7 +23,7 @@ iRandR::iRandR() {
    vScreenHeight_uI     = 0;
    vScreenWidth_uI      = 0;
    
-   vDisplay_X11         = NULL;
+   vDisplay_X11         = nullptr;
    vWasScreenChanged_B  = false;
 }
 
@@ -96,15 +96,15 @@ void iRandR::endRandR() {
       restore( vDefaultConfig_RandR );
 
 
-   for ( unsigned int i = 0; i < vDefaultConfig_RandR.gamma.size(); ++i )
-      XRRFreeGamma( vDefaultConfig_RandR.gamma[i] );
+   for (auto & elem : vDefaultConfig_RandR.gamma)
+      XRRFreeGamma( elem );
 
    vDefaultConfig_RandR.gamma.clear();
    vDefaultConfig_RandR.CRTCInfo.clear();
 
 
-   for ( unsigned int i = 0; i < vLatestConfig_RandR.gamma.size(); ++i )
-      XRRFreeGamma( vLatestConfig_RandR.gamma[i] );
+   for (auto & elem : vLatestConfig_RandR.gamma)
+      XRRFreeGamma( elem );
 
 
    vLatestConfig_RandR.gamma.clear();
@@ -141,8 +141,8 @@ bool iRandR::restore( internal::_config _conf ) {
    }
 
    for ( unsigned int i = 0; i < _conf.CRTCInfo.size(); ++i ) {
-      for ( unsigned int j = 0; j < _conf.gamma.size(); ++j ) {
-         XRRSetCrtcGamma( vDisplay_X11, vCRTC_V_RandR[i].id, _conf.gamma[j] );
+      for (auto & elem : _conf.gamma) {
+         XRRSetCrtcGamma( vDisplay_X11, vCRTC_V_RandR[i].id, elem );
       }
    }
 

@@ -53,7 +53,7 @@ uSystem SYSTEM;
 uSystem::uSystem() {
 #if UNIX
    uid_t tempUserID = geteuid();
-   struct passwd *pw = 0;
+   struct passwd *pw = nullptr;
 
    pw = getpwuid ( tempUserID );
 
