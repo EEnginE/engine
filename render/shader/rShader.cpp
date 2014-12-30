@@ -41,8 +41,8 @@ rShader::rShader() {
    vShaderEndings[FRAG]  = FRAG_END;
    vShaderEndings[GEOM]  = GEOM_END;
 
-   for( size_t i = 0; i < __END_INF__; ++i )
-      vLocationInformation[i] = -1;
+   for(auto & elem : vLocationInformation)
+      elem = -1;
 
    // Inputs:
 
@@ -198,8 +198,8 @@ unsigned int rShader::testProgram() {
    if( status == GL_FALSE ) {
       GLint lLinkLogLength;
       glGetProgramiv( vShaderProgram_OGL, GL_INFO_LOG_LENGTH, &lLinkLogLength );
-      GLchar *log = new GLchar[lLinkLogLength];
-      glGetProgramInfoLog( vShaderProgram_OGL, lLinkLogLength, NULL, log );
+      auto log = new GLchar[lLinkLogLength];
+      glGetProgramInfoLog( vShaderProgram_OGL, lLinkLogLength, nullptr, log );
 
       eLOG(
             "Linking failure:\n"
@@ -335,7 +335,7 @@ std::string getShaderTypeString( GLenum _type ) {
 
 bool rShader::singleShader::readShader() {
    FILE *lFile = fopen( vFilename_str.c_str(), "r" );
-   if( lFile == NULL ) {
+   if( lFile == nullptr ) {
       eLOG( "Unable to open ", vFilename_str );
       return false;
    }
@@ -363,8 +363,8 @@ bool rShader::singleShader::testShader() {
    if( test == GL_FALSE ) {
       GLint logLength = 0;
       glGetShaderiv( vShader_OGL, GL_INFO_LOG_LENGTH, &logLength );
-      GLchar *log = new GLchar[logLength];
-      glGetShaderInfoLog( vShader_OGL, logLength, NULL, log );
+      auto log = new GLchar[logLength];
+      glGetShaderInfoLog( vShader_OGL, logLength, nullptr, log );
 
       eLOG(
             "Compile failure in the ", getShaderTypeString( vShaderType ), " shader ", vFilename_str, ":\n",
@@ -403,7 +403,7 @@ int rShader::singleShader::compileShader() {
    // Create Shader
    vShader_OGL = glCreateShader( vShaderType );
    // Adding source
-   glShaderSource( vShader_OGL, 1, &temp, NULL );
+   glShaderSource( vShader_OGL, 1, &temp, nullptr );
    // Compiling
    glCompileShader( vShader_OGL );
    vData_str.clear();

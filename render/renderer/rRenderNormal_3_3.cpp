@@ -26,10 +26,10 @@ void rRenderNormal_3_3::render() {
    glEnableVertexAttribArray( vInputLocation_OGL );
 
    glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObj_OGL );
-   glVertexAttribPointer( vInputLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+   glVertexAttribPointer( vInputLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
 
    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObj_OGL );
-   glDrawElements( GL_TRIANGLES, vDataSize_uI, GL_UNSIGNED_INT, 0 );
+   glDrawElements( GL_TRIANGLES, vDataSize_uI, GL_UNSIGNED_INT, nullptr );
 
    glDisableVertexAttribArray( vInputLocation_OGL );
 }

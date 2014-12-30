@@ -89,7 +89,7 @@ int iInit::eventLoop() {
    // Prepare timevals
    tv_select.tv_sec  = periode.tv_sec;
    tv_select.tv_usec = periode.tv_usec;
-   gettimeofday( &tv, 0 );
+   gettimeofday( &tv, nullptr );
    addTimeval( tv, periode, tv );
 
    // Fix autotype keyrelease
@@ -110,15 +110,15 @@ int iInit::eventLoop() {
       FD_SET( x11_fd, &in_fds );
 
       // Wait for X Event
-      if ( select( x11_fd + 1, &in_fds, NULL, NULL, &tv_select ) ) {
+      if ( select( x11_fd + 1, &in_fds, nullptr, nullptr, &tv_select ) ) {
          // Event
-         gettimeofday( &tv_select, NULL );
+         gettimeofday( &tv_select, nullptr );
          subTimeval( tv, tv_select, tv_select );
       } else {
          // Tiemout
          tv_select.tv_sec  = periode.tv_sec;
          tv_select.tv_usec = periode.tv_usec;
-         gettimeofday( &tv, 0 );
+         gettimeofday( &tv, nullptr );
          addTimeval( tv, periode, tv );
       }
 

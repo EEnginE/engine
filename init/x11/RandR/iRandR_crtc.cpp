@@ -70,7 +70,7 @@ int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
                         0,
                         None,
                         RR_Rotate_0,
-                        NULL,
+                        nullptr,
                         0
                      );
          iLOG( "RandR: Disabled CRTC ", _changeToThis.id );

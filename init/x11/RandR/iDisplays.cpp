@@ -279,9 +279,9 @@ void iDisplays::enable() {
 std::vector< double > iDisplays::getPossibleRates( unsigned int _width, unsigned int _height ) const {
    std::vector<double> lTempRates;
 
-   for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
-      if ( _width == vModes_V_mode[i].width && _height == vModes_V_mode[i].height ) {
-         lTempRates.push_back( vModes_V_mode[i].rate );
+   for (auto & elem : vModes_V_mode) {
+      if ( _width == elem.width && _height == elem.height ) {
+         lTempRates.push_back( elem.rate );
       }
    }
 
@@ -294,11 +294,11 @@ std::vector< double > iDisplays::getPossibleRates( unsigned int _width, unsigned
  */
 std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
    std::vector<iDisplayBasic::res> lTempSizes_V;
-   for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
+   for (auto & elem : vModes_V_mode) {
       bool lSizeExistsAlready_B = false;
 
-      for ( unsigned int j = 0; j < lTempSizes_V.size(); ++j ) {
-         if ( lTempSizes_V[j].width == vModes_V_mode[i].width && lTempSizes_V[j].height == vModes_V_mode[i].height ) {
+      for (auto & lTempSizes_V_j : lTempSizes_V) {
+         if ( lTempSizes_V_j.width == elem.width && lTempSizes_V_j.height == elem.height ) {
             lSizeExistsAlready_B = true;
             break;
          }
@@ -309,8 +309,8 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
 
       iDisplayBasic::res lTempRes;
 
-      lTempRes.width  = vModes_V_mode[i].width;
-      lTempRes.height = vModes_V_mode[i].height;
+      lTempRes.width  = elem.width;
+      lTempRes.height = elem.height;
 
       lTempSizes_V.push_back( lTempRes );
    }
@@ -336,11 +336,11 @@ void iDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, dou
       return;
    }
 
-   for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
-      if ( vModeToUse_XRR == vModes_V_mode[i].id ) {
-         _width  = vModes_V_mode[i].width;
-         _height = vModes_V_mode[i].height;
-         _rate   = vModes_V_mode[i].rate;
+   for (auto & elem : vModes_V_mode) {
+      if ( vModeToUse_XRR == elem.id ) {
+         _width  = elem.width;
+         _height = elem.height;
+         _rate   = elem.rate;
          return;
       }
    }
@@ -355,8 +355,8 @@ void iDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, dou
  * \returns true if the resolution is supported and false if not
  */
 bool iDisplays::isSizeSupported( unsigned int _width, unsigned int _height ) const {
-   for ( unsigned int i = 0; i < vModes_V_mode.size(); ++i ) {
-      if ( _width == vModes_V_mode[i].width && _height == vModes_V_mode[i].height ) {
+   for (auto & elem : vModes_V_mode) {
+      if ( _width == elem.width && _height == elem.height ) {
          return true;
       }
    }
@@ -394,8 +394,8 @@ bool iDisplays::select( unsigned int _width, unsigned int _height, double _rate 
  * \returns Nothing
  */
 void iDisplays::setCloneOf( const iDisplays &_disp ) {
-   for ( unsigned int i = 0; i < vClones_V_XRR.size(); ++i ) {
-      if ( vClones_V_XRR[i] == _disp.vID_XRR ) {
+   for (auto & elem : vClones_V_XRR) {
+      if ( elem == _disp.vID_XRR ) {
          return;
       }
    }

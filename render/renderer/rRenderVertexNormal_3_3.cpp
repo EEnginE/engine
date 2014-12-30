@@ -14,14 +14,14 @@ void rRenderVertexNormal_3_3::render() {
 
    glEnableVertexAttribArray( vInputVertexLocation_OGL );
    glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObj_OGL );
-   glVertexAttribPointer( vInputVertexLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+   glVertexAttribPointer( vInputVertexLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
 
    glEnableVertexAttribArray( vInputNormalsLocation_OGL );
    glBindBuffer( GL_ARRAY_BUFFER, vNormalBufferObj_OGL );
-   glVertexAttribPointer( vInputNormalsLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+   glVertexAttribPointer( vInputNormalsLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
 
    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObj_OGL );
-   glDrawElements( GL_TRIANGLES, vDataSize_uI, GL_UNSIGNED_INT, 0 );
+   glDrawElements( GL_TRIANGLES, vDataSize_uI, GL_UNSIGNED_INT, nullptr );
 
    glDisableVertexAttribArray( vInputVertexLocation_OGL );
    glDisableVertexAttribArray( vInputNormalsLocation_OGL );

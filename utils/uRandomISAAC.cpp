@@ -44,7 +44,7 @@ void uRandomISAAC::init( uint32_t _seed ) {
       lTime_ulI = ( lTV_tv.tv_sec * 1000 ) + ( lTV_tv.tv_usec / 1000 );
 #else
       // Unfortunately we need to use this method on other systems
-      lTime_ulI = std::time( NULL ) * 1000;
+      lTime_ulI = std::time( nullptr ) * 1000;
 #endif // __liunx__
    }
 
@@ -56,12 +56,12 @@ void uRandomISAAC::init( uint32_t _seed ) {
    z = ( x < y || y % 3 == 0 ) ? lTime_ulI * ( y << x ) : ( x * ( y % 2 ) ) + lTime_ulI * x;
    w = ( ( x * y % 2 ) == 0 ) ? lTime_ulI * z + z * ( x >> z ) : ( y << z ) * x;
 
-   for ( unsigned int i = 0; i < 256; ++i ) {
+   for (auto & elem : lSeed_ulI) {
       unsigned int t;
       t = x ^ ( x << 11 );
       x = y; y = z; z = w;
       w ^= ( w >> 19 ) ^ t ^ ( t >> 8 );
-      lSeed_ulI[i] = w;
+      elem = w;
    }
 
    mixUp( lSeed_ulI );
@@ -73,8 +73,8 @@ void uRandomISAAC::init( uint32_t _seed ) {
       get();
    }
 
-   for ( unsigned int i = 0; i < 256; ++i )
-      lSeed_ulI[i] = get(); // this should generate the final complete random seeds
+   for (auto & elem : lSeed_ulI)
+      elem = get(); // this should generate the final complete random seeds
 
    mixUp( lSeed_ulI );
 }

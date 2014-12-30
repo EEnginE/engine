@@ -368,10 +368,10 @@ void rShader::getInfoOld() {
 #endif
 
    for ( int i = 0; i < lNumAttributes; ++i ) {
-      char  *lName_CSTR = new char[ lAttribMaxLength ];
+      auto lName_CSTR = new char[ lAttribMaxLength ];
       GLint  lArraySize;
       GLenum lType;
-      glGetActiveAttrib( vShaderProgram_OGL, i, lAttribMaxLength, NULL, &lArraySize, &lType, lName_CSTR );
+      glGetActiveAttrib( vShaderProgram_OGL, i, lAttribMaxLength, nullptr, &lArraySize, &lType, lName_CSTR );
 
       GLint  lLocation = glGetAttribLocation( vShaderProgram_OGL, lName_CSTR );
 
@@ -420,9 +420,9 @@ void rShader::getInfoOld() {
          glGetActiveUniformBlockiv( vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &lNumUniforms );
          glGetActiveUniformBlockiv( vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_NAME_LENGTH,     &lNameLength );
 
-         char *lName_CSTR = new char[ lNameLength ];
+         auto lName_CSTR = new char[ lNameLength ];
 
-         glGetActiveUniformBlockName( vShaderProgram_OGL, i, lNameLength, NULL, lName_CSTR );
+         glGetActiveUniformBlockName( vShaderProgram_OGL, i, lNameLength, nullptr, lName_CSTR );
 
 #if E_DEBUG_LOGGING
          dLOG(
@@ -449,7 +449,7 @@ void rShader::getInfoOld() {
    // Uniforms
 
    for ( int i = 0; i < lNumUniforms; ++i ) {
-      char  *lName_CSTR = new char[ lUniformMaxLength ];
+      auto lName_CSTR = new char[ lUniformMaxLength ];
       GLint  lArraySize, lOffset, lBlockIndex, lArrayStride, lMatrixStride, lType, lACBI, lIsRowMajor;
 
       glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_TYPE,                        &lType );
@@ -461,7 +461,7 @@ void rShader::getInfoOld() {
       glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_IS_ROW_MAJOR,                &lIsRowMajor );
       glGetActiveUniformsiv( vShaderProgram_OGL, 1, ( const GLuint * )&i, GL_UNIFORM_ATOMIC_COUNTER_BUFFER_INDEX, &lACBI );
 
-      glGetActiveUniformName( vShaderProgram_OGL, i, lUniformMaxLength, NULL, lName_CSTR );
+      glGetActiveUniformName( vShaderProgram_OGL, i, lUniformMaxLength, nullptr, lName_CSTR );
 
       GLint lLocation = glGetUniformLocation( vShaderProgram_OGL, lName_CSTR );
 
