@@ -1,0 +1,18 @@
+{
+   "cmd": "./generate.sh",
+   "args": [ "qSb" ],
+   "sh": true,
+   "cwd": "{PROJECT_PATH}",
+   "env": {
+      "CMAKE_EXECUTABLE": "/usr/bin/cmake",
+      "BUILD_COMMAND": "/usr/bin/ninja",
+      "BUILD_DIR": "build",
+
+      "CMAKE_FLAGS": "-G Ninja",
+      "CPP_COMPILER": "/usr/bin/clang++",
+      "C_COMPILER": "/usr/bin/clang",
+      "INST_PREFIX": "/opt/projects",
+
+      "BUILD_FLAGS": "install"
+   }
+}

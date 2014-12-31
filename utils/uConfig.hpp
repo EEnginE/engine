@@ -190,6 +190,9 @@ struct _uConfig {
       //! Name of the window (changes will be ignored after iInit::init() called)
       std::string xlibWindowName;
 
+      //! Name of the window (changes will be ignored after iInit::init() called)
+      std::string iconName;
+
       bool restoreOldScreenRes;
 
       __uConfig_Window();
