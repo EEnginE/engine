@@ -31,25 +31,45 @@ echo -e "\x1b[0m"
 
 help_text() {
     msg1 "Help Message"
-    echo ""
-    echo "You will probably be just fine with running $0 without any arguments."
-    echo ""
-    echo "  +  - Turn everything on"
-    echo ""
-    echo "  g  - Force recompile GLEW"
-    echo "  l  - Build libs"
-    echo "  t  - Build tests"
-    echo "  C  - count lines of code (needs cloc and bc)"
-    echo "  c  - Clean up"
-    echo "  f  - Reformat code with clang-format (this can only reformat code found with l and t)"
-    echo ""
-    echo " - Debug stuff"
-    echo "  p  - Print parsed Config"
-    echo ""
-    echo "  NOTE: if you have already run this script and then disable tests and/or libs, you need to enable clean"
-    echo ""
-    echo "without any options the configuration is: $0 ltf"
-    echo ""
+cat << EOF
+
+    You will probably be just fine with running $0 without any arguments.
+
+      +  - Turn everything on (but only gltCcf)
+
+      g  - Force recompile GLEW
+      l  - Build libs
+      t  - Build tests
+      C  - count lines of code (needs cloc and bc)
+      c  - Clean up
+      f  - Reformat code with clang-format (this can only reformat code found with l and t)
+
+     - Special flags
+      q  - disable process bar and some escape sequenzes
+      b  - build the project
+      A  - generate .atom-build.json based on the build variables
+
+      - Build environment variables:
+
+      CMAKE_EXECUTABLE: Path to cmake (default $(which cmake))
+      BUILD_COMMAND:    Path to the make command (default $(which make))
+      BUILD_DIR:        Path to the build directory (default build)
+
+      CMAKE_FLAGS:      Addistional cmake flags
+      CPP_COMPILER:     The CPP compiler (default: let cmake decide)
+      C_COMPILER:       The C compiler (default: let cmale decide)
+      INST_PREFIX:      Where to install
+
+      BUILD_FLAGS:      arguments for the build system (e.g. make)
+
+     - Debug stuff
+      p  - Print parsed Config
+      S  - Do not parse config file
+
+      NOTE: if you have already run this script and then disable tests and/or libs, you need to enable clean
+
+    without any options the configuration is: $0 ltf
+EOF
     exit
 }
 
@@ -60,6 +80,9 @@ DO_CLOC=0
 DO_GLEW=0
 DO_CLEAN=0
 DO_FORMAT=0
+DO_BUILD=0
+DO_ATOM_BUILD=0
+SKIP_PARSING=0
 
 ARG_STRING=""
 
@@ -67,9 +90,6 @@ ARG_STRING=""
 for i in $(find ${PWD}/generate/functions -name "*.sh" -type f -print); do
     source $i
 done
-
-CONFIG_FILE="$(pwd)/$CONFIG_FILE"
-parseCFG
 
 msg1 "Parsing comand line..."
 
@@ -99,12 +119,17 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
             DO_CLEAN=1
             DO_FORMAT=1
             ;;
-        g) DO_GLEW=1  ; msg2 "Force rebuild GLEW";;
-        l) DO_LIBS=1  ; msg2 "Generating libs";;
-        t) DO_TESTS=1 ; msg2 "Generating tests";;
-        C) DO_CLOC=1  ; msg2 "Enabling code counter";;
-        c) DO_CLEAN=1 ; msg2 "Enabling clean";;
-        f) DO_FORMAT=1; msg2 "Enabling automatic code formating";;
+        g) DO_GLEW=1      ; msg2 "Force rebuild GLEW";;
+        l) DO_LIBS=1      ; msg2 "Generating libs";;
+        t) DO_TESTS=1     ; msg2 "Generating tests";;
+        C) DO_CLOC=1      ; msg2 "Enabling code counter";;
+        c) DO_CLEAN=1     ; msg2 "Enabling clean";;
+        f) DO_FORMAT=1    ; msg2 "Enabling automatic code formating";;
+        b) DO_BUILD=1     ; msg2 "Enable building project";;
+        A) DO_ATOM_BUILD=1; msg2 "Generating .atom-build.json";;
+        q) ESC_CLEAR=""   ; msg2 "Disabling window clearing";;
+        S) SKIP_PARSING=1 ; msg2 "Skip parsing config file"
+           PB_COLLS=100   ; ;;
 
         p) printWhatParsed ;;
         *)
@@ -115,6 +140,11 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
     esac
 
 done
+
+if (( SKIP_PARSING == 0 )); then
+   CONFIG_FILE="$(pwd)/$CONFIG_FILE"
+   parseCFG
+fi
 
 msg1 "Initiating and updating submodules"
 
@@ -157,6 +187,14 @@ fi
 
 if (( DO_CLOC == 1 )); then
     countLines
+fi
+
+if (( DO_BUILD == 1 )); then
+   buildProject
+fi
+
+if (( DO_ATOM_BUILD == 1 )); then
+   generateAtomBuild
 fi
 
 msg1 "DONE"
