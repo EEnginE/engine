@@ -63,10 +63,6 @@ DO_FORMAT=0
 
 ARG_STRING=""
 
-if [ -z "$ARG_STRING" ]; then
-    ARG_STRING="ltf"
-fi
-
 # Load all functions in the generate dir
 for i in $(find ${PWD}/generate/functions -name "*.sh" -type f -print); do
     source $i
@@ -74,6 +70,8 @@ done
 
 CONFIG_FILE="$(pwd)/$CONFIG_FILE"
 parseCFG
+
+msg1 "Parsing comand line..."
 
 for I in $@; do
     case $I in
@@ -84,6 +82,10 @@ for I in $@; do
 
     ARG_STRING="${ARG_STRING}${I}"
 done
+
+if [ -z "$ARG_STRING" ]; then
+    ARG_STRING="ltf"
+fi
 
 for (( i=0; i<${#ARG_STRING}; ++i )); do
     I=${ARG_STRING:$i:1}
@@ -97,12 +99,12 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
             DO_CLEAN=1
             DO_FORMAT=1
             ;;
-        g) DO_GLEW=1   ;;
-        l) DO_LIBS=1   ;;
-        t) DO_TESTS=1  ;;
-        C) DO_CLOC=1   ;;
-        c) DO_CLEAN=1  ;;
-        f) DO_FORMAT=1 ;;
+        g) DO_GLEW=1  ; msg2 "Force rebuild GLEW";;
+        l) DO_LIBS=1  ; msg2 "Generating libs";;
+        t) DO_TESTS=1 ; msg2 "Generating tests";;
+        C) DO_CLOC=1  ; msg2 "Enabling code counter";;
+        c) DO_CLEAN=1 ; msg2 "Enabling clean";;
+        f) DO_FORMAT=1; msg2 "Enabling automatic code formating";;
 
         p) printWhatParsed ;;
         *)
@@ -116,9 +118,15 @@ done
 
 msg1 "Initiating and updating submodules"
 
-git submodule init    > /dev/null
-git submodule sync    > /dev/null
-git submodule update  > /dev/null
+GIT_EXEC=$(which git 2>/dev/null)
+
+if [ -z ${GIT_EXEC} ]; then
+    warning "Unable to find git. Please run git init, sync and update manualy"
+else
+    git submodule init    &> /dev/null
+    git submodule sync    &> /dev/null
+    git submodule update  &> /dev/null
+fi
 
 doGlew $DO_GLEW
 

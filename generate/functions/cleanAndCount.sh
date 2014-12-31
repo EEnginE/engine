@@ -72,11 +72,10 @@ countLines() {
     which bc &> /dev/null
     RET_BC=$?
 
-    echo ""
-    echo ""
-    echo ""
-
     if [ -n "$CLOC_EXEC" -a $RET_BC -eq 0 ]; then
+        echo ""
+        echo ""
+        echo ""
         $CLOC_EXEC --not-match-d='([a-zA-Z_/]*\.[a-zA-Z\._]+|build|doxygen|GLEW)' ./ | tee temp_cloc.txt;
         CALC_ALL="$(cat temp_cloc.txt | grep SUM)"
         CALC_ALL="$(echo $CALC_ALL    | sed 's/SUM: [0-9]*//g')"
@@ -87,6 +86,8 @@ countLines() {
         if [ -e temp_cloc.txt ]; then
             rm temp_cloc.txt
         fi
+    else
+        error "Can not count lines of code because bc and or cloc are not installed"
     fi
 }
 

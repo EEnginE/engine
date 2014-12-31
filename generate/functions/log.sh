@@ -39,8 +39,9 @@ processBar() {
     PB_L1=$(awk "BEGIN {printf \"%i\", (${1}/${2})*${PB_LENGTH}}")
 
     PB_STR2="$(printf '%*.*s' 0 $PB_L1 "$PAD1" )$(printf '%*.*s' 0 $((PB_LENGTH - PB_L1)) "$PAD0" )"
+    PB_STR3=$(awk "BEGIN {printf \"%i\", (${1}/${2})*100}")
 
-    echo -ne "\x1b[2K\x1b[0G\x1b[1;34m${PB_STR1}\x1b[1;37m [${PB_STR2}] \x1b[1;33m$(awk "BEGIN {printf \"%i\", (${1}/${2})*100}")%\x1b[0m"
+    echo -ne "\x1b[2K\x1b[0G\x1b[1;34m${PB_STR1}\x1b[1;37m [${PB_STR2}] \x1b[1;33m${PB_STR3}%\x1b[0m"
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;
