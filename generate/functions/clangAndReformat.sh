@@ -3,7 +3,7 @@
 reformatSource() {
     msg1 "Reformating source code..."
 
-    CLANG_FORMAT=$(which clang-format)
+    CLANG_FORMAT=$(which clang-format 2>/dev/null)
 
     if [ -z "$CLANG_FORMAT" ]; then
         warning "clang-format not found: can not reformat the source code"
