@@ -78,6 +78,12 @@ $ make install
 
    -DEXTRA_CXX_FLAGS=<Extra CXX compiler options>
 
+   
+   -DSANITIZERS=<sanitizers>
+   -DSANITIZER_OPTIONS=<options>
+
+     Select sanitizers to use. Only works with clang
+
 
 ** GLEW
 

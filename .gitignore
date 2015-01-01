@@ -32,8 +32,8 @@ FindEngine.cmake
 
 .*.kate-swp
 
+.atom-build.json
 .clang_complete
 .clang-format
 *_flymake.cpp
 *_flymake.hpp
-

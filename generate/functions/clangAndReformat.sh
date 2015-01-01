@@ -32,7 +32,7 @@ reformatSource() {
             continue
         fi
 
-        $CLANG_FORMAT -i $i
+        "$CLANG_FORMAT" -i $i
     done
 }
 
