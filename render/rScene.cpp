@@ -176,7 +176,9 @@ int rSceneBase::compileShaders() {
                "']" );
          return lRet;
       }
+#if E_DEBUG_LOGGING
       dLOG( "Shader OK: '", d.getShaderPath(), "' [SCENE: '", vName_str, "']" );
+#endif
    }
    return lRet;
 }
@@ -188,9 +190,11 @@ int rSceneBase::compileShaders() {
  * \returns 0 on success
  */
 int rSceneBase::assignObjectRenderer( GLuint _index, rRenderBase *_renderer ) {
+#if E_DEBUG_LOGGING
    dLOG( "Setting rendering properties for object '",
          vObjects[_index].vObjectPointer->getName(),
          "'" );
+#endif
 
    _renderer->setDataFromShader( &vShaders[vObjects[_index].vShaderIndex] );
    _renderer->setDataFromObject( vObjects[_index].vObjectPointer );
@@ -201,7 +205,9 @@ int rSceneBase::assignObjectRenderer( GLuint _index, rRenderBase *_renderer ) {
    switch ( lLightModel ) {
       case rObjectBase::SIMPLE_ADS_LIGHT: {
          for ( auto i : vLightSourcesIndex ) {
+#if E_DEBUG_LOGGING
             dLOG( "  - Using light source: '", vObjects[i].vObjectPointer->getName(), "'" );
+#endif
             _renderer->setDataFromAdditionalObjects( vObjects[i].vObjectPointer );
          }
          break;

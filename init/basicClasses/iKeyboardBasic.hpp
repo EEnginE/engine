@@ -23,10 +23,9 @@ class iKeyboardBasic {
     * \returns Nothing
     */
    void setKeyState( wchar_t _key, unsigned short int _state ) {
-      if ( _key < 0 ) {
-         _state = E_UNKNOWN;
+      if ( _key < 0 )
          return;
-      }
+
       key_state[(unsigned int)_key] = _state;
    }
 
