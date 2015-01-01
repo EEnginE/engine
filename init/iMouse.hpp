@@ -23,10 +23,9 @@ class iMouse {
     * \returns Nothing
     */
    void setMousebuttonState( E_BUTTON _button, unsigned short int _state ) {
-      if ( _button < 0 ) {
-         _state = E_UNKNOWN;
+      if ( _button < 0 )
          return;
-      }
+
       button_state[(unsigned int)_button] = _state;
    }
 

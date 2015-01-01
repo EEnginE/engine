@@ -14,7 +14,7 @@ set( CM_VERSION_GIT "GIT_FAILED" )
 set( CM_VERSION_MAJOR    0 )
 set( CM_VERSION_MINOR    0 )
 set( CM_VERSION_SUBMINOR 0 )
-set( CM_COMMIT_IS_TAGGED 0 )
+set( CM_TAG_DIFF         0 )
 
 execute_process(
    COMMAND which git
@@ -57,10 +57,11 @@ if( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
    string( REGEX REPLACE "^v[\\.0-9]+([0-9]+)$" "\\1" CM_VERSION_SUBMINOR ${GIT_TAG_1} )
 
    if( ${GIT_TAG_1} STREQUAL ${GIT_TAG_2} )
-      set( CM_COMMIT_IS_TAGGED 1 )
+      set( CM_TAG_DIFF 0 )
       message( STATUS "VERSION: ${GIT_TAG_1} [RELEASE] ${CM_VERSION_GIT}" )
    else()
-      message( STATUS "VERSION: ${GIT_TAG_1} +GIT ${CM_VERSION_GIT}" )
+      string( REGEX REPLACE "^v[\\.0-9]+\\-([0-9]*)\\-[a-z0-9]*$" "\\1" CM_TAG_DIFF ${GIT_TAG_2} )
+      message( STATUS "VERSION: ${GIT_TAG_1} +${CM_TAG_DIFF} ${CM_VERSION_GIT}" )
    endif( ${GIT_TAG_1} STREQUAL ${GIT_TAG_2} )
 
 endif( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
@@ -71,9 +72,9 @@ if( NOT CMAKE_BUILD_TYPE )
    set( CMAKE_BUILD_TYPE DEBUG )
 
    # Is this tagged ==> Release?
-   if( "${CM_COMMIT_IS_TAGGED}" MATCHES "1" )
+   if( "${CM_TAG_DIFF}" MATCHES "0" )
       set( CMAKE_BUILD_TYPE RELEASE )
-   endif( "${CM_COMMIT_IS_TAGGED}" MATCHES "1" )
+   endif( "${CM_TAG_DIFF}" MATCHES "0" )
 endif( NOT CMAKE_BUILD_TYPE )
 
 message( STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
@@ -83,4 +84,3 @@ set( DEBUG_LOGGING 0 )
 if( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
    set( DEBUG_LOGGING 1 )
 endif( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
-

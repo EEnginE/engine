@@ -173,7 +173,8 @@ int iContext::createContext() {
          E_VERSION_MINOR,
          ".",
          E_VERSION_SUBMINOR,
-         ( E_COMMIT_IS_TAGGED ? " [RELEASE] " : " +GIT " ),
+         E_GIT_LAST_TAG_DIFF == 0 ? " [RELEASE] "
+                                  : ( " +" + std::to_string( E_GIT_LAST_TAG_DIFF ) + " " ),
          E_VERSION_GIT,
          "\n  - OpenGL: ",
          lC1_C,
