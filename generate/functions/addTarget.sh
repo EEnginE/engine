@@ -54,7 +54,7 @@ endif( ENGINE_BUILD_SHARED )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
   set_target_properties(
-    ${TMP_NAME}
+    "${TMP_NAME}"
     PROPERTIES
       VERSION       \${CM_VERSION_MAJOR}.\${CM_VERSION_MINOR}.\${CM_VERSION_SUBMINOR}
       SOVERSION     \${CM_VERSION_MAJOR}
@@ -63,7 +63,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
 else()
 # Set some variables so that Cmake can do some fancy stuff with versions and filenames
   set_target_properties(
-    ${TMP_NAME}
+    "${TMP_NAME}"
       PROPERTIES
         VERSION       \${CM_VERSION_MAJOR}.\${CM_VERSION_MINOR}.\${CM_VERSION_SUBMINOR}
         SOVERSION     \${CM_VERSION_MAJOR}
