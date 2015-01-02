@@ -49,6 +49,8 @@ if( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
       WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY}
    )
 
+   message( STATUS "${GIT_TAG_1} -- ${GIT_TAG_2}" )
+
    string( REGEX REPLACE "\n" "" GIT_TAG_1 ${GIT_TAG_1} )
    string( REGEX REPLACE "\n" "" GIT_TAG_2 ${GIT_TAG_2} )
 
