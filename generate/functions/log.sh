@@ -46,7 +46,7 @@ PAD1=$(printf '%0.1s' "#"{1..1000} )
 PB_NEWLINE=0
 
 if [ -z "$PB_COLLS" ]; then
-    PB_COLLS=100
+    PB_COLLS=150
 fi
 
 processBar() {
