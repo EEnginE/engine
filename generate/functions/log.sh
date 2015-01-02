@@ -43,6 +43,7 @@ warning() {
 PB_COLLS=$(tput cols)
 PAD0=$(printf '%0.1s' " "{1..1000} )
 PAD1=$(printf '%0.1s' "#"{1..1000} )
+PB_NEWLINE=0
 
 if [ -z "$PB_COLLS" ]; then
     PB_COLLS=100
@@ -63,7 +64,11 @@ processBar() {
     PB_STR2="$(printf '%*.*s' 0 $PB_L1 "$PAD1" )$(printf '%*.*s' 0 $((PB_LENGTH - PB_L1)) "$PAD0" )"
     PB_STR3=$(awk "BEGIN {printf \"%i\", (${1}/${2})*100}")
 
-    echo -ne "${ESC_CLEAR}\x1b[1;34m${PB_STR1}\x1b[1;37m [${PB_STR2}] \x1b[1;33m${PB_STR3}%\x1b[0m"
+    if (( PB_NEWLINE == 0 )); then
+       echo -ne "${ESC_CLEAR}\x1b[1;34m${PB_STR1}\x1b[1;37m [${PB_STR2}] \x1b[1;33m${PB_STR3}%\x1b[0m"
+    else
+       echo -e  "${ESC_CLEAR}\x1b[1;34m${PB_STR1}\x1b[1;37m [${PB_STR2}] \x1b[1;33m${PB_STR3}%\x1b[0m"
+    fi
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

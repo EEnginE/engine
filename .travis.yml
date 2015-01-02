@@ -5,7 +5,7 @@ compiler:
    - clang
 
 script:
-   - ./generate.sh
+   - ./generate.sh qlt
    - mkdir build
    - cd build
    - cmake ..

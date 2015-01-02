@@ -142,7 +142,8 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
         f) DO_FORMAT=1    ; msg2 "Enabling automatic code formating";;
         b) DO_BUILD=1     ; msg2 "Enable building project";;
         A) DO_ATOM_BUILD=1; msg2 "Generating .atom-build.json";;
-        q) ESC_CLEAR=""   ; msg2 "Disabling window clearing";;
+        q) ESC_CLEAR=""
+           PB_NEWLINE=1   ; msg2 "Disabling window clearing";;
         S) SKIP_PARSING=1 ; msg2 "Skip parsing config file"
            PB_COLLS=100   ; ;;
 
