@@ -5,17 +5,17 @@ compiler:
 
 before_install:
    # We need a c++14 compiler
-   - sudo sudo add-apt-repository -y ppa:boost-latest/ppa
+   - sudo add-apt-repository -y ppa:boost-latest/ppa
    - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-   - sudo apt-get update
+   - sudo apt-get -qq update
 
 install:
    # install boost..
-   - sudo apt-get install libboost-system1.55-dev libboost-filesystem1.55-dev
+   - sudo apt-get -qq install libboost-system1.55-dev libboost-filesystem1.55-dev
 
    # install g++
-   - sudo apt-get install libstdc++-4.9-dev
-   - sudo apt-get install g++-4.9
+   - sudo apt-get -qq install libstdc++-4.9-dev
+   - sudo apt-get -qq install g++-4.9
    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
 
 script:
