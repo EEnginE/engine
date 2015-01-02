@@ -3,15 +3,19 @@
 #+OPTIONS: ^:nil
 
 #+begin_src
-           _____   _____            _
-          |  ___| |  ___|          (_)
-          | |__   | |__ _ __   __ _ _ _ __   ___
-          |  __|  |  __| '_ \ / _` | | '_ \ / _ \
-          | |___  | |__| | | | (_| | | | | |  __/
-          \____/  \____/_| |_|\__, |_|_| |_|\___|
-                               __/ |
-                              |___/
+     _____ _____            _       _____ 
+    |  ___|  ___|          (_)     |  ___|
+    | |__ | |__ _ __   __ _ _ _ __ | |__  
+    |  __||  __| '_ \ / _` | | '_ \|  __| 
+    | |___| |__| | | | (_| | | | | | |___ 
+    \____/\____/_| |_|\__, |_|_| |_\____/ 
+                       __/ |              
+                      |___/
 #+end_src
+
+* EEnginE
+
+EEnginE is (or will be) a simple OpenGL 3D engine.
 
 * Denpendencies
 
@@ -28,10 +32,8 @@
 
 * Installation
 
-  Download from git server at this moment only with invitation.
-
 #+begin_src sh
-$ git clone git@mprs-bartel.de:/git/engine.git
+$ git clone https://github.com/EEnginE/engine
 $ ./generate.sh
 $ mkdir build
 $ cd build
