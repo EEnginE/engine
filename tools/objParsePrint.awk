@@ -1,4 +1,4 @@
-#!/usr/bin/env gawk -f
+#!/usr/bin/gawk -f
 
 # Copyright (C) 2015 EEnginE project
 #
