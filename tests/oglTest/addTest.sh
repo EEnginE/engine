@@ -20,7 +20,7 @@ cat << EOF > $FILE_HPP
 /*!
  * \file $(basename $FILE_HPP)
  * \brief \b Classes: \a $TEST_NAME
- * 
+ *
  * Class for testing:
  * $DESC
  *
@@ -39,18 +39,18 @@ using namespace e_engine;
 class $TEST_NAME {
    private:
       // Private stuff goes here
-      
+
    public:
       ${TEST_NAME}() {}
-      
+
       const static string desc;
-      
+
       void runTest( uJSON_data &_data, string _dataRoot );
 };
 
 #endif // $(I=$(basename $FILE_HPP); echo ${I^^} | sed 's/\./_/g')
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on;
 
 EOF
 }
@@ -61,10 +61,25 @@ cat << EOF > $FILE_CPP
 /*!
  * \file $(basename $FILE_CPP)
  * \brief \b Classes: \a $TEST_NAME
- * 
+ *
  * Class for testing:
  * $DESC
  *
+ */
+/*
+ * Copyright (C) 2015 EEnginE project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include "$(basename $FILE_HPP)"
@@ -76,18 +91,18 @@ void ${TEST_NAME}::runTest( uJSON_data &_data, string _dataRoot ) {
     * Add your code here
     *
     * use '_data( ... )' to save your results
-    * 
+    *
     */
 }
 
 /*
  * Begin recommended Bindings
- * 
+ *
  * Syntax: '//#!BIND DATA(' <location in json file> , G_<TYPE>( <GlobConf value>, <default> );
  */
 //#!BIND DATA( "test", "bind", "stuff", G_STR( GlobConf.dummy, "default" ) );
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on;
 
 EOF
 }
@@ -161,4 +176,4 @@ EOF
 
 cd $START_DIR
 
-# kate: indent-mode shell; indent-width 3; replace-tabs on; 
+# kate: indent-mode shell; indent-width 3; replace-tabs on;
