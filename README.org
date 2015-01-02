@@ -3,17 +3,17 @@
 #+OPTIONS: ^:nil
 
 #+begin_src
-     _____ _____            _       _____ 
+     _____ _____            _       _____
     |  ___|  ___|          (_)     |  ___|
-    | |__ | |__ _ __   __ _ _ _ __ | |__  
-    |  __||  __| '_ \ / _` | | '_ \|  __| 
-    | |___| |__| | | | (_| | | | | | |___ 
-    \____/\____/_| |_|\__, |_|_| |_\____/ 
-                       __/ |              
+    | |__ | |__ _ __   __ _ _ _ __ | |__
+    |  __||  __| '_ \ / _` | | '_ \|  __|
+    | |___| |__| | | | (_| | | | | | |___
+    \____/\____/_| |_|\__, |_|_| |_\____/
+                       __/ |
                       |___/
 #+end_src
 
-* EEnginE
+* EEnginE [![Build Status](https://travis-ci.org/EEnginE/engine.svg?branch=master)](https://travis-ci.org/EEnginE/engine)
 
 EEnginE is (or will be) a simple OpenGL 3D engine.
 
@@ -80,7 +80,7 @@ $ make install
 
    -DEXTRA_CXX_FLAGS=<Extra CXX compiler options>
 
-   
+
    -DSANITIZERS=<sanitizers>
    -DSANITIZER_OPTIONS=<options>
 
@@ -94,7 +94,7 @@ $ make install
      if you want to have your system GLEW
        - 0: disabled - default
        - 1: enabled
-     
+
    -DGLEW_ROOT=/Path/to/GLEW/install/prefix
 
 
@@ -140,7 +140,7 @@ $ make install
 ** I crosscompiled the project on Linux and want to test the result with WINE but WINE crashes immediately.
 
     Wine doesnt like boost::wregex because a function was unimplemented: [[http://bugs.winehq.org/show_bug.cgi?id=36617][BUG]]
- 
+
     Try to update your WINE version.
     Or set:
 

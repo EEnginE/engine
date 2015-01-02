@@ -13,5 +13,6 @@ script:
    - ./generate.sh qlt
    - mkdir build
    - cd build
+   - git --version
    - cmake ..
    - make
