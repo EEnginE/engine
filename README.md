@@ -11,19 +11,21 @@
 
 # EEnginE [![Build Status](<https://travis-ci.org/EEnginE/engine.svg?branch=master>)](<https://travis-ci.org/EEnginE/engine>)
 
-EEnginE is (or will be) a simple OpenGL 3D engine.
+EEnginE is (or will be) a simple - but fullfeatured - OpenGL 3D engine.
+Providing modules for networking, physic and 2D/3D graphic.
 
 # Denpendencies
 
--   CMake v2.8.9 or newer [<http://www.cmake.org/>]
+-   CMake v2.8.11 or newer [<http://www.cmake.org/>]
 -   The OpenGL headers (often in a mesa package)
 -   Linux/UNIX (at least one of those):
     -   X11 and it's headers (including RandR)
     -   Wayland and it's headers (not yet supported)
     -   Mir and it's headers (not yet supported)
--   Boost v1.48.0 or newer [<http://www.boost.org/>]
--   GLEW v1.6.0 or newer [<http://glew.sourceforge.net/>]
--   gawk - needed for some scripts, mawk wont work!
+-   Boost v1.46.1 or newer [<http://www.boost.org/>]
+-   gawk - needed for some additional utils (mawk wont work!)
+
+-   GLEW - downloaded and built automatically [<http://glew.sourceforge.net/>]
 
 # Installation
 
@@ -37,102 +39,101 @@ $ make
 $ make install
 ```
 
-Alternatively, you can use ninja instead of make by adding -G Ninja to your cmake options.
+Alternatively, you can use ninja instead of make by adding `-G Ninja` to your cmake options.
 
 # CMake options
 
 ## ENGINE
 
--DCMAKE\_INSTALL\_PREFIX=/Install/prefix/of/engine
+-   `-DCMAKE_INSTALL_PREFIX=/install/prefix`
 
--DENGINE\_VERBOSE=<0/1>
+-   `-DENGINE_VERBOSE=<0/1>`
 
-Special cmake output and verbose compiler messages &#x2026;
+    Special cmake output and verbose compiler messages:
+      - 0: disabled - default
+      - 1: enabled
 
-   - 0: disabled - default
-   - 1: enabled
+-   `-DDISPLAY_SERVER=<which>`
 
--DDISPLAY\_SERVER=<which>
+    Possible options:
+      - UNIX_X11: stable - default
+      - WINDOWS: stable
+      - UNIX_WAYLAND: not yet supported
+      - UNIX_MIR: not yet supported
 
-Possible options:
 
-   - UNIX\_X11     - default
-   - WINDOWS      - alpha
-   - UNIX\_WAYLAND - not yet supported
-   - UNIX\_MIR     - not yet supported
+-   `-DENGINE_LINK_SHARED=<0/1>`
 
--DENGINE\_LINK\_SHARED=<0/1>
+    Link the engine:
+      - 0: static
+      - 1: shared - default
 
-Link the engine &#x2026;
 
-   - 0: static
-   - 1: shared - default
+-   `-DENGINE_BUILD_SHARED=<0/1>`
 
--DENGINE\_BUILD\_SHARED=<0/1>
+    Build the engine:
+      - 0: static
+      - 1: shared - default
 
-Build the engine &#x2026;
 
-   - 0: static
-   - 1: shared - default
+-   `-DEXTRA_CXX_FLAGS=<CXX compiler options>`
 
--DEXTRA\_CXX\_FLAGS=<Extra CXX compiler options>
+-   `-DSANITIZERS=<sanitizers>`
 
--DSANITIZERS=<sanitizers>
--DSANITIZER\_OPTIONS=<options>
+    Select sanitizers to use. Only works with clang.
 
-Select sanitizers to use. Only works with clang
+-   `-DSANITIZER_OPTIONS=<options>`
 
-## GLEW<a id="sec-4-2" name="sec-4-2"></a>
+## GLEW
 
--DGLEW\_USE\_DEFAULT=<0/1>
+-   `-DGLEW_USE_DEFAULT=<0/1>`
 
-if you want to have your system GLEW
+    Use system GLEW:
+      - 0: disabled - default
+      - 1: enabled
 
-   - 0: disabled - default
-   - 1: enabled
 
--DGLEW\_ROOT=/Path/to/GLEW/install/prefix
+-   `-DGLEW_ROOT=/path/to/GLEW`
 
-## BOOST<a id="sec-4-3" name="sec-4-3"></a>
+## BOOST
 
--DBoost\_NO\_SYSTEM\_PATHS=<0/1>
+-   `-DBoost_NO_SYSTEM_PATHS=<0/1>`
 
-To tell CMake to only search boost in BOOST\_ROOT
+    To tell CMake to only search boost in `BOOST_ROOT`
+      - 0: disabled - default
+      - 1: enabled
 
-   - 0: disabled - default
-   - 1: enabled
 
--DBOOST\_ROOT=/Path/to/Boost/install/prefix
+-   `-DBOOST_ROOT=/path/to/Boost`
 
-# Troubleshooting:<a id="sec-5" name="sec-5"></a>
+# Troubleshooting
 
-## CMake can not find Boost<a id="sec-5-1" name="sec-5-1"></a>
+### CMake can not find Boost
 
 Try to set:
+-   `-DBOOST_ROOT=/path/to/Boost`
 
--DBOOST\_ROOT=/Path/to/Boost/install/prefix
-
-## CMake complains about an outdated Boost version even though the newest Version has been compiled by myself<a id="sec-5-2" name="sec-5-2"></a>
+### CMake complains about an outdated Boost version even though the newest Version has been compiled by myself
 
 You can either remove your native boost installation or set
-
--DBoost\_NO\_SYSTEM\_PATHS=1
+-    `-DBoost_NO_SYSTEM_PATHS=1`
 
 and
 
--DBOOST\_ROOT=/Path/to/Boost/install/prefix
+-    `-DBOOST_ROOT=/path/to/Boost`
 
-## CMake can not find GLEW<a id="sec-5-3" name="sec-5-3"></a>
+### CMake can not find GLEW
 
 Try to set:
+-    `-DGLEW_ROOT=/path/to/GLEW`
 
--DGLEW\_ROOT=/Path/to/GLEW/install/prefix
+### I crosscompiled the project on Linux and want to test the result with WINE but WINE crashes immediately.
 
-## I crosscompiled the project on Linux and want to test the result with WINE but WINE crashes immediately.<a id="sec-5-4" name="sec-5-4"></a>
+Wine doesnt like `boost::wregex` because a function was unimplemented:
 
-Wine doesnt like boost::wregex because a function was unimplemented: [BUG](http://bugs.winehq.org/show_bug.cgi?id=36617)
+-    [BUG-Report](http://bugs.winehq.org/show_bug.cgi?id=36617)
 
 Try to update your WINE version.
 Or set:
 
--DEXTRA\_CXX\_FLAGS=-DUGLY\_WINE\_WORKAROUND
+-    `-DEXTRA_CXX_FLAGS=-DUGLY_WINE_WORKAROUND`
