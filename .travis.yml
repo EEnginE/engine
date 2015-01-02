@@ -5,7 +5,21 @@ compiler:
    - clang
 
 before_install:
+   # We need a c++14 compiler
+   - if [ "$CXX" == "g++" ];     then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
+
+install:
+   # install boost..
    - sudo apt-get install libboost-system-dev libboost-filesystem-dev
+
+   # install g++
+   - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.9; fi
+   - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50; fi
+
+   # install clang
+   - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.5; fi
+   - if [ "$CXX" == "clang++" ]; then CXX=clang++-3.5; fi
 
 script:
    - ./generate.sh qlt
