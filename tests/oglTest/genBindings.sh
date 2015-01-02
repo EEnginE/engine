@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/env bash
 
 # Copyright (C) 2015 EEnginE project
 #
@@ -22,7 +22,7 @@ SCRIPT_FILE="oglTestBindings.sh"
 genFile() {
 
 cat > $SCRIPT_FILE << EOF
-#!/bin/bash
+#!/bin/env bash
 
 # !WARNING! Automatically generated file. DO NOT EDIT
 
