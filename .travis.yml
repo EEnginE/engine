@@ -14,5 +14,8 @@ script:
    - mkdir build
    - cd build
    - git --version
+   - git rev-parse HEAD
+   - git describe --abbrev=0 --tags
+   - git describe --tags
    - cmake ..
    - make
