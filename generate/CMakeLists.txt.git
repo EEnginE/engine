@@ -49,20 +49,18 @@ if( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
       WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY}
    )
 
-   message( STATUS "${GIT_TAG_1} -- ${GIT_TAG_2}" )
+   string( REGEX REPLACE "\n" "" GIT_TAG_1 "${GIT_TAG_1}" )
+   string( REGEX REPLACE "\n" "" GIT_TAG_2 "${GIT_TAG_2}" )
 
-   string( REGEX REPLACE "\n" "" GIT_TAG_1 ${GIT_TAG_1} )
-   string( REGEX REPLACE "\n" "" GIT_TAG_2 ${GIT_TAG_2} )
+   string( REGEX REPLACE "^v([0-9]+)[\\.0-9]+$" "\\1" CM_VERSION_MAJOR "${GIT_TAG_1}" )
+   string( REGEX REPLACE "^v[\\.0-9]+([0-9]+)[\\.0-9]+$" "\\1" CM_VERSION_MINOR "${GIT_TAG_1}" )
+   string( REGEX REPLACE "^v[\\.0-9]+([0-9]+)$" "\\1" CM_VERSION_SUBMINOR "${GIT_TAG_1}" )
 
-   string( REGEX REPLACE "^v([0-9]+)[\\.0-9]+$" "\\1" CM_VERSION_MAJOR ${GIT_TAG_1} )
-   string( REGEX REPLACE "^v[\\.0-9]+([0-9]+)[\\.0-9]+$" "\\1" CM_VERSION_MINOR ${GIT_TAG_1} )
-   string( REGEX REPLACE "^v[\\.0-9]+([0-9]+)$" "\\1" CM_VERSION_SUBMINOR ${GIT_TAG_1} )
-
-   if( ${GIT_TAG_1} STREQUAL ${GIT_TAG_2} )
+   if( "${GIT_TAG_1}" STREQUAL "${GIT_TAG_2}" )
       set( CM_TAG_DIFF 0 )
       message( STATUS "VERSION: ${GIT_TAG_1} [RELEASE] ${CM_VERSION_GIT}" )
    else()
-      string( REGEX REPLACE "^v[\\.0-9]+\\-([0-9]*)\\-[a-z0-9]*$" "\\1" CM_TAG_DIFF ${GIT_TAG_2} )
+      string( REGEX REPLACE "^v[\\.0-9]+\\-([0-9]*)\\-[a-z0-9]*$" "\\1" CM_TAG_DIFF "${GIT_TAG_2}" )
       message( STATUS "VERSION: ${GIT_TAG_1} +${CM_TAG_DIFF} ${CM_VERSION_GIT}" )
    endif( ${GIT_TAG_1} STREQUAL ${GIT_TAG_2} )
 
