@@ -17,12 +17,40 @@
 #version 330
 
 in vec3 iVertex;
+in vec3 iNormals;
 
+uniform mat4 uModelView;
 uniform mat4 uMVP;
+uniform mat3 uNormal;
 
-out vec4 vColorVarying;
+smooth out vec3 vPosition;
+smooth out vec3 vModelView;
+smooth out vec3 vNormals;
+
+// Collors...
+
+smooth out vec3 vAmbientDiffuseMaterial; // Make some colors...
+smooth out vec3 vAmbientLight;
+smooth out vec3 vLightDirection;
+
+uniform vec3 uAmbientColor;
+
+struct Light {
+   vec3 color;
+   vec3 position;
+};
+uniform Light uLights;
 
 void main(void) {
-   vColorVarying = vec4( clamp(iVertex, 0.0, 1.0), 1.0 );
+   vAmbientDiffuseMaterial = clamp(iVertex, 0.0, 1.0);
+
+   vAmbientLight = vAmbientDiffuseMaterial * uAmbientColor;
+
    gl_Position = uMVP * vec4( iVertex.xyz, 1.0 );
+
+   vPosition  = gl_Position.xyz;
+   vNormals   =   uNormal    * iNormals;
+   vModelView = ( uModelView * vec4( iVertex , 1 )).xyz;
+
+   vLightDirection = normalize( uLights.position - vModelView );
 }

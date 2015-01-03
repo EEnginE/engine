@@ -109,9 +109,12 @@ class rShader {
 
    std::string getTypeString( int _type );
 
-   GLint vLocationInformation[__END_INF__];
-   std::string vLocationNames[__END_INF__];
-   GLint vLocationTypes[__END_INF__];
+   struct {
+      std::vector<GLint> locations; //!< locations (vector because of uniform arrays)
+      std::string uName; //!< Uniform name
+      std::string sName; //!< Struct name
+      GLint type;
+   } vInfo[__END_INF__];
 
  public:
    rShader();
@@ -152,10 +155,10 @@ class rShader {
 
    bool parseRawInformation();
 
-   void setLocationString( SHADER_INFORMATION _type, std::string &_str );
-   void setLocationString( SHADER_INFORMATION _type, std::string &&_str );
+   void setUniformTypeString( SHADER_INFORMATION _type, std::string _str );
+   void setUniformStructString( SHADER_INFORMATION _type, std::string _str );
 
-   GLint getLocation( SHADER_INFORMATION _type ) { return vLocationInformation[_type]; }
+   GLint getLocation( SHADER_INFORMATION _type, unsigned int _index = 0 ) const;
 };
 
 /*!

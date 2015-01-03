@@ -25,9 +25,12 @@ uniform mat3 uNormal;
 // Light stuff
 
 uniform vec3 uAmbientColor;
-uniform vec3 uLightColor;
-uniform vec3 uLightPos;
 
+struct Light {
+   vec3 color;
+   vec3 position;
+};
+uniform Light uLights;
 
 in vec3 iVertex;
 in vec3 iNormals;
@@ -47,7 +50,7 @@ void main() {
    // Specular Light
    vec3  lNormalsEyeSpace  = uNormal * iNormals;   // Get the normals in world space
    vec3  lVertexWorldSpace = (uModelView * vec4( iVertex, 1.0 )).xyz;
-   vec3  lLightDirection   = normalize( uLightPos - lVertexWorldSpace );
+   vec3  lLightDirection   = normalize( uLights.position - lVertexWorldSpace );
 
    vec3  lReflection       = normalize( reflect( -lLightDirection, lNormalsEyeSpace) );
    float spec              = max( 0.0, dot( -normalize(lVertexWorldSpace), lReflection ) );
@@ -57,7 +60,7 @@ void main() {
 
    // Diffuse Light
    float lDiffIntensity      = max( 0.0, dot( lNormalsEyeSpace, lLightDirection ) );
-   vec3  lDiffuseLight       = lAmbientDiffuseMaterial * uLightColor * lDiffIntensity;
+   vec3  lDiffuseLight       = lAmbientDiffuseMaterial * uLights.color * lDiffIntensity;
 
    toFragColor = vec4( lAmbientLight + lDiffuseLight + lSpecularLight, 1 );
    gl_Position = uMVP * vec4( iVertex, 1.0 );

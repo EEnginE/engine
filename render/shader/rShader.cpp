@@ -39,46 +39,44 @@ rShader::rShader() {
    vShaderEndings[FRAG] = FRAG_END;
    vShaderEndings[GEOM] = GEOM_END;
 
-   for ( auto &elem : vLocationInformation )
-      elem = -1;
-
    // Inputs:
 
-   vLocationNames[VERTEX_INPUT] = "iVertex";
-   vLocationTypes[VERTEX_INPUT] = GL_FLOAT_VEC3;
+   vInfo[VERTEX_INPUT].uName = "iVertex";
+   vInfo[VERTEX_INPUT].type = GL_FLOAT_VEC3;
 
-   vLocationNames[NORMALS_INPUT] = "iNormals";
-   vLocationTypes[NORMALS_INPUT] = GL_FLOAT_VEC3;
+   vInfo[NORMALS_INPUT].uName = "iNormals";
+   vInfo[NORMALS_INPUT].type = GL_FLOAT_VEC3;
 
    // Uniforms:
 
-   vLocationNames[MODEL_MATRIX] = "uModel";
-   vLocationTypes[MODEL_MATRIX] = GL_FLOAT_MAT4;
+   vInfo[MODEL_MATRIX].uName = "uModel";
+   vInfo[MODEL_MATRIX].type = GL_FLOAT_MAT4;
 
-   vLocationNames[VIEW_MATRIX] = "uView";
-   vLocationTypes[VIEW_MATRIX] = GL_FLOAT_MAT4;
+   vInfo[VIEW_MATRIX].uName = "uView";
+   vInfo[VIEW_MATRIX].type = GL_FLOAT_MAT4;
 
-   vLocationNames[MODEL_VIEW_MATRIX] = "uModelView";
-   vLocationTypes[MODEL_VIEW_MATRIX] = GL_FLOAT_MAT4;
+   vInfo[MODEL_VIEW_MATRIX].uName = "uModelView";
+   vInfo[MODEL_VIEW_MATRIX].type = GL_FLOAT_MAT4;
 
-   vLocationNames[PROJECTOIN_MATRIX] = "uProjection";
-   vLocationTypes[PROJECTOIN_MATRIX] = GL_FLOAT_MAT4;
+   vInfo[PROJECTOIN_MATRIX].uName = "uProjection";
+   vInfo[PROJECTOIN_MATRIX].type = GL_FLOAT_MAT4;
 
-   vLocationNames[M_V_P_MATRIX] = "uMVP";
-   vLocationTypes[M_V_P_MATRIX] = GL_FLOAT_MAT4;
+   vInfo[M_V_P_MATRIX].uName = "uMVP";
+   vInfo[M_V_P_MATRIX].type = GL_FLOAT_MAT4;
 
-   vLocationNames[NORMAL_MATRIX] = "uNormal";
-   vLocationTypes[NORMAL_MATRIX] = GL_FLOAT_MAT3;
+   vInfo[NORMAL_MATRIX].uName = "uNormal";
+   vInfo[NORMAL_MATRIX].type = GL_FLOAT_MAT3;
 
+   vInfo[AMBIENT_COLOR].uName = "uAmbientColor";
+   vInfo[AMBIENT_COLOR].type = GL_FLOAT_VEC3;
 
-   vLocationNames[AMBIENT_COLOR] = "uAmbientColor";
-   vLocationTypes[AMBIENT_COLOR] = GL_FLOAT_VEC3;
+   vInfo[LIGHT_COLOR].uName = "color";
+   vInfo[LIGHT_COLOR].sName = "uLights";
+   vInfo[LIGHT_COLOR].type = GL_FLOAT_VEC3;
 
-   vLocationNames[LIGHT_COLOR] = "uLightColor";
-   vLocationTypes[LIGHT_COLOR] = GL_FLOAT_VEC3;
-
-   vLocationNames[LIGHT_POSITION] = "uLightPos";
-   vLocationTypes[LIGHT_POSITION] = GL_FLOAT_VEC3;
+   vInfo[LIGHT_POSITION].uName = "position";
+   vInfo[LIGHT_POSITION].sName = "uLights";
+   vInfo[LIGHT_POSITION].type = GL_FLOAT_VEC3;
 }
 
 rShader::rShader( rShader &&_s )
@@ -93,13 +91,7 @@ rShader::rShader( rShader &&_s )
       vShaderEndings[i] = std::move( _s.vShaderEndings[i] );
 
    for ( unsigned int i = 0; i < __END_INF__; ++i )
-      vLocationInformation[i] = std::move( _s.vLocationInformation[i] );
-
-   for ( unsigned int i = 0; i < __END_INF__; ++i )
-      vLocationNames[i] = std::move( _s.vLocationNames[i] );
-
-   for ( unsigned int i = 0; i < __END_INF__; ++i )
-      vLocationTypes[i] = std::move( _s.vLocationTypes[i] );
+      vInfo[i] = std::move( _s.vInfo[i] );
 }
 
 
@@ -447,12 +439,12 @@ bool rShader::getProgram( unsigned int &_program ) const {
  */
 
 
-void rShader::setLocationString( SHADER_INFORMATION _type, std::string &_str ) {
-   vLocationNames[_type] = _str;
+void rShader::setUniformTypeString( SHADER_INFORMATION _type, std::string _str ) {
+   vInfo[_type].uName = _str;
 }
 
-void rShader::setLocationString( SHADER_INFORMATION _type, std::string &&_str ) {
-   vLocationNames[_type] = _str;
+void rShader::setUniformStructString( SHADER_INFORMATION _type, std::string _str ) {
+   vInfo[_type].sName = _str;
 }
 
 
@@ -486,13 +478,17 @@ bool rShader::parseRawInformation() {
    GLint j;
    bool lRet = true;
 
+   std::string lTempName;
+
    for ( auto const &i : vProgramInformation.vInputInfo ) {
       for ( j = 0; j < __BEGIN_UNIFORMS__; ++j ) {
-         if ( vLocationInformation[j] >= 0 )
-            continue;
+         if ( vInfo[j].sName.empty() )
+            lTempName = vInfo[j].uName;
+         else
+            lTempName = vInfo[j].sName + '.' + vInfo[j].uName;
 
-         if ( i.name == vLocationNames[j] && i.type == vLocationTypes[j] ) {
-            vLocationInformation[j] = i.location;
+         if ( i.name == lTempName && i.type == vInfo[j].type ) {
+            vInfo[j].locations.emplace_back( i.location );
             j = -1;
             break;
          }
@@ -512,11 +508,13 @@ bool rShader::parseRawInformation() {
 
    for ( auto const &i : vProgramInformation.vUniformInfo ) {
       for ( j = __BEGIN_UNIFORMS__ + 1; j < __END_INF__; ++j ) {
-         if ( vLocationInformation[j] >= 0 )
-            continue;
+         if ( vInfo[j].sName.empty() )
+            lTempName = vInfo[j].uName;
+         else
+            lTempName = vInfo[j].sName + '.' + vInfo[j].uName;
 
-         if ( i.name == vLocationNames[j] && i.type == vLocationTypes[j] ) {
-            vLocationInformation[j] = i.location;
+         if ( i.name == lTempName && i.type == vInfo[j].type ) {
+            vInfo[j].locations.emplace_back( i.location );
             j = -1;
             break;
          }
@@ -536,6 +534,14 @@ bool rShader::parseRawInformation() {
 
    return lRet;
 }
+
+GLint rShader::getLocation( SHADER_INFORMATION _type, unsigned int _index ) const {
+   if ( _index >= vInfo[_type].locations.size() )
+      return -1;
+
+   return vInfo[_type].locations[_index];
+}
+
 }
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
