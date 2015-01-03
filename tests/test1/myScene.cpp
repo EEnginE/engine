@@ -33,8 +33,10 @@ int myScene::init() {
       vRenderNormals = false;
    }
 
-   GLuint lShaderID = addShader( vShader_str );
-   GLuint lNormalShader = addShader( vNormalShader_str );
+   GLuint lShaderID = addShader( vShader_str ), lNormalShader;
+
+   if( vRenderNormals )
+      lNormalShader = addShader( vNormalShader_str );
 
    if ( !compileShaders() ) {
       eLOG( "Failed to compile the shaders" );
