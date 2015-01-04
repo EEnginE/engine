@@ -41,6 +41,9 @@ template <class T>
 struct rRenderAmbientLight {
    rVec3<T> *color = nullptr;
 
+   rRenderAmbientLight() {}
+   rRenderAmbientLight( rObjectBase *_obj ) { setAmbient( _obj ); }
+
    void setAmbient( rObjectBase *_obj ) { _obj->getVector( &color, rObjectBase::LIGHT_COLOR ); }
 };
 
@@ -49,6 +52,9 @@ struct rRenderLightSource : rRenderAmbientLight<T> {
    rVec3<T> *position = nullptr;
 
    using rRenderAmbientLight<T>::setAmbient;
+
+   rRenderLightSource() : rRenderAmbientLight<T>() {}
+   rRenderLightSource( rObjectBase *_obj ) { setLight( _obj ); }
 
    void setLight( rObjectBase *_obj ) {
       _obj->getVector( &position, rObjectBase::POSITION_MODEL_VIEW );

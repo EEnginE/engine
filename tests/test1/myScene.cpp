@@ -25,6 +25,7 @@ int myScene::init() {
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );
 
    vLight1.setPosition( rVec3f( 10, 10, 10 ) );
+   vLight2.setPosition( rVec3f( -10, -10, 10 ) );
 
    int lLight;
    vObject1.getHints( rObjectBase::LIGHT_MODEL, lLight );
@@ -35,7 +36,7 @@ int myScene::init() {
 
    GLuint lShaderID = addShader( vShader_str ), lNormalShader;
 
-   if( vRenderNormals )
+   if ( vRenderNormals )
       lNormalShader = addShader( vNormalShader_str );
 
    if ( !compileShaders() ) {
@@ -47,9 +48,10 @@ int myScene::init() {
 
    addObject( &vAmbient, -1 );
    addObject( &vLight1, -1 );
+   addObject( &vLight2, -1 );
 
    int lObjID = addObject( &vObject1, lShaderID );
-   int lRet = setObjectRenderer<rRenderNormal_3_3, rRenderBasicLight_3_3>( lObjID );
+   int lRet = setObjectRenderer<rRenderMultipleLights_3_3>( lObjID );
 
    switch ( lRet ) {
       case 0:
@@ -104,6 +106,7 @@ void myScene::keySlot( const iEventInfo &_inf ) {
 void myScene::afterCameraUpdate() {
    vObject1.updateFinalMatrix();
    vLight1.updateFinalMatrix();
+   vLight2.updateFinalMatrix();
 }
 
 

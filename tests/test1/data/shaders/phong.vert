@@ -16,6 +16,8 @@
 
 #version 330
 
+const int MAX_LIGHTS = 2;
+
 in vec3 iVertex;
 in vec3 iNormals;
 
@@ -27,19 +29,20 @@ smooth out vec3 vPosition;
 smooth out vec3 vModelView;
 smooth out vec3 vNormals;
 
-// Collors...
+// Colors...
 
 smooth out vec3 vAmbientDiffuseMaterial; // Make some colors...
 smooth out vec3 vAmbientLight;
-smooth out vec3 vLightDirection;
+smooth out vec3 vLightDirection[MAX_LIGHTS];
 
 uniform vec3 uAmbientColor;
 
-struct Light {
+uniform int uNumLights;
+
+uniform struct Light {
    vec3 color;
    vec3 position;
-};
-uniform Light uLights;
+} uLights[MAX_LIGHTS];
 
 void main(void) {
    vAmbientDiffuseMaterial = clamp(iVertex, 0.0, 1.0);
@@ -49,8 +52,10 @@ void main(void) {
    gl_Position = uMVP * vec4( iVertex.xyz, 1.0 );
 
    vPosition  = gl_Position.xyz;
-   vNormals   =   uNormal    * iNormals;
+   vNormals   = normalize( uNormal    * iNormals );
    vModelView = ( uModelView * vec4( iVertex , 1 )).xyz;
 
-   vLightDirection = normalize( uLights.position - vModelView );
+   for( int i = 0; i < uNumLights; ++i ) {
+      vLightDirection[i] = normalize( uLights[i].position - vModelView );
+   }
 }

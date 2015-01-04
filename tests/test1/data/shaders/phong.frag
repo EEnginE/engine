@@ -16,6 +16,8 @@
 
 #version 330
 
+const int MAX_LIGHTS = 2;
+
 uniform mat4 uModelView;
 
 out vec4 oFinalColor;
@@ -26,30 +28,39 @@ smooth in vec3 vNormals;
 
 smooth in vec3 vAmbientDiffuseMaterial;
 smooth in vec3 vAmbientLight;
-smooth in vec3 vLightDirection;
+smooth in vec3 vLightDirection[MAX_LIGHTS];
 
 // Light stuff
 
-struct Light {
+uniform int uNumLights;
+
+uniform struct Light {
    vec3 color;
    vec3 position;
-};
-uniform Light uLights;
+} uLights[MAX_LIGHTS];
 
 const vec3 cSpecularMaterial = vec3( 0.9, 0.9, 0.9 );
 const float cShininess       = 30.0;
 
+
 void main(void) {
+   vec3 lReflection, lSpecularLight = vec3( 0 ), lDiffuseLight = vec3( 0 );
+   float lIntensity;
 
    // Specular Light
-   vec3  lReflection       = normalize( reflect( -vLightDirection, vNormals) );
-   float spec              = max( 0.0, dot( -normalize(vModelView), lReflection ) );
+   for( int i = 0; i < uNumLights; ++i ) {
+      lReflection     = normalize( reflect( -vLightDirection[i], vNormals) );
+      lIntensity      = max( 0.0, dot( -normalize(vModelView), lReflection ) );
 
-   vec3  lSpecularLight    = cSpecularMaterial * pow( spec, cShininess );
+      lSpecularLight += cSpecularMaterial * uLights[i].color * pow( lIntensity, cShininess );
 
-   // Diffuse Light
-   float lDiffIntensity      = max( 0, dot( vNormals, vLightDirection ) );
-   vec3  lDiffuseLight       = vAmbientDiffuseMaterial * uLights.color * lDiffIntensity;
+
+      // Diffuse Light
+      lIntensity      = max( 0, dot( vNormals, vLightDirection[i] ) );
+      if( lReflection != vec3( 0, 0, 0 ) ) { // Strange theoretically unnecessary if
+         lDiffuseLight  += vAmbientDiffuseMaterial * uLights[i].color * lIntensity;
+      }
+   }
 
    oFinalColor = vec4( vAmbientLight + lDiffuseLight + lSpecularLight, 1 );
 }
