@@ -71,6 +71,7 @@ cat << EOF
       BUILD_DIR:        Path to the build directory (default build)
 
       CMAKE_FLAGS:      Addistional cmake flags
+      SKIP_CMAKE:       When 1, skip CMake
       CPP_COMPILER:     The CPP compiler (default: let cmake decide)
       C_COMPILER:       The C compiler (default: let cmale decide)
       INST_PREFIX:      Where to install

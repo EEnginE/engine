@@ -64,9 +64,11 @@ buildProject() {
 
    local RET=0
 
-   msg2 "Running '$CMAKE_EXECUTABLE $CMAKE_FLAGS $ENGINE_ROOT'"
-   $CMAKE_EXECUTABLE $CMAKE_FLAGS $ENGINE_ROOT
-   RET=$?
+   if (( SKIP_CMAKE != 1 )); then
+      msg2 "Running '$CMAKE_EXECUTABLE $CMAKE_FLAGS $ENGINE_ROOT'"
+      $CMAKE_EXECUTABLE $CMAKE_FLAGS $ENGINE_ROOT
+      RET=$?
+   fi
 
    if (( RET != 0 )); then
       error "Cmake failed!"
@@ -97,15 +99,16 @@ generateAtomBuild() {
    "cwd": "{PROJECT_PATH}",
    "env": {
       "CMAKE_EXECUTABLE": "$CMAKE_EXECUTABLE",
-      "BUILD_COMMAND": "$BUILD_COMMAND",
-      "BUILD_DIR": "$BUILD_DIR",
+      "BUILD_COMMAND":    "$BUILD_COMMAND",
+      "BUILD_DIR":        "$BUILD_DIR",
 
-      "CMAKE_FLAGS": "$CMAKE_FLAGS",
+      "SKIP_CMAKE":   "$SKIP_CMAKE",
+      "CMAKE_FLAGS":  "$CMAKE_FLAGS",
       "CPP_COMPILER": "$CPP_COMPILER",
-      "C_COMPILER": "$C_COMPILER",
-      "INST_PREFIX": "$INST_PREFIX",
+      "C_COMPILER":   "$C_COMPILER",
+      "INST_PREFIX":  "$INST_PREFIX",
 
-      "BUILD_FLAGS": "$BUILD_FLAGS"
+      "BUILD_FLAGS":  "$BUILD_FLAGS"
    }
 }
 EOF
