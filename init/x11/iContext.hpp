@@ -40,8 +40,11 @@ namespace e_engine {
 
 namespace unix_x11 {
 
-typedef GLXContext ( *glXCreateContextAttribsARBProc )(
-      Display *, GLXFBConfig, GLXContext, bool, const int * ); // <= Old Style
+typedef GLXContext ( *glXCreateContextAttribsARBProc )( Display *,
+                                                        GLXFBConfig,
+                                                        GLXContext,
+                                                        bool,
+                                                        const int * ); // <= Old Style
 // using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool,
 // const int * );   // <= C++11 style (doesnt work with older gcc versions)
 

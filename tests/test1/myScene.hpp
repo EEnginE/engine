@@ -33,6 +33,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
 
    rAmbientLight<float> vAmbient;
    rSimpleLightSource<float> vLight1;
+   rSimpleLightSource<float> vLight2;
 
    std::string vShader_str;
    std::string vNormalShader_str;
@@ -49,7 +50,8 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
          rCameraHandler( this, _init ),
          vObject1( this, "OBJ 1", _cmd.getMesh() ),
          vAmbient( "Ambient Light", rVec3f( 0.075, 0.05, 0.075 ) ),
-         vLight1( this, "L1", rVec3f( 1, 0.75, 0.75 ) ),
+         vLight1( this, "L1", rVec3f( 0.9, 0.9, 0.9 ) ),
+         vLight2( this, "L2", rVec3f( 0.2, 0.2, 1.0 ) ),
          vShader_str( _cmd.getShader() ),
          vNormalShader_str( _cmd.getNormalShader() ),
          vKeySlot( &myScene::keySlot, this ),

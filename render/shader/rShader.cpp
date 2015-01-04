@@ -26,6 +26,7 @@
 #include "uLog.hpp"
 #include "defines.hpp"
 #include "eCMDColor.hpp"
+#include <regex>
 #include <stdio.h>
 
 
@@ -77,6 +78,9 @@ rShader::rShader() {
    vInfo[LIGHT_POSITION].uName = "position";
    vInfo[LIGHT_POSITION].sName = "uLights";
    vInfo[LIGHT_POSITION].type = GL_FLOAT_VEC3;
+
+   vInfo[NUM_LIGHTS].uName = "uNumLights";
+   vInfo[NUM_LIGHTS].type = GL_INT;
 }
 
 rShader::rShader( rShader &&_s )
@@ -447,6 +451,10 @@ void rShader::setUniformStructString( SHADER_INFORMATION _type, std::string _str
    vInfo[_type].sName = _str;
 }
 
+unsigned int rShader::getUniformArraySize( SHADER_INFORMATION _type ) const {
+   return vInfo[_type].locations.size();
+}
+
 
 /*!
  * \brief Interpretes the information in the shader info struct
@@ -479,16 +487,41 @@ bool rShader::parseRawInformation() {
    bool lRet = true;
 
    std::string lTempName;
+   std::string lName;
 
    for ( auto const &i : vProgramInformation.vInputInfo ) {
+      std::string lArrayIndex;
+      int lIndex = 0;
+
+      lName.clear();
+      for( auto it = i.name.begin(); it != i.name.end(); ++it ) {
+         if( *it == '[' ) {
+            ++it;
+            for(; it != i.name.end(); ++it ) {
+               if ( *it == ']' ) {
+                  ++it;
+                  break;
+               }
+               lArrayIndex += *it;
+            }
+         }
+         lName += *it;
+      }
+
+      if( !lArrayIndex.empty() )
+         lIndex = atoi( lArrayIndex.c_str() );
+
       for ( j = 0; j < __BEGIN_UNIFORMS__; ++j ) {
          if ( vInfo[j].sName.empty() )
             lTempName = vInfo[j].uName;
          else
             lTempName = vInfo[j].sName + '.' + vInfo[j].uName;
 
-         if ( i.name == lTempName && i.type == vInfo[j].type ) {
-            vInfo[j].locations.emplace_back( i.location );
+         if ( lName == lTempName && i.type == vInfo[j].type ) {
+            if( lIndex >= vInfo[j].locations.size() )
+               vInfo[j].locations.resize( lIndex + 1 );
+
+            vInfo[j].locations[lIndex] = i.location;
             j = -1;
             break;
          }
@@ -507,14 +540,38 @@ bool rShader::parseRawInformation() {
    }
 
    for ( auto const &i : vProgramInformation.vUniformInfo ) {
+      std::string lArrayIndex;
+      int lIndex = 0;
+
+      lName.clear();
+      for( auto it = i.name.begin(); it != i.name.end(); ++it ) {
+         if( *it == '[' ) {
+            ++it;
+            for(; it != i.name.end(); ++it ) {
+               if ( *it == ']' ) {
+                  ++it;
+                  break;
+               }
+               lArrayIndex += *it;
+            }
+         }
+         lName += *it;
+      }
+
+      if( !lArrayIndex.empty() )
+         lIndex = atoi( lArrayIndex.c_str() );
+
       for ( j = __BEGIN_UNIFORMS__ + 1; j < __END_INF__; ++j ) {
          if ( vInfo[j].sName.empty() )
             lTempName = vInfo[j].uName;
          else
             lTempName = vInfo[j].sName + '.' + vInfo[j].uName;
 
-         if ( i.name == lTempName && i.type == vInfo[j].type ) {
-            vInfo[j].locations.emplace_back( i.location );
+         if ( lName == lTempName && i.type == vInfo[j].type ) {
+            if( lIndex >= vInfo[j].locations.size() )
+               vInfo[j].locations.resize( lIndex + 1 );
+
+            vInfo[j].locations[lIndex] = i.location;
             j = -1;
             break;
          }
@@ -541,7 +598,6 @@ GLint rShader::getLocation( SHADER_INFORMATION _type, unsigned int _index ) cons
 
    return vInfo[_type].locations[_index];
 }
-
 }
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

@@ -65,6 +65,7 @@ class rShader {
 
       // Light
       AMBIENT_COLOR,
+      NUM_LIGHTS,
       LIGHT_COLOR,
       LIGHT_POSITION,
 
@@ -111,8 +112,8 @@ class rShader {
 
    struct {
       std::vector<GLint> locations; //!< locations (vector because of uniform arrays)
-      std::string uName; //!< Uniform name
-      std::string sName; //!< Struct name
+      std::string uName;            //!< Uniform name
+      std::string sName;            //!< Struct name
       GLint type;
    } vInfo[__END_INF__];
 
@@ -157,6 +158,8 @@ class rShader {
 
    void setUniformTypeString( SHADER_INFORMATION _type, std::string _str );
    void setUniformStructString( SHADER_INFORMATION _type, std::string _str );
+
+   unsigned int getUniformArraySize( SHADER_INFORMATION _type ) const;
 
    GLint getLocation( SHADER_INFORMATION _type, unsigned int _index = 0 ) const;
 };
