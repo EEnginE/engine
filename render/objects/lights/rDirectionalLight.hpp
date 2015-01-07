@@ -1,5 +1,5 @@
 /*!
- * \file rSimpleLightSource.hpp
+ * \file rDirectionalLight.hpp
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef R_SIMPLE_LIGHT_SOURCE_HPP
-#define R_SIMPLE_LIGHT_SOURCE_HPP
+#ifndef R_DIRECTIONAL_LIGHT_HPP
+#define R_DIRECTIONAL_LIGHT_HPP
 
 #include "defines.hpp"
 
@@ -28,9 +28,11 @@
 namespace e_engine {
 
 template <class T>
-class rSimpleLightSource : public rObjectBase, public rMatrixObjectBase<T> {
+class rDirectionalLight : public rObjectBase {
  private:
+   rVec3<T> vAmbientColor;
    rVec3<T> vLightColor;
+   rVec3<T> vLightDirection;
 
    void setFlags();
 
@@ -39,48 +41,56 @@ class rSimpleLightSource : public rObjectBase, public rMatrixObjectBase<T> {
    virtual int setOGLData__() { return -1; };
 
  public:
-   using rMatrixObjectBase<T>::getPosition;
-
-   rSimpleLightSource( rMatrixSceneBase<float> *_scene, std::string _name )
-       : rObjectBase( _name, "", SET_DATA_MANUALLY ), rMatrixObjectBase<T>( _scene ) {
+   rDirectionalLight( std::string _name ) : rObjectBase( _name, "", SET_DATA_MANUALLY ) {
       vLightColor.fill( 0 );
       setFlags();
    }
 
-   rSimpleLightSource( rMatrixSceneBase<float> *_scene, std::string _name, rVec3<T> const &_collor )
-       : rObjectBase( _name, "", SET_DATA_MANUALLY ), rMatrixObjectBase<T>( _scene ) {
-      vLightColor = _collor;
-      setFlags();
-   }
-   rSimpleLightSource( rMatrixSceneBase<float> *_scene,
-                       std::string _name,
-                       rVec3<T> const &&_collor )
-       : rObjectBase( _name, "", SET_DATA_MANUALLY ), rMatrixObjectBase<T>( _scene ) {
-      vLightColor = _collor;
+   rDirectionalLight( std::string _name, rVec3<T> _direction )
+       : rObjectBase( _name, "", SET_DATA_MANUALLY ) {
+      vLightDirection = _direction;
+      vLightDirection.normalize();
       setFlags();
    }
 
-   void setCollor( rVec3<T> const &_collor ) { vLightColor = _collor; }
-   void setCollor( rVec3<T> const &&_collor ) { vLightColor = _collor; }
-   rVec3<T> *getCollor() { return &vLightColor; }
+   rDirectionalLight( std::string _name, rVec3<T> _direction, rVec3<T> _color, rVec3<T> _ambient )
+       : rObjectBase( _name, "", SET_DATA_MANUALLY ) {
+      vLightDirection = _direction;
+      vLightColor = _color;
+      vAmbientColor = _ambient;
+
+      vLightDirection.normalize();
+      setFlags();
+   }
+
+   void setColor( rVec3<T> _color, rVec3<T> _ambient ) {
+      vLightColor = _color;
+      vAmbientColor = _ambient;
+   }
+
+   void setDirection( rVec3<T> _direction ) {
+      vLightDirection = _direction;
+      vLightDirection.normalize();
+   }
+   rVec3<T> *getColor() { return &vLightColor; }
 
    virtual uint32_t getVector( rVec3<T> **_vec, VECTOR_TYPES _type );
 };
 
 
 template <class T>
-uint32_t rSimpleLightSource<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
+uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
    *_vec = nullptr;
 
    switch ( _type ) {
+      case AMBIENT_COLOR:
+         *_vec = &vAmbientColor;
+         return ALL_OK;
       case LIGHT_COLOR:
          *_vec = &vLightColor;
          return ALL_OK;
-      case POSITION_MODEL_VIEW:
-         *_vec = this->getPositionModelView();
-         return ALL_OK;
-      case POSITION:
-         *_vec = this->getPosition();
+      case DIRECTION:
+         *_vec = &vLightDirection;
          return ALL_OK;
       default:
          return UNSUPPORTED_TYPE;
@@ -88,13 +98,13 @@ uint32_t rSimpleLightSource<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type )
 }
 
 template <class T>
-void rSimpleLightSource<T>::setFlags() {
-   vObjectHints[FLAGS] = LIGHT_SOURCE;
+void rDirectionalLight<T>::setFlags() {
+   vObjectHints[FLAGS] = DIRECTIONAL_LIGHT | LIGHT_SOURCE;
    vObjectHints[IS_DATA_READY] = GL_TRUE;
    vObjectHints[MATRICES] = 0;
 }
 }
 
-#endif // R_SIMPLE_LIGHT_SOURCE_HPP
+#endif // R_DIRECTIONAL_LIGHT_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

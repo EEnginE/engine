@@ -31,8 +31,11 @@ namespace e_engine {
 
 // Object Flags:
 #define MESH_OBJECT ( 1 << 0 )
+
 #define LIGHT_SOURCE ( 1 << 1 )
-#define AMBIENT_LIGHT ( 1 << 2 )
+#define DIRECTIONAL_LIGHT ( 1 << 2 )
+#define POINT_LIGHT ( 1 << 3 )
+#define SPOT_LIGHT ( 1 << 4 )
 
 // Matrix Flags:
 #define SCALE_MATRIX_FLAG ( 1 << 0 )
@@ -99,7 +102,14 @@ class rObjectBase {
       NORMAL_MATRIX
    };
 
-   enum VECTOR_TYPES { LIGHT_COLOR, POSITION, POSITION_MODEL_VIEW };
+   enum VECTOR_TYPES {
+      AMBIENT_COLOR,
+      LIGHT_COLOR,
+      POSITION,
+      POSITION_MODEL_VIEW,
+      DIRECTION,
+      ATTENUATION
+   };
 
    enum LIGHT_MODEL_T { NO_LIGHTS = 0, SIMPLE_ADS_LIGHT };
 

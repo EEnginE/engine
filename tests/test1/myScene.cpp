@@ -24,8 +24,15 @@ int myScene::init() {
    vObject1.setOGLData();
    vObject1.setPosition( rVec3f( 0, 0, -5 ) );
 
-   vLight1.setPosition( rVec3f( 10, 10, 10 ) );
-   vLight2.setPosition( rVec3f( -10, -10, 10 ) );
+   vLight1.setPosition( rVec3f( 1, 1, -4 ) );
+   vLight2.setPosition( rVec3f( -1, -1, -4 ) );
+
+   vLight1.setColor( rVec3f( 1.0, 0.2, 0.2 ), rVec3f( 0.1, 0., 0. ) );
+   vLight2.setColor( rVec3f( 0.2, 0.2, 1.0 ), rVec3f( 0., 0., 0.1 ) );
+   vLight3.setColor( rVec3f( 0.9, 0.9, 0.9 ), rVec3f( 0.05, 0.05, 0.05 ) );
+
+   vLight1.setAttenuation( 0.1, 0.01, 0.1 );
+   vLight2.setAttenuation( 0.1, 0.02, 0.2 );
 
    int lLight;
    vObject1.getHints( rObjectBase::LIGHT_MODEL, lLight );
@@ -46,9 +53,9 @@ int myScene::init() {
 
    parseShaders();
 
-   addObject( &vAmbient, -1 );
    addObject( &vLight1, -1 );
    addObject( &vLight2, -1 );
+   addObject( &vLight3, -1 );
 
    int lObjID = addObject( &vObject1, lShaderID );
    int lRet = setObjectRenderer<rRenderMultipleLights_3_3>( lObjID );

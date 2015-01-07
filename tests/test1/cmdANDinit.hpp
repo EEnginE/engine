@@ -29,8 +29,8 @@ class cmdANDinit {
    vector<string> args;
    string argv0;
    string dataRoot;
-   string meshToRender = "mesh2";
-   string vShader = "sADS";
+   string meshToRender = "meshS";
+   string vShader = "phong";
    string vNormalShader = "normals";
 
    uJSON_data vData_JSON;
