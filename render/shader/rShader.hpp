@@ -64,10 +64,12 @@ class rShader {
       NORMAL_MATRIX,
 
       // Light
+      LIGHT_TYPE,
       AMBIENT_COLOR,
       NUM_LIGHTS,
       LIGHT_COLOR,
       LIGHT_POSITION,
+      LIGHT_ATTENUATION,
 
       __END_INF__
    };

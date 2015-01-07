@@ -17,6 +17,8 @@
 * limitations under the License.
 */
 
+#include "defines.hpp"
+
 #include "rRenderMultipleLights_3_3.hpp"
 
 namespace e_engine {
@@ -29,12 +31,25 @@ void rRenderMultipleLights_3_3::render() {
    glUniformMatrix4fv( vUniformModelView_OGL, 1, false, vModelView->getMatrix() );
    glUniformMatrix3fv( vUniformNormal_OGL, 1, false, vNormal->getMatrix() );
 
-   glUniform3fv( vUniformAmbient_OGL, 1, vAmbientLight.color->getMatrix() );
-   glUniform1i( vUniformNumLights, vLightSource.size() );
+   glUniform1i( vUniformNumLights, vDirectionalLight.size() + vPointLight.size() );
 
-   for ( unsigned int i = 0; i < vLightSource.size(); ++i ) {
-      glUniform3fv( vUniformLight_OGL[i], 1, vLightSource[i].color->getMatrix() );
-      glUniform3fv( vUniformLightPos_OGL[i], 1, vLightSource[i].position->getMatrix() );
+   unsigned int lClounter = 0;
+
+   for ( auto const &l : vDirectionalLight ) {
+      glUniform1i( vUniforms[lClounter].type, 0 );
+      glUniform3fv( vUniforms[lClounter].ambient, 1, l.ambient->getMatrix() );
+      glUniform3fv( vUniforms[lClounter].color, 1, l.color->getMatrix() );
+      glUniform3fv( vUniforms[lClounter].pos, 1, l.direction->getMatrix() );
+      ++lClounter;
+   }
+
+   for ( auto const &l : vPointLight ) {
+      glUniform1i( vUniforms[lClounter].type, 1 );
+      glUniform3fv( vUniforms[lClounter].ambient, 1, l.ambient->getMatrix() );
+      glUniform3fv( vUniforms[lClounter].color, 1, l.color->getMatrix() );
+      glUniform3fv( vUniforms[lClounter].pos, 1, l.position->getMatrix() );
+      glUniform3fv( vUniforms[lClounter].attenuation, 1, l.attenuation->getMatrix() );
+      ++lClounter;
    }
 
    glEnableVertexAttribArray( vInputVertexLocation_OGL );
@@ -58,7 +73,9 @@ bool rRenderMultipleLights_3_3::testShader( rShader *_shader ) {
       return false;
 
    if ( _shader->getUniformArraySize( rShader::LIGHT_COLOR ) !=
-        _shader->getUniformArraySize( rShader::LIGHT_POSITION ) )
+              _shader->getUniformArraySize( rShader::LIGHT_POSITION ) &&
+        _shader->getUniformArraySize( rShader::LIGHT_POSITION ) !=
+              _shader->getUniformArraySize( rShader::AMBIENT_COLOR ) )
       return false;
 
    return require( _shader,
@@ -67,10 +84,12 @@ bool rRenderMultipleLights_3_3::testShader( rShader *_shader ) {
                    rShader::MODEL_VIEW_MATRIX,
                    rShader::NORMAL_MATRIX,
                    rShader::M_V_P_MATRIX,
+                   rShader::LIGHT_TYPE,
                    rShader::AMBIENT_COLOR,
                    rShader::NUM_LIGHTS,
                    rShader::LIGHT_COLOR,
-                   rShader::LIGHT_POSITION );
+                   rShader::LIGHT_POSITION,
+                   rShader::LIGHT_ATTENUATION );
 }
 
 bool rRenderMultipleLights_3_3::testObject( rObjectBase *_obj ) {
@@ -127,8 +146,6 @@ bool rRenderMultipleLights_3_3::canRender() {
                       L"Model View Projection Matrix",
                       vUniformNormal_OGL,
                       L"Normal Matrix",
-                      vUniformAmbient_OGL,
-                      L"Ambient collor",
                       vShader_OGL,
                       L"The shader",
                       vUniformNumLights,
@@ -141,30 +158,52 @@ bool rRenderMultipleLights_3_3::canRender() {
                       L"Normal buffer object" ) )
       return false;
 
-   for ( unsigned int i = 0; i < vLightSource.size(); ++i )
-      if ( !testUnifrom( vUniformLight_OGL[i],
-                         L"Light collor",
-                         vUniformLightPos_OGL[i],
-                         L"Light position" ) )
+   for ( auto const &u : vUniforms ) {
+      if ( !testUnifrom( u.type,
+                         L"Light type",
+                         u.ambient,
+                         L"Ambient Light color",
+                         u.color,
+                         L"Light color",
+                         u.pos,
+                         L"Light position",
+                         u.attenuation,
+                         L"Light attenuation" ) ) {
          return false;
+      }
+   }
 
    if ( !testPointer( vModelView,
                       L"Model View Matrix",
                       vModelViewProjection,
                       L"Model View Projection Matrix",
                       vNormal,
-                      L"Normal Matrix",
-                      vAmbientLight.color,
-                      L"Ambient collor" ) )
+                      L"Normal Matrix" ) )
       return false;
 
-   for ( unsigned int i = 0; i < vLightSource.size(); ++i )
-      if ( !testPointer( vLightSource[i].color,
-                         L"Light collor",
-                         vLightSource[i].position,
-                         L"Light position" ) )
+   for ( auto const &p : vDirectionalLight ) {
+      if ( !testPointer( p.ambient,
+                         L"Ambient Light color",
+                         p.color,
+                         L"Light color",
+                         p.direction,
+                         L"Light position" ) ) {
          return false;
+      }
+   }
 
+   for ( auto const &p : vPointLight ) {
+      if ( !testPointer( p.ambient,
+                         L"Ambient Light color",
+                         p.color,
+                         L"Light color",
+                         p.position,
+                         L"Light position",
+                         p.attenuation,
+                         L"Light attenuation" ) ) {
+         return false;
+      }
+   }
 
    return true;
 }
@@ -180,15 +219,20 @@ void rRenderMultipleLights_3_3::setDataFromShader( rShader *_s ) {
    vUniformNormal_OGL = _s->getLocation( rShader::NORMAL_MATRIX );
    vUniformMVP_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
 
-   vUniformAmbient_OGL = _s->getLocation( rShader::AMBIENT_COLOR );
    vUniformNumLights = _s->getLocation( rShader::NUM_LIGHTS );
 
    auto lNumMaxLights = _s->getUniformArraySize( rShader::LIGHT_COLOR );
-   vUniformLight_OGL.resize( lNumMaxLights );
-   vUniformLightPos_OGL.resize( lNumMaxLights );
-   for ( unsigned int i = 0; i < lNumMaxLights; ++i ) {
-      vUniformLight_OGL[i] = _s->getLocation( rShader::LIGHT_COLOR, i );
-      vUniformLightPos_OGL[i] = _s->getLocation( rShader::LIGHT_POSITION, i );
+
+   vUniforms.resize( lNumMaxLights );
+
+   unsigned int lCounter = 0;
+   for ( auto &i : vUniforms ) {
+      i.type = _s->getLocation( rShader::LIGHT_TYPE, lCounter );
+      i.ambient = _s->getLocation( rShader::AMBIENT_COLOR, lCounter );
+      i.color = _s->getLocation( rShader::LIGHT_COLOR, lCounter );
+      i.pos = _s->getLocation( rShader::LIGHT_POSITION, lCounter );
+      i.attenuation = _s->getLocation( rShader::LIGHT_ATTENUATION, lCounter );
+      ++lCounter;
    }
 
    _s->getProgram( vShader_OGL );
@@ -215,17 +259,21 @@ void rRenderMultipleLights_3_3::setDataFromAdditionalObjects( rObjectBase *_obj 
 
    _obj->getHints( rObjectBase::FLAGS, lLightType );
 
-   if ( lLightType & AMBIENT_LIGHT ) {
-      vAmbientLight.setAmbient( _obj );
+   unsigned int lMax = vUniforms.size();
+   unsigned int lCur = vPointLight.size() + vDirectionalLight.size();
+
+   if ( lMax <= lCur ) {
+      wLOG( "Can not set more lights, max ammount of lights is: ", lMax );
       return;
    }
 
-   if ( lLightType & LIGHT_SOURCE ) {
-      if ( vUniformLight_OGL.size() <= vLightSource.size() ) {
-         wLOG( "Max ammount of lights is: ", vLightSource.size() );
-         return;
-      }
-      vLightSource.emplace_back( _obj );
+   if ( lLightType & POINT_LIGHT ) {
+      vPointLight.emplace_back( _obj );
+      return;
+   }
+
+   if ( lLightType & DIRECTIONAL_LIGHT ) {
+      vDirectionalLight.emplace_back( _obj );
       return;
    }
 

@@ -37,32 +37,6 @@ namespace e_engine {
 // (n for arbitrary)>]S_<Min num Data>[_<Max num Data (n for arbitrary)>]D
 enum RENDERER_ID { render_NONE, render_OGL_3_3_Normal_Basic_1S_1D, ___RENDERER_ENGINE_LAST___ };
 
-template <class T>
-struct rRenderAmbientLight {
-   rVec3<T> *color = nullptr;
-
-   rRenderAmbientLight() {}
-   rRenderAmbientLight( rObjectBase *_obj ) { setAmbient( _obj ); }
-
-   void setAmbient( rObjectBase *_obj ) { _obj->getVector( &color, rObjectBase::LIGHT_COLOR ); }
-};
-
-template <class T>
-struct rRenderLightSource : rRenderAmbientLight<T> {
-   rVec3<T> *position = nullptr;
-
-   using rRenderAmbientLight<T>::setAmbient;
-
-   rRenderLightSource() : rRenderAmbientLight<T>() {}
-   rRenderLightSource( rObjectBase *_obj ) { setLight( _obj ); }
-
-   void setLight( rObjectBase *_obj ) {
-      _obj->getVector( &position, rObjectBase::POSITION_MODEL_VIEW );
-
-      setAmbient( _obj );
-   }
-};
-
 /*!
  * \brief Basic renderer to provide an interface for other renderer classes
  */

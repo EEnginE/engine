@@ -26,6 +26,7 @@
 #include "rRenderBase.hpp"
 #include "rObjectBase.hpp"
 #include "rMatrixMath.hpp"
+#include "rLightSourceStructs.hpp"
 
 namespace e_engine {
 
@@ -44,7 +45,7 @@ class rRenderBasicLight_3_3 : public rRenderBase {
    GLint vUniformNormal_OGL = -1;
 
    GLint vUniformAmbient_OGL = -1;
-   GLint vUniformLight_OGL = -1;
+   GLint vUniformColor_OGL = -1;
    GLint vUniformLightPos_OGL = -1;
 
    GLuint vDataSize_uI = 0;
@@ -53,8 +54,7 @@ class rRenderBasicLight_3_3 : public rRenderBase {
    rMat4f *vModelView = nullptr;
    rMat3f *vNormal = nullptr;
 
-   rRenderAmbientLight<float> vAmbientLight;
-   rRenderLightSource<float> vLightSource;
+   rRenderPointLight<float> vLightSource;
 
  public:
    rRenderBasicLight_3_3() {}

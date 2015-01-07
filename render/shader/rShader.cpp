@@ -68,7 +68,12 @@ rShader::rShader() {
    vInfo[NORMAL_MATRIX].uName = "uNormal";
    vInfo[NORMAL_MATRIX].type = GL_FLOAT_MAT3;
 
-   vInfo[AMBIENT_COLOR].uName = "uAmbientColor";
+   vInfo[LIGHT_TYPE].uName = "type";
+   vInfo[LIGHT_TYPE].sName = "uLights";
+   vInfo[LIGHT_TYPE].type = GL_INT;
+
+   vInfo[AMBIENT_COLOR].uName = "ambient";
+   vInfo[AMBIENT_COLOR].sName = "uLights";
    vInfo[AMBIENT_COLOR].type = GL_FLOAT_VEC3;
 
    vInfo[LIGHT_COLOR].uName = "color";
@@ -78,6 +83,10 @@ rShader::rShader() {
    vInfo[LIGHT_POSITION].uName = "position";
    vInfo[LIGHT_POSITION].sName = "uLights";
    vInfo[LIGHT_POSITION].type = GL_FLOAT_VEC3;
+
+   vInfo[LIGHT_ATTENUATION].uName = "attenuation";
+   vInfo[LIGHT_ATTENUATION].sName = "uLights";
+   vInfo[LIGHT_ATTENUATION].type = GL_FLOAT_VEC3;
 
    vInfo[NUM_LIGHTS].uName = "uNumLights";
    vInfo[NUM_LIGHTS].type = GL_INT;
@@ -494,10 +503,10 @@ bool rShader::parseRawInformation() {
       int lIndex = 0;
 
       lName.clear();
-      for( auto it = i.name.begin(); it != i.name.end(); ++it ) {
-         if( *it == '[' ) {
+      for ( auto it = i.name.begin(); it != i.name.end(); ++it ) {
+         if ( *it == '[' ) {
             ++it;
-            for(; it != i.name.end(); ++it ) {
+            for ( ; it != i.name.end(); ++it ) {
                if ( *it == ']' ) {
                   ++it;
                   break;
@@ -508,7 +517,7 @@ bool rShader::parseRawInformation() {
          lName += *it;
       }
 
-      if( !lArrayIndex.empty() )
+      if ( !lArrayIndex.empty() )
          lIndex = atoi( lArrayIndex.c_str() );
 
       for ( j = 0; j < __BEGIN_UNIFORMS__; ++j ) {
@@ -518,7 +527,7 @@ bool rShader::parseRawInformation() {
             lTempName = vInfo[j].sName + '.' + vInfo[j].uName;
 
          if ( lName == lTempName && i.type == vInfo[j].type ) {
-            if( lIndex >= vInfo[j].locations.size() )
+            if ( lIndex >= vInfo[j].locations.size() )
                vInfo[j].locations.resize( lIndex + 1 );
 
             vInfo[j].locations[lIndex] = i.location;
@@ -544,10 +553,10 @@ bool rShader::parseRawInformation() {
       int lIndex = 0;
 
       lName.clear();
-      for( auto it = i.name.begin(); it != i.name.end(); ++it ) {
-         if( *it == '[' ) {
+      for ( auto it = i.name.begin(); it != i.name.end(); ++it ) {
+         if ( *it == '[' ) {
             ++it;
-            for(; it != i.name.end(); ++it ) {
+            for ( ; it != i.name.end(); ++it ) {
                if ( *it == ']' ) {
                   ++it;
                   break;
@@ -558,7 +567,7 @@ bool rShader::parseRawInformation() {
          lName += *it;
       }
 
-      if( !lArrayIndex.empty() )
+      if ( !lArrayIndex.empty() )
          lIndex = atoi( lArrayIndex.c_str() );
 
       for ( j = __BEGIN_UNIFORMS__ + 1; j < __END_INF__; ++j ) {
@@ -568,7 +577,7 @@ bool rShader::parseRawInformation() {
             lTempName = vInfo[j].sName + '.' + vInfo[j].uName;
 
          if ( lName == lTempName && i.type == vInfo[j].type ) {
-            if( lIndex >= vInfo[j].locations.size() )
+            if ( lIndex >= vInfo[j].locations.size() )
                vInfo[j].locations.resize( lIndex + 1 );
 
             vInfo[j].locations[lIndex] = i.location;

@@ -31,9 +31,9 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
  private:
    rSimpleMesh vObject1;
 
-   rAmbientLight<float> vAmbient;
-   rSimpleLightSource<float> vLight1;
-   rSimpleLightSource<float> vLight2;
+   rPointLight<float> vLight1;
+   rPointLight<float> vLight2;
+   rDirectionalLight<float> vLight3;
 
    std::string vShader_str;
    std::string vNormalShader_str;
@@ -49,9 +49,9 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
        : rScene( "MAIN SCENE" ),
          rCameraHandler( this, _init ),
          vObject1( this, "OBJ 1", _cmd.getMesh() ),
-         vAmbient( "Ambient Light", rVec3f( 0.075, 0.05, 0.075 ) ),
-         vLight1( this, "L1", rVec3f( 0.9, 0.9, 0.9 ) ),
-         vLight2( this, "L2", rVec3f( 0.2, 0.2, 1.0 ) ),
+         vLight1( this, "L1" ),
+         vLight2( this, "L2" ),
+         vLight3( "L3", rVec3f( 0.5, -1, 0.5 ) ),
          vShader_str( _cmd.getShader() ),
          vNormalShader_str( _cmd.getNormalShader() ),
          vKeySlot( &myScene::keySlot, this ),

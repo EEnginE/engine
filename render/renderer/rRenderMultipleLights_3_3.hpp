@@ -27,6 +27,7 @@
 #include "rRenderBase.hpp"
 #include "rObjectBase.hpp"
 #include "rMatrixMath.hpp"
+#include "rLightSourceStructs.hpp"
 
 namespace e_engine {
 
@@ -44,12 +45,17 @@ class rRenderMultipleLights_3_3 : public rRenderBase {
    GLint vUniformModelView_OGL = -1;
    GLint vUniformNormal_OGL = -1;
 
-   GLint vUniformAmbient_OGL = -1;
-
    GLint vUniformNumLights = -1;
 
-   std::vector<GLint> vUniformLight_OGL;
-   std::vector<GLint> vUniformLightPos_OGL;
+   struct sUniforms {
+      GLint type = -1;
+      GLint ambient = -1;
+      GLint color = -1;
+      GLint pos = -1;
+      GLint attenuation = -1;
+   };
+
+   std::vector<sUniforms> vUniforms;
 
    GLuint vDataSize_uI = 0;
 
@@ -57,8 +63,8 @@ class rRenderMultipleLights_3_3 : public rRenderBase {
    rMat4f *vModelView = nullptr;
    rMat3f *vNormal = nullptr;
 
-   rRenderAmbientLight<float> vAmbientLight;
-   std::vector<rRenderLightSource<float>> vLightSource;
+   std::vector<rRenderDirectionalLight<float>> vDirectionalLight;
+   std::vector<rRenderPointLight<float>> vPointLight;
 
  public:
    rRenderMultipleLights_3_3() {}

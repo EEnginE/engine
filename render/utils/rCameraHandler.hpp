@@ -100,6 +100,8 @@ class rCameraHandler {
 
    bool getIsCameraEnabled() const { return vCameraMovementEnabled; }
 
+   void printCameraPosition();
+
    virtual void afterCameraUpdate() = 0;
 };
 
@@ -206,6 +208,11 @@ void rCameraHandler<T>::mouse( iEventInfo const &_event ) {
    updateDirectionAndUp();
 
    updateCamera();
+}
+
+template <class T>
+void rCameraHandler<T>::printCameraPosition() {
+   iLOG( L"Camera position:  X = ", vPosition.x, L"; Y = ", vPosition.y, "; Z = ", vPosition.z );
 }
 }
 

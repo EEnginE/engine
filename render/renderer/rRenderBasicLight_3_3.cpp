@@ -29,8 +29,8 @@ void rRenderBasicLight_3_3::render() {
    glUniformMatrix4fv( vUniformModelView_OGL, 1, false, vModelView->getMatrix() );
    glUniformMatrix3fv( vUniformNormal_OGL, 1, false, vNormal->getMatrix() );
 
-   glUniform3fv( vUniformAmbient_OGL, 1, vAmbientLight.color->getMatrix() );
-   glUniform3fv( vUniformLight_OGL, 1, vLightSource.color->getMatrix() );
+   glUniform3fv( vUniformAmbient_OGL, 1, vLightSource.ambient->getMatrix() );
+   glUniform3fv( vUniformColor_OGL, 1, vLightSource.color->getMatrix() );
    glUniform3fv( vUniformLightPos_OGL, 1, vLightSource.position->getMatrix() );
 
    glEnableVertexAttribArray( vInputVertexLocation_OGL );
@@ -119,9 +119,9 @@ bool rRenderBasicLight_3_3::canRender() {
                       vUniformNormal_OGL,
                       L"Normal Matrix",
                       vUniformAmbient_OGL,
-                      L"Ambient collor",
-                      vUniformLight_OGL,
-                      L"Light collor",
+                      L"Ambient color",
+                      vUniformColor_OGL,
+                      L"Light color",
                       vUniformLightPos_OGL,
                       L"Light position",
                       vShader_OGL,
@@ -140,10 +140,10 @@ bool rRenderBasicLight_3_3::canRender() {
                       L"Model View Projection Matrix",
                       vNormal,
                       L"Normal Matrix",
-                      vAmbientLight.color,
-                      L"Ambient collor",
+                      vLightSource.ambient,
+                      L"Ambient color",
                       vLightSource.color,
-                      L"Light collor",
+                      L"Light color",
                       vLightSource.position,
                       L"Light position" ) )
       return false;
@@ -163,7 +163,7 @@ void rRenderBasicLight_3_3::setDataFromShader( rShader *_s ) {
    vUniformMVP_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
 
    vUniformAmbient_OGL = _s->getLocation( rShader::AMBIENT_COLOR );
-   vUniformLight_OGL = _s->getLocation( rShader::LIGHT_COLOR );
+   vUniformColor_OGL = _s->getLocation( rShader::LIGHT_COLOR );
    vUniformLightPos_OGL = _s->getLocation( rShader::LIGHT_POSITION );
 
    _s->getProgram( vShader_OGL );
@@ -190,12 +190,7 @@ void rRenderBasicLight_3_3::setDataFromAdditionalObjects( rObjectBase *_obj ) {
 
    _obj->getHints( rObjectBase::FLAGS, lLightType );
 
-   if ( lLightType & AMBIENT_LIGHT ) {
-      vAmbientLight.setAmbient( _obj );
-      return;
-   }
-
-   if ( lLightType & LIGHT_SOURCE ) {
+   if ( lLightType & POINT_LIGHT ) {
       vLightSource.setLight( _obj );
       return;
    }

@@ -84,7 +84,7 @@ bool rSceneBase::canRenderScene() {
          iLOG( "Solid object ready for rendering: '", d.vObjectPointer->getName(), "'" );
       }
 
-      if ( lFlags & LIGHT_SOURCE || lFlags & AMBIENT_LIGHT ) {
+      if ( lFlags & LIGHT_SOURCE ) {
          iLOG( "Light source object ready for rendering: '", d.vObjectPointer->getName(), "'" );
       }
    }
@@ -159,7 +159,7 @@ int rSceneBase::addObject( e_engine::rObjectBase *_obj, GLint _shaderIndex ) {
    int lFlags;
 
    _obj->getHints( rObjectBase::FLAGS, lFlags );
-   if ( lFlags & AMBIENT_LIGHT || lFlags & LIGHT_SOURCE )
+   if ( lFlags & LIGHT_SOURCE )
       vLightSourcesIndex.emplace_back( vObjects.size() - 1 );
 
    return vObjects.size() - 1;
