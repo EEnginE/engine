@@ -39,8 +39,8 @@ fi
 
 
 echo -e "\x1b[1m"
-echo "               CMake generator"
-echo "               ==============="
+echo "                   EEnginE CMake generator"
+echo "                   ======================="
 echo ""
 echo -e "\x1b[0m"
 
@@ -60,7 +60,8 @@ cat << EOF
       f  - Reformat code with clang-format (this can only reformat code found with l and t)
 
      - Special flags
-      q  - disable process bar and some escape sequenzes
+      q  - disable procress bar and some escape sequenzes
+      Q  - disable procress bar complete
       b  - build the project
       A  - generate .atom-build.json based on the build variables
 
@@ -147,6 +148,7 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
         A) DO_ATOM_BUILD=1; msg2 "Generating .atom-build.json";;
         q) ESC_CLEAR=""
            PB_NEWLINE=1   ; msg2 "Disabling window clearing";;
+        Q) PB_ENABLE=0    ; msg2 "Disabling proress bar completely";;
         S) SKIP_PARSING=1 ; msg2 "Skip parsing config file"
            PB_COLLS=100   ; ;;
 

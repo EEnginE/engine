@@ -19,6 +19,7 @@
  */
 
 #include "rSimpleMesh.hpp"
+#include "rRenderBase.hpp"
 
 
 namespace e_engine {
@@ -108,6 +109,8 @@ uint32_t rSimpleMesh::getVBO( uint32_t &_n ) {
 
    if ( lRet == 0 )
       _n = vVertexBufferObject;
+   else
+      _n = rRenderBase::NOT_SET_ui;
 
    return lRet;
 }
@@ -123,6 +126,8 @@ uint32_t rSimpleMesh::getIBO( uint32_t &_n ) {
 
    if ( lRet == 0 )
       _n = vIndexBufferObject;
+   else
+      _n = rRenderBase::NOT_SET_ui;
 
    return lRet;
 }
@@ -138,6 +143,8 @@ uint32_t rSimpleMesh::getNBO( uint32_t &_n ) {
 
    if ( lRet == 0 )
       _n = vNormalBufferObject;
+   else
+      _n = rRenderBase::NOT_SET_ui;
 
    return lRet;
 }

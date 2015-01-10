@@ -123,7 +123,7 @@ void rRenderVertexNormal_3_3::setDataFromShader( rShader *_s ) {
 }
 
 void rRenderVertexNormal_3_3::setDataFromObject( rObjectBase *_obj ) {
-   vVertexBufferObj_OGL = vIndexBufferObj_OGL = 0;
+   vVertexBufferObj_OGL = vIndexBufferObj_OGL = vNormalBufferObj_OGL = 0;
    _obj->getVBO( vVertexBufferObj_OGL );
    _obj->getIBO( vIndexBufferObj_OGL );
    _obj->getNBO( vNormalBufferObj_OGL );

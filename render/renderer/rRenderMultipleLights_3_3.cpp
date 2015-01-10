@@ -240,13 +240,20 @@ void rRenderMultipleLights_3_3::setDataFromShader( rShader *_s ) {
 }
 
 void rRenderMultipleLights_3_3::setDataFromObject( rObjectBase *_obj ) {
-   vVertexBufferObj_OGL = vIndexBufferObj_OGL = 0;
+   vVertexBufferObj_OGL = vIndexBufferObj_OGL = vNormalBufferObj_OGL = 0;
    _obj->getVBO( vVertexBufferObj_OGL );
    _obj->getIBO( vIndexBufferObj_OGL );
    _obj->getNBO( vNormalBufferObj_OGL );
    _obj->getMatrix( &vModelViewProjection, rObjectBase::MODEL_VIEW_PROJECTION );
    _obj->getMatrix( &vModelView, rObjectBase::MODEL_VIEW_MATRIX );
    _obj->getMatrix( &vNormal, rObjectBase::NORMAL_MATRIX );
+
+   iLOG( "VBO: ",
+         vVertexBufferObj_OGL,
+         "; IBO: ",
+         vIndexBufferObj_OGL,
+         "; NBO: ",
+         vNormalBufferObj_OGL );
 
    uint64_t lTemp;
 

@@ -44,12 +44,17 @@ PB_COLLS=$(tput cols)
 PAD0=$(printf '%0.1s' " "{1..1000} )
 PAD1=$(printf '%0.1s' "#"{1..1000} )
 PB_NEWLINE=0
+PB_ENABLE=1
 
 if [ -z "$PB_COLLS" ]; then
     PB_COLLS=150
 fi
 
 processBar() {
+    if (( PB_ENABLE != 1 )); then
+       return
+    fi
+
     PB_FRAC=$( awk "BEGIN {printf \"%.2f\", ${1} / ${2}}" )
     PB_WIDTH=$(( $PB_COLLS / 2 ))
 
