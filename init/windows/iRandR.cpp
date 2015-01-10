@@ -386,9 +386,7 @@ bool iRandR::restoreScreenLatest() {
  * \todo Find a solution with gamma
  * \returns false
  */
-bool iRandR::setGamma( const iDisplays &, float, float, float, float ) {
-   return false;
-}
+bool iRandR::setGamma( const iDisplays &, float, float, float, float ) { return false; }
 
 iRandR::~iRandR() {
    if ( GlobConf.win.restoreOldScreenRes )

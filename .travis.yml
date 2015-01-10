@@ -19,7 +19,7 @@ install:
    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
 
 script:
-   - ./generate.sh qlt
+   - ./generate.sh qltp
    - mkdir build
    - cd build
    - cmake ..

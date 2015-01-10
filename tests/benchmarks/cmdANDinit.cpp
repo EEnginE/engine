@@ -145,7 +145,7 @@ bool cmdANDinit::parseArgsAndInit() {
          std::regex lFuncRegexRep( "^\\-\\-funcLoops=" );
          const char *lRep = "";
          string funcString = std::regex_replace( arg, lFuncRegexRep, lRep );
-         vFunctionLoops = static_cast<unsigned>(atoi( funcString.c_str() ));
+         vFunctionLoops = static_cast<unsigned>( atoi( funcString.c_str() ) );
          continue;
       }
 
@@ -154,7 +154,7 @@ bool cmdANDinit::parseArgsAndInit() {
          std::regex lFuncRegexRep( "^\\-\\-mutexLoops=" );
          const char *lRep = "";
          string funcString = std::regex_replace( arg, lFuncRegexRep, lRep );
-         vMutexLoops = static_cast<unsigned>(atoi( funcString.c_str() ));
+         vMutexLoops = static_cast<unsigned>( atoi( funcString.c_str() ) );
          continue;
       }
 

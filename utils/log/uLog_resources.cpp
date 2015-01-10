@@ -33,7 +33,6 @@ namespace e_engine {
 namespace internal {
 
 uLogRawData::~uLogRawData() {}
-
 }
 
 uLogEntryRaw::~uLogEntryRaw() {

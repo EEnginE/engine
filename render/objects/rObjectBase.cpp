@@ -267,13 +267,13 @@ int rObjectBase::setOGLData() {
 }
 
 #if COMPILER_CLANG
-#  pragma clang diagnostic push // This warning is irrelevant here
-#  pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic push // This warning is irrelevant here
+#pragma clang diagnostic ignored "-Wunused-parameter"
 #endif
 
 #if COMPILER_GCC
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
 /*!
@@ -407,11 +407,11 @@ uint32_t rObjectBase::getVector( rVec3f **_vec, rObjectBase::VECTOR_TYPES _type 
 }
 
 #if COMPILER_CLANG
-#  pragma clang diagnostic pop
+#pragma clang diagnostic pop
 #endif
 
 #if COMPILER_GCC
-#  pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 

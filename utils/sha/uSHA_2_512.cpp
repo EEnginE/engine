@@ -292,8 +292,8 @@ void uSHA_2::padd1024() {
 
 
 #if COMPILER_CLANG
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Wconversion"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
 #endif
 
    // -----------------------------
@@ -318,7 +318,7 @@ void uSHA_2::padd1024() {
    vBuffer1024_A_uC[127] = v1;
 
 #if COMPILER_CLANG
-#  pragma clang diagnostic pop
+#pragma clang diagnostic pop
 #endif
 
 

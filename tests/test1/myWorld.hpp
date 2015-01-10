@@ -73,9 +73,12 @@ class myWorld final : public e_engine::rWorld, public e_engine::rFrameCounter {
    void key( e_engine::iEventInfo const &info );
    void resize( e_engine::iEventInfo const &info ) {
       iLOG( "Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height );
-      updateViewPort( 0, 0, static_cast<int>(e_engine::GlobConf.win.width), static_cast<int>(e_engine::GlobConf.win.height) );
+      updateViewPort( 0,
+                      0,
+                      static_cast<int>( e_engine::GlobConf.win.width ),
+                      static_cast<int>( e_engine::GlobConf.win.height ) );
       vScene.calculateProjectionPerspective(
-      e_engine::GlobConf.win.width, e_engine::GlobConf.win.height, vNearZ, vFarZ, 35.0 );
+            e_engine::GlobConf.win.width, e_engine::GlobConf.win.height, vNearZ, vFarZ, 35.0 );
    }
 
    int initGL();
