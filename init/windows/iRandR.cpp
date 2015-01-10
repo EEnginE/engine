@@ -52,7 +52,7 @@ void iRandR::reload() {
 
    vCurrentConfig_eD.clear();
 
-   DEVMODEW lSettings_win32 = {0};
+   DEVMODEW lSettings_win32;
    lSettings_win32.dmSize = sizeof( DEVMODEW );
 
    for ( DWORD lDeviceNum_win32 = 0;
@@ -188,7 +188,7 @@ void iRandR::printRandRStatus() {
  * \returns true if everything went fine
  */
 bool iRandR::setPrimary( const iDisplays &_disp ) {
-   DEVMODEW lNotReallyNeeded = {0};
+   DEVMODEW lNotReallyNeeded;
    lNotReallyNeeded.dmSize = sizeof( DEVMODEW );
    lNotReallyNeeded.dmFields = DM_POSITION; // Set the primary position
    lNotReallyNeeded.dmPosition.x = 0;
@@ -386,7 +386,7 @@ bool iRandR::restoreScreenLatest() {
  * \todo Find a solution with gamma
  * \returns false
  */
-bool iRandR::setGamma( const iDisplays &_disp, float _r, float _g, float _b, float _brightness ) {
+bool iRandR::setGamma( const iDisplays &, float, float, float, float ) {
    return false;
 }
 

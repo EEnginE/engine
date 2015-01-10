@@ -49,14 +49,11 @@ std::string uParserJSON::getFilePath() const { return vFilePath_str; }
  * \param[in] _file The file to parse
  *
  * \note This will NOT parse the file! You have to manually parse it with parse()
- *
- * \returns Nothing
  */
 void uParserJSON::setFile( std::string _file ) { vFilePath_str = _file; }
 
 /*!
  * \brief Clears the memory
- * \returns Nothing
  */
 void uParserJSON::clear() {
    vIsParsed = false;
@@ -73,6 +70,7 @@ bool uParserJSON::continueWhitespace() {
       switch ( *vIter ) {
          case '\n':
             ++vCurrentLine;
+            FALLTHROUGH
          case '\t':
          case ' ':
             ++vIter;
@@ -124,6 +122,7 @@ bool uParserJSON::parseValue( e_engine::uJSON_data &_currentObject, const std::s
                               vCurrentLine );
                         return false;
                   }
+                  break;
                case '"':
                   lFound = true;
                   ++vIter;
@@ -131,9 +130,11 @@ bool uParserJSON::parseValue( e_engine::uJSON_data &_currentObject, const std::s
 
                case '\n':
                   ++vCurrentLine;
+                  FALLTHROUGH
                default:
                   _currentObject.value_obj.back().value_str += *vIter;
                   ++vIter;
+                  break;
             }
 
             if ( lFound )
@@ -262,6 +263,7 @@ bool uParserJSON::parseValue( e_engine::uJSON_data &_currentObject, const std::s
                      return false;
                   }
                   lHasDot = true;
+                  FALLTHROUGH
                case '0':
                case '1':
                case '2':
@@ -278,6 +280,7 @@ bool uParserJSON::parseValue( e_engine::uJSON_data &_currentObject, const std::s
 
                case '\n':
                   ++vCurrentLine;
+                  FALLTHROUGH
                case '\t':
                case ' ':
                case ',':
@@ -409,6 +412,7 @@ bool uParserJSON::parseObject( uJSON_data &lCurrentObject ) {
                            vCurrentLine );
                      return false;
                }
+               break;
             case '"':
                lFound = true;
                ++vIter;
@@ -416,6 +420,7 @@ bool uParserJSON::parseObject( uJSON_data &lCurrentObject ) {
 
             case '\n':
                ++vCurrentLine;
+               FALLTHROUGH
             default:
                lName += *vIter;
                ++vIter;
@@ -627,7 +632,8 @@ void uParserJSON::writeValue( const uJSON_data &_data,
          }
          _worker += _level + "}";
          break;
-      default:
+      case __JSON_FAIL__:
+      case __JSON_NOT_SET__:
          wLOG( "Incomplete JSON data structure. Skipp unknown parts.  ( File: '",
                vFilePath_str,
                "' )" );

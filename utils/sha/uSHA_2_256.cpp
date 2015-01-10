@@ -134,8 +134,10 @@ void uSHA_2::block( std::array<unsigned char, 64> const &_data ) {
    uint16_t t;
 
    for ( t = 0; t < 16; ++t ) {
-      word[t] = ( (uint32_t)_data[t * 4 + 0] << 24 ) + ( (uint32_t)_data[t * 4 + 1] << 16 ) +
-                ( (uint32_t)_data[t * 4 + 2] << 8 ) + ( (uint32_t)_data[t * 4 + 3] );
+      word[t] = ( static_cast<uint32_t>( _data[t * 4 + 0] ) << 24 ) +
+                ( static_cast<uint32_t>( _data[t * 4 + 1] ) << 16 ) +
+                ( static_cast<uint32_t>( _data[t * 4 + 2] ) << 8 ) +
+                ( static_cast<uint32_t>( _data[t * 4 + 3] ) );
    }
 
 
@@ -207,7 +209,8 @@ void uSHA_2::block( std::array<unsigned char, 64> const &_data ) {
 }
 
 void uSHA_2::padd512() {
-   uint32_t lElementsInBuffer_uI = vCurrentPos512_A_IT - vBuffer512_A_uC.begin();
+   uint32_t lElementsInBuffer_uI =
+         static_cast<uint32_t>( vCurrentPos512_A_IT - vBuffer512_A_uC.begin() );
 
    // Are is there a full block?
    if ( vCurrentPos512_A_IT == vBuffer512_A_uC.end() ) {
@@ -226,7 +229,7 @@ void uSHA_2::padd512() {
    uint32_t v1, v2, temp;
 
    // vBlockCounter_ulI * 64 = number of bytes in the FULL blocks
-   temp = vBlockCounter_ulI;
+   temp = static_cast<uint32_t>( vBlockCounter_ulI );
    v1 = temp << 6;
    v2 = temp >> 26;
 
@@ -269,7 +272,10 @@ void uSHA_2::padd512() {
       }
    }
 
-
+#if COMPILER_CLANG
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wconversion"
+#endif
 
    // -----------------------------
    // - Append the number of bits -
@@ -283,6 +289,10 @@ void uSHA_2::padd512() {
    vBuffer512_A_uC[61] = v1 >> 16;
    vBuffer512_A_uC[62] = v1 >> 8;
    vBuffer512_A_uC[63] = v1;
+
+#if COMPILER_CLANG
+#  pragma clang diagnostic pop
+#endif
 
    block( vBuffer512_A_uC );
 }

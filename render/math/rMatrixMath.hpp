@@ -100,15 +100,15 @@ template <class T>
 void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    rVec3<T> lAxis = _axis;
    lAxis.normalize();
-   T lAngleToUse = DEG_TO_RAD( _angle ) / 2;
-   T lSin = sin( lAngleToUse );
+   T lAngleToUse = static_cast<T>( DEG_TO_RAD( _angle ) / 2 );
+   T lSin = static_cast<T>( sin( lAngleToUse ) );
 
 
    rVec4<T> lTemp;
    lTemp.x = _axis.x * lSin;
    lTemp.y = _axis.y * lSin;
    lTemp.z = _axis.z * lSin;
-   lTemp.w = cos( lAngleToUse );
+   lTemp.w = static_cast<T>( cos( lAngleToUse ) );
 
    lTemp.normalize();
 
@@ -145,7 +145,7 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
 
 template <class T>
 void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4<T> &_out ) {
-   T f = ( 1.0f / tan( DEG_TO_RAD( _fofy / 2 ) ) );
+   T f = static_cast<T>( 1.0 / tan( static_cast<double>(DEG_TO_RAD( _fofy / 2 )) ) );
 
    _out.fill( 0 );
    _out.template get<0, 0>() = f / _aspectRatio;

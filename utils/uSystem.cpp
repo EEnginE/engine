@@ -128,7 +128,7 @@ std::string uSystem::getMainConfigDirPath() {
       boost::filesystem::path dir2( dir2_str );
       boost::filesystem::path configDir( vUserHome + "/.config" );
       bool dir1_exists, dir2_exists;
-      bool dir1_noDir, dir2_noDir;
+      bool dir1_noDir, dir2_noDir = false;
       bool dotConfigExists;
 
       try {

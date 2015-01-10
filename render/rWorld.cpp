@@ -57,6 +57,8 @@ rWorld::rWorld( iInit *_init )
    setInitObj( _init );
 }
 
+rWorld::~rWorld() {}
+
 
 void rWorld::renderLoop() {
    LOG.nameThread( L"RENDER" );
@@ -178,10 +180,7 @@ void rWorld::continueRenderLoop() {
 }
 
 
-void rWorld::updateViewPort( unsigned int _x,
-                             unsigned int _y,
-                             unsigned int _width,
-                             unsigned int _height ) {
+void rWorld::updateViewPort( int _x, int _y, int _width, int _height ) {
    vViewPort.vNeedUpdate_B = true;
    vViewPort.x = _x;
    vViewPort.y = _y;

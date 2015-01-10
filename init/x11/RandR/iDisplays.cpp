@@ -24,6 +24,24 @@ namespace e_engine {
 
 namespace unix_x11 {
 
+iDisplays::~iDisplays() {}
+
+iDisplays::iDisplays( const iDisplays &&_e ) {
+   vModes_V_mode = std::move( _e.vModes_V_mode );
+   vClones_V_XRR = std::move( _e.vClones_V_XRR );
+
+   vID_XRR = _e.vID_XRR;
+   vModeToUse_XRR = _e.vModeToUse_XRR;
+}
+
+iDisplays &iDisplays::operator=( const iDisplays &&_e ) {
+   vModes_V_mode = std::move( _e.vModes_V_mode );
+   vClones_V_XRR = std::move( _e.vClones_V_XRR );
+
+   vID_XRR = _e.vID_XRR;
+   vModeToUse_XRR = _e.vModeToUse_XRR;
+   return *this;
+}
 
 // --- private ---
 void iDisplays::addClone( RROutput _clone ) { vClones_V_XRR.push_back( _clone ); }
@@ -52,8 +70,6 @@ void iDisplays::addMode(
  *
  * \note This function will be automatically run if you enable() a display
  *       which was disabled before.
- *
- * \returns Nothing
  */
 void iDisplays::autoSelectBest() {
    // Check if there is a preferred mode
@@ -74,7 +90,7 @@ void iDisplays::autoSelectBest() {
       }
    }
 
-   if ( !autoSelectBySize( lMaxWidth_uI, lMaxHeight_uI ) ) {
+   if ( autoSelectBySize( lMaxWidth_uI, lMaxHeight_uI ) == 0 ) {
       // There are no modes which can be used
       vEnabled_B = false;
       vModeToUse_XRR = None;
@@ -217,37 +233,37 @@ double iDisplays::autoSelectBySize( unsigned int _width,
    vCurrentWidth_uI = _width;
    vCurrentHeight_uI = _height;
 
-   lRate60Hz_D = findNearestFreqTo( (double)60, _width, _height, l60Hz_XRR, lMinDiffTo60Hz_D );
-   lRate120Hz_D = findNearestFreqTo( (double)120, _width, _height, l120Hz_XRR, lMinDiffTo120Hz_D );
-   lRate240Hz_D = findNearestFreqTo( (double)240, _width, _height, l240Hz_XRR, lMinDiffTo240Hz_D );
-   lRate480Hz_D = findNearestFreqTo( (double)480, _width, _height, l480Hz_XRR, lMinDiffTo480Hz_D );
+   lRate60Hz_D = findNearestFreqTo( 60, _width, _height, l60Hz_XRR, lMinDiffTo60Hz_D );
+   lRate120Hz_D = findNearestFreqTo( 120, _width, _height, l120Hz_XRR, lMinDiffTo120Hz_D );
+   lRate240Hz_D = findNearestFreqTo( 240, _width, _height, l240Hz_XRR, lMinDiffTo240Hz_D );
+   lRate480Hz_D = findNearestFreqTo( 480, _width, _height, l480Hz_XRR, lMinDiffTo480Hz_D );
 
    // No mode for this size
    if ( lRate60Hz_D < 0 || lRate120Hz_D < 0 || lRate240Hz_D < 0 || lRate480Hz_D < 0 )
       return 0;
 
-   if ( lMinDiffTo60Hz_D == (double)0 ||
+   if ( lMinDiffTo60Hz_D == 0 ||
         ( lMinDiffTo60Hz_D < lMinDiffTo120Hz_D && lMinDiffTo60Hz_D < lMinDiffTo240Hz_D &&
           lMinDiffTo60Hz_D < lMinDiffTo480Hz_D ) ) {
       vModeToUse_XRR = l60Hz_XRR;
       return lFindPreferedRateFailed ? lRate60Hz_D * -1 : lRate60Hz_D;
    }
 
-   if ( lMinDiffTo120Hz_D == (double)0 ||
+   if ( lMinDiffTo120Hz_D == 0 ||
         ( lMinDiffTo120Hz_D < lMinDiffTo60Hz_D && lMinDiffTo120Hz_D < lMinDiffTo240Hz_D &&
           lMinDiffTo120Hz_D < lMinDiffTo480Hz_D ) ) {
       vModeToUse_XRR = l120Hz_XRR;
       return lFindPreferedRateFailed ? lRate120Hz_D * -1 : lRate120Hz_D;
    }
 
-   if ( lMinDiffTo240Hz_D == (double)0 ||
+   if ( lMinDiffTo240Hz_D == 0 ||
         ( lMinDiffTo240Hz_D < lMinDiffTo60Hz_D && lMinDiffTo240Hz_D < lMinDiffTo120Hz_D &&
           lMinDiffTo240Hz_D < lMinDiffTo480Hz_D ) ) {
       vModeToUse_XRR = l240Hz_XRR;
       return lFindPreferedRateFailed ? lRate240Hz_D * -1 : lRate240Hz_D;
    }
 
-   if ( lMinDiffTo480Hz_D == (double)0 ||
+   if ( lMinDiffTo480Hz_D == 0 ||
         ( lMinDiffTo480Hz_D < lMinDiffTo60Hz_D && lMinDiffTo480Hz_D < lMinDiffTo120Hz_D &&
           lMinDiffTo480Hz_D < lMinDiffTo240Hz_D ) ) {
       vModeToUse_XRR = l480Hz_XRR;
@@ -259,7 +275,6 @@ double iDisplays::autoSelectBySize( unsigned int _width,
 
 /*!
  * \brief Disables the display
- * \returns Nothing
  */
 void iDisplays::disable() {
    vEnabled_B = false;
@@ -271,7 +286,6 @@ void iDisplays::disable() {
 
 /*!
  * \brief Enables the display and runs autoSelectBest() if necessary.
- * \returns Nothing
  */
 void iDisplays::enable() {
    vEnabled_B = true;
@@ -336,8 +350,6 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
  * \param[out] _width  The width of the selected resolution
  * \param[out] _height The height of the selected resolution
  * \param[out] _rate   The rate of the selected mode
- *
- * \returns Nothing
  */
 void iDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) const {
    if ( vModeToUse_XRR == None ) {
@@ -402,8 +414,6 @@ bool iDisplays::select( unsigned int _width, unsigned int _height, double _rate 
  * \brief Set this display as a clone of another display
  *
  * \param[in] _disp The display to set clone off
- *
- * \returns Nothing
  */
 void iDisplays::setCloneOf( const iDisplays &_disp ) {
    for ( auto &elem : vClones_V_XRR ) {

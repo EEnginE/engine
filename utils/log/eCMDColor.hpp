@@ -166,7 +166,7 @@ std::wstring eCMDColor::reset() {
 
 /*!
  * \brief Set a console attribute
- * \param _a The attribute integer
+ * \param _a1 The attribute integer
  * \returns An escape sequence for the attribute
  */
 std::wstring eCMDColor::color( uint16_t _a1 ) {
@@ -182,8 +182,8 @@ std::wstring eCMDColor::color( uint16_t _a1 ) {
 
 /*!
  * \brief Set a console attribute and the FG color
- * \param _a  The attribute integer
- * \param _fg The FG color integer
+ * \param _a1 The attribute integer
+ * \param _a2 The FG color integer
  * \returns An escape sequence for the attribute and the FG color
  */
 std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2 ) {
@@ -199,9 +199,9 @@ std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2 ) {
 
 /*!
  * \brief Set a console attribute, the FG and BG color
- * \param _a  The attribute integer
- * \param _fg The FG color integer
- * \param _bg The BG color integer
+ * \param _a1 The attribute integer
+ * \param _a2 The FG color integer
+ * \param _a3 The BG color integer
  * \returns An escape sequence for the attribute the FG and BG color
  */
 std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2, uint16_t _a3 ) {
@@ -219,7 +219,7 @@ std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2, uint16_t _a3 ) {
 
 /*!
  * \brief Set a console attribute
- * \param _a The attribute character
+ * \param _fg The attribute character
  * \returns An escape sequence for the attribute
  */
 std::wstring eCMDColor::color( GLchar _fg ) {

@@ -43,16 +43,16 @@ class rFrameCounter {
 
  public:
    rFrameCounter( rWorld *_rWorld, bool _enable );
-   virtual ~rFrameCounter() { disableFrameCounter( true ); }
+   virtual ~rFrameCounter();
 
    rFrameCounter() = delete;
 
    void enableFrameCounter();
    void disableFrameCounter( bool _join = false );
 
-   void setSleepDelay( double _newSleepDelay ) {
+   void setSleepDelay( int _newSleepDelay ) {
       vSleepDelay = _newSleepDelay;
-      vHelper = vSleepDelay / 1000;
+      vHelper = static_cast<double>( vSleepDelay / 1000 );
    }
 
    bool getIsCounterEnabled() const { return vFrameCounterEnabled; }

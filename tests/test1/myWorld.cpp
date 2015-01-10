@@ -23,7 +23,7 @@
 
 #include <GL/glew.h>
 
-#define USE_OLD_KEY_BINDINGS 0
+using namespace e_engine;
 
 
 myWorld::~myWorld() {}

@@ -19,6 +19,9 @@
 #include "oglTestBind.hpp"
 #include <regex>
 
+using namespace e_engine;
+using namespace std;
+
 cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
    argv0 = argv[0];
    vCanUseColor = COLOR == 1 ? true : false;
@@ -234,7 +237,7 @@ bool cmdANDinit::parseArgsAndInit() {
          std::regex lDataRegexRep( "^\\-\\-near=" );
          const char *lRep = "";
          string version = std::regex_replace( arg, lDataRegexRep, lRep );
-         vNearZ = atof( version.c_str() );
+         vNearZ = static_cast<float>( atof( version.c_str() ) );
          continue;
       }
 
@@ -243,7 +246,7 @@ bool cmdANDinit::parseArgsAndInit() {
          std::regex lDataRegexRep( "^\\-\\-far=" );
          const char *lRep = "";
          string version = std::regex_replace( arg, lDataRegexRep, lRep );
-         vFarZ = atof( version.c_str() );
+         vFarZ = static_cast<float>( atof( version.c_str() ) );
          continue;
       }
 

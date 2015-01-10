@@ -193,7 +193,7 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
       if ( fOutput.connection != 0 )
          continue;
 
-      iDisplays lTempDisplay_eRRD(
+      lTempSizes_eWS.emplace_back(
             fOutput.name, fOutput.id, ( fOutput.crtc != None ) ? true : false );
 
       if ( fOutput.crtc != None ) {
@@ -204,8 +204,12 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
 
                for ( internal::_mode const &fMode : vMode_V_RandR ) {
                   if ( fCRTC.mode == fMode.id ) {
-                     lTempDisplay_eRRD.setCurrentSizeAndPosition(
-                           fMode.width, fMode.height, fCRTC.posX, fCRTC.posY, fMode.refresh );
+                     lTempSizes_eWS.back().setCurrentSizeAndPosition(
+                           fMode.width,
+                           fMode.height,
+                           static_cast<unsigned>( fCRTC.posX ),
+                           static_cast<unsigned>( fCRTC.posY ),
+                           static_cast<unsigned>( fMode.refresh ) );
                      break;
                   }
                }
@@ -213,7 +217,7 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
                // Clones
                for ( RROutput const &fClone : fCRTC.outputs ) {
                   if ( fClone != fOutput.id )
-                     lTempDisplay_eRRD.addClone( fClone );
+                     lTempSizes_eWS.back().addClone( fClone );
                }
 
                break;
@@ -228,7 +232,7 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
          for ( unsigned int j = 0; j < fOutput.modes.size(); ++j ) {
             if ( fOutput.modes[j] == fMode.id ) {
                lModeSupported_B = true;
-               if ( j == (unsigned int)fOutput.npreferred - 1 ) {
+               if ( j == static_cast<unsigned>( fOutput.npreferred ) - 1 ) {
                   lModePrefered_B = true;
                }
                break;
@@ -238,11 +242,9 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
          if ( !lModeSupported_B )
             continue;
 
-         lTempDisplay_eRRD.addMode(
+         lTempSizes_eWS.back().addMode(
                fMode.id, lModePrefered_B, fMode.width, fMode.height, fMode.refresh );
       }
-
-      lTempSizes_eWS.push_back( lTempDisplay_eRRD );
    }
 
    return lTempSizes_eWS;
@@ -362,7 +364,7 @@ int iRandR::getIndexOfDisplay( iDisplays const &_disp ) {
 
    for ( unsigned int i = 0; i < vCRTC_V_RandR.size(); ++i ) {
       if ( vCRTC_V_RandR[i].id == lCRTC_XRR )
-         return i; // The index
+         return static_cast<int>( i ); // The index
    }
 
    // Well... this should be impossible, because we have a reload() at top of this function!

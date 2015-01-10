@@ -107,7 +107,7 @@ class iContext : public iKeyboard, public iRandR, public iInitSignals {
    bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
 
 
-   int setFullScreenMonitor( iDisplays _disp ) { return 0; }
+   int setFullScreenMonitor( iDisplays & ) { return 0; }
    bool setDecoration( ACTION _action );
    int changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
    bool fullScreenMultiMonitor() { return false; }

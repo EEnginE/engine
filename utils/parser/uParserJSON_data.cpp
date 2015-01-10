@@ -52,8 +52,8 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
       for ( auto iter = value_obj.begin(); iter != value_obj.end(); ++iter ) {
          for ( auto const &lID : lIDs ) {
             if ( iter->id == lID ) {
-               unsigned int lOffset_uI =
-                     ( value_obj.end() - value_obj.begin() ) - ( value_obj.end() - iter );
+               unsigned int lOffset_uI = static_cast<unsigned int>(
+                     ( value_obj.end() - value_obj.begin() ) - ( value_obj.end() - iter ) );
                // Found duplicate ID
                lReturn = false;
                if ( !_quiet ) {
@@ -83,7 +83,8 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
                         lTypeStr = "object";
                         lValueStr = "{...}; Elements: " + std::to_string( iter->value_obj.size() );
                         break;
-                     default:
+                     case __JSON_FAIL__:
+                     case __JSON_NOT_SET__:
                         lTypeStr = "UNKNOWN";
                         lValueStr = "UNKNOWN";
                   }
@@ -125,8 +126,6 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
  *
  * \param[in] _toMerge   the object to be merged into this object
  * \param[in] _overWrite Overwrites values eith the same id when true
- *
- * \returns nothing
  */
 void uJSON_data::merge( uJSON_data &_toMerge, bool _overWrite ) {
    if ( _toMerge.type == JSON_ARRAY && type == JSON_ARRAY ) {

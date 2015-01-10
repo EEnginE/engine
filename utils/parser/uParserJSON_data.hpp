@@ -29,17 +29,21 @@
    ::e_engine::JSON_STRING, &_out_, std::string( _def_ ),                                          \
          ::e_engine::uJSON_data::END_MARKER_TYPE::GET
 #define G_NUM( _out_, _def_ )                                                                      \
-   ::e_engine::JSON_NUMBER, &_out_, (double)_def_, ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+   ::e_engine::JSON_NUMBER, &_out_, static_cast<double>( _def_ ),                                  \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::GET
 #define G_BOOL( _out_, _def_ )                                                                     \
-   ::e_engine::JSON_BOOL, &_out_, (bool)_def_, ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+   ::e_engine::JSON_BOOL, &_out_, static_cast<bool>( _def_ ),                                      \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::GET
 
 #define S_STR( _def_ )                                                                             \
    ::e_engine::JSON_STRING, (std::string *)0, std::string( _def_ ),                                \
          ::e_engine::uJSON_data::END_MARKER_TYPE::SET
 #define S_NUM( _def_ )                                                                             \
-   ::e_engine::JSON_NUMBER, (double *)0, (double)_def_, ::e_engine::uJSON_data::END_MARKER_TYPE::SET
+   ::e_engine::JSON_NUMBER, static_cast<double *>( 0 ), static_cast<double>( _def_ ),              \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::SET
 #define S_BOOL( _def_ )                                                                            \
-   ::e_engine::JSON_BOOL, (bool *)0, (bool)_def_, ::e_engine::uJSON_data::END_MARKER_TYPE::SET
+   ::e_engine::JSON_BOOL, static_cast<bool *>( 0 ), static_cast<bool>( _def_ ),                    \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::SET
 
 namespace e_engine {
 
@@ -81,13 +85,13 @@ struct uJSON_data {
 
    // Without inline the linker produces errors
 
-   inline void _() {}                     // END of the list
-   inline void _( uJSON_data *_first ) {} // END of the list
+   inline void _() {}               // END of the list
+   inline void _( uJSON_data * ) {} // END of the list
 
    template <class... ARGS>
    inline void _( uJSON_data *_first, std::string _id, ARGS... _args );
    template <class... ARGS>
-   inline void _( uJSON_data *_first, int _id, ARGS... _args );
+   inline void _( uJSON_data *_first, unsigned int _id, ARGS... _args );
 
 
 
@@ -102,10 +106,10 @@ struct uJSON_data {
 
 
    template <class... ARGS>
-   inline void _( uJSON_data *_first, JSON_DATA_TYPE &_type, END_MARKER_TYPE _what, ARGS... _args );
+   inline void _( uJSON_data *_first, JSON_DATA_TYPE &_type, END_MARKER_TYPE, ARGS... _args );
 
    template <class... ARGS>
-   inline void _( uJSON_data *_first, int &_size, END_MARKER_TYPE _what, ARGS... _args );
+   inline void _( uJSON_data *_first, int &_size, END_MARKER_TYPE, ARGS... _args );
 
 
    template <class... ARGS>
@@ -139,11 +143,11 @@ void uJSON_data::_( uJSON_data *_first, std::string _id, ARGS... _args ) {
 }
 
 template <class... ARGS>
-void uJSON_data::_( uJSON_data *_first, int _id, ARGS... _args ) {
+void uJSON_data::_( uJSON_data *_first, unsigned int _id, ARGS... _args ) {
    if ( type == __JSON_NOT_SET__ )
       type = JSON_ARRAY;
 
-   if ( _id < value_obj.size() && _id >= 0 && type == JSON_ARRAY )
+   if ( _id < value_obj.size() && type == JSON_ARRAY )
       return value_obj[_id]._( _first, _args... );
 
    value_obj.emplace_back( "", __JSON_NOT_SET__ );
@@ -163,51 +167,56 @@ void uJSON_data::_( uJSON_data *_first,
    if ( _what == SET ) {
       type = _type;
 
-      const void *lData = (const void *)&_setData;
+      const void *lData = static_cast<const void *>( &_setData );
 
       switch ( _type ) {
          case JSON_STRING:
-            value_str = *(const std::string *)lData;
+            value_str = *static_cast<const std::string *>( lData );
             break;
          case JSON_NUMBER:
-            value_num = *(const double *)lData;
+            value_num = *static_cast<const double *>( lData );
             break;
          case JSON_BOOL:
-            value_bool = *(const bool *)lData;
+            value_bool = *static_cast<const bool *>( lData );
             break;
          case JSON_ARRAY:
          case JSON_OBJECT:
-            value_obj = *(const VALUES *)lData;
+            value_obj = *static_cast<const VALUES *>( lData );
             break;
-         default:
+         case JSON_NULL:
+         case __JSON_FAIL__:
+         case __JSON_NOT_SET__:
             break;
       }
       return _first->_( _first, _args... );
    }
 
-   void *lData;
+   void *lData = nullptr;
 
    switch ( _type ) {
       case JSON_STRING:
-         lData = (void *)&value_str;
+         lData = static_cast<void *>( &value_str );
          break;
       case JSON_NUMBER:
-         lData = (void *)&value_num;
+         lData = static_cast<void *>( &value_num );
          break;
       case JSON_BOOL:
-         lData = (void *)&value_bool;
+         lData = static_cast<void *>( &value_bool );
          break;
       case JSON_ARRAY:
       case JSON_OBJECT:
-         lData = (void *)&value_obj;
+         lData = static_cast<void *>( &value_obj );
          break;
-      default:
-         lData = (void *)0;
+      case JSON_NULL:
+      case __JSON_FAIL__:
+      case __JSON_NOT_SET__:
+         lData = nullptr;
    }
 
-   if ( lData != 0 )
-      *_pointer = ( T ) * (D *)lData; // D must be the right type, because of the macros, while T
-                                      // could be something different
+   if ( lData )
+      *_pointer = static_cast<T>( *static_cast<D *>( lData ) ); // D must be the right type,
+                                                                // because of the macros, while T
+                                                                // could be something different
 
    _first->_( _first, _args... );
 }
@@ -217,18 +226,17 @@ void uJSON_data::_( uJSON_data *_first,
 
 
 template <class... ARGS>
-void
-uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE &_type, END_MARKER_TYPE _what, ARGS... _args ) {
+void uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE &_type, END_MARKER_TYPE, ARGS... _args ) {
    _type = type;
    _first->_( _first, _args... );
 }
 
 template <class... ARGS>
-void uJSON_data::_( uJSON_data *_first, int &_size, END_MARKER_TYPE _what, ARGS... _args ) {
+void uJSON_data::_( uJSON_data *_first, int &_size, END_MARKER_TYPE, ARGS... _args ) {
    _size = -1;
 
    if ( type == JSON_ARRAY )
-      _size = value_obj.size();
+      _size = static_cast<int>( value_obj.size() );
 
    _first->_( _first, _args... );
 }

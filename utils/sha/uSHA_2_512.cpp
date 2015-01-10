@@ -147,10 +147,14 @@ void uSHA_2::block( std::array<unsigned char, 128> const &_data ) {
    uint16_t t;
 
    for ( t = 0; t < 16; ++t ) {
-      word[t] = ( (uint64_t)_data[t * 8 + 0] << 56 ) + ( (uint64_t)_data[t * 8 + 1] << 48 ) +
-                ( (uint64_t)_data[t * 8 + 2] << 40 ) + ( (uint64_t)_data[t * 8 + 3] << 32 ) +
-                ( (uint64_t)_data[t * 8 + 4] << 24 ) + ( (uint64_t)_data[t * 8 + 5] << 16 ) +
-                ( (uint64_t)_data[t * 8 + 6] << 8 ) + ( (uint64_t)_data[t * 8 + 7] );
+      word[t] = ( static_cast<uint64_t>( _data[t * 8 + 0] ) << 56 ) +
+                ( static_cast<uint64_t>( _data[t * 8 + 1] ) << 48 ) +
+                ( static_cast<uint64_t>( _data[t * 8 + 2] ) << 40 ) +
+                ( static_cast<uint64_t>( _data[t * 8 + 3] ) << 32 ) +
+                ( static_cast<uint64_t>( _data[t * 8 + 4] ) << 24 ) +
+                ( static_cast<uint64_t>( _data[t * 8 + 5] ) << 16 ) +
+                ( static_cast<uint64_t>( _data[t * 8 + 6] ) << 8 ) +
+                ( static_cast<uint64_t>( _data[t * 8 + 7] ) );
    }
 
    for ( ; t < 80; ++t ) {
@@ -223,7 +227,8 @@ void uSHA_2::block( std::array<unsigned char, 128> const &_data ) {
 
 
 void uSHA_2::padd1024() {
-   uint64_t lElementsInBuffer_uI = vCurrentPos1024_A_IT - vBuffer1024_A_uC.begin();
+   uint64_t lElementsInBuffer_uI =
+         static_cast<uint64_t>( vCurrentPos1024_A_IT - vBuffer1024_A_uC.begin() );
 
    // Are is there a full block?
    if ( vCurrentPos1024_A_IT == vBuffer1024_A_uC.end() ) {
@@ -286,6 +291,10 @@ void uSHA_2::padd1024() {
    }
 
 
+#if COMPILER_CLANG
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wconversion"
+#endif
 
    // -----------------------------
    // - Append the number of bits -
@@ -307,6 +316,10 @@ void uSHA_2::padd1024() {
    vBuffer1024_A_uC[125] = v1 >> 16;
    vBuffer1024_A_uC[126] = v1 >> 8;
    vBuffer1024_A_uC[127] = v1;
+
+#if COMPILER_CLANG
+#  pragma clang diagnostic pop
+#endif
 
 
    block( vBuffer1024_A_uC );

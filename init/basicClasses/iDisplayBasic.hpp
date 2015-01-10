@@ -78,7 +78,7 @@ class iDisplayBasic {
    iDisplayBasic() : vPositionChanged_B( false ) {}
 
  public:
-   virtual ~iDisplayBasic() {}
+   virtual ~iDisplayBasic();
 
    virtual void disable() = 0;
    virtual void enable() = 0;

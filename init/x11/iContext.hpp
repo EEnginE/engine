@@ -164,7 +164,7 @@ class iContext : public iRandR, public iKeyboard {
 
  public:
    iContext();
-   virtual ~iContext() { destroyContext(); }
+   virtual ~iContext();
 
    int createContext();
 
@@ -210,7 +210,7 @@ class iContext : public iRandR, public iKeyboard {
 
    bool fullScreen( ACTION _action, bool _allMonitors = false );
    bool fullScreenMultiMonitor();
-   int setFullScreenMonitor( iDisplays _disp );
+   int setFullScreenMonitor( iDisplays &_disp );
    bool maximize( ACTION _action );
    bool setDecoration( ACTION _action );
 

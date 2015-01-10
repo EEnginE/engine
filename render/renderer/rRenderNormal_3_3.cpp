@@ -58,7 +58,7 @@ bool rRenderNormal_3_3::testShader( rShader *_shader ) {
 }
 
 bool rRenderNormal_3_3::testObject( rObjectBase *_obj ) {
-   int lVert, lFlags, lMatrices, lnVBO, lnIBO;
+   uint64_t lVert, lFlags, lMatrices, lnVBO, lnIBO;
 
    _obj->getHints( rObjectBase::NUM_INDEXES,
                    lVert,
@@ -89,12 +89,29 @@ bool rRenderNormal_3_3::testObject( rObjectBase *_obj ) {
    return true;
 }
 
+bool rRenderNormal_3_3::canRender() {
+   if ( !testUnifrom( vVertexBufferObj_OGL,
+                      L"Vertex buffer object",
+                      vIndexBufferObj_OGL,
+                      L"Index buffer object",
+                      vInputLocation_OGL,
+                      L"Input Vertex",
+                      vUniformLocation_OGL,
+                      L"Model View Projection Matrix" ) )
+      return false;
+
+   if ( !testPointer( vMatrix, L"Model View Matrix" ) )
+      return false;
+
+   return true;
+}
+
 
 void rRenderNormal_3_3::setDataFromShader( rShader *_s ) {
    if ( !_s->getProgram( vShader_OGL ) )
       return;
 
-   vInputLocation_OGL = _s->getLocation( rShader::VERTEX_INPUT );
+   vInputLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::VERTEX_INPUT ) );
    vUniformLocation_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
 }
 
@@ -104,11 +121,11 @@ void rRenderNormal_3_3::setDataFromObject( rObjectBase *_obj ) {
    _obj->getIBO( vIndexBufferObj_OGL );
    _obj->getMatrix( &vMatrix, rObjectBase::MODEL_VIEW_PROJECTION );
 
-   int lTemp;
+   uint64_t lTemp;
 
    _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );
 
-   vDataSize_uI = (GLuint)lTemp;
+   vDataSize_uI = static_cast<GLsizei>( lTemp );
 }
 }
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

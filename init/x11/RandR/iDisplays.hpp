@@ -43,7 +43,7 @@ class iRandR;
  * \note To apply the changes made here, you must call iRandR::setDisplaySizes()
  *       first and then iRandR::applyNewSettings()
  */
-class iDisplays : public iDisplayBasic {
+class iDisplays final : public iDisplayBasic {
  private:
    //! \brief internal structure for storing important mode information.
    struct mode : mode_basic {
@@ -59,11 +59,6 @@ class iDisplays : public iDisplayBasic {
 
 
    iDisplays() {}
-   iDisplays( std::string _name, RROutput _id, bool _enabled ) : vID_XRR( _id ) {
-      vModeToUse_XRR = None;
-      vEnabled_B = _enabled;
-      vName_str = _name;
-   }
 
    void addClone( RROutput _clone );
    void
@@ -81,7 +76,19 @@ class iDisplays : public iDisplayBasic {
                              double &_diff ) const;
 
  public:
-   virtual ~iDisplays() {}
+   virtual ~iDisplays();
+
+   iDisplays( std::string _name, RROutput _id, bool _enabled ) : vID_XRR( _id ) {
+      vModeToUse_XRR = None;
+      vEnabled_B = _enabled;
+      vName_str = _name;
+   }
+
+   iDisplays( const iDisplays &_e ) = delete;
+   iDisplays( const iDisplays &&_e );
+
+   iDisplays &operator=( const iDisplays &_e ) = delete;
+   iDisplays &operator=( const iDisplays &&_e );
 
    void autoSelectBest();
 

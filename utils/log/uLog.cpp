@@ -62,6 +62,13 @@ uLog::uLog()
    vLogEntries.clear();
 }
 
+uLog::~uLog() {
+   stopLogLoop();
+   if ( vLogFileOutput_OS.is_open() ) {
+      vLogFileOutput_OS.close();
+   }
+}
+
 void uLog::devInit() {
    addType( 'E', L"Error", 'R', true );
    addType( 'W', L"Warning", 'Y', false );
@@ -101,18 +108,16 @@ void uLog::devInit() {
  * \param _name  The string wich can be displayed at the error output
  * \param _color The color ID from for colored output (can be disabled)
  * \param _bold  Is this error type important
- * \returns Nothing
  */
 void uLog::addType( char _type, std::wstring _name, char _color, bool _bold ) {
    vLogTypes_V_eLT.emplace_back( _type, _name, _color, _bold );
    if ( _name.size() > vMaxTypeStringLength_usI )
-      vMaxTypeStringLength_usI = (unsigned short int)_name.size();
+      vMaxTypeStringLength_usI = static_cast<unsigned short int>( _name.size() );
 }
 
 /*!
  * \brief Names / renames a thread
  *
- * \param[in] _id   the id of the thread
  * \param[in] _name the name of the thread
  */
 void uLog::nameThread( std::wstring _name ) {
@@ -218,7 +223,7 @@ void uLog::stdOutStandard( e_engine::uLogEntryRaw &_e ) {
    if ( GlobConf.log.width < 0 ) {
       struct winsize winS;
       ioctl( 0, TIOCGWINSZ, &winS );
-      _e.data.config.vColumns_uI = winS.ws_col;
+      _e.data.config.vColumns_I = winS.ws_col;
    }
 #endif // UNIX
 
@@ -248,7 +253,7 @@ void uLog::stdErrStandard( e_engine::uLogEntryRaw &_e ) {
    if ( GlobConf.log.width < 0 ) {
       struct winsize winS;
       ioctl( 0, TIOCGWINSZ, &winS );
-      _e.data.config.vColumns_uI = winS.ws_col;
+      _e.data.config.vColumns_I = winS.ws_col;
    }
 #endif // __linux__
 

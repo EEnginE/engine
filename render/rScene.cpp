@@ -39,7 +39,7 @@ rSceneBase::~rSceneBase() {
 bool rSceneBase::canRenderScene() {
    bool lCanRender = true;
    for ( auto const &d : vObjects ) {
-      int lIsObjectReady, lFlags;
+      uint64_t lIsObjectReady, lFlags;
 
       if ( !d.vObjectPointer ) {
          wLOG( "Invalid Object Pointer" );
@@ -135,7 +135,7 @@ int rSceneBase::addShader( std::string _shader ) {
    std::lock_guard<std::mutex> lLockShaders( vShaders_MUT );
 
    vShaders.emplace_back( _shader );
-   return vShaders.size() - 1;
+   return static_cast<int>( vShaders.size() - 1 );
 }
 
 
@@ -151,18 +151,18 @@ int rSceneBase::addShader( std::string _shader ) {
  *
  * \returns The Index of the object
  */
-int rSceneBase::addObject( e_engine::rObjectBase *_obj, GLint _shaderIndex ) {
+GLuint rSceneBase::addObject( e_engine::rObjectBase *_obj, GLint _shaderIndex ) {
    std::lock_guard<std::mutex> lLockObjects( vObjects_MUT );
 
    vObjects.emplace_back( _obj, _shaderIndex );
 
-   int lFlags;
+   uint64_t lFlags;
 
    _obj->getHints( rObjectBase::FLAGS, lFlags );
    if ( lFlags & LIGHT_SOURCE )
       vLightSourcesIndex.emplace_back( vObjects.size() - 1 );
 
-   return vObjects.size() - 1;
+   return static_cast<unsigned>( vObjects.size() - 1 );
 }
 
 /*!
@@ -211,10 +211,10 @@ int rSceneBase::assignObjectRenderer( GLuint _index, rRenderBase *_renderer ) {
          "'" );
 #endif
 
-   _renderer->setDataFromShader( &vShaders[vObjects[_index].vShaderIndex] );
+   _renderer->setDataFromShader( &vShaders[static_cast<size_t>( vObjects[_index].vShaderIndex )] );
    _renderer->setDataFromObject( vObjects[_index].vObjectPointer );
 
-   int lLightModel;
+   uint64_t lLightModel;
    vObjects[_index].vObjectPointer->getHints( rObjectBase::LIGHT_MODEL, lLightModel );
 
    switch ( lLightModel ) {

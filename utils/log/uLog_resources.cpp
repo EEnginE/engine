@@ -30,7 +30,11 @@
 #endif
 
 namespace e_engine {
+namespace internal {
 
+uLogRawData::~uLogRawData() {}
+
+}
 
 uLogEntryRaw::~uLogEntryRaw() {
    if ( vElements )
@@ -116,7 +120,7 @@ void uLogEntryRaw::__DATA__::configure( e_engine::LOG_COLOR_TYPE _color,
    config.vTime_LPT = _time;
    config.vFile_LPT = _file;
    config.vErrorType_LPT = _errorType;
-   config.vColumns_uI = _columns;
+   config.vColumns_I = _columns;
    config.vThread_LPT = _thread;
 }
 }

@@ -1,7 +1,5 @@
 /*!
- * \file iKeyboardBasic.hpp
- *
- * Basic class for setting keys
+ * \file rRenderBase.cpp
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -19,15 +17,11 @@
  * limitations under the License.
  */
 
-#include "iKeyboardBasic.hpp"
+#include "defines.hpp"
+#include "rRenderBase.hpp"
 
 namespace e_engine {
 
-iKeyboardBasic::~iKeyboardBasic() {}
-
-iKeyboardBasic::iKeyboardBasic() {
-   for ( auto &elem : key_state )
-      elem = E_RELEASED;
+rRenderBase::~rRenderBase() {}
+void rRenderBase::setDataFromAdditionalObjects( rObjectBase * ) {}
 }
-}
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

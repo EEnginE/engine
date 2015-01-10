@@ -24,10 +24,10 @@
 
 namespace e_engine {
 
+iInitSignals::~iInitSignals() {}
+
 /*!
  * \brief Removes \c ALL slots from the \c ALL events
- *
- * \returns Nothing
  */
 void iInitSignals::removeAllSlots() {
    vWindowClose_SIG.disconnectAll();

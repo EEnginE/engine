@@ -100,6 +100,8 @@ DO_BUILD=0
 DO_ATOM_BUILD=0
 SKIP_PARSING=0
 
+PRINT_PARSED=0
+
 ARG_STRING=""
 
 # Load all functions in the generate dir
@@ -148,7 +150,7 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
         S) SKIP_PARSING=1 ; msg2 "Skip parsing config file"
            PB_COLLS=100   ; ;;
 
-        p) printWhatParsed ;;
+        p) PRINT_PARSED=1 ; msg2 "Printing Parsed config" ;;
         *)
             error "Unknown Argument '$I'"
             help_text
@@ -177,6 +179,9 @@ fi
 
 doGlew $DO_GLEW
 
+if (( PRINT_PARSED == 1 )); then
+   printWhatParsed
+fi
 
 if (( DO_CLEAN == 1 )); then
     clean

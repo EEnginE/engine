@@ -18,11 +18,15 @@
 #include "BenchClass.hpp"
 #include "cmdANDinit.hpp"
 
+BenchBaseVirtual::~BenchBaseVirtual() {}
+
+using namespace std;
+
 #define START( __VarName__ )                                                                       \
    std::chrono::system_clock::time_point __VarName__ = std::chrono::system_clock::now();
 #define STOP( __VarName__ )                                                                        \
-   std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::system_clock::now() -       \
-                                                          __VarName__ ).count();
+   static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::system_clock::now() -       \
+                                                          __VarName__ ).count());
 
 typedef std::chrono::system_clock::duration TIME_DURATION;
 

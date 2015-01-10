@@ -51,10 +51,10 @@ class rWorld {
 
    struct {
       bool vNeedUpdate_B;
-      unsigned int x;
-      unsigned int y;
-      unsigned int width;
-      unsigned int height;
+      int x;
+      int y;
+      int width;
+      int height;
    } vViewPort;
 
    struct {
@@ -78,7 +78,7 @@ class rWorld {
 
  public:
    rWorld( iInit *_init );
-   virtual ~rWorld() {}
+   virtual ~rWorld();
 
    rWorld() = delete;
 
@@ -89,8 +89,7 @@ class rWorld {
    uint64_t *getRenderedFramesPtr() { return &vRenderedFrames; }
    bool getIsRenderLoopPaused() { return vRenderLoopIsPaused_B; }
 
-   void
-   updateViewPort( unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height );
+   void updateViewPort( int _x, int _y, int _width, int _height );
    void updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
 };
 }

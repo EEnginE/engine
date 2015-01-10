@@ -60,25 +60,25 @@ bool uSHA_2::add( std::string const &_message ) {
       return false;
 
    if ( vType == SHA2_224 || vType == SHA2_256 ) {
-      for ( unsigned char const &c : _message ) {
+      for ( char const &c : _message ) {
 
          if ( vCurrentPos512_A_IT == vBuffer512_A_uC.end() ) {
             block( vBuffer512_A_uC );
             vCurrentPos512_A_IT = vBuffer512_A_uC.begin();
          }
 
-         *vCurrentPos512_A_IT = c;
+         *vCurrentPos512_A_IT = static_cast<uint8_t>( c );
          ++vCurrentPos512_A_IT;
       }
    } else {
-      for ( unsigned char const &c : _message ) {
+      for ( char const &c : _message ) {
 
          if ( vCurrentPos1024_A_IT == vBuffer1024_A_uC.end() ) {
             block( vBuffer1024_A_uC );
             vCurrentPos1024_A_IT = vBuffer1024_A_uC.begin();
          }
 
-         *vCurrentPos1024_A_IT = c;
+         *vCurrentPos1024_A_IT = static_cast<uint8_t>( c );
          ++vCurrentPos1024_A_IT;
       }
    }
@@ -216,22 +216,22 @@ namespace {
 
 void int32ToString( std::vector<unsigned char> &_str, uint32_t const &_num, uint32_t _level ) {
    _level *= 4;
-   _str[_level] = (unsigned char)( _num >> 24 );
-   _str[_level + 1] = (unsigned char)( _num >> 16 );
-   _str[_level + 2] = (unsigned char)( _num >> 8 );
-   _str[_level + 3] = (unsigned char)( _num );
+   _str[_level] = static_cast<uint8_t>( _num >> 24 );
+   _str[_level + 1] = static_cast<uint8_t>( _num >> 16 );
+   _str[_level + 2] = static_cast<uint8_t>( _num >> 8 );
+   _str[_level + 3] = static_cast<uint8_t>( _num );
 }
 
 void int64ToString( std::vector<unsigned char> &_str, uint64_t const &_num, uint32_t _level ) {
    _level *= 8;
-   _str[_level] = (unsigned char)( _num >> 56 );
-   _str[_level + 1] = (unsigned char)( _num >> 48 );
-   _str[_level + 2] = (unsigned char)( _num >> 40 );
-   _str[_level + 3] = (unsigned char)( _num >> 32 );
-   _str[_level + 4] = (unsigned char)( _num >> 24 );
-   _str[_level + 5] = (unsigned char)( _num >> 16 );
-   _str[_level + 6] = (unsigned char)( _num >> 8 );
-   _str[_level + 7] = (unsigned char)( _num );
+   _str[_level] = static_cast<uint8_t>( _num >> 56 );
+   _str[_level + 1] = static_cast<uint8_t>( _num >> 48 );
+   _str[_level + 2] = static_cast<uint8_t>( _num >> 40 );
+   _str[_level + 3] = static_cast<uint8_t>( _num >> 32 );
+   _str[_level + 4] = static_cast<uint8_t>( _num >> 24 );
+   _str[_level + 5] = static_cast<uint8_t>( _num >> 16 );
+   _str[_level + 6] = static_cast<uint8_t>( _num >> 8 );
+   _str[_level + 7] = static_cast<uint8_t>( _num );
 }
 }
 
@@ -318,6 +318,7 @@ std::string uSHA_2::get( bool _space ) {
    switch ( vType ) {
       case SHA2_224:
          lEnd_suI = 7;
+         FALLTHROUGH
       case SHA2_256:
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
 #ifdef _MSC_VER
@@ -335,11 +336,12 @@ std::string uSHA_2::get( bool _space ) {
 
       case SHA2_384:
          lEnd_suI = 6;
+         FALLTHROUGH
       case SHA2_512:
          uint32_t v1, v2;
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
-            v1 = ( uint32_t )( h_1024[i] >> 32 );
-            v2 = ( uint32_t )( h_1024[i] );
+            v1 = static_cast<uint32_t>( h_1024[i] >> 32 );
+            v2 = static_cast<uint32_t>( h_1024[i] );
 #ifdef _MSC_VER
             _snprintf( lBuffer_CSTR, 9, "%08x", v1 );
 #else
@@ -376,9 +378,9 @@ unsigned int uSHA_2::getHashLength() {
          return 384 / 8;
       case SHA2_512:
          return 512 / 8;
-      default:
-         return 0;
    }
+
+   return 0;
 }
 }
 

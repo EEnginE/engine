@@ -144,7 +144,6 @@ class rLoaderBase {
 
 /*!
  * \brief Clears the memory
- * \returns Nothing
  */
 template <class T, class I>
 void rLoaderBase<T, I>::unLoad() {
@@ -177,8 +176,6 @@ std::string rLoaderBase<T, I>::getFilePath() const {
  * \param[in] _file The file to load
  *
  * \note This will NOT load the file! You have to manually load it with load()
- *
- * \returns Nothing
  */
 template <class T, class I>
 void rLoaderBase<T, I>::setFile( std::string _file ) {
@@ -276,9 +273,9 @@ void rLoaderBase<T, I>::reindex2( std::vector<T> *_vertIn,
          continue;
       }
 
-      for ( auto const &i : lHelper[lIV] ) {
-         if ( i.i1 == lI2 ) {
-            _indexOut->emplace_back( i.index );
+      for ( auto const &j : lHelper[lIV] ) {
+         if ( j.i1 == lI2 ) {
+            _indexOut->emplace_back( j.index );
             lFoundIndex = true;
             break;
          }
@@ -337,9 +334,9 @@ void rLoaderBase<T, I>::reindex3( std::vector<T> *_vertIn,
          continue;
       }
 
-      for ( auto const &i : lHelper[lIV] ) {
-         if ( i.i1 == lI2 && i.i2 == lI3 ) {
-            _indexOut->emplace_back( i.index );
+      for ( auto const &j : lHelper[lIV] ) {
+         if ( j.i1 == lI2 && j.i2 == lI3 ) {
+            _indexOut->emplace_back( j.index );
             lFoundIndex = true;
             break;
          }

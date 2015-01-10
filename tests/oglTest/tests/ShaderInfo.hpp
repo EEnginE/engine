@@ -29,8 +29,6 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-using namespace e_engine;
 
 class ShaderInfo {
  private:
@@ -39,9 +37,9 @@ class ShaderInfo {
  public:
    ShaderInfo() {}
 
-   const static string desc;
+   const static std::string desc;
 
-   void runTest( uJSON_data &_data, string _dataRoot );
+   void runTest( e_engine::uJSON_data &_data, std::string _dataRoot );
 };
 
 #endif // SHADERINFO_HPP

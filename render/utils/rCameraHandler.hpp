@@ -59,11 +59,12 @@ class rCameraHandler {
    rCameraHandler() {}
 
  public:
+   virtual ~rCameraHandler() {}
    rCameraHandler( rMatrixSceneBase<T> *_scene, iInit *_init )
        : vScene( _scene ),
          vInit( _init ),
 
-         vPosition( (T)0.0, (T)0.0, (T)0.0 ),
+         vPosition( static_cast<T>( 0 ), static_cast<T>( 0 ), static_cast<T>( 0 ) ),
 
          vCameraMovementEnabled( true ),
 
@@ -127,14 +128,14 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
    if ( !vCameraMovementEnabled || _event.eKey.state == E_RELEASED )
       return;
 
-   T lSpeed = GlobConf.camera.movementSpeed;
+   T lSpeed = static_cast<T>( GlobConf.camera.movementSpeed );
    KEY_MOVEMENT _action = __LAST__;
 
    rVec3<T> lTempVector;
 
    for ( uint8_t i = 0; i < __LAST__; ++i ) {
       if ( _event.eKey.key == keys[i] ) {
-         _action = (KEY_MOVEMENT)i;
+         _action = static_cast<KEY_MOVEMENT>( i );
          break;
       }
    }
@@ -142,6 +143,7 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
    switch ( _action ) {
       case DOWN:
          lSpeed *= -1;
+         FALLTHROUGH
       case UP:
          lTempVector = lSpeed * vUp;
          vPosition += lTempVector;
@@ -149,6 +151,7 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
 
       case LEFT:
          lSpeed *= -1;
+         FALLTHROUGH
       case RIGHT:
          lTempVector = rVectorMath::crossProduct( vDirection, vUp );
          lTempVector.normalize();
@@ -158,12 +161,13 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
 
       case BACKWARD:
          lSpeed *= -1;
+         FALLTHROUGH
       case FORWARD:
          lTempVector = lSpeed * vDirection;
          vPosition += lTempVector;
          break;
 
-      default:
+      case __LAST__:
          return;
    }
 
@@ -173,19 +177,25 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
 
 template <class T>
 void rCameraHandler<T>::updateDirectionAndUp() {
-   vDirection.x = cos( GlobConf.camera.angleVertical ) * sin( GlobConf.camera.angleHorizontal );
-   vDirection.y = sin( GlobConf.camera.angleVertical );
-   vDirection.z = cos( GlobConf.camera.angleVertical ) * cos( GlobConf.camera.angleHorizontal );
+   vDirection.x = static_cast<T>( cos( GlobConf.camera.angleVertical ) *
+                                  sin( GlobConf.camera.angleHorizontal ) );
+   vDirection.y = static_cast<T>( sin( GlobConf.camera.angleVertical ) );
+   vDirection.z = static_cast<T>( cos( GlobConf.camera.angleVertical ) *
+                                  cos( GlobConf.camera.angleHorizontal ) );
 
    rVec3<T> lTempRight;
    lTempRight.y = 0;
 
 #ifdef M_PIl
-   lTempRight.x = sin( GlobConf.camera.angleHorizontal - ( T )( M_PIl / 2 ) );
-   lTempRight.z = cos( GlobConf.camera.angleHorizontal - ( T )( M_PIl / 2 ) );
+   lTempRight.x =
+         static_cast<T>( sin( GlobConf.camera.angleHorizontal - static_cast<T>( M_PIl / 2 ) ) );
+   lTempRight.z =
+         static_cast<T>( cos( GlobConf.camera.angleHorizontal - static_cast<T>( M_PIl / 2 ) ) );
 #elif defined M_PI
-   lTempRight.x = sin( GlobConf.camera.angleHorizontal - ( T )( M_PI / 2 ) );
-   lTempRight.z = cos( GlobConf.camera.angleHorizontal - ( T )( M_PI / 2 ) );
+   lTempRight.x =
+         static_cast<T>( sin( GlobConf.camera.angleHorizontal - static_cast<T>( M_PI / 2 ) ) );
+   lTempRight.z =
+         static_cast<T>( cos( GlobConf.camera.angleHorizontal - static_cast<T>( M_PI / 2 ) ) );
 #else
 #error "M_PI is not defined!"
 #endif
@@ -196,8 +206,8 @@ void rCameraHandler<T>::updateDirectionAndUp() {
 
 template <class T>
 void rCameraHandler<T>::mouse( iEventInfo const &_event ) {
-   int lDifX = signed( GlobConf.win.width / 2 ) - _event.iMouse.posX;
-   int lDifY = signed( GlobConf.win.height / 2 ) - _event.iMouse.posY;
+   int lDifX = static_cast<int>( ( GlobConf.win.width / 2 ) - _event.iMouse.posX );
+   int lDifY = static_cast<int>( ( GlobConf.win.height / 2 ) - _event.iMouse.posY );
    if ( ( lDifX == 0 && lDifY == 0 ) || !vCameraMovementEnabled )
       return;
 

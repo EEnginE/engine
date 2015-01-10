@@ -40,8 +40,8 @@ if( CMAKE_CXX_COMPILER_ID MATCHES GNU )
    set( ENGINE_COMPILER_VERSION ${GCC_COMPILER_VERSION} )
 endif( CMAKE_CXX_COMPILER_ID MATCHES GNU )
 
-set( GNU_COMPILER_OPTIONS_DEBUG   "-Wall -Wno-comment -std=c++14 ${PROJECT_DEFINES_GCC} ${GCC_VERBOSE}" )
-set( GNU_COMPILER_OPTIONS_RELEASE "-Wall -Wno-comment -std=c++14 ${PROJECT_DEFINES_GCC} ${GCC_VERBOSE} -O3" )
+set( GNU_COMPILER_OPTIONS_DEBUG   "-Wall -Wextra -Wno-comment -std=c++14 ${PROJECT_DEFINES_GCC} ${GCC_VERBOSE}" )
+set( GNU_COMPILER_OPTIONS_RELEASE "-Wall -Wextra -Wno-comment -std=c++14 ${PROJECT_DEFINES_GCC} ${GCC_VERBOSE} -O3" )
 
 if( EXTRA_WARNINGS )
    set( GNU_COMPILER_OPTIONS_DEBUG   "-Winline -Werror ${GNU_COMPILER_OPTIONS_DEBUG}" )
@@ -58,8 +58,16 @@ if( SANITIZERS )
    message( STATUS "Enable sanitizers: '${SANITIZERS}<'" )
 endif( SANITIZERS )
 
-set( CLANG_COMPILER_OPTIONS_DEBUG   "-std=c++14 ${SANITIZERS_FINAL} ${PROJECT_DEFINES_CLANG} ${CLANG_VERBOSE}" )
-set( CLANG_COMPILER_OPTIONS_RELEASE "-std=c++14                     ${PROJECT_DEFINES_CLANG} ${CLANG_VERBOSE}" )
+set( CLANG_WARNINGS "-Weverything -ftemplate-backtrace-limit=0 ${CLANG_VERBOSE}" )
+set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-c++98-compat" ) # We don't care about c++98 stuff
+set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-c++98-compat-pedantic" )
+set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-padded" )
+set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-float-equal" )
+set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-gnu-anonymous-struct -Wno-nested-anon-types" )
+set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-exit-time-destructors -Wno-global-constructors" )
+
+set( CLANG_COMPILER_OPTIONS_DEBUG   "${CLANG_WARNINGS} -std=c++14 ${SANITIZERS_FINAL} ${PROJECT_DEFINES_CLANG}" )
+set( CLANG_COMPILER_OPTIONS_RELEASE "${CLANG_WARNINGS} -std=c++14                     ${PROJECT_DEFINES_CLANG}" )
 
 if( EXTRA_WARNINGS )
    set( CLANG_COMPILER_OPTIONS_DEBUG   "-Werror -Wthread-safety -ftemplate-backtrace-limit=0 ${CLANG_COMPILER_OPTIONS_DEBUG}" )

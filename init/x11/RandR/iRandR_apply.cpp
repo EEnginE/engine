@@ -110,8 +110,8 @@ bool iRandR::applyNewRandRSettings() {
       }
 
 
-      int lTempWidth_I = fCRTC.posX + lTempMode_RandR.width;
-      int lTempHeight_I = fCRTC.posY + lTempMode_RandR.height;
+      int lTempWidth_I = fCRTC.posX + static_cast<int>( lTempMode_RandR.width );
+      int lTempHeight_I = fCRTC.posY + static_cast<int>( lTempMode_RandR.height );
       lNewWidth_I = ( lTempWidth_I > lNewWidth_I ) ? lTempWidth_I : lNewWidth_I;
       lNewHeight_I = ( lTempHeight_I > lNewHeight_I ) ? lTempHeight_I : lNewHeight_I;
    }
@@ -159,10 +159,13 @@ bool iRandR::applyNewRandRSettings() {
             vRootWindow_X11,
             ( lNewWidth_I > lCurrentWidth_I ) ? lNewWidth_I : lCurrentWidth_I,
             ( lNewHeight_I > lCurrentHeight_I ) ? lNewHeight_I : lCurrentHeight_I,
-            ( 25.4 * ( ( lNewWidth_I > lCurrentWidth_I ) ? lNewWidth_I : lCurrentWidth_I ) ) /
-                  lDPI_D,
-            ( 25.4 * ( ( lNewHeight_I > lCurrentHeight_I ) ? lNewHeight_I : lCurrentHeight_I ) ) /
-                  lDPI_D );
+            static_cast<int>(
+                  ( 25.4 * ( ( lNewWidth_I > lCurrentWidth_I ) ? lNewWidth_I : lCurrentWidth_I ) ) /
+                  lDPI_D ),
+            static_cast<int>(
+                  ( 25.4 *
+                    ( ( lNewHeight_I > lCurrentHeight_I ) ? lNewHeight_I : lCurrentHeight_I ) ) /
+                  lDPI_D ) );
    }
 
    for ( internal::_crtc const &fCRTC : lTempAllCRTC_V_RandR )
@@ -178,8 +181,8 @@ bool iRandR::applyNewRandRSettings() {
                         vRootWindow_X11,
                         lNewWidth_I,
                         lNewHeight_I,
-                        ( 25.4 * lNewWidth_I ) / lDPI_D,
-                        ( 25.4 * lNewHeight_I ) / lDPI_D );
+                        static_cast<int>( ( 25.4 * lNewWidth_I ) / lDPI_D ),
+                        static_cast<int>( ( 25.4 * lNewHeight_I ) / lDPI_D ) );
    }
 
    // We now work with lTempAllCRTC_V_RandR only

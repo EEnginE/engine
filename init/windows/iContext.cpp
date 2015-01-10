@@ -504,7 +504,13 @@ bool iContext::setDecoration( ACTION _action ) {
    return true;
 }
 
-int iContext::fullScreen( ACTION _action, bool _allMonitors ) {
+/*!
+ * \brief Sets or removes fullscreen
+ * \note You need to restart to apply the changes
+ * \param[in] _action What to do
+ * \returns 1 on successs
+ */
+int iContext::fullScreen( ACTION _action, bool ) {
    bool lGlobConfOld_B = GlobConf.win.fullscreen;
 
    switch ( _action ) {

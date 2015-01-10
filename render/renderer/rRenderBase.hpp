@@ -41,6 +41,10 @@ enum RENDERER_ID { render_NONE, render_OGL_3_3_Normal_Basic_1S_1D, ___RENDERER_E
  * \brief Basic renderer to provide an interface for other renderer classes
  */
 class rRenderBase {
+ public:
+   const static GLint NOT_SET = std::numeric_limits<GLint>::max();
+   const static GLuint NOT_SET_ui = static_cast<unsigned>( NOT_SET );
+
  protected:
    bool vNeedUpdateUniforms_B;
    bool vAlwaysUpdateUniforms_B;
@@ -48,26 +52,28 @@ class rRenderBase {
  protected:
    template <class... ARGS>
    static inline bool require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS &&... _args );
-   static inline bool require( rShader *_s );
+   static inline bool require( rShader * ) { return true; }
 
    template <class... ARGS>
    static inline bool testUnifrom( GLint _u, std::wstring &&_missing, ARGS &&... _args );
-   static inline bool testUnifrom();
+   template <class... ARGS>
+   static inline bool testUnifrom( GLuint _u, std::wstring &&_missing, ARGS &&... _args );
+   static inline bool testUnifrom() { return true; }
 
    template <class... ARGS, class T>
    static inline bool testPointer( T *_p, std::wstring &&_missing, ARGS &&... _args );
-   static inline bool testPointer();
+   static inline bool testPointer() { return true; }
 
  public:
    rRenderBase() : vNeedUpdateUniforms_B( false ), vAlwaysUpdateUniforms_B( false ) {}
-   virtual ~rRenderBase() {}
+   virtual ~rRenderBase();
 
    virtual void render() = 0;
    virtual RENDERER_ID getRendererID() const = 0;
    virtual void setDataFromShader( rShader *_s ) = 0;
    virtual void setDataFromObject( rObjectBase *_obj ) = 0;
 
-   virtual void setDataFromAdditionalObjects( rObjectBase *_obj ) {}
+   virtual void setDataFromAdditionalObjects( rObjectBase *_obj );
 
    virtual bool canRender() { return true; }
 
@@ -83,16 +89,13 @@ bool rRenderBase::require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS &
    return require( _s, _args... );
 }
 
-bool rRenderBase::require( rShader *_s ) { return true; }
-
-
 template <class... ARGS>
 bool rRenderBase::testUnifrom( GLint _u, std::wstring &&_missing, ARGS &&... _args ) {
 #if E_DEBUG_LOGGING
    dLOG( L"Uniform: ", _missing, L": ", _u );
 #endif
 
-   if ( _u < 0 ) {
+   if ( _u == NOT_SET ) {
       eLOG( L"MISSING Uniform: ", _missing );
 #if E_DEBUG_LOGGING
       testUnifrom( _args... );
@@ -103,7 +106,22 @@ bool rRenderBase::testUnifrom( GLint _u, std::wstring &&_missing, ARGS &&... _ar
    return testUnifrom( _args... );
 }
 
-bool rRenderBase::testUnifrom() { return true; }
+template <class... ARGS>
+bool rRenderBase::testUnifrom( GLuint _u, std::wstring &&_missing, ARGS &&... _args ) {
+#if E_DEBUG_LOGGING
+   dLOG( L"Uniform: ", _missing, L": ", _u );
+#endif
+
+   if ( _u == NOT_SET_ui ) {
+      eLOG( L"MISSING Uniform: ", _missing );
+#if E_DEBUG_LOGGING
+      testUnifrom( _args... );
+#endif
+      return false;
+   }
+
+   return testUnifrom( _args... );
+}
 
 
 template <class... ARGS, class T>
@@ -124,9 +142,6 @@ bool rRenderBase::testPointer( T *_p, std::wstring &&_missing, ARGS &&... _args 
 
    return testPointer( _args... );
 }
-
-
-bool rRenderBase::testPointer() { return true; }
 
 
 /*!

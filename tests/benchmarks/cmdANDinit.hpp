@@ -21,13 +21,10 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-using namespace e_engine;
-
 class cmdANDinit {
  private:
-   vector<string> args;
-   string argv0;
+   std::vector<std::string> args;
+   std::string argv0;
 
    bool vCanUseColor;
 

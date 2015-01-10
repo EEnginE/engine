@@ -33,8 +33,6 @@ cat << EOF > $FILE_HPP
 #include <vector>
 #include <string>
 
-using namespace std;
-using namespace e_engine;
 
 class $TEST_NAME {
    private:
@@ -43,9 +41,9 @@ class $TEST_NAME {
    public:
       ${TEST_NAME}() {}
 
-      const static string desc;
+      const std::static string desc;
 
-      void runTest( uJSON_data &_data, string _dataRoot );
+      void runTest( e_engine::uJSON_data &_data, std::string _dataRoot );
 };
 
 #endif // $(I=$(basename $FILE_HPP); echo ${I^^} | sed 's/\./_/g')
@@ -83,6 +81,9 @@ cat << EOF > $FILE_CPP
  */
 
 #include "$(basename $FILE_HPP)"
+
+using namespace std;
+using namespace e_engine;
 
 const string ${TEST_NAME}::desc = "$DESC";
 

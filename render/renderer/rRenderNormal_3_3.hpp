@@ -35,19 +35,19 @@ namespace e_engine {
  *
  * ID: render_OGL_3_3_Normal_Basic_1S_1D
  */
-class rRenderNormal_3_3 : public rRenderBase {
+class rRenderNormal_3_3 final : public rRenderBase {
  private:
-   GLuint vVertexBufferObj_OGL;
-   GLuint vIndexBufferObj_OGL;
+   GLuint vVertexBufferObj_OGL = NOT_SET_ui;
+   GLuint vIndexBufferObj_OGL = NOT_SET_ui;
 
-   GLuint vShader_OGL;
+   GLuint vShader_OGL = NOT_SET_ui;
 
-   GLint vInputLocation_OGL;
-   GLint vUniformLocation_OGL;
+   GLuint vInputLocation_OGL = NOT_SET_ui;
+   GLint vUniformLocation_OGL = NOT_SET_ui;
 
-   GLuint vDataSize_uI;
+   GLsizei vDataSize_uI = 0;
 
-   rMat4f *vMatrix;
+   rMat4f *vMatrix = nullptr;
 
  public:
    rRenderNormal_3_3();
@@ -57,6 +57,8 @@ class rRenderNormal_3_3 : public rRenderBase {
    virtual RENDERER_ID getRendererID() const { return render_OGL_3_3_Normal_Basic_1S_1D; }
    virtual void setDataFromShader( rShader *_s );
    virtual void setDataFromObject( rObjectBase *_obj );
+
+   virtual bool canRender();
 
    static bool testShader( rShader *_shader );
    static bool testObject( rObjectBase *_obj );

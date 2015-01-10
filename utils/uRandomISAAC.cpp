@@ -75,7 +75,7 @@ void uRandomISAAC::init( uint32_t _seed ) {
       lTime_ulI = ( lTV_tv.tv_sec * 1000 ) + ( lTV_tv.tv_usec / 1000 );
 #else
       // Unfortunately we need to use this method on other systems
-      lTime_ulI = std::time( nullptr ) * 1000;
+      lTime_ulI = static_cast<uint32_t>( std::time( nullptr ) * 1000 );
 #endif // __liunx__
    }
 
@@ -169,7 +169,7 @@ void uRandomISAAC::mixUp( uint32_t _seed[256] ) {
    }
 
    // count and discard the first 256 numbers
-   for ( unsigned int i = 0; i < 256; ++i )
+   for ( unsigned int j = 0; j < 256; ++j )
       get();
 }
 

@@ -64,13 +64,13 @@ int rSimpleMesh::setOGLData__() {
 
    glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObject );
    glBufferData( GL_ARRAY_BUFFER,
-                 sizeof( GLfloat ) * lData->vVertexData.size(),
+                 static_cast<GLsizeiptr>( sizeof( GLfloat ) * lData->vVertexData.size() ),
                  &lData->vVertexData.at( 0 ),
                  GL_STATIC_DRAW );
 
    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObject );
    glBufferData( GL_ELEMENT_ARRAY_BUFFER,
-                 sizeof( GLuint ) * lData->vIndex.size(),
+                 static_cast<GLsizeiptr>( sizeof( GLuint ) * lData->vIndex.size() ),
                  &lData->vIndex.at( 0 ),
                  GL_STATIC_DRAW );
 
@@ -79,7 +79,7 @@ int rSimpleMesh::setOGLData__() {
 
       glBindBuffer( GL_ARRAY_BUFFER, vNormalBufferObject );
       glBufferData( GL_ARRAY_BUFFER,
-                    sizeof( GLfloat ) * lData->vNormalesData.size(),
+                    static_cast<GLsizeiptr>( sizeof( GLfloat ) * lData->vNormalesData.size() ),
                     &lData->vNormalesData.at( 0 ),
                     GL_STATIC_DRAW );
 
@@ -171,9 +171,11 @@ uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type 
       case MODEL_VIEW_PROJECTION:
          *_mat = getModelViewProjectionMatrix();
          return 0;
-      default:
+      case NORMAL_MATRIX:
          return INDEX_OUT_OF_RANGE;
    }
+
+   return INDEX_OUT_OF_RANGE;
 }
 
 uint32_t rSimpleMesh::getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) {
@@ -181,9 +183,19 @@ uint32_t rSimpleMesh::getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type 
       case NORMAL_MATRIX:
          *_mat = getNormalMatrix();
          return 0;
-      default:
+      case SCALE:
+      case ROTATION:
+      case TRANSLATION:
+      case CAMERA_MATRIX:
+      case MODEL_MATRIX:
+      case VIEW_MATRIX:
+      case PROJECTION_MATRIX:
+      case MODEL_VIEW_MATRIX:
+      case MODEL_VIEW_PROJECTION:
          return INDEX_OUT_OF_RANGE;
    }
+
+   return INDEX_OUT_OF_RANGE;
 }
 
 void rSimpleMesh::setFlags() {

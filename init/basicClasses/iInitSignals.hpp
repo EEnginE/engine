@@ -49,7 +49,7 @@ class iInitSignals {
 
  public:
    iInitSignals() {}
-   virtual ~iInitSignals() {}
+   virtual ~iInitSignals();
 
    template <class __C>
    bool addWindowCloseSlot( SLOT_C<__C> *_slot ) {
