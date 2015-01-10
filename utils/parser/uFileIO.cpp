@@ -70,7 +70,7 @@ int uFileIO::read( bool _autoReload ) {
    int c;
 
    while ( ( c = fgetc( lFile ) ) != EOF )
-      vData += (char)c;
+      vData += static_cast<char>( c );
 
    fclose( lFile );
 

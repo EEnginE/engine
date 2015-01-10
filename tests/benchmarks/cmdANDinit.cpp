@@ -17,6 +17,9 @@
 #include "cmdANDinit.hpp"
 #include <regex>
 
+using namespace std;
+using namespace e_engine;
+
 cmdANDinit::cmdANDinit( int argc, char *argv[], bool _color ) {
    argv0 = argv[0];
    vCanUseColor = _color;
@@ -142,7 +145,7 @@ bool cmdANDinit::parseArgsAndInit() {
          std::regex lFuncRegexRep( "^\\-\\-funcLoops=" );
          const char *lRep = "";
          string funcString = std::regex_replace( arg, lFuncRegexRep, lRep );
-         vFunctionLoops = atoi( funcString.c_str() );
+         vFunctionLoops = static_cast<unsigned>(atoi( funcString.c_str() ));
          continue;
       }
 
@@ -151,7 +154,7 @@ bool cmdANDinit::parseArgsAndInit() {
          std::regex lFuncRegexRep( "^\\-\\-mutexLoops=" );
          const char *lRep = "";
          string funcString = std::regex_replace( arg, lFuncRegexRep, lRep );
-         vMutexLoops = atoi( funcString.c_str() );
+         vMutexLoops = static_cast<unsigned>(atoi( funcString.c_str() ));
          continue;
       }
 

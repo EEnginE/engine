@@ -32,23 +32,23 @@ namespace e_engine {
 
 class rRenderBasicLight_3_3 : public rRenderBase {
  private:
-   GLuint vVertexBufferObj_OGL = 0;
-   GLuint vIndexBufferObj_OGL = 0;
-   GLuint vNormalBufferObj_OGL = 0;
+   GLuint vVertexBufferObj_OGL = NOT_SET_ui;
+   GLuint vIndexBufferObj_OGL = NOT_SET_ui;
+   GLuint vNormalBufferObj_OGL = NOT_SET_ui;
 
-   GLuint vShader_OGL = 0;
+   GLuint vShader_OGL = NOT_SET_ui;
 
-   GLint vInputVertexLocation_OGL = -1;
-   GLint vInputNormalsLocation_OGL = -1;
-   GLint vUniformMVP_OGL = -1;
-   GLint vUniformModelView_OGL = -1;
-   GLint vUniformNormal_OGL = -1;
+   GLuint vInputVertexLocation_OGL = NOT_SET_ui;
+   GLuint vInputNormalsLocation_OGL = NOT_SET_ui;
+   GLint vUniformMVP_OGL = NOT_SET;
+   GLint vUniformModelView_OGL = NOT_SET;
+   GLint vUniformNormal_OGL = NOT_SET;
 
-   GLint vUniformAmbient_OGL = -1;
-   GLint vUniformColor_OGL = -1;
-   GLint vUniformLightPos_OGL = -1;
+   GLint vUniformAmbient_OGL = NOT_SET;
+   GLint vUniformColor_OGL = NOT_SET;
+   GLint vUniformLightPos_OGL = NOT_SET;
 
-   GLuint vDataSize_uI = 0;
+   GLsizei vDataSize_uI = 0;
 
    rMat4f *vModelViewProjection = nullptr;
    rMat4f *vModelView = nullptr;

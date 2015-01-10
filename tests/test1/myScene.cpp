@@ -17,6 +17,8 @@
 #include "myScene.hpp"
 #include "rRenderVertexNormal_3_3.hpp"
 
+using namespace e_engine;
+
 int myScene::init() {
    updateCamera();
 
@@ -27,21 +29,21 @@ int myScene::init() {
    vLight1.setPosition( rVec3f( 1, 1, -4 ) );
    vLight2.setPosition( rVec3f( -1, -1, -4 ) );
 
-   vLight1.setColor( rVec3f( 1.0, 0.2, 0.2 ), rVec3f( 0.1, 0., 0. ) );
-   vLight2.setColor( rVec3f( 0.2, 0.2, 1.0 ), rVec3f( 0., 0., 0.1 ) );
-   vLight3.setColor( rVec3f( 0.9, 0.9, 0.9 ), rVec3f( 0.05, 0.05, 0.05 ) );
+   vLight1.setColor( rVec3f( 1.0f, 0.2f, 0.2f ), rVec3f( 0.1f, 0.0f, 0.0f ) );
+   vLight2.setColor( rVec3f( 0.2f, 0.2f, 1.0f ), rVec3f( 0.0, 0.0f, 0.1f ) );
+   vLight3.setColor( rVec3f( 0.9f, 0.9f, 0.9f ), rVec3f( 0.05f, 0.05f, 0.05f ) );
 
-   vLight1.setAttenuation( 0.1, 0.01, 0.1 );
-   vLight2.setAttenuation( 0.1, 0.02, 0.2 );
+   vLight1.setAttenuation( 0.1f, 0.01f, 0.1f );
+   vLight2.setAttenuation( 0.1f, 0.02f, 0.2f );
 
-   int lLight;
+   uint64_t lLight;
    vObject1.getHints( rObjectBase::LIGHT_MODEL, lLight );
    if ( lLight != rObjectBase::SIMPLE_ADS_LIGHT ) {
       wLOG( "Light not supported! Normals missing!" );
       vRenderNormals = false;
    }
 
-   GLuint lShaderID = addShader( vShader_str ), lNormalShader;
+   GLint lShaderID = addShader( vShader_str ), lNormalShader = -1;
 
    if ( vRenderNormals )
       lNormalShader = addShader( vNormalShader_str );
@@ -57,8 +59,8 @@ int myScene::init() {
    addObject( &vLight2, -1 );
    addObject( &vLight3, -1 );
 
-   int lObjID = addObject( &vObject1, lShaderID );
-   int lRet = setObjectRenderer<rRenderMultipleLights_3_3>( lObjID );
+   auto lObjID = addObject( &vObject1, lShaderID );
+   auto lRet = setObjectRenderer<rRenderMultipleLights_3_3>( lObjID );
 
    switch ( lRet ) {
       case 0:

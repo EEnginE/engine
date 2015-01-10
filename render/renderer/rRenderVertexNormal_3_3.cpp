@@ -51,7 +51,7 @@ bool rRenderVertexNormal_3_3::testShader( rShader *_shader ) {
 }
 
 bool rRenderVertexNormal_3_3::testObject( rObjectBase *_obj ) {
-   int lVert, lFlags, lMatrices, lnVBO, lnIBO, lnNBO;
+   uint64_t lVert, lFlags, lMatrices, lnVBO, lnIBO, lnNBO;
 
    _obj->getHints( rObjectBase::NUM_INDEXES,
                    lVert,
@@ -114,8 +114,8 @@ bool rRenderVertexNormal_3_3::canRender() {
 
 
 void rRenderVertexNormal_3_3::setDataFromShader( rShader *_s ) {
-   vInputVertexLocation_OGL = _s->getLocation( rShader::VERTEX_INPUT );
-   vInputNormalsLocation_OGL = _s->getLocation( rShader::NORMALS_INPUT );
+   vInputVertexLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::VERTEX_INPUT ) );
+   vInputNormalsLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::NORMALS_INPUT ) );
 
    vUniformMVP_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
 
@@ -129,11 +129,11 @@ void rRenderVertexNormal_3_3::setDataFromObject( rObjectBase *_obj ) {
    _obj->getNBO( vNormalBufferObj_OGL );
    _obj->getMatrix( &vModelViewProjection, rObjectBase::MODEL_VIEW_PROJECTION );
 
-   int lTemp;
+   uint64_t lTemp;
 
    _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );
 
-   vDataSize_uI = (GLuint)lTemp;
+   vDataSize_uI = static_cast<GLsizei>( lTemp );
 }
 }
 

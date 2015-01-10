@@ -54,7 +54,7 @@ class iRandR {
                                        unsigned int &_right,
                                        unsigned int &_top,
                                        unsigned int &_bottom );
-   int getIndexOfDisplay( iDisplays const &_disp ) { return -1; }
+   int getIndexOfDisplay( iDisplays const & ) { return -1; }
 
    std::vector<iDisplays> getDisplayResolutions() { return vCurrentConfig_eD; }
 

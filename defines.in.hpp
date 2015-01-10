@@ -54,15 +54,35 @@
 #if defined __clang__
 // #    define W_FUNC __PRETTY_FUNCTION__ // A bit to long ...
 #       define W_FUNC __func__
+#       define FALLTHROUGH [[clang::fallthrough]];
+
+#       define COMPILER_CLANG 1
+#       define COMPILER_GCC   0
+#       define COMPILER_MSC   0
 #elif defined __GNUC__
 // #    define W_FUNC __PRETTY_FUNCTION__ // A bit to long ...
 #       define W_FUNC __func__
+#       define FALLTHROUGH
+
+#       define COMPILER_CLANG 0
+#       define COMPILER_GCC   1
+#       define COMPILER_MSC   0
 #elif defined _MSC_VER
 // #    define W_FUNC __PRETTY_FUNCTION__ // A bit to long ...
 #       define W_FUNC __FUNCTION__
+#       define FALLTHROUGH
+
+#       define COMPILER_CLANG 0
+#       define COMPILER_GCC   0
+#       define COMPILER_MSC   1
 #else
 // This is int the C++11 standard, so every compiler should / must have this
 #       define W_FUNC __func__
+#       define FALLTHROUGH
+
+#       define COMPILER_CLANG 0
+#       define COMPILER_GCC   0
+#       define COMPILER_MSC   0
 #endif
 
 #ifndef W_FUNC

@@ -40,7 +40,7 @@ int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
    XRRCrtcInfo *lTempCRTCInfo_XRR;
    RROutput *lTempOutputs_XRR;
 
-   for ( unsigned int i = 0; i < (unsigned)vResources_XRR->ncrtc; ++i ) {
+   for ( int i = 0; i < vResources_XRR->ncrtc; ++i ) {
       if ( vResources_XRR->crtcs[i] == lCRTC_XRR ) {
          lCRTCInfoFound = true;
          break;
@@ -55,7 +55,7 @@ int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
    lTempCRTCInfo_XRR = XRRGetCrtcInfo( vDisplay_X11, vResources_XRR, lCRTC_XRR );
 
    if ( lTempCRTCInfo_XRR->mode != _changeToThis.mode ||
-        lTempCRTCInfo_XRR->noutput != (int)_changeToThis.outputs.size() ||
+        lTempCRTCInfo_XRR->noutput != static_cast<int>( _changeToThis.outputs.size() ) ||
         lTempCRTCInfo_XRR->x != _changeToThis.posX || lTempCRTCInfo_XRR->y != _changeToThis.posY ||
         lTempCRTCInfo_XRR->rotation != _changeToThis.rotation ) {
       lChangedCRTC_B = true;
@@ -98,7 +98,7 @@ int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
                                        _changeToThis.mode,
                                        _changeToThis.rotation,
                                        lTempOutputs_XRR,
-                                       _changeToThis.outputs.size() );
+                                       static_cast<int>( _changeToThis.outputs.size() ) );
          delete[] lTempOutputs_XRR;
          iLOG( "RandR: Changed CRTC ", _changeToThis.id );
       }

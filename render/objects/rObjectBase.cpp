@@ -37,8 +37,6 @@ rObjectBase::DATA_FILE_TYPE rObjectBase::detectFileTypeFromEnding( const std::st
 }
 
 /*!
- * \returns Clears the data stored in RAM
- *
  * \note This function does NOT need a working OpenGL context
  */
 void rObjectBase::clearRAMData() {
@@ -124,7 +122,8 @@ int rObjectBase::loadData() {
             return lRet;
          }
       } break;
-      default:
+      case AUTODETECT:
+      case SET_DATA_MANUALLY:
          eLOG( "You should never ever see this line. Please report a bug. [OBJECT: '",
                vName_str,
                "']" );
@@ -267,6 +266,15 @@ int rObjectBase::setOGLData() {
    return lRet;
 }
 
+#if COMPILER_CLANG
+#  pragma clang diagnostic push // This warning is irrelevant here
+#  pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
+
+#if COMPILER_GCC
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 /*!
  * \brief Get the _n'th VBO
@@ -398,7 +406,13 @@ uint32_t rObjectBase::getVector( rVec3f **_vec, rObjectBase::VECTOR_TYPES _type 
    return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
 
+#if COMPILER_CLANG
+#  pragma clang diagnostic pop
+#endif
 
+#if COMPILER_GCC
+#  pragma GCC diagnostic pop
+#endif
 
 
 

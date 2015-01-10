@@ -186,12 +186,7 @@ void _uConfig::__uConfig_OpenGL::reset() {
 void _uConfig::__uConfig_Camera::reset() {
    movementSpeed = 0.2;
    mouseSensitivity = 0.001;
-
-#ifdef M_PIl
-   angleHorizontal = M_PIl;
-#else
    angleHorizontal = M_PI;
-#endif
    angleVertical = 0;
 }
 

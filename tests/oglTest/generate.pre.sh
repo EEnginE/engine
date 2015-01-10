@@ -44,8 +44,6 @@ cat > $HPP_FILE << EOF
 #include <vector>
 #include <string>
 
-using namespace std;
-using namespace e_engine;
 
 /*!
  * \brief class for processing tests located in $TESTS_DIR
@@ -63,8 +61,8 @@ cat >> $HPP_FILE << EOF
  */
 class $CLASS_NAME {
    private:
-      bool   doThisTest[$NUM_OF_TESTS];
-      string tests[$NUM_OF_TESTS];
+      bool        doThisTest[$NUM_OF_TESTS];
+      std::string tests[$NUM_OF_TESTS];
 
    public:
       $CLASS_NAME();
@@ -72,10 +70,10 @@ class $CLASS_NAME {
       void allTestsOff();
       void allTestsOn();
 
-      void enable( string _test );
-      void disable( string _test );
+      void enable( std::string _test );
+      void disable( std::string _test );
 
-      void run( uJSON_data &_data, string _dataRoot );
+      void run( e_engine::uJSON_data &_data, std::string _dataRoot );
       void list();
 };
 
@@ -96,6 +94,9 @@ cat > $CPP_FILE << EOF
  */
 
 #include "$HPP_FILE"
+
+using namespace std;
+using namespace e_engine;
 
 EOF
 

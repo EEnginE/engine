@@ -162,9 +162,9 @@ class rObjectBase {
    int setOGLData();
 
    template <class... ARGS>
-   inline void getHints( OBJECT_HINTS _hint, int &_ret, ARGS &&... _args );
+   inline void getHints( OBJECT_HINTS _hint, uint64_t &_ret, ARGS &&... _args );
 
-   inline void getHints( OBJECT_HINTS _hint, int &_ret );
+   inline void getHints( OBJECT_HINTS _hint, uint64_t &_ret );
 
    bool getIsDataInRAM() const {
       if ( vLoaderData )
@@ -195,12 +195,12 @@ class rObjectBase {
 };
 
 template <class... ARGS>
-void rObjectBase::getHints( OBJECT_HINTS _hint, int &_ret, ARGS &&... _args ) {
+void rObjectBase::getHints( OBJECT_HINTS _hint, uint64_t &_ret, ARGS &&... _args ) {
    _ret = vObjectHints[_hint];
    getHints( std::forward<ARGS>( _args )... );
 }
 
-void rObjectBase::getHints( OBJECT_HINTS _hint, int &_ret ) { _ret = vObjectHints[_hint]; }
+void rObjectBase::getHints( OBJECT_HINTS _hint, uint64_t &_ret ) { _ret = vObjectHints[_hint]; }
 
 
 } // e_engine

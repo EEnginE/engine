@@ -31,7 +31,8 @@ void rRenderMultipleLights_3_3::render() {
    glUniformMatrix4fv( vUniformModelView_OGL, 1, false, vModelView->getMatrix() );
    glUniformMatrix3fv( vUniformNormal_OGL, 1, false, vNormal->getMatrix() );
 
-   glUniform1i( vUniformNumLights, vDirectionalLight.size() + vPointLight.size() );
+   glUniform1i( vUniformNumLights,
+                static_cast<GLint>( vDirectionalLight.size() + vPointLight.size() ) );
 
    unsigned int lClounter = 0;
 
@@ -93,7 +94,7 @@ bool rRenderMultipleLights_3_3::testShader( rShader *_shader ) {
 }
 
 bool rRenderMultipleLights_3_3::testObject( rObjectBase *_obj ) {
-   int lVert, lFlags, lMatrices, lnVBO, lnIBO, lnNBO, lLightModel;
+   uint64_t lVert, lFlags, lMatrices, lnVBO, lnIBO, lnNBO, lLightModel;
 
    _obj->getHints( rObjectBase::NUM_INDEXES,
                    lVert,
@@ -212,8 +213,8 @@ bool rRenderMultipleLights_3_3::canRender() {
 
 
 void rRenderMultipleLights_3_3::setDataFromShader( rShader *_s ) {
-   vInputVertexLocation_OGL = _s->getLocation( rShader::VERTEX_INPUT );
-   vInputNormalsLocation_OGL = _s->getLocation( rShader::NORMALS_INPUT );
+   vInputVertexLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::VERTEX_INPUT ) );
+   vInputNormalsLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::NORMALS_INPUT ) );
 
    vUniformModelView_OGL = _s->getLocation( rShader::MODEL_VIEW_MATRIX );
    vUniformNormal_OGL = _s->getLocation( rShader::NORMAL_MATRIX );
@@ -247,20 +248,20 @@ void rRenderMultipleLights_3_3::setDataFromObject( rObjectBase *_obj ) {
    _obj->getMatrix( &vModelView, rObjectBase::MODEL_VIEW_MATRIX );
    _obj->getMatrix( &vNormal, rObjectBase::NORMAL_MATRIX );
 
-   int lTemp;
+   uint64_t lTemp;
 
    _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );
 
-   vDataSize_uI = (GLuint)lTemp;
+   vDataSize_uI = static_cast<GLsizei>( lTemp );
 }
 
 void rRenderMultipleLights_3_3::setDataFromAdditionalObjects( rObjectBase *_obj ) {
-   int lLightType;
+   uint64_t lLightType;
 
    _obj->getHints( rObjectBase::FLAGS, lLightType );
 
-   unsigned int lMax = vUniforms.size();
-   unsigned int lCur = vPointLight.size() + vDirectionalLight.size();
+   auto lMax = vUniforms.size();
+   auto lCur = vPointLight.size() + vDirectionalLight.size();
 
    if ( lMax <= lCur ) {
       wLOG( "Can not set more lights, max ammount of lights is: ", lMax );

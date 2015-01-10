@@ -97,7 +97,7 @@ namespace e_engine {
  *
  * \note Only the <b>single predefined</b> instance \c LOG of this class should be used!
  */
-class uLog {
+class uLog final {
    typedef uSignal<void, uLogEntryRaw &> _SIGNAL_;
    typedef uSlot<void, uLog, uLogEntryRaw &> _SLOT_;
 
@@ -107,8 +107,6 @@ class uLog {
    std::string vLogFileName_str;
    std::string vLogFielFullPath_str;
    std::wofstream vLogFileOutput_OS;
-
-   unsigned int vThreadCounter = 0;
 
    std::mutex vLogMutex_BT;
    std::mutex vLogThreadSaveMutex_BT;
@@ -136,13 +134,7 @@ class uLog {
 
  public:
    uLog();
-
-   virtual ~uLog() {
-      stopLogLoop();
-      if ( vLogFileOutput_OS.is_open() ) {
-         vLogFileOutput_OS.close();
-      }
-   }
+   ~uLog();
 
    uint16_t getMaxTypeStingLength() { return vMaxTypeStringLength_usI; }
    bool getIsLogLoopRunning() { return vIsLogLoopRunning_B; }

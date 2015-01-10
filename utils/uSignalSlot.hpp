@@ -438,7 +438,7 @@ void uSignal<__R, __A...>::disconnectAll() {
  * The result of every slot will be stored in a vector and can be
  * accessed with ::value (if __R is not void)
  *
- * \param _atr What needs to be sent to all connected functions
+ * \param _args What needs to be sent to all connected functions
  * \returns A reference to the result vector
  */
 template <class __R, class... __A>

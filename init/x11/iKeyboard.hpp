@@ -52,7 +52,7 @@ class iKeyboard : public iKeyboardBasic {
 
  public:
    iKeyboard() {}
-   virtual ~iKeyboard() {}
+   virtual ~iKeyboard();
 
    inline unsigned short int getKeyState( wchar_t _key ) { return getKeyStateArray( _key ); }
 };

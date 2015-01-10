@@ -206,7 +206,7 @@ int iContext::createFrameBuffer() {
       XVisualInfo *temp = glXGetVisualFromFBConfig( vDisplay_X11, vFBConfig_GLX[i] );
       if ( temp ) {
          char lBuffer_C[5];
-         std::snprintf( lBuffer_C, 4, "%X", (GLuint)temp->visualid );
+         std::snprintf( lBuffer_C, 4, "%X", static_cast<GLuint>( temp->visualid ) );
          int samples, depth, stencil, r, g, b, a;
 
          glXGetFBConfigAttrib( vDisplay_X11, vFBConfig_GLX[i], GLX_SAMPLES, &samples );
@@ -346,7 +346,7 @@ int iContext::createFrameBuffer() {
          vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I] ); // Choose best fbconfig
 
    char lBuffer_C[5];
-   std::snprintf( lBuffer_C, 4, "%X", (GLuint)vVisualInfo_X11->visualid );
+   std::snprintf( lBuffer_C, 4, "%X", static_cast<GLuint>( vVisualInfo_X11->visualid ) );
 
    iLOG( "Use framebufferconfig ", vBestFBConfig_I, " ( 0x0", lBuffer_C, " )" );
 
@@ -375,12 +375,12 @@ int iContext::createWindow() {
                                 GlobConf.win.posX,
                                 GlobConf.win.posY, // X, Y
                                 GlobConf.win.width,
-                                GlobConf.win.height,      // Width, Height
-                                0,                        // Border width
-                                vVisualInfo_X11->depth,   // Depth
-                                InputOutput,              // Type of the window
-                                vVisualInfo_X11->visual,  // Visual of the window
-                                vWindowMask_X11,          // Window mask
+                                GlobConf.win.height,                    // Width, Height
+                                0,                                      // Border width
+                                vVisualInfo_X11->depth,                 // Depth
+                                InputOutput,                            // Type of the window
+                                vVisualInfo_X11->visual,                // Visual of the window
+                                static_cast<GLuint>( vWindowMask_X11 ), // Window mask
                                 &vWindowAttributes_X11 ); // Window attributes structure
    if ( vWindow_X11 == 0 ) {
       eLOG( "Failed to create a Window. Abort. (return -4)" );
@@ -429,7 +429,7 @@ int iContext::createWindow() {
       case DND:
          lWindowType_str = "_NET_WM_WINDOW_TYPE_DND";
          break;
-      default:
+      case NORMAL:
          lWindowType_str = "_NET_WM_WINDOW_TYPE_NORMAL";
          break;
    }
@@ -456,7 +456,7 @@ int iContext::createWindow() {
                              XA_ATOM,
                              32,
                              PropModeReplace,
-                             (unsigned char *)&lWhichWindowType_atom,
+                             reinterpret_cast<unsigned char *>( &lWhichWindowType_atom ),
                              1 ) ) {
          wLOG( "Failed to set the window type to ",
                std::regex_replace( lWindowType_str, lTypeRegex_EX, lReplace_C ),
@@ -469,14 +469,14 @@ int iContext::createWindow() {
       }
    }
 
-   char *lWinNameTemp_CSTR = (char *)GlobConf.win.windowName.c_str();
-   char *lIcoNameTemp_CSTR = (char *)GlobConf.win.iconName.c_str();
+   char *lWinNameTemp_CSTR = const_cast<char *>( GlobConf.win.windowName.c_str() );
+   char *lIcoNameTemp_CSTR = const_cast<char *>( GlobConf.win.iconName.c_str() );
    XStringListToTextProperty( &lWinNameTemp_CSTR, 1, &vWindowNameTP_X11 );
    XStringListToTextProperty( &lIcoNameTemp_CSTR, 1, &vWindowIconTP_X11 );
 
    vSizeHints_X11->flags = PPosition | PSize | PMinSize; // | IconPixmapHint | IconMaskHint;
-   vSizeHints_X11->min_width = GlobConf.win.minWidth;
-   vSizeHints_X11->min_height = GlobConf.win.minHeight;
+   vSizeHints_X11->min_width = static_cast<int>( GlobConf.win.minWidth );
+   vSizeHints_X11->min_height = static_cast<int>( GlobConf.win.minHeight );
 
    vWmHints_X11 = XAllocWMHints();
    vWmHints_X11->flags = StateHint | InputHint;
@@ -523,7 +523,7 @@ int iContext::createWindow() {
 // ###
 // Error handler for the X-Server so it doesn't exit the program
 static bool gContextErrorOccoured_B = false;
-static int contextERROR_HANDLE( Display *dpy, XErrorEvent *event ) {
+static int contextERROR_HANDLE( Display *, XErrorEvent * ) {
    gContextErrorOccoured_B = true;
    return 0;
 }
@@ -552,8 +552,9 @@ int iContext::createOGLContext() {
    if ( !vHaveGLEW_B ) {
       // Make the function pointer
       glXCreateContextAttribsARB = nullptr;
-      glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddressARB(
-            (GLubyte *)"glXCreateContextAttribsARB" );
+      glXCreateContextAttribsARB = reinterpret_cast<glXCreateContextAttribsARBProc>(
+            glXGetProcAddressARB( reinterpret_cast<GLubyte *>(
+                  const_cast<char *>( "glXCreateContextAttribsARB" ) ) ) );
    }
 
    gContextErrorOccoured_B = false;

@@ -27,5 +27,7 @@ iMouse::iMouse() {
    for ( auto &elem : button_state )
       elem = E_RELEASED;
 }
+
+iMouse::~iMouse() {}
 }
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

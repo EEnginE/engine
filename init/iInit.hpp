@@ -139,10 +139,7 @@ class iInit : public windows_win32::iContext {
 
  public:
    iInit();
-   ~iInit() {
-      closeWindow();
-      shutdown();
-   }
+   virtual ~iInit();
 
    int init();
    int shutdown();
@@ -161,8 +158,8 @@ class iInit : public windows_win32::iContext {
 
    /*!
     * \brief Quit the main loop and close the window
-    * \param waitUntilClosed Wait until window is closed  \c DEFAULT: \b false
-    * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
+    * \param _waitUntilClosed Wait until window is closed  \c DEFAULT: \b false
+    * \returns \c SUCCESS: \a 1 -- \c FAIL: \a 0
     */
    int closeWindow( bool _waitUntilClosed = false );
 

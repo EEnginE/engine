@@ -32,11 +32,6 @@
 
 namespace e_engine {
 
-static const std::string VERT_END( ".vert" ); //!< Standard shader ending for vertex shaders
-static const std::string FRAG_END( ".frag" ); //!< Standard shader ending for fragment shaders
-static const std::string GEOM_END( ".geom" ); //!< Standard shader ending for geometry shaders
-
-
 
 /*!
  * \class e_engine::rShader
@@ -110,8 +105,6 @@ class rShader {
    void getInfoOld();
    void getInfoNew();
 
-   std::string getTypeString( int _type );
-
    struct {
       std::vector<GLint> locations; //!< locations (vector because of uniform arrays)
       std::string uName;            //!< Uniform name
@@ -164,6 +157,8 @@ class rShader {
    unsigned int getUniformArraySize( SHADER_INFORMATION _type ) const;
 
    GLint getLocation( SHADER_INFORMATION _type, unsigned int _index = 0 ) const;
+
+   static std::string getTypeString( GLenum );
 };
 
 /*!

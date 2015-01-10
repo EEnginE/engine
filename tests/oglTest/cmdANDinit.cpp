@@ -18,6 +18,9 @@
 #include "config.hpp"
 #include <regex>
 
+using namespace std;
+using namespace e_engine;
+
 cmdANDinit::cmdANDinit( int argc, char *argv[], testStarter &_starter, bool &_errors ) {
    argv0 = argv[0];
    vCanUseColor = COLOR == 1 ? true : false;

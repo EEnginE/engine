@@ -33,7 +33,6 @@
  * \param[in]  a      timeval 1
  * \param[in]  b      timeval 2
  * \param[out] result the result
- * \returns Nothing
  */
 static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
    result.tv_sec = a.tv_sec + b.tv_sec;
@@ -49,7 +48,6 @@ static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
  * \param[in]  a      timeval 1
  * \param[in]  b      timeval 2
  * \param[out] result the result
- * \returns Nothing
  */
 static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
    result.tv_sec = a.tv_sec - b.tv_sec;
@@ -131,15 +129,19 @@ int iInit::eventLoop() {
          switch ( lEvent_X11.type ) {
 
             case ConfigureNotify:
-               if ( lEvent_X11.xconfigure.width != (int)GlobConf.win.width ||
-                    lEvent_X11.xconfigure.height != (int)GlobConf.win.height ||
+               if ( lEvent_X11.xconfigure.width != static_cast<int>( GlobConf.win.width ) ||
+                    lEvent_X11.xconfigure.height != static_cast<int>( GlobConf.win.height ) ||
                     lEvent_X11.xconfigure.x != GlobConf.win.posX ||
                     lEvent_X11.xconfigure.y != GlobConf.win.posY ) {
 
                   iEventInfo tempInfo( this );
                   tempInfo.type = E_EVENT_RESIZE;
-                  tempInfo.eResize.width = GlobConf.win.width = lEvent_X11.xconfigure.width;
-                  tempInfo.eResize.height = GlobConf.win.height = lEvent_X11.xconfigure.height;
+
+                  tempInfo.eResize.width = GlobConf.win.width =
+                        static_cast<unsigned>( lEvent_X11.xconfigure.width );
+                  tempInfo.eResize.height = GlobConf.win.height =
+                        static_cast<unsigned>( lEvent_X11.xconfigure.height );
+
                   tempInfo.eResize.posX = GlobConf.win.posX = lEvent_X11.xconfigure.x;
                   tempInfo.eResize.posY = GlobConf.win.posY = lEvent_X11.xconfigure.y;
 
@@ -149,23 +151,25 @@ int iInit::eventLoop() {
 
             case KeyRelease:
                lKeyState_uI = E_RELEASED;
+               FALLTHROUGH
             case KeyPress: {
                iEventInfo tempInfo( this );
                tempInfo.type = E_EVENT_KEY;
                tempInfo.eKey.state = lKeyState_uI;
-               tempInfo.eKey.key =
-                     processX11KeyInput( lEvent_X11.xkey, lKeyState_uI, getDisplay() );
+               tempInfo.eKey.key = processX11KeyInput(
+                     lEvent_X11.xkey, static_cast<unsigned short>( lKeyState_uI ), getDisplay() );
                vKey_SIG( tempInfo );
             } break;
 
             case ButtonRelease:
                lButtonState_uI = E_RELEASED;
+               FALLTHROUGH
             case ButtonPress: {
                iEventInfo tempInfo( this );
                tempInfo.type = E_EVENT_MOUSE;
-               tempInfo.iMouse.state = lButtonState_uI;
-               tempInfo.iMouse.posX = lEvent_X11.xbutton.x;
-               tempInfo.iMouse.posY = lEvent_X11.xbutton.y;
+               tempInfo.iMouse.state = static_cast<int>( lButtonState_uI );
+               tempInfo.iMouse.posX = static_cast<unsigned>( lEvent_X11.xbutton.x );
+               tempInfo.iMouse.posY = static_cast<unsigned>( lEvent_X11.xbutton.y );
 
                switch ( lEvent_X11.xbutton.button ) {
                   case Button1:
@@ -212,8 +216,12 @@ int iInit::eventLoop() {
 
                tempInfo.iMouse.button = E_MOUSE_MOVE;
                tempInfo.type = E_EVENT_MOUSE;
-               GlobConf.win.mousePosX = tempInfo.iMouse.posX = lEvent_X11.xmotion.x;
-               GlobConf.win.mousePosY = tempInfo.iMouse.posY = lEvent_X11.xmotion.y;
+
+               GlobConf.win.mousePosX = tempInfo.iMouse.posX =
+                     static_cast<unsigned>( lEvent_X11.xmotion.x );
+               GlobConf.win.mousePosY = tempInfo.iMouse.posY =
+                     static_cast<unsigned>( lEvent_X11.xmotion.y );
+
                tempInfo.iMouse.state = E_PRESSED;
 
                GlobConf.win.mouseIsInWindow = true;
@@ -226,8 +234,12 @@ int iInit::eventLoop() {
 
                tempInfo.iMouse.button = E_MOUSE_ENTER;
                tempInfo.type = E_EVENT_MOUSE;
-               GlobConf.win.mousePosX = tempInfo.iMouse.posX = lEvent_X11.xmotion.x;
-               GlobConf.win.mousePosY = tempInfo.iMouse.posY = lEvent_X11.xmotion.y;
+
+               GlobConf.win.mousePosX = tempInfo.iMouse.posX =
+                     static_cast<unsigned>( lEvent_X11.xmotion.x );
+               GlobConf.win.mousePosY = tempInfo.iMouse.posY =
+                     static_cast<unsigned>( lEvent_X11.xmotion.y );
+
                tempInfo.iMouse.state = E_PRESSED;
 
                GlobConf.win.mouseIsInWindow = true;
@@ -240,8 +252,12 @@ int iInit::eventLoop() {
 
                tempInfo.iMouse.button = E_MOUSE_LEAVE;
                tempInfo.type = E_EVENT_MOUSE;
-               GlobConf.win.mousePosX = tempInfo.iMouse.posX = lEvent_X11.xmotion.x;
-               GlobConf.win.mousePosY = tempInfo.iMouse.posY = lEvent_X11.xmotion.y;
+
+               GlobConf.win.mousePosX = tempInfo.iMouse.posX =
+                     static_cast<unsigned>( lEvent_X11.xmotion.x );
+               GlobConf.win.mousePosY = tempInfo.iMouse.posY =
+                     static_cast<unsigned>( lEvent_X11.xmotion.y );
+
                tempInfo.iMouse.state = E_PRESSED;
 
                GlobConf.win.mouseIsInWindow = false;
@@ -266,7 +282,8 @@ int iInit::eventLoop() {
 
             case ClientMessage:
                // Check if the User pressed the [x] button or ALT+F4 [etc.]
-               if ( (Atom)lEvent_X11.xclient.data.l[0] == unix_x11::atom_wmDeleteWindow ) {
+               if ( static_cast<Atom>( lEvent_X11.xclient.data.l[0] ) ==
+                    unix_x11::atom_wmDeleteWindow ) {
                   iLOG( "User pressed the close button" );
                   iEventInfo tempInfo( this );
                   tempInfo.type = E_EVENT_WINDOWCLOSE;

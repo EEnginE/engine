@@ -99,7 +99,7 @@ class iDisplays : public iDisplayBasic {
    bool select( unsigned int _width, unsigned int _height, double _rate );
 
    void setNoClones() {}
-   void setCloneOf( iDisplays const &_disp ) {}
+   void setCloneOf( iDisplays const & ) {}
 
    void getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) const;
 

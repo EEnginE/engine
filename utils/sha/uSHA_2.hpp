@@ -21,6 +21,8 @@
 #ifndef SHA_HPP
 #define SHA_HPP
 
+#include "defines.hpp"
+
 #include <string>
 #include <array>
 #include <vector>

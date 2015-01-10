@@ -61,6 +61,11 @@ iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
    _setThisForHandluSignal();
 }
 
+iInit::~iInit() {
+   closeWindow();
+   shutdown();
+}
+
 
 /*!
  * \brief Handle focus change events when mouse is grabbed
@@ -122,7 +127,6 @@ bool iInit::disableDefaultGrabControl() { return removeFocusSlot( &vGrabControl_
  *
  * More information iContext
  *
- * \par
  * \returns  1 -- Success
  * \returns -1 -- Unable to connect to the X-Server
  * \returns -2 -- Need a newer GLX version
@@ -219,7 +223,7 @@ void iInit::handleSignal( int _signal ) {
 
 /*!
  * \brief Starts the main loop
- * \returns \c SUCCESS: \a 1 -- \C FAIL: \a 0
+ * \returns \c SUCCESS: \a 1 -- \c FAIL: \a 0
  */
 int iInit::startMainLoop( bool _wait ) {
    if ( !getHaveContext() ) {
@@ -346,8 +350,6 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
  * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
  *because
  *          there are some problems with Windows and the event loop.
- *
- * \returns Nothing
  */
 void iInit::pauseMainLoop( bool _runInNewThread ) {
    if ( !vMainLoopRunning_B )
@@ -369,7 +371,6 @@ void iInit::pauseMainLoop( bool _runInNewThread ) {
 
 /*!
  * \brief Continues a paused main loop
- * \returns Nothing
  */
 void iInit::continueMainLoop() {
    std::lock_guard<std::mutex> lLockEvent_BT( vEventLoopMutex_BT );
@@ -392,8 +393,6 @@ void iInit::continueMainLoop() {
  * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
  *because
  *          there are some problems with Windows and the event loop.
- *
- * \returns Nothing
  */
 void iInit::restart( bool _runInNewThread ) {
    if ( !vMainLoopRunning_B )
@@ -452,8 +451,6 @@ void iInit::restart( bool _runInNewThread ) {
  * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
  *because
  *          there are some problems with Windows and the event loop.
- *
- * \returns Nothing
  */
 void iInit::restartIfNeeded( bool _runInNewThread ) {
    if ( vWindowRecreate_B )

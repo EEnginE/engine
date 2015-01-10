@@ -30,6 +30,7 @@
 
 namespace e_engine {
 
+void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength );
 
 template <class T>
 inline std::wstring numToSizeString( T _val, unsigned int _size, wchar_t _fill ) {
@@ -63,6 +64,7 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
    switch ( data->data.config.vTime_LPT ) {
       case LEFT_FULL:
          lTimeNext_LPT = LEFT_REDUCED;
+         FALLTHROUGH
       case RIGHT_FULL:
          lTimeSize_uI = lFullTimeSize_cuI;
          lTimeSizeNext_uI = lReducedTimeSize_cuI;
@@ -70,6 +72,7 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
             lTimeNext_LPT = RIGHT_REDUCED;
          break;
       case LEFT_REDUCED:
+         FALLTHROUGH
       case RIGHT_REDUCED:
          lTimeSize_uI = lReducedTimeSize_cuI;
          lTimeNext_LPT = OFF;
@@ -81,6 +84,7 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
    switch ( data->data.config.vFile_LPT ) {
       case LEFT_FULL:
          lFileNext_LPT = LEFT_REDUCED;
+         FALLTHROUGH
       case RIGHT_FULL:
          lFileSize_uI = lFullFileSize_cuI;
          lFileSizeNext_uI = lReducedFileSize_cuI;
@@ -100,13 +104,13 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
                             2 + // '[' and ']'
                             75; // The main Message
 
-   if ( lThisSize > (unsigned int)data->data.config.vColumns_uI ) {
+   if ( lThisSize > static_cast<unsigned int>( data->data.config.vColumns_I ) ) {
 
       data->data.config.vThread_LPT = OFF;
 
       lThisSize = lTimeSizeNext_uI + lFileSizeNext_uI + _maxTypeStringLength + 2 + // '[' and ']'
                   75; // The main Message
-      if ( lThisSize > (unsigned int)data->data.config.vColumns_uI ) {
+      if ( lThisSize > static_cast<unsigned int>( data->data.config.vColumns_I ) ) {
          data->data.config.vTime_LPT = OFF;
          data->data.config.vFile_LPT = OFF;
       } else {
@@ -136,7 +140,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
 
    // Is there enough space for the log Message (if we take a message string with 100 chars)?
-   if ( data.config.vColumns_uI > 0 )
+   if ( data.config.vColumns_I > 0 )
       testLogSize( this, LOG.getMaxTypeStingLength() );
 
    // ========= Generate The Time Entry
@@ -254,7 +258,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
                        L"] ";
       } else { lThread_str = L" [" + lTempThread_str + L"] "; }
 
-      for ( unsigned int i = lTempThread_str.size(); i < GlobConf.log.threadNameWidth; ++i )
+      for ( size_t i = lTempThread_str.size(); i < GlobConf.log.threadNameWidth; ++i )
          lThread_str.append( 1, L' ' );
    }
 
@@ -281,11 +285,11 @@ void uLogEntryRaw::defaultEntryGenerator() {
    std::wstring lL_STR = L"";
    std::wstring lR_STR = L"";
 
-   unsigned int lErrTypeL_uI;
-   unsigned int lFileL_uI;
+   size_t lErrTypeL_uI;
+   size_t lFileL_uI;
 
-   unsigned int lLeftL_uI;
-   unsigned int lRightL_uI;
+   size_t lLeftL_uI;
+   size_t lRightL_uI;
 
    unsigned int lErrorTypeUpdatedStringLength_uI = LOG.getMaxTypeStingLength();
 
@@ -304,7 +308,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
    int lFileD_I = 0;
    int lThread_I = 0;
 
-   if ( data.config.vColumns_uI < 0 ) {
+   if ( data.config.vColumns_I < 0 ) {
       lErrTypeD_I = -1;
       lTimeD_I = -1;
       lFileD_I = -1;
@@ -390,13 +394,15 @@ void uLogEntryRaw::defaultEntryGenerator() {
          lL_STR += L' ';
       }
       // Place the string as much in the center as possible
-      int lFillBeforeString = ( lErrorTypeUpdatedStringLength_uI / 2 ) - ( lErrTypeL_uI / 2 );
+      int lFillBeforeString = static_cast<int>( lErrorTypeUpdatedStringLength_uI / 2 ) -
+                              static_cast<int>( lErrTypeL_uI / 2 );
       int lFillAfterString =
-            ( lErrorTypeUpdatedStringLength_uI + 2 ) - lErrTypeL_uI - lFillBeforeString;
-      lL_STR.append( lFillBeforeString < 0 ? 0 : lFillBeforeString, ' ' );
+            static_cast<int>( lErrorTypeUpdatedStringLength_uI + 2 - lErrTypeL_uI ) -
+            lFillBeforeString;
+      lL_STR.append( lFillBeforeString < 0 ? 0 : static_cast<size_t>( lFillBeforeString ), ' ' );
 
       lL_STR += lErrorType_str;
-      lL_STR.append( lFillAfterString < 0 ? 0 : lFillAfterString, (char)' ' );
+      lL_STR.append( lFillAfterString < 0 ? 0 : static_cast<size_t>( lFillAfterString ), ' ' );
    }
 
 
@@ -423,14 +429,14 @@ void uLogEntryRaw::defaultEntryGenerator() {
          lR_STR += ' ';
       }
       // Place the string as much in the center as possible
-      unsigned int lFillBeforeString =
-            ( lErrorTypeUpdatedStringLength_uI / 2 ) - ( lErrTypeL_uI / 2 );
+      unsigned int lFillBeforeString = ( lErrorTypeUpdatedStringLength_uI / 2 ) -
+                                       ( static_cast<unsigned int>( lErrTypeL_uI ) / 2 );
       lR_STR.append( lFillBeforeString, ' ' );
 
       lR_STR += lErrorType_str;
-      lR_STR.append( (unsigned int)( ( lErrorTypeUpdatedStringLength_uI + 2 ) - lErrTypeL_uI -
-                                     lFillBeforeString ),
-                     (char)' ' );
+      lR_STR.append( static_cast<size_t>( ( lErrorTypeUpdatedStringLength_uI + 2 ) - lErrTypeL_uI -
+                                          lFillBeforeString ),
+                     ' ' );
    }
 
    if ( lThread_I == 1 ) {
@@ -449,7 +455,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
    // ========= Prepare Variables
    // =============================================================================================
-   unsigned int lMaxMessageSize_uI = std::numeric_limits<unsigned int>::max();
+   size_t lMaxMessageSize_uI = std::numeric_limits<size_t>::max();
 
    if ( data.config.vColor_LCT != DISABLED ) {
 #if E_COMPILER_SUPPORTS_WREGEX
@@ -468,18 +474,20 @@ void uLogEntryRaw::defaultEntryGenerator() {
       lRightL_uI = lR_STR.size();
    }
 
-   if ( ( (int)data.config.vColumns_uI - (int)lLeftL_uI - (int)lRightL_uI ) < 0 &&
-        !( data.config.vColumns_uI < 0 ) ) {
+   if ( ( static_cast<int>( data.config.vColumns_I ) - static_cast<int>( lLeftL_uI ) -
+          static_cast<int>( lRightL_uI ) ) < 0 &&
+        !( data.config.vColumns_I < 0 ) ) {
 
       lL_STR.clear();
       lR_STR.clear();
       lLeftL_uI = 0;
       lRightL_uI = 0;
-      lMaxMessageSize_uI = data.config.vColumns_uI;
+      lMaxMessageSize_uI = static_cast<size_t>( data.config.vColumns_I );
    }
 
-   if ( data.config.vColumns_uI > 0 )
-      lMaxMessageSize_uI = ( data.config.vColumns_uI - lLeftL_uI - lRightL_uI );
+   if ( data.config.vColumns_I > 0 )
+      lMaxMessageSize_uI =
+            ( static_cast<size_t>( data.config.vColumns_I ) - lLeftL_uI - lRightL_uI );
 
 
 
@@ -541,7 +549,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
    // ========= Put Everything Together
    // =============================================================================================
    for ( unsigned int i = 0; i < lMessage_VEC.size(); ++i ) {
-      unsigned int lTempMessageSize_uI;
+      size_t lTempMessageSize_uI;
       if ( data.config.vColor_LCT != DISABLED ) {
 #if E_COMPILER_SUPPORTS_WREGEX
          lTempMessageSize_uI =
@@ -562,7 +570,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
 #endif // __linux__
 
       data.vResultString_STR += lL_STR + lMessage_VEC[i];
-      if ( data.config.vColumns_uI > 0 )
+      if ( data.config.vColumns_I > 0 )
          data.vResultString_STR.append( ( lMaxMessageSize_uI - lTempMessageSize_uI ), L' ' );
 
       else

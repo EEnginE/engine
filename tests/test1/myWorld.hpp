@@ -25,20 +25,16 @@
 #ifndef HANDLER_HPP
 #define HANDLER_HPP
 
-using namespace std;
-using namespace e_engine;
-using namespace OS_NAMESPACE;
-
-class myWorld final : public rWorld, public rFrameCounter {
-   typedef uSlot<void, myWorld, iEventInfo const &> _SLOT_;
+class myWorld final : public e_engine::rWorld, public e_engine::rFrameCounter {
+   typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;
 
  private:
    GLfloat vAlpha;
 
-   std::vector<iDisplays> vDisp_RandR;
+   std::vector<e_engine::OS_NAMESPACE::iDisplays> vDisp_RandR;
 
    myScene vScene;
-   iInit *vInitPointer;
+   e_engine::iInit *vInitPointer;
 
    GLfloat vNearZ;
    GLfloat vFarZ;
@@ -48,7 +44,7 @@ class myWorld final : public rWorld, public rFrameCounter {
    _SLOT_ slotKey;
 
  public:
-   myWorld( cmdANDinit &_cmd, iInit *_init )
+   myWorld( cmdANDinit &_cmd, e_engine::iInit *_init )
        : rWorld( _init ),
          rFrameCounter( this, true ),
          vScene( _init, _cmd ),
@@ -70,16 +66,16 @@ class myWorld final : public rWorld, public rFrameCounter {
    myWorld() = delete;
 
 
-   void windowClose( iEventInfo const &info ) {
+   void windowClose( e_engine::iEventInfo const &info ) {
       iLOG( "User closed window" );
       info.iInitPointer->closeWindow();
    }
-   void key( iEventInfo const &info );
-   void resize( iEventInfo const &info ) {
+   void key( e_engine::iEventInfo const &info );
+   void resize( e_engine::iEventInfo const &info ) {
       iLOG( "Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height );
-      updateViewPort( 0, 0, GlobConf.win.width, GlobConf.win.height );
+      updateViewPort( 0, 0, static_cast<int>(e_engine::GlobConf.win.width), static_cast<int>(e_engine::GlobConf.win.height) );
       vScene.calculateProjectionPerspective(
-            GlobConf.win.width, GlobConf.win.height, vNearZ, vFarZ, 35.0 );
+      e_engine::GlobConf.win.width, e_engine::GlobConf.win.height, vNearZ, vFarZ, 35.0 );
    }
 
    int initGL();

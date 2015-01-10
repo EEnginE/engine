@@ -23,16 +23,13 @@
 
 #include "testStarter.hpp"
 
-using namespace std;
-using namespace e_engine;
-
 class cmdANDinit {
  private:
-   vector<string> args;
-   string argv0;
-   string dataRoot;
+   std::vector<std::string> args;
+   std::string argv0;
+   std::string dataRoot;
 
-   vector<string> outputFiles;
+   std::vector<std::string> outputFiles;
 
    bool vCanUseColor;
 
@@ -43,10 +40,10 @@ class cmdANDinit {
  public:
    cmdANDinit( int argc, char *argv[], testStarter &_starter, bool &_errors );
 
-   string getDataRoot() const { return dataRoot; }
+   std::string getDataRoot() const { return dataRoot; }
 
    bool parseArgsAndInit( testStarter &_starter );
-   void generate( uJSON_data &_data );
+   void generate( e_engine::uJSON_data &_data );
 };
 
 #endif // CMDANDINIT_HPP

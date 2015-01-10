@@ -72,8 +72,8 @@ struct iEventInfo {
     * \brief The mouse part
     */
    struct _iMouse {
-      int posX = 0;
-      int posY = 0;
+      unsigned int posX = 0;
+      unsigned int posY = 0;
       int state = 0;
       E_BUTTON button = E_MOUSE_UNKNOWN;
    } iMouse;

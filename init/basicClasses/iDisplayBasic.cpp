@@ -22,6 +22,8 @@
 
 namespace e_engine {
 
+iDisplayBasic::~iDisplayBasic() {}
+
 // --- private ---
 void iDisplayBasic::setCurrentSizeAndPosition( unsigned int _width,
                                                unsigned int _height,
@@ -71,12 +73,10 @@ void iDisplayBasic::setPositionRelative( iDisplayBasic::POSITON _where, iDisplay
  *
  * \param[out] _posX Position X in Pixels
  * \param[out] _posY Position Y in Pixels
- *
- * \returns Nothing
  */
 void iDisplayBasic::getSelectedPosition( int &_posX, int &_posY ) const {
-   _posX = vPosX_uI;
-   _posY = vPosY_uI;
+   _posX = static_cast<int>( vPosX_uI );
+   _posY = static_cast<int>( vPosY_uI );
 }
 
 /*!
@@ -85,8 +85,6 @@ void iDisplayBasic::getSelectedPosition( int &_posX, int &_posY ) const {
  * \param[out] _width  The current width
  * \param[out] _height The current height
  * \param[out] _rate   The current rate
- *
- * \returns Nothing
  */
 void iDisplayBasic::getCurrentResolution( unsigned int &_width,
                                           unsigned int &_height,

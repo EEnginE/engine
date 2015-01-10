@@ -98,7 +98,7 @@ generateLogMacros() {
 
     for I in $TYPES; do
         #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH  "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',W_FILE,__LINE__,W_FUNC," $DO_UNDEF
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG(...)" "LOG.addLogEntry(_$( echo -n ${I^^} ),__VA_ARGS__)" $DO_UNDEF
+        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG(...)" "::e_engine::LOG.addLogEntry(_$( echo -n ${I^^} ),__VA_ARGS__)" $DO_UNDEF
     done
 
     #### Footer ####

@@ -65,7 +65,7 @@ bool rRenderBasicLight_3_3::testShader( rShader *_shader ) {
 }
 
 bool rRenderBasicLight_3_3::testObject( rObjectBase *_obj ) {
-   int lVert, lFlags, lMatrices, lnVBO, lnIBO, lnNBO, lLightModel;
+   uint64_t lVert, lFlags, lMatrices, lnVBO, lnIBO, lnNBO, lLightModel;
 
    _obj->getHints( rObjectBase::NUM_INDEXES,
                    lVert,
@@ -155,8 +155,8 @@ bool rRenderBasicLight_3_3::canRender() {
 
 
 void rRenderBasicLight_3_3::setDataFromShader( rShader *_s ) {
-   vInputVertexLocation_OGL = _s->getLocation( rShader::VERTEX_INPUT );
-   vInputNormalsLocation_OGL = _s->getLocation( rShader::NORMALS_INPUT );
+   vInputVertexLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::VERTEX_INPUT ) );
+   vInputNormalsLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::NORMALS_INPUT ) );
 
    vUniformModelView_OGL = _s->getLocation( rShader::MODEL_VIEW_MATRIX );
    vUniformNormal_OGL = _s->getLocation( rShader::NORMAL_MATRIX );
@@ -178,15 +178,15 @@ void rRenderBasicLight_3_3::setDataFromObject( rObjectBase *_obj ) {
    _obj->getMatrix( &vModelView, rObjectBase::MODEL_VIEW_MATRIX );
    _obj->getMatrix( &vNormal, rObjectBase::NORMAL_MATRIX );
 
-   int lTemp;
+   uint64_t lTemp;
 
    _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );
 
-   vDataSize_uI = (GLuint)lTemp;
+   vDataSize_uI = static_cast<GLsizei>( lTemp );
 }
 
 void rRenderBasicLight_3_3::setDataFromAdditionalObjects( rObjectBase *_obj ) {
-   int lLightType;
+   uint64_t lLightType;
 
    _obj->getHints( rObjectBase::FLAGS, lLightType );
 

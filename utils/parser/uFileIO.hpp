@@ -26,7 +26,7 @@
 
 namespace e_engine {
 
-class uFileIO {
+class uFileIO final {
  public:
    typedef std::string::const_iterator C_ITERATOR;
    typedef std::string::iterator ITERATOR;
@@ -58,7 +58,7 @@ class uFileIO {
 
    int operator()( bool _autoReload = true ) { return read( _autoReload ); }
 
-   virtual ~uFileIO() {}
+   ~uFileIO() {}
 };
 }
 

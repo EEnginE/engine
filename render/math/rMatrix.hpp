@@ -31,7 +31,7 @@ namespace e_engine {
 
 namespace internal {
 
-template <class T, int R, int S>
+template <class T, uint32_t R, uint32_t S>
 struct rMatrixData {
    T vDataMat[R * S];
 };
@@ -49,16 +49,17 @@ struct rMatrixData<T, 2, 1> {
    void normalize() {
       T lLength2 = x * x + y * y;
 
-      if ( lLength2 > ( T )( 1.0 + TOLERANCE ) && lLength2 < ( T )( 1.0 - TOLERANCE ) )
+      if ( lLength2 > static_cast<T>( 1.0 + TOLERANCE ) &&
+           lLength2 < static_cast<T>( 1.0 - TOLERANCE ) )
          return; // Nothing to do here
 
-      T lLength = sqrt( lLength2 );
+      T lLength = static_cast<T>( sqrt( lLength2 ) );
 
       x /= lLength;
       y /= lLength;
    }
 
-   T length() { return sqrt( x * x + y * y ); }
+   T length() { return static_cast<T>( sqrt( x * x + y * y ) ); }
 };
 
 template <class T>
@@ -74,17 +75,18 @@ struct rMatrixData<T, 3, 1> {
    void normalize() {
       T lLength2 = x * x + y * y + z * z;
 
-      if ( lLength2 > ( T )( 1.0 + TOLERANCE ) && lLength2 < ( T )( 1.0 - TOLERANCE ) )
+      if ( lLength2 > static_cast<T>( 1.0 + TOLERANCE ) &&
+           lLength2 < static_cast<T>( 1.0 - TOLERANCE ) )
          return; // Nothing to do here
 
-      T lLength = sqrt( lLength2 );
+      T lLength = static_cast<T>( sqrt( lLength2 ) );
 
       x /= lLength;
       y /= lLength;
       z /= lLength;
    }
 
-   T length() { return sqrt( x * x + y * y + z * z ); }
+   T length() { return static_cast<T>( sqrt( x * x + y * y + z * z ) ); }
 };
 
 template <class T>
@@ -100,10 +102,11 @@ struct rMatrixData<T, 4, 1> {
    void normalize() {
       T lLength2 = x * x + y * y + z * z + w * w;
 
-      if ( lLength2 > ( T )( 1.0 + TOLERANCE ) && lLength2 < ( T )( 1.0 - TOLERANCE ) )
+      if ( lLength2 > static_cast<T>( 1.0 + TOLERANCE ) &&
+           lLength2 < static_cast<T>( 1.0 - TOLERANCE ) )
          return; // Nothing to do here
 
-      T lLength = sqrt( lLength2 );
+      T lLength = static_cast<T>( sqrt( lLength2 ) );
 
       x /= lLength;
       y /= lLength;
@@ -111,11 +114,11 @@ struct rMatrixData<T, 4, 1> {
       w /= lLength;
    }
 
-   T length() { return sqrt( x * x + y * y + z * z + w * w ); }
+   T length() { return static_cast<T>( sqrt( x * x + y * y + z * z + w * w ) ); }
 };
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
    static_assert( ( ROWS * COLLUMNS ) >= 2, "Matrix size (ROWS*COLLUMNS) must be at least 2" );
 
@@ -183,9 +186,9 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
    template <class... ARGS>
    void setMat( ARGS &&... _args );
 
-   int getRowSize() { return ROWS; }
-   int getCollumnSize() { return COLLUMNS; }
-   int getSize() { return ROWS * COLLUMNS; }
+   uint32_t getRowSize() { return ROWS; }
+   uint32_t getCollumnSize() { return COLLUMNS; }
+   uint32_t getSize() { return ROWS * COLLUMNS; }
 
    // DTTSEIW = DUMMY_TEMPLATE_THAT_STD_ENABLE_IF_WORKS
    template <class DTTSEIW = void>
@@ -194,13 +197,13 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
    void fill( TYPE &_f ) { fill( std::forward<TYPE>( _f ) ); }
    void fill( TYPE &&_f );
 
-   template <int R, int C>
+   template <uint32_t R, uint32_t C>
    void downscale( rMatrix<TYPE, R, C> *_new ) const;
 
-   template <int R, int C>
+   template <uint32_t R, uint32_t C>
    void upscale( rMatrix<TYPE, R, C> *_new ) const;
 
-   template <int COLLUMNS_NEW>
+   template <uint32_t COLLUMNS_NEW>
    void multiply( const rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_matrix,
                   rMatrix<TYPE, ROWS, COLLUMNS_NEW> *_targetMatrix );
 
@@ -219,19 +222,19 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
    /*!
     * The template parameters are changed due to a conflict with the already existing templates.
     */
-   template <class T, int R, int C, int C_N>
+   template <class T, uint32_t R, uint32_t C, uint32_t C_N>
    friend rMatrix<T, R, C_N> operator*( rMatrix<T, R, C> _lMatrix, rMatrix<T, C, C_N> &_rMatrix );
 
-   template <class T, int R, int C>
+   template <class T, uint32_t R, uint32_t C>
    friend rMatrix<T, R, C> operator*( T _lScalar, const rMatrix<T, R, C> &_rMatrix );
 
-   template <class T, int R, int C>
+   template <class T, uint32_t R, uint32_t C>
    friend rMatrix<T, R, C> operator*( rMatrix<T, R, C> _lMatrix, const T &_rScalar );
 
-   template <class T, int R, int C>
+   template <class T, uint32_t R, uint32_t C>
    friend rMatrix<T, R, C> operator+( rMatrix<T, R, C> _lMatrix, const rMatrix<T, R, C> &_rMatrix );
 
-   template <class T, int R, int C>
+   template <class T, uint32_t R, uint32_t C>
    friend rMatrix<T, R, C> operator-( rMatrix<T, R, C> _lMatrix, const rMatrix<T, R, C> &_rMatrix );
 
    rMatrix<TYPE, ROWS, COLLUMNS> &operator=( rMatrix<TYPE, ROWS, COLLUMNS> _newMatrix );
@@ -260,22 +263,22 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
 //   \____/\___/|_| |_|___/\__|_|   \__,_|\___|\__\___/|_|  |___/
 //
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE *_f ) {
    if ( _f == nullptr )
       return;
 
-   for ( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
+   for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       vDataMat[i] = _f[i];
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( const rMatrix<TYPE, ROWS, COLLUMNS> &_newMatrix ) {
-   for ( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
+   for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       vDataMat[i] = _newMatrix.vDataMat[i];
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 template <class... ARGS>
 rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE &&_a1, ARGS &&... _args ) {
    static_assert( sizeof...( _args ) == ( ROWS * COLLUMNS - 1 ),
@@ -294,17 +297,17 @@ rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE &&_a1, ARGS &&... _args ) {
 //        |_|
 
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::
 operator=( rMatrix<TYPE, ROWS, COLLUMNS> _newMatrix ) {
-   for ( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
+   for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       vDataMat[i] = _newMatrix.get( i );
    return *this;
 }
 
 
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::
 operator+=( const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    add( _rMatrix, this );
@@ -312,21 +315,21 @@ operator+=( const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
 }
 
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::
 operator-=( const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    subtract( _rMatrix, this );
    return *this;
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::
 operator*=( const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    multiply( _rMatrix, this );
    return *this;
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=( const TYPE &_rScalar ) {
    for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       vDataMat[i] *= _rScalar;
@@ -334,7 +337,7 @@ rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=( const 
    return *this;
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator/=( const TYPE &_rScalar ) {
    for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       vDataMat[i] /= _rScalar;
@@ -345,7 +348,7 @@ rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator/=( const 
 
 
 
-template <class TYPE, int ROWS, int COLLUMNS, int COLLUMNS_NEW>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS, uint32_t COLLUMNS_NEW>
 rMatrix<TYPE, ROWS, COLLUMNS_NEW> operator*( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix,
                                              rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_rMatrix ) {
    rMatrix<TYPE, ROWS, COLLUMNS_NEW> _target;
@@ -354,7 +357,7 @@ rMatrix<TYPE, ROWS, COLLUMNS_NEW> operator*( rMatrix<TYPE, ROWS, COLLUMNS> _lMat
 }
 
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> operator*( TYPE _lScalar,
                                          const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    rMatrix<TYPE, ROWS, COLLUMNS> lTarget = _rMatrix;
@@ -362,19 +365,19 @@ rMatrix<TYPE, ROWS, COLLUMNS> operator*( TYPE _lScalar,
    return lTarget;
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> operator*( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix,
                                          const TYPE &_rScalar ) {
    return _lMatrix *= _rScalar;
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> operator+( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix,
                                          const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    return _lMatrix += _rMatrix;
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS> operator-( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix,
                                          const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    return _lMatrix -= _rMatrix;
@@ -395,43 +398,43 @@ rMatrix<TYPE, ROWS, COLLUMNS> operator-( rMatrix<TYPE, ROWS, COLLUMNS> _lMatrix,
  * \note Only Works when ROWS == COLLUMNS else disabled with std::enable_if
  */
 // DTTSEIW = DUMMY_TEMPLATE_THAT_STD_ENABLE_IF_WORKS
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 template <class DTTSEIW>
 typename std::enable_if<ROWS == COLLUMNS, DTTSEIW>::type
 rMatrix<TYPE, ROWS, COLLUMNS>::toIdentityMatrix() {
    vDataMat[0] = 1;
-   for ( int i = 1; i < ROWS * ROWS; ++i )
+   for ( uint32_t i = 1; i < ROWS * ROWS; ++i )
       if ( ( i % ( ROWS + 1 ) ) == 0 )
          vDataMat[i] = 1;
       else
          vDataMat[i] = 0;
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::fill( TYPE &&_f ) {
-   for ( int i = 1; i < ROWS * COLLUMNS; ++i )
+   for ( uint32_t i = 1; i < ROWS * COLLUMNS; ++i )
       vDataMat[i] = _f;
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
-template <int R, int C>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
+template <uint32_t R, uint32_t C>
 void rMatrix<TYPE, ROWS, COLLUMNS>::downscale( rMatrix<TYPE, R, C> *_new ) const {
    static_assert( ( ROWS * COLLUMNS ) >= 2, "Matrix size (R*C) must be at least 2" );
    static_assert( R <= ROWS && C <= COLLUMNS, "The matrix to downscale must be smaller" );
 
-   for ( int x = 0; x < C; ++x )
-      for ( int y = 0; y < R; ++y )
+   for ( uint32_t x = 0; x < C; ++x )
+      for ( uint32_t y = 0; y < R; ++y )
          _new->set( x, y, get( x, y ) );
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
-template <int R, int C>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
+template <uint32_t R, uint32_t C>
 void rMatrix<TYPE, ROWS, COLLUMNS>::upscale( rMatrix<TYPE, R, C> *_new ) const {
    static_assert( ( ROWS * COLLUMNS ) >= 2, "Matrix size (R*C) must be at least 2" );
    static_assert( R >= ROWS && C >= COLLUMNS, "The matrix to upscale must be larger" );
 
-   for ( int x = 0; x < COLLUMNS; ++x )
-      for ( int y = 0; y < ROWS; ++y )
+   for ( uint32_t x = 0; x < COLLUMNS; ++x )
+      for ( uint32_t y = 0; y < ROWS; ++y )
          _new->set( x, y, get( x, y ) );
 }
 
@@ -452,15 +455,15 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::upscale( rMatrix<TYPE, R, C> *_new ) const {
       *   equal to the collumn-count of the initial matrix.
       */
 
-template <class TYPE, int ROWS, int COLLUMNS>
-template <int COLLUMNS_NEW>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
+template <uint32_t COLLUMNS_NEW>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_matrix,
                                               rMatrix<TYPE, ROWS, COLLUMNS_NEW> *_targetMatrix ) {
-   int currentIndex = 0;
+   uint32_t currentIndex = 0;
    TYPE currentSum = 0;
-   for ( int i = 0; i < COLLUMNS_NEW; ++i ) { // Second Matrix
-      for ( int j = 0; j < ROWS; ++j ) {      // First Matrix
-         for ( int k = 0; k < COLLUMNS;
+   for ( uint32_t i = 0; i < COLLUMNS_NEW; ++i ) { // Second Matrix
+      for ( uint32_t j = 0; j < ROWS; ++j ) {      // First Matrix
+         for ( uint32_t k = 0; k < COLLUMNS;
                ++k ) // Both Matrices, this calculates the sum given to the target Matrix
             currentSum += get( k, j ) * _matrix.get( i, k );
          _targetMatrix->set( i, j, currentSum );
@@ -471,7 +474,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, COLLUMNS, COLL
 }
 
 // HARDCODED 2x2
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 2, 2> &_matrix,
                                               rMatrix<TYPE, 2, 2> *_targetMatrix ) {
    _targetMatrix->vDataMat[0] =
@@ -486,7 +489,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 2, 2> &_matrix
 
 
 // HARDCODED 3x3
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 3, 3> &_matrix,
                                               rMatrix<TYPE, 3, 3> *_targetMatrix ) {
    _targetMatrix->vDataMat[0] =
@@ -520,7 +523,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 3, 3> &_matrix
 
 
 // HARDCODED 4x4
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 4, 4> &_matrix,
                                               rMatrix<TYPE, 4, 4> *_targetMatrix ) {
    _targetMatrix->vDataMat[0] =
@@ -573,17 +576,17 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 4, 4> &_matrix
            ( vDataMat[11] * _matrix.vDataMat[14] ) + ( vDataMat[15] * _matrix.vDataMat[15] ) );
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::add( const rMatrix<TYPE, ROWS, COLLUMNS> &_matrix,
                                          rMatrix<TYPE, ROWS, COLLUMNS> *_targetMatrix ) {
-   for ( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
+   for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       _targetMatrix->set( i, ( vDataMat[i] + _matrix.get( i ) ) );
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::subtract( const rMatrix<TYPE, ROWS, COLLUMNS> &_matrix,
                                               rMatrix<TYPE, ROWS, COLLUMNS> *_targetMatrix ) {
-   for ( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
+   for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       _targetMatrix->set( i, ( vDataMat[i] - _matrix.get( i ) ) );
 }
 
@@ -597,13 +600,13 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::subtract( const rMatrix<TYPE, ROWS, COLLUMNS
 //
 
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::set( TYPE *_matrix ) {
-   for ( int i = 0; i < ( ROWS * COLLUMNS ); ++i )
+   for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
       vDataMat[i] = _matrix[i];
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 template <class... ARGS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::setMat( ARGS &&... _args ) {
    static_assert(
@@ -614,28 +617,28 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::setMat( ARGS &&... _args ) {
 
 
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 template <uint32_t POS, class... ARGS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( TYPE &&_arg, ARGS &&... _args ) {
    vDataMat[( ( POS % ROWS ) * COLLUMNS ) + ( POS / ROWS )] = _arg;
-   setHelper<POS + 1>( std::forward<ARGS>( _args )... );
+   setHelper<POS + 1>( static_cast<TYPE>( std::forward<ARGS>( _args ) )... );
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 template <uint32_t POS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( TYPE &&_arg ) {
    vDataMat[( ( POS % ROWS ) * COLLUMNS ) + ( POS / ROWS )] = _arg;
 }
 
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 template <uint32_t POS, class... ARGS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const TYPE &_arg, ARGS &&... _args ) {
    vDataMat[( ( POS % ROWS ) * COLLUMNS ) + ( POS / ROWS )] = _arg;
    setHelper<POS + 1>( std::forward<ARGS>( _args )... );
 }
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 template <uint32_t POS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const TYPE &_arg ) {
    vDataMat[( ( POS % ROWS ) * COLLUMNS ) + ( POS / ROWS )] = _arg;
@@ -651,10 +654,9 @@ inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper( const TYPE &_arg ) {
 //                                  __/ |
 //                                 |___/
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::TYPE2String( uint32_t &&_pos, std::string &_str ) {
-   static std::string lTempStr;
-   lTempStr = std::to_string( vDataMat[_pos] );
+   std::string lTempStr = std::to_string( vDataMat[_pos] );
 
    if ( lTempStr.size() < 10 ) {
       lTempStr.insert( lTempStr.begin(), 10 - lTempStr.size(), ' ' );
@@ -664,7 +666,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::TYPE2String( uint32_t &&_pos, std::string &_
 }
 
 
-template <class TYPE, int ROWS, int COLLUMNS>
+template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::print( std::string _name, char _type ) {
    LOG( _type, false, W_FILE, __LINE__, W_FUNC, _name, ": " );
 

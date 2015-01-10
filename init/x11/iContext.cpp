@@ -88,6 +88,7 @@ iContext::iContext() {
    vWindowRecreate_B = false;
 }
 
+iContext::~iContext() { destroyContext(); }
 
 
 /*!
@@ -109,9 +110,6 @@ vRandR_eRR.init( vDisplay_X11, vWindow_X11, vRootWindow_X11 )
  * \endcode
  *
  * Additionally it prints all versions with \b LOG
- *
- * \param argc argc from the main() fnction
- * \param argv argv from the main() fnction
  *
  * \returns  1 -- Versions are compatible
  * \returns -1 -- Unable to connect to the X-Server
@@ -176,10 +174,10 @@ int iContext::createContext() {
          E_VERSION_GIT,
          "\n  - OpenGL: ",
          lC1_C,
-         (char *)glGetString( GL_VERSION ),
+         glGetString( GL_VERSION ),
          "\n  - GLSL:   ",
          lC1_C,
-         (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
+         glGetString( GL_SHADING_LANGUAGE_VERSION ),
          "\n  - GLX:    ",
          lC1_C,
          vGLXVersionMajor_I,
@@ -192,7 +190,7 @@ int iContext::createContext() {
          vX11VersionMinor_I,
          "\n  - GLEW:   ",
          lC1_C,
-         (char *)glewGetString( GLEW_VERSION ),
+         glewGetString( GLEW_VERSION ),
          "\n  - RandR:  ",
          lC1_C,
          lRandRVersionString_str );
@@ -226,8 +224,9 @@ iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _po
       return 0;
 
    XWindowChanges lWindowChanges_X11;
-   GlobConf.win.width = lWindowChanges_X11.width = (int)_width;
-   GlobConf.win.height = lWindowChanges_X11.height = (int)_height;
+   lWindowChanges_X11.width = static_cast<int>( GlobConf.win.width = _width );
+   lWindowChanges_X11.height = static_cast<int>( GlobConf.win.height = _height );
+
    GlobConf.win.posX = lWindowChanges_X11.x = _posX;
    GlobConf.win.posY = lWindowChanges_X11.y = _posY;
 
@@ -238,7 +237,6 @@ iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _po
 
 /*!
  * \brief Destroy the window and the context
- * \returns Nothing
  */
 void iContext::destroyContext() {
    endRandR();
@@ -357,7 +355,7 @@ const long unsigned int MWM_HINTS_DECORATIONS = ( 1L << 1 );
 /*!
  * \brief Try to add or remove the window decoration
  * \warning A non X11 standard function is used! Functionality may be restricted
- * \param _mode Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
+ * \param _action Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
  * \returns \c Success: \a true -- \c Failed: \a false
  */
 bool iContext::setDecoration( e_engine::ACTION _action ) {
@@ -387,7 +385,7 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
                           lAtomMwmHints_X11,
                           32,
                           PropModeReplace,
-                          (unsigned char *)&lHints_X11,
+                          reinterpret_cast<unsigned char *>( &lHints_X11 ),
                           5 ) ) {
       wLOG( "Failed to set XChangeProperty( ..., _MOTIF_WM_HINTS, _MOTIF_WM_HINTS,...); ==> Can "
             "not set / remove window border " );
@@ -415,7 +413,7 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
 
 /*!
  * \brief Change the fullscreen mode
- * \param _mode        Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
+ * \param _action      Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
  * \param _allMonitors \a true if the Fullscreen window should be mapped over all monitors
  * \returns \c Success: \a true -- \c Failed: \a false
  */
@@ -433,7 +431,7 @@ bool iContext::fullScreen( e_engine::ACTION _action, bool _allMonitors ) {
 
 /*!
  * \brief Change the maximize mode
- * \param _mode Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
+ * \param _action Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
  * \returns \c Success: \a true -- \c Failed: \a false
  */
 bool iContext::maximize( e_engine::ACTION _action ) {
@@ -480,8 +478,6 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
       case C_TOGGLE:
          lMode_STR = "Toggling";
          break;
-      default:
-         return -1;
    }
 
    if ( _type1 != NONE ) {
@@ -525,7 +521,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
          case FOCUSED:
             lState1_str = "_NET_WM_STATE_FOCUSED";
             break;
-         default:
+         case NONE:
             return false;
       }
 
@@ -580,7 +576,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
          case FOCUSED:
             lState2_str = "_NET_WM_STATE_FOCUSED";
             break;
-         default:
+         case NONE:
             return false;
       }
 
@@ -596,8 +592,8 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    if ( !sendX11Event( "_NET_WM_STATE",
                        _action,
-                       ( _type1 != NONE ) ? lAtomNetWmStateState1_X11 : 0,
-                       ( _type2 != NONE ) ? lAtomNetWmStateState2_X11 : 0,
+                       ( _type1 != NONE ) ? static_cast<long>( lAtomNetWmStateState1_X11 ) : 0,
+                       ( _type2 != NONE ) ? static_cast<long>( lAtomNetWmStateState2_X11 ) : 0,
                        1 ) ) {
       wLOG( lMode_STR, ' ', lState1_str, " and ", lState2_str, " mode FAILED" );
       return false;
@@ -657,7 +653,7 @@ bool iContext::fullScreenMultiMonitor() {
  * \returns 2 when sending the X11 event failed
  * \returns the result of iRandR::getIndexOfDisplay() when there was a failure
  */
-int iContext::setFullScreenMonitor( iDisplays _disp ) {
+int iContext::setFullScreenMonitor( iDisplays &_disp ) {
    if ( !vHaveGLEW_B )
       return 0;
 
@@ -857,15 +853,15 @@ bool iContext::moveMouse( unsigned int _posX, unsigned int _posY ) {
       return false;
    }
 
-   XWarpPointer( vDisplay_X11, // Our connection to the X server
-                 None,         // Move it from this window (unknown)...
-                 vWindow_X11,  // ...to the window
-                 0,            // We dont...
-                 0,            // ...have any...
-                 0,            // ...information about...
-                 0,            // ...the source window!
-                 _posX,        // Posx in the window
-                 _posY         // Posy in the window
+   XWarpPointer( vDisplay_X11,              // Our connection to the X server
+                 None,                      // Move it from this window (unknown)...
+                 vWindow_X11,               // ...to the window
+                 0,                         // We dont...
+                 0,                         // ...have any...
+                 0,                         // ...information about...
+                 0,                         // ...the source window!
+                 static_cast<int>( _posX ), // Posx in the window
+                 static_cast<int>( _posY )  // Posy in the window
                  );
 
    return false;

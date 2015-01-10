@@ -24,6 +24,9 @@
 
 #include "ShaderInfo.hpp"
 
+using namespace std;
+using namespace e_engine;
+
 const string ShaderInfo::desc =
       "Tests if it is possible to query shader information with the new OGL style";
 

@@ -21,25 +21,23 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-using namespace e_engine;
 
 class cmdANDinit {
  private:
-   vector<string> args;
-   string argv0;
-   string dataRoot;
-   string meshToRender = "meshS";
-   string vShader = "phong";
-   string vNormalShader = "normals";
+   std::vector<std::string> args;
+   std::string argv0;
+   std::string dataRoot;
+   std::string meshToRender = "meshS";
+   std::string vShader = "phong";
+   std::string vNormalShader = "normals";
 
-   uJSON_data vData_JSON;
+   e_engine::uJSON_data vData_JSON;
 
    bool vCanUseColor;
    bool vRenderNormals = false;
 
-   GLfloat vNearZ = 0.1;
-   GLfloat vFarZ = 100;
+   GLfloat vNearZ = 0.1f;
+   GLfloat vFarZ = 100.0f;
 
    cmdANDinit() {}
 
@@ -50,9 +48,9 @@ class cmdANDinit {
  public:
    cmdANDinit( int argc, char *argv[] );
 
-   string getMesh() const { return dataRoot + string( "obj/" ) + meshToRender + string( ".obj" ); }
-   string getShader() const { return dataRoot + string( "shaders/" ) + vShader; }
-   string getNormalShader() const { return dataRoot + string( "shaders/" ) + vNormalShader; }
+   std::string getMesh() const { return dataRoot + "obj/" + meshToRender + ".obj"; }
+   std::string getShader() const { return dataRoot + "shaders/" + vShader; }
+   std::string getNormalShader() const { return dataRoot + "shaders/" + vNormalShader; }
 
    GLfloat getNearZ() const { return vNearZ; }
    GLfloat getFarZ() const { return vFarZ; }

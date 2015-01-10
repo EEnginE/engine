@@ -23,7 +23,14 @@
 #include <engine.hpp>
 #include "cmdANDinit.hpp"
 
-using namespace e_engine;
+using e_engine::rScene;
+using e_engine::rCameraHandler;
+using e_engine::rSimpleMesh;
+using e_engine::rPointLight;
+using e_engine::rDirectionalLight;
+using e_engine::uSlot;
+using e_engine::iInit;
+using e_engine::iEventInfo;
 
 class myScene final : public rScene<float>, public rCameraHandler<float> {
    typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
@@ -51,7 +58,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
          vObject1( this, "OBJ 1", _cmd.getMesh() ),
          vLight1( this, "L1" ),
          vLight2( this, "L2" ),
-         vLight3( "L3", rVec3f( 0.5, -1, 0.5 ) ),
+         vLight3( "L3", e_engine::rVec3f( 0.5, -1, 0.5 ) ),
          vShader_str( _cmd.getShader() ),
          vNormalShader_str( _cmd.getNormalShader() ),
          vKeySlot( &myScene::keySlot, this ),

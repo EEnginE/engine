@@ -21,6 +21,8 @@
 
 namespace e_engine {
 
+rFrameCounter::~rFrameCounter() { disableFrameCounter( true ); }
+
 rFrameCounter::rFrameCounter( rWorld *_rWorld, bool _enable )
     : vWorld( _rWorld ), vRenderedFrames( _rWorld->getRenderedFramesPtr() ) {
 
@@ -35,9 +37,9 @@ void rFrameCounter::frameCounterLoop() {
    LOG.nameThread( L"fps" );
    while ( vFrameCounterEnabled ) {
       if ( !vWorld->getIsRenderLoopPaused() ) {
-         iLOG( "FPS: ", (int)( *vRenderedFrames / vHelper ) ); // Change this to output the
-                                                               // resulting fps in a proper way (and
-                                                               // as a double)
+         iLOG( "FPS: ", *vRenderedFrames / vHelper ); // Change this to output the
+                                                      // resulting fps in a proper way (and
+                                                      // as a double)
          *vRenderedFrames = 0;
       }
       B_SLEEP( milliseconds, vSleepDelay );

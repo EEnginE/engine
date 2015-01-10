@@ -41,8 +41,8 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
    XRRScreenSize *lTempSizes_XRR = XRRSizes( vDisplay_X11, 0, &lTempSizes_I );
 
    if ( lTemoID_suI < lTempSizes_I ) {
-      vScreenWidth_uI = lTempSizes_XRR[lTemoID_suI].width;
-      vScreenHeight_uI = lTempSizes_XRR[lTemoID_suI].height;
+      vScreenWidth_uI = static_cast<unsigned>( lTempSizes_XRR[lTemoID_suI].width );
+      vScreenHeight_uI = static_cast<unsigned>( lTempSizes_XRR[lTemoID_suI].height );
    }
 
    if ( _overwriteLatest ) {
@@ -175,8 +175,9 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
          lVTotalTemp /= 2;
 
       if ( lTempMode_RandR.hTotal && lVTotalTemp )
-         lTempMode_RandR.refresh = ( (double)lTempMode_RandR.dotClock /
-                                     ( (double)lTempMode_RandR.hTotal * (double)lVTotalTemp ) );
+         lTempMode_RandR.refresh = ( static_cast<double>( lTempMode_RandR.dotClock ) /
+                                     ( static_cast<double>( lTempMode_RandR.hTotal ) *
+                                       static_cast<double>( lVTotalTemp ) ) );
       else
          lTempMode_RandR.refresh = 0;
 

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <engine.hpp>
+
 #define INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@"
 
 #if UNIX

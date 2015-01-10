@@ -23,8 +23,6 @@
 #include "uLog.hpp"
 #include "uFileIO.hpp"
 
-#define DO_NOT_FAIL_PARSING 1
-
 namespace e_engine {
 
 rLoader_3D_f_OBJ::rLoader_3D_f_OBJ() { vIsDataLoaded_B = false; }
@@ -118,7 +116,7 @@ bool rLoader_3D_f_OBJ::getInt( unsigned int &_num ) {
                      ": not a number" );
                return false;
             }
-            _num = std::stoi( lNum );
+            _num = static_cast<unsigned>( std::stoi( lNum ) );
             return true;
       }
    }

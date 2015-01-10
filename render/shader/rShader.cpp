@@ -32,13 +32,15 @@
 
 namespace e_engine {
 
+std::string getShaderTypeString( GLenum _type );
+
 rShader::rShader() {
    vShaderProgram_OGL = 0;
    vIsShaderLinked_B = false;
 
-   vShaderEndings[VERT] = VERT_END;
-   vShaderEndings[FRAG] = FRAG_END;
-   vShaderEndings[GEOM] = GEOM_END;
+   vShaderEndings[VERT] = ".vert";
+   vShaderEndings[FRAG] = ".frag";
+   vShaderEndings[GEOM] = ".geom";
 
    // Inputs:
 
@@ -153,7 +155,7 @@ int rShader::search_shaders() {
       wLOG( "No shaders found! WARNING!" );
    }
 
-   return vShaders.size();
+   return static_cast<int>( vShaders.size() );
 }
 
 
@@ -196,7 +198,7 @@ bool rShader::addShader( std::string _filename, GLenum _shaderType ) {
 /*!
  * \brief Test if program is OK
  * \returns 1 When successful
- * \returns -5 When a shader linking error occured
+ * \returns 2 When a shader linking error occured
  */
 unsigned int rShader::testProgram() {
    int status;
@@ -204,7 +206,7 @@ unsigned int rShader::testProgram() {
    if ( status == GL_FALSE ) {
       GLint lLinkLogLength;
       glGetProgramiv( vShaderProgram_OGL, GL_INFO_LOG_LENGTH, &lLinkLogLength );
-      auto log = new GLchar[lLinkLogLength];
+      auto log = new GLchar[static_cast<size_t>( lLinkLogLength )];
       glGetProgramInfoLog( vShaderProgram_OGL, lLinkLogLength, nullptr, log );
 
       eLOG( "Linking failure:\n"
@@ -222,7 +224,7 @@ unsigned int rShader::testProgram() {
       delete[] log;
 
       // Return a shader linking error
-      return -5;
+      return 2;
    }
    return 1;
 }
@@ -240,7 +242,7 @@ unsigned int rShader::testProgram() {
  * \returns -6 When the shaders were not set
  */
 int rShader::compile( GLuint &_vShader_OGL ) {
-   unsigned int lRet_uI = compile();
+   auto lRet_uI = compile();
    _vShader_OGL = vShaderProgram_OGL;
    return lRet_uI;
 }
@@ -304,7 +306,7 @@ int rShader::compile() {
    }
    vIsShaderLinked_B = true;
 
-   int lTempShaderCounter_I = vShaders.size();
+   int lTempShaderCounter_I = static_cast<int>( vShaders.size() );
    vShaders.clear();
    getProgramInfo();
 
@@ -314,7 +316,6 @@ int rShader::compile() {
 
 /*!
  * \brief Deletes the programm
- * \returns Nothing
  */
 void rShader::deleteProgram() {
    if ( !vIsShaderLinked_B )
@@ -356,7 +357,7 @@ bool rShader::singleShader::readShader() {
    vData_str.clear();
 
    while ( ( c = fgetc( lFile ) ) != EOF )
-      vData_str.append( 1, (char)c );
+      vData_str.append( 1, static_cast<char>( c ) );
 
    fclose( lFile );
 
@@ -375,7 +376,7 @@ bool rShader::singleShader::testShader() {
    if ( test == GL_FALSE ) {
       GLint logLength = 0;
       glGetShaderiv( vShader_OGL, GL_INFO_LOG_LENGTH, &logLength );
-      auto log = new GLchar[logLength];
+      auto log = new GLchar[static_cast<size_t>( logLength )];
       glGetShaderInfoLog( vShader_OGL, logLength, nullptr, log );
 
       eLOG( "Compile failure in the ",
@@ -402,7 +403,6 @@ bool rShader::singleShader::testShader() {
  * This runs read_shader, compiles
  * the shader and returns it
  *
- * \param _shader The shader that will be created
  * \returns 1 When successful
  * \returns 2 When a file-reading error occurs
  * \returns 3 When a compile error occurs
@@ -461,7 +461,7 @@ void rShader::setUniformStructString( SHADER_INFORMATION _type, std::string _str
 }
 
 unsigned int rShader::getUniformArraySize( SHADER_INFORMATION _type ) const {
-   return vInfo[_type].locations.size();
+   return static_cast<unsigned>( vInfo[_type].locations.size() );
 }
 
 
@@ -500,7 +500,7 @@ bool rShader::parseRawInformation() {
 
    for ( auto const &i : vProgramInformation.vInputInfo ) {
       std::string lArrayIndex;
-      int lIndex = 0;
+      unsigned int lIndex = 0;
 
       lName.clear();
       for ( auto it = i.name.begin(); it != i.name.end(); ++it ) {
@@ -517,8 +517,10 @@ bool rShader::parseRawInformation() {
          lName += *it;
       }
 
-      if ( !lArrayIndex.empty() )
-         lIndex = atoi( lArrayIndex.c_str() );
+      if ( !lArrayIndex.empty() ) {
+         int lTemp = atoi( lArrayIndex.c_str() );
+         lIndex = lTemp < 0 ? 0 : static_cast<unsigned>( lTemp );
+      }
 
       for ( j = 0; j < __BEGIN_UNIFORMS__; ++j ) {
          if ( vInfo[j].sName.empty() )
@@ -542,7 +544,7 @@ bool rShader::parseRawInformation() {
                "' [",
                i.location,
                "; ",
-               getTypeString( i.type ),
+               getTypeString( static_cast<GLenum>( i.type ) ),
                "]" );
          lRet = false;
       }
@@ -550,7 +552,7 @@ bool rShader::parseRawInformation() {
 
    for ( auto const &i : vProgramInformation.vUniformInfo ) {
       std::string lArrayIndex;
-      int lIndex = 0;
+      unsigned int lIndex = 0;
 
       lName.clear();
       for ( auto it = i.name.begin(); it != i.name.end(); ++it ) {
@@ -567,8 +569,10 @@ bool rShader::parseRawInformation() {
          lName += *it;
       }
 
-      if ( !lArrayIndex.empty() )
-         lIndex = atoi( lArrayIndex.c_str() );
+      if ( !lArrayIndex.empty() ) {
+         int lTemp = atoi( lArrayIndex.c_str() );
+         lIndex = lTemp < 0 ? 0 : static_cast<unsigned>( lTemp );
+      }
 
       for ( j = __BEGIN_UNIFORMS__ + 1; j < __END_INF__; ++j ) {
          if ( vInfo[j].sName.empty() )
@@ -592,7 +596,7 @@ bool rShader::parseRawInformation() {
                "' [",
                i.location,
                "; ",
-               getTypeString( i.type ),
+               getTypeString( static_cast<GLenum>( i.type ) ),
                "]" );
          lRet = false;
       }

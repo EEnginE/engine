@@ -27,7 +27,7 @@ class BenchBaseVirtual {
    virtual double funcToCallVirtual( int _a, double _b ) = 0;
    virtual double funcToCallInlineVirtual( int _a, double _b ) = 0;
 
-   virtual ~BenchBaseVirtual() {}
+   virtual ~BenchBaseVirtual();
 };
 
 
@@ -36,11 +36,11 @@ class BenchClass : public BenchBaseVirtual {
    // --- function Bench ---
    unsigned int vLoopsToDo;
 
-   uSignal<double, int, double> vTheSignal;
-   uSlot<double, BenchClass, int, double> vTheSlot;
+   e_engine::uSignal<double, int, double> vTheSignal;
+   e_engine::uSlot<double, BenchClass, int, double> vTheSlot;
 
-   uSignal<double, int, double> vTheSignalInline;
-   uSlot<double, BenchClass, int, double> vTheSlotInline;
+   e_engine::uSignal<double, int, double> vTheSignalInline;
+   e_engine::uSlot<double, BenchClass, int, double> vTheSlotInline;
 
    double ( BenchClass::*vFunctionPointer )( int, double );
    double ( BenchClass::*vFunctionPointerInline )( int, double );

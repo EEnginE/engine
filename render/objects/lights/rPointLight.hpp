@@ -39,8 +39,8 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    void setFlags();
 
 
-   virtual int clearOGLData__() { return -1; };
-   virtual int setOGLData__() { return -1; };
+   virtual int clearOGLData__() { return -1; }
+   virtual int setOGLData__() { return -1; }
 
  public:
    using rMatrixObjectBase<T>::getPosition;
@@ -103,9 +103,11 @@ uint32_t rPointLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
       case ATTENUATION:
          *_vec = &vAttenuation;
          return ALL_OK;
-      default:
+      case DIRECTION:
          return UNSUPPORTED_TYPE;
    }
+
+   return UNSUPPORTED_TYPE;
 }
 
 template <class T>

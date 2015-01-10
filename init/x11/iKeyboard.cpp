@@ -31,6 +31,8 @@ namespace e_engine {
 
 namespace unix_x11 {
 
+iKeyboard::~iKeyboard() {}
+
 static struct codepair {
    unsigned short keysym;
    unsigned short ucs;
@@ -849,11 +851,11 @@ wchar_t iKeyboard::keysym2unicode( KeySym keysym ) {
 
    /* first check for Latin-1 characters (1:1 mapping) */
    if ( ( keysym >= 0x0020 && keysym <= 0x007e ) || ( keysym >= 0x00a0 && keysym <= 0x00ff ) )
-      return (wchar_t)keysym;
+      return static_cast<wchar_t>( keysym );
 
    /* also check for directly encoded 24-bit UCS characters */
    if ( ( keysym & 0xff000000 ) == 0x01000000 )
-      return (wchar_t)keysym & 0x00ffffff;
+      return static_cast<wchar_t>( keysym ) & 0x00ffffff;
 
    /* binary search in table */
    while ( max >= min ) {
@@ -864,7 +866,7 @@ wchar_t iKeyboard::keysym2unicode( KeySym keysym ) {
          max = mid - 1;
       else {
          /* found it */
-         return (wchar_t)keysymtab[mid].ucs;
+         return static_cast<wchar_t>( keysymtab[mid].ucs );
       }
    }
 
@@ -876,7 +878,7 @@ wchar_t iKeyboard::processX11KeyInput( XKeyPressedEvent _kEv,
                                        short unsigned int _key_state,
                                        Display *_display ) {
    KeySym key;
-   unsigned int level1 = 0, level2 = 0, level2_temp;
+   int level1 = 0, level2 = 0, level2_temp;
 
    // Num-Lock? Shift?
    XKeyboardState state;
@@ -918,7 +920,7 @@ wchar_t iKeyboard::processX11KeyInput( XKeyPressedEvent _kEv,
 
    if ( level1 == 1 ) {
       // Get KeySym for Num-Lock
-      key = XkbKeycodeToKeysym( _display, _kEv.keycode, 0, level1 );
+      key = XkbKeycodeToKeysym( _display, static_cast<KeyCode>( _kEv.keycode ), 0, level1 );
       switch ( key ) {
          case XK_KP_0:
             setKeyState( E_KEY_KP_0, _key_state );
@@ -954,12 +956,12 @@ wchar_t iKeyboard::processX11KeyInput( XKeyPressedEvent _kEv,
    }
 
    // Get KeySym for the rest
-   key = XkbKeycodeToKeysym( _display, _kEv.keycode, 0, level2 );
+   key = XkbKeycodeToKeysym( _display, static_cast<KeyCode>( _kEv.keycode ), 0, level2 );
 
    // printable keys
    if ( ( key >= 32 && key <= 126 ) || ( key >= 160 && key <= 255 ) ) {
-      setKeyState( (wchar_t)key, _key_state );
-      return (wchar_t)key;
+      setKeyState( static_cast<wchar_t>( key ), _key_state );
+      return static_cast<wchar_t>( key );
    }
 
    switch ( key ) {

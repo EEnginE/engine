@@ -25,7 +25,7 @@
 
 namespace e_engine {
 
-class uParserJSON {
+class uParserJSON final {
  private:
    std::string vFilePath_str;
    bool vIsParsed;
@@ -50,7 +50,7 @@ class uParserJSON {
    bool parseValue( e_engine::uJSON_data &_currentObject, const std::string &_name );
 
  public:
-   virtual ~uParserJSON() {}
+   ~uParserJSON() {}
    uParserJSON() : vIsParsed( false ), vWriteIndent_str( "  " ) {}
    uParserJSON( std::string _file )
        : vFilePath_str( _file ), vIsParsed( false ), vWriteIndent_str( "  " ) {}

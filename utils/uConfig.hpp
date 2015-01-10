@@ -104,7 +104,6 @@ struct _uConfig {
 
       /*!
        * \brief Reset to default
-       * \returns Nothing
        */
       void reset();
    } framebuffer;
@@ -127,7 +126,6 @@ struct _uConfig {
 
       /*!
        * \brief Reset to default
-       * \returns Nothing
        */
       void reset();
    } versions;
@@ -197,7 +195,6 @@ struct _uConfig {
 
       /*!
        * \brief Reset to default
-       * \returns Nothing
        */
       void reset();
    } win;
@@ -307,7 +304,6 @@ struct _uConfig {
 
       /*!
        * \brief Reset to default
-       * \returns Nothing
        */
       void reset();
    } config;
@@ -326,7 +322,6 @@ struct _uConfig {
       __uConfig_OpenGL();
       /*!
        * \brief Reset to default
-       * \returns Nothing
        */
       void reset();
    } ogl;

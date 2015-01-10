@@ -103,7 +103,7 @@ struct uConverter<__A> {
  */
 struct uLogRawData {
    virtual std::wstring get() = 0;
-   virtual ~uLogRawData() {}
+   virtual ~uLogRawData();
 };
 
 template <class... T>
@@ -159,7 +159,7 @@ class uLogEntryRaw {
          LOG_PRINT_TYPE vFile_LPT;
          LOG_PRINT_TYPE vErrorType_LPT;
          LOG_PRINT_TYPE vThread_LPT;
-         int vColumns_uI;
+         int vColumns_I;
          uint16_t vMaxTypeStringLength_usI;
          bool vTextOnly_B;
          __DATA_CONF__( bool &_onlyText ) : vTextOnly_B( _onlyText ) {}

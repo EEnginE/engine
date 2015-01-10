@@ -54,8 +54,6 @@ std::string placeStringLeft( std::string _str, unsigned int _size, char _fill ) 
 
 /*!
  * \brief Prints a (more or less) fancy table with all XRandR information
- *
- * \returns \a true when everything went fine or \a false when there was a RandR error
  */
 void iRandR::printRandRStatus() {
    if ( !vIsRandRSupported_B )
@@ -211,7 +209,7 @@ void iRandR::printRandRStatus() {
          bool lModePrefered_B = false;
          char lAtrib_C = 'O';
          char lColor_C = 'W';
-         unsigned int lModeCounter_uI = 0; //< Needed for preferred check
+         unsigned int lModeCounter_uI = 0; //!< Needed for preferred check
 
          // Check if the mode is supported by the output
          for ( RRMode const &fTempMode : fOutput.modes ) {
@@ -219,7 +217,7 @@ void iRandR::printRandRStatus() {
             if ( fTempMode == fMode.id ) {
                lFoundMode_B = true;
 
-               if ( lModeCounter_uI == (unsigned int)fOutput.npreferred )
+               if ( lModeCounter_uI == static_cast<unsigned int>( fOutput.npreferred ) )
                   lModePrefered_B = true;
 
                break;

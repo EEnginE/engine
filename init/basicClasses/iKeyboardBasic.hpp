@@ -35,13 +35,14 @@ class iKeyboardBasic {
     * \brief Set a key to a specific state
     * \param _key   The key ID
     * \param _state The new key state
-    * \returns Nothing
     */
    void setKeyState( wchar_t _key, unsigned short int _state ) {
+#if ! WINDOWS
       if ( _key < 0 )
          return;
+#endif
 
-      key_state[(unsigned int)_key] = _state;
+      key_state[static_cast<unsigned int>( _key )] = _state;
    }
 
    /*!
@@ -50,19 +51,23 @@ class iKeyboardBasic {
     * \returns The key state
     */
    unsigned short int getKeyStateArray( wchar_t _key ) {
+      #if ! WINDOWS
       if ( _key < 0 || _key > _E_KEY_LAST ) {
-         return E_UNKNOWN;
+         return static_cast<unsigned short int>( E_UNKNOWN );
       }
-      return key_state[(unsigned int)_key];
+      #else
+      if ( _key > _E_KEY_LAST ) {
+         return static_cast<unsigned short int>( E_UNKNOWN );
+      }
+      #endif
+      return key_state[static_cast<unsigned int>( _key )];
    }
 
  public:
    iKeyboardBasic();
-   virtual ~iKeyboardBasic() {}
+   virtual ~iKeyboardBasic();
 };
 }
-
-
 
 
 #endif // KEYS_BASIC

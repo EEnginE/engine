@@ -25,7 +25,7 @@
 
 namespace e_engine {
 
-std::string rShader::getTypeString( int _type ) {
+std::string rShader::getTypeString( GLenum _type ) {
    switch ( _type ) {
       case GL_FLOAT:
          return "float";
@@ -194,17 +194,19 @@ rShader::processData( GLenum _type, GLuint _index, GLsizei _arraySize, GLenum *_
                            _out // The output array and it's size
                            );
 
+   GLsizei lSize = _out[0];
+
    std::string lName_str;
-   lName_str.resize( _out[0] );
+   lName_str.resize( static_cast<size_t>( lSize ) );
    int actualLength = 10;
    glGetProgramResourceName( vShaderProgram_OGL, // The program ID
                              _type,              // The program Interface​
                              _index,             // The current index
-                             lName_str.size(),   // Our available memory
+                             lSize,              // Our available memory
                              &actualLength,      // The actual length used
                              &lName_str[0]       // The adress of the array in RAM
                              );
-   lName_str.resize( actualLength ); // Remove the annoying '\0' at the end
+   lName_str.resize( static_cast<size_t>( actualLength ) ); // Remove the annoying '\0' at the end
    return lName_str;
 }
 
@@ -300,7 +302,8 @@ void rShader::getInfoNew() {
    // Input
    for ( GLint i = 0; i < lNumOfInputs; ++i ) {
       GLint lResults[6];
-      std::string lName_str = processData( GL_PROGRAM_INPUT, i, 6, lInputValues, lResults );
+      std::string lName_str =
+            processData( GL_PROGRAM_INPUT, static_cast<unsigned>( i ), 6, lInputValues, lResults );
 
 #if E_DEBUG_LOGGING
       dLOG( "Shader ",
@@ -310,7 +313,7 @@ void rShader::getInfoNew() {
             "\n  - Name:               ",
             lName_str,
             "\n  - Type:               ",
-            getTypeString( lResults[1] ),
+            getTypeString( static_cast<GLenum>( lResults[1] ) ),
             "\n  - Array Size:         ",
             lResults[2],
             "\n  - Location:           ",
@@ -328,7 +331,8 @@ void rShader::getInfoNew() {
    // Output
    for ( GLint i = 0; i < lNumOfOutouts; ++i ) {
       GLint lResults[7];
-      std::string lName_str = processData( GL_PROGRAM_OUTPUT, i, 7, lOutputValues, lResults );
+      std::string lName_str = processData(
+            GL_PROGRAM_OUTPUT, static_cast<unsigned>( i ), 7, lOutputValues, lResults );
 
 #if E_DEBUG_LOGGING
       dLOG( "Shader ",
@@ -338,7 +342,7 @@ void rShader::getInfoNew() {
             "\n  - Name:               ",
             lName_str,
             "\n  - Type:               ",
-            getTypeString( lResults[1] ),
+            getTypeString( static_cast<GLenum>( lResults[1] ) ),
             "\n  - Array Size:         ",
             lResults[2],
             "\n  - Location:           ",
@@ -363,7 +367,8 @@ void rShader::getInfoNew() {
    // Unifrom Blocks
    for ( GLint i = 0; i < lNumOfUniformBlocks; ++i ) {
       GLint lResults[4];
-      std::string lName_str = processData( GL_UNIFORM_BLOCK, i, 4, lUniformBlockValues, lResults );
+      std::string lName_str = processData(
+            GL_UNIFORM_BLOCK, static_cast<unsigned>( i ), 4, lUniformBlockValues, lResults );
 
 #if E_DEBUG_LOGGING
       dLOG( "Shader ",
@@ -389,7 +394,8 @@ void rShader::getInfoNew() {
    // Unifrom
    for ( GLint i = 0; i < lNumOfUniforms; ++i ) {
       GLint lResults[10];
-      std::string lName_str = processData( GL_UNIFORM, i, 10, lUniformValues, lResults );
+      std::string lName_str =
+            processData( GL_UNIFORM, static_cast<unsigned>( i ), 10, lUniformValues, lResults );
 
 
       auto *lWhereToPutInfo = &vProgramInformation.vUniformInfo;
@@ -429,7 +435,7 @@ void rShader::getInfoNew() {
             "\n  - Name:                  ",
             lName_str,
             "\n  - Type:                  ",
-            getTypeString( lResults[1] ),
+            getTypeString( static_cast<GLenum>( lResults[1] ) ),
             "\n  - Array Size:            ",
             lResults[2],
             "\n  - Offset:                ",
@@ -461,7 +467,7 @@ void rShader::getInfoNew() {
    }
 
    for ( auto &block : vProgramInformation.vUniformBlockInfo ) {
-      if ( (unsigned)block.numActiveVariables != block.uniforms.size() ) {
+      if ( static_cast<size_t>( block.numActiveVariables ) != block.uniforms.size() ) {
          wLOG( "Uniform Block ",
                block.name,
                " has ",
@@ -510,11 +516,16 @@ void rShader::getInfoOld() {
 #endif
 
    for ( int i = 0; i < lNumAttributes; ++i ) {
-      auto lName_CSTR = new char[lAttribMaxLength];
+      auto lName_CSTR = new char[static_cast<size_t>( lAttribMaxLength )];
       GLint lArraySize;
       GLenum lType;
-      glGetActiveAttrib(
-            vShaderProgram_OGL, i, lAttribMaxLength, nullptr, &lArraySize, &lType, lName_CSTR );
+      glGetActiveAttrib( vShaderProgram_OGL,
+                         static_cast<unsigned>( i ),
+                         lAttribMaxLength,
+                         nullptr,
+                         &lArraySize,
+                         &lType,
+                         lName_CSTR );
 
       GLint lLocation = glGetAttribLocation( vShaderProgram_OGL, lName_CSTR );
 
@@ -568,17 +579,28 @@ void rShader::getInfoOld() {
 
       // Unifrom Blocks
       for ( GLint i = 0; i < lNumOfUniformBlocks; ++i ) {
-         GLint lBinding, lDataSize, lNameLength, lNumUniforms;
-         glGetActiveUniformBlockiv( vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_BINDING, &lBinding );
-         glGetActiveUniformBlockiv( vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_DATA_SIZE, &lDataSize );
-         glGetActiveUniformBlockiv(
-               vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &lNumUniforms );
-         glGetActiveUniformBlockiv(
-               vShaderProgram_OGL, i, GL_UNIFORM_BLOCK_NAME_LENGTH, &lNameLength );
+         GLint lBinding, lDataSize, lNameLength, lNumUniforms2;
+         glGetActiveUniformBlockiv( vShaderProgram_OGL,
+                                    static_cast<unsigned>( i ),
+                                    GL_UNIFORM_BLOCK_BINDING,
+                                    &lBinding );
+         glGetActiveUniformBlockiv( vShaderProgram_OGL,
+                                    static_cast<unsigned>( i ),
+                                    GL_UNIFORM_BLOCK_DATA_SIZE,
+                                    &lDataSize );
+         glGetActiveUniformBlockiv( vShaderProgram_OGL,
+                                    static_cast<unsigned>( i ),
+                                    GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS,
+                                    &lNumUniforms2 );
+         glGetActiveUniformBlockiv( vShaderProgram_OGL,
+                                    static_cast<unsigned>( i ),
+                                    GL_UNIFORM_BLOCK_NAME_LENGTH,
+                                    &lNameLength );
 
-         auto lName_CSTR = new char[lNameLength];
+         auto lName_CSTR = new char[static_cast<size_t>( lNameLength )];
 
-         glGetActiveUniformBlockName( vShaderProgram_OGL, i, lNameLength, nullptr, lName_CSTR );
+         glGetActiveUniformBlockName(
+               vShaderProgram_OGL, static_cast<unsigned>( i ), lNameLength, nullptr, lName_CSTR );
 
 #if E_DEBUG_LOGGING
          dLOG( "Shader ",
@@ -592,13 +614,13 @@ void rShader::getInfoOld() {
                "\n  - Buffer Data Size:     ",
                lDataSize,
                "\n  - Num Active Variables: ",
-               lNumUniforms,
+               lNumUniforms2,
                "\n  - Index:                ",
                i );
 #endif
 
          vProgramInformation.vUniformBlockInfo.emplace_back(
-               std::string( lName_CSTR ), lBinding, lDataSize, lNumUniforms, i );
+               std::string( lName_CSTR ), lBinding, lDataSize, lNumUniforms2, i );
       }
    }
 
@@ -606,30 +628,50 @@ void rShader::getInfoOld() {
    // Uniforms
 
    for ( int i = 0; i < lNumUniforms; ++i ) {
-      auto lName_CSTR = new char[lUniformMaxLength];
+      auto lName_CSTR = new char[static_cast<size_t>( lUniformMaxLength )];
       GLint lArraySize, lOffset, lBlockIndex, lArrayStride, lMatrixStride, lType, lACBI,
             lIsRowMajor;
 
-      glGetActiveUniformsiv( vShaderProgram_OGL, 1, (const GLuint *)&i, GL_UNIFORM_TYPE, &lType );
       glGetActiveUniformsiv(
-            vShaderProgram_OGL, 1, (const GLuint *)&i, GL_UNIFORM_SIZE, &lArraySize );
-      glGetActiveUniformsiv(
-            vShaderProgram_OGL, 1, (const GLuint *)&i, GL_UNIFORM_OFFSET, &lOffset );
-      glGetActiveUniformsiv(
-            vShaderProgram_OGL, 1, (const GLuint *)&i, GL_UNIFORM_BLOCK_INDEX, &lBlockIndex );
-      glGetActiveUniformsiv(
-            vShaderProgram_OGL, 1, (const GLuint *)&i, GL_UNIFORM_ARRAY_STRIDE, &lArrayStride );
-      glGetActiveUniformsiv(
-            vShaderProgram_OGL, 1, (const GLuint *)&i, GL_UNIFORM_MATRIX_STRIDE, &lMatrixStride );
-      glGetActiveUniformsiv(
-            vShaderProgram_OGL, 1, (const GLuint *)&i, GL_UNIFORM_IS_ROW_MAJOR, &lIsRowMajor );
+            vShaderProgram_OGL, 1, reinterpret_cast<const GLuint *>( &i ), GL_UNIFORM_TYPE, &lType );
       glGetActiveUniformsiv( vShaderProgram_OGL,
                              1,
-                             (const GLuint *)&i,
+                             reinterpret_cast<const GLuint *>( &i ),
+                             GL_UNIFORM_SIZE,
+                             &lArraySize );
+      glGetActiveUniformsiv( vShaderProgram_OGL,
+                             1,
+                             reinterpret_cast<const GLuint *>( &i ),
+                             GL_UNIFORM_OFFSET,
+                             &lOffset );
+      glGetActiveUniformsiv( vShaderProgram_OGL,
+                             1,
+                             reinterpret_cast<const GLuint *>( &i ),
+                             GL_UNIFORM_BLOCK_INDEX,
+                             &lBlockIndex );
+      glGetActiveUniformsiv( vShaderProgram_OGL,
+                             1,
+                             reinterpret_cast<const GLuint *>( &i ),
+                             GL_UNIFORM_ARRAY_STRIDE,
+                             &lArrayStride );
+      glGetActiveUniformsiv( vShaderProgram_OGL,
+                             1,
+                             reinterpret_cast<const GLuint *>( &i ),
+                             GL_UNIFORM_MATRIX_STRIDE,
+                             &lMatrixStride );
+      glGetActiveUniformsiv( vShaderProgram_OGL,
+                             1,
+                             reinterpret_cast<const GLuint *>( &i ),
+                             GL_UNIFORM_IS_ROW_MAJOR,
+                             &lIsRowMajor );
+      glGetActiveUniformsiv( vShaderProgram_OGL,
+                             1,
+                             reinterpret_cast<const GLuint *>( &i ),
                              GL_UNIFORM_ATOMIC_COUNTER_BUFFER_INDEX,
                              &lACBI );
 
-      glGetActiveUniformName( vShaderProgram_OGL, i, lUniformMaxLength, nullptr, lName_CSTR );
+      glGetActiveUniformName(
+            vShaderProgram_OGL, static_cast<unsigned>( i ), lUniformMaxLength, nullptr, lName_CSTR );
 
       GLint lLocation = glGetUniformLocation( vShaderProgram_OGL, lName_CSTR );
 
@@ -669,7 +711,7 @@ void rShader::getInfoOld() {
             "\n  - Name:                  ",
             lName_CSTR,
             "\n  - Type:                  ",
-            getTypeString( lType ),
+            getTypeString( static_cast<GLenum>( lType ) ),
             "\n  - Array Size:            ",
             lArraySize,
             "\n  - Offset:                ",
@@ -701,7 +743,7 @@ void rShader::getInfoOld() {
    }
 
    for ( auto &block : vProgramInformation.vUniformBlockInfo ) {
-      if ( (unsigned)block.numActiveVariables != block.uniforms.size() ) {
+      if ( static_cast<size_t>( block.numActiveVariables ) != block.uniforms.size() ) {
          wLOG( "Uniform Block ",
                block.name,
                " has ",

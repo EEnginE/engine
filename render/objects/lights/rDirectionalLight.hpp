@@ -37,8 +37,8 @@ class rDirectionalLight : public rObjectBase {
    void setFlags();
 
 
-   virtual int clearOGLData__() { return -1; };
-   virtual int setOGLData__() { return -1; };
+   virtual int clearOGLData__() { return -1; }
+   virtual int setOGLData__() { return -1; }
 
  public:
    rDirectionalLight( std::string _name ) : rObjectBase( _name, "", SET_DATA_MANUALLY ) {
@@ -92,9 +92,13 @@ uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) 
       case DIRECTION:
          *_vec = &vLightDirection;
          return ALL_OK;
-      default:
+      case POSITION:
+      case POSITION_MODEL_VIEW:
+      case ATTENUATION:
          return UNSUPPORTED_TYPE;
    }
+
+   return UNSUPPORTED_TYPE;
 }
 
 template <class T>

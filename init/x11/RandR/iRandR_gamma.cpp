@@ -110,31 +110,42 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
    lGammaBlue_F = 1 / _b;
 
    for ( int i = 0; i < lSize_I; ++i ) {
-      if ( lGammaRed_F == 1.0 && _brightness == 1.0 )
-         lCRTCGamma_XRR->red[i] = i;
-      else
-         lCRTCGamma_XRR->red[i] =
-               fmin( pow( (double)i / (double)( lSize_I - 1 ), lGammaRed_F ) * _brightness, 1.0 ) *
-               (double)( lSize_I - 1 );
+      if ( lGammaRed_F == 1.0 && _brightness == 1.0 ) {
+         lCRTCGamma_XRR->red[i] = static_cast<unsigned short>( i );
+      } else {
+         lCRTCGamma_XRR->red[i] = static_cast<unsigned short>(
+               fmin( pow( static_cast<double>( i ) / static_cast<double>( lSize_I - 1 ),
+                          lGammaRed_F ) *
+                           _brightness,
+                     1.0 ) *
+               static_cast<double>( lSize_I - 1 ) );
+      }
 
       lCRTCGamma_XRR->red[i] <<= lShift_I;
 
-      if ( lGammaGreen_F == 1.0 && _brightness == 1.0 )
-         lCRTCGamma_XRR->green[i] = i;
-      else
-         lCRTCGamma_XRR->green[i] =
-               fmin( pow( (double)i / (double)( lSize_I - 1 ), lGammaGreen_F ) * _brightness,
+      if ( lGammaGreen_F == 1.0 && _brightness == 1.0 ) {
+         lCRTCGamma_XRR->green[i] = static_cast<unsigned short>( i );
+      } else {
+         lCRTCGamma_XRR->green[i] = static_cast<unsigned short>(
+               fmin( pow( static_cast<double>( i ) / static_cast<double>( lSize_I - 1 ),
+                          lGammaGreen_F ) *
+                           _brightness,
                      1.0 ) *
-               (double)( lSize_I - 1 );
+               static_cast<double>( lSize_I - 1 ) );
+      }
 
       lCRTCGamma_XRR->green[i] <<= lShift_I;
 
-      if ( lGammaBlue_F == 1.0 && _brightness == 1.0 )
-         lCRTCGamma_XRR->blue[i] = i;
-      else
-         lCRTCGamma_XRR->blue[i] =
-               fmin( pow( (double)i / (double)( lSize_I - 1 ), lGammaBlue_F ) * _brightness, 1.0 ) *
-               (double)( lSize_I - 1 );
+      if ( lGammaBlue_F == 1.0 && _brightness == 1.0 ) {
+         lCRTCGamma_XRR->blue[i] = static_cast<unsigned short>( i );
+      } else {
+         lCRTCGamma_XRR->blue[i] = static_cast<unsigned short>(
+               fmin( pow( static_cast<double>( i ) / static_cast<double>( lSize_I - 1 ),
+                          lGammaBlue_F ) *
+                           _brightness,
+                     1.0 ) *
+               static_cast<double>( lSize_I - 1 ) );
+      }
 
       lCRTCGamma_XRR->blue[i] <<= lShift_I;
    }
