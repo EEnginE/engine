@@ -145,7 +145,7 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
 
 template <class T>
 void rMatrixMath::perspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy, rMat4<T> &_out ) {
-   T f = static_cast<T>( 1.0 / tan( static_cast<double>(DEG_TO_RAD( _fofy / 2 )) ) );
+   T f = static_cast<T>( 1.0 / tan( static_cast<double>( DEG_TO_RAD( _fofy / 2 ) ) ) );
 
    _out.fill( 0 );
    _out.template get<0, 0>() = f / _aspectRatio;

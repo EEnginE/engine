@@ -50,7 +50,7 @@ if( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
       RESULT_VARIABLE GIT_HAS_TAGS
    )
 
-   if( NOT ${GIT_HAS_TAGS} MATCHES 0 )
+   if( ${GIT_HAS_TAGS} EQUAL 0 )
       string( REGEX REPLACE "\n" "" GIT_TAG_1 "${GIT_TAG_1}" )
       string( REGEX REPLACE "\n" "" GIT_TAG_2 "${GIT_TAG_2}" )
 
@@ -65,13 +65,13 @@ if( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
          string( REGEX REPLACE "^v[\\.0-9]+\\-([0-9]*)\\-[a-z0-9]*$" "\\1" CM_TAG_DIFF "${GIT_TAG_2}" )
          message( STATUS "VERSION: ${GIT_TAG_1} +${CM_TAG_DIFF} ${CM_VERSION_GIT}" )
       endif( "${GIT_TAG_1}" STREQUAL "${GIT_TAG_2}" )
-   else( NOT ${GIT_HAS_TAGS} MATCHES 0 )
+   else( ${GIT_HAS_TAGS} EQUAL 0 )
       message( STATUS "Can not access tags ==> version is v0.0.1 +1" )
       set( CM_VERSION_MAJOR    0 )
       set( CM_VERSION_MINOR    0 )
       set( CM_VERSION_SUBMINOR 1 )
       set( CM_TAG_DIFF         1 )
-   endif( NOT ${GIT_HAS_TAGS} MATCHES 0 )
+   endif( ${GIT_HAS_TAGS} EQUAL 0 )
 
 endif( ${GIT_FOUND} MATCHES 0 AND NOT WIN32)
 

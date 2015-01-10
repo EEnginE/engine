@@ -37,7 +37,7 @@ class iKeyboardBasic {
     * \param _state The new key state
     */
    void setKeyState( wchar_t _key, unsigned short int _state ) {
-#if ! WINDOWS
+#if !WINDOWS
       if ( _key < 0 )
          return;
 #endif
@@ -51,15 +51,15 @@ class iKeyboardBasic {
     * \returns The key state
     */
    unsigned short int getKeyStateArray( wchar_t _key ) {
-      #if ! WINDOWS
+#if !WINDOWS
       if ( _key < 0 || _key > _E_KEY_LAST ) {
          return static_cast<unsigned short int>( E_UNKNOWN );
       }
-      #else
+#else
       if ( _key > _E_KEY_LAST ) {
          return static_cast<unsigned short int>( E_UNKNOWN );
       }
-      #endif
+#endif
       return key_state[static_cast<unsigned int>( _key )];
    }
 
