@@ -26,6 +26,12 @@ install:
    - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.5 50
 
 script:
+   - clang --version
+   - clang++ --version
+   - clang-3.5 --version
+   - clang++-3.5 --version
+   - $CC --version
+   - $CXX --version
    - ./generate.sh qQltp
    - mkdir build
    - cd build
