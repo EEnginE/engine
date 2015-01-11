@@ -15,7 +15,6 @@ before_install:
 install:
    # install boost..
    - sudo apt-get -qq install libboost-system1.55-dev libboost-filesystem1.55-dev
-   - if [ "$CXX" == "clang++" ]; then export
 
    # install g++ and clang++
    - sudo apt-get -qq install g++-4.9
