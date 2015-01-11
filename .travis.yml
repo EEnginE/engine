@@ -5,6 +5,8 @@ compiler:
    - clang
 
 before_install:
+   - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.5; export CC=clang-3.5; fi
+
    # We need a c++14 compiler
    - sudo add-apt-repository -y ppa:boost-latest/ppa
    - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -22,16 +24,8 @@ install:
 
    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50
-   - sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-3.5 50
-   - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.5 50
 
 script:
-   - clang --version
-   - clang++ --version
-   - clang-3.5 --version
-   - clang++-3.5 --version
-   - $CC --version
-   - $CXX --version
    - ./generate.sh qQltp
    - mkdir build
    - cd build
