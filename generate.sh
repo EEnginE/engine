@@ -37,12 +37,31 @@ if [ -d $ENGINE_ROOT ]; then
     cd $ENGINE_ROOT
 fi
 
+EEC=$(awk "BEGIN {printf \"%i\", (${RANDOM} / 32767) * 6 + 31}") # COLORS!!! RANDOM!!!!! :)
 
-echo -e "\x1b[1m"
-echo "                   EEnginE CMake generator"
-echo "                   ======================="
-echo ""
-echo -e "\x1b[0m"
+EEE_C="\x1b[${EEC}m\x1b[1m"
+EEE_R="\x1b[0m\x1b[1m"
+
+#      _____ _____            _       _____
+#     |  ___|  ___|          (_)     |  ___|
+#     | |__ | |__ _ __   __ _ _ _ __ | |__
+#     |  __||  __| '_ \ / _` | | '_ \|  __|
+#     | |___| |__| | | | (_| | | | | | |___
+#     \____/\____/_| |_|\__, |_|_| |_\____/
+#                        __/ |
+#                       |___/
+
+echo -e ""
+echo -e "               ${EEE_C} _____${EEE_R} _____           ${EEE_C} _ ${EEE_R}     ${EEE_C} _____  "
+echo -e "               ${EEE_C}|  ___${EEE_R}|  ___|          ${EEE_C}(_)${EEE_R}     ${EEE_C}|  ___| "
+echo -e "               ${EEE_C}| |__ ${EEE_R}| |__ _ __   __ _ _ _ __ ${EEE_C}| |__   "
+echo -e "               ${EEE_C}|  __|${EEE_R}|  __| '_ \ / _\` | | '_ \\\\${EEE_C}|  __|  "
+echo -e "               ${EEE_C}| |___${EEE_R}| |__| | | | (_| | | | | ${EEE_C}| |___  "
+echo -e "               ${EEE_C}\____/${EEE_R}\____/_| |_|\__, |_|_| |_${EEE_C}\____/  "
+echo -e "               ${EEE_C}      ${EEE_R}             __/ |               "
+echo -e "               ${EEE_C}      ${EEE_R}            |___/                "
+echo -e ""
+echo -e ""
 
 help_text() {
     msg1 "Help Message"
