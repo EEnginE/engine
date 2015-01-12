@@ -36,6 +36,10 @@ TOOLS_DIRECTORY
 LOG_MACRO_PATH
 LOG_GEN_UNDEF
 LOG_TYPES
+DEPS_MAIN_DIR
+DEPS
+DEPS_DIR
+DEPS_DEFAULT
 
 EOF
 
@@ -127,6 +131,18 @@ parseCFG() {
             CLANG_F)
                 CLANG_FORMAT_CONFIG="$TEMP"
                 ;;
+            DDIR)
+                DEPS_MAIN_DIR="$TEMP"
+                ;;
+            DEP)
+                DEPS+=( "$TEMP" )
+                ;;
+            DEP_DIR)
+                DEPS_DIR+=( "$TEMP" )
+                ;;
+            DEP_DEF)
+                DEPS_DEFAULT+=( "$TEMP" )
+                ;;
             *)
                 warning "Unknown option '$VARIABLE' with argumet(s) $TEMP"
                 ;;
@@ -155,6 +171,10 @@ printWhatParsed() {
     msg2 "Create undefs for log macros:     $LOG_GEN_UNDEF (1 -- true; 0 -- false)"
     msg2 "Log types:                        $LOG_TYPES"
     msg2 "Clang format config:              $CLANG_FORMAT_CONFIG"
+    msg2 "Dependencies main dir:            $DEPS_MAIN_DIR"
+    msg2 "Dependencies:                     ${DEPS[@]}"
+    msg2 "Dependencies (dirs):              ${DEPS_DIR[@]}"
+    msg2 "Dependencies (default on):        ${DEPS_DEFAULT[@]}"
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

@@ -193,11 +193,26 @@ GIT_EXEC=$(which git 2>/dev/null)
 if [ -z ${GIT_EXEC} ]; then
     warning "Unable to find git. Please run git init, sync and update manualy"
 else
-    git submodule init    &> /dev/null
-    git submodule sync    &> /dev/null
-    git submodule update  &> /dev/null
+    processBar 1 6 "init"
+    git submodule init                                  &> /dev/null
+
+    processBar 2 6 "sync"
+    git submodule sync --recursive                      &> /dev/null
+
+    processBar 3 6 "update --init"
+    git submodule update --init --recursive             &> /dev/null
+
+    processBar 4 6 "update"
+    git submodule update --recursive                    &> /dev/null
+
+    processBar 5 6 "foreach: 'git checkout master'"
+    git submodule foreach 'git checkout origin master'  &> /dev/null
+
+    processBar 6 6 "foreach: 'git pull'"
+    git submodule foreach 'git pull origin master'      &> /dev/null
 fi
 
+makeDeps > $DEPS_MAIN_DIR/$CMAKE_LISTS_NAME
 doGlew $DO_GLEW
 
 if (( PRINT_PARSED == 1 )); then

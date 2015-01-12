@@ -22,22 +22,21 @@ doGlew() {
         return
     fi
 
-    cd GLEW
-
-    git checkout master &> /dev/null
-    git pull            &> /dev/null
+    cd dependencies/GLEW
 
     if [ -d lib -a ! $1 -eq 1 ]; then
         msg1 "GLEW: Nothing to do here"
-        cd ..
+        cd ../..
         return
     fi
 
-    msg1 "GLEW: Making extensions..."
+    msg1 "Building GLEW"
+
+    msg2 "Making extensions... this can take a while"
     make extensions &> /dev/null
 
-    msg1 "GLEW: Building..."
+    msg2 "Building... this can take a while"
     make &> /dev/null
 
-    cd ..
+    cd ../..
 }

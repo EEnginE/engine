@@ -1,4 +1,8 @@
-[submodule "GLEW"]
-	path = GLEW
+[submodule "dependencies/GLEW"]
+	path = dependencies/GLEW
 	url = git://github.com/nigels-com/glew.git
+	ignore = dirty
+[submodule "dependencies/glTF"]
+	path = dependencies/glTF
+	url = https://github.com/KhronosGroup/glTF
 	ignore = dirty
