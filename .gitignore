@@ -37,3 +37,5 @@ FindEngine.cmake
 .clang-format
 *_flymake.cpp
 *_flymake.hpp
+
+dependencies/o3dgc
