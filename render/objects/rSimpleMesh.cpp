@@ -25,9 +25,6 @@
 namespace e_engine {
 
 
-rSimpleMesh::~rSimpleMesh() { clearOGLData(); }
-
-
 
 int rSimpleMesh::clearOGLData__() {
    glDeleteBuffers( 1, &vVertexBufferObject );
@@ -61,27 +58,25 @@ int rSimpleMesh::setOGLData__() {
    glGenBuffers( 1, &vVertexBufferObject );
    glGenBuffers( 1, &vIndexBufferObject );
 
-   auto *lData = vLoaderData->getData();
-
    glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObject );
    glBufferData( GL_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>( sizeof( GLfloat ) * lData->vVertexData.size() ),
-                 &lData->vVertexData.at( 0 ),
+                 static_cast<GLsizeiptr>( sizeof( GLfloat ) * vData.vVertexData.size() ),
+                 &vData.vVertexData.at( 0 ),
                  GL_STATIC_DRAW );
 
    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObject );
    glBufferData( GL_ELEMENT_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>( sizeof( GLuint ) * lData->vIndex.size() ),
-                 &lData->vIndex.at( 0 ),
+                 static_cast<GLsizeiptr>( sizeof( GLuint ) * vData.vIndex.size() ),
+                 &vData.vIndex.at( 0 ),
                  GL_STATIC_DRAW );
 
-   if ( lData->vNormalesData.size() > 0 ) {
+   if ( vData.vNormalesData.size() > 0 ) {
       glGenBuffers( 1, &vNormalBufferObject );
 
       glBindBuffer( GL_ARRAY_BUFFER, vNormalBufferObject );
       glBufferData( GL_ARRAY_BUFFER,
-                    static_cast<GLsizeiptr>( sizeof( GLfloat ) * lData->vNormalesData.size() ),
-                    &lData->vNormalesData.at( 0 ),
+                    static_cast<GLsizeiptr>( sizeof( GLfloat ) * vData.vNormalesData.size() ),
+                    &vData.vNormalesData.at( 0 ),
                     GL_STATIC_DRAW );
 
       vHasNormals = true;
@@ -93,6 +88,7 @@ int rSimpleMesh::setOGLData__() {
 
    vObjectHints[NUM_VBO] = 1;
    vObjectHints[NUM_IBO] = 1;
+   vObjectHints[NUM_INDEXES] = vData.vIndex.size();
 
    return 1;
 }

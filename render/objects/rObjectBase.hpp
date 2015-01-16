@@ -79,8 +79,6 @@ class rObjectBase {
       __LAST__
    };
 
-   enum DATA_FILE_TYPE { AUTODETECT, OBJ_FILE, SET_DATA_MANUALLY };
-
    enum ERROR_FLAGS {
       ALL_OK = 0,
       FUNCTION_NOT_VALID_FOR_THIS_OBJECT = ( 1 << 0 ),
@@ -117,27 +115,13 @@ class rObjectBase {
    uint64_t vObjectHints[__LAST__];
    std::string vName_str;
 
-   std::string vFile_str;
-   DATA_FILE_TYPE vFileType;
-
    bool vIsLoaded_B;
-   bool vKeepDataInRAM_B;
-
-   internal::rLoaderBase<GLfloat, GLuint> *vLoaderData;
-
-   DATA_FILE_TYPE detectFileTypeFromEnding( std::string const &_str );
 
    virtual int clearOGLData__() = 0;
    virtual int setOGLData__() = 0;
 
  public:
-   rObjectBase( std::string _name, std::string _file, DATA_FILE_TYPE _type = AUTODETECT )
-       : vName_str( _name ),
-         vFile_str( _file ),
-         vFileType( _type ),
-         vIsLoaded_B( false ),
-         vKeepDataInRAM_B( false ),
-         vLoaderData( nullptr ) {
+   rObjectBase( std::string _name ) : vName_str( _name ), vIsLoaded_B( false ) {
       for ( uint32_t i = 0; i < __LAST__; ++i )
          vObjectHints[i] = 0;
    }
@@ -152,11 +136,7 @@ class rObjectBase {
    rObjectBase( rObjectBase && ) {}
    rObjectBase &operator=( rObjectBase && ) { return *this; }
 
-   virtual ~rObjectBase() { clearRAMData(); }
-
-   int loadData();
-   void clearRAMData();
-   int clearAllData();
+   virtual ~rObjectBase();
 
    int clearOGLData();
    int setOGLData();
@@ -166,14 +146,7 @@ class rObjectBase {
 
    inline void getHints( OBJECT_HINTS _hint, uint64_t &_ret );
 
-   bool getIsDataInRAM() const {
-      if ( vLoaderData )
-         return true;
-      return false;
-   }
    bool getIsDataLoaded() const { return vIsLoaded_B; }
-
-   void setKeepDataInRAM( bool _keep ) { vKeepDataInRAM_B = _keep; }
 
    std::string getName() const { return vName_str; }
 

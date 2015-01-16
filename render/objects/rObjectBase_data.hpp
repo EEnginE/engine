@@ -1,6 +1,5 @@
 /*!
- * \file rLoader_3D_OBJ.hpp
- * \brief \b Classes: \a rLoader_3D_OBJ
+ * \file rObjectBase_data.hpp
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -18,39 +17,28 @@
  * limitations under the License.
  */
 
-#ifndef R_LOADER_3D_F_OBJ_H
-#define R_LOADER_3D_F_OBJ_H
+#ifndef R_OBJECT_BASE_DATA_HPP
+#define R_OBJECT_BASE_DATA_HPP
 
 #include "defines.hpp"
 
 #include "rLoaderBase.hpp"
-#include <string>
-#include <vector>
-
-#include <GL/glew.h>
+#include "rObjectBase.hpp"
 
 namespace e_engine {
 
-class rLoader_3D_f_OBJ : public internal::rLoaderBase<GLfloat, GLuint> {
- private:
-   bool getNum( float &_num );
-   bool getInt( unsigned int &_num );
-   unsigned int vCurrentLine = 1;
-
-   std::string::const_iterator vIter;
-   std::string::const_iterator vEnd;
-
-   std::string vName;
-
-   int load_IMPL();
+template <class T, class D>
+class rObjectBase_data {
+ protected:
+   D vData; //!< The stored data.
 
  public:
-   rLoader_3D_f_OBJ();
-   rLoader_3D_f_OBJ( std::string _file );
-   virtual ~rLoader_3D_f_OBJ() {}
+   template <class I>
+   rObjectBase_data( internal::_3D_Data<T, I> const &_data )
+       : vData( _data ) {}
+
+   rObjectBase_data() = delete;
 };
 }
 
-#endif // R_LOADER_3D_F_OBJ_H
-
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+#endif

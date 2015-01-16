@@ -36,7 +36,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
    typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
 
  private:
-   rSimpleMesh vObject1;
+   std::vector<rSimpleMesh> vObjects;
 
    rPointLight<float> vLight1;
    rPointLight<float> vLight2;
@@ -44,6 +44,8 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
 
    std::string vShader_str;
    std::string vNormalShader_str;
+
+   std::string vFilePath;
 
    _SLOT_ vKeySlot;
    float vRotationAngle;
@@ -55,12 +57,12 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
    myScene( iInit *_init, cmdANDinit &_cmd )
        : rScene( "MAIN SCENE" ),
          rCameraHandler( this, _init ),
-         vObject1( this, "OBJ 1", _cmd.getMesh() ),
          vLight1( this, "L1" ),
          vLight2( this, "L2" ),
          vLight3( "L3", e_engine::rVec3f( 0.5, -1, 0.5 ) ),
          vShader_str( _cmd.getShader() ),
          vNormalShader_str( _cmd.getNormalShader() ),
+         vFilePath( _cmd.getMesh() ),
          vKeySlot( &myScene::keySlot, this ),
          vRotationAngle( 0 ),
          vRenderNormals( _cmd.getRenderNormals() ) {

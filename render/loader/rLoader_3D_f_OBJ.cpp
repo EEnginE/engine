@@ -27,7 +27,7 @@ namespace e_engine {
 
 rLoader_3D_f_OBJ::rLoader_3D_f_OBJ() { vIsDataLoaded_B = false; }
 
-rLoader_3D_f_OBJ::rLoader_3D_f_OBJ( std::string _file ) {
+rLoader_3D_f_OBJ::rLoader_3D_f_OBJ( std::string _file ) : rLoaderBase( _file ) {
    vIsDataLoaded_B = false;
    vFilePath_str = _file;
 }
@@ -126,26 +126,12 @@ bool rLoader_3D_f_OBJ::getInt( unsigned int &_num ) {
 }
 
 
-/*!
- * \brief loads the 3D content frome the OBJ file
- * \returns 1 on success
- * \returns 2 if there was a parsing error
- * \returns 3 if the OBJ file doesn't exists
- * \returns 4 if the OBJ file is not a regular file
- * \returns 5 if the OBJ file is not readable
- * \returns 6 if already loaded
- */
-int rLoader_3D_f_OBJ::load() {
-   if ( vIsDataLoaded_B )
-      return 6;
 
-   uFileIO lFile( vFilePath_str );
-   int lRet = lFile();
-   if ( lRet != 1 )
-      return lRet;
+int rLoader_3D_f_OBJ::load_IMPL() {
+   vIter = vFile.begin();
+   vEnd = vFile.end();
 
-   vIter = lFile.begin();
-   vEnd = lFile.end();
+   vName = "<OBJ name not set>";
 
    float lWorker;
    unsigned int lIWorker;
@@ -153,11 +139,23 @@ int rLoader_3D_f_OBJ::load() {
    std::vector<GLfloat> *lPointer;
    unsigned short int lMax = 3;
 
+   internal::_3D_Data_RAWF lDataRaw;
+
    while ( vIter != vEnd ) {
       switch ( *vIter ) {
 
          // Comments
          case 'o':
+            vName.clear();
+            while ( *vIter != '\n' && vIter != vEnd ) {
+               ++vIter;
+               vName += *vIter;
+            }
+            eLOG( vName );
+
+            ++vCurrentLine;
+            ++vIter;
+            break;
          case 's':
          case '#':
             while ( *vIter != '\n' && vIter != vEnd )
@@ -173,15 +171,15 @@ int rLoader_3D_f_OBJ::load() {
 
             // Normals
             if ( *vIter == 'n' ) {
-               lPointer = &vDataRaw.vNormalesData;
+               lPointer = &lDataRaw.vNormalesData;
                ++vIter;
                lMax = 3;
             } else if ( *vIter == 't' ) {
-               lPointer = &vDataRaw.vUVData;
+               lPointer = &lDataRaw.vUVData;
                ++vIter;
                lMax = 2;
             } else if ( *vIter == ' ' ) {
-               lPointer = &vDataRaw.vVertexData;
+               lPointer = &lDataRaw.vVertexData;
                lMax = 3;
             } else {
                eLOG( "Failed parsing file '",
@@ -245,7 +243,7 @@ int rLoader_3D_f_OBJ::load() {
                if ( !getInt( lIWorker ) )
                   return 2;
 
-               vDataRaw.vIndexVertexData.emplace_back( lIWorker );
+               lDataRaw.vIndexVertexData.emplace_back( lIWorker );
 
                if ( *vIter == '/' ) {
                   ++vIter;
@@ -257,7 +255,7 @@ int rLoader_3D_f_OBJ::load() {
                      if ( !getInt( lIWorker ) )
                         return 2;
 
-                     vDataRaw.vIndexNormalData.emplace_back( lIWorker );
+                     lDataRaw.vIndexNormalData.emplace_back( lIWorker );
                   } else {
                      // UV index
                      ++vIter;
@@ -265,7 +263,7 @@ int rLoader_3D_f_OBJ::load() {
                      if ( !getInt( lIWorker ) )
                         return 2;
 
-                     vDataRaw.vIndexUVData.emplace_back( lIWorker );
+                     lDataRaw.vIndexUVData.emplace_back( lIWorker );
 
                      // Normal index
                      if ( *vIter == '/' ) {
@@ -274,7 +272,7 @@ int rLoader_3D_f_OBJ::load() {
                         if ( !getInt( lIWorker ) )
                            return 2;
 
-                        vDataRaw.vIndexNormalData.emplace_back( lIWorker );
+                        lDataRaw.vIndexNormalData.emplace_back( lIWorker );
                      }
                   }
                }
@@ -308,6 +306,11 @@ int rLoader_3D_f_OBJ::load() {
             return 2;
       }
    }
+
+   reindex( lDataRaw );
+
+   if ( !vData.empty() )
+      vData.front().vName = vName;
 
    vIsDataLoaded_B = true;
    return 1;

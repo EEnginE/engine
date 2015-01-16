@@ -38,8 +38,8 @@
 #error "PLATFORM not supported"
 #endif
 
-#include "uLog.hpp"
 #include <thread>
+#include <condition_variable>
 
 
 namespace e_engine {

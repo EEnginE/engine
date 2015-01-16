@@ -19,7 +19,6 @@
 
 #include "defines.hpp"
 
-#include "uLog.hpp"
 #include "rWorld.hpp"
 
 namespace e_engine {

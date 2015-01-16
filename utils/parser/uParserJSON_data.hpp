@@ -23,7 +23,6 @@
 
 #include <string>
 #include <vector>
-#include "uLog.hpp"
 
 #define G_STR( _out_, _def_ )                                                                      \
    ::e_engine::JSON_STRING, &_out_, std::string( _def_ ),                                          \

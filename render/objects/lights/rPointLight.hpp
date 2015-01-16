@@ -46,20 +46,20 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    using rMatrixObjectBase<T>::getPosition;
 
    rPointLight( SCENE _scene, std::string _name )
-       : rObjectBase( _name, "", SET_DATA_MANUALLY ), rMatrixObjectBase<T>( _scene ) {
+       : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor.fill( 0 );
       setFlags();
    }
 
    rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient )
-       : rObjectBase( _name, "", SET_DATA_MANUALLY ), rMatrixObjectBase<T>( _scene ) {
+       : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor = _color;
       vAmbientColor = _ambient;
       setFlags();
    }
 
    rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient, rVec3<T> _att )
-       : rObjectBase( _name, "", SET_DATA_MANUALLY ), rMatrixObjectBase<T>( _scene ) {
+       : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor = _color;
       vAmbientColor = _ambient;
       vAttenuation = _att;

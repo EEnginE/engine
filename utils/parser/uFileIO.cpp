@@ -52,7 +52,7 @@ int uFileIO::read( bool _autoReload ) {
    boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
 
    if ( !boost::filesystem::exists( lFilePath_BFS ) ) {
-      eLOG( "File ", vFilePath_str, " does not exists" );
+      eLOG( "File '", vFilePath_str, "' does not exists" );
       return 3;
    }
 

@@ -41,20 +41,19 @@ class rDirectionalLight : public rObjectBase {
    virtual int setOGLData__() { return -1; }
 
  public:
-   rDirectionalLight( std::string _name ) : rObjectBase( _name, "", SET_DATA_MANUALLY ) {
+   rDirectionalLight( std::string _name ) : rObjectBase( _name ) {
       vLightColor.fill( 0 );
       setFlags();
    }
 
-   rDirectionalLight( std::string _name, rVec3<T> _direction )
-       : rObjectBase( _name, "", SET_DATA_MANUALLY ) {
+   rDirectionalLight( std::string _name, rVec3<T> _direction ) : rObjectBase( _name ) {
       vLightDirection = _direction;
       vLightDirection.normalize();
       setFlags();
    }
 
    rDirectionalLight( std::string _name, rVec3<T> _direction, rVec3<T> _color, rVec3<T> _ambient )
-       : rObjectBase( _name, "", SET_DATA_MANUALLY ) {
+       : rObjectBase( _name ) {
       vLightDirection = _direction;
       vLightColor = _color;
       vAmbientColor = _ambient;

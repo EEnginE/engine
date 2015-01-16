@@ -248,13 +248,6 @@ void rRenderMultipleLights_3_3::setDataFromObject( rObjectBase *_obj ) {
    _obj->getMatrix( &vModelView, rObjectBase::MODEL_VIEW_MATRIX );
    _obj->getMatrix( &vNormal, rObjectBase::NORMAL_MATRIX );
 
-   iLOG( "VBO: ",
-         vVertexBufferObj_OGL,
-         "; IBO: ",
-         vIndexBufferObj_OGL,
-         "; NBO: ",
-         vNormalBufferObj_OGL );
-
    uint64_t lTemp;
 
    _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );

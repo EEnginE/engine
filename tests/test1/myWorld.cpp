@@ -70,18 +70,18 @@ void myWorld::key( iEventInfo const &info ) {
             break;
 
          // Object control
-         //          case E_KEY_UP:        vObject1.addPositionDelta( rVec3f( 0, 0, -0.1 ) );
-         //          vObject1.updateFinalMatrix(); break;
-         //          case E_KEY_DOWN:      vObject1.addPositionDelta( rVec3f( 0, 0, 0.1 ) );
-         //          vObject1.updateFinalMatrix(); break;
-         //          case E_KEY_LEFT:      vObject1.addPositionDelta( rVec3f( -0.01, 0, 0 ) );
-         //          vObject1.updateFinalMatrix(); break;
-         //          case E_KEY_RIGHT:     vObject1.addPositionDelta( rVec3f( 0.01, 0, 0 ) );
-         //          vObject1.updateFinalMatrix(); break;
-         //          case E_KEY_PAGE_UP:   vObject1.addPositionDelta( rVec3f( 0, 0.01, 0 ) );
-         //          vObject1.updateFinalMatrix(); break;
-         //          case E_KEY_PAGE_DOWN: vObject1.addPositionDelta( rVec3f( 0, -0.01, 0 ) );
-         //          vObject1.updateFinalMatrix(); break;
+         //          case E_KEY_UP:        vObjects.addPositionDelta( rVec3f( 0, 0, -0.1 ) );
+         //          vObjects.updateFinalMatrix(); break;
+         //          case E_KEY_DOWN:      vObjects.addPositionDelta( rVec3f( 0, 0, 0.1 ) );
+         //          vObjects.updateFinalMatrix(); break;
+         //          case E_KEY_LEFT:      vObjects.addPositionDelta( rVec3f( -0.01, 0, 0 ) );
+         //          vObjects.updateFinalMatrix(); break;
+         //          case E_KEY_RIGHT:     vObjects.addPositionDelta( rVec3f( 0.01, 0, 0 ) );
+         //          vObjects.updateFinalMatrix(); break;
+         //          case E_KEY_PAGE_UP:   vObjects.addPositionDelta( rVec3f( 0, 0.01, 0 ) );
+         //          vObjects.updateFinalMatrix(); break;
+         //          case E_KEY_PAGE_DOWN: vObjects.addPositionDelta( rVec3f( 0, -0.01, 0 ) );
+         //          vObjects.updateFinalMatrix(); break;
 
          // Pause - restart
          case L'p':

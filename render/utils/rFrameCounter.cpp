@@ -18,6 +18,7 @@
  */
 
 #include "rFrameCounter.hpp"
+#include "uLog.hpp"
 
 namespace e_engine {
 

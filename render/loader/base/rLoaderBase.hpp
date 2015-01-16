@@ -28,6 +28,7 @@
 #include <string>
 #include <type_traits>
 #include "uLog.hpp"
+#include "rLoaderBase_static.hpp"
 
 namespace e_engine {
 
@@ -42,21 +43,6 @@ struct _3D_Data_RAW {
    std::vector<I> vIndexVertexData;
    std::vector<I> vIndexUVData;
    std::vector<I> vIndexNormalData;
-
-   void clear() {
-      vVertexData.clear();
-      vVertexData.resize( 0 );
-      vUVData.clear();
-      vUVData.resize( 0 );
-      vNormalesData.clear();
-      vNormalesData.resize( 0 );
-      vIndexVertexData.clear();
-      vIndexVertexData.resize( 0 );
-      vIndexUVData.clear();
-      vIndexUVData.resize( 0 );
-      vIndexNormalData.clear();
-      vIndexNormalData.resize( 0 );
-   }
 };
 
 template <class T, class I>
@@ -67,23 +53,17 @@ struct _3D_Data {
 
    std::vector<I> vIndex;
 
-   void clear() {
-      vVertexData.clear();
-      vVertexData.resize( 0 );
-      vUVData.clear();
-      vUVData.resize( 0 );
-      vNormalesData.clear();
-      vNormalesData.resize( 0 );
-      vIndex.clear();
-      vIndex.resize( 0 );
-   }
+   std::string vName;
 };
 
 typedef _3D_Data_RAW<GLfloat, GLuint> _3D_Data_RAWF;
 typedef _3D_Data_RAW<GLdouble, GLuint> _3D_Data_RAWD;
 
+typedef _3D_Data<GLfloat, GLuint> _3D_DataF;
+typedef _3D_Data<GLdouble, GLuint> _3D_DataD;
+
 template <class T, class I>
-class rLoaderBase {
+class rLoaderBase : public rLoaderBase_static {
    static_assert( std::is_floating_point<T>::value, "T must be a floating point type" );
    static_assert( std::is_unsigned<I>::value, "I must be an unsigned type" );
 
@@ -119,27 +99,31 @@ class rLoaderBase {
                   std::vector<I> *_indexOut );
 
  protected:
-   _3D_Data_RAW<T, I> vDataRaw;
-   _3D_Data<T, I> vData;
+   std::vector<_3D_Data<T, I>> vData;
 
-   bool vIsDataLoaded_B;
-   std::string vFilePath_str;
+   virtual int load_IMPL() = 0;
+   void reindex( _3D_Data_RAW<T, I> &_data );
 
  public:
    virtual ~rLoaderBase() {}
+   rLoaderBase() {}
+   rLoaderBase( std::string _file ) : rLoaderBase_static( _file ) {}
 
-   _3D_Data<T, I> *getData();
+   template <class C, class... ARGS>
+   void generateObjects( std::vector<C> &_output, ARGS &&... _args );
 
-   void setFile( std::string _file );
+   std::vector<_3D_Data<T, I>> *getData();
 
-   bool getIsLoaded() const;
-   std::string getFilePath() const;
-
-   void reindex();
-
-   virtual int load() = 0;
    void unLoad();
 };
+
+template <class T, class I>
+template <class C, class... ARGS>
+void rLoaderBase<T, I>::generateObjects( std::vector<C> &_output, ARGS &&... _args ) {
+   for ( auto const &d : vData ) {
+      _output.emplace_back( std::forward<ARGS>( _args )..., d.vName, d );
+   }
+}
 
 
 /*!
@@ -148,97 +132,67 @@ class rLoaderBase {
 template <class T, class I>
 void rLoaderBase<T, I>::unLoad() {
    vIsDataLoaded_B = false;
-   vDataRaw.clear();
    vData.clear();
 }
 
-/*!
- * \brief Gets wether or not the file is loaded and parsed
- * \returns The state of the file being loaded and parsed
- */
-template <class T, class I>
-bool rLoaderBase<T, I>::getIsLoaded() const {
-   return vIsDataLoaded_B;
-}
-
-/*!
- * \brief Gets the path of the file to parse
- * \returns The path of the file to parse
- */
-template <class T, class I>
-std::string rLoaderBase<T, I>::getFilePath() const {
-   return vFilePath_str;
-}
-
-
-/*!
- * \brief Sets the file to load
- * \param[in] _file The file to load
- *
- * \note This will NOT load the file! You have to manually load it with load()
- */
-template <class T, class I>
-void rLoaderBase<T, I>::setFile( std::string _file ) {
-   vFilePath_str = _file;
-}
 
 /*!
  * \brief Gets the data pointer
  * \returns The data pointer
  */
 template <class T, class I>
-_3D_Data<T, I> *rLoaderBase<T, I>::getData() {
+std::vector<_3D_Data<T, I>> *rLoaderBase<T, I>::getData() {
    return &vData;
 }
 
 
 template <class T, class I>
-void rLoaderBase<T, I>::reindex() {
+void rLoaderBase<T, I>::reindex( _3D_Data_RAW<T, I> &_data ) {
    // Nothing to reindex
-   if ( vDataRaw.vUVData.empty() && vDataRaw.vNormalesData.empty() ) {
-      vData.vVertexData = std::move( vDataRaw.vVertexData );
-      vData.vIndex = std::move( vDataRaw.vIndexVertexData );
-      vDataRaw.clear();
+   if ( _data.vVertexData.empty() && _data.vNormalesData.empty() && _data.vUVData.empty() )
       return;
-   } else if ( vDataRaw.vUVData.empty() && !vDataRaw.vNormalesData.empty() ) {
-      reindex2<3, 3>( &vDataRaw.vVertexData,
-                      &vData.vVertexData,
-                      &vDataRaw.vNormalesData,
-                      &vData.vNormalesData,
-                      &vDataRaw.vIndexVertexData,
-                      &vDataRaw.vIndexNormalData,
-                      &vData.vIndex );
-      vDataRaw.clear();
+
+   vData.emplace_back();
+
+   if ( _data.vUVData.empty() && _data.vNormalesData.empty() ) {
+      vData.back().vVertexData = std::move( _data.vVertexData );
+      vData.back().vIndex = std::move( _data.vIndexVertexData );
       return;
-   } else if ( !vDataRaw.vUVData.empty() && vDataRaw.vNormalesData.empty() ) {
-      reindex2<3, 2>( &vDataRaw.vVertexData,
-                      &vData.vVertexData,
-                      &vDataRaw.vUVData,
-                      &vData.vUVData,
-                      &vDataRaw.vIndexVertexData,
-                      &vDataRaw.vIndexUVData,
-                      &vData.vIndex );
-      vDataRaw.clear();
+   } else if ( _data.vUVData.empty() && !_data.vNormalesData.empty() ) {
+      reindex2<3, 3>( &_data.vVertexData,
+                      &vData.back().vVertexData,
+                      &_data.vNormalesData,
+                      &vData.back().vNormalesData,
+                      &_data.vIndexVertexData,
+                      &_data.vIndexNormalData,
+                      &vData.back().vIndex );
       return;
-   } else if ( !vDataRaw.vUVData.empty() && !vDataRaw.vNormalesData.empty() ) {
-      reindex3<3, 3, 2>( &vDataRaw.vVertexData,
-                         &vData.vVertexData,
-                         &vDataRaw.vNormalesData,
-                         &vData.vNormalesData,
-                         &vDataRaw.vUVData,
-                         &vData.vUVData,
-                         &vDataRaw.vIndexVertexData,
-                         &vDataRaw.vIndexNormalData,
-                         &vDataRaw.vIndexUVData,
-                         &vData.vIndex );
-      vDataRaw.clear();
+   } else if ( !_data.vUVData.empty() && _data.vNormalesData.empty() ) {
+      reindex2<3, 2>( &_data.vVertexData,
+                      &vData.back().vVertexData,
+                      &_data.vUVData,
+                      &vData.back().vUVData,
+                      &_data.vIndexVertexData,
+                      &_data.vIndexUVData,
+                      &vData.back().vIndex );
+      return;
+   } else if ( !_data.vUVData.empty() && !_data.vNormalesData.empty() ) {
+      reindex3<3, 3, 2>( &_data.vVertexData,
+                         &vData.back().vVertexData,
+                         &_data.vNormalesData,
+                         &vData.back().vNormalesData,
+                         &_data.vUVData,
+                         &vData.back().vUVData,
+                         &_data.vIndexVertexData,
+                         &_data.vIndexNormalData,
+                         &_data.vIndexUVData,
+                         &vData.back().vIndex );
       return;
    }
 
-   vData.vVertexData = std::move( vDataRaw.vVertexData );
-   vData.vNormalesData = std::move( vDataRaw.vNormalesData );
-   vData.vIndex = std::move( vDataRaw.vIndexVertexData );
-   vDataRaw.clear();
+   vData.back().vVertexData = std::move( _data.vVertexData );
+   vData.back().vNormalesData = std::move( _data.vNormalesData );
+   vData.back().vIndex = std::move( _data.vIndexVertexData );
 }
 
 template <class T, class I>
