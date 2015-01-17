@@ -83,14 +83,17 @@ cat << EOF
       Q  - disable procress bar complete
       b  - build the project
       A  - generate .atom-build.json based on the build variables
+      G  - disable pulling git submodules
 
       - Build environment variables:
 
       CMAKE_EXECUTABLE: Path to cmake (default $(which cmake))
       BUILD_COMMAND:    Path to the make command (default $(which make))
       BUILD_DIR:        Path to the build directory (default build)
+      MAKEFILE_NAME:    Name of the build file generated from CMake (default Makefile)
 
       CMAKE_FLAGS:      Addistional cmake flags
+      CMAKE_GENERATOR:  Cmake generator to use (default: let cmake decide)
       SKIP_CMAKE:       When 1, skip CMake
       CPP_COMPILER:     The CPP compiler (default: let cmake decide)
       C_COMPILER:       The C compiler (default: let cmale decide)
@@ -119,6 +122,7 @@ DO_FORMAT=0
 DO_BUILD=0
 DO_ATOM_BUILD=0
 SKIP_PARSING=0
+SKIP_SUB_M=0
 
 PRINT_PARSED=0
 
@@ -167,7 +171,8 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
         A) DO_ATOM_BUILD=1; msg2 "Generating .atom-build.json";;
         q) ESC_CLEAR=""
            PB_NEWLINE=1   ; msg2 "Disabling window clearing";;
-        Q) PB_ENABLE=0    ; msg2 "Disabling proress bar completely";;
+        Q) PB_ENABLE=0    ; msg2 "Disabling procress bar completely";;
+        G) SKIP_SUB_M=1   ; msg2 "Skipping git submodules";;
         S) SKIP_PARSING=1 ; msg2 "Skip parsing config file"
            PB_COLLS=100   ; ;;
 
@@ -186,30 +191,33 @@ if (( SKIP_PARSING == 0 )); then
    parseCFG
 fi
 
-msg1 "Initiating and updating submodules"
 
-GIT_EXEC=$(which git 2>/dev/null)
+if (( SKIP_SUB_M == 0 )); then
+   msg1 "Initiating and updating submodules"
 
-if [ -z ${GIT_EXEC} ]; then
-    warning "Unable to find git. Please run git init, sync and update manualy"
-else
-    processBar 1 6 "init"
-    git submodule init                                  &> /dev/null
+   GIT_EXEC=$(which git 2>/dev/null)
 
-    processBar 2 6 "sync"
-    git submodule sync --recursive                      &> /dev/null
+   if [ -z ${GIT_EXEC} ]; then
+       warning "Unable to find git. Please run git init, sync and update manualy"
+   else
+       processBar 1 6 "init"
+       git submodule init                                  &> /dev/null
 
-    processBar 3 6 "update --init"
-    git submodule update --init --recursive             &> /dev/null
+       processBar 2 6 "sync"
+       git submodule sync --recursive                      &> /dev/null
 
-    processBar 4 6 "update"
-    git submodule update --recursive                    &> /dev/null
+       processBar 3 6 "update --init"
+       git submodule update --init --recursive             &> /dev/null
 
-    processBar 5 6 "foreach: 'git checkout master'"
-    git submodule foreach 'git checkout origin master'  &> /dev/null
+       processBar 4 6 "update"
+       git submodule update --recursive                    &> /dev/null
 
-    processBar 6 6 "foreach: 'git pull'"
-    git submodule foreach 'git pull origin master'      &> /dev/null
+       processBar 5 6 "foreach: 'git checkout master'"
+       git submodule foreach 'git checkout origin master'  &> /dev/null
+
+       processBar 6 6 "foreach: 'git pull'"
+       git submodule foreach 'git pull origin master'      &> /dev/null
+   fi
 fi
 
 makeDeps > $DEPS_MAIN_DIR/$CMAKE_LISTS_NAME

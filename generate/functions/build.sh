@@ -39,6 +39,10 @@ buildProject() {
       BUILD_DIR="build"
    fi
 
+   if [ -z "$MAKEFILE_NAME" ]; then
+      MAKEFILE_NAME="Makefile"
+   fi
+
    if [ -e $BUILD_DIR ]; then
       if [ ! -d $BUILD_DIR ]; then
          error "$BUILD_DIR exists but is not a directory"
@@ -60,6 +64,17 @@ buildProject() {
 
    if [ -n "$INST_PREFIX" ]; then
       CMAKE_FLAGS="$CMAKE_FLAGS -DCMAKE_INSTALL_PREFIX=$INST_PREFIX"
+   fi
+
+   if [ -n "$CMAKE_GENERATOR" ]; then
+      CMAKE_FLAGS="$CMAKE_FLAGS -G $CMAKE_GENERATOR"
+   fi
+
+   if [ ! -f "$MAKEFILE_NAME" ]; then
+      if (( SKIP_CMAKE == 1 )); then
+         msg2 "Unable to find '$MAKEFILE_NAME' needed for $BUILD_COMMAND. Ignoring SKIP_CMAKE"
+      fi
+      SKIP_CMAKE=0
    fi
 
    local RET=0
@@ -94,21 +109,23 @@ generateAtomBuild() {
    cat << EOF > .atom-build.json
 {
    "cmd": "./generate.sh",
-   "args": [ "qSb" ],
+   "args": [ "qSbG" ],
    "sh": true,
    "cwd": "{PROJECT_PATH}",
    "env": {
       "CMAKE_EXECUTABLE": "$CMAKE_EXECUTABLE",
       "BUILD_COMMAND":    "$BUILD_COMMAND",
       "BUILD_DIR":        "$BUILD_DIR",
+      "MAKEFILE_NAME":    "$MAKEFILE_NAME",
 
-      "SKIP_CMAKE":   "$SKIP_CMAKE",
-      "CMAKE_FLAGS":  "$CMAKE_FLAGS",
-      "CPP_COMPILER": "$CPP_COMPILER",
-      "C_COMPILER":   "$C_COMPILER",
-      "INST_PREFIX":  "$INST_PREFIX",
+      "SKIP_CMAKE":       "$SKIP_CMAKE",
+      "CMAKE_GENERATOR":  "$CMAKE_GENERATOR",
+      "CMAKE_FLAGS":      "$CMAKE_FLAGS",
+      "CPP_COMPILER":     "$CPP_COMPILER",
+      "C_COMPILER":       "$C_COMPILER",
+      "INST_PREFIX":      "$INST_PREFIX",
 
-      "BUILD_FLAGS":  "$BUILD_FLAGS"
+      "BUILD_FLAGS":      "$BUILD_FLAGS"
    }
 }
 EOF
