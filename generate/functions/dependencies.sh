@@ -37,7 +37,6 @@ EOF
          chmod +x $GEN_SCRIPT
       fi
       local CURRENT_TEMP_PATH="$(pwd)"
-      msg2 "Running generate script $GEN_SCRIPT" >&2
       cd $(dirname $GEN_SCRIPT)
       ( source $GEN_SCRIPT ) >&2
       cd $CURRENT_TEMP_PATH

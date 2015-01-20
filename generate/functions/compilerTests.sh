@@ -20,6 +20,8 @@ compilerTests() {
         return
     fi
 
+    msg1 "Looking for compiler tests..."
+
     local I i PRE_GEN POST_GEN
 
     for (( i = 0; i < ${#C_TESTS[@]}; ++i )); do
@@ -34,7 +36,6 @@ compilerTests() {
         msg2 "Found compiler test module $TEST_NAME"
 
         local CMAKE_FILE="$(pwd)/${I}/$CMAKE_LISTS_NAME"
-        msg2 "Generating CMakeLists.txt"
 
         TEST_NAME=${TEST_NAME}
 

@@ -27,7 +27,7 @@ NUM_OF_TESTS=${#TESTS[*]}
 
 source ./genBindings.sh
 
-msg3 "Generating $HPP_FILE and $CPP_FILE"
+msg2 "Generating $HPP_FILE and $CPP_FILE"
 
 cat > $HPP_FILE << EOF
 /*!
@@ -162,7 +162,7 @@ EOF
 
 
 
-msg3 "Found $NUM_OF_TESTS tests"
+msg2 "Found $NUM_OF_TESTS tests"
 
 for (( i=0; i < NUM_OF_TESTS; ++i )); do
    TEST=$(echo ${TESTS[$i]} | sed 's/\.hpp//g')

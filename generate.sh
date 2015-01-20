@@ -200,27 +200,24 @@ if (( SKIP_SUB_M == 0 )); then
    if [ -z ${GIT_EXEC} ]; then
        warning "Unable to find git. Please run git init, sync and update manualy"
    else
-       processBar 1 6 "init"
+       processBar 1 5 "init"
        git submodule init                                  &> /dev/null
 
-       processBar 2 6 "sync"
+       processBar 2 5 "sync"
        git submodule sync --recursive                      &> /dev/null
 
-       processBar 3 6 "update --init"
+       processBar 3 5 "update --init"
        git submodule update --init --recursive             &> /dev/null
 
-       processBar 4 6 "update"
+       processBar 4 5 "update"
        git submodule update --recursive                    &> /dev/null
 
-       processBar 5 6 "foreach: 'git checkout master'"
-       git submodule foreach 'git checkout origin master'  &> /dev/null
+       processBar 5 5 "Running make deps"
 
-       processBar 6 6 "foreach: 'git pull'"
-       git submodule foreach 'git pull origin master'      &> /dev/null
+       makeDeps > $DEPS_MAIN_DIR/$CMAKE_LISTS_NAME
    fi
 fi
 
-makeDeps > $DEPS_MAIN_DIR/$CMAKE_LISTS_NAME
 doGlew $DO_GLEW
 
 if (( PRINT_PARSED == 1 )); then

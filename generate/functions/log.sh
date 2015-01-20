@@ -32,6 +32,10 @@ msg4() {
     echo -e "${ESC_CLEAR}       \x1b[1;34m--\x1b[1;37m $@\x1b[0m"
 }
 
+found() {
+   echo -e "${ESC_CLEAR} \x1b[1;33m--> \x1b[1;37mFound $@\x1b[0m"
+}
+
 error() {
     echo -e "${ESC_CLEAR}\x1b[1;31m==> ERROR:\x1b[1;37m $@\x1b[0m"
 }

@@ -25,8 +25,6 @@ reformatSource() {
         return
     fi
 
-    msg2 "Found clang-format: $CLANG_FORMAT"
-
     if [ ! -f "$(pwd)/$CLANG_FORMAT_CONFIG" ]; then
         error "Can not find clang-format configuation file $CLANG_FORMAT_CONFIG"
         return

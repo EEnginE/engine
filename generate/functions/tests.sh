@@ -17,6 +17,8 @@
 tests() {
     local I i
 
+    msg1 "Looking for tests..."
+
     for (( i = 0; i < ${#TESTS[@]}; ++i )); do
         I=$( echo "$TESTS_DIR/${TESTS[$i]}" | sed 's/\/$//g' )
 
@@ -26,7 +28,7 @@ tests() {
         fi
 
         local TEST_NAME="${TESTS[$i]}"
-        msg1 "Found test module $TEST_NAME"
+        found "test module $TEST_NAME"
 
         PRE_GEN="$(pwd)/${I}/generate.pre.sh"
         POST_GEN="$(pwd)/${I}/generate.post.sh"
@@ -36,14 +38,12 @@ tests() {
                 chmod +x $PRE_GEN
             fi
             CURRENT_TEMP_PATH="$(pwd)"
-            msg2 "Running pre generate script $PRE_GEN"
             cd $(dirname $PRE_GEN)
             ( source $PRE_GEN )
             cd $CURRENT_TEMP_PATH
         fi
 
         local CMAKE_FILE="$(pwd)/${I}/$CMAKE_LISTS_NAME"
-        msg2 "Generating CMakeLists.txt"
         cat > $CMAKE_FILE << EOF
 # Automatically generated file; DO NOT EDIT
 
@@ -110,7 +110,6 @@ EOF
                 chmod +x $POST_GEN
             fi
             CURRENT_TEMP_PATH="$(pwd)"
-            msg2 "Running post generate script $POST_GEN"
             cd $(dirname $POST_GEN)
             ( source $POST_GEN )
             cd $CURRENT_TEMP_PATH

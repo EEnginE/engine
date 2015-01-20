@@ -16,12 +16,15 @@
 
 addTarget() {
     local I T DEP CMAKE_FILE
+
+    msg1 "Looking for libs..."
+
     for (( I = 0; I < ${#LIBS[@]}; ++I )); do
         T="${LIBS[$I]}"
         DEP="${LIBS_DEP[$I]}"
         CMAKE_FILE="$T/${CMAKE_LISTS_NAME}"
 
-        msg1 "Generating ${CMAKE_LISTS_NAME} for target $T [$DEP]"
+        found "lib $T [$DEP]"
 
         cat > $CMAKE_FILE <<EOF
 # Automatically generated file; DO NOT EDIT
