@@ -25,6 +25,21 @@ cat << EOF > $FILE_HPP
  * $DESC
  *
  */
+/*
+ * Copyright (C) 2015 EEnginE project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef $(I=$(basename $FILE_HPP); echo ${I^^} | sed 's/\./_/g')
 #define $(I=$(basename $FILE_HPP); echo ${I^^} | sed 's/\./_/g')
@@ -35,20 +50,18 @@ cat << EOF > $FILE_HPP
 
 
 class $TEST_NAME {
-   private:
-      // Private stuff goes here
+ private:
+   // Private stuff goes here
 
-   public:
-      ${TEST_NAME}() {}
+ public:
+   ${TEST_NAME}() {}
 
-      const std::static string desc;
+   const static std::string desc;
 
-      void runTest( e_engine::uJSON_data &_data, std::string _dataRoot );
+   void runTest( e_engine::uJSON_data &_data, std::string _dataRoot );
 };
 
 #endif // $(I=$(basename $FILE_HPP); echo ${I^^} | sed 's/\./_/g')
-
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on;
 
 EOF
 }
@@ -88,12 +101,12 @@ using namespace e_engine;
 const string ${TEST_NAME}::desc = "$DESC";
 
 void ${TEST_NAME}::runTest( uJSON_data &_data, string _dataRoot ) {
-   /*
-    * Add your code here
-    *
-    * use '_data( ... )' to save your results
-    *
-    */
+  /*
+   * Add your code here
+   *
+   * use '_data( ... )' to save your results
+   *
+   */
 }
 
 /*
@@ -102,8 +115,6 @@ void ${TEST_NAME}::runTest( uJSON_data &_data, string _dataRoot ) {
  * Syntax: '//#!BIND DATA(' <location in json file> , G_<TYPE>( <GlobConf value>, <default> );
  */
 //#!BIND DATA( "test", "bind", "stuff", G_STR( GlobConf.dummy, "default" ) );
-
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on;
 
 EOF
 }

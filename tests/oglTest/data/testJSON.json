@@ -1,0 +1,12 @@
+{
+   "string": "I am \\ a \"string\"",
+   "obj1": {
+      "array": [
+         1,
+         2,
+         42
+      ],
+      "bool": false,
+      "double": -12.23123
+   }
+}
