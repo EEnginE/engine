@@ -28,7 +28,7 @@
 #include <string>
 #include <type_traits>
 #include "uLog.hpp"
-#include "rLoaderBase_static.hpp"
+#include "uParserHelper.hpp"
 
 namespace e_engine {
 
@@ -63,7 +63,7 @@ typedef _3D_Data<GLfloat, GLuint> _3D_DataF;
 typedef _3D_Data<GLdouble, GLuint> _3D_DataD;
 
 template <class T, class I>
-class rLoaderBase : public rLoaderBase_static {
+class rLoaderBase : public uParserHelper {
    static_assert( std::is_floating_point<T>::value, "T must be a floating point type" );
    static_assert( std::is_unsigned<I>::value, "I must be an unsigned type" );
 
@@ -101,13 +101,12 @@ class rLoaderBase : public rLoaderBase_static {
  protected:
    std::vector<_3D_Data<T, I>> vData;
 
-   virtual int load_IMPL() = 0;
    void reindex( _3D_Data_RAW<T, I> &_data );
 
  public:
    virtual ~rLoaderBase() {}
    rLoaderBase() {}
-   rLoaderBase( std::string _file ) : rLoaderBase_static( _file ) {}
+   rLoaderBase( std::string _file ) : uParserHelper( _file ) {}
 
    template <class C, class... ARGS>
    void generateObjects( std::vector<C> &_output, ARGS &&... _args );
@@ -131,7 +130,7 @@ void rLoaderBase<T, I>::generateObjects( std::vector<C> &_output, ARGS &&... _ar
  */
 template <class T, class I>
 void rLoaderBase<T, I>::unLoad() {
-   vIsDataLoaded_B = false;
+   vIsParsed = false;
    vData.clear();
 }
 

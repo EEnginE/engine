@@ -22,41 +22,31 @@
 #define U_PARSER_JSON_HPP
 
 #include "uParserJSON_data.hpp"
+#include "uParserHelper.hpp"
 
 namespace e_engine {
 
-class uParserJSON final {
+class uParserJSON final : public internal::uParserHelper {
  private:
-   std::string vFilePath_str;
-   bool vIsParsed;
-
    std::string vWriteIndent_str;
 
    uJSON_data vData;
-
-   std::string::const_iterator vIter;
-   std::string::const_iterator vEnd;
-
-   unsigned int vCurrentLine = 1;
 
    void
    writeValue( uJSON_data const &_data, std::string &_worker, std::string _level, bool _array );
    void prepareString( std::string const &_in, std::string &_out );
 
-   bool continueWhitespace();
-
    bool parseObject( e_engine::uJSON_data &lCurrentObject );
    bool parseArray( e_engine::uJSON_data &_currentObject );
    bool parseValue( e_engine::uJSON_data &_currentObject, const std::string &_name );
 
- public:
-   ~uParserJSON() {}
-   uParserJSON() : vIsParsed( false ), vWriteIndent_str( "  " ) {}
-   uParserJSON( std::string _file )
-       : vFilePath_str( _file ), vIsParsed( false ), vWriteIndent_str( "  " ) {}
+   bool load_IMPL();
 
-   void setFile( std::string _file );
-   int parse();
+ public:
+   virtual ~uParserJSON();
+   uParserJSON() : vWriteIndent_str( "  " ) {}
+   uParserJSON( std::string _file ) : uParserHelper( _file ), vWriteIndent_str( "  " ) {}
+
    void clear();
 
    int write( uJSON_data const &_data, bool _overwriteIfNeeded = false );
@@ -65,9 +55,6 @@ class uParserJSON final {
    uJSON_data *getDataP() { return &vData; }
 
    void setWriteIndent( std::string _in );
-
-   bool getIsParsed() const;
-   std::string getFilePath() const;
 };
 }
 

@@ -36,7 +36,7 @@ void jsonTest::runTest( uJSON_data &_data, string _dataRoot ) {
    _data( "utils", "jsonParser", "works", S_BOOL( false ) );
    _data( "utils", "jsonParser", "parses", S_BOOL( false ) );
 
-   if( lParser.parse() != 1 ) {
+   if ( lParser.parse() != 1 ) {
       eLOG( "Parsing error" );
       return;
    }
@@ -56,7 +56,7 @@ void jsonTest::runTest( uJSON_data &_data, string _dataRoot ) {
    lData( "obj1", "array", 1u, G_NUM( n[2], 0 ) );
    lData( "obj1", "array", 2u, G_NUM( n[3], 0 ) );
 
-   if ( str1 != "I am \\ a \"string\"" ) {
+   if ( str1 != " I am \\ a \"string\"" ) {
       eLOG( "String parsing error" );
       return;
    }

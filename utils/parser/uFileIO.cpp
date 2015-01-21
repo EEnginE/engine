@@ -57,7 +57,7 @@ int uFileIO::read( bool _autoReload ) {
    }
 
    if ( !boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
-      eLOG( vFilePath_str, " is not a file!" );
+      eLOG( "'", vFilePath_str, "' is not a file!" );
       return 4;
    }
 
@@ -68,9 +68,29 @@ int uFileIO::read( bool _autoReload ) {
    }
 
    int c;
+   auto lSize = boost::filesystem::file_size( lFilePath_BFS );
 
-   while ( ( c = fgetc( lFile ) ) != EOF )
-      vData += static_cast<char>( c );
+   if ( lSize != static_cast<uintmax_t>( -1 ) ) {
+      vData.resize( lSize );
+
+      for ( auto &i : vData ) {
+         if ( ( c = fgetc( lFile ) ) == EOF ) {
+            wLOG( "File size missmatch (to small)! File: '", vFilePath_str, "'" );
+            break;
+         }
+
+         i = static_cast<char>( c );
+      }
+
+      if ( ( c = fgetc( lFile ) ) != EOF )
+         wLOG( "File size missmatch (to large)! File: '", vFilePath_str, "'" );
+
+   } else {
+      wLOG( "Unable to obtain the file size!" );
+
+      while ( ( c = fgetc( lFile ) ) != EOF )
+         vData += static_cast<char>( c );
+   }
 
    fclose( lFile );
 
@@ -96,16 +116,16 @@ int uFileIO::write( const uFileIO::TYPE &_data, bool _overWrite ) {
 
    if ( boost::filesystem::exists( lFilePath_BFS ) ) {
       if ( !_overWrite ) {
-         eLOG( "File ", vFilePath_str, " already exists -- do not overwrite" );
+         eLOG( "File '", vFilePath_str, "' already exists -- do not overwrite" );
          return 2;
       }
 
       if ( !boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
-         eLOG( vFilePath_str, " is not a file! -- can not overwrite" );
+         eLOG( "'", vFilePath_str, "' is not a file! -- can not overwrite" );
          return 3;
       }
 
-      wLOG( "File ", vFilePath_str, " already exists -- overwrite" );
+      wLOG( "File '", vFilePath_str, "' already exists -- overwrite" );
 
       if ( !boost::filesystem::remove( lFilePath_BFS ) ) {
          eLOG( "Failed to remove '", vFilePath_str, "'" );
@@ -115,7 +135,7 @@ int uFileIO::write( const uFileIO::TYPE &_data, bool _overWrite ) {
 
    FILE *lFile = fopen( vFilePath_str.c_str(), "w" );
    if ( lFile == nullptr ) {
-      eLOG( "Unable to open ", vFilePath_str );
+      eLOG( "Unable to open '", vFilePath_str, "'" );
       return 5;
    }
 
