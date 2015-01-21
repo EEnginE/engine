@@ -40,6 +40,7 @@ DEPS_MAIN_DIR
 DEPS
 DEPS_DIR
 DEPS_DEFAULT
+DEBUG_DEF_FILE
 
 EOF
 
@@ -71,21 +72,11 @@ parseCFG() {
         local VARIABLE="$(echo "$LINE" | sed 's/:[a-zA-Z 0-9_;\.\/\-]*$//g' )"
 
         case $VARIABLE in
-            CM)
-                CMAKE_LISTS_NAME="$TEMP"
-                ;;
-            CM_V)
-                CMAKE_VERSION="$TEMP"
-                ;;
-            CLA)
-                CLANG_COMPLETE="$TEMP"
-                ;;
-            PRO)
-                PROJECT_NAME=$TEMP
-                ;;
-            P)
-                DISPLAY_SERVER+=( "$TEMP" )
-                ;;
+            CM)   CMAKE_LISTS_NAME="$TEMP"    ;;
+            CM_V) CMAKE_VERSION="$TEMP"       ;;
+            CLA)  CLANG_COMPLETE="$TEMP"      ;;
+            PRO)  PROJECT_NAME=$TEMP          ;;
+            P)    DISPLAY_SERVER+=( "$TEMP" ) ;;
             OS)
                 local T_OS=$(echo $TEMP | sed 's/;[a-zA-Z 0-9_\/\.]*$//g' )
                 local T_DS=$(echo $TEMP | sed 's/^[a-zA-Z 0-9_\/\.]*;//g' )
@@ -98,51 +89,22 @@ parseCFG() {
                 LIBS+=( "$T_LIB_NAME" )
                 LIBS_DEP+=( "$T_LIB_DEP" )
                 ;;
-            T)
-                TESTS+=( "$TEMP" )
-                ;;
-            E_INC)
-                INCLUDE_FILE="$TEMP"
-                ;;
-            T_DIR)
-                TESTS_DIR="$TEMP"
-                ;;
-            CT)
-                C_TESTS+=( "$TEMP" )
-                ;;
-            CT_DO)
-                COMPILER_TESTS=$TEMP
-                ;;
-            CT_DIR)
-                COMPILER_TESTS_DIR=$TEMP
-                ;;
-            TOOLS_D)
-                TOOLS_DIRECTORY="$TEMP"
-                ;;
-            LOG_PATH)
-                LOG_MACRO_PATH="$TEMP"
-                ;;
-            LOG_UNDEF)
-                LOG_GEN_UNDEF=$TEMP
-                ;;
-            LOG)
-                LOG_TYPES="$TEMP"
-                ;;
-            CLANG_F)
-                CLANG_FORMAT_CONFIG="$TEMP"
-                ;;
-            DDIR)
-                DEPS_MAIN_DIR="$TEMP"
-                ;;
-            DEP)
-                DEPS+=( "$TEMP" )
-                ;;
-            DEP_DIR)
-                DEPS_DIR+=( "$TEMP" )
-                ;;
-            DEP_DEF)
-                DEPS_DEFAULT+=( "$TEMP" )
-                ;;
+            T)         TESTS+=( "$TEMP" )           ;;
+            E_INC)     INCLUDE_FILE="$TEMP"         ;;
+            T_DIR)     TESTS_DIR="$TEMP"            ;;
+            CT)        C_TESTS+=( "$TEMP" )         ;;
+            CT_DO)     COMPILER_TESTS=$TEMP         ;;
+            CT_DIR)    COMPILER_TESTS_DIR=$TEMP     ;;
+            TOOLS_D)   TOOLS_DIRECTORY="$TEMP"      ;;
+            LOG_PATH)  LOG_MACRO_PATH="$TEMP"       ;;
+            LOG_UNDEF) LOG_GEN_UNDEF=$TEMP          ;;
+            LOG)       LOG_TYPES="$TEMP"            ;;
+            CLANG_F)   CLANG_FORMAT_CONFIG="$TEMP"  ;;
+            DDIR)      DEPS_MAIN_DIR="$TEMP"        ;;
+            DEP)       DEPS+=( "$TEMP" )            ;;
+            DEP_DIR)   DEPS_DIR+=( "$TEMP" )        ;;
+            DEP_DEF)   DEPS_DEFAULT+=( "$TEMP" )    ;;
+            DEBUG_F)   DEBUG_DEF_FILE="${TEMP}"     ;;
             *)
                 warning "Unknown option '$VARIABLE' with argumet(s) $TEMP"
                 ;;
@@ -175,6 +137,7 @@ printWhatParsed() {
     msg2 "Dependencies:                     ${DEPS[@]}"
     msg2 "Dependencies (dirs):              ${DEPS_DIR[@]}"
     msg2 "Dependencies (default on):        ${DEPS_DEFAULT[@]}"
+    msg2 "Debug define file:                ${DEBUG_DEF_FILE}"
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

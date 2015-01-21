@@ -17,30 +17,37 @@
 ESC_CLEAR="\x1b[2K\x1b[0G"
 
 msg1() {
+    wait
     echo -e "${ESC_CLEAR}\x1b[1;32m==>\x1b[1;37m $@\x1b[0m"
 }
 
 msg2() {
+    wait
     echo -e "${ESC_CLEAR}   \x1b[1;34m--\x1b[1;37m $@\x1b[0m"
 }
 
 msg3() {
+    wait
     echo -e "${ESC_CLEAR}     \x1b[1;34m--\x1b[1;37m $@\x1b[0m"
 }
 
 msg4() {
+    wait
     echo -e "${ESC_CLEAR}       \x1b[1;34m--\x1b[1;37m $@\x1b[0m"
 }
 
 found() {
+   wait
    echo -e "${ESC_CLEAR} \x1b[1;33m--> \x1b[1;37mFound $@\x1b[0m"
 }
 
 error() {
+    wait
     echo -e "${ESC_CLEAR}\x1b[1;31m==> ERROR:\x1b[1;37m $@\x1b[0m"
 }
 
 warning() {
+    wait
     echo -e "${ESC_CLEAR}\x1b[1;33m==> WARNING:\x1b[1;37m $@\x1b[0m"
 }
 
@@ -54,11 +61,7 @@ if [ -z "$PB_COLLS" ]; then
     PB_COLLS=150
 fi
 
-processBar() {
-    if (( PB_ENABLE != 1 )); then
-       return
-    fi
-
+processBarWorker() {
     PB_FRAC=$( awk "BEGIN {printf \"%.2f\", ${1} / ${2}}" )
     PB_WIDTH=$(( $PB_COLLS / 2 ))
 
@@ -78,6 +81,14 @@ processBar() {
     else
        echo -e  "${ESC_CLEAR}\x1b[1;34m${PB_STR1}\x1b[1;37m [${PB_STR2}] \x1b[1;33m${PB_STR3}%\x1b[0m"
     fi
+}
+
+processBar() {
+    if (( PB_ENABLE != 1 )); then
+       return
+    fi
+
+    processBarWorker $* &
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

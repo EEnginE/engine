@@ -8,6 +8,7 @@
 #ifndef DEFINES_HPP
 #define DEFINES_HPP
 
+#include "debug_defines.hpp"
 
 #define UNIX_X11     @CM_UNIX_X11@
 #define UNIX_WAYLAND @CM_UNIX_WAYLAND@

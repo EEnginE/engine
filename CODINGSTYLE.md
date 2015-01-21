@@ -69,3 +69,15 @@ will be handled in defines.hpp.
 ## Move all defines and macros to defines.in.hpp
 
 All defines, global enums and constants shoud be located in defines.in.hpp.
+
+# Extra debug stuff
+
+If you need some extra debug log stuff, use dLOG inside
+
+```cpp
+#if D_LOG_<some name>
+// Debug code
+#endif
+```
+
+the `#if` will be detected by the generate script

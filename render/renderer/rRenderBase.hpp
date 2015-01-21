@@ -26,7 +26,7 @@
 #include "rShader.hpp"
 #include "rObjectBase.hpp"
 
-#if E_DEBUG_LOGGING
+#if D_LOG_RENDER_BASE
 #include <sstream>
 #endif
 
@@ -91,13 +91,13 @@ bool rRenderBase::require( rShader *_s, rShader::SHADER_INFORMATION _inf, ARGS &
 
 template <class... ARGS>
 bool rRenderBase::testUnifrom( GLint _u, std::wstring &&_missing, ARGS &&... _args ) {
-#if E_DEBUG_LOGGING
+#if D_LOG_RENDER_BASE
    dLOG( L"Uniform: ", _missing, L": ", _u );
 #endif
 
    if ( _u == NOT_SET ) {
       eLOG( L"MISSING Uniform: ", _missing );
-#if E_DEBUG_LOGGING
+#if D_LOG_RENDER_BASE
       testUnifrom( _args... );
 #endif
       return false;
@@ -108,13 +108,13 @@ bool rRenderBase::testUnifrom( GLint _u, std::wstring &&_missing, ARGS &&... _ar
 
 template <class... ARGS>
 bool rRenderBase::testUnifrom( GLuint _u, std::wstring &&_missing, ARGS &&... _args ) {
-#if E_DEBUG_LOGGING
+#if D_LOG_RENDER_BASE
    dLOG( L"Uniform: ", _missing, L": ", _u );
 #endif
 
    if ( _u == NOT_SET_ui ) {
       eLOG( L"MISSING Uniform: ", _missing );
-#if E_DEBUG_LOGGING
+#if D_LOG_RENDER_BASE
       testUnifrom( _args... );
 #endif
       return false;
@@ -126,7 +126,7 @@ bool rRenderBase::testUnifrom( GLuint _u, std::wstring &&_missing, ARGS &&... _a
 
 template <class... ARGS, class T>
 bool rRenderBase::testPointer( T *_p, std::wstring &&_missing, ARGS &&... _args ) {
-#if E_DEBUG_LOGGING
+#if D_LOG_RENDER_BASE
    std::wstringstream lConverter;
    lConverter << _p;
    dLOG( L"Pointer: ", _missing, L": ", lConverter.str() );
@@ -134,7 +134,7 @@ bool rRenderBase::testPointer( T *_p, std::wstring &&_missing, ARGS &&... _args 
 
    if ( !_p ) {
       eLOG( L"MISSING Pointer: ", _missing );
-#if E_DEBUG_LOGGING
+#if D_LOG_RENDER_BASE
       testPointer( _args... );
 #endif
       return false;

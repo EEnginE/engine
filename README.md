@@ -84,6 +84,13 @@ Alternatively, you can use ninja instead of make by adding `-G Ninja` to your cm
 
 -   `-DSANITIZER_OPTIONS=<options>`
 
+
+-   `-DDEBUG_LOG_ALL=<0/1>`
+
+    Enables / Disables all ALL additional debug messages. You can
+    enable and disable those seperately with `-DLOG_<type>=<0/1>`.
+    This will overwrite `-DDEBUG_LOG_ALL=<0/1>`
+
 ## GLEW
 
 -   `-DGLEW_USE_DEFAULT=<0/1>`

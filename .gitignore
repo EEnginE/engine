@@ -35,6 +35,8 @@ FindEngine.cmake
 .atom-build.json
 .clang_complete
 .clang-format
+/debug_defines.in.hpp
+/debug_defines.hpp
 *_flymake.cpp
 *_flymake.hpp
 

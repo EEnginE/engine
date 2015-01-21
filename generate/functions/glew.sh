@@ -25,7 +25,6 @@ doGlew() {
     cd dependencies/GLEW
 
     if [ -d lib -a ! $1 -eq 1 ]; then
-        msg1 "GLEW: Nothing to do here"
         cd ../..
         return
     fi

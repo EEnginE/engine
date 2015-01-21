@@ -166,6 +166,7 @@ msg2 "Found $NUM_OF_TESTS tests"
 
 for (( i=0; i < NUM_OF_TESTS; ++i )); do
    TEST=$(echo ${TESTS[$i]} | sed 's/\.hpp//g')
+   msg3 "Test: $TEST"
    processBar $i $NUM_OF_TESTS $TEST
 
    HPP="$(pwd)/${TESTS_DIR}/${TEST}.hpp"

@@ -285,7 +285,7 @@ void rShader::getInfoNew() {
    glGetProgramInterfaceiv(
          vShaderProgram_OGL, GL_UNIFORM_BLOCK, GL_ACTIVE_RESOURCES, &lNumOfUniformBlocks );
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
    dLOG( "Shader ",
          vPath_str,
          ":"
@@ -305,7 +305,7 @@ void rShader::getInfoNew() {
       std::string lName_str =
             processData( GL_PROGRAM_INPUT, static_cast<unsigned>( i ), 6, lInputValues, lResults );
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
       dLOG( "Shader ",
             vPath_str,
             " Input Interface index ",
@@ -334,7 +334,7 @@ void rShader::getInfoNew() {
       std::string lName_str = processData(
             GL_PROGRAM_OUTPUT, static_cast<unsigned>( i ), 7, lOutputValues, lResults );
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
       dLOG( "Shader ",
             vPath_str,
             " Output Interface index ",
@@ -370,7 +370,7 @@ void rShader::getInfoNew() {
       std::string lName_str = processData(
             GL_UNIFORM_BLOCK, static_cast<unsigned>( i ), 4, lUniformBlockValues, lResults );
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
       dLOG( "Shader ",
             vPath_str,
             " Uniform Block Interface index ",
@@ -426,7 +426,7 @@ void rShader::getInfoNew() {
          }
       }
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
       dLOG( "Shader ",
             vPath_str,
             " Uniform Interface index ",
@@ -505,7 +505,7 @@ void rShader::getInfoOld() {
    glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORMS, &lNumUniforms );
    glGetProgramiv( vShaderProgram_OGL, GL_ACTIVE_UNIFORM_MAX_LENGTH, &lUniformMaxLength );
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
    dLOG( "Shader ",
          vPath_str,
          ":"
@@ -548,7 +548,7 @@ void rShader::getInfoOld() {
                                                    0  // Not supported here
                                                    );
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
       dLOG( "Shader ",
             vPath_str,
             " Input Interface index ",
@@ -602,7 +602,7 @@ void rShader::getInfoOld() {
          glGetActiveUniformBlockName(
                vShaderProgram_OGL, static_cast<unsigned>( i ), lNameLength, nullptr, lName_CSTR );
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
          dLOG( "Shader ",
                vPath_str,
                " Uniform Block Interface index ",
@@ -702,7 +702,7 @@ void rShader::getInfoOld() {
          }
       }
 
-#if E_DEBUG_LOGGING
+#if D_LOG_SHADER
       dLOG( "Shader ",
             vPath_str,
             " Uniform Interface index ",

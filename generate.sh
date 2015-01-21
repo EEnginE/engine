@@ -149,6 +149,8 @@ if [ -z "$ARG_STRING" ]; then
     ARG_STRING="ltf"
 fi
 
+CMD_FLAGS="Result: \x1b[36m"
+
 for (( i=0; i<${#ARG_STRING}; ++i )); do
     I=${ARG_STRING:$i:1}
 
@@ -161,22 +163,22 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
             DO_CLEAN=1
             DO_FORMAT=1
             ;;
-        g) DO_GLEW=1      ; msg2 "Force rebuild GLEW";;
-        l) DO_LIBS=1      ; msg2 "Generating libs";;
-        t) DO_TESTS=1     ; msg2 "Generating tests";;
-        C) DO_CLOC=1      ; msg2 "Enabling code counter";;
-        c) DO_CLEAN=1     ; msg2 "Enabling clean";;
-        f) DO_FORMAT=1    ; msg2 "Enabling automatic code formating";;
-        b) DO_BUILD=1     ; msg2 "Enable building project";;
-        A) DO_ATOM_BUILD=1; msg2 "Generating .atom-build.json";;
+        g) DO_GLEW=1      ; CMD_FLAGS="$CMD_FLAGS [GLEW]";;
+        l) DO_LIBS=1      ; CMD_FLAGS="$CMD_FLAGS [LIBS]";;
+        t) DO_TESTS=1     ; CMD_FLAGS="$CMD_FLAGS [TESTS]";;
+        C) DO_CLOC=1      ; CMD_FLAGS="$CMD_FLAGS [COUNT]";;
+        c) DO_CLEAN=1     ; CMD_FLAGS="$CMD_FLAGS [CLEAN]";;
+        f) DO_FORMAT=1    ; CMD_FLAGS="$CMD_FLAGS [FORMAT]";;
+        b) DO_BUILD=1     ; CMD_FLAGS="$CMD_FLAGS -BUILD-";;
+        A) DO_ATOM_BUILD=1; CMD_FLAGS="$CMD_FLAGS [ATOM B]";;
         q) ESC_CLEAR=""
-           PB_NEWLINE=1   ; msg2 "Disabling window clearing";;
-        Q) PB_ENABLE=0    ; msg2 "Disabling procress bar completely";;
-        G) SKIP_SUB_M=1   ; msg2 "Skipping git submodules";;
-        S) SKIP_PARSING=1 ; msg2 "Skip parsing config file"
+           PB_NEWLINE=1   ; CMD_FLAGS="$CMD_FLAGS -quiet-";;
+        Q) PB_ENABLE=0    ; CMD_FLAGS="$CMD_FLAGS -pb off-";;
+        G) SKIP_SUB_M=1   ; CMD_FLAGS="$CMD_FLAGS -skip submodules-";;
+        S) SKIP_PARSING=1 ; CMD_FLAGS="$CMD_FLAGS -skip config-"
            PB_COLLS=100   ; ;;
 
-        p) PRINT_PARSED=1 ; msg2 "Printing Parsed config" ;;
+        p) PRINT_PARSED=1 ; CMD_FLAGS="$CMD_FLAGS -print parsed-";;
         *)
             error "Unknown Argument '$I'"
             help_text
@@ -185,6 +187,8 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
     esac
 
 done
+
+msg2 "$CMD_FLAGS"
 
 if (( SKIP_PARSING == 0 )); then
    CONFIG_FILE="$(pwd)/$CONFIG_FILE"
