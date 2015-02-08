@@ -27,7 +27,7 @@ class cmdANDinit {
    std::vector<std::string> args;
    std::string argv0;
    std::string dataRoot;
-   std::string meshToRender = "meshS";
+   std::string meshToRender = "mesh";
    std::string vShader = "phong";
    std::string vNormalShader = "normals";
 
@@ -48,7 +48,7 @@ class cmdANDinit {
  public:
    cmdANDinit( int argc, char *argv[] );
 
-   std::string getMesh() const { return dataRoot + "obj/" + meshToRender + ".obj"; }
+   std::string getMesh() const { return dataRoot + "glTF/" + meshToRender + ".gltf"; }
    std::string getShader() const { return dataRoot + "shaders/" + vShader; }
    std::string getNormalShader() const { return dataRoot + "shaders/" + vNormalShader; }
 

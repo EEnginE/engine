@@ -39,7 +39,7 @@ rSceneBase::~rSceneBase() {
 bool rSceneBase::canRenderScene() {
    bool lCanRender = true;
    for ( auto const &d : vObjects ) {
-      uint64_t lIsObjectReady, lFlags;
+      int64_t lIsObjectReady, lFlags;
 
       if ( !d.vObjectPointer ) {
          wLOG( "Invalid Object Pointer" );
@@ -156,7 +156,7 @@ GLuint rSceneBase::addObject( e_engine::rObjectBase *_obj, GLint _shaderIndex ) 
 
    vObjects.emplace_back( _obj, _shaderIndex );
 
-   uint64_t lFlags;
+   int64_t lFlags;
 
    _obj->getHints( rObjectBase::FLAGS, lFlags );
    if ( lFlags & LIGHT_SOURCE )
@@ -214,7 +214,7 @@ int rSceneBase::assignObjectRenderer( GLuint _index, rRenderBase *_renderer ) {
    _renderer->setDataFromShader( &vShaders[static_cast<size_t>( vObjects[_index].vShaderIndex )] );
    _renderer->setDataFromObject( vObjects[_index].vObjectPointer );
 
-   uint64_t lLightModel;
+   int64_t lLightModel;
    vObjects[_index].vObjectPointer->getHints( rObjectBase::LIGHT_MODEL, lLightModel );
 
    switch ( lLightModel ) {

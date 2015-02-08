@@ -175,10 +175,12 @@ EOF
         local TEST_TO_DO
         for i in "${C_TESTS[@]}"; do
             TEST_TO_DO=${i^^}
+
+            local TEST_PATH=$( echo "$(pwd)/$COMPILER_TESTS_DIR/$i" | sed 's/^\/cygdrive\///g' | sed 's/^\([a-z]\)/\U\1:/g' )
             cat << EOF
 
 
-try_compile( ${TEST_TO_DO}_RET \${PROJECT_BINARY_DIR}/bin/compilerTests $(pwd)/$COMPILER_TESTS_DIR/$i $i OUTPUT_VARIABLE ${TEST_TO_DO}_OUTPUT )
+try_compile( ${TEST_TO_DO}_RET "\${PROJECT_BINARY_DIR}/bin/compilerTests" "$TEST_PATH" $i OUTPUT_VARIABLE ${TEST_TO_DO}_OUTPUT )
 
 if( ${TEST_TO_DO}_RET )
     set( COMPILER_TEST_${TEST_TO_DO}_PASSED 1 )

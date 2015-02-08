@@ -34,28 +34,22 @@
 namespace e_engine {
 
 class rSimpleMesh final : public rMatrixObjectBase<float>,
-                          public rObjectBase_data<float, internal::_3D_DataF>,
-                          public rObjectBase {
+                          public rObjectBase,
+                          public rObjectBase_data<float, unsigned short> {
  private:
    GLuint vVertexBufferObject;
    GLuint vIndexBufferObject;
-   GLuint vNormalBufferObject;
 
    void setFlags();
-
-   bool vHasNormals;
 
    int clearOGLData__();
    int setOGLData__();
 
  public:
-   rSimpleMesh( rMatrixSceneBase<float> *_scene,
-                std::string _name,
-                internal::_3D_Data<float, unsigned int> const &_data )
+   rSimpleMesh( rMatrixSceneBase<float> *_scene, DATA _data )
        : rMatrixObjectBase( _scene ),
-         rObjectBase_data( _data ),
-         rObjectBase( _name ),
-         vHasNormals( false ) {
+         rObjectBase( _data->vName ),
+         rObjectBase_data( _data, vObjectHints, vObjects ) {
       setFlags();
    }
 
@@ -64,9 +58,6 @@ class rSimpleMesh final : public rMatrixObjectBase<float>,
    rSimpleMesh() = delete;
    rSimpleMesh( rSimpleMesh && ) = default;
 
-   virtual uint32_t getVBO( uint32_t &_n );
-   virtual uint32_t getIBO( uint32_t &_n );
-   virtual uint32_t getNBO( uint32_t &_n );
    virtual uint32_t getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type );
    virtual uint32_t getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type );
 };

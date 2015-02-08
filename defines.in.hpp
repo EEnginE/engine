@@ -133,6 +133,12 @@ enum ACTION {
    C_TOGGLE      //!< Toggle the attribute
 };
 
+enum MESH_TYPES {
+   MESH_3D,
+   LINES_3D,
+   POINTS_3D
+};
+
 }
 
 // Some useful macros
@@ -271,6 +277,28 @@ struct makeIntSequenze : makeIntSequenze<__I - 1, __I - 1,sequenze...> {};
 
 template<int... sequenze>
 struct makeIntSequenze<0, sequenze...> : intSequenze<sequenze...> {};
+
+}
+
+#include <vector>
+
+// Extra hash functions for vectors
+namespace std {
+
+template <class T>
+struct hash<std::vector<T>> {
+   typedef std::vector<T> TYPE;
+   typedef std::size_t RES;
+
+   std::size_t operator()( TYPE const &s ) const {
+      std::size_t res = std::hash<T>()(0.0f);
+
+      for( auto f : s )
+         res ^= std::hash<T>()( f );
+
+      return res;
+   }
+};
 
 }
 

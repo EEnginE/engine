@@ -124,6 +124,7 @@ void iRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left,
  * \returns Nothing
  */
 void iRandR::printRandRStatus() {
+#if D_LOG_WINDOWS_RANDR
    iLOG( "PRINT: NUM: ", vCurrentConfig_eD.size() );
    for ( iDisplays const &d : vCurrentConfig_eD ) {
 
@@ -132,7 +133,7 @@ void iRandR::printRandRStatus() {
 
       d.getCurrentResolution( lWidth_uI, lHeight_uI, lRate_D );
 
-      iLOG( "Display: ",
+      dLOG( "Display: ",
             d.getName(),
             "\n  - Primary: ",
             d.getIsPrimary(),
@@ -144,13 +145,13 @@ void iRandR::printRandRStatus() {
             lRate_D );
 
       for ( DEVMODEW const &D : d.vModes_V_win32 ) {
-         iLOG( "Resolution: ",
+         dLOG( "Resolution: ",
                (int32_t)D.dmPelsWidth,
                "x",
                (int32_t)D.dmPelsHeight,
                ":",
                (double)D.dmDisplayFrequency );
-         iLOG( "\n  - DM_POSITION           ",
+         dLOG( "\n  - DM_POSITION           ",
                D.dmFields & DM_POSITION ? 1 : 0,
                ": ",
                (int32_t)D.dmPosition.x,
@@ -175,6 +176,7 @@ void iRandR::printRandRStatus() {
                "\n" );
       }
    }
+#endif
 }
 
 /*!

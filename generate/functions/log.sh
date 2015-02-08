@@ -62,9 +62,7 @@ if [ -z "$PB_COLLS" ]; then
 fi
 
 processBarWorker() {
-    PB_FRAC=$( awk "BEGIN {printf \"%.2f\", ${1} / ${2}}" )
     PB_WIDTH=$(( $PB_COLLS / 2 ))
-
 
     PB_STR1="${1}/${2}$(printf '%*.*s' 0 $((${#2}-${#1})) "$PAD0" )  \x1b[1;37m-\x1b[0m $3"
     PB_STR1="${PB_STR1:0:$PB_WIDTH}$(

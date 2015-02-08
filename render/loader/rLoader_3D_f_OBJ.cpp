@@ -25,12 +25,11 @@
 
 namespace e_engine {
 
-
 bool rLoader_3D_f_OBJ::load_IMPL() {
    vName = "<OBJ name not set>";
 
    float lWorker;
-   unsigned int lIWorker;
+   unsigned short lIWorker;
 
    std::vector<GLfloat> *lPointer;
    unsigned short int lMax = 3;
@@ -145,12 +144,11 @@ bool rLoader_3D_f_OBJ::load_IMPL() {
       }
    }
 
-   reindex( lDataRaw );
+   internal::_3D_DataF lTemp;
+   lTemp.vName = vName;
 
-   if ( !vData.empty() )
-      vData.front().vName = vName;
-
-   return true;
+   internal::converter::reindex( lDataRaw, lTemp, vFilePath_str );
+   return internal::convert<GLfloat, GLushort, 3>::toEngine3D( lTemp, vData );
 }
 }
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

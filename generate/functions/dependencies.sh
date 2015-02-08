@@ -47,8 +47,6 @@ EOF
    local name
    local DEFAULT
 
-   ALL_DIRS+=( "# Dependencies" )
-
    for (( i = 0; i < ${#DEPS[@]}; ++i )); do
       name="${DEPS[$i]}"
       varName="BUILD_${name^^}"

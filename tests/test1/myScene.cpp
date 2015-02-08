@@ -22,8 +22,9 @@ using namespace e_engine;
 int myScene::init() {
    updateCamera();
 
-   rLoader_3D_f_OBJ lLoader( vFilePath );
-   lLoader();
+   rLoader_glTF lLoader( vFilePath );
+   if ( lLoader() != 1 )
+      return 2;
    lLoader.generateObjects( vObjects, this );
 
 
@@ -44,7 +45,7 @@ int myScene::init() {
 
 
    for ( auto &i : vObjects ) {
-      uint64_t lLight;
+      int64_t lLight;
       i.getHints( rObjectBase::LIGHT_MODEL, lLight );
       if ( lLight != rObjectBase::SIMPLE_ADS_LIGHT ) {
          wLOG( "Light not supported! Normals missing!" );

@@ -34,7 +34,6 @@ class rRenderBasicLight_3_3 : public rRenderBase {
  private:
    GLuint vVertexBufferObj_OGL = NOT_SET_ui;
    GLuint vIndexBufferObj_OGL = NOT_SET_ui;
-   GLuint vNormalBufferObj_OGL = NOT_SET_ui;
 
    GLuint vShader_OGL = NOT_SET_ui;
 
@@ -44,11 +43,18 @@ class rRenderBasicLight_3_3 : public rRenderBase {
    GLint vUniformModelView_OGL = NOT_SET;
    GLint vUniformNormal_OGL = NOT_SET;
 
+   // Object
+   GLsizei vDataSize_uI = NOT_SET_ui;
+   GLsizei vVertexOffset = NOT_SET_ui;
+   GLsizei vVertexStride = NOT_SET_ui;
+   GLsizei vNormalOffset = NOT_SET_ui;
+   GLsizei vNormalStride = NOT_SET_ui;
+   GLsizei vIndexOffset = NOT_SET_ui;
+   GLsizei vIndexStride = NOT_SET_ui;
+
    GLint vUniformAmbient_OGL = NOT_SET;
    GLint vUniformColor_OGL = NOT_SET;
    GLint vUniformLightPos_OGL = NOT_SET;
-
-   GLsizei vDataSize_uI = 0;
 
    rMat4f *vModelViewProjection = nullptr;
    rMat4f *vModelView = nullptr;

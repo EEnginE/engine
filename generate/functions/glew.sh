@@ -37,5 +37,7 @@ doGlew() {
     msg2 "Building... this can take a while"
     make &> /dev/null
 
+    rm build/*.rc # Clean some build files
+
     cd ../..
 }

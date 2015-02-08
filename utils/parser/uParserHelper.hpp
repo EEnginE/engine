@@ -46,6 +46,7 @@ class uParserHelper {
    bool getNum( float &_num );
    bool getNum( int &_num );
    bool getNum( unsigned int &_num );
+   bool getNum( unsigned short &_num );
 
    bool eofError();
    bool unexpectedCharError();

@@ -365,6 +365,42 @@ bool uParserHelper::getNum( unsigned int &_num ) {
    return eofError();
 }
 
+bool uParserHelper::getNum( unsigned short &_num ) {
+   if ( !continueWhitespace() )
+      return false;
+
+   // Static because clear wont change the capacity
+   static std::string lNum;
+   lNum.clear();
+
+   while ( vIter != vEnd ) {
+      switch ( *vIter ) {
+         case '0':
+         case '1':
+         case '2':
+         case '3':
+         case '4':
+         case '5':
+         case '6':
+         case '7':
+         case '8':
+         case '9':
+            lNum += *vIter;
+            ++vIter;
+            break;
+
+         default:
+            if ( lNum.empty() )
+               return unexpectedCharError();
+
+            _num = static_cast<unsigned short>( std::stod( lNum ) );
+            return true;
+      }
+   }
+
+   return eofError();
+}
+
 
 
 

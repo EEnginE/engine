@@ -156,37 +156,6 @@ int rObjectBase::setOGLData() {
 #endif
 
 /*!
- * \brief Get the _n'th VBO
- *
- * You can query the number of VBO's from the hints
- *
- * \param[in,out] _n In: which (starting at 0) VBO; Out: the VBO
- * \returns 0 if the requested VBO exists and ERROR_FLAGS flags if not
- *
- */
-uint32_t rObjectBase::getVBO( GLuint &_n ) { return FUNCTION_NOT_VALID_FOR_THIS_OBJECT; }
-
-/*!
- * \brief Get the _n'th IBO
- *
- * You can query the number of IBO's from the hints
- *
- * \param[in,out] _n In: which (starting at 0) IBO; Out: the IBO
- * \returns 0 if the requested IBO exists and ERROR_FLAGS flags if not
- */
-uint32_t rObjectBase::getIBO( GLuint &_n ) { return FUNCTION_NOT_VALID_FOR_THIS_OBJECT; }
-
-/*!
- * \brief Get the _n'th NBO
- *
- * You can query the number of NBO's from the hints
- *
- * \param[in,out] _n In: which (starting at 0) NBO; Out: the NBO
- * \returns 0 if the requested NBO exists and ERROR_FLAGS flags if not
- */
-uint32_t rObjectBase::getNBO( GLuint &_n ) { return FUNCTION_NOT_VALID_FOR_THIS_OBJECT; }
-
-/*!
  * \brief Get the _type Matrix
  *
  * \param[out] _mat The Matrix pointer

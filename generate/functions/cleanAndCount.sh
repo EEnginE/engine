@@ -22,14 +22,14 @@ rm_save() {
     fi
     if [ -e $1 ]; then
         if [ -d $1 ]; then
-            msg2 "Removing $1: Directory removed"
-            rm -rf $1
+            msg2 "Removing \x1b[35m[\x1b[36mDirectory\x1b[35m]\x1b[37m $1"
+            rm [rf $1
         else
-            msg2 "Removing $1: File removed"
+            msg2 "Removing \x1b[35m[\x1b[36mFile\x1b[35m]\x1b[37m $1"
             rm $1
         fi
     else
-        msg2 "Removing $1: Nothing to do"
+        msg2 "Removing \x1b[35m[\x1b[36mNothing to do\x1b[35m]\x1b[37m $1"
     fi
 }
 
@@ -46,6 +46,10 @@ clean() {
     rm_save $LOG_MACRO_PATH
     rm_save CMakeLists.txt
     rm_save defines.hpp
+    rm_save ${DEBUG_DEF_FILE}.in.hpp
+    rm_save ${DEBUG_DEF_FILE}.hpp
+    rm_save ${CLANG_COMPLETE}
+    rm_save .clang-format
     rm_save Doxyfile
 
     local TEMP
@@ -90,7 +94,7 @@ countLines() {
         echo ""
         echo ""
         echo ""
-        $CLOC_EXEC --not-match-d='([a-zA-Z_/]*\.[a-zA-Z\._]+|build|doxygen|GLEW)' ./ | tee temp_cloc.txt;
+        $CLOC_EXEC --not-match-d='([a-zA-Z_/]*\.[a-zA-Z\._]+|build|doxygen|dependencies|GLEW)' ./ | tee temp_cloc.txt;
         CALC_ALL="$(cat temp_cloc.txt | grep SUM)"
         CALC_ALL="$(echo $CALC_ALL    | sed 's/SUM: [0-9]*//g')"
         CALC_ALL="$(echo $CALC_ALL    | sed 's/ /\+/g')"

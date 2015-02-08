@@ -20,6 +20,7 @@
 #include "defines.hpp"
 
 #include "rRenderMultipleLights_3_3.hpp"
+#include <cstddef>
 
 namespace e_engine {
 
@@ -54,18 +55,29 @@ void rRenderMultipleLights_3_3::render() {
    }
 
    glEnableVertexAttribArray( vInputVertexLocation_OGL );
-   glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObj_OGL );
-   glVertexAttribPointer( vInputVertexLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
-
    glEnableVertexAttribArray( vInputNormalsLocation_OGL );
-   glBindBuffer( GL_ARRAY_BUFFER, vNormalBufferObj_OGL );
-   glVertexAttribPointer( vInputNormalsLocation_OGL, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+   glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObj_OGL );
+   glVertexAttribPointer( vInputVertexLocation_OGL,                    // Location
+                          3,                                           // Num elements per vertex
+                          GL_FLOAT,                                    // Data type
+                          GL_FALSE,                                    // Is normalized
+                          vVertexStride,                               // Data stride
+                          reinterpret_cast<void *>( vVertexOffset ) ); // Offset
+
+   glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObj_OGL );
+   glVertexAttribPointer( vInputNormalsLocation_OGL,                   // Location
+                          3,                                           // Num elements per vertex
+                          GL_FLOAT,                                    // Data type
+                          GL_FALSE,                                    // Is normalized
+                          vNormalStride,                               // Data stride
+                          reinterpret_cast<void *>( vNormalOffset ) ); // Offset
 
    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObj_OGL );
-   glDrawElements( GL_TRIANGLES, vDataSize_uI, GL_UNSIGNED_INT, nullptr );
+   glDrawElements(
+         GL_TRIANGLES, vDataSize_uI, GL_UNSIGNED_SHORT, reinterpret_cast<void *>( vIndexOffset ) );
 
-   glDisableVertexAttribArray( vInputVertexLocation_OGL );
    glDisableVertexAttribArray( vInputNormalsLocation_OGL );
+   glDisableVertexAttribArray( vInputVertexLocation_OGL );
 }
 
 
@@ -94,40 +106,25 @@ bool rRenderMultipleLights_3_3::testShader( rShader *_shader ) {
 }
 
 bool rRenderMultipleLights_3_3::testObject( rObjectBase *_obj ) {
-   uint64_t lVert, lFlags, lMatrices, lnVBO, lnIBO, lnNBO, lLightModel;
+   int64_t lMeshs, lFlags, lMatrices, lLightModel;
 
-   _obj->getHints( rObjectBase::NUM_INDEXES,
-                   lVert,
+   _obj->getHints( rObjectBase::NUM_MESHS,
+                   lMeshs,
                    rObjectBase::FLAGS,
                    lFlags,
                    rObjectBase::MATRICES,
                    lMatrices,
-                   rObjectBase::NUM_VBO,
-                   lnVBO,
-                   rObjectBase::NUM_IBO,
-                   lnIBO,
-                   rObjectBase::NUM_NBO,
-                   lnNBO,
                    rObjectBase::LIGHT_MODEL,
                    lLightModel );
 
    if ( !( lFlags & MESH_OBJECT ) )
       return false;
 
-   if ( lVert < 3 )
+   if ( lMeshs < 1 )
       return false;
 
    if ( !( lMatrices & MODEL_VIEW_PROJECTION_MATRIX_FLAG && lMatrices & MODEL_VIEW_MATRIX_FLAG &&
            lMatrices & NORMAL_MATRIX_FLAG ) )
-      return false;
-
-   if ( lnVBO != 1 )
-      return false;
-
-   if ( lnIBO != 1 )
-      return false;
-
-   if ( lnNBO != 1 )
       return false;
 
    if ( lLightModel != rObjectBase::SIMPLE_ADS_LIGHT )
@@ -155,8 +152,20 @@ bool rRenderMultipleLights_3_3::canRender() {
                       L"Vertex buffer object",
                       vIndexBufferObj_OGL,
                       L"Index buffer object",
-                      vNormalBufferObj_OGL,
-                      L"Normal buffer object" ) )
+                      vVertexOffset,
+                      L"Vertex Offset",
+                      vVertexStride,
+                      L"Vertex stride",
+                      vNormalOffset,
+                      L"Normal Offset",
+                      vNormalStride,
+                      L"Normal stride",
+                      vIndexOffset,
+                      L"Index offset",
+                      vIndexStride,
+                      L"Index stride",
+                      vDataSize_uI,
+                      L"Num Indexes" ) )
       return false;
 
    for ( auto const &u : vUniforms ) {
@@ -240,23 +249,48 @@ void rRenderMultipleLights_3_3::setDataFromShader( rShader *_s ) {
 }
 
 void rRenderMultipleLights_3_3::setDataFromObject( rObjectBase *_obj ) {
-   vVertexBufferObj_OGL = vIndexBufferObj_OGL = vNormalBufferObj_OGL = 0;
-   _obj->getVBO( vVertexBufferObj_OGL );
-   _obj->getIBO( vIndexBufferObj_OGL );
-   _obj->getNBO( vNormalBufferObj_OGL );
    _obj->getMatrix( &vModelViewProjection, rObjectBase::MODEL_VIEW_PROJECTION );
    _obj->getMatrix( &vModelView, rObjectBase::MODEL_VIEW_MATRIX );
    _obj->getMatrix( &vNormal, rObjectBase::NORMAL_MATRIX );
 
-   uint64_t lTemp;
+   int64_t lVBO, lIBO, lVO, lVS, lNO, lNS, lIO, lIS, lDS_ui;
+   lVBO = lIBO = lVO = lVS = lNO = lNS = lIO = lIS = lDS_ui = -1;
 
-   _obj->getHints( rObjectBase::NUM_INDEXES, lTemp );
+   if ( !_obj->getHints( rObjectBase::DATA_BUFFER, lVBO, rObjectBase::INDEX_BUFFER, lIBO ) )
+      eLOG( "BIG BIG DATA RENDER ERROR - base!!! (please consider creating an issue)" );
 
-   vDataSize_uI = static_cast<GLsizei>( lTemp );
+   if ( !_obj->getHintsOBJ( MESH_3D,
+                            0,
+                            rObjectBase::VERTEX_OFFSET,
+                            lVO,
+                            rObjectBase::VERTEX_STRIDE,
+                            lVS,
+                            rObjectBase::NORMAL_OFFSET,
+                            lNO,
+                            rObjectBase::NORMAL_STRIDE,
+                            lNS,
+                            rObjectBase::INDEX_OFFSET,
+                            lIO,
+                            rObjectBase::INDEX_STRIDE,
+                            lIS,
+                            rObjectBase::NUM_INDEXES,
+                            lDS_ui ) )
+      eLOG( "BIG BIG DATA RENDER ERROR - obj!!! (please consider creating an issue)" );
+
+   vVertexBufferObj_OGL = lVBO >= 0 ? static_cast<GLuint>( lVBO ) : NOT_SET_ui;
+   vIndexBufferObj_OGL = lIBO >= 0 ? static_cast<GLuint>( lIBO ) : NOT_SET_ui;
+
+   vVertexOffset = lVO >= 0 ? static_cast<GLsizei>( lVO ) : NOT_SET_ui;
+   vVertexStride = lVS >= 0 ? static_cast<GLsizei>( lVS ) : NOT_SET_ui; // NOT_SET_ui;
+   vNormalOffset = lNO >= 0 ? static_cast<GLsizei>( lNO ) : NOT_SET_ui; // NOT_SET_ui;
+   vNormalStride = lNS >= 0 ? static_cast<GLsizei>( lNS ) : NOT_SET_ui; // NOT_SET_ui;
+   vIndexOffset = lIO >= 0 ? static_cast<GLsizei>( lIO ) : NOT_SET_ui;
+   vIndexStride = lIS >= 0 ? static_cast<GLsizei>( lIS ) : NOT_SET_ui; // NOT_SET_ui;
+   vDataSize_uI = lDS_ui > 0 ? static_cast<GLsizei>( lDS_ui ) : NOT_SET_ui;
 }
 
 void rRenderMultipleLights_3_3::setDataFromAdditionalObjects( rObjectBase *_obj ) {
-   uint64_t lLightType;
+   int64_t lLightType;
 
    _obj->getHints( rObjectBase::FLAGS, lLightType );
 

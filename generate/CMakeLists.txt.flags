@@ -65,6 +65,7 @@ set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-padded" )
 set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-float-equal" )
 set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-gnu-anonymous-struct -Wno-nested-anon-types" )
 set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-exit-time-destructors -Wno-global-constructors" )
+set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-switch-enum" )
 
 set( CLANG_COMPILER_OPTIONS_DEBUG   "${CLANG_WARNINGS} -std=c++14 ${SANITIZERS_FINAL} ${PROJECT_DEFINES_CLANG}" )
 set( CLANG_COMPILER_OPTIONS_RELEASE "${CLANG_WARNINGS} -std=c++14                     ${PROJECT_DEFINES_CLANG}" )

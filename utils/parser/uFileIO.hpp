@@ -56,9 +56,9 @@ class uFileIO final {
    int write( TYPE const &_data, bool _overWrite = false );
    void clear();
 
-   int operator()( bool _autoReload = true ) { return read( _autoReload ); }
+   TYPE *getData() { return &vData; }
 
-   ~uFileIO() {}
+   int operator()( bool _autoReload = true ) { return read( _autoReload ); }
 };
 }
 

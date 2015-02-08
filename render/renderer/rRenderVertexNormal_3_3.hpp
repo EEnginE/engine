@@ -33,7 +33,6 @@ class rRenderVertexNormal_3_3 : public rRenderBase {
  private:
    GLuint vVertexBufferObj_OGL = NOT_SET_ui;
    GLuint vIndexBufferObj_OGL = NOT_SET_ui;
-   GLuint vNormalBufferObj_OGL = NOT_SET_ui;
 
    GLuint vShader_OGL = NOT_SET_ui;
 
@@ -41,7 +40,14 @@ class rRenderVertexNormal_3_3 : public rRenderBase {
    GLuint vInputNormalsLocation_OGL = NOT_SET_ui;
    GLint vUniformMVP_OGL = NOT_SET;
 
-   GLsizei vDataSize_uI = 0;
+   // Object
+   GLsizei vDataSize_uI = NOT_SET_ui;
+   GLsizei vVertexOffset = NOT_SET_ui;
+   GLsizei vVertexStride = NOT_SET_ui;
+   GLsizei vNormalOffset = NOT_SET_ui;
+   GLsizei vNormalStride = NOT_SET_ui;
+   GLsizei vIndexOffset = NOT_SET_ui;
+   GLsizei vIndexStride = NOT_SET_ui;
 
    rMat4f *vModelViewProjection = nullptr;
 

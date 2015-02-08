@@ -30,16 +30,10 @@ int rSimpleMesh::clearOGLData__() {
    glDeleteBuffers( 1, &vVertexBufferObject );
    glDeleteBuffers( 1, &vIndexBufferObject );
 
-   if ( vHasNormals ) {
-      glDeleteBuffers( 1, &vNormalBufferObject );
-      vHasNormals = false;
-   }
-
+   vObjectHints[DATA_BUFFER] = -1;
+   vObjectHints[INDEX_BUFFER] = -1;
    vObjectHints[IS_DATA_READY] = 0;
    vObjectHints[LIGHT_MODEL] = NO_LIGHTS;
-   vObjectHints[NUM_VBO] = 0;
-   vObjectHints[NUM_IBO] = 0;
-   vObjectHints[NUM_NBO] = 0;
 
    return 1;
 }
@@ -52,97 +46,36 @@ int rSimpleMesh::clearOGLData__() {
  *
  * \warning This function needs an \b ACTIVE OpenGL context for THIS THREAD
  *
- * \returns 1  if everything went fine
+ * \returns 1 if everything went fine
+ * \returns 0 if data is empty
  */
 int rSimpleMesh::setOGLData__() {
+   void *lData = &vData->vData.at( 0 );
+   void *lIndex = &vData->vIndex.at( 0 );
+
+   GLsizeiptr lDataS = static_cast<GLsizeiptr>( vData->vData.size() * sizeof( float ) );
+   GLsizeiptr lIndexS = static_cast<GLsizeiptr>( vData->vIndex.size() * sizeof( unsigned short ) );
+
+   if ( lIndexS == 0 || lDataS == 0 || !lData || !lIndex ) {
+      eLOG( "Data is empty!" );
+      return 0;
+   }
+
    glGenBuffers( 1, &vVertexBufferObject );
    glGenBuffers( 1, &vIndexBufferObject );
 
    glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObject );
-   glBufferData( GL_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>( sizeof( GLfloat ) * vData.vVertexData.size() ),
-                 &vData.vVertexData.at( 0 ),
-                 GL_STATIC_DRAW );
+   glBufferData( GL_ARRAY_BUFFER, lDataS, lData, GL_STATIC_DRAW );
 
    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObject );
-   glBufferData( GL_ELEMENT_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>( sizeof( GLuint ) * vData.vIndex.size() ),
-                 &vData.vIndex.at( 0 ),
-                 GL_STATIC_DRAW );
+   glBufferData( GL_ELEMENT_ARRAY_BUFFER, lIndexS, lIndex, GL_STATIC_DRAW );
 
-   if ( vData.vNormalesData.size() > 0 ) {
-      glGenBuffers( 1, &vNormalBufferObject );
-
-      glBindBuffer( GL_ARRAY_BUFFER, vNormalBufferObject );
-      glBufferData( GL_ARRAY_BUFFER,
-                    static_cast<GLsizeiptr>( sizeof( GLfloat ) * vData.vNormalesData.size() ),
-                    &vData.vNormalesData.at( 0 ),
-                    GL_STATIC_DRAW );
-
-      vHasNormals = true;
-      vObjectHints[LIGHT_MODEL] = SIMPLE_ADS_LIGHT;
-      vObjectHints[NUM_NBO] = 1;
-   }
-
+   vObjectHints[DATA_BUFFER] = vVertexBufferObject;
+   vObjectHints[INDEX_BUFFER] = vIndexBufferObject;
    vObjectHints[IS_DATA_READY] = 1;
-
-   vObjectHints[NUM_VBO] = 1;
-   vObjectHints[NUM_IBO] = 1;
-   vObjectHints[NUM_INDEXES] = vData.vIndex.size();
+   vObjectHints[LIGHT_MODEL] = SIMPLE_ADS_LIGHT;
 
    return 1;
-}
-
-
-uint32_t rSimpleMesh::getVBO( uint32_t &_n ) {
-   uint32_t lRet = 0;
-
-   if ( !vIsLoaded_B )
-      lRet |= DATA_NOT_LOADED;
-
-   if ( _n != 0 )
-      lRet |= INDEX_OUT_OF_RANGE;
-
-   if ( lRet == 0 )
-      _n = vVertexBufferObject;
-   else
-      _n = rRenderBase::NOT_SET_ui;
-
-   return lRet;
-}
-
-uint32_t rSimpleMesh::getIBO( uint32_t &_n ) {
-   uint32_t lRet = 0;
-
-   if ( !vIsLoaded_B )
-      lRet |= DATA_NOT_LOADED;
-
-   if ( _n != 0 )
-      lRet |= INDEX_OUT_OF_RANGE;
-
-   if ( lRet == 0 )
-      _n = vIndexBufferObject;
-   else
-      _n = rRenderBase::NOT_SET_ui;
-
-   return lRet;
-}
-
-uint32_t rSimpleMesh::getNBO( uint32_t &_n ) {
-   uint32_t lRet = 0;
-
-   if ( !vIsLoaded_B || !vHasNormals )
-      lRet |= DATA_NOT_LOADED;
-
-   if ( _n != 0 )
-      lRet |= INDEX_OUT_OF_RANGE;
-
-   if ( lRet == 0 )
-      _n = vNormalBufferObject;
-   else
-      _n = rRenderBase::NOT_SET_ui;
-
-   return lRet;
 }
 
 uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) {
@@ -175,7 +108,7 @@ uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type 
          *_mat = getModelViewProjectionMatrix();
          return 0;
       case NORMAL_MATRIX:
-         return INDEX_OUT_OF_RANGE;
+         break;
    }
 
    return INDEX_OUT_OF_RANGE;
@@ -186,19 +119,9 @@ uint32_t rSimpleMesh::getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type 
       case NORMAL_MATRIX:
          *_mat = getNormalMatrix();
          return 0;
-      case SCALE:
-      case ROTATION:
-      case TRANSLATION:
-      case CAMERA_MATRIX:
-      case MODEL_MATRIX:
-      case VIEW_MATRIX:
-      case PROJECTION_MATRIX:
-      case MODEL_VIEW_MATRIX:
-      case MODEL_VIEW_PROJECTION:
+      default:
          return INDEX_OUT_OF_RANGE;
    }
-
-   return INDEX_OUT_OF_RANGE;
 }
 
 void rSimpleMesh::setFlags() {

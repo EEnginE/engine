@@ -31,7 +31,7 @@
 
 namespace e_engine {
 
-class rLoader_3D_f_OBJ : public internal::rLoaderBase<GLfloat, GLuint> {
+class rLoader_3D_f_OBJ : public internal::rLoaderBase<GLfloat, GLushort> {
  private:
    std::string vName;
 
