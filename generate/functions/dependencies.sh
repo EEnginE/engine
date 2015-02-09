@@ -32,14 +32,14 @@ EOF
    msg1 "Generating dependencies" >&2
    local GEN_SCRIPT="$(pwd)/$DEPS_MAIN_DIR/generate.sh"
 
-   if [ -f $GEN_SCRIPT ]; then
-      if [ ! -x $GEN_SCRIPT ]; then
-         chmod +x $GEN_SCRIPT
+   if [ -f "$GEN_SCRIPT" ]; then
+      if [ ! -x "$GEN_SCRIPT" ]; then
+         chmod +x "$GEN_SCRIPT"
       fi
       local CURRENT_TEMP_PATH="$(pwd)"
-      cd $(dirname $GEN_SCRIPT)
-      ( source $GEN_SCRIPT ) >&2
-      cd $CURRENT_TEMP_PATH
+      cd "$(dirname "$GEN_SCRIPT")"
+      ( source "$GEN_SCRIPT" ) >&2
+      cd "$CURRENT_TEMP_PATH"
    fi
 
    local i

@@ -35,10 +35,10 @@ engineHPP() {
 EOF
 
    for I in "${ALL_ALL_HPP[@]}"; do
-      if [ "$(basename $I)" == "engine.hpp" ]; then
+      if [ "$(basename "$I")" == "engine.hpp" ]; then
          continue
       fi
-      echo "#include \"$(basename $I)\""
+      echo "#include \"$(basename "$I")\""
     done
 
    local DS_AND_OS=()
@@ -57,22 +57,22 @@ EOF
 
    local TEMP_SIZE TEMP
    for i in "${DS_AND_OS[@]}"; do
-      eval "TEMP_SIZE=\${#ALL_$(echo $i | sed 's/^[a-zA-Z0-9_]*_//g' )_HPP[@]}"
+      eval "TEMP_SIZE=\${#ALL_$(echo "$i" | sed 's/^[a-zA-Z0-9_]*_//g' )_HPP[@]}"
       if (( TEMP_SIZE == 0 )); then
          continue
       fi
 
-      eval "TEMP=( \"\${ALL_$(echo $i | sed 's/^[a-zA-Z0-9_]*_//g' )_HPP[@]}\" )"
+      eval "TEMP=( \"\${ALL_$(echo "$i" | sed 's/^[a-zA-Z0-9_]*_//g' )_HPP[@]}\" )"
 
       echo ""
       echo "#if $i"
       echo ""
 
       for I in "${TEMP[@]}"; do
-         if [ "$(basename $I)" == "engine.hpp" ]; then
+         if [ "$(basename "$I")" == "engine.hpp" ]; then
             continue
          fi
-         echo "#include \"$(basename $I)\""
+         echo "#include \"$(basename "$I")\""
       done
 
       echo ""

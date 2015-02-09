@@ -15,16 +15,14 @@
 # limitations under the License.
 
 doGlew() {
-    local ARGC=$#
-
-    if (( $ARGC != 1 )); then
+    if (( $# != 1 )); then
         error " doGlew needs 1 argument"
         return
     fi
 
     cd dependencies/GLEW
 
-    if [ -d lib -a ! $1 -eq 1 ]; then
+    if [ -d lib -a ! "$1" -eq 1 ]; then
         cd ../..
         return
     fi

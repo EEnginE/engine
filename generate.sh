@@ -15,9 +15,6 @@
 # limitations under the License.
 
 
-ARGC=$#
-ARGV=$*
-
 ###########################
 #### BEGIN Config Part ####
 ###########################
@@ -31,10 +28,17 @@ CONFIG_FILE="generate.cfg"
 STARTDIR="$PWD"
 
 
+catch_INT() {
+   error "User interrupt \x1b[1;31m[CTRL-C]\x1b[?25h" 1>&2
+   exit
+}
+
+trap catch_INT INT
+
 # Make sure we are in the engine root directory
-export ENGINE_ROOT=$(readlink -m $(dirname $0))
-if [ -d $ENGINE_ROOT ]; then
-    cd $ENGINE_ROOT
+export ENGINE_ROOT="$(readlink -m "$(dirname "$0")")"
+if [ -d "$ENGINE_ROOT" ]; then
+    cd "$ENGINE_ROOT"
 fi
 
 EEC=$(awk "BEGIN {printf \"%i\", (${RANDOM} / 32767) * 6 + 31}") # COLORS!!! RANDOM!!!!! :)
@@ -51,15 +55,18 @@ EEE_R="\x1b[0m\x1b[1m"
 #                        __/ |
 #                       |___/
 
-echo -e ""
-echo -e "               ${EEE_C} _____${EEE_R} _____           ${EEE_C} _ ${EEE_R}     ${EEE_C} _____  "
-echo -e "               ${EEE_C}|  ___${EEE_R}|  ___|          ${EEE_C}(_)${EEE_R}     ${EEE_C}|  ___| "
-echo -e "               ${EEE_C}| |__ ${EEE_R}| |__ _ __   __ _ _ _ __ ${EEE_C}| |__   "
-echo -e "               ${EEE_C}|  __|${EEE_R}|  __| '_ \ / _\` | | '_ \\\\${EEE_C}|  __|  "
-echo -e "               ${EEE_C}| |___${EEE_R}| |__| | | | (_| | | | | ${EEE_C}| |___  "
-echo -e "               ${EEE_C}\____/${EEE_R}\____/_| |_|\__, |_|_| |_${EEE_C}\____/  "
-echo -e "               ${EEE_C}      ${EEE_R}             __/ |               "
-echo -e "               ${EEE_C}      ${EEE_R}            |___/                "
+
+eval "PAD_E=\"\$(printf '%0.1s' \" \"{1..$(( $(tput cols) / 2 - 17 ))} )\""
+
+echo -e "\x1b[?25l"
+echo -e "${PAD_E}${EEE_C} _____${EEE_R} _____           ${EEE_C} _ ${EEE_R}     ${EEE_C} _____  "
+echo -e "${PAD_E}${EEE_C}|  ___${EEE_R}|  ___|          ${EEE_C}(_)${EEE_R}     ${EEE_C}|  ___| "
+echo -e "${PAD_E}${EEE_C}| |__ ${EEE_R}| |__ _ __   __ _ _ _ __ ${EEE_C}| |__   "
+echo -e "${PAD_E}${EEE_C}|  __|${EEE_R}|  __| '_ \ / _\` | | '_ \\\\${EEE_C}|  __|  "
+echo -e "${PAD_E}${EEE_C}| |___${EEE_R}| |__| | | | (_| | | | | ${EEE_C}| |___  "
+echo -e "${PAD_E}${EEE_C}\____/${EEE_R}\____/_| |_|\__, |_|_| |_${EEE_C}\____/  "
+echo -e "${PAD_E}${EEE_C}      ${EEE_R}             __/ |               "
+echo -e "${PAD_E}${EEE_C}      ${EEE_R}            |___/                "
 echo -e ""
 echo -e ""
 
@@ -109,6 +116,7 @@ cat << EOF
 
     without any options the configuration is: $0 ltf
 EOF
+    echo -e "\x1b[?25h"
     exit
 }
 
@@ -129,13 +137,13 @@ PRINT_PARSED=0
 ARG_STRING=""
 
 # Load all functions in the generate dir
-for i in $(find ${PWD}/generate/functions -name "*.sh" -type f -print); do
-    source $i
+for i in $(find "${PWD}/generate/functions" -name '*.sh' -type f -print); do
+   source "$i"
 done
 
 msg1 "Parsing comand line..."
 
-for I in $@; do
+for I in "$@"; do
     case $I in
         help|--help|-h)
             help_text
@@ -149,7 +157,7 @@ if [ -z "$ARG_STRING" ]; then
     ARG_STRING="ltf"
 fi
 
-CMD_FLAGS="Result: \x1b[36m"
+CMD_FLAGS="Result:"
 
 for (( i=0; i<${#ARG_STRING}; ++i )); do
     I=${ARG_STRING:$i:1}
@@ -188,6 +196,9 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
 
 done
 
+CMD_FLAGS="$(echo "$CMD_FLAGS" | sed 's/\[/\x1b\[35m\[\x1b\[36m/g' )"
+CMD_FLAGS="$(echo "$CMD_FLAGS" | sed 's/\]/\x1b\[35m\]/g' )"
+
 msg2 "$CMD_FLAGS"
 
 if (( SKIP_PARSING == 0 )); then
@@ -201,7 +212,7 @@ if (( SKIP_SUB_M == 0 )); then
 
    GIT_EXEC=$(which git 2>/dev/null)
 
-   if [ -z ${GIT_EXEC} ]; then
+   if [ -z "${GIT_EXEC}" ]; then
        warning "Unable to find git. Please run git init, sync and update manualy"
    else
        processBar 1 5 "init"
@@ -218,7 +229,7 @@ if (( SKIP_SUB_M == 0 )); then
 
        processBar 5 5 "Running make deps"
 
-       makeDeps > $DEPS_MAIN_DIR/$CMAKE_LISTS_NAME
+       makeDeps > "$DEPS_MAIN_DIR/$CMAKE_LISTS_NAME"
    fi
 fi
 
@@ -233,11 +244,11 @@ if (( DO_CLEAN == 1 )); then
 fi
 
 if (( DO_LIBS == 1 )); then
-    generateLogMacros $LOG_MACRO_PATH "$LOG_TYPES" $LOG_GEN_UNDEF
+    generateLogMacros "$LOG_MACRO_PATH" "$LOG_TYPES" "$LOG_GEN_UNDEF"
     compilerTests
     addTarget
     msg1 "Generating main include file $INCLUDE_FILE"
-    engineHPP         1> $INCLUDE_FILE
+    engineHPP         1> "$INCLUDE_FILE"
 fi
 
 if (( DO_TESTS == 1 )); then
@@ -245,7 +256,7 @@ if (( DO_TESTS == 1 )); then
 fi
 
 if (( DO_TESTS == 1 || DO_LIBS == 1 )); then
-    rootCMake 1> $(pwd)/$CMAKE_LISTS_NAME
+    rootCMake 1> "$(pwd)/$CMAKE_LISTS_NAME"
 fi
 
 if (( DO_FORMAT == 1 )); then
@@ -264,11 +275,11 @@ if (( DO_ATOM_BUILD == 1 )); then
    generateAtomBuild
 fi
 
-msg1 "DONE"
+msg1 "DONE\x1b[?25h"
 
 # Switch back to the start directory where $0 was called
-if [ -d $STARTDIR ]; then
-    cd $STARTDIR
+if [ -d "$STARTDIR" ]; then
+    cd "$STARTDIR"
 fi
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

@@ -81,7 +81,7 @@ buildProject() {
 
    if (( SKIP_CMAKE != 1 )); then
       msg2 "Running '$CMAKE_EXECUTABLE $CMAKE_FLAGS $ENGINE_ROOT'"
-      $CMAKE_EXECUTABLE $CMAKE_FLAGS $ENGINE_ROOT
+      $CMAKE_EXECUTABLE "$CMAKE_FLAGS" "$ENGINE_ROOT"
       RET=$?
    fi
 
@@ -91,7 +91,7 @@ buildProject() {
    fi
 
    msg2 "Running '$BUILD_COMMAND $BUILD_FLAGS'"
-   $BUILD_COMMAND $BUILD_FLAGS
+   $BUILD_COMMAND "$BUILD_FLAGS"
 
    RET=$?
 

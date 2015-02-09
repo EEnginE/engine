@@ -53,12 +53,12 @@ parseCFG() {
 
     msg1 "Parsing Config file $CONFIG_FILE"
 
-    local NUM_LINES=$(wc -l $CONFIG_FILE | awk '{print $1}')
+    local NUM_LINES=$(wc -l "$CONFIG_FILE" | awk '{print $1}')
     local COUNTER=1
 
     local LINE
     while read LINE; do
-        processBar $COUNTER $NUM_LINES "$LINE"
+        processBar $COUNTER "$NUM_LINES" "$LINE"
         ((COUNTER++))
 
         LINE="$(echo "$LINE" | sed 's/#.*//g')"   # Remove comments
@@ -78,8 +78,8 @@ parseCFG() {
             PRO)  PROJECT_NAME=$TEMP          ;;
             P)    DISPLAY_SERVER+=( "$TEMP" ) ;;
             OS)
-                local T_OS=$(echo $TEMP | sed 's/;[a-zA-Z 0-9_\/\.]*$//g' )
-                local T_DS=$(echo $TEMP | sed 's/^[a-zA-Z 0-9_\/\.]*;//g' )
+                local T_OS=$(echo "$TEMP" | sed 's/;[a-zA-Z 0-9_\/\.]*$//g' )
+                local T_DS=$(echo "$TEMP" | sed 's/^[a-zA-Z 0-9_\/\.]*;//g' )
                 OS+=( $T_OS )
                 eval "DS_${T_OS}=( $T_DS )"
                 ;;

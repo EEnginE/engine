@@ -24,14 +24,14 @@ addTarget() {
         DEP="${LIBS_DEP[$I]}"
         CMAKE_FILE="$T/${CMAKE_LISTS_NAME}"
 
-        found "lib $T [$DEP]"
+        found "lib \x1b[33m$T \x1b[35m[\x1b[36m$DEP\x1b[35m]"
 
-        cat > $CMAKE_FILE <<EOF
+        cat > "$CMAKE_FILE" <<EOF
 # Automatically generated file; DO NOT EDIT
 
 EOF
 
-        finSources $T ${T^^} 1>> $CMAKE_FILE
+        finSources "$T" "${T^^}" 1>> "$CMAKE_FILE"
         local TMP_NAME="${PROJECT_NAME}_${T}"
 
         local LINK_LIBS=""
@@ -39,7 +39,7 @@ EOF
             LINK_LIBS="$LINK_LIBS ${PROJECT_NAME}_${i}"
         done
 
-        cat >> $CMAKE_FILE <<EOF
+        cat >> "$CMAKE_FILE" <<EOF
 
 if( NOT DEFINED ENGINE_BUILD_SHARED )
   set( ENGINE_BUILD_SHARED 1 )          # DEFAULT: We create a shared library ( .so or a .dll )

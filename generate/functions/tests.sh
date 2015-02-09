@@ -22,29 +22,29 @@ tests() {
     for (( i = 0; i < ${#TESTS[@]}; ++i )); do
         I=$( echo "$TESTS_DIR/${TESTS[$i]}" | sed 's/\/$//g' )
 
-        if [ ! -d $I ]; then
+        if [ ! -d "$I" ]; then
             error " $I is not a directory!"
             continue
         fi
 
         local TEST_NAME="${TESTS[$i]}"
-        found "test module $TEST_NAME"
+        found "test module \x1b[33m$TEST_NAME"
 
         PRE_GEN="$(pwd)/${I}/generate.pre.sh"
         POST_GEN="$(pwd)/${I}/generate.post.sh"
 
-        if [ -f $PRE_GEN ]; then
-            if [ ! -x $PRE_GEN ]; then
-                chmod +x $PRE_GEN
+        if [ -f "$PRE_GEN" ]; then
+            if [ ! -x "$PRE_GEN" ]; then
+                chmod +x "$PRE_GEN"
             fi
             CURRENT_TEMP_PATH="$(pwd)"
-            cd $(dirname $PRE_GEN)
-            ( source $PRE_GEN )
-            cd $CURRENT_TEMP_PATH
+            cd "$(dirname "$PRE_GEN")"
+            ( source "$PRE_GEN" )
+            cd "$CURRENT_TEMP_PATH"
         fi
 
         local CMAKE_FILE="$(pwd)/${I}/$CMAKE_LISTS_NAME"
-        cat > $CMAKE_FILE << EOF
+        cat > "$CMAKE_FILE" << EOF
 # Automatically generated file; DO NOT EDIT
 
 project( $TEST_NAME )
@@ -52,18 +52,18 @@ project( $TEST_NAME )
 EOF
         local CUSTOM_FILE="$(pwd)/$I/$CMAKE_CUSTOM_FILE"
 
-        if [ -f $CUSTOM_FILE ]; then
-            cat $CUSTOM_FILE >> $CMAKE_FILE
+        if [ -f "$CUSTOM_FILE" ]; then
+            cat "$CUSTOM_FILE" >> "$CMAKE_FILE"
         fi
 
-        finSources ${I} ${TEST_NAME^^} 1>> $CMAKE_FILE
+        finSources "${I}" "${TEST_NAME^^}" 1>> "$CMAKE_FILE"
 
         local ENGINE_LIBS="" TTT
         for TTT in "${LIBS[@]}"; do
             ENGINE_LIBS="$ENGINE_LIBS ${PROJECT_NAME}_${TTT}"
         done
 
-        cat >> $CMAKE_FILE <<EOF
+        cat >> "$CMAKE_FILE" <<EOF
 
 if( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/config.in.hpp )
    configure_file("\${CMAKE_CURRENT_SOURCE_DIR}/config.in.hpp" "\${CMAKE_CURRENT_SOURCE_DIR}/config.hpp")
@@ -105,14 +105,14 @@ endif( EXISTS \${CMAKE_CURRENT_SOURCE_DIR}/data AND IS_DIRECTORY \${CMAKE_CURREN
 EOF
 
 
-        if [ -f $POST_GEN ]; then
-            if [ ! -x $POST_GEN ]; then
-                chmod +x $POST_GEN
+        if [ -f "$POST_GEN" ]; then
+            if [ ! -x "$POST_GEN" ]; then
+                chmod +x "$POST_GEN"
             fi
             CURRENT_TEMP_PATH="$(pwd)"
-            cd $(dirname $POST_GEN)
-            ( source $POST_GEN )
-            cd $CURRENT_TEMP_PATH
+            cd "$(dirname "$POST_GEN")"
+            ( source "$POST_GEN" )
+            cd "$CURRENT_TEMP_PATH"
         fi
     done
 

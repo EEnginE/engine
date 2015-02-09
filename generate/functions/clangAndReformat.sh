@@ -30,13 +30,13 @@ reformatSource() {
         return
     fi
 
-    cp -f $(pwd)/$CLANG_FORMAT_CONFIG .clang-format
+    cp -f "$(pwd)/$CLANG_FORMAT_CONFIG" .clang-format
 
     local i COUNTER NUM
     COUNTER=1
     NUM=${#ALL_SOURCE_FILES[@]}
-    for i in ${ALL_SOURCE_FILES[@]}; do
-        processBar $COUNTER $NUM $i
+    for i in "${ALL_SOURCE_FILES[@]}"; do
+        processBar $COUNTER "$NUM" "$i"
         (( COUNTER++ ))
 
         if [ ! -f "$i" ]; then
@@ -44,7 +44,7 @@ reformatSource() {
             continue
         fi
 
-        "$CLANG_FORMAT" -i $i
+        "$CLANG_FORMAT" -i "$i"
     done
 }
 

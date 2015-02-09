@@ -20,8 +20,8 @@ makeDebugDefines() {
    local i COUNTER NUM TEMP
    COUNTER=1
    NUM=${#ALL_SOURCE_FILES[@]}
-   for i in ${ALL_SOURCE_FILES[@]}; do
-      processBar $COUNTER $NUM $i >&2
+   for i in "${ALL_SOURCE_FILES[@]}"; do
+      processBar $COUNTER "$NUM" "$i" >&2
       (( COUNTER++ ))
 
       if [ ! -f "$i" ]; then
@@ -29,18 +29,18 @@ makeDebugDefines() {
            continue
       fi
 
-      TEMP="$TEMP $(grep '^#if[ ]*D_LOG' $i | sed 's/[#a-zA-Z 0-9#]*\(D_LOG_[A-Z]*\) \?[#a-zA-Z 0-9\/]*/\1/g')"
+      TEMP="$TEMP $(grep '^#if[ ]*D_LOG' "$i" | sed 's/[#a-zA-Z 0-9#]*\(D_LOG_[A-Z]*\) \?[#a-zA-Z 0-9\/]*/\1/g')"
    done
 
    DEBUG_DEFINES=( $(echo "$TEMP" | sed 's/ /\n/g' | sort | uniq ) )
 
-   local IFNDEF_HEADDER="$( basename $DEBUG_DEF_FILE )"
-   local IFNDEF_HEADDER="$( echo -n $IFNDEF_HEADDER | sed 's/\./_/g' )"
-   local IFNDEF_HEADDER="$( echo -n ${IFNDEF_HEADDER^^} )"
+   local IFNDEF_HEADDER="$( basename "$DEBUG_DEF_FILE" )"
+   local IFNDEF_HEADDER="$( echo -n "$IFNDEF_HEADDER" | sed 's/\./_/g' )"
+   local IFNDEF_HEADDER="$( echo -n "${IFNDEF_HEADDER^^}" )"
 
    cat <<EOF > "${DEBUG_DEF_FILE}.in.hpp"
 /*!
- * \\file $(basename $DEBUG_DEF_FILE).hpp
+ * \\file $(basename "$DEBUG_DEF_FILE").hpp
  * \\brief Some important macros for logging are defined here
  *
  * \\warning This is an automatically generated file of '$0'! DO NOT EDIT
@@ -52,10 +52,11 @@ makeDebugDefines() {
 EOF
 
    local temp
+   local msg_t
 
    for i in "${DEBUG_DEFINES[@]}"; do
-      temp=$(echo $i | sed 's/D_//g' )
-      msg3 "Found $(echo $i | sed 's/D_LOG_//g' )" >&2
+      temp="$(echo "$i" | sed 's/D_//g' )"
+      msg_t="$msg_t[$(echo "$i" | sed 's/D_LOG_//g' )] "
       echo "#define $i  @${i}_CM@" >> "${DEBUG_DEF_FILE}.in.hpp"
 
       cat <<EOF
@@ -76,6 +77,10 @@ endif( NOT DEFINED ${temp} )
 EOF
 
    done
+
+   msg_t="$(echo "$msg_t" | sed 's/\[/\x1b\[35m\[\x1b\[36m/g' )"
+   msg_t="$(echo "$msg_t" | sed 's/\]/\x1b\[35m\]/g' )"
+   msg2 "$msg_t" >&2
 
 
    cat <<EOF >> "${DEBUG_DEF_FILE}.in.hpp"

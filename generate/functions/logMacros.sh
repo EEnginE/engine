@@ -20,17 +20,19 @@ __macro_func() {
         return
     fi
 
-    WITHOUT_BRS=$(echo $3 | sed 's/([a-zA-Z\.]*)$//g')
+    WITHOUT_BRS="$(echo "$3" | sed 's/([a-zA-Z\.]*)$//g')"
 
     if (( $5 != 0 )); then
-        echo "#if defined $WITHOUT_BRS"                                                                         >> $1
-        echo "#warning \"UNDEF $WITHOUT_BRS -- Please remove '#define $WITHOUT_BRS' from your project files\""  >> $1
-        echo "#undef $WITHOUT_BRS"                                                                              >> $1
-        echo "#endif // defined $WITHOUT_BRS"                                                                   >> $1
-        echo ""                                                                                                 >> $1
+        cat <<EOF >> "$1"
+#if defined $WITHOUT_BRS
+#warning "UNDEF $WITHOUT_BRS -- Please remove '#define $WITHOUT_BRS' from your project files"
+#undef $WITHOUT_BRS
+#endif // defined $WITHOUT_BRS
+
+EOF
     fi
 
-    echo "#define $3 $4"                                                                                        >> $2
+    echo "#define $3 $4" >> "$2"
 }
 
 
@@ -49,75 +51,75 @@ generateLogMacros() {
     local TYPES=$2
     local DO_UNDEF=$3
 
-    local MACRO_UNDEF_PATH="$(  dirname $MACRO_PATH )/macros_undef_temp"
-    local MACRO_DEFINE_PATH="$( dirname $MACRO_PATH )/macros_define_temp"
+    local MACRO_UNDEF_PATH="$(  dirname "$MACRO_PATH" )/macros_undef_temp"
+    local MACRO_DEFINE_PATH="$( dirname "$MACRO_PATH" )/macros_define_temp"
 
     for I in $MACRO_DEFINE_PATH $MACRO_UNDEF_PATH $MACRO_PATH; do
-        if [ -e $I ]; then
-            rm $I
+        if [ -e "$I" ]; then
+            rm "$I"
         fi
     done
 
     #### Headder ####
 
-    local IFNDEF_HEADDER="$( basename $MACRO_PATH )"
-    local IFNDEF_HEADDER="$( echo -n $IFNDEF_HEADDER | sed 's/\./_/g' )"
-    local IFNDEF_HEADDER="$( echo -n ${IFNDEF_HEADDER^^} )"
+    local IFNDEF_HEADDER="$( basename "$MACRO_PATH" )"
+    local IFNDEF_HEADDER="$( echo -n "$IFNDEF_HEADDER" | sed 's/\./_/g' )"
+    local IFNDEF_HEADDER="$( echo -n "${IFNDEF_HEADDER^^}" )"
 
-    echo "/*!"                                                                         >> $MACRO_PATH
-    echo " * \\file $(basename $MACRO_PATH)"                                           >> $MACRO_PATH
-    echo " * \\brief Some important macros for logging are defined here"               >> $MACRO_PATH
-    echo " *"                                                                          >> $MACRO_PATH
-    echo " * \\warning This is an automatically generated file of '$0'! DO NOT EDIT"   >> $MACRO_PATH
-    echo " */"                                                                         >> $MACRO_PATH
-    echo ""                                                                            >> $MACRO_PATH
-    echo "#include \"defines.hpp\""                                                    >> $MACRO_PATH
-    echo ""                                                                            >> $MACRO_PATH
-    echo ""                                                                            >> $MACRO_PATH
-    echo "#ifndef $IFNDEF_HEADDER"                                                     >> $MACRO_PATH
-    echo "#define $IFNDEF_HEADDER"                                                     >> $MACRO_PATH
-    echo ""                                                                            >> $MACRO_PATH
-    echo ""                                                                            >> $MACRO_PATH
+    cat <<EOF >> "$MACRO_PATH"
+/*!
+ * \\file $(basename "$MACRO_PATH")
+ * \\brief Some important macros for logging are defined here
+ *
+ * \\warning This is an automatically generated file of '$0'! DO NOT EDIT
+ */
+
+#include "defines.hpp"
+
+
+#ifndef $IFNDEF_HEADDER
+#define $IFNDEF_HEADDER
+
+
+EOF
 
     #### Body ####
 
-    echo "" >> $MACRO_DEFINE_PATH
+    echo "" >> "$MACRO_DEFINE_PATH"
 
     for I in $TYPES; do
-        #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH    "_$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',W_FILE,__LINE__,W_FUNC" $DO_UNDEF
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH " _$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',false,W_FILE,__LINE__,W_FUNC,std::this_thread::get_id()" $DO_UNDEF
+        #__macro_func "$MACRO_UNDEF_PATH" "$MACRO_DEFINE_PATH"    "_$( echo -n "${I^^}" )" "'$( echo -n ${I^^} )',W_FILE,__LINE__,W_FUNC" $DO_UNDEF
+        __macro_func "$MACRO_UNDEF_PATH" "$MACRO_DEFINE_PATH" " _$( echo -n "${I^^}" )" "'$( echo -n "${I^^}" )',false,W_FILE,__LINE__,W_FUNC,std::this_thread::get_id()" "$DO_UNDEF"
     done
 
-    echo "" >> $MACRO_DEFINE_PATH
+    echo "" >> "$MACRO_DEFINE_PATH"
 
     for I in $TYPES; do
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "_h$( echo -n ${I^^} )" "'$( echo -n ${I^^} )',true ,W_FILE,__LINE__,W_FUNC,std::this_thread::get_id()" $DO_UNDEF
+        __macro_func "$MACRO_UNDEF_PATH" "$MACRO_DEFINE_PATH" "_h$( echo -n "${I^^}" )" "'$( echo -n "${I^^}" )',true ,W_FILE,__LINE__,W_FUNC,std::this_thread::get_id()" "$DO_UNDEF"
     done
 
-    echo -e "\n" >> $MACRO_DEFINE_PATH
+    echo -e "\n" >> "$MACRO_DEFINE_PATH"
 
     for I in $TYPES; do
-        #__macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH  "$( echo -n ${I,,} )LOG" "LOG('$( echo -n ${I^^} )',W_FILE,__LINE__,W_FUNC," $DO_UNDEF
-        __macro_func $MACRO_UNDEF_PATH $MACRO_DEFINE_PATH "$( echo -n ${I,,} )LOG(...)" "::e_engine::LOG.addLogEntry(_$( echo -n ${I^^} ),__VA_ARGS__)" $DO_UNDEF
+        #__macro_func "$MACRO_UNDEF_PATH" "$MACRO_DEFINE_PATH"  "$( echo -n "${I,,}" )LOG" "LOG('$( echo -n ${I^^} )',W_FILE,__LINE__,W_FUNC," $DO_UNDEF
+        __macro_func "$MACRO_UNDEF_PATH" "$MACRO_DEFINE_PATH" "$( echo -n "${I,,}" )LOG(...)" "::e_engine::LOG.addLogEntry(_$( echo -n "${I^^}" ),__VA_ARGS__)" "$DO_UNDEF"
     done
 
     #### Footer ####
 
     if (( DO_UNDEF != 0 )); then
-        cat  $MACRO_UNDEF_PATH  >> $MACRO_PATH
-        echo ""                 >> $MACRO_PATH
-        echo ""                 >> $MACRO_PATH
-        echo ""                 >> $MACRO_PATH
+        cat  "$MACRO_UNDEF_PATH"  >> "$MACRO_PATH"
+        echo -e "\n\n\n"          >> "$MACRO_PATH"
     fi
-    cat  $MACRO_DEFINE_PATH     >> $MACRO_PATH
-    echo ""                     >> $MACRO_PATH
-    echo ""                     >> $MACRO_PATH
 
-    echo "#endif //$IFNDEF_HEADDER" >> $MACRO_PATH
+    cat  "$MACRO_DEFINE_PATH"  >> "$MACRO_PATH"
+    echo -e "\n\n\n"           >> "$MACRO_PATH"
+
+    echo "#endif //$IFNDEF_HEADDER" >> "$MACRO_PATH"
 
     for I in $MACRO_DEFINE_PATH $MACRO_UNDEF_PATH; do
-        if [ -e $I ]; then
-            rm $I
+        if [ -e "$I" ]; then
+            rm "$I"
         fi
     done
 
