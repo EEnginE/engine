@@ -25,6 +25,14 @@ reformatSource() {
         return
     fi
 
+    CURRENT_VERSION=$(clang-format --version | awk '{print $3}')
+
+    if [[ "$CURRENT_VERSION" != "$CLANG_FORMAT_VERSION"* ]]; then
+        warning "clang-format version ${CLANG_FORMAT_VERSION}.* required"
+        warning "your current version is $CURRENT_VERSION => can not autoforamt source code"
+        return
+    fi
+
     if [ ! -f "$(pwd)/$CLANG_FORMAT_CONFIG" ]; then
         error "Can not find clang-format configuation file $CLANG_FORMAT_CONFIG"
         return

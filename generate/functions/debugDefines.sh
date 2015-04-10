@@ -35,8 +35,8 @@ makeDebugDefines() {
    DEBUG_DEFINES=( $(echo "$TEMP" | sed 's/ /\n/g' | sort | uniq ) )
 
    local IFNDEF_HEADDER="$( basename "$DEBUG_DEF_FILE" )"
-   local IFNDEF_HEADDER="$( echo -n "$IFNDEF_HEADDER" | sed 's/\./_/g' )"
-   local IFNDEF_HEADDER="$( echo -n "${IFNDEF_HEADDER^^}" )"
+   local IFNDEF_HEADDER="${IFNDEF_HEADDER//./_}"
+   local IFNDEF_HEADDER="${IFNDEF_HEADDER^^}"
 
    cat <<EOF > "${DEBUG_DEF_FILE}.in.hpp"
 /*!
@@ -55,8 +55,8 @@ EOF
    local msg_t
 
    for i in "${DEBUG_DEFINES[@]}"; do
-      temp="$(echo "$i" | sed 's/D_//g' )"
-      msg_t="$msg_t[$(echo "$i" | sed 's/D_LOG_//g' )] "
+      temp="${i//D_/}"
+      msg_t="$msg_t[${i//D_LOG_/}] "
       echo "#define $i  @${i}_CM@" >> "${DEBUG_DEF_FILE}.in.hpp"
 
       cat <<EOF
@@ -78,8 +78,8 @@ EOF
 
    done
 
-   msg_t="$(echo "$msg_t" | sed 's/\[/\x1b\[35m\[\x1b\[36m/g' )"
-   msg_t="$(echo "$msg_t" | sed 's/\]/\x1b\[35m\]/g' )"
+   msg_t="${msg_t//[/\\x1b[35m[\\x1b[36m}"
+   msg_t="${msg_t//]/\\x1b[35m]}"
    msg2 "$msg_t" >&2
 
 

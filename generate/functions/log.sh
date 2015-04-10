@@ -14,31 +14,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ESC_CLEAR="\x1b[2K\x1b[0G"
+ESC_CLEAR="\x1b[2K\x1b[0G\x1b[?25l"
 
 msg1() {
     wait
-    echo -e "${ESC_CLEAR}\x1b[1;32m==>\x1b[1;37m $*\x1b[0m\x1b[?25l"
+    echo -e "${ESC_CLEAR}\x1b[1;32m==>\x1b[1;37m $*\x1b[0m"
 }
 
 msg2() {
     wait
-    echo -e "${ESC_CLEAR}   \x1b[1;34m--\x1b[1;37m $*\x1b[0m\x1b[?25l"
+    echo -e "${ESC_CLEAR}   \x1b[1;34m--\x1b[1;37m $*\x1b[0m"
 }
 
 msg3() {
     wait
-    echo -e "${ESC_CLEAR}     \x1b[1;34m--\x1b[1;37m $*\x1b[0m\x1b[?25l"
+    echo -e "${ESC_CLEAR}     \x1b[1;34m--\x1b[1;37m $*\x1b[0m"
 }
 
 msg4() {
     wait
-    echo -e "${ESC_CLEAR}       \x1b[1;34m--\x1b[1;37m $*\x1b[0m\x1b[?25l"
+    echo -e "${ESC_CLEAR}       \x1b[1;34m--\x1b[1;37m $*\x1b[0m"
 }
 
 found() {
    wait
-   echo -e "${ESC_CLEAR} \x1b[1;33m--> \x1b[1;37mFound $*\x1b[0m\x1b[?25l"
+   echo -e "${ESC_CLEAR} \x1b[1;33m--> \x1b[1;37mFound $*\x1b[0m"
 }
 
 error() {
@@ -48,7 +48,7 @@ error() {
 
 warning() {
     wait
-    echo -e "${ESC_CLEAR}\x1b[1;33m==> WARNING:\x1b[1;37m $*\x1b[0m\x1b[?25l"
+    echo -e "${ESC_CLEAR}\x1b[1;33m==> WARNING:\x1b[1;37m $*\x1b[0m"
 }
 
 PB_COLLS=$(tput cols)

@@ -27,9 +27,10 @@ CONFIG_FILE="generate.cfg"
 
 STARTDIR="$PWD"
 
+shopt -s extglob # Tells bash to do some fancy regex stuff
 
 catch_INT() {
-   error "User interrupt \x1b[1;31m[CTRL-C]\x1b[?25h" 1>&2
+   error "User interrupt \x1b[1;31m[CTRL-C]" 1>&2
    exit
 }
 
@@ -37,9 +38,8 @@ trap catch_INT INT
 
 # Make sure we are in the engine root directory
 export ENGINE_ROOT="$(readlink -m "$(dirname "$0")")"
-if [ -d "$ENGINE_ROOT" ]; then
-    cd "$ENGINE_ROOT"
-fi
+[ -d "$ENGINE_ROOT" ] && cd "$ENGINE_ROOT"
+
 
 EEC=$(awk "BEGIN {printf \"%i\", (${RANDOM} / 32767) * 6 + 31}") # COLORS!!! RANDOM!!!!! :)
 
@@ -196,8 +196,8 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
 
 done
 
-CMD_FLAGS="$(echo "$CMD_FLAGS" | sed 's/\[/\x1b\[35m\[\x1b\[36m/g' )"
-CMD_FLAGS="$(echo "$CMD_FLAGS" | sed 's/\]/\x1b\[35m\]/g' )"
+CMD_FLAGS="${CMD_FLAGS//[/\\x1b[35m[\\x1b[36m}"
+CMD_FLAGS="${CMD_FLAGS//]/\\x1b[35m]}"
 
 msg2 "$CMD_FLAGS"
 
@@ -235,13 +235,9 @@ fi
 
 doGlew $DO_GLEW
 
-if (( PRINT_PARSED == 1 )); then
-   printWhatParsed
-fi
+(( PRINT_PARSED == 1 )) && printWhatParsed
+(( DO_CLEAN     == 1 )) && clean
 
-if (( DO_CLEAN == 1 )); then
-    clean
-fi
 
 if (( DO_LIBS == 1 )); then
     generateLogMacros "$LOG_MACRO_PATH" "$LOG_TYPES" "$LOG_GEN_UNDEF"
@@ -251,35 +247,17 @@ if (( DO_LIBS == 1 )); then
     engineHPP         1> "$INCLUDE_FILE"
 fi
 
-if (( DO_TESTS == 1 )); then
-    tests
-fi
+(( DO_TESTS      == 1 ))                 && tests
+(( DO_TESTS      == 1 || DO_LIBS == 1 )) && rootCMake 1> "$(pwd)/$CMAKE_LISTS_NAME"
+(( DO_FORMAT     == 1 ))                 && reformatSource
+(( DO_CLOC       == 1 ))                 && countLines
+(( DO_BUILD      == 1 ))                 && buildProject
+(( DO_ATOM_BUILD == 1 ))                 && generateAtomBuild
 
-if (( DO_TESTS == 1 || DO_LIBS == 1 )); then
-    rootCMake 1> "$(pwd)/$CMAKE_LISTS_NAME"
-fi
-
-if (( DO_FORMAT == 1 )); then
-    reformatSource
-fi
-
-if (( DO_CLOC == 1 )); then
-    countLines
-fi
-
-if (( DO_BUILD == 1 )); then
-   buildProject
-fi
-
-if (( DO_ATOM_BUILD == 1 )); then
-   generateAtomBuild
-fi
 
 msg1 "DONE\x1b[?25h"
 
 # Switch back to the start directory where $0 was called
-if [ -d "$STARTDIR" ]; then
-    cd "$STARTDIR"
-fi
+[ -d "$STARTDIR" ] && cd "$STARTDIR"
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

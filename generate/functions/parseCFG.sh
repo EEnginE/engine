@@ -41,6 +41,7 @@ DEPS
 DEPS_DIR
 DEPS_DEFAULT
 DEBUG_DEF_FILE
+CLANG_FORMAT_VERSION
 
 EOF
 
@@ -53,23 +54,17 @@ parseCFG() {
 
     msg1 "Parsing Config file $CONFIG_FILE"
 
-    local NUM_LINES=$(wc -l "$CONFIG_FILE" | awk '{print $1}')
-    local COUNTER=1
-
     local LINE
     while read LINE; do
-        processBar $COUNTER "$NUM_LINES" "$LINE"
-        ((COUNTER++))
-
-        LINE="$(echo "$LINE" | sed 's/#.*//g')"   # Remove comments
-        LINE="$(echo "$LINE" | sed 's/[ ]*$//g')" # Remove ' ' at the end of line
+        LINE="${LINE/\#*/}" # Remove comments
+        LINE="${LINE/$*( )/}" # Remove ' ' at the end of line ( Needs shopt extglob on )
 
         if [ -z "$LINE" ]; then
             continue
         fi
 
-        local TEMP="$(echo "$LINE" | sed 's/^[a-zA-Z 0-9_\.]*:[ ]*//g' )"
-        local VARIABLE="$(echo "$LINE" | sed 's/:[a-zA-Z 0-9_;\.\/\-]*$//g' )"
+        local TEMP="${LINE/#*:*( )/}" # Needs shopt extglob on
+        local VARIABLE="${LINE/%:*/}"
 
         case $VARIABLE in
             CM)   CMAKE_LISTS_NAME="$TEMP"    ;;
@@ -78,14 +73,14 @@ parseCFG() {
             PRO)  PROJECT_NAME=$TEMP          ;;
             P)    DISPLAY_SERVER+=( "$TEMP" ) ;;
             OS)
-                local T_OS=$(echo "$TEMP" | sed 's/;[a-zA-Z 0-9_\/\.]*$//g' )
-                local T_DS=$(echo "$TEMP" | sed 's/^[a-zA-Z 0-9_\/\.]*;//g' )
+                local T_OS="${TEMP/%*( );*/}"
+                local T_DS="${TEMP/#*;*( )/}"
                 OS+=( $T_OS )
                 eval "DS_${T_OS}=( $T_DS )"
                 ;;
             L)
-                local T_LIB_NAME="$(echo "$TEMP" | sed 's/;[a-z A-Z 0-9]*$//g')"
-                local T_LIB_DEP="$(echo "$TEMP"  | sed 's/^[a-zA-Z0-g]*;[ ]*//g')"
+                local T_LIB_NAME="${TEMP/%*( );*/}"
+                local T_LIB_DEP="${TEMP/#*;*( )/}"
                 LIBS+=( "$T_LIB_NAME" )
                 LIBS_DEP+=( "$T_LIB_DEP" )
                 ;;
@@ -105,6 +100,7 @@ parseCFG() {
             DEP_DIR)   DEPS_DIR+=( "$TEMP" )        ;;
             DEP_DEF)   DEPS_DEFAULT+=( "$TEMP" )    ;;
             DEBUG_F)   DEBUG_DEF_FILE="${TEMP}"     ;;
+            CLANG_V)   CLANG_FORMAT_VERSION=$TEMP   ;;
             *)
                 warning "Unknown option '$VARIABLE' with argumet(s) $TEMP"
                 ;;
@@ -119,13 +115,13 @@ printWhatParsed() {
     msg2 "CMake version to use:            '$CMAKE_VERSION'"
     msg2 "clang autocomplete file:         '$CLANG_COMPLETE'"
     msg2 "Project Name:                     $PROJECT_NAME"
-    msg2 "Added target platforms:           ${DISPLAY_SERVER[@]}"
-    msg2 "Added Operating Systems:          ${OS[@]}"
-    msg2 "Added libs:                       ${LIBS[@]}"
-    msg2 "Added Testa:                      ${TESTS[@]}"
+    msg2 "Added target platforms:           ${DISPLAY_SERVER[*]}"
+    msg2 "Added Operating Systems:          ${OS[*]}"
+    msg2 "Added libs:                       ${LIBS[*]}"
+    msg2 "Added Tests:                      ${TESTS[*]}"
     msg2 "Main engine include file:        '$INCLUDE_FILE'"
     msg2 "Tests dir:                       '$TESTS_DIR'"
-    msg2 "Added Compiler Test:              ${C_TESTS[@]}"
+    msg2 "Added Compiler Test:              ${C_TESTS[*]}"
     msg2 "Using compiler tests:            '$COMPILER_TESTS' (1 -- true; 0 -- false)"
     msg2 "Using compiler tests directory:  '$COMPILER_TESTS_DIR'"
     msg2 "Tools dir:                       '$TOOLS_DIRECTORY'"
@@ -134,10 +130,11 @@ printWhatParsed() {
     msg2 "Log types:                        $LOG_TYPES"
     msg2 "Clang format config:              $CLANG_FORMAT_CONFIG"
     msg2 "Dependencies main dir:            $DEPS_MAIN_DIR"
-    msg2 "Dependencies:                     ${DEPS[@]}"
-    msg2 "Dependencies (dirs):              ${DEPS_DIR[@]}"
-    msg2 "Dependencies (default on):        ${DEPS_DEFAULT[@]}"
+    msg2 "Dependencies:                     ${DEPS[*]}"
+    msg2 "Dependencies (dirs):              ${DEPS_DIR[*]}"
+    msg2 "Dependencies (default on):        ${DEPS_DEFAULT[*]}"
     msg2 "Debug define file:                ${DEBUG_DEF_FILE}"
+    msg2 "Required clang-format version:    ${CLANG_FORMAT_VERSION}"
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

@@ -35,7 +35,7 @@ engineHPP() {
 EOF
 
    for I in "${ALL_ALL_HPP[@]}"; do
-      if [ "$(basename "$I")" == "engine.hpp" ]; then
+      if [[ "$I" == *"engine.hpp" ]]; then
          continue
       fi
       echo "#include \"$(basename "$I")\""

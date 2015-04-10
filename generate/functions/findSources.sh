@@ -52,8 +52,6 @@ finSources() {
 #
 #
 
-    processBar 0 1 "sarching..." >&2
-
     TEMP=($(find "$1" -regex "$REGEX_HPP_1" -printf '%h\n' | sort -u | sed 's/^\.\///g'))
 
     cd "$1"
@@ -76,17 +74,13 @@ finSources() {
     ## CPP ##
     #########
 
-    local P_COUNTER=1
-    local P_MAX=$(( ${#TEMP_CPP[@]} + ${#TEMP_HPP[@]} + ${#TEMP[@]} ))
-
     for I in "${TEMP_CPP[@]}"; do
-        processBar $P_COUNTER $P_MAX $I >&2
+        # processBar $P_COUNTER $P_MAX $I >&2
         (( P_COUNTER++ ))
 
         ALL_SOURCE_FILES+=( $1/$I )
         for i in "${DISPLAY_SERVER[@]}"; do
-            echo $I | grep "${i}/" &> /dev/null
-            if (( $? == 0 )); then
+            if [[ "$I" == *"${i}/"* ]]; then
                 eval "${i^^}_CPP+=( '$I' )"
                 i=0
                 break
@@ -105,13 +99,9 @@ finSources() {
     #########
 
     for I in "${TEMP_HPP[@]}"; do
-        processBar $P_COUNTER $P_MAX $I >&2
-        (( P_COUNTER++ ))
-
         ALL_SOURCE_FILES+=( $1/$I )
         for i in "${DISPLAY_SERVER[@]}"; do
-            echo $I | grep "${i}/" &> /dev/null
-            if (( $? == 0 )); then
+            if [[ "$I" == *"${i}/"* ]]; then
                 eval "${i^^}_HPP+=( '$I' )"
                 i=0
                 break
@@ -152,12 +142,8 @@ finSources() {
 
 
     for I in "${TEMP[@]}"; do
-        processBar $P_COUNTER $P_MAX $I >&2
-        (( P_COUNTER++ ))
-
         for i in "${DISPLAY_SERVER[@]}"; do
-            echo $I | grep "${i}" &> /dev/null
-            if (( $? == 0 )); then
+            if [[ "$I" == *"${i}"* ]]; then
                 eval "${i^^}_DIRS+=( '$I' )"
                 i=0
                 break

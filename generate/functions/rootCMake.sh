@@ -97,6 +97,7 @@ set( CM_${i} 0 )
 
 if( DISPLAY_SERVER MATCHES ${i} )
     set( CM_${i} 1 )
+    message( STATUS "Using Display Server ${i}" )
 endif( DISPLAY_SERVER MATCHES ${i} )
 
 
