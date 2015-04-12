@@ -89,32 +89,21 @@ cat << EOF
       q  - disable procress bar and some escape sequenzes
       Q  - disable procress bar complete
       b  - build the project
-      A  - generate .atom-build.json based on the build variables
+      B  - configure build options
       G  - disable pulling git submodules
-
-      - Build environment variables:
-
-      CMAKE_EXECUTABLE: Path to cmake (default $(which cmake))
-      BUILD_COMMAND:    Path to the make command (default $(which make))
-      BUILD_DIR:        Path to the build directory (default build)
-      MAKEFILE_NAME:    Name of the build file generated from CMake (default Makefile)
-
-      CMAKE_FLAGS:      Addistional cmake flags
-      CMAKE_GENERATOR:  Cmake generator to use (default: let cmake decide)
-      SKIP_CMAKE:       When 1, skip CMake
-      CPP_COMPILER:     The CPP compiler (default: let cmake decide)
-      C_COMPILER:       The C compiler (default: let cmale decide)
-      INST_PREFIX:      Where to install
-
-      BUILD_FLAGS:      arguments for the build system (e.g. make)
 
      - Debug stuff
       p  - Print parsed Config
-      S  - Do not parse config file
 
       NOTE: if you have already run this script and then disable tests and/or libs, you need to enable clean
 
     without any options the configuration is: $0 ltf
+
+    If you want to automaticaly build the project (on *nix systems) run
+    $ $0
+    $ $0 b
+     - OR -
+    $ $0 ltfb
 EOF
     echo -e "\x1b[?25h"
     exit
@@ -128,7 +117,7 @@ DO_GLEW=0
 DO_CLEAN=0
 DO_FORMAT=0
 DO_BUILD=0
-DO_ATOM_BUILD=0
+DO_CFG_BUILD=0
 SKIP_PARSING=0
 SKIP_SUB_M=0
 
@@ -178,13 +167,11 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
         c) DO_CLEAN=1     ; CMD_FLAGS="$CMD_FLAGS [CLEAN]";;
         f) DO_FORMAT=1    ; CMD_FLAGS="$CMD_FLAGS [FORMAT]";;
         b) DO_BUILD=1     ; CMD_FLAGS="$CMD_FLAGS -BUILD-";;
-        A) DO_ATOM_BUILD=1; CMD_FLAGS="$CMD_FLAGS [ATOM B]";;
+        B) DO_CFG_BUILD=1 ; CMD_FLAGS="$CMD_FLAGS -CFG build-";;
         q) ESC_CLEAR=""
            PB_NEWLINE=1   ; CMD_FLAGS="$CMD_FLAGS -quiet-";;
         Q) PB_ENABLE=0    ; CMD_FLAGS="$CMD_FLAGS -pb off-";;
         G) SKIP_SUB_M=1   ; CMD_FLAGS="$CMD_FLAGS -skip submodules-";;
-        S) SKIP_PARSING=1 ; CMD_FLAGS="$CMD_FLAGS -skip config-"
-           PB_COLLS=100   ; ;;
 
         p) PRINT_PARSED=1 ; CMD_FLAGS="$CMD_FLAGS -print parsed-";;
         *)
@@ -201,10 +188,8 @@ CMD_FLAGS="${CMD_FLAGS//]/\\x1b[35m]}"
 
 msg2 "$CMD_FLAGS"
 
-if (( SKIP_PARSING == 0 )); then
-   CONFIG_FILE="$(pwd)/$CONFIG_FILE"
-   parseCFG
-fi
+CONFIG_FILE="$(pwd)/$CONFIG_FILE"
+parseCFG
 
 
 if (( SKIP_SUB_M == 0 )); then
@@ -251,8 +236,8 @@ fi
 (( DO_TESTS      == 1 || DO_LIBS == 1 )) && rootCMake 1> "$(pwd)/$CMAKE_LISTS_NAME"
 (( DO_FORMAT     == 1 ))                 && reformatSource
 (( DO_CLOC       == 1 ))                 && countLines
+(( DO_CFG_BUILD  == 1 ))                 && configureBuild
 (( DO_BUILD      == 1 ))                 && buildProject
-(( DO_ATOM_BUILD == 1 ))                 && generateAtomBuild
 
 
 msg1 "DONE\x1b[?25h"

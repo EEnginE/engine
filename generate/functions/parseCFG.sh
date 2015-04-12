@@ -42,6 +42,7 @@ DEPS_DIR
 DEPS_DEFAULT
 DEBUG_DEF_FILE
 CLANG_FORMAT_VERSION
+BUILD_CFG_NAME
 
 EOF
 
@@ -101,6 +102,7 @@ parseCFG() {
             DEP_DEF)   DEPS_DEFAULT+=( "$TEMP" )    ;;
             DEBUG_F)   DEBUG_DEF_FILE="${TEMP}"     ;;
             CLANG_V)   CLANG_FORMAT_VERSION=$TEMP   ;;
+            BUILD_CFG) BUILD_CFG_NAME="$TEMP"       ;;
             *)
                 warning "Unknown option '$VARIABLE' with argumet(s) $TEMP"
                 ;;
@@ -135,6 +137,7 @@ printWhatParsed() {
     msg2 "Dependencies (default on):        ${DEPS_DEFAULT[*]}"
     msg2 "Debug define file:                ${DEBUG_DEF_FILE}"
     msg2 "Required clang-format version:    ${CLANG_FORMAT_VERSION}"
+    msg2 "Build config file name:           ${BUILD_CFG_NAME}"
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

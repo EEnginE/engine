@@ -16,22 +16,19 @@
 
 buildProject() {
    msg1 "Start building..."
-   local ENGINE_ROOT=$(pwd)
+   paresBuildCFG
 
-   if [ -z "$CMAKE_EXECUTABLE" ]; then
-      CMAKE_EXECUTABLE=$(which cmake)
-      if (( $? != 0 )); then
-         error "Unable to find cmake!"
-         exit 1
-      fi
+   local ENGINE_ROOT
+   ENGINE_ROOT="$(pwd)"
+
+   if [ ! -x "$CMAKE_EXECUTABLE" ]; then
+      error "Unable to find cmake!"
+      exit 1
    fi
 
-   if [ -z "$BUILD_COMMAND" ]; then
-      BUILD_COMMAND=$(which make)
-      if (( $? != 0 )); then
-         error "Unable to find default build command make!"
-         exit 1
-      fi
+   if [ ! -x "$BUILD_COMMAND" ]; then
+      error "Unable to find default build command make!"
+      exit 1
    fi
 
    # Testing the directory
@@ -49,6 +46,7 @@ buildProject() {
          exit 1
       fi
    else
+      msg2 "Creating $BUILD_DIR"
       mkdir $BUILD_DIR
    fi
 
@@ -71,17 +69,16 @@ buildProject() {
    fi
 
    if [ ! -f "$MAKEFILE_NAME" ]; then
-      if (( SKIP_CMAKE == 1 )); then
-         msg2 "Unable to find '$MAKEFILE_NAME' needed for $BUILD_COMMAND. Ignoring SKIP_CMAKE"
-      fi
       SKIP_CMAKE=0
+   else
+      SKIP_CMAKE=1
    fi
 
    local RET=0
 
-   if (( SKIP_CMAKE != 1 )); then
+   if (( SKIP_CMAKE != 1 || FORCE_CMAKE == 1 )); then
       msg2 "Running '$CMAKE_EXECUTABLE $CMAKE_FLAGS $ENGINE_ROOT'"
-      $CMAKE_EXECUTABLE "$CMAKE_FLAGS" "$ENGINE_ROOT"
+      $CMAKE_EXECUTABLE $CMAKE_FLAGS $ENGINE_ROOT
       RET=$?
    fi
 
@@ -90,8 +87,13 @@ buildProject() {
       exit $RET
    fi
 
+   if [ ! -f "$MAKEFILE_NAME" ]; then
+      error "Makefile '$MAKEFILE_NAME' not found"
+      exit 1
+   fi
+
    msg2 "Running '$BUILD_COMMAND $BUILD_FLAGS'"
-   $BUILD_COMMAND "$BUILD_FLAGS"
+   $BUILD_COMMAND $BUILD_FLAGS
 
    RET=$?
 
@@ -99,34 +101,4 @@ buildProject() {
       error "$BUILD_COMMAND failed!"
       exit $RET
    fi
-}
-
-
-
-
-generateAtomBuild() {
-   msg1 "Generating .atom-build.json"
-   cat << EOF > .atom-build.json
-{
-   "cmd": "./generate.sh",
-   "args": [ "qSbG" ],
-   "sh": true,
-   "cwd": "{PROJECT_PATH}",
-   "env": {
-      "CMAKE_EXECUTABLE": "$CMAKE_EXECUTABLE",
-      "BUILD_COMMAND":    "$BUILD_COMMAND",
-      "BUILD_DIR":        "$BUILD_DIR",
-      "MAKEFILE_NAME":    "$MAKEFILE_NAME",
-
-      "SKIP_CMAKE":       "$SKIP_CMAKE",
-      "CMAKE_GENERATOR":  "$CMAKE_GENERATOR",
-      "CMAKE_FLAGS":      "$CMAKE_FLAGS",
-      "CPP_COMPILER":     "$CPP_COMPILER",
-      "C_COMPILER":       "$C_COMPILER",
-      "INST_PREFIX":      "$INST_PREFIX",
-
-      "BUILD_FLAGS":      "$BUILD_FLAGS"
-   }
-}
-EOF
 }

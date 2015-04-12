@@ -51,6 +51,18 @@ warning() {
     echo -e "${ESC_CLEAR}\x1b[1;33m==> WARNING:\x1b[1;37m $*\x1b[0m"
 }
 
+ask() {
+    wait
+    echo -e  "${ESC_CLEAR}\x1b[1;35m==> \x1b[1;37m$1 \x1b[1;33m[\x1b[1;37m${2}\x1b[1;33m]\x1b[0m"
+    echo -en "${ESC_CLEAR}   \x1b[1;36m--\x1b[0m\x1b[?25h "
+    read "$3"
+    if [ -z "${!3}" ]; then
+      eval "${3}=\"$2\""
+      echo -en '\x1b[1A\x1b[2K' # Curser up and clear line
+      msg2 "Using default '$2'"
+   fi
+}
+
 PB_COLLS=$(tput cols)
 PAD0=$(printf '%0.1s' " "{1..1000} )
 PAD1=$(printf '%0.1s' "#"{1..1000} )
