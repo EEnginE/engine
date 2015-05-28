@@ -15,27 +15,29 @@
 # limitations under the License.
 
 doGlew() {
-    if (( $# != 1 )); then
-        error " doGlew needs 1 argument"
-        return
-    fi
+  case "$OPERATING_SYSTEM" in
+    Linux)   doGlewLinux   ;;
+    Windows) doGlewWindows ;;
+    *)       error "Building GLEW for '$OPERATING_SYSTEM' is not supported" ;;
+  esac
+}
 
-    cd dependencies/GLEW
+doGlewWindows() {
+  warning "doGlewWindows is a stub!"
+}
 
-    if [ -d lib -a ! "$1" -eq 1 ]; then
-        cd ../..
-        return
-    fi
+doGlewLinux() {
+  cd dependencies/GLEW
 
-    msg1 "Building GLEW"
+  msg1 "Building GLEW"
 
-    msg2 "Making extensions... this can take a while"
-    make extensions &> /dev/null
+  msg2 "Making extensions... this can take a while"
+  make extensions &> /dev/null
 
-    msg2 "Building... this can take a while"
-    make &> /dev/null
+  msg2 "Building... this can take a while"
+  make &> /dev/null
 
-    rm build/*.rc # Clean some build files
+  rm build/*.rc # Clean some build files
 
-    cd ../..
+  cd ../..
 }

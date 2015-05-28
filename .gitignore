@@ -4,6 +4,7 @@
 .kdev_include_paths
 /build*
 /Toolchain*.cmake
+/windowsSetup/
 
 oglTest.json
 
