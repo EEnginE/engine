@@ -20,10 +20,6 @@ addons:
          - libboost-system-dev
          - libboost-filesystem-dev
 
-install:
-   - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.6; export CC=clang-3.6; fi
-   - if [[ "$CXX" == "g++"     ]]; then export CXX=g++-5.1;     export CC=gcc-5.1;   fi
-
 script:
    - ./generate.sh qQltp
    - mkdir build
