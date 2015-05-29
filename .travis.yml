@@ -23,6 +23,8 @@ addons:
 install:
    - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.6; export CC=clang-3.6; fi
    - if [[ "$CXX" == "g++"     ]]; then export CXX=g++-5;       export CC=gcc-5;     fi
+   - CXX=/usr/bin/$CXX
+   - CC=/usr/bin/$CC
 
 script:
    - ./generate.sh qQltp
