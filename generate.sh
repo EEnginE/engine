@@ -78,7 +78,6 @@ cat << EOF
 
       +  - Turn everything on (but only gltCcf)
 
-      g  - Force recompile GLEW
       l  - Build libs
       t  - Build tests
       C  - count lines of code (needs cloc and bc)
@@ -128,7 +127,7 @@ WIN_UPDATE=0
 ARG_STRING=""
 
 # Load all functions in the generate dir
-for i in $(find "${PWD}/generate/functions" -name '*.sh' -type f -print); do
+for i in generate/functions/*.sh; do
   source "$i"
 done
 
@@ -164,7 +163,6 @@ for (( i=0; i<${#ARG_STRING}; ++i )); do
       DO_CLEAN=1
       DO_FORMAT=1
       ;;
-    g) DO_GLEW=1      ; CMD_FLAGS="$CMD_FLAGS [GLEW]";;
     l) DO_LIBS=1      ; CMD_FLAGS="$CMD_FLAGS [LIBS]";;
     t) DO_TESTS=1     ; CMD_FLAGS="$CMD_FLAGS [TESTS]";;
     C) DO_CLOC=1      ; CMD_FLAGS="$CMD_FLAGS [COUNT]";;
@@ -217,14 +215,13 @@ if (( SKIP_SUB_M == 0 )); then
     "${GIT_EXEC}" submodule update --recursive        &> /dev/null
 
     processBar 5 5 "Running make deps"
-
-    makeDeps > "$DEPS_MAIN_DIR/$CMAKE_LISTS_NAME"
   fi
 fi
 
+makeDeps > "$DEPS_MAIN_DIR/$CMAKE_LISTS_NAME"
+
 (( PRINT_PARSED == 1 )) && printWhatParsed
 (( DO_CLEAN     == 1 )) && clean
-(( DO_GLEW      == 1 )) && doGlew
 
 
 if (( DO_LIBS == 1 )); then

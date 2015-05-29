@@ -111,14 +111,9 @@ Using Mingw or Clang may also work.
 
 ## GLEW
 
--   `-DGLEW_USE_DEFAULT=<0/1>`
+-   `-DUSE_SYSTEM_GLEW=<0/1>`
 
-    Use system GLEW:
-      - 0: disabled - default
-      - 1: enabled
-
-
--   `-DGLEW_ROOT=/path/to/GLEW`
+    Use the system GLEW version or build GLEW with the engine
 
 ## BOOST
 
@@ -150,7 +145,7 @@ and
 ### CMake can not find GLEW
 
 Try to set:
--    `-DGLEW_ROOT=/path/to/GLEW`
+-    `-DUSE_SYSTEM_GLEW=OFF -DBUILD_GLEW=ON`
 
 ### I crosscompiled the project on Linux and want to test the result with WINE but WINE crashes immediately.
 
