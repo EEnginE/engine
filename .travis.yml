@@ -18,8 +18,7 @@ addons:
          - gcc-5
          - clang-3.6
          - clang-format-3.6
-         - libboost-system-dev
-         - libboost-filesystem-dev
+         - libboost-filesystem1.55-dev
 
 install:
    - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.6; export CC=clang-3.6; fi
