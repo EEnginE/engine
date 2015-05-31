@@ -4,6 +4,7 @@ set DLOAD_SCRIPT=download.vbs
 set SETUP=cygwinSetup.exe
 set SETUP_DIR=windowsSetup
 set CYGWIN_PACKAGES=wget,curl,ncurses
+set CYGWIN_CATEGORIES=Base
 set MIRROR=http://cygwin.mirrors.pair.com
 
 set START_PATH=%CD%
@@ -98,7 +99,7 @@ GOTO:EOF
 :INSTALL
 IF EXIST "%CD%\%SETUP%" (
   echo   Installing Cygwin. Please wait...
-  %SETUP% -P %CYGWIN_PACKAGES% -s %MIRROR% -l %CD% -q
+  %SETUP% -P %CYGWIN_PACKAGES% -C %CYGWIN_CATEGORIES% -s %MIRROR% -l %CD% -q
 ) ELSE (
   echo   ERROR Downloading %LINK% FAILED!!
   GOTO:EOF
