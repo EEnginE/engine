@@ -3,7 +3,7 @@
 set DLOAD_SCRIPT=download.vbs
 set SETUP=cygwinSetup.exe
 set SETUP_DIR=windowsSetup
-set CYGWIN_PACKAGES=wget,curl,ncurses
+set CYGWIN_PACKAGES=wget,curl,ncurses,make
 set CYGWIN_CATEGORIES=Base
 set MIRROR=http://cygwin.mirrors.pair.com
 

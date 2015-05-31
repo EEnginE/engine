@@ -14,10 +14,22 @@
 #find -L "$(pwd)/o3dgc" -name "CMakeLists.txt" -exec sed -i 's/^set(CMAKE_INSTALL_P/# set(CMAKE_INSTALL_P/g' "{}" \;
 
 dependency_GLEW() {
+   if [ ! -d GLEW ]; then
+      error "Directory GLEW does NOT exist!"
+      return
+   fi
+
+   if [ -z "$(ls -A GLEW)" ]; then
+      warning "Directory GLEW is empty. Please init and update the submodules"
+      return
+   fi
+
    cd GLEW
    msg2 "Generating GLEW extensions. This can take a while"
 
-   make extensions &> make_extensions.log
+   export GIT_CLONE="\"${GIT_EXEC}\" clone --branch glew https://github.com/nigels-com/glfixes.git"
+
+   make extensions &> ../make_extensions.log
 
    (( $? != 0 )) && warning "An error occured while running 'make extensions' in $PWD"
 }

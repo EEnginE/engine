@@ -11,6 +11,7 @@ detectOsAndSetup() {
     echo "$OS" | grep -i "$i" &> /dev/null
     if (( $? == 0 )); then
       OPERATING_SYSTEM="Windows"
+      msg1 "Detected Operating System is '$OPERATING_SYSTEM'"
       setupWindows
       return
     fi
@@ -20,6 +21,7 @@ detectOsAndSetup() {
     echo "$OS" | grep -i "$i" &> /dev/null
     if (( $? == 0 )); then
       OPERATING_SYSTEM="Linux"
+      msg1 "Detected Operating System is '$OPERATING_SYSTEM'"
       setupLinux
       return
     fi
@@ -46,9 +48,9 @@ findGit() {
   local i GITP
 
   for i in "${GIT_PATHS[@]}"; do
-    [ ! -f "$i\\git.exe" ] && continue
+    [ ! -f "$i/git.exe" ] && continue
 
-    GIT_EXEC="$i\\git.exe"
+    GIT_EXEC="$i/git.exe"
     GITP="$i"
     break
   done
@@ -87,8 +89,6 @@ findCMake() {
 }
 
 setupWindows() {
-  msg1 "Detected Operatin System is '$OPERATING_SYSTEM'"
-
   findGit
   findCMake
 
@@ -160,9 +160,9 @@ updateGit() {
   cd "$WINDOWS_SETUP_DIR"
   local SETUPEXE="gitBash.exe"
 
-  #[ -e "$SETUPEXE" ] && rm "$SETUPEXE"
+  [ -e "$SETUPEXE" ] && rm "$SETUPEXE"
 
-  #wget "$1" -O "$SETUPEXE"
+  wget "$1" -O "$SETUPEXE"
   chmod +x "$SETUPEXE"
 
   if [ ! -f "$SETUPEXE" ]; then
@@ -191,9 +191,9 @@ updateCMake() {
   cd "$WINDOWS_SETUP_DIR"
   local SETUPEXE="cmake.exe"
 
-  #[ -e "$SETUPEXE" ] && rm "$SETUPEXE"
+  [ -e "$SETUPEXE" ] && rm "$SETUPEXE"
 
-  #wget "$1" -O "$SETUPEXE"
+  wget "$1" -O "$SETUPEXE"
   chmod +x "$SETUPEXE"
 
   if [ ! -f "$SETUPEXE" ]; then
