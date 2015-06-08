@@ -46,8 +46,9 @@ class iKeyboard : public iKeyboardBasic {
     * \param _display   The connection to the X-Server
     * \return The key in wchar
     */
-   wchar_t
-   processX11KeyInput( XKeyPressedEvent _kEv, short unsigned int _key_state, Display *_display );
+   wchar_t processX11KeyInput( XKeyPressedEvent _kEv,
+                               short unsigned int _key_state,
+                               Display *_display );
 
 
  public:

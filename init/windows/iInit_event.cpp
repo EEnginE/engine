@@ -115,7 +115,7 @@ int iInit::eventLoop() {
 namespace windows_win32 {
 
 LRESULT CALLBACK
-      iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    if ( _uMsg == WM_NCCREATE ) {
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
@@ -147,7 +147,7 @@ LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
 }
 
 LRESULT CALLBACK
-      iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo _tempInfo ) {
+iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo _tempInfo ) {
    unsigned int key_state = E_PRESSED;
 
 
@@ -212,8 +212,7 @@ LRESULT CALLBACK
          return 0;
 
 
-      case WM_LBUTTONUP:
-         key_state = E_RELEASED;
+      case WM_LBUTTONUP: key_state = E_RELEASED;
       case WM_LBUTTONDOWN:
          _tempInfo.type = E_EVENT_KEY;
          _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
@@ -223,8 +222,7 @@ LRESULT CALLBACK
          vMouse_SIG.send( _tempInfo );
          return 0;
 
-      case WM_MBUTTONUP:
-         key_state = E_RELEASED;
+      case WM_MBUTTONUP: key_state = E_RELEASED;
       case WM_MBUTTONDOWN:
          _tempInfo.type = E_EVENT_KEY;
          _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
@@ -234,8 +232,7 @@ LRESULT CALLBACK
          vMouse_SIG.send( _tempInfo );
          return 0;
 
-      case WM_RBUTTONUP:
-         key_state = E_RELEASED;
+      case WM_RBUTTONUP: key_state = E_RELEASED;
       case WM_RBUTTONDOWN:
          _tempInfo.type = E_EVENT_KEY;
          _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
@@ -245,20 +242,15 @@ LRESULT CALLBACK
          vMouse_SIG.send( _tempInfo );
          return 0;
 
-      case WM_XBUTTONUP:
-         key_state = E_RELEASED;
+      case WM_XBUTTONUP: key_state = E_RELEASED;
       case WM_XBUTTONDOWN:
          _tempInfo.type = E_EVENT_KEY;
          _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
          _tempInfo.iMouse.posY = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state = key_state;
          switch ( _wParam >> 16 ) {
-            case XBUTTON1:
-               _tempInfo.iMouse.button = E_MOUSE_1;
-               break;
-            case XBUTTON2:
-               _tempInfo.iMouse.button = E_MOUSE_2;
-               break;
+            case XBUTTON1: _tempInfo.iMouse.button = E_MOUSE_1; break;
+            case XBUTTON2: _tempInfo.iMouse.button = E_MOUSE_2; break;
             default:
                iLOG( "Found unhandled X-Button" );
                _tempInfo.iMouse.button = E_MOUSE_UNKNOWN;
@@ -301,8 +293,7 @@ LRESULT CALLBACK
             return TRUE;
          }
          return FALSE;
-      case WM_KEYUP:
-         key_state = E_RELEASED;
+      case WM_KEYUP: key_state = E_RELEASED;
       case WM_KEYDOWN:
          _tempInfo.type = E_EVENT_KEY;
          _tempInfo.eKey.state = key_state;
@@ -322,8 +313,7 @@ LRESULT CALLBACK
          iLOG( "Window Destroyed WM_NCDESTROY" );
          vWindowsNCDestrox_B = true;
          break;
-      default:
-         break;
+      default: break;
    }
 
    return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );

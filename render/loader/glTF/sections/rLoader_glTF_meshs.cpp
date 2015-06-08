@@ -87,8 +87,7 @@ bool rLoader_glTF::sectionMeshsPrimitives( size_t _id ) {
                   return unexpectedCharError();
                }
                break;
-            default:
-               return wrongKeyWordError();
+            default: return wrongKeyWordError();
          }
 
          if ( expect( ',', true, true ) )
@@ -152,8 +151,7 @@ bool rLoader_glTF::sectionMeshs() {
                   return false;
 
                break;
-            default:
-               return wrongKeyWordError();
+            default: return wrongKeyWordError();
          }
 
          if ( expect( ',', true, true ) )

@@ -33,18 +33,10 @@ bool uSHA_2::test( HASH_FUNCTION _type, const std::string &_message, const std::
    std::string lName_str, lRes1_str;
 
    switch ( _type ) {
-      case SHA2_224:
-         lName_str = "SHA2-224";
-         break;
-      case SHA2_256:
-         lName_str = "SHA2-256";
-         break;
-      case SHA2_384:
-         lName_str = "SHA2-384";
-         break;
-      case SHA2_512:
-         lName_str = "SHA2-512";
-         break;
+      case SHA2_224: lName_str = "SHA2-224"; break;
+      case SHA2_256: lName_str = "SHA2-256"; break;
+      case SHA2_384: lName_str = "SHA2-384"; break;
+      case SHA2_512: lName_str = "SHA2-512"; break;
    }
 
    for ( unsigned char const &c : lRes1_V_uC ) {

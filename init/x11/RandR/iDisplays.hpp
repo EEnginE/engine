@@ -61,8 +61,8 @@ class iDisplays final : public iDisplayBasic {
    iDisplays() {}
 
    void addClone( RROutput _clone );
-   void
-   addMode( RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate );
+   void addMode(
+         RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate );
 
    std::vector<RROutput> getClones() const { return vClones_V_XRR; }
    RRMode getMode() const { return vModeToUse_XRR; }

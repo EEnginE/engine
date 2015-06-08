@@ -84,24 +84,21 @@ bool rLoader_glTF::interprete() {
 #endif
 
          switch ( j.primitive ) {
-            case P_POINTS:
-               lObject.vType = POINTS_3D;
+            case P_POINTS: lObject.vType = POINTS_3D;
 #if D_LOG_GLTF
                dLOG( "     - Type: POINTS_3D" );
 #endif
                break;
             case P_LINES:
             case P_LINE_LOOP:
-            case P_LINE_STRIP:
-               lObject.vType = LINES_3D;
+            case P_LINE_STRIP: lObject.vType = LINES_3D;
 #if D_LOG_GLTF
                dLOG( "     - Type: LINES_3D" );
 #endif
                break;
             case P_TRIANGLES:
             case P_TRIANGLE_STRIP:
-            case P_TRIANGLE_FAN:
-               lObject.vType = MESH_3D;
+            case P_TRIANGLE_FAN: lObject.vType = MESH_3D;
 #if D_LOG_GLTF
                dLOG( "     - Type: MESH_3D" );
 #endif
@@ -137,21 +134,17 @@ bool rLoader_glTF::interprete() {
             typedef internal::_3D_Engine<float, unsigned short> lDATA;
 
             switch ( k.type ) {
-               case TP_POSITION:
-                  lObject2.vType = lDATA::POSITION;
+               case TP_POSITION: lObject2.vType = lDATA::POSITION;
 #if D_LOG_GLTF
                   dLOG( "     - New accessor: POSITION" );
 #endif
                   break;
-               case TP_NORMAL:
-                  lObject2.vType = lDATA::NORMAL;
+               case TP_NORMAL: lObject2.vType = lDATA::NORMAL;
 #if D_LOG_GLTF
                   dLOG( "     - New accessor: NORMAL" );
 #endif
                   break;
-               default:
-                  eLOG( "Unsupported type! [", i.userDefName, "]" );
-                  return false;
+               default: eLOG( "Unsupported type! [", i.userDefName, "]" ); return false;
             }
 
 #if D_LOG_GLTF
@@ -250,9 +243,7 @@ bool rLoader_glTF::interprete() {
 
             break;
          }
-         default:
-            eLOG( "Invalid buffer view target" );
-            return false;
+         default: eLOG( "Invalid buffer view target" ); return false;
       }
    }
 

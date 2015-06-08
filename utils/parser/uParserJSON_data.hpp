@@ -169,23 +169,14 @@ void uJSON_data::_( uJSON_data *_first,
       const void *lData = static_cast<const void *>( &_setData );
 
       switch ( _type ) {
-         case JSON_STRING:
-            value_str = *static_cast<const std::string *>( lData );
-            break;
-         case JSON_NUMBER:
-            value_num = *static_cast<const double *>( lData );
-            break;
-         case JSON_BOOL:
-            value_bool = *static_cast<const bool *>( lData );
-            break;
+         case JSON_STRING: value_str = *static_cast<const std::string *>( lData ); break;
+         case JSON_NUMBER: value_num = *static_cast<const double *>( lData ); break;
+         case JSON_BOOL: value_bool = *static_cast<const bool *>( lData ); break;
          case JSON_ARRAY:
-         case JSON_OBJECT:
-            value_obj = *static_cast<const VALUES *>( lData );
-            break;
+         case JSON_OBJECT: value_obj = *static_cast<const VALUES *>( lData ); break;
          case JSON_NULL:
          case __JSON_FAIL__:
-         case __JSON_NOT_SET__:
-            break;
+         case __JSON_NOT_SET__: break;
       }
       return _first->_( _first, _args... );
    }
@@ -193,23 +184,14 @@ void uJSON_data::_( uJSON_data *_first,
    void *lData = nullptr;
 
    switch ( _type ) {
-      case JSON_STRING:
-         lData = static_cast<void *>( &value_str );
-         break;
-      case JSON_NUMBER:
-         lData = static_cast<void *>( &value_num );
-         break;
-      case JSON_BOOL:
-         lData = static_cast<void *>( &value_bool );
-         break;
+      case JSON_STRING: lData = static_cast<void *>( &value_str ); break;
+      case JSON_NUMBER: lData = static_cast<void *>( &value_num ); break;
+      case JSON_BOOL: lData = static_cast<void *>( &value_bool ); break;
       case JSON_ARRAY:
-      case JSON_OBJECT:
-         lData = static_cast<void *>( &value_obj );
-         break;
+      case JSON_OBJECT: lData = static_cast<void *>( &value_obj ); break;
       case JSON_NULL:
       case __JSON_FAIL__:
-      case __JSON_NOT_SET__:
-         lData = nullptr;
+      case __JSON_NOT_SET__: lData = nullptr;
    }
 
    if ( lData )

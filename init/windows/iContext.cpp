@@ -232,8 +232,7 @@ bool iContext::isAContextCurrentForThisThread() {
  * \param _posY   The new Y coordinate
  * \returns The return value of \c SetWindowPos
  */
-int
-iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
+int iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
    GlobConf.win.width = _width;
    GlobConf.win.height = _height;
    GlobConf.win.posX = _posX;
@@ -291,47 +290,25 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
    std::string lState1_str = "NOTHING", lState2_str = "NOTHING";
    bool lState1Supported_B = false, lState2Supported_B = false;
 
+   // clang-format off
    switch ( _type1 ) {
-      case MODAL:
-         lState1_str = "MODAL";
-         break;
-      case STICKY:
-         lState1_str = "STICKY";
-         break;
-      case SHADED:
-         lState1_str = "SHADED";
-         break;
-      case SKIP_TASKBAR:
-         lState1_str = "SKIP_TASKBAR";
-         break;
-      case SKIP_PAGER:
-         lState1_str = "SKIP_PAGER";
-         break;
-      default:
-         lState1Supported_B = true;
-         break;
+      case MODAL:        lState1_str        = "MODAL";        break;
+      case STICKY:       lState1_str        = "STICKY";       break;
+      case SHADED:       lState1_str        = "SHADED";       break;
+      case SKIP_TASKBAR: lState1_str        = "SKIP_TASKBAR"; break;
+      case SKIP_PAGER:   lState1_str        = "SKIP_PAGER";   break;
+      default:           lState1Supported_B = true;           break;
    }
 
    switch ( _type2 ) {
-      case MODAL:
-         lState2_str = "MODAL";
-         break;
-      case STICKY:
-         lState2_str = "STICKY";
-         break;
-      case SHADED:
-         lState2_str = "SHADED";
-         break;
-      case SKIP_TASKBAR:
-         lState2_str = "SKIP_TASKBAR";
-         break;
-      case SKIP_PAGER:
-         lState2_str = "SKIP_PAGER";
-         break;
-      default:
-         lState2Supported_B = true;
-         break;
+      case MODAL:        lState2_str        = "MODAL";        break;
+      case STICKY:       lState2_str        = "STICKY";       break;
+      case SHADED:       lState2_str        = "SHADED";       break;
+      case SKIP_TASKBAR: lState2_str        = "SKIP_TASKBAR"; break;
+      case SKIP_PAGER:   lState2_str        = "SKIP_PAGER";   break;
+      default:           lState2Supported_B = true;           break;
    }
+   // clang-format on
 
    if ( !lState1Supported_B ) {
       wLOG( "Window attribute ",
@@ -352,17 +329,10 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
    }
 
    switch ( _action ) {
-      case C_REMOVE:
-         lMode_STR = "Removed";
-         break;
-      case C_ADD:
-         lMode_STR = "Enabled";
-         break;
-      case C_TOGGLE:
-         lMode_STR = "Toggled";
-         break;
-      default:
-         return -1;
+      case C_REMOVE: lMode_STR = "Removed"; break;
+      case C_ADD: lMode_STR = "Enabled"; break;
+      case C_TOGGLE: lMode_STR = "Toggled"; break;
+      default: return -1;
    }
 
    HWND lDesktopHWND_win32 = GetDesktopWindow();
@@ -386,8 +356,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
             setWindowState( 0, HWND_BOTTOM );
             lState1_str = "BELOW";
             break;
-         case DEMANDS_ATTENTION:
-            lState1_str = "DEMANDS_ATTENTION";
+         case DEMANDS_ATTENTION: lState1_str = "DEMANDS_ATTENTION";
          case FOCUSED:
             ShowWindow( vHWND_Window_win32, SW_SHOW );
             SetForegroundWindow( vHWND_Window_win32 );
@@ -411,8 +380,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
                                 GlobConf.win.posY );
             lState1_str = "MAXIMIZED_HORZ";
             break;
-         default:
-            return false;
+         default: return false;
       }
    }
 
@@ -437,8 +405,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
             setWindowState( 0, HWND_BOTTOM );
             lState2_str = "BELOW";
             break;
-         case DEMANDS_ATTENTION:
-            lState2_str = "DEMANDS_ATTENTION";
+         case DEMANDS_ATTENTION: lState2_str = "DEMANDS_ATTENTION";
          case FOCUSED:
             ShowWindow( vHWND_Window_win32, SW_SHOW );
             SetForegroundWindow( vHWND_Window_win32 );
@@ -462,8 +429,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
                                 GlobConf.win.posY );
             lState2_str = "MAXIMIZED_HORZ";
             break;
-         default:
-            return false;
+         default: return false;
       }
    }
 
@@ -477,16 +443,9 @@ bool iContext::setDecoration( ACTION _action ) {
    bool lGlobConfOld_B = GlobConf.win.windowDecoration;
 
    switch ( _action ) {
-      case C_ADD:
-         GlobConf.win.windowDecoration = true;
-         break;
-      case C_REMOVE:
-         GlobConf.win.windowDecoration = false;
-         break;
-
-      case C_TOGGLE:
-         GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration;
-         break;
+      case C_ADD: GlobConf.win.windowDecoration = true; break;
+      case C_REMOVE: GlobConf.win.windowDecoration = false; break;
+      case C_TOGGLE: GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration; break;
 
       default:
          eLOG( "This message is theoretically totally impossible! [bool iContext::setDecoration( "
@@ -514,16 +473,9 @@ int iContext::fullScreen( ACTION _action, bool ) {
    bool lGlobConfOld_B = GlobConf.win.fullscreen;
 
    switch ( _action ) {
-      case C_ADD:
-         GlobConf.win.fullscreen = true;
-         break;
-      case C_REMOVE:
-         GlobConf.win.fullscreen = false;
-         break;
-
-      case C_TOGGLE:
-         GlobConf.win.fullscreen = !GlobConf.win.fullscreen;
-         break;
+      case C_ADD: GlobConf.win.fullscreen = true; break;
+      case C_REMOVE: GlobConf.win.fullscreen = false; break;
+      case C_TOGGLE: GlobConf.win.fullscreen = !GlobConf.win.fullscreen; break;
 
       default:
          eLOG( "This message is theoretically totally impossible! [bool iContext::setDecoration( "

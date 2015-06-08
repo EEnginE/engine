@@ -71,8 +71,7 @@ bool rLoader_glTF::sectionBufferViews() {
                   return false;
 
                break;
-            default:
-               return wrongKeyWordError();
+            default: return wrongKeyWordError();
          }
 
          if ( expect( ',', true, true ) )

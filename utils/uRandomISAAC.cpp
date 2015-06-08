@@ -184,18 +184,10 @@ uint32_t uRandomISAAC::get() {
 
    x = mm[step];
    switch ( step % 4 ) {
-      case 0:
-         aa = aa ^ ( aa << 13 );
-         break;
-      case 1:
-         aa = aa ^ ( aa >> 6 );
-         break;
-      case 2:
-         aa = aa ^ ( aa << 2 );
-         break;
-      case 3:
-         aa = aa ^ ( aa >> 16 );
-         break;
+      case 0: aa = aa ^ ( aa << 13 ); break;
+      case 1: aa = aa ^ ( aa >> 6 ); break;
+      case 2: aa = aa ^ ( aa << 2 ); break;
+      case 3: aa = aa ^ ( aa >> 16 ); break;
    }
    aa = mm[( step + 128 ) % 256] + aa;
    mm[step] = y = mm[( x >> 2 ) % 256] + aa + bb;

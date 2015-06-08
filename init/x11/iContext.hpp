@@ -135,8 +135,8 @@ class iContext : public iRandR, public iKeyboard {
    bool vIsMouseGrabbed_B;
    bool vIsCursorHidden_B;
 
-   bool
-   isExtensionSupported( const char *_extension ); //!< Function checking if extension is supported
+   bool isExtensionSupported(
+         const char *_extension ); //!< Function checking if extension is supported
 
    //! \todo create a function for setting an icon
 

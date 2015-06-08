@@ -141,17 +141,13 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
    }
 
    switch ( _action ) {
-      case DOWN:
-         lSpeed *= -1;
-         FALLTHROUGH
+      case DOWN: lSpeed *= -1; FALLTHROUGH
       case UP:
          lTempVector = lSpeed * vUp;
          vPosition += lTempVector;
          break;
 
-      case LEFT:
-         lSpeed *= -1;
-         FALLTHROUGH
+      case LEFT: lSpeed *= -1; FALLTHROUGH
       case RIGHT:
          lTempVector = rVectorMath::crossProduct( vDirection, vUp );
          lTempVector.normalize();
@@ -159,16 +155,13 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
          vPosition += lTempVector;
          break;
 
-      case BACKWARD:
-         lSpeed *= -1;
-         FALLTHROUGH
+      case BACKWARD: lSpeed *= -1; FALLTHROUGH
       case FORWARD:
          lTempVector = lSpeed * vDirection;
          vPosition += lTempVector;
          break;
 
-      case __LAST__:
-         return;
+      case __LAST__: return;
    }
 
    updateCamera();

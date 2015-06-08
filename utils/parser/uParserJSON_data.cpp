@@ -84,9 +84,7 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
                         lValueStr = "{...}; Elements: " + std::to_string( iter->value_obj.size() );
                         break;
                      case __JSON_FAIL__:
-                     case __JSON_NOT_SET__:
-                        lTypeStr = "UNKNOWN";
-                        lValueStr = "UNKNOWN";
+                     case __JSON_NOT_SET__: lTypeStr = "UNKNOWN"; lValueStr = "UNKNOWN";
                   }
                   wLOG( "JSON: found duplicate ID '",
                         _patent_IDs + ( id.empty() ? "" : ( id + "." ) ) + iter->id,

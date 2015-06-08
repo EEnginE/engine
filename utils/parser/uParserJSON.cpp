@@ -175,15 +175,10 @@ bool uParserJSON::load_IMPL() {
 
    while ( vIter != vEnd ) {
       switch ( *vIter ) {
-         case '\n':
-            vCurrentLine++;
-            FALLTHROUGH;
+         case '\n': vCurrentLine++; FALLTHROUGH;
          case '\t':
-         case ' ':
-            ++vIter;
-            break;
-         default:
-            return unexpectedCharError();
+         case ' ': ++vIter; break;
+         default: return unexpectedCharError();
       }
    }
 
@@ -252,15 +247,9 @@ void uParserJSON::writeValue( const uJSON_data &_data,
          prepareString( _data.value_str, lTemp_str );
          _worker += "\"" + lTemp_str + "\"";
          break;
-      case JSON_NUMBER:
-         _worker += std::to_string( _data.value_num );
-         break;
-      case JSON_BOOL:
-         _worker += ( _data.value_bool ? "true" : "false" );
-         break;
-      case JSON_NULL:
-         _worker += "null";
-         break;
+      case JSON_NUMBER: _worker += std::to_string( _data.value_num ); break;
+      case JSON_BOOL: _worker += ( _data.value_bool ? "true" : "false" ); break;
+      case JSON_NULL: _worker += "null"; break;
       case JSON_ARRAY:
          _worker += "[\n";
          for ( i = 0; i < _data.value_obj.size(); ++i ) {

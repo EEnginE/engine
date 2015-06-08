@@ -99,8 +99,8 @@ class rShader {
 
    unsigned int testProgram();
    void getProgramInfo();
-   std::string
-   processData( GLenum _type, GLuint _index, GLsizei _arraySize, GLenum *_in, GLint *_out );
+   std::string processData(
+         GLenum _type, GLuint _index, GLsizei _arraySize, GLenum *_in, GLint *_out );
 
    void getInfoOld();
    void getInfoNew();

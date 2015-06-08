@@ -32,8 +32,7 @@ class uParserJSON final : public internal::uParserHelper {
 
    uJSON_data vData;
 
-   void
-   writeValue( uJSON_data const &_data, std::string &_worker, std::string _level, bool _array );
+   void writeValue( uJSON_data const &_data, std::string &_worker, std::string _level, bool _array );
    void prepareString( std::string const &_in, std::string &_out );
 
    bool parseObject( e_engine::uJSON_data &lCurrentObject );

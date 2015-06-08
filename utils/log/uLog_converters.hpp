@@ -91,13 +91,13 @@ struct uLogConverter<std::string> {
 
 // C strings (wchar_t)
 template <unsigned int I>
-struct uLogConverter<wchar_t ( & )[I]> {
+struct uLogConverter<wchar_t( & )[I]> {
    static void convert( std::wstring &_str, wchar_t *_t ) { _str.append( _t ); }
 };
 
 
 template <unsigned int I>
-struct uLogConverter<const wchar_t ( & )[I]> {
+struct uLogConverter<const wchar_t( & )[I]> {
    static void convert( std::wstring &_str, const wchar_t *_t ) { _str.append( _t ); }
 };
 
@@ -125,7 +125,7 @@ struct uLogConverter<wchar_t *&> {
 
 // C strings (char)
 template <unsigned int I>
-struct uLogConverter<char ( & )[I]> {
+struct uLogConverter<char( & )[I]> {
    static void convert( std::wstring &_str, char *_t ) {
       for ( uint32_t i = 0; i < I - 1;
             ++i ) // -1 because I is the size of the c string including the '\0'
@@ -135,7 +135,7 @@ struct uLogConverter<char ( & )[I]> {
 
 
 template <unsigned int I>
-struct uLogConverter<const char ( & )[I]> {
+struct uLogConverter<const char( & )[I]> {
    static void convert( std::wstring &_str, const char *_t ) {
       for ( uint32_t i = 0; i < I - 1;
             ++i ) // -1 because I is the size of the c string including the '\0'

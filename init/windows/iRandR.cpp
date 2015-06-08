@@ -307,9 +307,7 @@ bool iRandR::applyNewRandRSettings() {
                   "yout PC because you have Windows)" );
             break;
 
-         default:
-            eLOG( "ChangeDisplaySettingsEx returned a unknown error [set]" );
-            break;
+         default: eLOG( "ChangeDisplaySettingsEx returned a unknown error [set]" ); break;
       }
    }
 
@@ -349,9 +347,7 @@ bool iRandR::applyNewRandRSettings() {
                "yout PC because you have Windows)" );
          break;
 
-      default:
-         eLOG( "ChangeDisplaySettingsEx returned a unknown error [apply]" );
-         break;
+      default: eLOG( "ChangeDisplaySettingsEx returned a unknown error [apply]" ); break;
    }
 
    vDisplaysToChange_eD.clear();

@@ -39,9 +39,7 @@ void myWorld::key( iEventInfo const &info ) {
          case E_KEY_F8:
             info.iInitPointer->setAttribute( C_TOGGLE, MAXIMIZED_VERT, MAXIMIZED_HORZ );
             break;
-         case E_KEY_F9:
-            info.iInitPointer->fullScreenMultiMonitor();
-            break;
+         case E_KEY_F9: info.iInitPointer->fullScreenMultiMonitor(); break;
          case E_KEY_F11:
             info.iInitPointer->fullScreen( e_engine::C_TOGGLE );
             info.iInitPointer->restartIfNeeded( true );
@@ -56,15 +54,9 @@ void myWorld::key( iEventInfo const &info ) {
             break;
 
          // Mouse control
-         case L'g':
-            info.iInitPointer->grabMouse();
-            break;
-         case L'G':
-            info.iInitPointer->freeMouse();
-            break;
-         case L'c':
-            info.iInitPointer->hideMouseCursor();
-            break;
+         case L'g': info.iInitPointer->grabMouse(); break;
+         case L'G': info.iInitPointer->freeMouse(); break;
+         case L'c': info.iInitPointer->hideMouseCursor(); break;
          case L'C':
             info.iInitPointer->showMouseCursor();
             break;
@@ -106,9 +98,7 @@ void myWorld::key( iEventInfo const &info ) {
 
          // Quit
          case L'Q':
-         case E_KEY_ESCAPE:
-            info.iInitPointer->quitMainLoop();
-            break;
+         case E_KEY_ESCAPE: info.iInitPointer->quitMainLoop(); break;
       }
    }
 }

@@ -218,8 +218,7 @@ int iContext::createContext() {
  * \param _posY   The new Y coordinate
  * \returns The return value of \c XConfigureWindow
  */
-int
-iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
+int iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
    if ( !vHaveGLEW_B )
       return 0;
 
@@ -393,15 +392,9 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
    }
 
    switch ( _action ) {
-      case C_ADD:
-         GlobConf.win.windowDecoration = true;
-         break;
-      case C_REMOVE:
-         GlobConf.win.windowDecoration = false;
-         break;
-      case C_TOGGLE:
-         GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration;
-         break;
+      case C_ADD: GlobConf.win.windowDecoration = true; break;
+      case C_REMOVE: GlobConf.win.windowDecoration = false; break;
+      case C_TOGGLE: GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration; break;
    }
 
    iLOG( "Successfully ",
@@ -469,60 +462,30 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
    std::string lState1_str = "NOTHING", lState2_str = "NOTHING";
 
    switch ( _action ) {
-      case C_REMOVE:
-         lMode_STR = "Removing";
-         break;
-      case C_ADD:
-         lMode_STR = "Enabling";
-         break;
-      case C_TOGGLE:
-         lMode_STR = "Toggling";
-         break;
+      case C_REMOVE: lMode_STR = "Removing"; break;
+      case C_ADD: lMode_STR = "Enabling"; break;
+      case C_TOGGLE: lMode_STR = "Toggling"; break;
    }
+
 
    if ( _type1 != NONE ) {
       switch ( _type1 ) {
-         case MODAL:
-            lState1_str = "_NET_WM_STATE_MODAL";
-            break;
-         case STICKY:
-            lState1_str = "_NET_WM_STATE_STICKY";
-            break;
-         case MAXIMIZED_VERT:
-            lState1_str = "_NET_WM_STATE_MAXIMIZED_VERT";
-            break;
-         case MAXIMIZED_HORZ:
-            lState1_str = "_NET_WM_STATE_MAXIMIZED_HORZ";
-            break;
-         case SHADED:
-            lState1_str = "_NET_WM_STATE_SHADED";
-            break;
-         case SKIP_TASKBAR:
-            lState1_str = "_NET_WM_STATE_SKIP_TASKBAR";
-            break;
-         case SKIP_PAGER:
-            lState1_str = "_NET_WM_STATE_SKIP_PAGER";
-            break;
-         case HIDDEN:
-            lState1_str = "_NET_WM_STATE_HIDDEN";
-            break;
-         case FULLSCREEN:
-            lState1_str = "_NET_WM_STATE_FULLSCREEN";
-            break;
-         case ABOVE:
-            lState1_str = "_NET_WM_STATE_ABOVE";
-            break;
-         case BELOW:
-            lState1_str = "_NET_WM_STATE_BELOW";
-            break;
-         case DEMANDS_ATTENTION:
-            lState1_str = "_NET_WM_STATE_DEMANDS_ATTENTION";
-            break;
-         case FOCUSED:
-            lState1_str = "_NET_WM_STATE_FOCUSED";
-            break;
-         case NONE:
-            return false;
+         // clang-format off
+         case MODAL:             lState1_str = "_NET_WM_STATE_MODAL"; break;
+         case STICKY:            lState1_str = "_NET_WM_STATE_STICKY"; break;
+         case MAXIMIZED_VERT:    lState1_str = "_NET_WM_STATE_MAXIMIZED_VERT"; break;
+         case MAXIMIZED_HORZ:    lState1_str = "_NET_WM_STATE_MAXIMIZED_HORZ"; break;
+         case SHADED:            lState1_str = "_NET_WM_STATE_SHADED"; break;
+         case SKIP_TASKBAR:      lState1_str = "_NET_WM_STATE_SKIP_TASKBAR"; break;
+         case SKIP_PAGER:        lState1_str = "_NET_WM_STATE_SKIP_PAGER"; break;
+         case HIDDEN:            lState1_str = "_NET_WM_STATE_HIDDEN"; break;
+         case FULLSCREEN:        lState1_str = "_NET_WM_STATE_FULLSCREEN"; break;
+         case ABOVE:             lState1_str = "_NET_WM_STATE_ABOVE"; break;
+         case BELOW:             lState1_str = "_NET_WM_STATE_BELOW"; break;
+         case DEMANDS_ATTENTION: lState1_str = "_NET_WM_STATE_DEMANDS_ATTENTION"; break;
+         case FOCUSED:           lState1_str = "_NET_WM_STATE_FOCUSED"; break;
+         case NONE: return false;
+            // clang-format on
       }
 
       lAtomNetWmStateState1_X11 = XInternAtom( vDisplay_X11, lState1_str.c_str(), True );
@@ -537,47 +500,20 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    if ( _type2 != NONE ) {
       switch ( _type2 ) {
-         case MODAL:
-            lState2_str = "_NET_WM_STATE_MODAL";
-            break;
-         case STICKY:
-            lState2_str = "_NET_WM_STATE_STICKY";
-            break;
-         case MAXIMIZED_VERT:
-            lState2_str = "_NET_WM_STATE_MAXIMIZED_VERT";
-            break;
-         case MAXIMIZED_HORZ:
-            lState2_str = "_NET_WM_STATE_MAXIMIZED_HORZ";
-            break;
-         case SHADED:
-            lState2_str = "_NET_WM_STATE_SHADED";
-            break;
-         case SKIP_TASKBAR:
-            lState2_str = "_NET_WM_STATE_SKIP_TASKBAR";
-            break;
-         case SKIP_PAGER:
-            lState2_str = "_NET_WM_STATE_SKIP_PAGER";
-            break;
-         case HIDDEN:
-            lState2_str = "_NET_WM_STATE_HIDDEN";
-            break;
-         case FULLSCREEN:
-            lState2_str = "_NET_WM_STATE_FULLSCREEN";
-            break;
-         case ABOVE:
-            lState2_str = "_NET_WM_STATE_ABOVE";
-            break;
-         case BELOW:
-            lState2_str = "_NET_WM_STATE_BELOW";
-            break;
-         case DEMANDS_ATTENTION:
-            lState2_str = "_NET_WM_STATE_DEMANDS_ATTENTION";
-            break;
-         case FOCUSED:
-            lState2_str = "_NET_WM_STATE_FOCUSED";
-            break;
-         case NONE:
-            return false;
+         case MODAL: lState2_str = "_NET_WM_STATE_MODAL"; break;
+         case STICKY: lState2_str = "_NET_WM_STATE_STICKY"; break;
+         case MAXIMIZED_VERT: lState2_str = "_NET_WM_STATE_MAXIMIZED_VERT"; break;
+         case MAXIMIZED_HORZ: lState2_str = "_NET_WM_STATE_MAXIMIZED_HORZ"; break;
+         case SHADED: lState2_str = "_NET_WM_STATE_SHADED"; break;
+         case SKIP_TASKBAR: lState2_str = "_NET_WM_STATE_SKIP_TASKBAR"; break;
+         case SKIP_PAGER: lState2_str = "_NET_WM_STATE_SKIP_PAGER"; break;
+         case HIDDEN: lState2_str = "_NET_WM_STATE_HIDDEN"; break;
+         case FULLSCREEN: lState2_str = "_NET_WM_STATE_FULLSCREEN"; break;
+         case ABOVE: lState2_str = "_NET_WM_STATE_ABOVE"; break;
+         case BELOW: lState2_str = "_NET_WM_STATE_BELOW"; break;
+         case DEMANDS_ATTENTION: lState2_str = "_NET_WM_STATE_DEMANDS_ATTENTION"; break;
+         case FOCUSED: lState2_str = "_NET_WM_STATE_FOCUSED"; break;
+         case NONE: return false;
       }
 
       lAtomNetWmStateState2_X11 = XInternAtom( vDisplay_X11, lState2_str.c_str(), True );
@@ -601,15 +537,9 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    if ( _type1 == FULLSCREEN || _type2 == FULLSCREEN ) {
       switch ( _action ) {
-         case C_ADD:
-            GlobConf.win.fullscreen = true;
-            break;
-         case C_REMOVE:
-            GlobConf.win.fullscreen = false;
-            break;
-         case C_TOGGLE:
-            GlobConf.win.fullscreen = !GlobConf.win.fullscreen;
-            break;
+         case C_ADD: GlobConf.win.fullscreen = true; break;
+         case C_REMOVE: GlobConf.win.fullscreen = false; break;
+         case C_TOGGLE: GlobConf.win.fullscreen = !GlobConf.win.fullscreen; break;
       }
    }
 

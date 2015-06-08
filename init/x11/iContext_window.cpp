@@ -64,8 +64,7 @@ namespace unix_x11 {
 Atom atom_wmDeleteWindow;
 
 // Open a vDisplay_X11
-// #############################################################################################################
-// ###
+// #################################################################################################
 int iContext::createDisplay() {
    // Needed for XSetWMProperties
    vSizeHints_X11 = XAllocSizeHints();
@@ -87,15 +86,12 @@ int iContext::createDisplay() {
           vGLXVersionMinor_I < GlobConf.versions.minGlxMinorVer ) ) {
 
 
-      eLOG( "This is GLX Version ",
-            vGLXVersionMajor_I,
-            '.',
-            vGLXVersionMinor_I,
+      // clang-format off
+      eLOG( "This is GLX Version ", vGLXVersionMajor_I, '.', vGLXVersionMinor_I,
             " but min. GLX Version ",
-            GlobConf.versions.minGlxMajorVer,
-            '.',
-            GlobConf.versions.minGlxMinorVer,
+            GlobConf.versions.minGlxMajorVer, '.', GlobConf.versions.minGlxMinorVer,
             " is required. Abort. (return -2)" );
+      // clang-format on
       return -2;
    }
    return 1;
@@ -103,32 +99,22 @@ int iContext::createDisplay() {
 
 // Look for matching fbconfigs
 // #################################################################################################
-// ###
 int iContext::createFrameBuffer() {
-   int fbAttributes[] = {GLX_RENDER_TYPE,
-                         GlobConf.framebuffer.FBA_RENDER_TYPE,
-                         GLX_X_RENDERABLE,
-                         GlobConf.framebuffer.FBA_RENDERABLE,
-                         GLX_DRAWABLE_TYPE,
-                         GlobConf.framebuffer.FBA_DRAWABLE_TYPE,
-                         GLX_DOUBLEBUFFER,
-                         GlobConf.framebuffer.FBA_DOUBLEBUFFER,
-                         GLX_RED_SIZE,
-                         GlobConf.framebuffer.FBA_RED,
-                         GLX_GREEN_SIZE,
-                         GlobConf.framebuffer.FBA_GREEN,
-                         GLX_BLUE_SIZE,
-                         GlobConf.framebuffer.FBA_BLUE,
-                         GLX_ALPHA_SIZE,
-                         GlobConf.framebuffer.FBA_ALPHA,
-                         GLX_DEPTH_SIZE,
-                         GlobConf.framebuffer.FBA_DEPTH,
-                         GLX_STENCIL_SIZE,
-                         GlobConf.framebuffer.FBA_STENCIL,
-                         GLX_X_VISUAL_TYPE,
-                         GlobConf.framebuffer.FBA_VISUAL_TYPE,
-                         // GLX_STEREO,           FBA_STEREO,
+   // clang-format off
+   int fbAttributes[] = {GLX_RENDER_TYPE,   GlobConf.framebuffer.FBA_RENDER_TYPE,
+                         GLX_X_RENDERABLE,  GlobConf.framebuffer.FBA_RENDERABLE,
+                         GLX_DRAWABLE_TYPE, GlobConf.framebuffer.FBA_DRAWABLE_TYPE,
+                         GLX_DOUBLEBUFFER,  GlobConf.framebuffer.FBA_DOUBLEBUFFER,
+                         GLX_RED_SIZE,      GlobConf.framebuffer.FBA_RED,
+                         GLX_GREEN_SIZE,    GlobConf.framebuffer.FBA_GREEN,
+                         GLX_BLUE_SIZE,     GlobConf.framebuffer.FBA_BLUE,
+                         GLX_ALPHA_SIZE,    GlobConf.framebuffer.FBA_ALPHA,
+                         GLX_DEPTH_SIZE,    GlobConf.framebuffer.FBA_DEPTH,
+                         GLX_STENCIL_SIZE,  GlobConf.framebuffer.FBA_STENCIL,
+                         GLX_X_VISUAL_TYPE, GlobConf.framebuffer.FBA_VISUAL_TYPE,
+                         // GLX_STEREO,     FBA_STEREO,
                          0};
+   // clang-format on
 
    // Get the config
    vFBConfig_GLX = glXChooseFBConfig( vDisplay_X11, vScreen_X11, fbAttributes, &vNumOfFBConfigs_I );
@@ -153,55 +139,22 @@ int iContext::createFrameBuffer() {
    std::wstring lB_C = eCMDColor::color( 'O', 'B' );
    std::wstring lC_C = eCMDColor::color( 'O', 'C' );
 
-   iLOG( "Found ",
-         lBG_C,
-         vNumOfFBConfigs_I,
-         lG_C,
-         " framebufferconfigs:\n\n",
-         lOFF_C,
-         "   |=========|========|=========|=======|=========|=======================|\n",
-         lOFF_C,
-         "   | ",
-         lBW_C,
-         "NUMBER",
-         lOFF_C,
-         "  |   ",
-         lBW_C,
-         "ID",
-         lOFF_C,
-         "   | ",
-         lBW_C,
-         "Samples",
-         lOFF_C,
-         " | ",
-         lBW_C,
-         "Depth",
-         lOFF_C,
-         " | ",
-         lBW_C,
-         "Stencil",
-         lOFF_C,
-         " |  ",
-         lBR_C,
-         "R",
-         lOFF_C,
-         "  -  ",
-         lBG_C,
-         "G",
-         lOFF_C,
-         "  -  ",
-         lBB_C,
-         "B",
-         lOFF_C,
-         "  -  ",
-         lBC_C,
-         "A",
-         lOFF_C,
-         "  |\n",
-         lOFF_C,
+   // clang-format off
+   iLOG( "Found ", lBG_C, vNumOfFBConfigs_I, lG_C, " framebufferconfigs:\n\n",            lOFF_C,
+         "   |=========|========|=========|=======|=========|=======================|\n", lOFF_C,
+         "   | ",  lBW_C, "NUMBER",  lOFF_C,
+         "  |   ", lBW_C, "ID",      lOFF_C,
+         "   | ",  lBW_C, "Samples", lOFF_C,
+         " | ",    lBW_C, "Depth",   lOFF_C,
+         " | ",    lBW_C, "Stencil", lOFF_C,
+         " |  ",   lBR_C, "R",       lOFF_C,
+         "  -  ",  lBG_C, "G",       lOFF_C,
+         "  -  ",  lBB_C, "B",       lOFF_C,
+         "  -  ",  lBC_C, "A",       lOFF_C,  "  |\n", lOFF_C,
          "   |---------|--------|---------|-------|---------|-----------------------|"
 
          );
+   // clang-format on
    for ( i = 0; i < vNumOfFBConfigs_I; i++ ) {
       XVisualInfo *temp = glXGetVisualFromFBConfig( vDisplay_X11, vFBConfig_GLX[i] );
       if ( temp ) {
@@ -219,35 +172,18 @@ int iContext::createFrameBuffer() {
          // returns the depth SIZE and NOT the depth
          depth = temp->depth;
 
-         LOG( _hD,
-              "   |    ",
-              numToSizeStringLeft( i, 5, ' ' ),
-              "| "
-              "0x0",
-              StringLeft( lBuffer_C, 4, ' ' ),
-              "|    ",
-              numToSizeStringLeft( samples, 5, ' ' ),
-              "|   ",
-              numToSizeStringLeft( depth, 4, ' ' ),
-              "|    ",
-              numToSizeStringLeft( stencil, 5, ' ' ),
-              "|  ",
-              lR_C,
-              numToSizeStringLeft( r, 3, ' ' ),
-              lOFF_C,
-              "-  ",
-              lG_C,
-              numToSizeStringLeft( g, 3, ' ' ),
-              lOFF_C,
-              "-  ",
-              lB_C,
-              numToSizeStringLeft( b, 3, ' ' ),
-              lOFF_C,
-              "-  ",
-              lC_C,
-              numToSizeStringLeft( a, 3, ' ' ),
-              lOFF_C,
-              "|" );
+         // clang-format off
+         LOG( _hD, "   |    ",
+              numToSizeStringLeft( i, 5, ' ' ),       "| 0x0",
+              StringLeft( lBuffer_C, 4, ' ' ),        "|    ",
+              numToSizeStringLeft( samples, 5, ' ' ), "|   ",
+              numToSizeStringLeft( depth, 4, ' ' ),   "|    ",
+              numToSizeStringLeft( stencil, 5, ' ' ), "|  ",
+              lR_C, numToSizeStringLeft( r, 3, ' ' ), lOFF_C, "-  ",
+              lG_C, numToSizeStringLeft( g, 3, ' ' ), lOFF_C, "-  ",
+              lB_C, numToSizeStringLeft( b, 3, ' ' ), lOFF_C, "-  ",
+              lC_C, numToSizeStringLeft( a, 3, ' ' ), lOFF_C, "|" );
+         // clang-format on
          if ( samples > lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
               b >= lBestB_I && a >= lBestA_I ) {
             vBestFBConfig_I = i;
@@ -303,42 +239,18 @@ int iContext::createFrameBuffer() {
    glXGetFBConfigAttrib(
          vDisplay_X11, vFBConfig_GLX[vBestFBConfig_I], GLX_LEVEL, &lFBAttribs_A_I[7] );
 
+   // clang-format off
    dLOG( "Adiditional framebuffer info:  (should be) [would be REALY helpful to be] {MUST BE}",
-         "\n  - GLX_X_RENDERABLE   {",
-         GL_TRUE,
-         "}      - ",
-         lFBAttribs_A_I[0],
-         "\n  - GLX_DOUBLEBUFFER   {",
-         GL_TRUE,
-         "}      - ",
-         lFBAttribs_A_I[1],
-         "\n  - GLX_RENDER_TYPE    [",
-         GLX_RGBA_BIT,
-         "]      - ",
-         lFBAttribs_A_I[2],
-         "\n  - GLX_X_VISUAL_TYPE  [",
-         GLX_TRUE_COLOR,
-         "]  - ",
-         lFBAttribs_A_I[3],
-         "\n  - GLX_CONFIG_CAVEAT  [",
-         GLX_NONE,
-         "]  - ",
-         lFBAttribs_A_I[4],
-         "  ( ",
-         GLX_NON_CONFORMANT_CONFIG,
-         " - GLX_NON_CONFORMANT_CONFIG is also OK )",
-         "\n  - GLX_DRAWABLE_TYPE  (",
-         GLX_WINDOW_BIT,
-         ")      - ",
-         lFBAttribs_A_I[5],
-         "\n  - GLX_STEREO          ",
-         " ",
-         "       - ",
-         lFBAttribs_A_I[6],
-         "\n  - GLX_LEVEL           ",
-         " ",
-         "       - ",
-         lFBAttribs_A_I[7] );
+         "\n  - GLX_X_RENDERABLE   {", GL_TRUE,        "}      - ", lFBAttribs_A_I[0],
+         "\n  - GLX_DOUBLEBUFFER   {", GL_TRUE,        "}      - ", lFBAttribs_A_I[1],
+         "\n  - GLX_RENDER_TYPE    [", GLX_RGBA_BIT,   "]      - ", lFBAttribs_A_I[2],
+         "\n  - GLX_X_VISUAL_TYPE  [", GLX_TRUE_COLOR, "]  - ",     lFBAttribs_A_I[3],
+         "\n  - GLX_CONFIG_CAVEAT  [", GLX_NONE,       "]  - ",     lFBAttribs_A_I[4],
+         "  ( ",  GLX_NON_CONFORMANT_CONFIG, " - GLX_NON_CONFORMANT_CONFIG is also OK )",
+         "\n  - GLX_DRAWABLE_TYPE  (", GLX_WINDOW_BIT, ")      - ", lFBAttribs_A_I[5],
+         "\n  - GLX_STEREO          ", " ",            "       - ", lFBAttribs_A_I[6],
+         "\n  - GLX_LEVEL           ", " ",            "       - ", lFBAttribs_A_I[7] );
+// clang-format on
 
 #endif // E_DEBUG_LOGGING
 
@@ -388,51 +300,25 @@ int iContext::createWindow() {
    }
 
    // Set the window type
+   // clang-format off
    std::string lWindowType_str;
    switch ( GlobConf.win.winType ) {
-      case DESKTOP:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_DESKTOP";
-         break;
-      case DOCK:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_DOCK";
-         break;
-      case TOOLBAR:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_TOOLBAR";
-         break;
-      case MENU:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_MENU";
-         break;
-      case UTILITY:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_UTILITY";
-         break;
-      case SPLASH:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_SPLASH";
-         break;
-      case DIALOG:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_DIALOG";
-         break;
-      case DROPDOWN_MENU:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU";
-         break;
-      case POPUP_MENU:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_POPUP_MENU";
-         break;
-      case TOOLTIP:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_TOOLTIP";
-         break;
-      case NOTIFICATION:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_NOTIFICATION";
-         break;
-      case COMBO:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_COMBO";
-         break;
-      case DND:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_DND";
-         break;
-      case NORMAL:
-         lWindowType_str = "_NET_WM_WINDOW_TYPE_NORMAL";
-         break;
+      case DESKTOP:       lWindowType_str = "_NET_WM_WINDOW_TYPE_DESKTOP";       break;
+      case DOCK:          lWindowType_str = "_NET_WM_WINDOW_TYPE_DOCK";          break;
+      case TOOLBAR:       lWindowType_str = "_NET_WM_WINDOW_TYPE_TOOLBAR";       break;
+      case MENU:          lWindowType_str = "_NET_WM_WINDOW_TYPE_MENU";          break;
+      case UTILITY:       lWindowType_str = "_NET_WM_WINDOW_TYPE_UTILITY";       break;
+      case SPLASH:        lWindowType_str = "_NET_WM_WINDOW_TYPE_SPLASH";        break;
+      case DIALOG:        lWindowType_str = "_NET_WM_WINDOW_TYPE_DIALOG";        break;
+      case DROPDOWN_MENU: lWindowType_str = "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"; break;
+      case POPUP_MENU:    lWindowType_str = "_NET_WM_WINDOW_TYPE_POPUP_MENU";    break;
+      case TOOLTIP:       lWindowType_str = "_NET_WM_WINDOW_TYPE_TOOLTIP";       break;
+      case NOTIFICATION:  lWindowType_str = "_NET_WM_WINDOW_TYPE_NOTIFICATION";  break;
+      case COMBO:         lWindowType_str = "_NET_WM_WINDOW_TYPE_COMBO";         break;
+      case DND:           lWindowType_str = "_NET_WM_WINDOW_TYPE_DND";           break;
+      case NORMAL:        lWindowType_str = "_NET_WM_WINDOW_TYPE_NORMAL";        break;
    }
+   // clang-format on
 
    // The Atoms needed
    Atom lWindowType_atom = XInternAtom( vDisplay_X11, "_NET_WM_WINDOW_TYPE", True );
@@ -519,8 +405,7 @@ int iContext::createWindow() {
 }
 
 // Create OpenGL Context
-// ######################################################################################################
-// ###
+// #################################################################################################
 // Error handler for the X-Server so it doesn't exit the program
 static bool gContextErrorOccoured_B = false;
 static int contextERROR_HANDLE( Display *, XErrorEvent * ) {

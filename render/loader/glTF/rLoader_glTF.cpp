@@ -76,8 +76,7 @@ bool rLoader_glTF::load_IMPL() {
                return false;
 
             break;
-         default:
-            return wrongKeyWordError();
+         default: return wrongKeyWordError();
       }
 
       if ( expect( ',', true, true ) )

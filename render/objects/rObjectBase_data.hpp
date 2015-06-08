@@ -72,15 +72,9 @@ class rObjectBase_data {
          _objHints.back().at( _CALC( MESH_TYPE ) ) = i.vType;
 
          switch ( i.vType ) {
-            case MESH_3D:
-               _hints[_OBJ( NUM_MESHS )]++;
-               break;
-            case LINES_3D:
-               _hints[_OBJ( NUM_LINES )]++;
-               break;
-            case POINTS_3D:
-               _hints[_OBJ( NUM_POINTS )]++;
-               break;
+            case MESH_3D: _hints[_OBJ( NUM_MESHS )]++; break;
+            case LINES_3D: _hints[_OBJ( NUM_LINES )]++; break;
+            case POINTS_3D: _hints[_OBJ( NUM_POINTS )]++; break;
          }
 
          using DATA_T = internal::_3D_Engine<T, I>;

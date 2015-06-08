@@ -87,8 +87,7 @@ bool rLoader_glTF::sectionAccessors() {
                   return false;
 
                break;
-            default:
-               return wrongKeyWordError();
+            default: return wrongKeyWordError();
          }
 
          if ( expect( ',', true, true ) )

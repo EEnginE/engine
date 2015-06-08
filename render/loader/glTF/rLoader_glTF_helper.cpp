@@ -51,14 +51,11 @@ bool rLoader_glTF::getMapElementETC( ELEMENTS &_el ) {
 
    while ( vIter != vEnd ) {
       switch ( *vIter ) {
-         case '\n':
-            ++vCurrentLine;
-            FALLTHROUGH
+         case '\n': ++vCurrentLine; FALLTHROUGH
          case '\t':
          case ',':
          case ' ':
-         case '}':
-            goto VERY_UGLY_GOTO;
+         case '}': goto VERY_UGLY_GOTO;
       }
       vMapElStr += *vIter;
       ++vIter;
@@ -89,15 +86,9 @@ bool rLoader_glTF::skipSection() {
          ++vIter;
          while ( vIter != vEnd && lCounter > 0 ) {
             switch ( *vIter ) {
-               case '{':
-                  ++lCounter;
-                  break;
-               case '}':
-                  --lCounter;
-                  break;
-               case '\n':
-                  ++vCurrentLine;
-                  break;
+               case '{': ++lCounter; break;
+               case '}': --lCounter; break;
+               case '\n': ++vCurrentLine; break;
             }
 
             ++vIter;
@@ -107,15 +98,9 @@ bool rLoader_glTF::skipSection() {
          ++vIter;
          while ( vIter != vEnd && lCounter > 0 ) {
             switch ( *vIter ) {
-               case '[':
-                  ++lCounter;
-                  break;
-               case ']':
-                  --lCounter;
-                  break;
-               case '\n':
-                  ++vCurrentLine;
-                  break;
+               case '[': ++lCounter; break;
+               case ']': --lCounter; break;
+               case '\n': ++vCurrentLine; break;
             }
 
             ++vIter;
@@ -126,11 +111,8 @@ bool rLoader_glTF::skipSection() {
          while ( vIter != vEnd ) {
             switch ( *vIter ) {
                case ',':
-               case '}':
-                  return skipSectionWarning( lStart );
-               case '\n':
-                  ++vCurrentLine;
-                  break;
+               case '}': return skipSectionWarning( lStart );
+               case '\n': ++vCurrentLine; break;
             }
 
             ++vIter;

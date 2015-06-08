@@ -80,35 +80,16 @@ int rSimpleMesh::setOGLData__() {
 
 uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) {
    switch ( _type ) {
-      case SCALE:
-         *_mat = getScaleMatrix();
-         return 0;
-      case ROTATION:
-         *_mat = getRotationMatrix();
-         return 0;
-      case TRANSLATION:
-         *_mat = getTranslationMatrix();
-         return 0;
-      case CAMERA_MATRIX:
-         *_mat = getViewProjectionMatrix();
-         return 0;
-      case MODEL_MATRIX:
-         *_mat = getModelMatrix();
-         return 0;
-      case VIEW_MATRIX:
-         *_mat = getViewMatrix();
-         return 0;
-      case PROJECTION_MATRIX:
-         *_mat = getProjectionMatrix();
-         return 0;
-      case MODEL_VIEW_MATRIX:
-         *_mat = getModelViewMatrix();
-         return 0;
-      case MODEL_VIEW_PROJECTION:
-         *_mat = getModelViewProjectionMatrix();
-         return 0;
-      case NORMAL_MATRIX:
-         break;
+      case SCALE: *_mat = getScaleMatrix(); return 0;
+      case ROTATION: *_mat = getRotationMatrix(); return 0;
+      case TRANSLATION: *_mat = getTranslationMatrix(); return 0;
+      case CAMERA_MATRIX: *_mat = getViewProjectionMatrix(); return 0;
+      case MODEL_MATRIX: *_mat = getModelMatrix(); return 0;
+      case VIEW_MATRIX: *_mat = getViewMatrix(); return 0;
+      case PROJECTION_MATRIX: *_mat = getProjectionMatrix(); return 0;
+      case MODEL_VIEW_MATRIX: *_mat = getModelViewMatrix(); return 0;
+      case MODEL_VIEW_PROJECTION: *_mat = getModelViewProjectionMatrix(); return 0;
+      case NORMAL_MATRIX: break;
    }
 
    return INDEX_OUT_OF_RANGE;
@@ -116,11 +97,8 @@ uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type 
 
 uint32_t rSimpleMesh::getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) {
    switch ( _type ) {
-      case NORMAL_MATRIX:
-         *_mat = getNormalMatrix();
-         return 0;
-      default:
-         return INDEX_OUT_OF_RANGE;
+      case NORMAL_MATRIX: *_mat = getNormalMatrix(); return 0;
+      default: return INDEX_OUT_OF_RANGE;
    }
 }
 

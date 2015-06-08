@@ -316,9 +316,7 @@ std::string uSHA_2::get( bool _space ) {
    uint16_t lEnd_suI = 8;
 
    switch ( vType ) {
-      case SHA2_224:
-         lEnd_suI = 7;
-         FALLTHROUGH
+      case SHA2_224: lEnd_suI = 7; FALLTHROUGH
       case SHA2_256:
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
 #ifdef _MSC_VER
@@ -334,9 +332,7 @@ std::string uSHA_2::get( bool _space ) {
          }
          break;
 
-      case SHA2_384:
-         lEnd_suI = 6;
-         FALLTHROUGH
+      case SHA2_384: lEnd_suI = 6; FALLTHROUGH
       case SHA2_512:
          uint32_t v1, v2;
          for ( uint16_t i = 0; i < lEnd_suI; ++i ) {
@@ -370,14 +366,10 @@ std::string uSHA_2::get( bool _space ) {
 
 unsigned int uSHA_2::getHashLength() {
    switch ( vType ) {
-      case SHA2_224:
-         return 224 / 8;
-      case SHA2_256:
-         return 256 / 8;
-      case SHA2_384:
-         return 384 / 8;
-      case SHA2_512:
-         return 512 / 8;
+      case SHA2_224: return 224 / 8;
+      case SHA2_256: return 256 / 8;
+      case SHA2_384: return 384 / 8;
+      case SHA2_512: return 512 / 8;
    }
 
    return 0;

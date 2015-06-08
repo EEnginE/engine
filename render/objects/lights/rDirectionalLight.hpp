@@ -82,19 +82,12 @@ uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) 
    *_vec = nullptr;
 
    switch ( _type ) {
-      case AMBIENT_COLOR:
-         *_vec = &vAmbientColor;
-         return ALL_OK;
-      case LIGHT_COLOR:
-         *_vec = &vLightColor;
-         return ALL_OK;
-      case DIRECTION:
-         *_vec = &vLightDirection;
-         return ALL_OK;
+      case AMBIENT_COLOR: *_vec = &vAmbientColor; return ALL_OK;
+      case LIGHT_COLOR: *_vec = &vLightColor; return ALL_OK;
+      case DIRECTION: *_vec = &vLightDirection; return ALL_OK;
       case POSITION:
       case POSITION_MODEL_VIEW:
-      case ATTENUATION:
-         return UNSUPPORTED_TYPE;
+      case ATTENUATION: return UNSUPPORTED_TYPE;
    }
 
    return UNSUPPORTED_TYPE;

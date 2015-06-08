@@ -227,8 +227,7 @@ int rSceneBase::assignObjectRenderer( GLuint _index, rRenderBase *_renderer ) {
          }
          break;
       }
-      default:
-         break;
+      default: break;
    }
 
    if ( vObjects[_index].vRenderer )

@@ -62,29 +62,23 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
    LOG_PRINT_TYPE lTimeNext_LPT = OFF, lFileNext_LPT = OFF;
 
    switch ( data->data.config.vTime_LPT ) {
-      case LEFT_FULL:
-         lTimeNext_LPT = LEFT_REDUCED;
-         FALLTHROUGH
+      case LEFT_FULL: lTimeNext_LPT = LEFT_REDUCED; FALLTHROUGH
       case RIGHT_FULL:
          lTimeSize_uI = lFullTimeSize_cuI;
          lTimeSizeNext_uI = lReducedTimeSize_cuI;
          if ( lTimeNext_LPT != LEFT_REDUCED )
             lTimeNext_LPT = RIGHT_REDUCED;
          break;
-      case LEFT_REDUCED:
-         FALLTHROUGH
+      case LEFT_REDUCED: FALLTHROUGH
       case RIGHT_REDUCED:
          lTimeSize_uI = lReducedTimeSize_cuI;
          lTimeNext_LPT = OFF;
          break;
-      case OFF:
-         break; // Only because of -Wswitch
+      case OFF: break; // Only because of -Wswitch
    }
 
    switch ( data->data.config.vFile_LPT ) {
-      case LEFT_FULL:
-         lFileNext_LPT = LEFT_REDUCED;
-         FALLTHROUGH
+      case LEFT_FULL: lFileNext_LPT = LEFT_REDUCED; FALLTHROUGH
       case RIGHT_FULL:
          lFileSize_uI = lFullFileSize_cuI;
          lFileSizeNext_uI = lReducedFileSize_cuI;
@@ -96,8 +90,7 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
          lFileSize_uI = lReducedFileSize_cuI;
          lFileNext_LPT = OFF;
          break;
-      case OFF:
-         break; // Only because of -Wswitch
+      case OFF: break; // Only because of -Wswitch
    }
 
    unsigned int lThisSize = lTimeSize_uI + lFileSize_uI + lThreadSize_uI + _maxTypeStringLength +

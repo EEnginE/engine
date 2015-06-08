@@ -9,11 +9,12 @@ PointerAlignment: Right
 Standard:         Cpp11
 UseTab:           Never
 
-AccessModifierOffset:     -2
-AlignAfterOpenBracket:    true
-AlignEscapedNewlinesLeft: false
-AlignOperands:            true
-AlignTrailingComments:    true
+AccessModifierOffset:        -2
+AlignAfterOpenBracket:       true
+AlignConsecutiveAssignments: true
+AlignEscapedNewlinesLeft:    false
+AlignOperands:               true
+AlignTrailingComments:       true
 
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine:             true

@@ -49,8 +49,9 @@ struct __uReturnStruct<void> {};
 template <class __R>
 struct __uSlotReturnHelper {
    template <class __C, class... __A>
-   static __uReturnStruct<__R>
-   call( __R ( __C::*_CALL )( __A... _arg ), __C *_obj, __A &&... _arg ) {
+   static __uReturnStruct<__R> call( __R ( __C::*_CALL )( __A... _arg ),
+                                     __C *_obj,
+                                     __A &&... _arg ) {
       __uReturnStruct<__R> lRet;
       lRet.value = ( *_obj.*_CALL )( std::forward<__A>( _arg )... );
       return lRet;
@@ -60,8 +61,9 @@ struct __uSlotReturnHelper {
 template <>
 struct __uSlotReturnHelper<void> {
    template <class __C, class... __A>
-   static __uReturnStruct<void>
-   call( void ( __C::*_CALL )( __A... _arg ), __C *_obj, __A &&... _arg ) {
+   static __uReturnStruct<void> call( void ( __C::*_CALL )( __A... _arg ),
+                                      __C *_obj,
+                                      __A &&... _arg ) {
       __uReturnStruct<void> lRet;
       ( *_obj.*_CALL )( std::forward<__A>( _arg )... );
       return lRet;

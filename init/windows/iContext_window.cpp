@@ -55,8 +55,7 @@ inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill )
 // Temp wndProc
 LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    switch ( _uMsg ) {
-      default:
-         break;
+      default: break;
    }
    return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
 }
@@ -276,19 +275,20 @@ int iContext::createContext() {
    int lNumberOfPixelFormats_I = -10;
 
    int lAttributesCount[] = {WGL_NUMBER_PIXEL_FORMATS_ARB};
-   int lAttributes[] = {// Must be true
-                        WGL_DRAW_TO_WINDOW_ARB,
-                        WGL_DOUBLE_BUFFER_ARB,
-                        WGL_SUPPORT_OPENGL_ARB,
-                        WGL_ACCELERATION_ARB,
-                        // Should be as big as possible
-                        WGL_DEPTH_BITS_ARB,
-                        WGL_STENCIL_BITS_ARB,
-                        WGL_RED_BITS_ARB,
-                        WGL_GREEN_BITS_ARB,
-                        WGL_BLUE_BITS_ARB,
-                        WGL_ALPHA_BITS_ARB,
-                        WGL_SAMPLES_ARB,
+   int lAttributes[] = {
+         // Must be true
+         WGL_DRAW_TO_WINDOW_ARB,
+         WGL_DOUBLE_BUFFER_ARB,
+         WGL_SUPPORT_OPENGL_ARB,
+         WGL_ACCELERATION_ARB,
+         // Should be as big as possible
+         WGL_DEPTH_BITS_ARB,
+         WGL_STENCIL_BITS_ARB,
+         WGL_RED_BITS_ARB,
+         WGL_GREEN_BITS_ARB,
+         WGL_BLUE_BITS_ARB,
+         WGL_ALPHA_BITS_ARB,
+         WGL_SAMPLES_ARB,
    };
 
    wglGetPixelFormatAttribivARB( vHDC_win32, 1, 0, 1, lAttributesCount, &lNumberOfPixelFormats_I );
@@ -305,51 +305,20 @@ int iContext::createContext() {
    std::wstring lB_C = eCMDColor::color( 'O', 'B' );
    std::wstring lC_C = eCMDColor::color( 'O', 'C' );
 
-   iLOG( "Found ",
-         lBG_C,
-         lNumberOfPixelFormats_I,
-         lG_C,
-         " pixel format descriptors:\n\n",
-         lOFF_C,
-         "   |========|=========|=======|=========|=======================|\n",
-         lOFF_C,
-         "   |   ",
-         lBW_C,
-         "ID",
-         lOFF_C,
-         "   | ",
-         lBW_C,
-         "Samples",
-         lOFF_C,
-         " | ",
-         lBW_C,
-         "Depth",
-         lOFF_C,
-         " | ",
-         lBW_C,
-         "Stencil",
-         lOFF_C,
-         " |  ",
-         lBR_C,
-         "R",
-         lOFF_C,
-         "  -  ",
-         lBG_C,
-         "G",
-         lOFF_C,
-         "  -  ",
-         lBB_C,
-         "B",
-         lOFF_C,
-         "  -  ",
-         lBC_C,
-         "A",
-         lOFF_C,
-         "  |\n",
-         lOFF_C,
-         "   |--------|---------|-------|---------|-----------------------|"
-
-         );
+   // clang-format off
+   iLOG( "Found ", lBG_C, lNumberOfPixelFormats_I, lG_C, " pixel format descriptors:\n\n", lOFF_C,
+         "   |========|=========|=======|=========|=======================|\n", lOFF_C,
+         "   |   ", lBW_C, "ID",      lOFF_C,
+         "   | ",   lBW_C, "Samples", lOFF_C,
+         " | ",     lBW_C, "Depth",   lOFF_C,
+         " | ",     lBW_C, "Stencil", lOFF_C,
+         " |  ",    lBR_C, "R",       lOFF_C,
+         "  -  ",   lBG_C, "G",       lOFF_C,
+         "  -  ",   lBB_C, "B",       lOFF_C,
+         "  -  ",   lBC_C, "A",       lOFF_C,
+         "  |\n",   lOFF_C,
+         "   |--------|---------|-------|---------|-----------------------|" );
+   // clang-format on
 
    int lPixelFormat[11];
 
@@ -373,32 +342,17 @@ int iContext::createContext() {
       a = lPixelFormat[9];
       samples = lPixelFormat[10];
 
-      LOG( _hD,
-           "   |  ",
-           numToSizeStringLeft( i, 6, ' ' ),
-           "|    ",
-           numToSizeStringLeft( samples, 5, ' ' ),
-           "|   ",
-           numToSizeStringLeft( depth, 4, ' ' ),
-           "|    ",
-           numToSizeStringLeft( stencil, 5, ' ' ),
-           "|  ",
-           lR_C,
-           numToSizeStringLeft( r, 3, ' ' ),
-           lOFF_C,
-           "-  ",
-           lG_C,
-           numToSizeStringLeft( g, 3, ' ' ),
-           lOFF_C,
-           "-  ",
-           lB_C,
-           numToSizeStringLeft( b, 3, ' ' ),
-           lOFF_C,
-           "-  ",
-           lC_C,
-           numToSizeStringLeft( a, 3, ' ' ),
-           lOFF_C,
-           "|" );
+      // clang-format off
+      LOG( _hD, "   |  ",
+           numToSizeStringLeft( i, 6, ' ' ),       "|    ",
+           numToSizeStringLeft( samples, 5, ' ' ), "|   ",
+           numToSizeStringLeft( depth, 4, ' ' ),   "|    ",
+           numToSizeStringLeft( stencil, 5, ' ' ), "|  ",
+           lR_C, numToSizeStringLeft( r, 3, ' ' ), lOFF_C, "-  ",
+           lG_C, numToSizeStringLeft( g, 3, ' ' ), lOFF_C, "-  ",
+           lB_C, numToSizeStringLeft( b, 3, ' ' ), lOFF_C, "-  ",
+           lC_C, numToSizeStringLeft( a, 3, ' ' ), lOFF_C, "|" );
+      // clang-format on
 
       if ( samples > lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
            b >= lBestB_I && a >= lBestA_I && stencil >= lBestStencil_I ) {
@@ -536,26 +490,15 @@ int iContext::createContext() {
 
    std::wstring lC1_C = eCMDColor::color( 'B', 'C' );
 
+   // clang-format off
    iLOG( "Versions:",
-         "\n  - Engine: ",
-         lC1_C,
-         E_VERSION_MAJOR,
-         ".",
-         E_VERSION_MINOR,
-         ".",
-         E_VERSION_SUBMINOR,
+         "\n  - Engine: ", lC1_C, E_VERSION_MAJOR, ".", E_VERSION_MINOR, ".", E_VERSION_SUBMINOR,
          E_GIT_LAST_TAG_DIFF == 0 ? " [RELEASE] "
-                                  : ( " +" + std::to_string( E_GIT_LAST_TAG_DIFF ) + " " ),
-         E_VERSION_GIT,
-         "\n  - OpenGL: ",
-         lC1_C,
-         (char *)glGetString( GL_VERSION ),
-         "\n  - GLSL:   ",
-         lC1_C,
-         (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
-         "\n  - GLEW:   ",
-         lC1_C,
-         (char *)glewGetString( GLEW_VERSION ) );
+                                  : ( " +" + std::to_string( E_GIT_LAST_TAG_DIFF ) + " " ), E_VERSION_GIT,
+         "\n  - OpenGL: ", lC1_C, (char *)glGetString( GL_VERSION ),
+         "\n  - GLSL:   ", lC1_C, (char *)glGetString( GL_SHADING_LANGUAGE_VERSION ),
+         "\n  - GLEW:   ", lC1_C, (char *)glewGetString( GLEW_VERSION ) );
+   // clang-format on
 
 
    iLOG( "OpenGL context created" );

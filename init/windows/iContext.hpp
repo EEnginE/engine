@@ -55,7 +55,7 @@ class iContext : public iKeyboard, public iRandR, public iInitSignals {
    static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
    static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
    LRESULT CALLBACK
-         actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo _tempInfo );
+   actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo _tempInfo );
 
    GLuint vVertexArray_OGL;
 

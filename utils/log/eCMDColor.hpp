@@ -268,43 +268,27 @@ std::wstring eCMDColor::color( GLchar _a, GLchar _fg, GLchar _bg ) {
 
 uint16_t eCMDColor::charToAtributeId( GLchar _c ) {
    switch ( _c ) {
-      case 'O':
-         return OFF;
-      case 'B':
-         return BOLD;
-      case 'U':
-         return UNDERSCORE;
-      case 'L':
-         return BLINK;
-      case 'R':
-         return REVERSE;
-      case 'C':
-         return CONCEALED;
-      default:
-         return OFF;
+      case 'O': return OFF;
+      case 'B': return BOLD;
+      case 'U': return UNDERSCORE;
+      case 'L': return BLINK;
+      case 'R': return REVERSE;
+      case 'C': return CONCEALED;
+      default: return OFF;
    }
 }
 
 uint16_t eCMDColor::charToColorId( GLchar _c ) {
    switch ( _c ) {
-      case 'S':
-         return BLACK;
-      case 'R':
-         return RED;
-      case 'G':
-         return GREEN;
-      case 'Y':
-         return YELLOW;
-      case 'B':
-         return BLUE;
-      case 'M':
-         return MAGENTA;
-      case 'C':
-         return CYAN;
-      case 'W':
-         return WHITE;
-      default:
-         return WHITE;
+      case 'S': return BLACK;
+      case 'R': return RED;
+      case 'G': return GREEN;
+      case 'Y': return YELLOW;
+      case 'B': return BLUE;
+      case 'M': return MAGENTA;
+      case 'C': return CYAN;
+      case 'W': return WHITE;
+      default: return WHITE;
    }
 }
 }

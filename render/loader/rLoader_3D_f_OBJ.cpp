@@ -139,8 +139,7 @@ bool rLoader_3D_f_OBJ::load_IMPL() {
 
             break;
 
-         default:
-            return unexpectedCharError();
+         default: return unexpectedCharError();
       }
    }
 

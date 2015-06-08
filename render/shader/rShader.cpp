@@ -335,14 +335,10 @@ void rShader::deleteProgram() {
 
 std::string getShaderTypeString( GLenum _type ) {
    switch ( _type ) {
-      case GL_VERTEX_SHADER_ARB:
-         return "vertex";
-      case GL_FRAGMENT_SHADER_ARB:
-         return "fragment";
-      case GL_GEOMETRY_SHADER_ARB:
-         return "geometry";
-      default:
-         return "unknown";
+      case GL_VERTEX_SHADER_ARB: return "vertex";
+      case GL_FRAGMENT_SHADER_ARB: return "fragment";
+      case GL_GEOMETRY_SHADER_ARB: return "geometry";
+      default: return "unknown";
    }
 }
 

@@ -88,23 +88,12 @@ uint32_t rPointLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
    *_vec = nullptr;
 
    switch ( _type ) {
-      case AMBIENT_COLOR:
-         *_vec = &vAmbientColor;
-         return ALL_OK;
-      case LIGHT_COLOR:
-         *_vec = &vLightColor;
-         return ALL_OK;
-      case POSITION_MODEL_VIEW:
-         *_vec = this->getPositionModelView();
-         return ALL_OK;
-      case POSITION:
-         *_vec = this->getPosition();
-         return ALL_OK;
-      case ATTENUATION:
-         *_vec = &vAttenuation;
-         return ALL_OK;
-      case DIRECTION:
-         return UNSUPPORTED_TYPE;
+      case AMBIENT_COLOR: *_vec = &vAmbientColor; return ALL_OK;
+      case LIGHT_COLOR: *_vec = &vLightColor; return ALL_OK;
+      case POSITION_MODEL_VIEW: *_vec = this->getPositionModelView(); return ALL_OK;
+      case POSITION: *_vec = this->getPosition(); return ALL_OK;
+      case ATTENUATION: *_vec = &vAttenuation; return ALL_OK;
+      case DIRECTION: return UNSUPPORTED_TYPE;
    }
 
    return UNSUPPORTED_TYPE;

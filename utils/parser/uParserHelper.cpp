@@ -85,15 +85,10 @@ int uParserHelper::parse() {
 bool uParserHelper::continueWhitespace( bool _quiet ) {
    while ( vIter != vEnd ) {
       switch ( *vIter ) {
-         case '\n':
-            ++vCurrentLine;
-            FALLTHROUGH
+         case '\n': ++vCurrentLine; FALLTHROUGH
          case '\t':
-         case ' ':
-            ++vIter;
-            break;
-         default:
-            return true;
+         case ' ': ++vIter; break;
+         default: return true;
       }
    }
 
@@ -187,8 +182,7 @@ bool uParserHelper::getString( std::string &_str, bool _continueWhitespace ) {
                   _str += '"';
                   ++vIter;
                   break;
-               default:
-                  return unexpectedCharError();
+               default: return unexpectedCharError();
             }
             break;
          case '"':
@@ -199,12 +193,8 @@ bool uParserHelper::getString( std::string &_str, bool _continueWhitespace ) {
 
             return true;
 
-         case '\n':
-            ++vCurrentLine;
-            FALLTHROUGH
-         default:
-            _str += *vIter;
-            ++vIter;
+         case '\n': ++vCurrentLine; FALLTHROUGH
+         default: _str += *vIter; ++vIter;
       }
    }
 

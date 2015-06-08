@@ -45,8 +45,9 @@ class rMatrixSceneBase {
    inline void calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy );
    inline void calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy );
 
-   inline void
-   setCamera( const rVec3<T> &_position, const rVec3<T> &_lookAt, const rVec3<T> &_upVector );
+   inline void setCamera( const rVec3<T> &_position,
+                          const rVec3<T> &_lookAt,
+                          const rVec3<T> &_upVector );
 
    inline rMat4<T> *getProjectionMatrix() { return &vProjectionMatrix_MAT; }
    inline rMat4<T> *getViewMatrix() { return &vViewMatrix_MAT; }
@@ -72,8 +73,10 @@ rMatrixSceneBase<T>::rMatrixSceneBase() {
  * \param[in] _fofy        The field of view angle
  */
 template <class T>
-void
-rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy ) {
+void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio,
+                                                          T _nearZ,
+                                                          T _farZ,
+                                                          T _fofy ) {
    rMatrixMath::perspective( _aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
    vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }

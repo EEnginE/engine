@@ -149,9 +149,7 @@ int iInit::eventLoop() {
                }
                break;
 
-            case KeyRelease:
-               lKeyState_uI = E_RELEASED;
-               FALLTHROUGH
+            case KeyRelease: lKeyState_uI = E_RELEASED; FALLTHROUGH
             case KeyPress: {
                iEventInfo tempInfo( this );
                tempInfo.type = E_EVENT_KEY;
@@ -161,9 +159,7 @@ int iInit::eventLoop() {
                vKey_SIG( tempInfo );
             } break;
 
-            case ButtonRelease:
-               lButtonState_uI = E_RELEASED;
-               FALLTHROUGH
+            case ButtonRelease: lButtonState_uI = E_RELEASED; FALLTHROUGH
             case ButtonPress: {
                iEventInfo tempInfo( this );
                tempInfo.type = E_EVENT_MOUSE;
@@ -171,41 +167,23 @@ int iInit::eventLoop() {
                tempInfo.iMouse.posX = static_cast<unsigned>( lEvent_X11.xbutton.x );
                tempInfo.iMouse.posY = static_cast<unsigned>( lEvent_X11.xbutton.y );
 
+               // clang-format off
                switch ( lEvent_X11.xbutton.button ) {
-                  case Button1:
-                     tempInfo.iMouse.button = E_MOUSE_LEFT;
-                     break;
-                  case Button2:
-                     tempInfo.iMouse.button = E_MOUSE_MIDDLE;
-                     break;
-                  case Button3:
-                     tempInfo.iMouse.button = E_MOUSE_RIGHT;
-                     break;
-                  case Button4:
-                     tempInfo.iMouse.button = E_MOUSE_WHEEL_UP;
-                     break;
-                  case Button5:
-                     tempInfo.iMouse.button = E_MOUSE_WHEEL_DOWN;
-                     break;
-                  case 6:
-                     tempInfo.iMouse.button = E_MOUSE_1;
-                     break;
-                  case 7:
-                     tempInfo.iMouse.button = E_MOUSE_2;
-                     break;
-                  case 8:
-                     tempInfo.iMouse.button = E_MOUSE_3;
-                     break;
-                  case 9:
-                     tempInfo.iMouse.button = E_MOUSE_4;
-                     break;
-                  case 10:
-                     tempInfo.iMouse.button = E_MOUSE_5;
-                     break;
+                  case Button1: tempInfo.iMouse.button = E_MOUSE_LEFT;       break;
+                  case Button2: tempInfo.iMouse.button = E_MOUSE_MIDDLE;     break;
+                  case Button3: tempInfo.iMouse.button = E_MOUSE_RIGHT;      break;
+                  case Button4: tempInfo.iMouse.button = E_MOUSE_WHEEL_UP;   break;
+                  case Button5: tempInfo.iMouse.button = E_MOUSE_WHEEL_DOWN; break;
+                  case 6:       tempInfo.iMouse.button = E_MOUSE_1;          break;
+                  case 7:       tempInfo.iMouse.button = E_MOUSE_2;          break;
+                  case 8:       tempInfo.iMouse.button = E_MOUSE_3;          break;
+                  case 9:       tempInfo.iMouse.button = E_MOUSE_4;          break;
+                  case 10:      tempInfo.iMouse.button = E_MOUSE_5;          break;
                   default:
-                     tempInfo.iMouse.button = E_MOUSE_UNKNOWN;
+                     tempInfo.iMouse.button                              = E_MOUSE_UNKNOWN;
                      wLOG( "Unknown mouse button: ", lEvent_X11.xbutton.button );
                }
+               // clang-format on
 
                vMouse_SIG( tempInfo );
             } break;
@@ -291,11 +269,7 @@ int iInit::eventLoop() {
                }
                break;
 
-            default:
-
-               dLOG( "Found Unknown Event: 0x", lEvent_CSTR );
-
-               break;
+            default: dLOG( "Found Unknown Event: 0x", lEvent_CSTR ); break;
          }
       }
    }

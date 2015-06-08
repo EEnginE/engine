@@ -74,24 +74,12 @@ int myScene::init() {
       auto lRet = setObjectRenderer<rRenderMultipleLights_3_3>( lObjID );
 
       switch ( lRet ) {
-         case 0:
-            iLOG( "setObjectRenderer(): DONE" );
-            break;
-         case 1:
-            eLOG( "setObjectRenderer(): Index out of range Error" );
-            return 10;
-         case 2:
-            eLOG( "setObjectRenderer(): Invalid object Error" );
-            return 10;
-         case 3:
-            eLOG( "setObjectRenderer(): Invalid shader Error" );
-            return 10;
-         case 4:
-            eLOG( "setObjectRenderer(): No Renderer found Error" );
-            return 10;
-         default:
-            eLOG( "setObjectRenderer(): UNKNOWN Error" );
-            return 10;
+         case 0: iLOG( "setObjectRenderer(): DONE" ); break;
+         case 1: eLOG( "setObjectRenderer(): Index out of range Error" ); return 10;
+         case 2: eLOG( "setObjectRenderer(): Invalid object Error" ); return 10;
+         case 3: eLOG( "setObjectRenderer(): Invalid shader Error" ); return 10;
+         case 4: eLOG( "setObjectRenderer(): No Renderer found Error" ); return 10;
+         default: eLOG( "setObjectRenderer(): UNKNOWN Error" ); return 10;
       }
 
       if ( vRenderNormals ) {
