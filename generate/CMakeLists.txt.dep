@@ -9,16 +9,8 @@
 #              | |
 #              |_|
 
-if( NOT DEFINED GLEW_ROOT )
-   set( GLEW_ROOT ${CMAKE_HOME_DIRECTORY}/dependencies/GLEW )
-   if( NOT DEFINED GLEW_USE_DEFAULT )
-      set( GLEW_NO_DEFAULT 1 )
-   endif( NOT DEFINED GLEW_USE_DEFAULT )
-endif( NOT DEFINED GLEW_ROOT )
-
-if( NOT DEFINED ENGINE_LINK_SHARED )
-   set( ENGINE_LINK_SHARED 1 )   # DEFAULT: link shared (.so / .dll)
-endif( NOT DEFINED ENGINE_LINK_SHARED )
+option( ENGINE_LINK_SHARED "Link the project shared (1/ON) or static (0/OFF)" ON )
+option( USE_SYSTEM_GLEW    "Use the system GLEW version"                      OFF )
 
 # Begin STATIC ###
 if( ENGINE_LINK_SHARED )
@@ -40,10 +32,22 @@ if( NOT ENGINE_LINK_SHARED )
    set(Boost_USE_STATIC_LIBS ON)
 endif( NOT ENGINE_LINK_SHARED )
 
-find_package(GLEW2        REQUIRED) # The orginal FindGLEW.cmake has no options to set a Root path
+
 find_package(OpenGL       REQUIRED)
 find_package(Threads      REQUIRED)
 find_package(Boost 1.46.1 REQUIRED COMPONENTS filesystem system )
+
+if( USE_SYSTEM_GLEW )
+   find_package(GLEW REQUIRED)
+else( USE_SYSTEM_GLEW )
+   if( ENGINE_LINK_SHARED )
+      set( GLEW_LIBRARIES glew )
+   else( ENGINE_LINK_SHARED )
+      set( GLEW_LIBRARIES glew_s )
+   endif( ENGINE_LINK_SHARED )
+
+   set( GLEW_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLEW/include )
+endif( USE_SYSTEM_GLEW )
 
 if( CM_UNIX_X11 )
    find_package(X11 REQUIRED)

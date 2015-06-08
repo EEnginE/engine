@@ -1,29 +1,28 @@
 language: cpp
 
+# sudo: false # Use new travis container build -- libboost-filesystem1.55-dev not whitelisted yet
 compiler:
    - gcc
    - clang
 
-before_install:
-   - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.5; export CC=clang-3.5; fi
+addons:
+   apt:
+      sources:
+         - boost-latest
+         - ubuntu-toolchain-r-test
+         - llvm-toolchain-precise-3.6
 
-   # We need a c++14 compiler
-   - sudo add-apt-repository -y ppa:boost-latest/ppa
-   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-   - sudo apt-add-repository -y 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.5 main'
-   - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
-   - sudo apt-get -qq update
+      packages:
+         - g++-5
+         - gcc-5
+         - clang-3.6
+         - clang-format-3.6
+         #- libboost-filesystem1.55-dev not whitelisted yet
 
 install:
-   # install boost..
-   - sudo apt-get -qq install libboost-system1.55-dev libboost-filesystem1.55-dev
-
-   # install g++ and clang++
-   - sudo apt-get -qq install g++-4.9
-   - sudo apt-get -qq install clang++-3.5
-
-   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
-   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50
+   - sudo apt-get install -qq libboost-filesystem1.55-dev
+   - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.6; export CC=clang-3.6; fi
+   - if [[ "$CXX" == "g++"     ]]; then export CXX=g++-5;       export CC=gcc-5;     fi
 
 script:
    - ./generate.sh qQltp

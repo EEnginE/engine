@@ -16,20 +16,21 @@ Providing modules for networking, physic and 2D/3D graphic.
 
 # Denpendencies
 
--   CMake v2.8.11 or newer [<http://www.cmake.org/>]
+-   [CMake](http://www.cmake.org/) v2.8.11 or newer (can be downloaded automatically)
 -   The OpenGL headers (often in a mesa package)
 -   Linux/UNIX (at least one of those):
     -   X11 and it's headers (including RandR)
     -   Wayland and it's headers (not yet supported)
     -   Mir and it's headers (not yet supported)
--   Boost v1.46.1 or newer [<http://www.boost.org/>]
--   gawk - needed for some additional utils (mawk wont work!)
+-   Boost v1.46.1 or newer [<http://www.boost.org/>] (will be removed soon)
 
 -   GLEW - downloaded and built automatically [<http://glew.sourceforge.net/>]
 
 # Installation
 
-```
+## Linux
+
+```sh
 $ git clone https://github.com/EEnginE/engine
 $ ./generate.sh
 $ mkdir build
@@ -40,6 +41,23 @@ $ make install
 ```
 
 Alternatively, you can use ninja instead of make by adding `-G Ninja` to your cmake options.
+
+## Windows
+
+Install Git Bash from [here](http://git-scm.com/) and download the project with:
+
+```sh
+git clone https://github.com/EEnginE/engine
+```
+
+**OR**
+
+Download the sourcecode from https://github.com/EEnginE/engine directly
+
+Now run `setupWindows.bat` or install cygwin, CMake and GIT manualy.
+
+You need at least Visual Studio [2015](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx) to compile the project.
+Using Mingw or Clang may also work.
 
 # CMake options
 
@@ -93,14 +111,9 @@ Alternatively, you can use ninja instead of make by adding `-G Ninja` to your cm
 
 ## GLEW
 
--   `-DGLEW_USE_DEFAULT=<0/1>`
+-   `-DUSE_SYSTEM_GLEW=<0/1>`
 
-    Use system GLEW:
-      - 0: disabled - default
-      - 1: enabled
-
-
--   `-DGLEW_ROOT=/path/to/GLEW`
+    Use the system GLEW version or build GLEW with the engine
 
 ## BOOST
 
@@ -132,7 +145,7 @@ and
 ### CMake can not find GLEW
 
 Try to set:
--    `-DGLEW_ROOT=/path/to/GLEW`
+-    `-DUSE_SYSTEM_GLEW=OFF -DBUILD_GLEW=ON`
 
 ### I crosscompiled the project on Linux and want to test the result with WINE but WINE crashes immediately.
 

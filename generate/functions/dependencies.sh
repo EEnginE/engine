@@ -15,6 +15,18 @@
 # limitations under the License.
 
 makeDeps() {
+   msg1 "Generating dependencies" >&2
+   local GEN_SCRIPT="${PWD}/$DEPS_MAIN_DIR/generate.sh"
+   local CURRENT_TEMP_PATH="$PWD"
+
+   if [ -f "$GEN_SCRIPT" ]; then
+      if [ ! -x "$GEN_SCRIPT" ]; then
+         chmod +x "$GEN_SCRIPT"
+      fi
+
+      source "$GEN_SCRIPT"
+   fi
+
    cat <<EOF
 #
 # This is an automatically gnererated file
@@ -29,29 +41,20 @@ set( CMAKE_BUILD_TYPE RELEASE )
 
 EOF
 
-   msg1 "Generating dependencies" >&2
-   local GEN_SCRIPT="$(pwd)/$DEPS_MAIN_DIR/generate.sh"
-
-   if [ -f "$GEN_SCRIPT" ]; then
-      if [ ! -x "$GEN_SCRIPT" ]; then
-         chmod +x "$GEN_SCRIPT"
-      fi
-      local CURRENT_TEMP_PATH="$(pwd)"
-      cd "$(dirname "$GEN_SCRIPT")"
-      ( source "$GEN_SCRIPT" ) >&2
-      cd "$CURRENT_TEMP_PATH"
-   fi
-
-   local i
-   local varName
-   local name
-   local DEFAULT
+   local i varName name DEFAULT FUNC
 
    for (( i = 0; i < ${#DEPS[@]}; ++i )); do
       name="${DEPS[$i]}"
       varName="BUILD_${name^^}"
+      FUNC="dependency_${name}"
 
-      msg2 "Found dependency '$name'" >&2
+      found "dependency $name" >&2
+
+      if [[ "$(type -t "${FUNC}")" == "function" ]]; then
+         cd "${PWD}/$DEPS_MAIN_DIR"
+         eval "${FUNC} >&2" # Calling function from GEN_SCRIPT
+         cd "$CURRENT_TEMP_PATH"
+      fi
 
       if [[ "${DEPS_DEFAULT[$i]}" == "true" ]]; then
          DEFAULT="ON"
@@ -63,11 +66,14 @@ EOF
 
       cat <<EOF
 
-if( NOT DEFINED $varName )
-   set( $varName $DEFAULT )
-endif( NOT DEFINED $varName )
+option( $varName "Build dependency ${name}?" $DEFAULT )
 
 if( $varName )
+EOF
+
+   [[ "$(type -t "${FUNC}_custom")" == "function" ]] && eval "${FUNC}_custom" # Calling function from GEN_SCRIPT
+
+cat <<EOF
    include_directories( ${DEPS_DIR[$i]} )
    add_subdirectory( ${DEPS_DIR[$i]} )
    message( STATUS "Building dependency $name (use -D${varName}=OFF to disable) [DEFAULT: $DEFAULT]" )

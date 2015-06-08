@@ -76,11 +76,11 @@ clean() {
        fi
     done
 
-    cd GLEW
-
-    make clean &> /dev/null
-
-    cd ..
+    if [ -d GLEW ]; then
+       cd GLEW
+       make clean &> /dev/null
+       cd ..
+    fi
 }
 
 

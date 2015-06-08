@@ -43,6 +43,7 @@ DEPS_DEFAULT
 DEBUG_DEF_FILE
 CLANG_FORMAT_VERSION
 BUILD_CFG_NAME
+WINDOWS_SETUP_DIR
 
 EOF
 
@@ -103,6 +104,7 @@ parseCFG() {
             DEBUG_F)   DEBUG_DEF_FILE="${TEMP}"     ;;
             CLANG_V)   CLANG_FORMAT_VERSION=$TEMP   ;;
             BUILD_CFG) BUILD_CFG_NAME="$TEMP"       ;;
+            WINSETUP)  WINDOWS_SETUP_DIR="$TEMP"    ;;
             *)
                 warning "Unknown option '$VARIABLE' with argumet(s) $TEMP"
                 ;;
@@ -138,6 +140,7 @@ printWhatParsed() {
     msg2 "Debug define file:                ${DEBUG_DEF_FILE}"
     msg2 "Required clang-format version:    ${CLANG_FORMAT_VERSION}"
     msg2 "Build config file name:           ${BUILD_CFG_NAME}"
+    msg2 "Windows installer directory       ${WINDOWS_SETUP_DIR}"
 }
 
 # kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;

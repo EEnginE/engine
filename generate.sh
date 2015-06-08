@@ -30,8 +30,8 @@ STARTDIR="$PWD"
 shopt -s extglob # Tells bash to do some fancy regex stuff
 
 catch_INT() {
-   error "User interrupt \x1b[1;31m[CTRL-C]" 1>&2
-   exit
+  error "User interrupt \x1b[1;31m[CTRL-C]" 1>&2
+  exit
 }
 
 trap catch_INT INT
@@ -71,14 +71,13 @@ echo -e ""
 echo -e ""
 
 help_text() {
-    msg1 "Help Message"
+  msg1 "Help Message"
 cat << EOF
 
     You will probably be just fine with running $0 without any arguments.
 
       +  - Turn everything on (but only gltCcf)
 
-      g  - Force recompile GLEW
       l  - Build libs
       t  - Build tests
       C  - count lines of code (needs cloc and bc)
@@ -91,6 +90,7 @@ cat << EOF
       b  - build the project
       B  - configure build options
       G  - disable pulling git submodules
+      u  - check for git updates / install git (Windows only)
 
      - Debug stuff
       p  - Print parsed Config
@@ -122,64 +122,67 @@ SKIP_PARSING=0
 SKIP_SUB_M=0
 
 PRINT_PARSED=0
+WIN_UPDATE=0
 
 ARG_STRING=""
 
 # Load all functions in the generate dir
-for i in $(find "${PWD}/generate/functions" -name '*.sh' -type f -print); do
-   source "$i"
+for i in generate/functions/*.sh; do
+  source "$i"
 done
 
 msg1 "Parsing comand line..."
 
 for I in "$@"; do
-    case $I in
-        help|--help|-h)
-            help_text
-            ;;
-    esac
+  case $I in
+    help|--help|-h)
+      help_text
+      ;;
+  esac
 
-    ARG_STRING="${ARG_STRING}${I}"
+  ARG_STRING="${ARG_STRING}${I}"
 done
 
 if [ -z "$ARG_STRING" ]; then
-    ARG_STRING="ltf"
+  ARG_STRING="ltf"
 fi
+
+ARG_STRING="${ARG_STRING//-/}"
 
 CMD_FLAGS="Result:"
 
 for (( i=0; i<${#ARG_STRING}; ++i )); do
-    I=${ARG_STRING:$i:1}
+  I=${ARG_STRING:$i:1}
 
-    case $I in
-        +)
-            DO_TESTS=1
-            DO_LIBS=1
-            DO_CLOC=1
-            DO_GLEW=1
-            DO_CLEAN=1
-            DO_FORMAT=1
-            ;;
-        g) DO_GLEW=1      ; CMD_FLAGS="$CMD_FLAGS [GLEW]";;
-        l) DO_LIBS=1      ; CMD_FLAGS="$CMD_FLAGS [LIBS]";;
-        t) DO_TESTS=1     ; CMD_FLAGS="$CMD_FLAGS [TESTS]";;
-        C) DO_CLOC=1      ; CMD_FLAGS="$CMD_FLAGS [COUNT]";;
-        c) DO_CLEAN=1     ; CMD_FLAGS="$CMD_FLAGS [CLEAN]";;
-        f) DO_FORMAT=1    ; CMD_FLAGS="$CMD_FLAGS [FORMAT]";;
-        b) DO_BUILD=1     ; CMD_FLAGS="$CMD_FLAGS -BUILD-";;
-        B) DO_CFG_BUILD=1 ; CMD_FLAGS="$CMD_FLAGS -CFG build-";;
-        q) ESC_CLEAR=""
-           PB_NEWLINE=1   ; CMD_FLAGS="$CMD_FLAGS -quiet-";;
-        Q) PB_ENABLE=0    ; CMD_FLAGS="$CMD_FLAGS -pb off-";;
-        G) SKIP_SUB_M=1   ; CMD_FLAGS="$CMD_FLAGS -skip submodules-";;
+  case $I in
+    +)
+      DO_TESTS=1
+      DO_LIBS=1
+      DO_CLOC=1
+      DO_GLEW=1
+      DO_CLEAN=1
+      DO_FORMAT=1
+      ;;
+    l) DO_LIBS=1      ; CMD_FLAGS="$CMD_FLAGS [LIBS]";;
+    t) DO_TESTS=1     ; CMD_FLAGS="$CMD_FLAGS [TESTS]";;
+    C) DO_CLOC=1      ; CMD_FLAGS="$CMD_FLAGS [COUNT]";;
+    c) DO_CLEAN=1     ; CMD_FLAGS="$CMD_FLAGS [CLEAN]";;
+    f) DO_FORMAT=1    ; CMD_FLAGS="$CMD_FLAGS [FORMAT]";;
+    b) DO_BUILD=1     ; CMD_FLAGS="$CMD_FLAGS -BUILD-";;
+    B) DO_CFG_BUILD=1 ; CMD_FLAGS="$CMD_FLAGS -CFG build-";;
+    q) ESC_CLEAR=""
+       PB_NEWLINE=1   ; CMD_FLAGS="$CMD_FLAGS -quiet-";;
+    Q) PB_ENABLE=0    ; CMD_FLAGS="$CMD_FLAGS -pb off-";;
+    G) SKIP_SUB_M=1   ; CMD_FLAGS="$CMD_FLAGS -skip submodules-";;
 
-        p) PRINT_PARSED=1 ; CMD_FLAGS="$CMD_FLAGS -print parsed-";;
-        *)
-            error "Unknown Argument '$I'"
-            help_text
-            exit
-            ;;
-    esac
+    p) PRINT_PARSED=1 ; CMD_FLAGS="$CMD_FLAGS -print parsed-";;
+    u) WIN_UPDATE=1   ; CMD_FLAGS="$CMD_FLAGS -updating-";;
+    *)
+      error "Unknown Argument '$I'"
+      help_text
+      exit
+      ;;
+  esac
 
 done
 
@@ -191,45 +194,42 @@ msg2 "$CMD_FLAGS"
 CONFIG_FILE="$(pwd)/$CONFIG_FILE"
 parseCFG
 
+detectOsAndSetup
 
 if (( SKIP_SUB_M == 0 )); then
-   msg1 "Initiating and updating submodules"
+  msg1 "Initiating and updating submodules"
 
-   GIT_EXEC=$(which git 2>/dev/null)
+  if [ -z "${GIT_EXEC}" ]; then
+    warning "GIT not found. Please run git init, sync and update manualy"
+  else
+    processBar 1 5 "init"
+    "${GIT_EXEC}" submodule init                      &> /dev/null
 
-   if [ -z "${GIT_EXEC}" ]; then
-       warning "Unable to find git. Please run git init, sync and update manualy"
-   else
-       processBar 1 5 "init"
-       git submodule init                                  &> /dev/null
+    processBar 2 5 "sync"
+    "${GIT_EXEC}" submodule sync --recursive          &> /dev/null
 
-       processBar 2 5 "sync"
-       git submodule sync --recursive                      &> /dev/null
+    processBar 3 5 "update --init"
+    "${GIT_EXEC}" submodule update --init --recursive &> /dev/null
 
-       processBar 3 5 "update --init"
-       git submodule update --init --recursive             &> /dev/null
+    processBar 4 5 "update"
+    "${GIT_EXEC}" submodule update --recursive        &> /dev/null
 
-       processBar 4 5 "update"
-       git submodule update --recursive                    &> /dev/null
-
-       processBar 5 5 "Running make deps"
-
-       makeDeps > "$DEPS_MAIN_DIR/$CMAKE_LISTS_NAME"
-   fi
+    processBar 5 5 "Running make deps"
+  fi
 fi
 
-doGlew $DO_GLEW
+makeDeps > "$DEPS_MAIN_DIR/$CMAKE_LISTS_NAME"
 
 (( PRINT_PARSED == 1 )) && printWhatParsed
 (( DO_CLEAN     == 1 )) && clean
 
 
 if (( DO_LIBS == 1 )); then
-    generateLogMacros "$LOG_MACRO_PATH" "$LOG_TYPES" "$LOG_GEN_UNDEF"
-    compilerTests
-    addTarget
-    msg1 "Generating main include file $INCLUDE_FILE"
-    engineHPP         1> "$INCLUDE_FILE"
+  generateLogMacros "$LOG_MACRO_PATH" "$LOG_TYPES" "$LOG_GEN_UNDEF"
+  compilerTests
+  addTarget
+  msg1 "Generating main include file $INCLUDE_FILE"
+  engineHPP         1> "$INCLUDE_FILE"
 fi
 
 (( DO_TESTS      == 1 ))                 && tests
@@ -245,4 +245,4 @@ msg1 "DONE\x1b[?25h"
 # Switch back to the start directory where $0 was called
 [ -d "$STARTDIR" ] && cd "$STARTDIR"
 
-# kate: indent-mode shell; indent-width 4; replace-tabs on; line-numbers on;
+# kate: indent-mode shell; indent-width 2; replace-tabs on; line-numbers on;
