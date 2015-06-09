@@ -29,69 +29,62 @@ addTarget() {
         cat > "$CMAKE_FILE" <<EOF
 # Automatically generated file; DO NOT EDIT
 
+project( ${T,,} )
+include( GenerateExportHeader )
+set( ${T^^}_EXPORT_FILE \${CMAKE_CURRENT_SOURCE_DIR}/${T,,}${EXPORT_FILE_EXT} )
+set( CMAKE_POSITION_INDEPENDENT_CODE ON )
+
 EOF
 
         finSources "$T" "${T^^}" 1>> "$CMAKE_FILE"
         local TMP_NAME="${PROJECT_NAME}_${T}"
 
-        local LINK_LIBS=""
+        local LINK_LIBS_SHARED="" LINK_LIBS_STATIC="" LINK_LIBS_NAME=""
         for i in $DEP; do
-            LINK_LIBS="$LINK_LIBS ${PROJECT_NAME}_${i}"
+            LINK_LIBS_SHARED="$LINK_LIBS_SHARED ${PROJECT_NAME}_${i}_shared"
+            LINK_LIBS_STATIC="$LINK_LIBS_STATIC ${PROJECT_NAME}_${i}_static"
+            LINK_LIBS_NAME="${LINK_LIBS_NAME} ${i}"
         done
+        [ -z "$LINK_LIBS_NAME" ] && LINK_LIBS_NAME=" -"
 
         cat >> "$CMAKE_FILE" <<EOF
 
-if( NOT DEFINED ENGINE_BUILD_SHARED )
-  set( ENGINE_BUILD_SHARED 1 )          # DEFAULT: We create a shared library ( .so or a .dll )
-endif( NOT DEFINED ENGINE_BUILD_SHARED )
+set( ${T^^}_INC \${${T^^}_INC} \${${T^^}_EXPORT_FILE} )
 
-set( LIBS_TO_LINK $LINK_LIBS )
+add_library( ${TMP_NAME}_obj    OBJECT \${${T^^}_SRC} \${${T^^}_INC} )
+add_library( ${TMP_NAME}_shared SHARED \$<TARGET_OBJECTS:${TMP_NAME}_obj> )
+add_library( ${TMP_NAME}_static STATIC \$<TARGET_OBJECTS:${TMP_NAME}_obj> )
 
-if( ENGINE_BUILD_SHARED )
-  add_library( ${TMP_NAME} SHARED \${${T^^}_SRC} \${${T^^}_INC} ) # Create a shared library
-  set( _BUILD_TYPE "shared" )
-else( ENGINE_BUILD_SHARED )
-  add_library( ${TMP_NAME} STATIC \${${T^^}_SRC} \${${T^^}_INC} ) # Create a static library
-  set( _BUILD_TYPE "static" )
-endif( ENGINE_BUILD_SHARED )
+target_link_libraries( ${TMP_NAME}_shared \${ENGINE_LINK}${LINK_LIBS_SHARED} )
+target_link_libraries( ${TMP_NAME}_static \${ENGINE_LINK}${LINK_LIBS_STATIC} )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-  set_target_properties(
-    ${TMP_NAME}
-    PROPERTIES
-      VERSION       \${CM_VERSION_MAJOR}.\${CM_VERSION_MINOR}.\${CM_VERSION_SUBMINOR}
-      SOVERSION     \${CM_VERSION_MAJOR}
-    LINK_FLAGS	  "/LIBPATH:\${Boost_LIBRARY_DIRS} /FORCE:MULTIPLE"
-  )
-else()
-# Set some variables so that Cmake can do some fancy stuff with versions and filenames
-  set_target_properties(
-    ${TMP_NAME}
-      PROPERTIES
-        VERSION       \${CM_VERSION_MAJOR}.\${CM_VERSION_MINOR}.\${CM_VERSION_SUBMINOR}
-        SOVERSION     \${CM_VERSION_MAJOR}
-  )
-endif(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-
-# Windows also needs some linking...
-if( WIN32 )
-  target_link_libraries(${TMP_NAME} \${ENGINE_LINK} \${LIBS_TO_LINK} )
-endif( WIN32 )
-
-install( FILES \${${T^^}_INC} DESTINATION \${CMAKE_INSTALL_PREFIX}/include/engine)
-
-install(
-  TARGETS  ${TMP_NAME}
-  RUNTIME  DESTINATION \${CMAKE_INSTALL_PREFIX}/bin/
-  LIBRARY  DESTINATION \${CMAKE_INSTALL_PREFIX}/lib/
-  ARCHIVE  DESTINATION \${CMAKE_INSTALL_PREFIX}/lib/
+generate_export_header(
+  ${TMP_NAME}_obj
+  BASE_NAME            ${T^^}
+  EXPORT_MACRO_NAME    ${T^^}_API
+  NO_EXPORT_MACRO_NAME ${T^^}_PRIVATE
+  STATIC_DEFINE        ${TMP_NAME^^}_STATIC_DEFINE
+  EXPORT_FILE_NAME     \${${T^^}_EXPORT_FILE}
 )
 
-if( "\${LIBS_TO_LINK}" STREQUAL "" )
-  set( LIBS_TO_LINK "NOTHING" )
-endif( "\${LIBS_TO_LINK}" STREQUAL "" )
+set_target_properties(
+  ${TMP_NAME}_shared ${TMP_NAME}_static
+  PROPERTIES
+    VERSION     \${CM_VERSION_MAJOR}.\${CM_VERSION_MINOR}.\${CM_VERSION_SUBMINOR}
+    SOVERSION   \${CM_VERSION_MAJOR}
+  PUBLIC_HEADER "\${${T^^}_INC}"
+  OUTPUT_NAME   ${TMP_NAME}
+)
 
-message( STATUS "Added \${_BUILD_TYPE} Library ${TMP_NAME} (Depends on: \${LIBS_TO_LINK})" )
+install(
+  TARGETS       ${TMP_NAME}_shared ${TMP_NAME}_static
+  RUNTIME       DESTINATION bin
+  LIBRARY       DESTINATION lib
+  ARCHIVE       DESTINATION lib
+  PUBLIC_HEADER DESTINATION include/engine
+)
+
+message( STATUS "Added Library ${TMP_NAME}\t (Depends on:${LINK_LIBS_NAME})" )
 
 EOF
     done

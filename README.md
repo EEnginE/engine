@@ -87,13 +87,6 @@ Using Mingw or Clang may also work.
       - 1: shared - default
 
 
--   `-DENGINE_BUILD_SHARED=<0/1>`
-
-    Build the engine:
-      - 0: static
-      - 1: shared - default
-
-
 -   `-DEXTRA_CXX_FLAGS=<CXX compiler options>`
 
 -   `-DSANITIZERS=<sanitizers>`

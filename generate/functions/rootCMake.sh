@@ -152,6 +152,7 @@ EOF
     echo ""
     echo "# All Display_Servers"
     echo "include_directories("
+    echo "  ${INCLUDES_DIR}"
     for I in "${ALL_DIRS[@]}"; do
         echo "  $I"
         echo "-I$(pwd)/${I}" >> "$CLANG_COMPLETE"
@@ -254,7 +255,15 @@ cat << EOF
    DESTINATION \${CMAKE_INSTALL_PREFIX}/bin
 )
 
+# Generate defines.hpp
+configure_file(
+ "\${PROJECT_SOURCE_DIR}/${INCLUDES_DIR}/defines.in.hpp"
+ "\${PROJECT_SOURCE_DIR}/${INCLUDES_DIR}/defines.hpp"
+)
+
 EOF
+    msg2 "Generating main defines file" >&2
+    generateDefinesHPP 1> "${INCLUDES_DIR}/defines.in.hpp"
 
     cat "$(pwd)/generate/CMakeLists.txt.post"
 

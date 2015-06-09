@@ -34,40 +34,32 @@ makeDebugDefines() {
 
    DEBUG_DEFINES=( $(echo "$TEMP" | sed 's/ /\n/g' | sort | uniq ) )
 
-   local IFNDEF_HEADDER="$( basename "$DEBUG_DEF_FILE" )"
-   local IFNDEF_HEADDER="${IFNDEF_HEADDER//./_}"
-   local IFNDEF_HEADDER="${IFNDEF_HEADDER^^}"
-
-   cat <<EOF > "${DEBUG_DEF_FILE}.in.hpp"
-/*!
- * \\file $(basename "$DEBUG_DEF_FILE").hpp
- * \\brief Some important macros for logging are defined here
- *
- * \\warning This is an automatically generated file of '$0'! DO NOT EDIT
- */
-
-#ifndef ${IFNDEF_HEADDER}_HPP
-#define ${IFNDEF_HEADDER}_HPP
-
-EOF
-
    local temp
    local msg_t
+   local max_l=0 pad pad_l
+
+   for i in "${DEBUG_DEFINES[@]}"; do
+      (( max_l < ${#i} )) && max_l=${#i}
+   done
+
+   [ -f "${INCLUDES_DIR}/${DEBUG_DEF_FILE}" ] && rm "${INCLUDES_DIR}/${DEBUG_DEF_FILE}"
 
    for i in "${DEBUG_DEFINES[@]}"; do
       temp="${i//D_/}"
       msg_t="$msg_t[${i//D_LOG_/}] "
-      echo "#define $i  @${i}_CM@" >> "${DEBUG_DEF_FILE}.in.hpp"
+      echo "#define $i  @${i}_CM@" >> "${INCLUDES_DIR}/${DEBUG_DEF_FILE}"
+      (( pad_l = max_l - ${#i} ))
+      pad="$(printf "%${pad_l}s" '')"
 
       cat <<EOF
 
 if( NOT DEFINED ${temp} )
    if( ENGINE_VERBOSE OR DEBUG_LOG_ALL )
       set( ${i}_CM 1 )
-      message( STATUS "Enabled ${temp}. Use -D${temp}=0 or -DDEBUG_LOG_ALL=0 to disable" )
+      message( STATUS "Enabled  ${temp}.${pad} Use -D${temp}=0${pad} or -DDEBUG_LOG_ALL=0 to disable" )
    else( ENGINE_VERBOSE OR DEBUG_LOG_ALL )
       set( ${i}_CM 0 )
-      message( STATUS "Disabled ${temp}. Use -D${temp}=1 or -DDEBUG_LOG_ALL=1 to enable" )
+      message( STATUS "Disabled ${temp}.${pad} Use -D${temp}=1${pad} or -DDEBUG_LOG_ALL=1 to enable" )
    endif( ENGINE_VERBOSE OR DEBUG_LOG_ALL )
 else( NOT DEFINED ${temp} )
    message( STATUS "User defined debug status ${temp}: \${${temp}} (change with -D${temp})" )
@@ -81,20 +73,4 @@ EOF
    msg_t="${msg_t//[/\\x1b[35m[\\x1b[36m}"
    msg_t="${msg_t//]/\\x1b[35m]}"
    msg2 "$msg_t" >&2
-
-
-   cat <<EOF >> "${DEBUG_DEF_FILE}.in.hpp"
-
-#endif // ${IFNDEF_HEADDER}_HPP
-
-EOF
-
-   cat <<EOF
-
-configure_file(
- "\${PROJECT_SOURCE_DIR}/${DEBUG_DEF_FILE}.in.hpp"
- "\${PROJECT_SOURCE_DIR}/${DEBUG_DEF_FILE}.hpp"
-)
-
-EOF
 }

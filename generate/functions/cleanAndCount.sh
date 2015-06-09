@@ -23,7 +23,7 @@ rm_save() {
     if [ -e "$1" ]; then
         if [ -d "$1" ]; then
             msg2 "Removing \x1b[35m[\x1b[36mDirectory\x1b[35m]\x1b[37m $1"
-            rm [rf "$1"
+            rm -rf "$1"
         else
             msg2 "Removing \x1b[35m[\x1b[36mFile\x1b[35m]\x1b[37m $1"
             rm "$1"
@@ -40,14 +40,12 @@ clean() {
 
     for (( I = 0; I < ${#LIBS[@]}; ++I )); do
         rm_save "${LIBS[$I]}/CMakeLists.txt"
+        rm_save "${LIBS[$I]}/${LIBS[$I]}${EXPORT_FILE_EXT}"
     done
 
-    rm_save "$INCLUDE_FILE"
     rm_save "$LOG_MACRO_PATH"
     rm_save CMakeLists.txt
-    rm_save defines.hpp
-    rm_save "${DEBUG_DEF_FILE}.in.hpp"
-    rm_save "${DEBUG_DEF_FILE}.hpp"
+    rm_save "${INCLUDES_DIR}"
     rm_save "${CLANG_COMPLETE}"
     rm_save .clang-format
     rm_save Doxyfile

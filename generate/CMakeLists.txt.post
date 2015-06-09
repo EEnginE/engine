@@ -1,11 +1,4 @@
 
-
-# Generate defines.hpp
-configure_file(
- "${PROJECT_SOURCE_DIR}/defines.in.hpp"
- "${PROJECT_SOURCE_DIR}/defines.hpp"
-)
-
 # Generate Doxyfile
 configure_file(
  "${PROJECT_SOURCE_DIR}/Doxyfile.in"
@@ -23,10 +16,9 @@ configure_file(
 
 
 # Also install some usefull cmakefiles
-set(DEPENDENCES ${PROJECT_SOURCE_DIR}/generate/cmake/FindEngine.cmake
-                ${PROJECT_SOURCE_DIR}/generate/cmake/FindGLEW2.cmake)
+set(DEPENDENCES ${PROJECT_SOURCE_DIR}/generate/cmake/FindEngine.cmake)
 
-set(OTHER_INC ${PROJECT_SOURCE_DIR}/engine.hpp ${PROJECT_SOURCE_DIR}/defines.hpp )
+set(OTHER_INC ${PROJECT_SOURCE_DIR}/include/engine.hpp ${PROJECT_SOURCE_DIR}/include/defines.hpp )
 
 # The install configuaration
 install( FILES ${DEPENDENCES} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/engine)

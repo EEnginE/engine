@@ -15,3 +15,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 message( STATUS "Using CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}" )
+
+option( ENGINE_LINK_SHARED  "Link the project shared (1/ON) or static (0/OFF)" ON )
+option( USE_SYSTEM_GLEW     "Use the system GLEW version"                      OFF )

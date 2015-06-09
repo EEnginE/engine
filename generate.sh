@@ -225,11 +225,12 @@ makeDeps > "$DEPS_MAIN_DIR/$CMAKE_LISTS_NAME"
 
 
 if (( DO_LIBS == 1 )); then
+  [ ! -d "${INCLUDES_DIR}" ] && mkdir "${INCLUDES_DIR}"
   generateLogMacros "$LOG_MACRO_PATH" "$LOG_TYPES" "$LOG_GEN_UNDEF"
   compilerTests
   addTarget
-  msg1 "Generating main include file $INCLUDE_FILE"
-  engineHPP         1> "$INCLUDE_FILE"
+  msg1 "Generating main include file ${INCLUDES_DIR}/$INCLUDE_FILE"
+  engineHPP 1> "${INCLUDES_DIR}/$INCLUDE_FILE"
 fi
 
 (( DO_TESTS      == 1 ))                 && tests

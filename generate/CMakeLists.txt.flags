@@ -8,6 +8,9 @@
 #                          | |                                 __/ |
 #                          |_|                                |___/
 
+#set( CMAKE_CXX_VISIBILITY_PRESET hidden )
+#set( CMAKE_C_VISIBILITY_PRESET   hidden )
+#set( VISIBILITY_INLINES_HIDDEN   ON )
 
 if( NOT ENGINE_LINK_SHARED )
    set( PROJECT_DEFINES_GCC   "-DGLEW_STATIC" )

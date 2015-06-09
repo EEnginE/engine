@@ -1,4 +1,5 @@
 /doxygen/
+/include/
 /Doxyfile
 *.kdev4
 .kdev_include_paths
@@ -6,6 +7,7 @@
 /Toolchain*.cmake
 /windowsSetup/
 /dependencies/*.log
+*_export.hpp
 
 oglTest.json
 
@@ -22,8 +24,6 @@ generate_build.cfg
 
 Makefile
 /utils/log/uMacros.hpp
-/engine.hpp
-/defines.hpp
 *config.h
 *config.hpp
 /.project

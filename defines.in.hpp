@@ -1,14 +1,4 @@
-/*!
- * \file defines.hpp
- *
- * Defines some variables
- *
- */
-
-#ifndef DEFINES_HPP
-#define DEFINES_HPP
-
-#include "debug_defines.hpp"
+// clang-format off
 
 #define UNIX_X11     @CM_UNIX_X11@
 #define UNIX_WAYLAND @CM_UNIX_WAYLAND@
@@ -266,18 +256,19 @@ enum E_BUTTON {
 };
 
 
+// clang-format on
+
 namespace templates {
 
 // Make variadic int Sequenz (from variadic templates)
-template<int... sequenze>
+template <int... sequenze>
 struct intSequenze {};
 
-template<int __I, int... sequenze>
-struct makeIntSequenze : makeIntSequenze<__I - 1, __I - 1,sequenze...> {};
+template <int __I, int... sequenze>
+struct makeIntSequenze : makeIntSequenze<__I - 1, __I - 1, sequenze...> {};
 
-template<int... sequenze>
+template <int... sequenze>
 struct makeIntSequenze<0, sequenze...> : intSequenze<sequenze...> {};
-
 }
 
 #include <vector>
@@ -291,19 +282,12 @@ struct hash<std::vector<T>> {
    typedef std::size_t RES;
 
    std::size_t operator()( TYPE const &s ) const {
-      std::size_t res = std::hash<T>()(0.0f);
+      std::size_t res = std::hash<T>()( 0.0f );
 
-      for( auto f : s )
+      for ( auto f : s )
          res ^= std::hash<T>()( f );
 
       return res;
    }
 };
-
 }
-
-
-
-#endif // DEFINES_HPP
-
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

@@ -99,6 +99,7 @@ finSources() {
     #########
 
     for I in "${TEMP_HPP[@]}"; do
+        [[ "$I" == *"$EXPORT_FILE_EXT" ]] && continue 
         ALL_SOURCE_FILES+=( $1/$I )
         for i in "${DISPLAY_SERVER[@]}"; do
             if [[ "$I" == *"${i}/"* ]]; then
@@ -208,7 +209,7 @@ finSources() {
 
     echo ""
     echo "set( ${BASENAME_VARS}_INC"
-    echo "  \${${BASENAME_VARS}_CPP_P}"
+    echo "  \${${BASENAME_VARS}_HPP_P}"
     echo ""
     for I in "${ALL_HPP[@]}"; do
         echo "  $I"

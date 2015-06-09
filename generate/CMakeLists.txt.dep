@@ -9,9 +9,6 @@
 #              | |
 #              |_|
 
-option( ENGINE_LINK_SHARED "Link the project shared (1/ON) or static (0/OFF)" ON )
-option( USE_SYSTEM_GLEW    "Use the system GLEW version"                      OFF )
-
 # Begin STATIC ###
 if( ENGINE_LINK_SHARED )
    message( STATUS "Do not change CMAKE_FIND_LIBRARY_SUFFIXES ( ${CMAKE_FIND_LIBRARY_SUFFIXES} )" )
