@@ -59,7 +59,7 @@ target_link_libraries( ${TMP_NAME}_shared \${ENGINE_LINK}${LINK_LIBS_SHARED} )
 target_link_libraries( ${TMP_NAME}_static \${ENGINE_LINK}${LINK_LIBS_STATIC} )
 
 generate_export_header(
-  ${TMP_NAME}_obj
+  ${TMP_NAME}_shared
   BASE_NAME            ${T^^}
   EXPORT_MACRO_NAME    ${T^^}_API
   NO_EXPORT_MACRO_NAME ${T^^}_PRIVATE
