@@ -20,7 +20,9 @@ addons:
          #- libboost-filesystem1.55-dev not whitelisted yet
 
 install:
-   - sudo apt-get install -qq libboost-filesystem1.55-dev
+   - sudo add-apt-repository ppa:kalakris/cmake
+   - sudo apt-get update -qq
+   - sudo apt-get install -qq libboost-filesystem1.55-dev cmake
    - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.6; export CC=clang-3.6; fi
    - if [[ "$CXX" == "g++"     ]]; then export CXX=g++-5;       export CC=gcc-5;     fi
 
