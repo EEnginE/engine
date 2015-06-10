@@ -26,7 +26,7 @@
 
 namespace e_engine {
 
-class uParserJSON final : public internal::uParserHelper {
+class UTILS_API uParserJSON final : public internal::uParserHelper {
  private:
    std::string vWriteIndent_str;
 

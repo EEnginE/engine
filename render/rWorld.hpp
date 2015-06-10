@@ -28,7 +28,7 @@
 
 namespace e_engine {
 
-class rWorld {
+class RENDER_API rWorld {
 
  private:
    uSlot<void, rWorld, bool> vRenderLoopStartSlot;

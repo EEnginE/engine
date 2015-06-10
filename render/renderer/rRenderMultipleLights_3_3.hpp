@@ -31,7 +31,7 @@
 
 namespace e_engine {
 
-class rRenderMultipleLights_3_3 : public rRenderBase {
+class RENDER_API rRenderMultipleLights_3_3 : public rRenderBase {
  private:
    GLuint vVertexBufferObj_OGL = NOT_SET_ui;
    GLuint vIndexBufferObj_OGL = NOT_SET_ui;

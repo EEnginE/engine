@@ -97,7 +97,7 @@ namespace e_engine {
  *
  * \note Only the <b>single predefined</b> instance \c LOG of this class should be used!
  */
-class uLog final {
+class UTILS_API uLog final {
    typedef uSignal<void, uLogEntryRaw &> _SIGNAL_;
    typedef uSlot<void, uLog, uLogEntryRaw &> _SLOT_;
 
@@ -240,7 +240,7 @@ bool uLog::disconnectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_sl
  * This is the standard \c uLog object which should
  * be used for \b all Logging operations
  */
-extern uLog LOG;
+extern UTILS_API uLog LOG;
 }
 
 #endif // E_LOG_HPP

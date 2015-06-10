@@ -29,7 +29,7 @@
 namespace e_engine {
 namespace glTF {
 
-class rLoader_glTF_structs : public rLoader_glTF_map {
+class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
  private:
 #if D_LOG_GLTF
    std::string getStringFromElement( ELEMENTS _el );

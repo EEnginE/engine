@@ -101,13 +101,13 @@ struct uConverter<__A> {
  * Stores the raw input data with boost::variant and uses some
  * template metaprogramming.
  */
-struct uLogRawData {
+struct UTILS_API uLogRawData {
    virtual std::wstring get() = 0;
    virtual ~uLogRawData();
 };
 
 template <class... T>
-struct uLogRawDataT : uLogRawData {
+struct UTILS_API uLogRawDataT : uLogRawData {
    std::tuple<T...> vData;
 
    uLogRawDataT( T &&... _d ) : vData( std::forward<T>( _d )... ) {}
@@ -129,7 +129,7 @@ struct uLogRawDataT : uLogRawData {
 
 class uLog;
 
-class uLogEntryRaw {
+class UTILS_API uLogEntryRaw {
  public:
    struct __DATA__ {
       std::wstring vResultString_STR;

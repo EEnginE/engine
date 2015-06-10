@@ -63,9 +63,9 @@ typedef GLvoid ( *RENDER_FUNC )( iEventInfo info );
  * \sa iContext uConfig e_iInit.cpp e_event.cpp
  */
 #if UNIX_X11
-class iInit : public unix_x11::iContext, public iInitSignals, public iMouse {
+class INIT_API iInit : public unix_x11::iContext, public iInitSignals, public iMouse {
 #elif WINDOWS
-class iInit : public windows_win32::iContext {
+class INIT_API iInit : public windows_win32::iContext {
 #else
 #error "PLATFORM not supported"
 #endif

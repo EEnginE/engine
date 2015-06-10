@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-
-#include <string>
-
 #ifndef U_SYSTEM_HPP
 #define U_SYSTEM_HPP
+
+#include "defines.hpp"
+#include <string>
 
 namespace e_engine {
 
@@ -34,7 +34,7 @@ namespace e_engine {
  * running the programm and the operating system.
  *
  */
-class uSystem {
+class UTILS_API uSystem {
  private:
    std::string vUserName;  //!< The user name var
    std::string vUserLogin; //!< The user login name var
@@ -76,7 +76,7 @@ class uSystem {
  *
  * The standard \c uSystem object
  */
-extern uSystem SYSTEM;
+extern UTILS_API uSystem SYSTEM;
 }
 
 #endif // U_SYSTEM_HPP

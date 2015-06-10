@@ -8,10 +8,6 @@
 #                          | |                                 __/ |
 #                          |_|                                |___/
 
-#set( CMAKE_CXX_VISIBILITY_PRESET hidden )
-#set( CMAKE_C_VISIBILITY_PRESET   hidden )
-#set( VISIBILITY_INLINES_HIDDEN   ON )
-
 if( NOT ENGINE_LINK_SHARED )
    set( PROJECT_DEFINES_GCC   "-DGLEW_STATIC" )
    set( PROJECT_DEFINES_CLANG "-DGLEW_STATIC" )
@@ -44,8 +40,8 @@ if( CMAKE_CXX_COMPILER_ID MATCHES GNU )
    set( ENGINE_COMPILER_VERSION ${GCC_COMPILER_VERSION} )
 endif( CMAKE_CXX_COMPILER_ID MATCHES GNU )
 
-set( GNU_COMPILER_OPTIONS_DEBUG   "-Wall -Wextra -Wno-comment -std=c++14 ${PROJECT_DEFINES_GCC} ${GCC_VERBOSE}" )
-set( GNU_COMPILER_OPTIONS_RELEASE "-Wall -Wextra -Wno-comment -std=c++14 ${PROJECT_DEFINES_GCC} ${GCC_VERBOSE} -O3" )
+set( GNU_COMPILER_OPTIONS_DEBUG   "-Wall -Wextra -Wno-comment -std=c++14 -fvisibility=hidden ${PROJECT_DEFINES_GCC} ${GCC_VERBOSE}" )
+set( GNU_COMPILER_OPTIONS_RELEASE "-Wall -Wextra -Wno-comment -std=c++14 -fvisibility=hidden ${PROJECT_DEFINES_GCC} ${GCC_VERBOSE} -O3" )
 
 if( EXTRA_WARNINGS )
    set( GNU_COMPILER_OPTIONS_DEBUG   "-Winline -Werror ${GNU_COMPILER_OPTIONS_DEBUG}" )
@@ -72,8 +68,8 @@ set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-exit-time-destructors -Wno-global-co
 set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-switch-enum" )
 set( CLANG_WARNINGS "${CLANG_WARNINGS} -Wno-reserved-id-macro" )
 
-set( CLANG_COMPILER_OPTIONS_DEBUG   "${CLANG_WARNINGS} -std=c++14 ${SANITIZERS_FINAL} ${PROJECT_DEFINES_CLANG}" )
-set( CLANG_COMPILER_OPTIONS_RELEASE "${CLANG_WARNINGS} -std=c++14                     ${PROJECT_DEFINES_CLANG}" )
+set( CLANG_COMPILER_OPTIONS_DEBUG   "${CLANG_WARNINGS} -fvisibility=hidden -std=c++14 ${SANITIZERS_FINAL} ${PROJECT_DEFINES_CLANG}" )
+set( CLANG_COMPILER_OPTIONS_RELEASE "${CLANG_WARNINGS} -fvisibility=hidden -std=c++14                     ${PROJECT_DEFINES_CLANG}" )
 
 if( EXTRA_WARNINGS )
    set( CLANG_COMPILER_OPTIONS_DEBUG   "-Werror -Wthread-safety -ftemplate-backtrace-limit=0 ${CLANG_COMPILER_OPTIONS_DEBUG}" )

@@ -21,12 +21,13 @@
 #ifndef U_FILE_IO_HPP
 #define U_FILE_IO_HPP
 
+#include "defines.hpp"
 #include <string>
 #include <vector>
 
 namespace e_engine {
 
-class uFileIO final {
+class UTILS_API uFileIO final {
  public:
    typedef std::string::const_iterator C_ITERATOR;
    typedef std::string::iterator ITERATOR;

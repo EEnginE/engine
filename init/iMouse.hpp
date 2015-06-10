@@ -26,7 +26,7 @@
 
 namespace e_engine {
 
-class iMouse {
+class INIT_API iMouse {
  private:
    unsigned short int button_state[E_MOUSE_UNKNOWN];
 

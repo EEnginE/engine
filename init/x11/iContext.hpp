@@ -90,7 +90,7 @@ extern Atom atom_wmDeleteWindow;
  * functions and in the other file ( iContext.cpp ) the
  * rest of the functions.
  */
-class iContext : public iRandR, public iKeyboard {
+class INIT_API iContext : public iRandR, public iKeyboard {
  private:
    // X11 variables
    Display *vDisplay_X11;        //!< The connection to the X-Server

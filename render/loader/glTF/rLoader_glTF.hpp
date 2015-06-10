@@ -29,8 +29,8 @@
 
 namespace e_engine {
 
-class rLoader_glTF final : public internal::rLoaderBase<GLfloat, GLushort>,
-                           public glTF::rLoader_glTF_structs {
+class RENDER_API rLoader_glTF final : public internal::rLoaderBase<GLfloat, GLushort>,
+                                      public glTF::rLoader_glTF_structs {
 
    typedef std::unordered_map<std::string, size_t> td_MAP;
 

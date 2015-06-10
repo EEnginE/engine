@@ -20,6 +20,7 @@
 #ifndef U_EXTENSIONS_HPP
 #define U_EXTENSIONS_HPP
 
+#include "defines.hpp"
 #include <string>
 #include <vector>
 
@@ -58,7 +59,7 @@ struct uExtensionData {
    bool supported;
 };
 
-class uExtensions {
+class UTILS_API uExtensions {
  private:
    uExtensionData *vOpenGLExtList;
    OPENGL_VERSIONS vVersion;

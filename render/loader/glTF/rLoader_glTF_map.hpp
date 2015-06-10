@@ -21,13 +21,14 @@
 #ifndef R_LOADER_GLTF_MAP_HPP
 #define R_LOADER_GLTF_MAP_HPP
 
+#include "defines.hpp"
 #include <unordered_map>
 #include <string>
 
 namespace e_engine {
 namespace glTF {
 
-class rLoader_glTF_map {
+class UTILS_API rLoader_glTF_map {
  protected:
    rLoader_glTF_map();
    virtual ~rLoader_glTF_map();

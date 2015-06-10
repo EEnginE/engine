@@ -34,7 +34,7 @@ namespace unix_x11 {
 /*!
  * \brief Stores information about the state of the keys
  */
-class iKeyboard : public iKeyboardBasic {
+class INIT_API iKeyboard : public iKeyboardBasic {
  private:
    wchar_t keysym2unicode( KeySym keysym );
 

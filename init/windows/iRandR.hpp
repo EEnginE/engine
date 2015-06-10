@@ -30,7 +30,7 @@ namespace e_engine {
 
 namespace windows_win32 {
 
-class iRandR {
+class INIT_API iRandR {
  private:
    unsigned int vScreenWidth_uI;
    unsigned int vScreenHeight_uI;

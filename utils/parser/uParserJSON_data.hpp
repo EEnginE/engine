@@ -21,6 +21,7 @@
 #ifndef U_PARSER_JSON_DATA_HPP
 #define U_PARSER_JSON_DATA_HPP
 
+#include "defines.hpp"
 #include <string>
 #include <vector>
 
@@ -67,7 +68,7 @@ typedef std::vector<::e_engine::uJSON_data> VALUES;
 
 namespace e_engine {
 
-struct uJSON_data {
+struct UTILS_API uJSON_data {
    std::string id;
    std::string value_str;
    double value_num;

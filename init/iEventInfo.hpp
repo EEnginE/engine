@@ -43,7 +43,7 @@ class iInit;
  *
  * \sa iInit uSignal uSlot
  */
-struct iEventInfo {
+struct INIT_API iEventInfo {
    EVENT_TYPE type = E_EVENT_UNKNOWN;
    iInit *iInitPointer = nullptr;
 

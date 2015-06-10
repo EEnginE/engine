@@ -25,7 +25,7 @@ namespace e_engine {
 
 // \todo Add a signal to output the FPS
 
-class rFrameCounter {
+class RENDER_API rFrameCounter {
  private:
    rWorld *vWorld;
 

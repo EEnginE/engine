@@ -32,7 +32,7 @@
 
 namespace e_engine {
 
-class rSceneBase {
+class RENDER_API rSceneBase {
  public:
    struct rObject final {
       rObjectBase *vObjectPointer;

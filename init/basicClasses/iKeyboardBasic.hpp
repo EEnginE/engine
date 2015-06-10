@@ -26,7 +26,7 @@
 
 namespace e_engine {
 
-class iKeyboardBasic {
+class INIT_API iKeyboardBasic {
  private:
    unsigned short int key_state[_E_KEY_LAST + 1];
 

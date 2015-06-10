@@ -28,7 +28,7 @@
 
 namespace e_engine {
 
-class iDisplayBasic {
+class INIT_API iDisplayBasic {
  public:
    /*!
     * \brief Describes the position of one display relative to another

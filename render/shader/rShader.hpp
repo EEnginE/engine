@@ -41,7 +41,7 @@ namespace e_engine {
  * to a \c GLSL program
  *
  */
-class rShader {
+class RENDER_API rShader {
  public:
    enum SHADER_TYPE { VERT = 0, FRAG, GEOM };
 

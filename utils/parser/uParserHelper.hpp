@@ -28,7 +28,7 @@
 namespace e_engine {
 namespace internal {
 
-class uParserHelper {
+class UTILS_API uParserHelper {
  protected:
    std::string vFilePath_str;
    bool vIsParsed = false;

@@ -30,7 +30,7 @@ namespace e_engine {
 
 namespace windows_win32 {
 
-class iKeyboard : public iKeyboardBasic {
+class INIT_API iKeyboard : public iKeyboardBasic {
 
  protected:
    /*!

@@ -43,7 +43,7 @@ class iRandR;
  * \note To apply the changes made here, you must call iRandR::setDisplaySizes()
  *       first and then iRandR::applyNewSettings()
  */
-class iDisplays final : public iDisplayBasic {
+class INIT_API iDisplays final : public iDisplayBasic {
  private:
    //! \brief internal structure for storing important mode information.
    struct mode : mode_basic {

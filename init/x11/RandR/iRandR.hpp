@@ -47,7 +47,7 @@ namespace unix_x11 {
  * \todo Add subpixel order support -- internal::_output::subpixel_order
  * \todo Add mode flags support -- internal::_mode::modeFlags
  */
-class iRandR {
+class INIT_API iRandR {
 
  private:
    std::vector<internal::_crtc>

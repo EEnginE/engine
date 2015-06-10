@@ -29,7 +29,7 @@
 
 namespace e_engine {
 
-class rRenderVertexNormal_3_3 : public rRenderBase {
+class RENDER_API rRenderVertexNormal_3_3 : public rRenderBase {
  private:
    GLuint vVertexBufferObj_OGL = NOT_SET_ui;
    GLuint vIndexBufferObj_OGL = NOT_SET_ui;

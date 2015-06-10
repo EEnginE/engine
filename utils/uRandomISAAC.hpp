@@ -21,11 +21,12 @@
 #ifndef U_RADNDOM_ISAAC_HPP
 #define U_RADNDOM_ISAAC_HPP
 
+#include "defines.hpp"
 #include <stdint.h>
 
 namespace e_engine {
 
-class uRandomISAAC {
+class UTILS_API uRandomISAAC {
  private:
    uint32_t mm[256];
    uint32_t aa;

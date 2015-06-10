@@ -43,7 +43,7 @@ class iRandR_win32;
  * \note To apply the changes made here, you must call iRandR::setDisplaySizes()
  *       first and then iRandR::applyNewSettings()
  */
-class iDisplays : public iDisplayBasic {
+class INIT_API iDisplays : public iDisplayBasic {
  private:
    //! \brief internal structure for storing important mode information.
    std::vector<DEVMODEW> vModes_V_win32;    //!< all possible modes

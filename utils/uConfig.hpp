@@ -21,6 +21,7 @@
 #ifndef U_CONFIG_HPP
 #define U_CONFIG_HPP
 
+#include "defines.hpp"
 #include <string>
 #include <vector>
 #include "uExtensions.hpp"
@@ -360,7 +361,7 @@ struct _uConfig {
  * \brief The main object from _uConfig
  * \sa _uConfig __uConfig_FBA
  */
-extern _uConfig GlobConf;
+extern UTILS_API _uConfig GlobConf;
 }
 
 #endif // U_CONFIG_HPP

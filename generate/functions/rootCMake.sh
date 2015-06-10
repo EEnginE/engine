@@ -125,7 +125,7 @@ EOF
     local TEMP_SIZE=0
     local TEMP_A=()
 
-    echo "-I$(pwd)" > "$CLANG_COMPLETE"
+    echo "-I$(pwd)/$INCLUDES_DIR" > "$CLANG_COMPLETE"
 
     for i in "${DISPLAY_SERVER[@]}"; do
         eval "TEMP_SIZE=\${#${i^^}_DIRS[@]}"

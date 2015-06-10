@@ -31,7 +31,7 @@ namespace e_engine {
 
 class iInit;
 
-class iInitSignals {
+class INIT_API iInitSignals {
  public:
    typedef iEventInfo const &SIGNAL_TYPE;
    typedef uSignal<void, SIGNAL_TYPE> SIGNAL;

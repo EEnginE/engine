@@ -41,7 +41,7 @@ namespace e_engine {
 namespace windows_win32 {
 
 
-class iContext : public iKeyboard, public iRandR, public iInitSignals {
+class INIT_API iContext : public iKeyboard, public iRandR, public iInitSignals {
  private:
    PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
    HINSTANCE vInstance_win32;

@@ -65,7 +65,7 @@ namespace e_engine {
  *
  * \warning Always inherit this class FIRST
  */
-class rObjectBase {
+class RENDER_API rObjectBase {
  public:
    enum OBJECT_HINTS {
       FLAGS,

@@ -33,9 +33,9 @@
 
 namespace e_engine {
 
-class rSimpleMesh final : public rMatrixObjectBase<float>,
-                          public rObjectBase,
-                          public rObjectBase_data<float, unsigned short> {
+class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>,
+                                     public rObjectBase,
+                                     public rObjectBase_data<float, unsigned short> {
  private:
    GLuint vVertexBufferObject;
    GLuint vIndexBufferObject;
