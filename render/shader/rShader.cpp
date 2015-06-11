@@ -148,9 +148,9 @@ int rShader::search_shaders() {
             vShaders.emplace_back( temp[GEOM], GL_GEOMETRY_SHADER );
 
 
-   } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) { eLOG( ex.what() ); } catch ( ... ) {
-      eLOG( "Caught unknown exception" );
-   }
+   } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) {
+      eLOG( ex.what() );
+   } catch ( ... ) { eLOG( "Caught unknown exception" ); }
 
    if ( vShaders.size() == 0 ) {
       wLOG( "No shaders found! WARNING!" );
@@ -183,9 +183,9 @@ bool rShader::addShader( std::string _filename, GLenum _shaderType ) {
             }
          }
       }
-   } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) { eLOG( ex.what() ); } catch ( ... ) {
-      eLOG( "Caught unknown exception" );
-   }
+   } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) {
+      eLOG( ex.what() );
+   } catch ( ... ) { eLOG( "Caught unknown exception" ); }
 
    eLOG( "Failed to access shader file ", _filename );
    return false;

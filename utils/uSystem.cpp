@@ -124,9 +124,9 @@ std::string uSystem::getMainConfigDirPath() {
       std::string dir2_str = vUserHome + "/.config/";
       dir2_str += out;
 
-	  FILESYSTEM_NAMESPACE::path dir1( dir1_str );
-	  FILESYSTEM_NAMESPACE::path dir2( dir2_str );
-	  FILESYSTEM_NAMESPACE::path configDir( vUserHome + "/.config" );
+      FILESYSTEM_NAMESPACE::path dir1( dir1_str );
+      FILESYSTEM_NAMESPACE::path dir2( dir2_str );
+      FILESYSTEM_NAMESPACE::path configDir( vUserHome + "/.config" );
       bool dir1_exists, dir2_exists;
       bool dir1_noDir, dir2_noDir = false;
       bool dotConfigExists;
@@ -206,7 +206,7 @@ std::string uSystem::getMainConfigDirPath() {
          if ( GlobConf.config.unixPathType ) {
             // There is no directory file $HOME/.config/NAME
             if ( !dir2_noDir ) {
-			   FILESYSTEM_NAMESPACE::create_directory( dir2 );
+               FILESYSTEM_NAMESPACE::create_directory( dir2 );
                vMainConfigDir = dir2_str;
                return vMainConfigDir;
             } else if ( !dir1_noDir ) {
@@ -371,7 +371,7 @@ std::string uSystem::getConfigFilePath() {
                vConfigFilePath = temp;
                return vConfigFilePath;
             }
-         } catch ( const FILESYSTEM_NAMESPACEO::filesystem_error &ex ) {
+         } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) {
             eLOG( ex.what() ); // LOG wont work
          }
       }
