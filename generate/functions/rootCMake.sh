@@ -178,7 +178,7 @@ EOF
         for i in "${C_TESTS[@]}"; do
             TEST_TO_DO=${i^^}
 
-            local TEST_PATH=$( echo "$(pwd)/$COMPILER_TESTS_DIR/$i" | sed 's/^\/cygdrive\///g' | sed 's/^\([a-z]\)/\U\1:/g' )
+            local TEST_PATH=$( echo "$(pwd)/$COMPILER_TESTS_DIR/$i" | sed 's/^\/cygdrive\///g' | sed 's/^\([a-zA-Z]\)/\U\1:/g' )
             cat << EOF
 
 

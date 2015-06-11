@@ -18,8 +18,6 @@
 #define BENCHCLASS_H
 
 #include <functional>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include "cmdANDinit.hpp"
 
 class BenchBaseVirtual {
@@ -47,9 +45,6 @@ class BenchClass : public BenchBaseVirtual {
 
    double ( *vCFunctionPointer )( int, double );
    double ( *vCFunctionPointerInline )( int, double );
-
-   boost::function<double(int, double)> vBoostFunc;
-   boost::function<double(int, double)> vBoostFuncInline;
 
    std::function<double(int, double)> vStdFunc;
    std::function<double(int, double)> vStdFuncInline;

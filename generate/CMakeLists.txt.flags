@@ -12,7 +12,7 @@ if( NOT ENGINE_LINK_SHARED )
    set( PROJECT_DEFINES_GCC   "-DGLEW_STATIC" )
    set( PROJECT_DEFINES_CLANG "-DGLEW_STATIC" )
    set( PROJECT_DEFINES_INTEL "<insert here>" ) # TODO
-   set( PROJECT_DEFINES_MSVC  "<insert here>" ) # TODO
+   set( PROJECT_DEFINES_MSVC  "-DGLEW_STATIC" )
 endif( NOT ENGINE_LINK_SHARED )
 
 if( ENGINE_VERBOSE )
@@ -111,10 +111,12 @@ endif( EXTRA_WARNINGS )
 # Detect Compiler
 
 if( CMAKE_CXX_COMPILER_ID MATCHES GNU )
+   option( ENGINE_USE_BOOST "Use boost:: instead of std::" ON )
    set( CMAKE_CXX_FLAGS_DEBUG   "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}   ${GNU_COMPILER_OPTIONS_DEBUG}" )
    set( CMAKE_CXX_FLAGS_RELEASE "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} ${GNU_COMPILER_OPTIONS_RELEASE}" )
 
 elseif( CMAKE_CXX_COMPILER_ID MATCHES Clang )
+   option( ENGINE_USE_BOOST "Use boost:: instead of std::" ON )
    set( CMAKE_CXX_FLAGS_DEBUG   "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}   ${CLANG_COMPILER_OPTIONS_DEBUG}" )
    set( CMAKE_CXX_FLAGS_RELEASE "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} ${CLANG_COMPILER_OPTIONS_RELEASE}" )
 
@@ -124,9 +126,9 @@ elseif( CMAKE_CXX_COMPILER_ID MATCHES Intel )
    message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )           # Remove this when done with Intel
 
 elseif( CMAKE_CXX_COMPILER_ID MATCHES MSVC )
-   #set( CMAKE_CXX_FLAGS_DEBUG   "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}   ${MSVC_COMPILER_OPTIONS_DEBUG}" )    # Uncomment this when making MSVC compatible
-   #set( CMAKE_CXX_FLAGS_RELEASE "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_COMPILER_OPTIONS_RELEASE}" )  # Uncomment this when making MSVC compatible
-   message( WARNING "Compiler flags for ${CMAKE_CXX_COMPILER_ID} not (yet) supported" )           # Remove this when making MSVC compatible
+   option( ENGINE_USE_BOOST "Use boost:: instead of std::" OFF )
+   set( CMAKE_CXX_FLAGS_DEBUG   "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}   ${MSVC_COMPILER_OPTIONS_DEBUG}" )
+   set( CMAKE_CXX_FLAGS_RELEASE "${EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_COMPILER_OPTIONS_RELEASE}" )
 
 else()
    message( WARNING "Unknown compiler ${CMAKE_CXX_COMPILER_ID}" )

@@ -26,7 +26,7 @@
 
 #include <ctime>
 
-#include <boost/filesystem.hpp>
+#include FILESYSTEM_INCLUDE
 #include <cstdio> // for fileno
 #include <iostream>
 #include <sstream>
@@ -168,24 +168,24 @@ bool uLog::openLogFile( uint16_t i ) {
    }
 
 
-   boost::filesystem::path p( lThisLog_SS.str() );
-   boost::filesystem::path n( lNextLog_SS.str() );
+   FILESYSTEM_NAMESPACE::path p( lThisLog_SS.str() );
+   FILESYSTEM_NAMESPACE::path n( lNextLog_SS.str() );
 
    try {
-      if ( boost::filesystem::exists( p ) ) {
-         if ( boost::filesystem::is_regular_file( p ) ) {
+      if ( FILESYSTEM_NAMESPACE::exists( p ) ) {
+         if ( FILESYSTEM_NAMESPACE::is_regular_file( p ) ) {
             if ( i < GlobConf.config.maxNumOfLogFileBackshift ) {
                i++;
                openLogFile( i );
                i--;
-               boost::filesystem::rename( p, n );
+               FILESYSTEM_NAMESPACE::rename( p, n );
             } else {
-               boost::filesystem::remove( p );
+               FILESYSTEM_NAMESPACE::remove( p );
                return true;
             }
          }
       }
-   } catch ( const boost::filesystem::filesystem_error &ex ) {
+   } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) {
       eLOG( ex.what() );
       return false;
    } catch ( ... ) {

@@ -18,3 +18,5 @@ message( STATUS "Using CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSI
 
 option( ENGINE_LINK_SHARED  "Link the project shared (1/ON) or static (0/OFF)" ON )
 option( USE_SYSTEM_GLEW     "Use the system GLEW version"                      OFF )
+
+option( STD_FILESYSTEM_IS_EXPERIMENTAL "Use the experimental filesystem instead of std IF ENGINE_USE_BOOST is false" ON )

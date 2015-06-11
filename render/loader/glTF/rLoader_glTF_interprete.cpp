@@ -20,7 +20,7 @@
 
 #include "rLoader_glTF.hpp"
 #include "uFileIO.hpp"
-#include <boost/filesystem.hpp>
+#include FILESYSTEM_INCLUDE
 
 namespace e_engine {
 
@@ -165,17 +165,17 @@ bool rLoader_glTF::interprete() {
 
    // Load binary data
    std::vector<uFileIO> lBuffers;
-   boost::filesystem::path lTemp( vFilePath_str );
+   FILESYSTEM_NAMESPACE::path lTemp( vFilePath_str );
 
    for ( auto const &i : vBuffers ) {
-      boost::filesystem::path lBufferFile( lTemp.parent_path().string() + "/" + i.uri );
+      FILESYSTEM_NAMESPACE::path lBufferFile( lTemp.parent_path().string() + "/" + i.uri );
 
-      if ( !boost::filesystem::exists( lBufferFile ) ) {
+      if ( !FILESYSTEM_NAMESPACE::exists( lBufferFile ) ) {
          eLOG( "Unable to find buffer file '", lBufferFile.string(), "'" );
          return false;
       }
 
-      if ( !boost::filesystem::is_regular_file( lBufferFile ) ) {
+      if ( !FILESYSTEM_NAMESPACE::is_regular_file( lBufferFile ) ) {
          eLOG( "File '", lBufferFile.string(), "' is not a regular file!" );
          return false;
       }

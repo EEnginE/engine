@@ -40,7 +40,7 @@
 
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
-#include <boost/filesystem.hpp>
+#include FILESYSTEM_INCLUDE
 #include <regex>
 #include <iostream>
 
@@ -124,17 +124,17 @@ std::string uSystem::getMainConfigDirPath() {
       std::string dir2_str = vUserHome + "/.config/";
       dir2_str += out;
 
-      boost::filesystem::path dir1( dir1_str );
-      boost::filesystem::path dir2( dir2_str );
-      boost::filesystem::path configDir( vUserHome + "/.config" );
+	  FILESYSTEM_NAMESPACE::path dir1( dir1_str );
+	  FILESYSTEM_NAMESPACE::path dir2( dir2_str );
+	  FILESYSTEM_NAMESPACE::path configDir( vUserHome + "/.config" );
       bool dir1_exists, dir2_exists;
       bool dir1_noDir, dir2_noDir = false;
       bool dotConfigExists;
 
       try {
          // Is there a $HOME/.NAME dir already?
-         if ( boost::filesystem::exists( dir1 ) ) {
-            if ( boost::filesystem::is_directory( dir1 ) ) {
+         if ( FILESYSTEM_NAMESPACE::exists( dir1 ) ) {
+            if ( FILESYSTEM_NAMESPACE::is_directory( dir1 ) ) {
                dir1_exists = true;
                dir1_noDir = false;
             } else {
@@ -147,12 +147,12 @@ std::string uSystem::getMainConfigDirPath() {
          }
 
          // If the $HOME/.cnfig dir doesn't exist use the $HOME location
-         if ( boost::filesystem::exists( configDir ) ) {
-            if ( boost::filesystem::is_directory( configDir ) ) {
+         if ( FILESYSTEM_NAMESPACE::exists( configDir ) ) {
+            if ( FILESYSTEM_NAMESPACE::is_directory( configDir ) ) {
                dotConfigExists = true;
                // Is there a $HOME/.config/NAME dir already?
-               if ( boost::filesystem::exists( dir2 ) ) {
-                  if ( boost::filesystem::is_directory( dir2 ) ) {
+               if ( FILESYSTEM_NAMESPACE::exists( dir2 ) ) {
+                  if ( FILESYSTEM_NAMESPACE::is_directory( dir2 ) ) {
                      dir2_exists = true;
                      dir1_noDir = false;
                   } else {
@@ -206,71 +206,71 @@ std::string uSystem::getMainConfigDirPath() {
          if ( GlobConf.config.unixPathType ) {
             // There is no directory file $HOME/.config/NAME
             if ( !dir2_noDir ) {
-               boost::filesystem::create_directory( dir2 );
+			   FILESYSTEM_NAMESPACE::create_directory( dir2 );
                vMainConfigDir = dir2_str;
                return vMainConfigDir;
             } else if ( !dir1_noDir ) {
-               boost::filesystem::create_directory( dir1 );
+               FILESYSTEM_NAMESPACE::create_directory( dir1 );
                vMainConfigDir = dir1_str;
                return vMainConfigDir;
                // Remove the file $HOME/.config/NAME and create the dir
             } else if ( dotConfigExists ) {
-               boost::filesystem::remove( dir2 );
-               boost::filesystem::create_directory( dir2 );
+               FILESYSTEM_NAMESPACE::remove( dir2 );
+               FILESYSTEM_NAMESPACE::create_directory( dir2 );
                vMainConfigDir = dir2_str;
                return vMainConfigDir;
             } else {
-               boost::filesystem::remove( dir1 );
-               boost::filesystem::create_directory( dir1 );
+               FILESYSTEM_NAMESPACE::remove( dir1 );
+               FILESYSTEM_NAMESPACE::create_directory( dir1 );
                vMainConfigDir = dir1_str;
                return vMainConfigDir;
             }
          } else {
             // There is no directory file $HOME/.NAME
             if ( !dir1_noDir ) {
-               boost::filesystem::create_directory( dir1 );
+               FILESYSTEM_NAMESPACE::create_directory( dir1 );
                vMainConfigDir = dir1_str;
                return vMainConfigDir;
             } else if ( !dir2_noDir && dotConfigExists ) {
-               boost::filesystem::create_directory( dir2 );
+               FILESYSTEM_NAMESPACE::create_directory( dir2 );
                vMainConfigDir = dir2_str;
                return vMainConfigDir;
                // Remove the file $HOME/.NAME and create the dir
             } else {
-               boost::filesystem::remove( dir1 );
-               boost::filesystem::create_directory( dir1 );
+               FILESYSTEM_NAMESPACE::remove( dir1 );
+               FILESYSTEM_NAMESPACE::create_directory( dir1 );
                vMainConfigDir = dir1_str;
                return vMainConfigDir;
             }
          }
-      } catch ( const boost::filesystem::filesystem_error &ex ) { eLOG( ex.what() ); }
+      } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) { eLOG( ex.what() ); }
 
 #elif WINDOWS
       vMainConfigDir = vUserHome + '\\' + out;
 
-      boost::filesystem::path dir1( vMainConfigDir );
+      FILESYSTEM_NAMESPACE::path dir1( vMainConfigDir );
 
       try {
-         if ( boost::filesystem::exists( dir1 ) ) {
-            if ( !boost::filesystem::is_directory( dir1 ) ) {
-               boost::filesystem::remove( dir1 );
-               boost::filesystem::create_directory( dir1 );
+         if ( FILESYSTEM_NAMESPACE::exists( dir1 ) ) {
+            if ( !FILESYSTEM_NAMESPACE::is_directory( dir1 ) ) {
+               FILESYSTEM_NAMESPACE::remove( dir1 );
+               FILESYSTEM_NAMESPACE::create_directory( dir1 );
             }
-         } else { boost::filesystem::create_directory( dir1 ); }
+         } else { FILESYSTEM_NAMESPACE::create_directory( dir1 ); }
 
-         if ( !boost::filesystem::exists( dir1 ) ) {
+         if ( !FILESYSTEM_NAMESPACE::exists( dir1 ) ) {
             wLOG( "Failed to create / select the main config dir ", vMainConfigDir );
             vMainConfigDir.clear();
             return "";
          }
 
-         if ( !boost::filesystem::is_directory( dir1 ) ) {
+         if ( !FILESYSTEM_NAMESPACE::is_directory( dir1 ) ) {
             wLOG( "Failed to create / select the main config dir ", vMainConfigDir );
             vMainConfigDir.clear();
             return "";
          }
 
-      } catch ( const boost::filesystem::filesystem_error &ex ) { eLOG( ex.what() ); }
+      } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) { eLOG( ex.what() ); }
 #endif
    }
    return vMainConfigDir;
@@ -302,25 +302,25 @@ std::string uSystem::getLogFilePath() {
 
          temp += GlobConf.config.logSubFolder;
 
-         boost::filesystem::path logPath( temp );
+         FILESYSTEM_NAMESPACE::path logPath( temp );
 
          try {
-            if ( boost::filesystem::exists( logPath ) ) {
-               if ( boost::filesystem::is_directory( logPath ) ) {
+            if ( FILESYSTEM_NAMESPACE::exists( logPath ) ) {
+               if ( FILESYSTEM_NAMESPACE::is_directory( logPath ) ) {
                   vLogFilePath = temp;
                   return vLogFilePath;
                } else {
-                  boost::filesystem::remove( logPath );
-                  boost::filesystem::create_directory( logPath );
+                  FILESYSTEM_NAMESPACE::remove( logPath );
+                  FILESYSTEM_NAMESPACE::create_directory( logPath );
                   vLogFilePath = temp;
                   return vLogFilePath;
                }
             } else {
-               boost::filesystem::create_directory( logPath );
+               FILESYSTEM_NAMESPACE::create_directory( logPath );
                vLogFilePath = temp;
                return vLogFilePath;
             }
-         } catch ( const boost::filesystem::filesystem_error &ex ) {
+         } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) {
             std::cerr << ex.what() << std::endl; // LOG wont work
          }
       }
@@ -353,25 +353,25 @@ std::string uSystem::getConfigFilePath() {
 #endif
          temp += GlobConf.config.logSubFolder;
 
-         boost::filesystem::path confPath( temp );
+         FILESYSTEM_NAMESPACE::path confPath( temp );
 
          try {
-            if ( boost::filesystem::exists( confPath ) ) {
-               if ( boost::filesystem::is_directory( confPath ) ) {
+            if ( FILESYSTEM_NAMESPACE::exists( confPath ) ) {
+               if ( FILESYSTEM_NAMESPACE::is_directory( confPath ) ) {
                   vConfigFilePath = temp;
                   return vConfigFilePath;
                } else {
-                  boost::filesystem::remove( confPath );
-                  boost::filesystem::create_directory( confPath );
+                  FILESYSTEM_NAMESPACE::remove( confPath );
+                  FILESYSTEM_NAMESPACE::create_directory( confPath );
                   vConfigFilePath = temp;
                   return vConfigFilePath;
                }
             } else {
-               boost::filesystem::create_directory( confPath );
+               FILESYSTEM_NAMESPACE::create_directory( confPath );
                vConfigFilePath = temp;
                return vConfigFilePath;
             }
-         } catch ( const boost::filesystem::filesystem_error &ex ) {
+         } catch ( const FILESYSTEM_NAMESPACEO::filesystem_error &ex ) {
             eLOG( ex.what() ); // LOG wont work
          }
       }

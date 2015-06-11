@@ -23,16 +23,28 @@ else( ENGINE_LINK_SHARED )
 endif( ENGINE_LINK_SHARED )
 # End STATIC ###
 
+if( ENGINE_USE_BOOST )
+   set(Boost_USE_MULTITHREADED ON)
+   if( NOT ENGINE_LINK_SHARED )
+      set(Boost_USE_STATIC_LIBS ON)
+   endif( NOT ENGINE_LINK_SHARED )
+   find_package(Boost 1.46.1 REQUIRED COMPONENTS filesystem system )
 
-set(Boost_USE_MULTITHREADED ON)
-if( NOT ENGINE_LINK_SHARED )
-   set(Boost_USE_STATIC_LIBS ON)
-endif( NOT ENGINE_LINK_SHARED )
+   set( CM_FILESYSTEM_NAMESPACE "boost::filesystem" )
+   set( CM_FILESYSTEM_INCLUDE   "<boost/filesystem.hpp>" )
+else( ENGINE_USE_BOOST )
+   if( STD_FILESYSTEM_IS_EXPERIMENTAL )
+      set( CM_FILESYSTEM_NAMESPACE "std::experimental::filesystem" )
+	  set( CM_FILESYSTEM_INCLUDE   "<experimental/filesystem>" )
+   else( STD_FILESYSTEM_IS_EXPERIMENTAL )
+      set( CM_FILESYSTEM_NAMESPACE "std::filesystem" )
+	  set( CM_FILESYSTEM_INCLUDE   "<filesystem>" )
+   endif( STD_FILESYSTEM_IS_EXPERIMENTAL )
+endif( ENGINE_USE_BOOST )
 
 
 find_package(OpenGL       REQUIRED)
 find_package(Threads      REQUIRED)
-find_package(Boost 1.46.1 REQUIRED COMPONENTS filesystem system )
 
 if( USE_SYSTEM_GLEW )
    find_package(GLEW REQUIRED)

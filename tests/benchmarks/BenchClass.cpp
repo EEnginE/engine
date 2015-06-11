@@ -44,14 +44,12 @@ BenchClass::BenchClass( cmdANDinit *_cmd )
       vTheSignal.connect( &vTheSlot );
       vFunctionPointer = &BenchClass::funcToCall;
       vCFunctionPointer = &cFuncToCall;
-      vBoostFunc = boost::bind( &BenchClass::funcToCall, this, _1, _2 );
       vStdFunc = std::bind(
             &BenchClass::funcToCall, this, std::placeholders::_1, std::placeholders::_2 );
 
       vTheSignalInline.connect( &vTheSlotInline );
       vFunctionPointerInline = &BenchClass::funcToCallInline;
       vCFunctionPointerInline = &cFuncToCallInline;
-      vBoostFuncInline = boost::bind( &BenchClass::funcToCallInline, this, _1, _2 );
       vStdFuncInline = std::bind(
             &BenchClass::funcToCallInline, this, std::placeholders::_1, std::placeholders::_2 );
 
@@ -103,12 +101,6 @@ void BenchClass::doFunction() {
    }
    uint64_t lVirt = STOP( virt );
 
-   START( boostFunc );
-   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
-      vBoostFunc( a, b );
-   }
-   uint64_t lBoostFunc = STOP( boostFunc );
-
    START( stdFunc );
    for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vStdFunc( a, b );
@@ -148,12 +140,6 @@ void BenchClass::doFunction() {
    }
    uint64_t lNormalVirtIn = STOP( normalInlineVirt );
 
-   START( boostFuncInline );
-   for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
-      vBoostFuncInline( a, b );
-   }
-   uint64_t lBoostFuncIn = STOP( boostFuncInline );
-
    START( stdFuncInline );
    for ( unsigned int i = 0; i < vLoopsToDo; ++i ) {
       vStdFuncInline( a, b );
@@ -168,7 +154,6 @@ void BenchClass::doFunction() {
    iLOG( "  = [NORMAL] C F Ptr:         ", lCFunc );
    iLOG( "  = [NORMAL] Normal call:     ", lNormal );
    iLOG( "  = [NORMAL] Virtual call:    ", lVirt );
-   iLOG( "  = [NORMAL] Boost Function:  ", lBoostFunc );
    iLOG( "  = [NORMAL] Std Function:    ", lStdFunc );
 
    iLOG( "  = [INLINE] Signal Slot:     ", lSigSlotIn );
@@ -176,7 +161,6 @@ void BenchClass::doFunction() {
    iLOG( "  = [INLINE] C F Ptr:         ", lCFuncIn );
    iLOG( "  = [INLINE] Normal call:     ", lNormalIn );
    iLOG( "  = [INLINE] Virtual call:    ", lNormalVirtIn );
-   iLOG( "  = [INLINE] Boost Function:  ", lBoostFuncIn );
    iLOG( "  = [INLINE] Std Function:    ", lStdFuncIn );
 
    string lSigSlot_str = std::to_string( lSigSlot );
@@ -184,7 +168,6 @@ void BenchClass::doFunction() {
    string lCFunc_str = std::to_string( lCFunc );
    string lNormal_str = std::to_string( lNormal );
    string lVirt_str = std::to_string( lVirt );
-   string lBoostFunc_str = std::to_string( lBoostFunc );
    string lStdFunc_str = std::to_string( lStdFunc );
 
    string lSigSlotIn_str = std::to_string( lSigSlotIn );
@@ -192,7 +175,6 @@ void BenchClass::doFunction() {
    string lCFuncIn_str = std::to_string( lCFuncIn );
    string lNormalIn_str = std::to_string( lNormalIn );
    string lNormalVirtIn_str = std::to_string( lNormalVirtIn );
-   string lBoostFuncIn_str = std::to_string( lBoostFuncIn );
    string lStdFuncIn_str = std::to_string( lStdFuncIn );
 
    lSigSlot_str.resize( 10, ' ' );
@@ -200,7 +182,6 @@ void BenchClass::doFunction() {
    lCFunc_str.resize( 10, ' ' );
    lNormal_str.resize( 10, ' ' );
    lVirt_str.resize( 10, ' ' );
-   lBoostFunc_str.resize( 10, ' ' );
    lStdFunc_str.resize( 10, ' ' );
 
    lSigSlotIn_str.resize( 10, ' ' );
@@ -208,7 +189,6 @@ void BenchClass::doFunction() {
    lCFuncIn_str.resize( 10, ' ' );
    lNormalIn_str.resize( 10, ' ' );
    lNormalVirtIn_str.resize( 10, ' ' );
-   lBoostFuncIn_str.resize( 10, ' ' );
    lStdFuncIn_str.resize( 10, ' ' );
 
 
@@ -239,11 +219,6 @@ void BenchClass::doFunction() {
          lVirt_str,
          " | ",
          lNormalVirtIn_str,
-         " |"
-         "\n   | Boost Function   | ",
-         lBoostFunc_str,
-         " | ",
-         lBoostFuncIn_str,
          " |"
          "\n   | STD Function     | ",
          lStdFunc_str,

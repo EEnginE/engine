@@ -22,7 +22,6 @@
 #include "rLoader_3D_f_OBJ.hpp"
 #include "iInit.hpp"
 #include <regex>
-#include <boost/filesystem.hpp>
 
 namespace e_engine {
 

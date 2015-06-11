@@ -20,7 +20,7 @@
 
 #include "uFileIO.hpp"
 #include "uLog.hpp"
-#include <boost/filesystem.hpp>
+#include FILESYSTEM_INCLUDE
 
 namespace e_engine {
 
@@ -49,14 +49,14 @@ int uFileIO::read( bool _autoReload ) {
    if ( vFileRead_B == true && _autoReload == false )
       return 2;
 
-   boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
+   FILESYSTEM_NAMESPACE::path lFilePath_BFS( vFilePath_str.c_str() );
 
-   if ( !boost::filesystem::exists( lFilePath_BFS ) ) {
+   if ( !FILESYSTEM_NAMESPACE::exists( lFilePath_BFS ) ) {
       eLOG( "File '", vFilePath_str, "' does not exists" );
       return 3;
    }
 
-   if ( !boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
+   if ( !FILESYSTEM_NAMESPACE::is_regular_file( lFilePath_BFS ) ) {
       eLOG( "'", vFilePath_str, "' is not a file!" );
       return 4;
    }
@@ -68,7 +68,7 @@ int uFileIO::read( bool _autoReload ) {
    }
 
    int c;
-   auto lSize = boost::filesystem::file_size( lFilePath_BFS );
+   auto lSize = FILESYSTEM_NAMESPACE::file_size( lFilePath_BFS );
 
    if ( lSize != static_cast<uintmax_t>( -1 ) ) {
       vData.resize( lSize );
@@ -112,22 +112,22 @@ int uFileIO::read( bool _autoReload ) {
  * \returns 5 if the file is not writable
  */
 int uFileIO::write( const uFileIO::TYPE &_data, bool _overWrite ) {
-   boost::filesystem::path lFilePath_BFS( vFilePath_str.c_str() );
+   FILESYSTEM_NAMESPACE::path lFilePath_BFS( vFilePath_str.c_str() );
 
-   if ( boost::filesystem::exists( lFilePath_BFS ) ) {
+   if ( FILESYSTEM_NAMESPACE::exists( lFilePath_BFS ) ) {
       if ( !_overWrite ) {
          eLOG( "File '", vFilePath_str, "' already exists -- do not overwrite" );
          return 2;
       }
 
-      if ( !boost::filesystem::is_regular_file( lFilePath_BFS ) ) {
+      if ( !FILESYSTEM_NAMESPACE::is_regular_file( lFilePath_BFS ) ) {
          eLOG( "'", vFilePath_str, "' is not a file! -- can not overwrite" );
          return 3;
       }
 
       wLOG( "File '", vFilePath_str, "' already exists -- overwrite" );
 
-      if ( !boost::filesystem::remove( lFilePath_BFS ) ) {
+      if ( !FILESYSTEM_NAMESPACE::remove( lFilePath_BFS ) ) {
          eLOG( "Failed to remove '", vFilePath_str, "'" );
          return 4;
       }

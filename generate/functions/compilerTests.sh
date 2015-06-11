@@ -39,6 +39,9 @@ compilerTests() {
 
         TEST_NAME=${TEST_NAME}
 
+		local curr_pwd
+		curr_pwd="$( echo "$(pwd)" | sed 's/^\/cygdrive\///g' | sed 's/^\([a-zA-Z]\)/\U\1:/g' )"
+
         cat > "$CMAKE_FILE" << EOF
 # Automatically generated file; DO NOT EDIT
 
@@ -46,7 +49,7 @@ cmake_minimum_required(VERSION ${CMAKE_VERSION})
 
 project( ${TEST_NAME} )
 
-set( CMAKE_MODULE_PATH \${CMAKE_MODULE_PATH} $(pwd)/generate/cmake )
+set( CMAKE_MODULE_PATH \${CMAKE_MODULE_PATH} $curr_pwd/generate/cmake )
 set( CMAKE_BUILD_TYPE DEBUG )
 
 EOF

@@ -21,8 +21,9 @@
 
 
 #include <GL/glew.h>
+#include "defines.hpp"
 #include "rShader.hpp"
-#include <boost/filesystem.hpp>
+#include FILESYSTEM_INCLUDE
 #include "uLog.hpp"
 #include "defines.hpp"
 #include "eCMDColor.hpp"
@@ -129,25 +130,25 @@ int rShader::search_shaders() {
    temp[FRAG] += vShaderEndings[FRAG];
    temp[GEOM] += vShaderEndings[GEOM];
 
-   boost::filesystem::path vert( temp[VERT] );
-   boost::filesystem::path frag( temp[FRAG] );
-   boost::filesystem::path geom( temp[GEOM] );
+   FILESYSTEM_NAMESPACE::path vert( temp[VERT] );
+   FILESYSTEM_NAMESPACE::path frag( temp[FRAG] );
+   FILESYSTEM_NAMESPACE::path geom( temp[GEOM] );
 
    try {
-      if ( boost::filesystem::exists( vert ) ) // Look for the vertex-shader
-         if ( boost::filesystem::is_regular_file( vert ) )
+      if ( FILESYSTEM_NAMESPACE::exists( vert ) ) // Look for the vertex-shader
+         if ( FILESYSTEM_NAMESPACE::is_regular_file( vert ) )
             vShaders.emplace_back( temp[VERT], GL_VERTEX_SHADER );
 
-      if ( boost::filesystem::exists( frag ) ) // Look for the fragment-shader
-         if ( boost::filesystem::is_regular_file( vert ) )
+      if ( FILESYSTEM_NAMESPACE::exists( frag ) ) // Look for the fragment-shader
+         if ( FILESYSTEM_NAMESPACE::is_regular_file( vert ) )
             vShaders.emplace_back( temp[FRAG], GL_FRAGMENT_SHADER );
 
-      if ( boost::filesystem::exists( geom ) ) // Look for the geometry-shader
-         if ( boost::filesystem::is_regular_file( geom ) )
+      if ( FILESYSTEM_NAMESPACE::exists( geom ) ) // Look for the geometry-shader
+         if ( FILESYSTEM_NAMESPACE::is_regular_file( geom ) )
             vShaders.emplace_back( temp[GEOM], GL_GEOMETRY_SHADER );
 
 
-   } catch ( const boost::filesystem::filesystem_error &ex ) { eLOG( ex.what() ); } catch ( ... ) {
+   } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) { eLOG( ex.what() ); } catch ( ... ) {
       eLOG( "Caught unknown exception" );
    }
 
@@ -160,11 +161,11 @@ int rShader::search_shaders() {
 
 
 bool rShader::addShader( std::string _filename, GLenum _shaderType ) {
-   boost::filesystem::path lShaderPath( _filename );
+   FILESYSTEM_NAMESPACE::path lShaderPath( _filename );
 
    try {
-      if ( boost::filesystem::exists( lShaderPath ) ) { // Look for the vertex-shader
-         if ( boost::filesystem::is_regular_file( lShaderPath ) ) {
+      if ( FILESYSTEM_NAMESPACE::exists( lShaderPath ) ) { // Look for the vertex-shader
+         if ( FILESYSTEM_NAMESPACE::is_regular_file( lShaderPath ) ) {
 
             switch ( _shaderType ) {
                case GL_VERTEX_SHADER:
@@ -182,7 +183,7 @@ bool rShader::addShader( std::string _filename, GLenum _shaderType ) {
             }
          }
       }
-   } catch ( const boost::filesystem::filesystem_error &ex ) { eLOG( ex.what() ); } catch ( ... ) {
+   } catch ( const FILESYSTEM_NAMESPACE::filesystem_error &ex ) { eLOG( ex.what() ); } catch ( ... ) {
       eLOG( "Caught unknown exception" );
    }
 
