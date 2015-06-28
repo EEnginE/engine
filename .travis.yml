@@ -1,5 +1,19 @@
 language: cpp
 
+env:
+   global:
+      - secure: "aNwINKV34aR1sG/EMd9VKpBtc4C0sZ1hz2bDVrsh6wAN9rcRAy04dVgeBbRFzeN4Vkzl5pZnp2eOO8JX43+MiMuQCnANo3iW3pGencMC+sgxX0QEl86XMqtfBUQc+dqtNvm2W/tVsGe/TFs8F4AiupfJeGAIAQQMg6jmdgHEw6Q="
+
+addons:
+   coverity_scan:
+      project:
+         name: "EEnginE/engine"
+         description: "Build submitted via Travis CI"
+      notification_email: mensinda42@gmail.com
+      build_command_prepend: "./generate.sh qQltp; mkdir build_cs; cd build_cs; cmake ..; make clean"
+      build_command:   "make -j 4"
+      branch_pattern: master #coverity_scan
+
 # sudo: false # Use new travis container build -- ppa:kalakris/cmake not whitelisted yet
 compiler:
    - gcc
@@ -31,7 +45,7 @@ script:
    - mkdir build
    - cd build
    - cmake ..
-   - make
+   - make -j2
 
 notifications:
   webhooks:
