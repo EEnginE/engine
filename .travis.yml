@@ -1,5 +1,10 @@
 language: cpp
 
+# sudo: false # Use new travis container build -- ppa:kalakris/cmake not whitelisted yet
+compiler:
+   - gcc
+   - clang
+
 env:
    global:
       - secure: "aNwINKV34aR1sG/EMd9VKpBtc4C0sZ1hz2bDVrsh6wAN9rcRAy04dVgeBbRFzeN4Vkzl5pZnp2eOO8JX43+MiMuQCnANo3iW3pGencMC+sgxX0QEl86XMqtfBUQc+dqtNvm2W/tVsGe/TFs8F4AiupfJeGAIAQQMg6jmdgHEw6Q="
@@ -12,14 +17,8 @@ addons:
       notification_email: mensinda42@gmail.com
       build_command_prepend: "./generate.sh qQltp; mkdir build_cs; cd build_cs; cmake ..; make clean"
       build_command:   "make -j 4"
-      branch_pattern: master #coverity_scan
+      branch_pattern: master
 
-# sudo: false # Use new travis container build -- ppa:kalakris/cmake not whitelisted yet
-compiler:
-   - gcc
-   - clang
-
-addons:
    apt:
       sources:
          - boost-latest
