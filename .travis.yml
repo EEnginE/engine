@@ -29,7 +29,9 @@ install:
 
 script:
    - mkdir build
-   - cd build
+   - cd dependencies/GLEW
+   - make extensions
+   - cd ../../build
    - $CMAKE_EXEC ..
    - make -j2
 
