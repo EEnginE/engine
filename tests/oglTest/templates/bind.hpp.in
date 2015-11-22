@@ -1,0 +1,19 @@
+/*!
+ * \file @CM_CLASS_NAME@.hpp
+ * \brief \b Classes: \a @CM_CLASS_NAME@
+ *
+ * \warning Automatically generated file DO NOT EDIT HERE
+ */
+
+#ifndef @CM_CLASS_NAME_UC@
+#define @CM_CLASS_NAME_UC@
+
+#include "engine.hpp"
+
+class @CM_CLASS_NAME@ {
+ public:
+   static void process( e_engine::uJSON_data &_data );
+   static bool process( std::string _file );
+};
+
+#endif // @CM_CLASS_NAME_UC@

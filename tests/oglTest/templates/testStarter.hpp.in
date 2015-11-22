@@ -1,0 +1,42 @@
+/*!
+ * \file @CM_CLASS_NAME@.hpp
+ * \brief \b Classes: \a @CM_CLASS_NAME@
+ *
+ * \warning Automatically generated file DO NOT EDIT HERE
+ */
+
+#ifndef @CM_CLASS_NAME_UC@
+#define @CM_CLASS_NAME_UC@
+
+#include <engine.hpp>
+#include <vector>
+#include <string>
+
+
+/*!
+ * \brief class for processing tests located in tests
+ *
+ * Currently are @CM_NUM_TESTS@ tests available:@CM_TESTS_STR@
+ *
+ */
+class @CM_CLASS_NAME@ {
+ private:
+   bool doThisTest[@CM_NUM_TESTS@];
+   std::string tests[@CM_NUM_TESTS@];
+
+ public:
+   @CM_CLASS_NAME@();
+
+   void allTestsOff();
+   void allTestsOn();
+
+   void enable( std::string _test );
+   void disable( std::string _test );
+
+   void run( e_engine::uJSON_data &_data, std::string _dataRoot );
+   void list();
+};
+
+#endif // @CM_CLASS_NAME_UC@
+
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on;

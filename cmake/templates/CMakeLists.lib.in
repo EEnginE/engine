@@ -1,0 +1,51 @@
+# Automatically generated file; DO NOT EDIT
+
+project( @CM_CURRENT_LIB_LC@ )
+include( GenerateExportHeader )
+set( EXPORT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/@CM_CURRENT_LIB_LC@_export.hpp )
+set( CMAKE_POSITION_INDEPENDENT_CODE ON )
+
+set( @CM_CURRENT_LIB_SRC@
+@CM_CURRENT_SRC_CPP@
+)
+
+set( @CM_CURRENT_LIB_INC@
+@CM_CURRENT_SRC_HPP@
+)
+
+
+set( @CM_CURRENT_LIB_INC@ ${@CM_CURRENT_LIB_INC@} ${EXPORT_FILE} )
+
+add_library( engine_@CM_CURRENT_LIB_LC@_obj    OBJECT ${@CM_CURRENT_LIB_SRC@} ${@CM_CURRENT_LIB_INC@} )
+add_library( engine_@CM_CURRENT_LIB_LC@_shared SHARED $<TARGET_OBJECTS:engine_@CM_CURRENT_LIB_LC@_obj> )
+add_library( engine_@CM_CURRENT_LIB_LC@_static STATIC $<TARGET_OBJECTS:engine_@CM_CURRENT_LIB_LC@_obj> )
+
+target_link_libraries( engine_@CM_CURRENT_LIB_LC@_shared ${ENGINE_LINK} @CM_CURRENT_LIB_DEP_SHARED@ )
+target_link_libraries( engine_@CM_CURRENT_LIB_LC@_static ${ENGINE_LINK} @CM_CURRENT_LIB_DEP_STATIC@ )
+
+generate_export_header(
+  engine_@CM_CURRENT_LIB_LC@_shared
+  BASE_NAME            @CM_CURRENT_LIB_UC@
+  EXPORT_MACRO_NAME    @CM_CURRENT_LIB_UC@_API
+  NO_EXPORT_MACRO_NAME @CM_CURRENT_LIB_UC@_PRIVATE
+  STATIC_DEFINE        ENGINE_@CM_CURRENT_LIB_UC@_STATIC_DEFINE
+  EXPORT_FILE_NAME     ${EXPORT_FILE}
+)
+
+set_target_properties(
+  engine_@CM_CURRENT_LIB_LC@_shared engine_@CM_CURRENT_LIB_LC@_static
+  PROPERTIES
+    VERSION     @CM_VERSION_MAJOR@.@CM_VERSION_MINOR@.@CM_VERSION_SUBMINOR@
+    SOVERSION   @CM_VERSION_MAJOR@
+  PUBLIC_HEADER "${@CM_CURRENT_LIB_INC@}"
+  OUTPUT_NAME   engine_@CM_CURRENT_LIB_LC@
+)
+
+install(
+  TARGETS       engine_@CM_CURRENT_LIB_LC@_shared engine_@CM_CURRENT_LIB_LC@_static
+  RUNTIME       DESTINATION bin
+  LIBRARY       DESTINATION lib
+  ARCHIVE       DESTINATION lib
+  PUBLIC_HEADER DESTINATION include/engine
+)
+

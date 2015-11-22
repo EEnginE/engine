@@ -1,0 +1,73 @@
+/*!
+ * \file @CM_CLASS_NAME@.cpp
+ * \brief \b Classes: \a @CM_CLASS_NAME@
+ *
+ * \warning Automatically generated file DO NOT EDIT HERE
+ */
+
+#include "@CM_CLASS_NAME@.hpp"
+
+using namespace std;
+using namespace e_engine;
+
+const unsigned int NUM_TESTS = @CM_NUM_TESTS@;
+
+@CM_INCLUDE_TESTS@
+
+@CM_CLASS_NAME@::@CM_CLASS_NAME@() {
+   allTestsOn();
+
+   tests[0] = "jsonTest";
+   tests[1] = "ShaderInfo";
+}
+
+void @CM_CLASS_NAME@::allTestsOff() {
+   iLOG( "Disabling all tests" );
+
+   for ( unsigned int i = 0; i < NUM_TESTS; ++i )
+      doThisTest[i] = false;
+}
+
+void @CM_CLASS_NAME@::allTestsOn() {
+   iLOG( "Enabling all tests" );
+
+   for ( unsigned int i = 0; i < NUM_TESTS; ++i )
+      doThisTest[i] = true;
+}
+
+void @CM_CLASS_NAME@::enable( string _test ) {
+   for ( unsigned int i = 0; i < NUM_TESTS; ++i ) {
+      if ( tests[i] == _test ) {
+         doThisTest[i] = true;
+         iLOG( "Test '", tests[i], "' enabled" );
+         return;
+      }
+   }
+   wLOG( "Unable to find test '", _test, "' to enable it" );
+}
+
+void @CM_CLASS_NAME@::disable( string _test ) {
+   for ( unsigned int i = 0; i < NUM_TESTS; ++i ) {
+      if ( tests[i] == _test ) {
+         doThisTest[i] = false;
+         iLOG( "Test '", tests[i], "' disabled" );
+         return;
+      }
+   }
+   wLOG( "Unable to find test '", _test, "' to disable it" );
+}
+
+
+void @CM_CLASS_NAME@::run( uJSON_data &_data, string _dataRoot ) {
+
+@CM_START_TEST@
+}
+
+
+void @CM_CLASS_NAME@::list() {
+   iLOG( "Available tests: " );
+@CM_LIST_TESTS@
+}
+
+
+// kate: indent-mode cstyle; indent-width 3; replace-tabs on;

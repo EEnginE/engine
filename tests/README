@@ -21,7 +21,3 @@ You can also have a config.in.hpp . This file will be automatically
 detected.
 
 If you need extra CMake stuff, put it in a custom.cmake.
-
-
-If you totaly dislike the automatically generated CMakeLists.txt, then
-you only need to add a MANUAL_CMAKE file.

@@ -1,0 +1,27 @@
+/*!
+ * \file @CM_CLASS_NAME@.cpp
+ * \brief \b Classes: \a @CM_CLASS_NAME@
+ *
+ * \warning Automatically generated file DO NOT EDIT HERE
+ */
+
+#include "@CM_CLASS_NAME@.hpp"
+
+using namespace e_engine;
+
+void @CM_CLASS_NAME@::process( e_engine::uJSON_data &_data ) {
+   // clang-format off
+   _data(
+@CM_OGLTEST_BINDINGS_LIST@
+   );
+   // clang-format on
+}
+
+bool @CM_CLASS_NAME@::process( std::string _file ) {
+   e_engine::uParserJSON parser( _file );
+   if ( parser.parse() == 1 ) {
+      e_engine::uJSON_data data = parser.getData();
+      @CM_CLASS_NAME@::process( data );
+      return true;
+   } else { return false; }
+}

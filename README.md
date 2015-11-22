@@ -54,7 +54,7 @@ git clone https://github.com/EEnginE/engine
 
 Download the sourcecode from https://github.com/EEnginE/engine directly
 
-Now run `setupWindows.bat` or install cygwin, CMake and GIT manualy.
+Now install CMake and GIT.
 
 You need at least Visual Studio [2015](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx) to compile the project.
 Using Mingw or Clang may also work.
@@ -64,12 +64,6 @@ Using Mingw or Clang may also work.
 ## ENGINE
 
 -   `-DCMAKE_INSTALL_PREFIX=/install/prefix`
-
--   `-DENGINE_VERBOSE=<0/1>`
-
-    Special cmake output and verbose compiler messages:
-      - 0: disabled - default
-      - 1: enabled
 
 -   `-DDISPLAY_SERVER=<which>`
 
