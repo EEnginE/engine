@@ -27,7 +27,6 @@ install:
    - if [[ "$CXX" == "g++"     ]]; then export CXX=g++-5;       export CC=gcc-5;     fi
 
 script:
-   - ./generate.sh qQltp
    - mkdir build
    - cd build
    - cmake ..
