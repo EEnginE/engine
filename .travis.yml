@@ -16,6 +16,8 @@ addons:
          - g++-5
          - gcc-5
          - libboost-filesystem1.55-dev
+         - libx11-dev
+         - libxrandr-dev
 
 before_install:
    - wget https://cmake.org/files/v3.4/cmake-3.4.0-Linux-x86_64.tar.gz -O cmake.tar.gz
