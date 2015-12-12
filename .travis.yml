@@ -22,10 +22,10 @@ addons:
          - libxrandr-dev
 
 before_install:
-   - [[ "$CXX" == "clang++" ]] && echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.7 main" | sudo tee -a /etc/apt/sources.list
-   - [[ "$CXX" == "clang++" ]] && wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key|sudo apt-key add -
-   - [[ "$CXX" == "clang++" ]] && sudo apt-get update -qq
-   - [[ "$CXX" == "clang++" ]] && sudo apt-get install clang-3.7 -qq
+   - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.7 main" | sudo tee -a /etc/apt/sources.list
+   - wget -O - "http://llvm.org/apt/llvm-snapshot.gpg.key"|sudo apt-key add -
+   - sudo apt-get update -qq
+   - sudo apt-get install clang-3.7 -qq
    - wget https://cmake.org/files/v3.4/cmake-3.4.0-Linux-x86_64.tar.gz -O cmake.tar.gz
    - tar -xf cmake.tar.gz
    - CMAKE_EXEC="$(pwd)/cmake-3.4.0-Linux-x86_64/bin/cmake"
