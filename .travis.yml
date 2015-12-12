@@ -11,10 +11,12 @@ addons:
    apt:
       sources:
          - ubuntu-toolchain-r-test
+         - llvm-toolchain-trusty-3.7
 
       packages:
          - g++-5
          - gcc-5
+         - clang-3.7
          - libboost-filesystem1.55-dev
          - libx11-dev
          - libxrandr-dev
@@ -25,13 +27,15 @@ before_install:
    - CMAKE_EXEC="$(pwd)/cmake-3.4.0-Linux-x86_64/bin/cmake"
 
 install:
+   - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.7; export CC=clang-3.7; fi
    - if [[ "$CXX" == "g++"     ]]; then export CXX=g++-5;       export CC=gcc-5;     fi
+   - cd dependencies/GLEW
+   - make extensions
+   - cd ../../
 
 script:
    - mkdir build
-   - cd dependencies/GLEW
-   - make extensions
-   - cd ../../build
+   - cd build
    - $CMAKE_EXEC ..
    - make -j2
 
