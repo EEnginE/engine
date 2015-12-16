@@ -6,7 +6,6 @@ set( CMAKE_BUILD_TYPE RELEASE )
 
 
 option( BUILD_GLEW "Build dependency GLEW?" ON )
-option( BUILD_GLTF "Build dependency glTF?" OFF )
 
 if( BUILD_GLEW )
    set( BUILD_UTILS OFF CACHE BOOL "Disabling BUILD_UTILS" )
@@ -16,12 +15,3 @@ if( BUILD_GLEW )
 else()
    message( STATUS "NOT building dependency GLEW (use -DBUILD_GLEW=ON to enable)" )
 endif( BUILD_GLEW )
-
-if( BUILD_GLTF )
-   include_directories( glTF/converter/COLLADA2GLTF )
-   add_subdirectory( glTF/converter/COLLADA2GLTF )
-   message( STATUS "Building dependency glTF (use -DBUILD_GLTF=OFF to disable)" )
-else()
-   message( STATUS "NOT building dependency glTF (use -DBUILD_GLTF=ON to enable)" )
-endif( BUILD_GLTF )
-
