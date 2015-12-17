@@ -20,6 +20,7 @@
 
 #include "rLoader_glTF.hpp"
 #include "uFileIO.hpp"
+#include <string.h> // memcpy
 #include FILESYSTEM_INCLUDE
 
 namespace e_engine {

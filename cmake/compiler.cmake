@@ -15,11 +15,11 @@
 # Set compiler flags
 #  1st parameter: the CMake compiler ID
 # Sections:
-# ALL:        compiler options for all build types
-# DEBUG:      compiler options only for the DEBUG build type
-# RELEASE:    compiler options only for the RELEASE build type
-# SANITIZE:   sanitizer option. Will only be enabled on DEBUG build type and when SANITIZERS is set
-# USE_BOOST:  use boost for this compiler (default value)
+# ALL:         compiler options for all build types
+# DEBUG:       compiler options only for the DEBUG build type
+# RELEASE:     compiler options only for the RELEASE build type
+# SANITIZE:    sanitizer option. Will only be enabled on DEBUG build type and when SANITIZERS is set
+# MIN_VERSION: the min. compiler version
 function( add_compiler )
    if( ${ARGC} LESS 1 )
       message( FATAL_ERROR "function 'add_compiler' needs at least 1 parameters" )
@@ -33,7 +33,7 @@ function( add_compiler )
    endif( NOT CMAKE_CXX_COMPILER_ID STREQUAL COMPILER )
 
    set( CURRENT_TARGET "" )
-   set( TARGET_LIST ALL DEBUG RELEASE SANITIZE USE_BOOST )
+   set( TARGET_LIST ALL DEBUG RELEASE SANITIZE MIN_VERSION )
 
    ###############################################
    # Split variables into sections (TARGET_LIST) #
@@ -62,17 +62,11 @@ function( add_compiler )
       set( ${CURRENT_TARGET} "${${CURRENT_TARGET}} ${ARG}" )
    endforeach( I RANGE 1 ${ARGC_M1} )
 
-   # Handle boost
-
-   # Set the default variable
-   if( NOT DEFINED USE_BOOST )
-      set( USE_BOOST ON )
-   endif( NOT DEFINED USE_BOOST )
-
-   if( NOT DEFINED ENGINE_USE_BOOST )
-      set( ENGINE_USE_BOOST ${USE_BOOST} )
-   endif( NOT DEFINED ENGINE_USE_BOOST )
-
+   if( DEFINED MIN_VERSION )
+      if( CMAKE_CXX_COMPILER_VERSION VERSION_LESS "${MIN_VERSION}" )
+         message( SEND_ERROR "Minimum compiler version is ${MIN_VERSION} but the current version is ${CMAKE_CXX_COMPILER_VERSION}" )
+      endif( CMAKE_CXX_COMPILER_VERSION VERSION_LESS "${MIN_VERSION}" )
+   endif( DEFINED MIN_VERSION )
 
    if( SANITIZERS )
       set( DEBUG "${DEBUG} ${SANITIZE}" )

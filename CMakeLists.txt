@@ -60,13 +60,13 @@ check_platform()
 run_git()
 gen_log_macros( "${TEMPLATES_DIR}/uMacros.in.hpp" "${PROJECT_SOURCE_DIR}/utils/log/uMacros.hpp" "i" "w" "e" "d" )
 
-add_compiler( GNU USE_BOOST ON
+add_compiler( GNU MIN_VERSION "5.3"
                ALL      "-Wall -Wextra -Wno-comment -std=c++14"
             #   DEBUG    "-Werror"
                SANITIZE "-fsanitize=${SANITIZERS}"
                RELEASE  "-O3" )
 
-add_compiler( Clang USE_BOOST ON
+add_compiler( Clang
                ALL      "-fvisibility=hidden -std=c++14 -Weverything -ftemplate-backtrace-limit=0"
                         "-Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-float-equal"
                         "-Wno-gnu-anonymous-struct -Wno-nested-anon-types -Wno-exit-time-destructors"
@@ -75,7 +75,7 @@ add_compiler( Clang USE_BOOST ON
                SANITIZE "-fsanitize=${SANITIZERS}"
                RELEASE  "-O2" )
 
-add_compiler( MSVC USE_BOOST OFF
+add_compiler( MSVC
                DEBUG   "/Od"
                RELEASE "/O2" )
 
@@ -95,24 +95,17 @@ else( ENGINE_LINK_SHARED )
    message( STATUS "Linking static. => Changed CMAKE_FIND_LIBRARY_SUFFIXES to ${CMAKE_FIND_LIBRARY_SUFFIXES}" )
 endif( ENGINE_LINK_SHARED )
 
-if( ENGINE_USE_BOOST )
-   set(Boost_USE_MULTITHREADED ON)
-   if( NOT ENGINE_LINK_SHARED )
-      set(Boost_USE_STATIC_LIBS ON)
-   endif( NOT ENGINE_LINK_SHARED )
-   find_package(Boost 1.46.1 REQUIRED COMPONENTS filesystem system )
+if( STD_FILESYSTEM_IS_EXPERIMENTAL )
+   set( CM_FILESYSTEM_NAMESPACE "std::experimental::filesystem" )
+   set( CM_FILESYSTEM_INCLUDE   "<experimental/filesystem>" )
 
-   set( CM_FILESYSTEM_NAMESPACE "boost::filesystem" )
-   set( CM_FILESYSTEM_INCLUDE   "<boost/filesystem.hpp>" )
-else( ENGINE_USE_BOOST )
-   if( STD_FILESYSTEM_IS_EXPERIMENTAL )
-      set( CM_FILESYSTEM_NAMESPACE "std::experimental::filesystem" )
-      set( CM_FILESYSTEM_INCLUDE   "<experimental/filesystem>" )
-   else( STD_FILESYSTEM_IS_EXPERIMENTAL )
-      set( CM_FILESYSTEM_NAMESPACE "std::filesystem" )
-      set( CM_FILESYSTEM_INCLUDE   "<filesystem>" )
-   endif( STD_FILESYSTEM_IS_EXPERIMENTAL )
-endif( ENGINE_USE_BOOST )
+   if( CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL asd )
+      set( FS_LIBRARIES stdc++fs )
+   endif( CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL asd )
+else( STD_FILESYSTEM_IS_EXPERIMENTAL )
+   set( CM_FILESYSTEM_NAMESPACE "std::filesystem" )
+   set( CM_FILESYSTEM_INCLUDE   "<filesystem>" )
+endif( STD_FILESYSTEM_IS_EXPERIMENTAL )
 
 find_package(OpenGL       REQUIRED)
 find_package(Threads      REQUIRED)
@@ -141,8 +134,8 @@ endif( CM_UNIX_X11 )
 
 add_subdirectory( dependencies )
 
-set( ENGINE_LINK ${Boost_LIBRARIES}    ${GLEW_LIBRARIES}    ${OPENGL_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} )
-set( ENGINE_INCL ${Boost_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} )
+set( ENGINE_LINK ${GLEW_LIBRARIES}    ${OPENGL_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} ${FS_LIBRARIES} )
+set( ENGINE_INCL ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} )
 
 message( "" ) # Newline
 
