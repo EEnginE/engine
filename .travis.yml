@@ -40,8 +40,8 @@ script:
    - mkdir build
    - cd build
    - $CMAKE_EXEC ..
-   - if [[ "$CXX" == "clang++" ]]; then travis_wait make -j2; fi # Building GLEW with clang takes more than 10min https://llvm.org/bugs/show_bug.cgi?id=23708
-   - if [[ "$CXX" == "g++"     ]]; then             make -j2; fi
+   - if [[ "$CXX" == "clang++-3.7" ]]; then travis_wait make -j2; fi # Building GLEW with clang takes more than 10min https://llvm.org/bugs/show_bug.cgi?id=23708
+   - if [[ "$CXX" == "g++-5"       ]]; then             make -j2; fi
 
 notifications:
   webhooks:
