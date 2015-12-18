@@ -67,7 +67,7 @@ bool rLoader_glTF::interprete() {
          auto &lObject = vData->vObjects.back();
 
          auto const &lAcc = vAccessors[j.indices];
-         auto const &lBV = vBufferViews[lAcc.bufferView];
+         auto const &lBV  = vBufferViews[lAcc.bufferView];
 
          auto lOffset = lBV.byteOffset + lAcc.byteOffset;
 
@@ -76,8 +76,8 @@ bool rLoader_glTF::interprete() {
             return false;
          }
 
-         lObject.vOffset = static_cast<unsigned>( lAcc.byteOffset );
-         lObject.vStride = static_cast<unsigned>( lAcc.byteStride );
+         lObject.vOffset    = static_cast<unsigned>( lAcc.byteOffset );
+         lObject.vStride    = static_cast<unsigned>( lAcc.byteStride );
          lObject.vNumVertex = static_cast<unsigned>( lAcc.count );
 
 #if D_LOG_GLTF
@@ -120,7 +120,7 @@ bool rLoader_glTF::interprete() {
             auto &lObject2 = lObject.vAccessor.back();
 
             auto const &lAcc2 = vAccessors[k.accessor];
-            auto const &lBV2 = vBufferViews[lAcc2.bufferView];
+            auto const &lBV2  = vBufferViews[lAcc2.bufferView];
 
             if ( lBV2.target != TG_ARRAY_BUFFER ) {
                eLOG( "Bad target for index accessor (need 34962)! [", i.userDefName, "]" );

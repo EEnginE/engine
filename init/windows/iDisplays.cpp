@@ -27,8 +27,8 @@ namespace windows_win32 {
 
 
 iDisplays::iDisplays( std::wstring _name, bool _enabled, bool _isPrimary ) {
-   vEnabled_B = _enabled;
-   vName_str = std::string( _name.begin(), _name.end() );
+   vEnabled_B   = _enabled;
+   vName_str    = std::string( _name.begin(), _name.end() );
    vIsPrimary_B = _isPrimary;
 }
 
@@ -48,7 +48,7 @@ iDisplays::iDisplays( std::wstring _name, bool _enabled, bool _isPrimary ) {
 void iDisplays::autoSelectBest() {
    //! \todo Check if there is a preferred mode - is this possible with windows?
 
-   unsigned int lMaxWidth_uI = 0;  //!< Max currently found width
+   unsigned int lMaxWidth_uI  = 0; //!< Max currently found width
    unsigned int lMaxHeight_uI = 0; //!< Max currently found height
 
    for ( DEVMODEW const &fMode : vModes_V_win32 ) {
@@ -115,7 +115,7 @@ double iDisplays::autoSelectBySize( unsigned int _width,
    DEVMODEW l480Hz_win32;
    DEVMODEW lPref_win32;
 
-   bool lFoundOneSizeMatch = false;
+   bool lFoundOneSizeMatch      = false;
    bool lFindPreferedRateFailed = false;
 
    if ( _preferedRate < 0 )
@@ -145,7 +145,7 @@ double iDisplays::autoSelectBySize( unsigned int _width,
    if ( !lFoundOneSizeMatch )
       return false;
 
-   vCurrentWidth_uI = _width;
+   vCurrentWidth_uI  = _width;
    vCurrentHeight_uI = _height;
 
    lRate60Hz_D = findNearestFreqTo( (double)60, _width, _height, l60Hz_win32, lMinDiffTo60Hz_D );
@@ -220,7 +220,7 @@ double iDisplays::findNearestFreqTo( double _rate,
                                      unsigned int _height,
                                      DEVMODEW &_mode,
                                      double &_diff ) const {
-   _diff = 1000000;
+   _diff          = 1000000;
    double lRate_D = -1;
    for ( DEVMODEW const &fMode : vModes_V_win32 ) {
       if ( _width == fMode.dmPelsWidth && _height == fMode.dmPelsHeight ) {
@@ -230,13 +230,13 @@ double iDisplays::findNearestFreqTo( double _rate,
             return fMode.dmDisplayFrequency;
          } else if ( ( _rate - fMode.dmDisplayFrequency ) > 0 ) {
             if ( ( _rate - fMode.dmDisplayFrequency ) < _diff ) {
-               _diff = ( _rate - fMode.dmDisplayFrequency );
-               _mode = fMode;
+               _diff   = ( _rate - fMode.dmDisplayFrequency );
+               _mode   = fMode;
                lRate_D = fMode.dmDisplayFrequency;
             }
          } else if ( ( fMode.dmDisplayFrequency - _rate ) < _diff ) {
-            _diff = ( fMode.dmDisplayFrequency - _rate );
-            _mode = fMode;
+            _diff   = ( fMode.dmDisplayFrequency - _rate );
+            _mode   = fMode;
             lRate_D = fMode.dmDisplayFrequency;
          }
       }
@@ -297,7 +297,7 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
          continue;
 
       iDisplayBasic::res lNewRes;
-      lNewRes.width = d.dmPelsWidth;
+      lNewRes.width  = d.dmPelsWidth;
       lNewRes.height = d.dmPelsHeight;
       lTempRes.push_back( lNewRes );
    }
@@ -315,9 +315,9 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
  * \returns Nothing
  */
 void iDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) const {
-   _width = vSelectedDisplaySettings_win32.dmPelsWidth;
+   _width  = vSelectedDisplaySettings_win32.dmPelsWidth;
    _height = vSelectedDisplaySettings_win32.dmPelsHeight;
-   _rate = vSelectedDisplaySettings_win32.dmDisplayFrequency;
+   _rate   = vSelectedDisplaySettings_win32.dmDisplayFrequency;
 }
 
 /*!
@@ -421,7 +421,7 @@ DEVMODEW iDisplays::getSelectedDevmode() const {
       memset( &lTempDevmode_win32, 0, sizeof( lTempDevmode_win32 ) );
 
    lTempDevmode_win32.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
-   lTempDevmode_win32.dmSize = sizeof( lTempDevmode_win32 );
+   lTempDevmode_win32.dmSize   = sizeof( lTempDevmode_win32 );
 
    return lTempDevmode_win32;
 }

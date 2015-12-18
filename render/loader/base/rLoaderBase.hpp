@@ -43,7 +43,7 @@ class rLoaderBase : public uParserHelper {
    static_assert( std::is_unsigned<I>::value, "I must be an unsigned type" );
 
    using S_TYP = _3D_Engine<T, I>;
-   using DATA = std::shared_ptr<S_TYP>;
+   using DATA  = std::shared_ptr<S_TYP>;
 
  protected:
    DATA vData;

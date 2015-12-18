@@ -60,27 +60,27 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
                   std::string lTypeStr, lValueStr;
                   switch ( iter->type ) {
                      case JSON_STRING:
-                        lTypeStr = "string";
+                        lTypeStr  = "string";
                         lValueStr = "'" + iter->value_str + "'";
                         break;
                      case JSON_NUMBER:
-                        lTypeStr = "number";
+                        lTypeStr  = "number";
                         lValueStr = std::to_string( iter->value_num );
                         break;
                      case JSON_BOOL:
-                        lTypeStr = "boolean";
+                        lTypeStr  = "boolean";
                         lValueStr = iter->value_bool ? "true" : "false";
                         break;
                      case JSON_NULL:
-                        lTypeStr = "NULL";
+                        lTypeStr  = "NULL";
                         lValueStr = "nil";
                         break;
                      case JSON_ARRAY:
-                        lTypeStr = "array";
+                        lTypeStr  = "array";
                         lValueStr = "[...]; Elements: " + std::to_string( iter->value_obj.size() );
                         break;
                      case JSON_OBJECT:
-                        lTypeStr = "object";
+                        lTypeStr  = "object";
                         lValueStr = "{...}; Elements: " + std::to_string( iter->value_obj.size() );
                         break;
                      case __JSON_FAIL__:
@@ -150,11 +150,11 @@ void uJSON_data::merge( uJSON_data &_toMerge, bool _overWrite ) {
    }
 
    if ( _overWrite ) {
-      type = _toMerge.type;
-      value_str = _toMerge.value_str;
-      value_num = _toMerge.value_num;
+      type       = _toMerge.type;
+      value_str  = _toMerge.value_str;
+      value_num  = _toMerge.value_num;
       value_bool = _toMerge.value_bool;
-      value_obj = _toMerge.value_obj;
+      value_obj  = _toMerge.value_obj;
    }
 
    return;

@@ -36,7 +36,7 @@ int iInit::eventLoop() {
 
    iLOG( "Event thread started" );
 
-   vWindowsDestroy_B = false;
+   vWindowsDestroy_B   = false;
    vWindowsNCDestrox_B = false;
 
    {
@@ -114,12 +114,11 @@ int iInit::eventLoop() {
 
 namespace windows_win32 {
 
-LRESULT CALLBACK
-iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    if ( _uMsg == WM_NCCREATE ) {
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
-      void *lCreateParam_win32 = lCreateStruct_win32->lpCreateParams;
-      iContext *this__ = reinterpret_cast<iContext *>( lCreateParam_win32 );
+      void *lCreateParam_win32           = lCreateStruct_win32->lpCreateParams;
+      iContext *this__                   = reinterpret_cast<iContext *>( lCreateParam_win32 );
 
       this__->vHWND_Window_win32 = _hwnd;
 
@@ -146,8 +145,10 @@ LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
 
-LRESULT CALLBACK
-iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo _tempInfo ) {
+LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg,
+                                          WPARAM _wParam,
+                                          LPARAM _lParam,
+                                          iEventInfo _tempInfo ) {
    unsigned int key_state = E_PRESSED;
 
 
@@ -159,7 +160,7 @@ iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo 
    switch ( _uMsg ) {
 
       case WM_SIZE:
-         _tempInfo.type = E_EVENT_RESIZE;
+         _tempInfo.type          = E_EVENT_RESIZE;
          _tempInfo.eResize.width = GlobConf.win.width =
                _lParam & 0xFFFF; // Get the low order word as a width
          _tempInfo.eResize.height = GlobConf.win.height =
@@ -170,25 +171,25 @@ iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo 
          return 0;
 
       case WM_MOVE:
-         _tempInfo.type = E_EVENT_MOUSE;
+         _tempInfo.type         = E_EVENT_MOUSE;
          _tempInfo.eResize.posX = GlobConf.win.posX =
                _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.eResize.posY = GlobConf.win.posY =
                _lParam >> 16; // Get the high order word as the y-Position
-         _tempInfo.eResize.width = GlobConf.win.width;
+         _tempInfo.eResize.width  = GlobConf.win.width;
          _tempInfo.eResize.height = GlobConf.win.height;
          vResize_SIG.send( _tempInfo );
          return 0;
 
       case WM_MOUSEMOVE: // Mouse moved, see
          // http://msdn.microsoft.com/en-us/library/windows/desktop/ms645616%28v=vs.85%29.aspx
-         _tempInfo.type = E_EVENT_MOUSE;
+         _tempInfo.type        = E_EVENT_MOUSE;
          _tempInfo.iMouse.posX = GlobConf.win.mousePosX =
                _lParam & 0xFFFF; // Get the low order word as the x-Position
          _tempInfo.iMouse.posY = GlobConf.win.mousePosY =
                _lParam >> 16; // Get the high order word as the y-Position
          _tempInfo.iMouse.button = E_MOUSE_MOVE;
-         _tempInfo.iMouse.state = E_PRESSED;
+         _tempInfo.iMouse.state  = E_PRESSED;
 
          //!\todo Check if the coords are right, see the article above
 
@@ -201,12 +202,12 @@ iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo 
          return 0;
 
       case WM_SETFOCUS:
-         _tempInfo.type = E_EVENT_FOCUS;
+         _tempInfo.type            = E_EVENT_FOCUS;
          _tempInfo.eFocus.hasFocus = GlobConf.win.windowHasFocus = true;
          vFocus_SIG.send( _tempInfo );
          return 0;
       case WM_KILLFOCUS:
-         _tempInfo.type = E_EVENT_FOCUS;
+         _tempInfo.type            = E_EVENT_FOCUS;
          _tempInfo.eFocus.hasFocus = GlobConf.win.windowHasFocus = false;
          vFocus_SIG.send( _tempInfo );
          return 0;
@@ -214,39 +215,39 @@ iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo 
 
       case WM_LBUTTONUP: key_state = E_RELEASED;
       case WM_LBUTTONDOWN:
-         _tempInfo.type = E_EVENT_KEY;
-         _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
-         _tempInfo.iMouse.posY = GlobConf.win.mousePosY;
-         _tempInfo.iMouse.state = key_state;
+         _tempInfo.type          = E_EVENT_KEY;
+         _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
+         _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
+         _tempInfo.iMouse.state  = key_state;
          _tempInfo.iMouse.button = E_MOUSE_LEFT;
          vMouse_SIG.send( _tempInfo );
          return 0;
 
       case WM_MBUTTONUP: key_state = E_RELEASED;
       case WM_MBUTTONDOWN:
-         _tempInfo.type = E_EVENT_KEY;
-         _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
-         _tempInfo.iMouse.posY = GlobConf.win.mousePosY;
-         _tempInfo.iMouse.state = key_state;
+         _tempInfo.type          = E_EVENT_KEY;
+         _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
+         _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
+         _tempInfo.iMouse.state  = key_state;
          _tempInfo.iMouse.button = E_MOUSE_MIDDLE;
          vMouse_SIG.send( _tempInfo );
          return 0;
 
       case WM_RBUTTONUP: key_state = E_RELEASED;
       case WM_RBUTTONDOWN:
-         _tempInfo.type = E_EVENT_KEY;
-         _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
-         _tempInfo.iMouse.posY = GlobConf.win.mousePosY;
-         _tempInfo.iMouse.state = key_state;
+         _tempInfo.type          = E_EVENT_KEY;
+         _tempInfo.iMouse.posX   = GlobConf.win.mousePosX;
+         _tempInfo.iMouse.posY   = GlobConf.win.mousePosY;
+         _tempInfo.iMouse.state  = key_state;
          _tempInfo.iMouse.button = E_MOUSE_RIGHT;
          vMouse_SIG.send( _tempInfo );
          return 0;
 
       case WM_XBUTTONUP: key_state = E_RELEASED;
       case WM_XBUTTONDOWN:
-         _tempInfo.type = E_EVENT_KEY;
-         _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
-         _tempInfo.iMouse.posY = GlobConf.win.mousePosY;
+         _tempInfo.type         = E_EVENT_KEY;
+         _tempInfo.iMouse.posX  = GlobConf.win.mousePosX;
+         _tempInfo.iMouse.posY  = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state = key_state;
          switch ( _wParam >> 16 ) {
             case XBUTTON1: _tempInfo.iMouse.button = E_MOUSE_1; break;
@@ -260,9 +261,9 @@ iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo 
          return 0;
 
       case WM_MOUSEWHEEL:
-         _tempInfo.type = E_EVENT_MOUSE;
-         _tempInfo.iMouse.posX = GlobConf.win.mousePosX;
-         _tempInfo.iMouse.posY = GlobConf.win.mousePosY;
+         _tempInfo.type         = E_EVENT_MOUSE;
+         _tempInfo.iMouse.posX  = GlobConf.win.mousePosX;
+         _tempInfo.iMouse.posY  = GlobConf.win.mousePosY;
          _tempInfo.iMouse.state = E_PRESSED;
 
          if ( ( (short signed)( _wParam >> 16 ) ) >= 0 )
@@ -282,7 +283,7 @@ iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo 
 
          if ( _wParam > 32 ) { // Check if the Char is an actual character; Enter, Backspace and
                                // others are excluded as they are already handled in WM_KEYDOWN
-            _tempInfo.type = E_EVENT_KEY;
+            _tempInfo.type       = E_EVENT_KEY;
             _tempInfo.eKey.state = E_PRESSED;
             _tempInfo.eKey.key = _wParam;
             vKey_SIG.send( _tempInfo );
@@ -295,9 +296,9 @@ iContext::actualWndProc( UINT _uMsg, WPARAM _wParam, LPARAM _lParam, iEventInfo 
          return FALSE;
       case WM_KEYUP: key_state = E_RELEASED;
       case WM_KEYDOWN:
-         _tempInfo.type = E_EVENT_KEY;
+         _tempInfo.type       = E_EVENT_KEY;
          _tempInfo.eKey.state = key_state;
-         _tempInfo.eKey.key = processWindowsKeyInput( _wParam, key_state );
+         _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
 
          if ( _tempInfo.eKey.key != 0 ) // Dont send the signal if a character was found
             vKey_SIG.send( _tempInfo );

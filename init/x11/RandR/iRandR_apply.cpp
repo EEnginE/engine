@@ -81,7 +81,7 @@ bool iRandR::applyNewRandRSettings() {
    XRRGetScreenSizeRange(
          vDisplay_X11, vRootWindow_X11, &lMinWidth_I, &lMinHeight_I, &lMaxWidth_I, &lMaxHeight_I );
 
-   lNewWidth_I = 0;
+   lNewWidth_I  = 0;
    lNewHeight_I = 0;
 
    for ( internal::_crtc const &fCRTC : lTempAllCRTC_V_RandR ) {
@@ -89,14 +89,14 @@ bool iRandR::applyNewRandRSettings() {
       bool lModeFound_B = false;
 
       if ( fCRTC.mode == None ) {
-         lModeFound_B = true;
-         lTempMode_RandR.width = 0;
+         lModeFound_B           = true;
+         lTempMode_RandR.width  = 0;
          lTempMode_RandR.height = 0;
       } else {
          for ( internal::_mode const &fMode : vMode_V_RandR ) {
             if ( fCRTC.mode == fMode.id ) {
                lTempMode_RandR = fMode;
-               lModeFound_B = true;
+               lModeFound_B    = true;
                break;
             }
          }
@@ -110,10 +110,10 @@ bool iRandR::applyNewRandRSettings() {
       }
 
 
-      int lTempWidth_I = fCRTC.posX + static_cast<int>( lTempMode_RandR.width );
+      int lTempWidth_I  = fCRTC.posX + static_cast<int>( lTempMode_RandR.width );
       int lTempHeight_I = fCRTC.posY + static_cast<int>( lTempMode_RandR.height );
-      lNewWidth_I = ( lTempWidth_I > lNewWidth_I ) ? lTempWidth_I : lNewWidth_I;
-      lNewHeight_I = ( lTempHeight_I > lNewHeight_I ) ? lTempHeight_I : lNewHeight_I;
+      lNewWidth_I       = ( lTempWidth_I > lNewWidth_I ) ? lTempWidth_I : lNewWidth_I;
+      lNewHeight_I      = ( lTempHeight_I > lNewHeight_I ) ? lTempHeight_I : lNewHeight_I;
    }
 
    // Get current size
@@ -133,7 +133,7 @@ bool iRandR::applyNewRandRSettings() {
       return false;
    }
 
-   lCurrentWidth_I = sizes[lCurrentSizePossition_suI].width;
+   lCurrentWidth_I  = sizes[lCurrentSizePossition_suI].width;
    lCurrentHeight_I = sizes[lCurrentSizePossition_suI].height;
 
    /* Only for debugging

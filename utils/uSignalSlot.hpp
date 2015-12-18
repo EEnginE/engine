@@ -292,14 +292,14 @@ class uSignal final {
 template <class __R, class... __A>
 uSignal<__R, __A...>::uSignal( const uSignal &&_e ) {
    std::lock_guard<std::mutex> lLock2( vSignalMutex );
-   vSlots = std::move( _e.vSlots );
+   vSlots   = std::move( _e.vSlots );
    vReturns = std::move( _e.vReturns );
 }
 
 template <class __R, class... __A>
 uSignal<__R, __A...> &uSignal<__R, __A...>::operator=( const uSignal &&_e ) {
    std::lock_guard<std::mutex> lLock2( vSignalMutex );
-   vSlots = std::move( _e.vSlots );
+   vSlots   = std::move( _e.vSlots );
    vReturns = std::move( _e.vReturns );
    return *this;
 }

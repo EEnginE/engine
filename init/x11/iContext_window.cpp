@@ -68,7 +68,7 @@ Atom atom_wmDeleteWindow;
 int iContext::createDisplay() {
    // Needed for XSetWMProperties
    vSizeHints_X11 = XAllocSizeHints();
-   vWmHints_X11 = XAllocWMHints();
+   vWmHints_X11   = XAllocWMHints();
    vDisplay_X11 = XOpenDisplay( nullptr );
    if ( vDisplay_X11 == nullptr ) {
       eLOG( "Can not connect to the X-Server. Abort. (return -1)" );
@@ -78,7 +78,7 @@ int iContext::createDisplay() {
 
    vX11VersionMajor_I = ProtocolVersion( vDisplay_X11 );
    vX11VersionMinor_I = ProtocolRevision( vDisplay_X11 );
-   vScreen_X11 = DefaultScreen( vDisplay_X11 );
+   vScreen_X11        = DefaultScreen( vDisplay_X11 );
    // GLX version test
    if ( !glXQueryVersion( vDisplay_X11, &vGLXVersionMajor_I, &vGLXVersionMinor_I ) ||
         ( vGLXVersionMajor_I < GlobConf.versions.minGlxMajorVer ) ||
@@ -123,16 +123,16 @@ int iContext::createFrameBuffer() {
       return -3;
    }
 
-   vBestFBConfig_I = -1;
+   vBestFBConfig_I    = -1;
    int lBestSamples_I = -1, lBestDepth = -1, lBestR_I = -1, lBestG_I = -1, lBestB_I = -1,
        lBestA_I = -1, i;
 
    std::wstring lOFF_C = eCMDColor::color( 'O', 'W' );
-   std::wstring lBW_C = eCMDColor::color( 'B', 'W' );
-   std::wstring lBR_C = eCMDColor::color( 'B', 'R' );
-   std::wstring lBG_C = eCMDColor::color( 'B', 'G' );
-   std::wstring lBB_C = eCMDColor::color( 'B', 'B' );
-   std::wstring lBC_C = eCMDColor::color( 'B', 'C' );
+   std::wstring lBW_C  = eCMDColor::color( 'B', 'W' );
+   std::wstring lBR_C  = eCMDColor::color( 'B', 'R' );
+   std::wstring lBG_C  = eCMDColor::color( 'B', 'G' );
+   std::wstring lBB_C  = eCMDColor::color( 'B', 'B' );
+   std::wstring lBC_C  = eCMDColor::color( 'B', 'C' );
 
    std::wstring lR_C = eCMDColor::color( 'O', 'R' );
    std::wstring lG_C = eCMDColor::color( 'O', 'G' );
@@ -187,32 +187,32 @@ int iContext::createFrameBuffer() {
          if ( samples > lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
               b >= lBestB_I && a >= lBestA_I ) {
             vBestFBConfig_I = i;
-            lBestSamples_I = samples;
+            lBestSamples_I  = samples;
          }
          if ( samples >= lBestSamples_I && depth > lBestDepth && r >= lBestR_I && g >= lBestG_I &&
               b >= lBestB_I && a >= lBestA_I ) {
             vBestFBConfig_I = i;
-            lBestDepth = depth;
+            lBestDepth      = depth;
          }
          if ( samples >= lBestSamples_I && depth >= lBestDepth && r > lBestR_I && g >= lBestG_I &&
               b >= lBestB_I && a >= lBestA_I ) {
             vBestFBConfig_I = i;
-            lBestR_I = r;
+            lBestR_I        = r;
          }
          if ( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g > lBestG_I &&
               b >= lBestB_I && a >= lBestA_I ) {
             vBestFBConfig_I = i;
-            lBestG_I = g;
+            lBestG_I        = g;
          }
          if ( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
               b > lBestB_I && a >= lBestA_I ) {
             vBestFBConfig_I = i;
-            lBestB_I = b;
+            lBestB_I        = b;
          }
          if ( samples >= lBestSamples_I && depth >= lBestDepth && r >= lBestR_I && g >= lBestG_I &&
               b >= lBestB_I && a > lBestA_I ) {
             vBestFBConfig_I = i;
-            lBestA_I = a;
+            lBestA_I        = a;
          }
       }
       XFree( temp );
@@ -273,8 +273,8 @@ int iContext::createFrameBuffer() {
 int iContext::createWindow() {
    vWindowAttributes_X11.event_mask = vEventMask_lI;
 
-   vWindowAttributes_X11.border_pixel = 0;
-   vWindowAttributes_X11.bit_gravity = NorthWestGravity;
+   vWindowAttributes_X11.border_pixel      = 0;
+   vWindowAttributes_X11.bit_gravity       = NorthWestGravity;
    vWindowAttributes_X11.background_pixmap = None;
    vWindowAttributes_X11.colormap = vColorMap_X11 =
          XCreateColormap( vDisplay_X11, vRootWindow_X11, vVisualInfo_X11->visual, AllocNone );
@@ -321,7 +321,7 @@ int iContext::createWindow() {
    // clang-format on
 
    // The Atoms needed
-   Atom lWindowType_atom = XInternAtom( vDisplay_X11, "_NET_WM_WINDOW_TYPE", True );
+   Atom lWindowType_atom      = XInternAtom( vDisplay_X11, "_NET_WM_WINDOW_TYPE", True );
    Atom lWhichWindowType_atom = XInternAtom( vDisplay_X11, lWindowType_str.c_str(), True );
 
    if ( !lWindowType_atom )
@@ -360,14 +360,14 @@ int iContext::createWindow() {
    XStringListToTextProperty( &lWinNameTemp_CSTR, 1, &vWindowNameTP_X11 );
    XStringListToTextProperty( &lIcoNameTemp_CSTR, 1, &vWindowIconTP_X11 );
 
-   vSizeHints_X11->flags = PPosition | PSize | PMinSize; // | IconPixmapHint | IconMaskHint;
-   vSizeHints_X11->min_width = static_cast<int>( GlobConf.win.minWidth );
+   vSizeHints_X11->flags      = PPosition | PSize | PMinSize; // | IconPixmapHint | IconMaskHint;
+   vSizeHints_X11->min_width  = static_cast<int>( GlobConf.win.minWidth );
    vSizeHints_X11->min_height = static_cast<int>( GlobConf.win.minHeight );
 
-   vWmHints_X11 = XAllocWMHints();
-   vWmHints_X11->flags = StateHint | InputHint;
+   vWmHints_X11                = XAllocWMHints();
+   vWmHints_X11->flags         = StateHint | InputHint;
    vWmHints_X11->initial_state = NormalState;
-   vWmHints_X11->input = True;
+   vWmHints_X11->input         = True;
 
    // createIconPixmap();
 
@@ -505,7 +505,9 @@ int iContext::createOGLContext() {
             GlobConf.versions.glMajorVersion = version_list[i][0];
             GlobConf.versions.glMinorVersion = version_list[i][1];
 
-         } else { break; }
+         } else {
+            break;
+         }
       }
    }
 

@@ -55,15 +55,15 @@ class rDirectionalLight : public rObjectBase {
    rDirectionalLight( std::string _name, rVec3<T> _direction, rVec3<T> _color, rVec3<T> _ambient )
        : rObjectBase( _name ) {
       vLightDirection = _direction;
-      vLightColor = _color;
-      vAmbientColor = _ambient;
+      vLightColor     = _color;
+      vAmbientColor   = _ambient;
 
       vLightDirection.normalize();
       setFlags();
    }
 
    void setColor( rVec3<T> _color, rVec3<T> _ambient ) {
-      vLightColor = _color;
+      vLightColor   = _color;
       vAmbientColor = _ambient;
    }
 
@@ -83,8 +83,8 @@ uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) 
 
    switch ( _type ) {
       case AMBIENT_COLOR: *_vec = &vAmbientColor; return ALL_OK;
-      case LIGHT_COLOR: *_vec = &vLightColor; return ALL_OK;
-      case DIRECTION: *_vec = &vLightDirection; return ALL_OK;
+      case LIGHT_COLOR: *_vec   = &vLightColor; return ALL_OK;
+      case DIRECTION: *_vec     = &vLightDirection; return ALL_OK;
       case POSITION:
       case POSITION_MODEL_VIEW:
       case ATTENUATION: return UNSUPPORTED_TYPE;
@@ -95,9 +95,9 @@ uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) 
 
 template <class T>
 void rDirectionalLight<T>::setFlags() {
-   vObjectHints[FLAGS] = DIRECTIONAL_LIGHT | LIGHT_SOURCE;
+   vObjectHints[FLAGS]         = DIRECTIONAL_LIGHT | LIGHT_SOURCE;
    vObjectHints[IS_DATA_READY] = GL_TRUE;
-   vObjectHints[MATRICES] = 0;
+   vObjectHints[MATRICES]      = 0;
 }
 }
 

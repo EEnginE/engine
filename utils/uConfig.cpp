@@ -62,17 +62,17 @@ _uConfig::__uConfig_Camera::__uConfig_Camera() { reset(); }
 
 void _uConfig::__uConfig_FBA::reset() {
 #if UNIX
-   FBA_RENDER_TYPE = GLX_RGBA_BIT;
-   FBA_RENDERABLE = GL_TRUE;
+   FBA_RENDER_TYPE   = GLX_RGBA_BIT;
+   FBA_RENDERABLE    = GL_TRUE;
    FBA_DRAWABLE_TYPE = GLX_WINDOW_BIT;
-   FBA_DOUBLEBUFFER = GL_TRUE;
-#endif              // UNIX
-   FBA_RED = 8;     // 8
-   FBA_GREEN = 8;   // 8
-   FBA_BLUE = 8;    // 8
-   FBA_ALPHA = 8;   // 8
-   FBA_DEPTH = 24;  // 24
-   FBA_STENCIL = 8; // 8
+   FBA_DOUBLEBUFFER  = GL_TRUE;
+#endif               // UNIX
+   FBA_RED     = 8;  // 8
+   FBA_GREEN   = 8;  // 8
+   FBA_BLUE    = 8;  // 8
+   FBA_ALPHA   = 8;  // 8
+   FBA_DEPTH   = 24; // 24
+   FBA_STENCIL = 8;  // 8
 #if UNIX
    FBA_VISUAL_TYPE = GLX_TRUE_COLOR;
 #endif
@@ -80,8 +80,8 @@ void _uConfig::__uConfig_FBA::reset() {
 
 #if WINDOWS
    FBA_DRAW_TO_WINDOW = 1;
-   FBA_ACCELERATION = WGL_FULL_ACCELERATION_ARB;
-   FBA_RENDER_TYPE = WGL_TYPE_RGBA_ARB;
+   FBA_ACCELERATION   = WGL_FULL_ACCELERATION_ARB;
+   FBA_RENDER_TYPE    = WGL_TYPE_RGBA_ARB;
 #endif // WINDOWS
 }
 
@@ -93,28 +93,28 @@ void _uConfig::__uConfig_Versions::reset() {
 }
 
 void _uConfig::__uConfig_Window::reset() {
-   width = 800;
-   height = 600;
-   minWidth = 50;
+   width     = 800;
+   height    = 600;
+   minWidth  = 50;
    minHeight = 50;
-   posX = 0;
-   posY = 0;
+   posX      = 0;
+   posY      = 0;
 
    mousePosX = 0;
    mousePosY = 0;
 
    mouseIsInWindow = false;
-   windowHasFocus = true;
+   windowHasFocus  = true;
 
-   fullscreen = false;
-   VSync = true;
+   fullscreen       = false;
+   VSync            = true;
    windowDecoration = true;
 
    winType = NORMAL;
 
-   windowName = "E Engine Window";
+   windowName     = "E Engine Window";
    xlibWindowName = "E Engine Window";
-   iconName = "E Engine Window";
+   iconName       = "E Engine Window";
 
    restoreOldScreenRes = true;
    // iconPath.clear();
@@ -123,7 +123,7 @@ void _uConfig::__uConfig_Window::reset() {
 void _uConfig::__uLogData_Config::reset() {
    standardTimeColor = 'M';
 
-   maxFilenameSize = 20;
+   maxFilenameSize     = 20;
    maxFunctionNameSize = 20;
 
    threadNameWidth = 6;
@@ -142,20 +142,20 @@ void _uConfig::__uLogData_Config::reset() {
 
    width = -1;
 
-   logOUT.colors = DISABLED;
-   logOUT.Time = LEFT_REDUCED;
-   logOUT.File = RIGHT_REDUCED;
+   logOUT.colors    = DISABLED;
+   logOUT.Time      = LEFT_REDUCED;
+   logOUT.File      = RIGHT_REDUCED;
    logOUT.ErrorType = LEFT_FULL;
-   logOUT.Thread = RIGHT_FULL;
+   logOUT.Thread    = RIGHT_FULL;
 
-   logERR.colors = REDUCED;
-   logERR.Time = LEFT_REDUCED;
-   logERR.File = RIGHT_REDUCED;
+   logERR.colors    = REDUCED;
+   logERR.Time      = LEFT_REDUCED;
+   logERR.File      = RIGHT_REDUCED;
    logERR.ErrorType = LEFT_FULL;
-   logERR.Thread = RIGHT_FULL;
+   logERR.Thread    = RIGHT_FULL;
 
-   logFILE.Time = LEFT_FULL;
-   logFILE.File = LEFT_FULL;
+   logFILE.Time      = LEFT_FULL;
+   logFILE.File      = LEFT_FULL;
    logFILE.ErrorType = LEFT_FULL;
    logFILE.Thread = LEFT_FULL;
    logFILE.logFileName.clear();
@@ -179,22 +179,22 @@ void _uConfig::__uConfig_Config::reset() {
 
 void _uConfig::__uConfig_OpenGL::reset() {
    shaderInfoQueryType = 0;
-   useShaders = true;
+   useShaders          = true;
 }
 
 
 void _uConfig::__uConfig_Camera::reset() {
-   movementSpeed = 0.2;
+   movementSpeed    = 0.2;
    mouseSensitivity = 0.001;
-   angleHorizontal = M_PI;
-   angleVertical = 0;
+   angleHorizontal  = M_PI;
+   angleVertical    = 0;
 }
 
 
 
 _uConfig::_uConfig() {
-   handleSIGINT = true;
-   handleSIGTERM = true;
+   handleSIGINT                  = true;
+   handleSIGTERM                 = true;
    timeoutForMainLoopThread_mSec = 1000; // 1 second
 }
 

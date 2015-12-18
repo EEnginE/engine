@@ -37,7 +37,7 @@ std::string getShaderTypeString( GLenum _type );
 
 rShader::rShader() {
    vShaderProgram_OGL = 0;
-   vIsShaderLinked_B = false;
+   vIsShaderLinked_B  = false;
 
    vShaderEndings[VERT] = ".vert";
    vShaderEndings[FRAG] = ".frag";
@@ -46,53 +46,53 @@ rShader::rShader() {
    // Inputs:
 
    vInfo[VERTEX_INPUT].uName = "iVertex";
-   vInfo[VERTEX_INPUT].type = GL_FLOAT_VEC3;
+   vInfo[VERTEX_INPUT].type  = GL_FLOAT_VEC3;
 
    vInfo[NORMALS_INPUT].uName = "iNormals";
-   vInfo[NORMALS_INPUT].type = GL_FLOAT_VEC3;
+   vInfo[NORMALS_INPUT].type  = GL_FLOAT_VEC3;
 
    // Uniforms:
 
    vInfo[MODEL_MATRIX].uName = "uModel";
-   vInfo[MODEL_MATRIX].type = GL_FLOAT_MAT4;
+   vInfo[MODEL_MATRIX].type  = GL_FLOAT_MAT4;
 
    vInfo[VIEW_MATRIX].uName = "uView";
-   vInfo[VIEW_MATRIX].type = GL_FLOAT_MAT4;
+   vInfo[VIEW_MATRIX].type  = GL_FLOAT_MAT4;
 
    vInfo[MODEL_VIEW_MATRIX].uName = "uModelView";
-   vInfo[MODEL_VIEW_MATRIX].type = GL_FLOAT_MAT4;
+   vInfo[MODEL_VIEW_MATRIX].type  = GL_FLOAT_MAT4;
 
    vInfo[PROJECTOIN_MATRIX].uName = "uProjection";
-   vInfo[PROJECTOIN_MATRIX].type = GL_FLOAT_MAT4;
+   vInfo[PROJECTOIN_MATRIX].type  = GL_FLOAT_MAT4;
 
    vInfo[M_V_P_MATRIX].uName = "uMVP";
-   vInfo[M_V_P_MATRIX].type = GL_FLOAT_MAT4;
+   vInfo[M_V_P_MATRIX].type  = GL_FLOAT_MAT4;
 
    vInfo[NORMAL_MATRIX].uName = "uNormal";
-   vInfo[NORMAL_MATRIX].type = GL_FLOAT_MAT3;
+   vInfo[NORMAL_MATRIX].type  = GL_FLOAT_MAT3;
 
    vInfo[LIGHT_TYPE].uName = "type";
    vInfo[LIGHT_TYPE].sName = "uLights";
-   vInfo[LIGHT_TYPE].type = GL_INT;
+   vInfo[LIGHT_TYPE].type  = GL_INT;
 
    vInfo[AMBIENT_COLOR].uName = "ambient";
    vInfo[AMBIENT_COLOR].sName = "uLights";
-   vInfo[AMBIENT_COLOR].type = GL_FLOAT_VEC3;
+   vInfo[AMBIENT_COLOR].type  = GL_FLOAT_VEC3;
 
    vInfo[LIGHT_COLOR].uName = "color";
    vInfo[LIGHT_COLOR].sName = "uLights";
-   vInfo[LIGHT_COLOR].type = GL_FLOAT_VEC3;
+   vInfo[LIGHT_COLOR].type  = GL_FLOAT_VEC3;
 
    vInfo[LIGHT_POSITION].uName = "position";
    vInfo[LIGHT_POSITION].sName = "uLights";
-   vInfo[LIGHT_POSITION].type = GL_FLOAT_VEC3;
+   vInfo[LIGHT_POSITION].type  = GL_FLOAT_VEC3;
 
    vInfo[LIGHT_ATTENUATION].uName = "attenuation";
    vInfo[LIGHT_ATTENUATION].sName = "uLights";
-   vInfo[LIGHT_ATTENUATION].type = GL_FLOAT_VEC3;
+   vInfo[LIGHT_ATTENUATION].type  = GL_FLOAT_VEC3;
 
    vInfo[NUM_LIGHTS].uName = "uNumLights";
-   vInfo[NUM_LIGHTS].type = GL_INT;
+   vInfo[NUM_LIGHTS].type  = GL_INT;
 }
 
 rShader::rShader( rShader &&_s )
@@ -516,7 +516,7 @@ bool rShader::parseRawInformation() {
 
       if ( !lArrayIndex.empty() ) {
          int lTemp = atoi( lArrayIndex.c_str() );
-         lIndex = lTemp < 0 ? 0 : static_cast<unsigned>( lTemp );
+         lIndex    = lTemp < 0 ? 0 : static_cast<unsigned>( lTemp );
       }
 
       for ( j = 0; j < __BEGIN_UNIFORMS__; ++j ) {
@@ -530,7 +530,7 @@ bool rShader::parseRawInformation() {
                vInfo[j].locations.resize( lIndex + 1 );
 
             vInfo[j].locations[lIndex] = i.location;
-            j = -1;
+            j                          = -1;
             break;
          }
       }
@@ -568,7 +568,7 @@ bool rShader::parseRawInformation() {
 
       if ( !lArrayIndex.empty() ) {
          int lTemp = atoi( lArrayIndex.c_str() );
-         lIndex = lTemp < 0 ? 0 : static_cast<unsigned>( lTemp );
+         lIndex    = lTemp < 0 ? 0 : static_cast<unsigned>( lTemp );
       }
 
       for ( j = __BEGIN_UNIFORMS__ + 1; j < __END_INF__; ++j ) {
@@ -582,7 +582,7 @@ bool rShader::parseRawInformation() {
                vInfo[j].locations.resize( lIndex + 1 );
 
             vInfo[j].locations[lIndex] = i.location;
-            j = -1;
+            j                          = -1;
             break;
          }
       }

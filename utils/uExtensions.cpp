@@ -49,34 +49,34 @@ OPENGL_VERSIONS uExtensions::queryAll() {
    switch ( lMajorVersion ) {
       case 1:
          switch ( lMinorVersion ) {
-            case 2: return vVersion = OGL_VERSION_1_2;
-            case 3: return vVersion = OGL_VERSION_1_3;
-            case 4: return vVersion = OGL_VERSION_1_4;
-            case 5: return vVersion = OGL_VERSION_1_5;
+            case 2: return vVersion  = OGL_VERSION_1_2;
+            case 3: return vVersion  = OGL_VERSION_1_3;
+            case 4: return vVersion  = OGL_VERSION_1_4;
+            case 5: return vVersion  = OGL_VERSION_1_5;
             default: return vVersion = OGL_VERSION_NONE;
          }
       case 2:
          switch ( lMinorVersion ) {
-            case 0: return vVersion = OGL_VERSION_2_0;
-            case 1: return vVersion = OGL_VERSION_2_1;
+            case 0: return vVersion  = OGL_VERSION_2_0;
+            case 1: return vVersion  = OGL_VERSION_2_1;
             default: return vVersion = OGL_VERSION_NONE;
          }
       case 3:
          switch ( lMinorVersion ) {
-            case 0: return vVersion = OGL_VERSION_3_0;
-            case 1: return vVersion = OGL_VERSION_3_1;
-            case 2: return vVersion = OGL_VERSION_3_2;
-            case 3: return vVersion = OGL_VERSION_3_3;
+            case 0: return vVersion  = OGL_VERSION_3_0;
+            case 1: return vVersion  = OGL_VERSION_3_1;
+            case 2: return vVersion  = OGL_VERSION_3_2;
+            case 3: return vVersion  = OGL_VERSION_3_3;
             default: return vVersion = OGL_VERSION_NONE;
          }
       case 4:
          switch ( lMinorVersion ) {
-            case 0: return vVersion = OGL_VERSION_4_0;
-            case 1: return vVersion = OGL_VERSION_4_1;
-            case 2: return vVersion = OGL_VERSION_4_2;
-            case 3: return vVersion = OGL_VERSION_4_3;
-            case 4: return vVersion = OGL_VERSION_4_4;
-            case 5: return vVersion = OGL_VERSION_4_5;
+            case 0: return vVersion  = OGL_VERSION_4_0;
+            case 1: return vVersion  = OGL_VERSION_4_1;
+            case 2: return vVersion  = OGL_VERSION_4_2;
+            case 3: return vVersion  = OGL_VERSION_4_3;
+            case 4: return vVersion  = OGL_VERSION_4_4;
+            case 5: return vVersion  = OGL_VERSION_4_5;
             default: return vVersion = OGL_VERSION_NONE;
          }
       default: return vVersion = OGL_VERSION_NONE;

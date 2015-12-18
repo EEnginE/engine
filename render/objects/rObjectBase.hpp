@@ -98,11 +98,11 @@ class RENDER_API rObjectBase {
    };
 
    enum ERROR_FLAGS {
-      ALL_OK = 0,
+      ALL_OK                             = 0,
       FUNCTION_NOT_VALID_FOR_THIS_OBJECT = ( 1 << 0 ),
-      INDEX_OUT_OF_RANGE = ( 1 << 1 ),
-      DATA_NOT_LOADED = ( 1 << 2 ),
-      UNSUPPORTED_TYPE = ( 1 << 3 ),
+      INDEX_OUT_OF_RANGE                 = ( 1 << 1 ),
+      DATA_NOT_LOADED                    = ( 1 << 2 ),
+      UNSUPPORTED_TYPE                   = ( 1 << 3 ),
    };
 
    enum MATRIX_TYPES {

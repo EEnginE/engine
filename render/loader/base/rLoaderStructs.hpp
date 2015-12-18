@@ -70,7 +70,7 @@ struct _3D_Engine final {
    struct __obj final {
       struct __accessor final {
          TYPE vType;
-         unsigned char num = 3;
+         unsigned char num    = 3;
          unsigned int vOffset = 0;
          unsigned int vStride; //!< DATA stride
 
@@ -133,20 +133,20 @@ struct convert {
          return false;
 
       _out->vData.resize( lSize );
-      _out->vName = std::move( _in.vName );
+      _out->vName  = std::move( _in.vName );
       _out->vIndex = std::move( _in.vIndex );
 
       _out->vObjects.emplace_back();
       _out->vObjects[0].vAccessor.emplace_back();
 
-      _out->vObjects[0].vAccessor[0].vType = _3D_Engine<T, I>::POSITION;
-      _out->vObjects[0].vAccessor[0].num = D;
+      _out->vObjects[0].vAccessor[0].vType   = _3D_Engine<T, I>::POSITION;
+      _out->vObjects[0].vAccessor[0].num     = D;
       _out->vObjects[0].vAccessor[0].vOffset = 0;
       _out->vObjects[0].vAccessor[0].vStride = sizeof( T ) * D;
 
       _out->vObjects[0].vNumVertex = _out->vIndex.size();
-      _out->vObjects[0].vType = MESH_3D;
-      _out->vObjects[0].vStride = 0;
+      _out->vObjects[0].vType      = MESH_3D;
+      _out->vObjects[0].vStride    = 0;
 
       for ( size_t i = 0; i < lSize; ++i ) {
          _out->vData[i] = _in.vVertexData[i];
@@ -168,7 +168,7 @@ struct convert {
          return false;
 
       _out->vData.resize( lSize * 2 );
-      _out->vName = std::move( _in.vName );
+      _out->vName  = std::move( _in.vName );
       _out->vIndex = std::move( _in.vIndex );
 
       _out->vObjects.emplace_back();
@@ -176,26 +176,26 @@ struct convert {
       _out->vObjects[0].vAccessor.emplace_back();
 
       // Vertex
-      _out->vObjects[0].vAccessor[0].vType = _3D_Engine<T, I>::POSITION;
-      _out->vObjects[0].vAccessor[0].num = D;
+      _out->vObjects[0].vAccessor[0].vType   = _3D_Engine<T, I>::POSITION;
+      _out->vObjects[0].vAccessor[0].num     = D;
       _out->vObjects[0].vAccessor[0].vOffset = 0;
       _out->vObjects[0].vAccessor[0].vStride = sizeof( T ) * D * 2;
 
       // Normal
-      _out->vObjects[0].vAccessor[1].vType = _3D_Engine<T, I>::NORMAL;
-      _out->vObjects[0].vAccessor[1].num = D;
+      _out->vObjects[0].vAccessor[1].vType   = _3D_Engine<T, I>::NORMAL;
+      _out->vObjects[0].vAccessor[1].num     = D;
       _out->vObjects[0].vAccessor[1].vOffset = D * sizeof( T );
       _out->vObjects[0].vAccessor[1].vStride = sizeof( T ) * D * 2;
 
 
       _out->vObjects[0].vNumVertex = _out->vIndex.size();
-      _out->vObjects[0].vType = MESH_3D;
-      _out->vObjects[0].vOffset = 0;
-      _out->vObjects[0].vStride = 0;
+      _out->vObjects[0].vType      = MESH_3D;
+      _out->vObjects[0].vOffset    = 0;
+      _out->vObjects[0].vStride    = 0;
 
       for ( size_t i = 0; i < ( lSize / D ); ++i ) {
          for ( unsigned int j = 0; j < D; ++j ) {
-            _out->vData[i * 2 * D + j] = _in.vVertexData[i * D + j];
+            _out->vData[i * 2 * D + j]     = _in.vVertexData[i * D + j];
             _out->vData[i * 2 * D + j + D] = _in.vNormalesData[i * D + j];
          }
       }
@@ -219,7 +219,7 @@ struct convert {
          return false;
 
       _out->vData.resize( lSize * 2 + _in.vUVData.size() );
-      _out->vName = std::move( _in.vName );
+      _out->vName  = std::move( _in.vName );
       _out->vIndex = std::move( _in.vIndex );
 
       _out->vObjects.emplace_back();
@@ -228,31 +228,31 @@ struct convert {
       _out->vObjects[0].vAccessor.emplace_back();
 
       // Vertex
-      _out->vObjects[0].vAccessor[0].vType = _3D_Engine<T, I>::POSITION;
-      _out->vObjects[0].vAccessor[0].num = D;
+      _out->vObjects[0].vAccessor[0].vType   = _3D_Engine<T, I>::POSITION;
+      _out->vObjects[0].vAccessor[0].num     = D;
       _out->vObjects[0].vAccessor[0].vOffset = 0;
       _out->vObjects[0].vAccessor[0].vStride = sizeof( T ) * D * 2 + sizeof( T ) * 2;
 
       // Mormal
-      _out->vObjects[0].vAccessor[1].vType = _3D_Engine<T, I>::NORMAL;
-      _out->vObjects[0].vAccessor[1].num = D;
+      _out->vObjects[0].vAccessor[1].vType   = _3D_Engine<T, I>::NORMAL;
+      _out->vObjects[0].vAccessor[1].num     = D;
       _out->vObjects[0].vAccessor[1].vOffset = D * sizeof( T );
       _out->vObjects[0].vAccessor[1].vStride = sizeof( T ) * D * 2 + sizeof( T ) * 2;
 
       // UV
-      _out->vObjects[0].vAccessor[2].vType = _3D_Engine<T, I>::UV;
-      _out->vObjects[0].vAccessor[2].num = 2;
+      _out->vObjects[0].vAccessor[2].vType   = _3D_Engine<T, I>::UV;
+      _out->vObjects[0].vAccessor[2].num     = 2;
       _out->vObjects[0].vAccessor[2].vOffset = D * sizeof( T ) * 2;
       _out->vObjects[0].vAccessor[2].vStride = sizeof( T ) * D * 2 + sizeof( T ) * 2;
 
       _out->vObjects[0].vNumVertex = _out->vIndex.size();
-      _out->vObjects[0].vType = MESH_3D;
-      _out->vObjects[0].vOffset = 0;
-      _out->vObjects[0].vStride = 0;
+      _out->vObjects[0].vType      = MESH_3D;
+      _out->vObjects[0].vOffset    = 0;
+      _out->vObjects[0].vStride    = 0;
 
       for ( size_t i = 0; i < ( lSize / D ); ++i ) {
          for ( unsigned int j = 0; j < D; ++j ) {
-            _out->vData[i + j] = _in.vVertexData[i * D + j];
+            _out->vData[i + j]     = _in.vVertexData[i * D + j];
             _out->vData[i + j + D] = _in.vNormalesData[i * D + j];
          }
 
@@ -311,7 +311,7 @@ void reindex( _3D_Data_RAW<T, I> &_data, _3D_Data<T, I> &_out, std::string &_pat
 
    if ( _data.vUVData.empty() && _data.vNormalesData.empty() ) {
       _out.vVertexData = std::move( _data.vVertexData );
-      _out.vIndex = std::move( _data.vIndexVertexData );
+      _out.vIndex      = std::move( _data.vIndexVertexData );
       return;
    } else if ( _data.vUVData.empty() && !_data.vNormalesData.empty() ) {
       reindex2<T, I, 3, 3>( &_data.vVertexData,
@@ -348,9 +348,9 @@ void reindex( _3D_Data_RAW<T, I> &_data, _3D_Data<T, I> &_out, std::string &_pat
       return;
    }
 
-   _out.vVertexData = std::move( _data.vVertexData );
+   _out.vVertexData   = std::move( _data.vVertexData );
    _out.vNormalesData = std::move( _data.vNormalesData );
-   _out.vIndex = std::move( _data.vIndexVertexData );
+   _out.vIndex        = std::move( _data.vIndexVertexData );
 }
 
 template <class I>
@@ -386,8 +386,8 @@ void reindex2( std::vector<T> *_vertIn,
 
    for ( size_t i = 0; i < _indexVert->size(); ++i ) {
       lFoundIndex = false;
-      lIV = ( *_indexVert )[i];
-      lI2 = ( *_index2nd )[i];
+      lIV         = ( *_indexVert )[i];
+      lI2         = ( *_index2nd )[i];
 
       // Check if it is save to access
       if ( lIV * VERT >= _vertIn->size() || lI2 * S2 >= _2ndIn->size() ) {
@@ -445,9 +445,9 @@ void reindex3( std::vector<T> *_vertIn,
 
    for ( size_t i = 0; i < _indexVert->size(); ++i ) {
       lFoundIndex = false;
-      lIV = ( *_indexVert )[i];
-      lI2 = ( *_index2nd )[i];
-      lI3 = ( *_index3rd )[i];
+      lIV         = ( *_indexVert )[i];
+      lI2         = ( *_index2nd )[i];
+      lI3         = ( *_index3rd )[i];
 
       // Check if it is save to access
       if ( lIV * VERT >= _vertIn->size() || lI2 * S2 >= _2ndIn->size() ||

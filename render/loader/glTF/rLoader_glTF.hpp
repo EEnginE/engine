@@ -84,7 +84,9 @@ size_t rLoader_glTF::getItem( std::vector<T> &_vec, td_MAP &_map, std::string _i
       _map[_id] = _vec.size() - 1;
       _vec.back().name = _id;
       return _vec.size() - 1;
-   } else { return lIter->second; }
+   } else {
+      return lIter->second;
+   }
 }
 }
 

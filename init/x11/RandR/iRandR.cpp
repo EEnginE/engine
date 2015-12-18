@@ -36,9 +36,9 @@ iRandR::iRandR() {
    vRandRVersionMinor_I = -1;
 
    vScreenHeight_uI = 0;
-   vScreenWidth_uI = 0;
+   vScreenWidth_uI  = 0;
 
-   vDisplay_X11 = nullptr;
+   vDisplay_X11        = nullptr;
    vWasScreenChanged_B = false;
 }
 
@@ -73,8 +73,8 @@ bool iRandR::initRandR( Display *_display, Window _window, Window _root ) {
 
    int lTempVersion_I;
 
-   vDisplay_X11 = _display;
-   vWindow_X11 = _window;
+   vDisplay_X11    = _display;
+   vWindow_X11     = _window;
    vRootWindow_X11 = _root;
 
    if ( XQueryExtension(
@@ -316,18 +316,18 @@ void iRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left,
       }
 
       if ( vCRTC_V_RandR[index].posY < lMinY || lMinY == -1 ) {
-         _top = index;
+         _top  = index;
          lMinY = vCRTC_V_RandR[index].posY;
       }
 
       if ( vCRTC_V_RandR[index].posX > lMaxX || lMaxX == -1 ) {
          _right = index;
-         lMaxX = vCRTC_V_RandR[index].posX;
+         lMaxX  = vCRTC_V_RandR[index].posX;
       }
 
       if ( vCRTC_V_RandR[index].posY > lMaxY || lMaxY == -1 ) {
          _bottom = index;
-         lMaxY = vCRTC_V_RandR[index].posY;
+         lMaxY   = vCRTC_V_RandR[index].posY;
       }
    }
 }
@@ -342,13 +342,13 @@ void iRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left,
 int iRandR::getIndexOfDisplay( iDisplays const &_disp ) {
    reload();
 
-   RRCrtc lCRTC_XRR = None;
+   RRCrtc lCRTC_XRR  = None;
    bool lOutputFound = false;
 
    for ( internal::_output fOut : vOutput_V_RandR ) {
       if ( _disp.getOutput() == fOut.id ) {
          lOutputFound = true;
-         lCRTC_XRR = fOut.crtc;
+         lCRTC_XRR    = fOut.crtc;
          break;
       }
    }

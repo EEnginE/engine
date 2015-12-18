@@ -194,7 +194,7 @@ class __iInit_Pointer {
  public:
    __iInit_Pointer() {
       pointer = 0;
-      is_set = false;
+      is_set  = false;
    }
    ~__iInit_Pointer() { pointer = 0; }
    bool set( iInit *_THIS ) {
@@ -202,7 +202,7 @@ class __iInit_Pointer {
          return false;
       }
       pointer = _THIS;
-      is_set = true;
+      is_set  = true;
       return true;
    }
    iInit *get() { return pointer; }

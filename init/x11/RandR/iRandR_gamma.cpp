@@ -105,9 +105,9 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
    _g = ( _g == 0 ) ? 1 : _g;
    _b = ( _b == 0 ) ? 1 : _b;
 
-   lGammaRed_F = 1 / _r;
+   lGammaRed_F   = 1 / _r;
    lGammaGreen_F = 1 / _g;
-   lGammaBlue_F = 1 / _b;
+   lGammaBlue_F  = 1 / _b;
 
    for ( int i = 0; i < lSize_I; ++i ) {
       if ( lGammaRed_F == 1.0 && _brightness == 1.0 ) {

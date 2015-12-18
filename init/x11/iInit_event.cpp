@@ -35,7 +35,7 @@
  * \param[out] result the result
  */
 static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
-   result.tv_sec = a.tv_sec + b.tv_sec;
+   result.tv_sec  = a.tv_sec + b.tv_sec;
    result.tv_usec = a.tv_usec + b.tv_usec;
    while ( result.tv_usec >= 1000000 ) {
       result.tv_sec++;
@@ -50,7 +50,7 @@ static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
  * \param[out] result the result
  */
 static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
-   result.tv_sec = a.tv_sec - b.tv_sec;
+   result.tv_sec  = a.tv_sec - b.tv_sec;
    result.tv_usec = a.tv_usec - b.tv_usec;
    while ( result.tv_usec < 0 ) {
       result.tv_sec--;
@@ -79,11 +79,11 @@ int iInit::eventLoop() {
    x11_fd = ConnectionNumber( getDisplay() );
 
    // Timeout
-   periode.tv_sec = 0;
+   periode.tv_sec  = 0;
    periode.tv_usec = 250000;
 
    // Prepare timevals
-   tv_select.tv_sec = periode.tv_sec;
+   tv_select.tv_sec  = periode.tv_sec;
    tv_select.tv_usec = periode.tv_usec;
    gettimeofday( &tv, nullptr );
    addTimeval( tv, periode, tv );
@@ -113,7 +113,7 @@ int iInit::eventLoop() {
          subTimeval( tv, tv_select, tv_select );
       } else {
          // Tiemout
-         tv_select.tv_sec = periode.tv_sec;
+         tv_select.tv_sec  = periode.tv_sec;
          tv_select.tv_usec = periode.tv_usec;
          gettimeofday( &tv, nullptr );
          addTimeval( tv, periode, tv );
@@ -122,7 +122,7 @@ int iInit::eventLoop() {
       while ( XPending( getDisplay() ) > 0 && getHaveContext() ) {
 
          XNextEvent( getDisplay(), &lEvent_X11 );
-         lKeyState_uI = E_PRESSED;
+         lKeyState_uI    = E_PRESSED;
          lButtonState_uI = E_PRESSED;
          char lEvent_CSTR[6];
          snprintf( lEvent_CSTR, 5, "%04X", lEvent_X11.type );
@@ -152,7 +152,7 @@ int iInit::eventLoop() {
             case KeyRelease: lKeyState_uI = E_RELEASED; FALLTHROUGH
             case KeyPress: {
                iEventInfo tempInfo( this );
-               tempInfo.type = E_EVENT_KEY;
+               tempInfo.type       = E_EVENT_KEY;
                tempInfo.eKey.state = lKeyState_uI;
                tempInfo.eKey.key = processX11KeyInput(
                      lEvent_X11.xkey, static_cast<unsigned short>( lKeyState_uI ), getDisplay() );
@@ -162,10 +162,10 @@ int iInit::eventLoop() {
             case ButtonRelease: lButtonState_uI = E_RELEASED; FALLTHROUGH
             case ButtonPress: {
                iEventInfo tempInfo( this );
-               tempInfo.type = E_EVENT_MOUSE;
+               tempInfo.type         = E_EVENT_MOUSE;
                tempInfo.iMouse.state = static_cast<int>( lButtonState_uI );
-               tempInfo.iMouse.posX = static_cast<unsigned>( lEvent_X11.xbutton.x );
-               tempInfo.iMouse.posY = static_cast<unsigned>( lEvent_X11.xbutton.y );
+               tempInfo.iMouse.posX  = static_cast<unsigned>( lEvent_X11.xbutton.x );
+               tempInfo.iMouse.posY  = static_cast<unsigned>( lEvent_X11.xbutton.y );
 
                // clang-format off
                switch ( lEvent_X11.xbutton.button ) {
@@ -193,7 +193,7 @@ int iInit::eventLoop() {
                iEventInfo tempInfo( this );
 
                tempInfo.iMouse.button = E_MOUSE_MOVE;
-               tempInfo.type = E_EVENT_MOUSE;
+               tempInfo.type          = E_EVENT_MOUSE;
 
                GlobConf.win.mousePosX = tempInfo.iMouse.posX =
                      static_cast<unsigned>( lEvent_X11.xmotion.x );
@@ -211,7 +211,7 @@ int iInit::eventLoop() {
                iEventInfo tempInfo( this );
 
                tempInfo.iMouse.button = E_MOUSE_ENTER;
-               tempInfo.type = E_EVENT_MOUSE;
+               tempInfo.type          = E_EVENT_MOUSE;
 
                GlobConf.win.mousePosX = tempInfo.iMouse.posX =
                      static_cast<unsigned>( lEvent_X11.xmotion.x );
@@ -229,7 +229,7 @@ int iInit::eventLoop() {
                iEventInfo tempInfo( this );
 
                tempInfo.iMouse.button = E_MOUSE_LEAVE;
-               tempInfo.type = E_EVENT_MOUSE;
+               tempInfo.type          = E_EVENT_MOUSE;
 
                GlobConf.win.mousePosX = tempInfo.iMouse.posX =
                      static_cast<unsigned>( lEvent_X11.xmotion.x );
@@ -245,14 +245,14 @@ int iInit::eventLoop() {
 
             case FocusIn: {
                iEventInfo tempInfo( this );
-               tempInfo.type = E_EVENT_FOCUS;
+               tempInfo.type               = E_EVENT_FOCUS;
                GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = true;
                vFocus_SIG( tempInfo );
             } break;
 
             case FocusOut: {
                iEventInfo tempInfo( this );
-               tempInfo.type = E_EVENT_FOCUS;
+               tempInfo.type               = E_EVENT_FOCUS;
                GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = false;
                vFocus_SIG( tempInfo );
             } break;

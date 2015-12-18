@@ -36,7 +36,7 @@ struct rRenderAmbientLight {
 
 template <class T>
 struct rRenderDirectionalLight : rRenderAmbientLight<T> {
-   rVec3<T> *color = nullptr;
+   rVec3<T> *color     = nullptr;
    rVec3<T> *direction = nullptr;
 
    using rRenderAmbientLight<T>::setAmbient;
@@ -54,8 +54,8 @@ struct rRenderDirectionalLight : rRenderAmbientLight<T> {
 
 template <class T>
 struct rRenderPointLight : rRenderAmbientLight<T> {
-   rVec3<T> *color = nullptr;
-   rVec3<T> *position = nullptr;
+   rVec3<T> *color       = nullptr;
+   rVec3<T> *position    = nullptr;
    rVec3<T> *attenuation = nullptr;
 
    using rRenderAmbientLight<T>::setAmbient;

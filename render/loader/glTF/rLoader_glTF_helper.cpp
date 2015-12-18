@@ -79,7 +79,7 @@ bool rLoader_glTF::skipSection() {
       return false;
 
    int lCounter = 1;
-   auto lStart = vCurrentLine;
+   auto lStart  = vCurrentLine;
 
    switch ( *vIter ) {
       case '{':

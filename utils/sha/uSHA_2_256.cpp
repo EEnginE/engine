@@ -161,7 +161,7 @@ void uSHA_2::padd512() {
    // Are is there a full block?
    if ( vCurrentPos512_A_IT == vBuffer512_A_uC.end() ) {
       block( vBuffer512_A_uC );
-      vCurrentPos512_A_IT = vBuffer512_A_uC.begin();
+      vCurrentPos512_A_IT  = vBuffer512_A_uC.begin();
       lElementsInBuffer_uI = 0;
    }
 
@@ -176,8 +176,8 @@ void uSHA_2::padd512() {
 
    // vBlockCounter_ulI * 64 = number of bytes in the FULL blocks
    temp = static_cast<uint32_t>( vBlockCounter_ulI );
-   v1 = temp << 6;
-   v2 = temp >> 26;
+   v1   = temp << 6;
+   v2   = temp >> 26;
 
    // Add the remaining bytes
    temp = v1;

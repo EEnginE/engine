@@ -129,11 +129,11 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    // =============================================================================================
    if ( !_disp.getIsEnabled() && lSingleMatch_XRR != None && lClonesMatch_XRR == None ) {
       // We disable an enabled Output
-      lTempCRTC_RandR.id = lSingleMatch_XRR;
+      lTempCRTC_RandR.id   = lSingleMatch_XRR;
       lTempCRTC_RandR.mode = None;
       lTempCRTC_RandR.outputs.clear();
-      lTempCRTC_RandR.posX = 0;
-      lTempCRTC_RandR.posY = 0;
+      lTempCRTC_RandR.posX     = 0;
+      lTempCRTC_RandR.posY     = 0;
       lTempCRTC_RandR.rotation = RR_Rotate_0;
 
       vChangeCRTC_V_RandR.push_back( lTempCRTC_RandR );
@@ -160,7 +160,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
       }
 
       // We removed only the output we wanted to remove
-      lTempCRTC_RandR.outputs = lTempOutputs_V_XRR;
+      lTempCRTC_RandR.outputs  = lTempOutputs_V_XRR;
       lTempCRTC_RandR.rotation = RR_Rotate_0;
 
       vChangeCRTC_V_RandR.push_back( lTempCRTC_RandR );
@@ -180,7 +180,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
          }
 
          if ( lTempCRTC_RandR.id != None ) {
-            lTempCRTC_RandR.mode = _disp.getMode();
+            lTempCRTC_RandR.mode    = _disp.getMode();
             lTempCRTC_RandR.outputs = _disp.getClones();
             lTempCRTC_RandR.outputs.push_back( _disp.getOutput() );
             _disp.getSelectedPosition( lTempCRTC_RandR.posX, lTempCRTC_RandR.posY );
@@ -205,7 +205,7 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
                if ( fRROut == fRRClone ) {
                   lTempCRTC_RandR = isOutputPossible( _disp.getOutput(), fCRTC.id );
                   if ( lTempCRTC_RandR.id != None ) {
-                     lTempCRTC_RandR.mode = _disp.getMode();
+                     lTempCRTC_RandR.mode    = _disp.getMode();
                      lTempCRTC_RandR.outputs = _disp.getClones();
                      lTempCRTC_RandR.outputs.push_back( _disp.getOutput() );
                      _disp.getSelectedPosition( lTempCRTC_RandR.posX, lTempCRTC_RandR.posY );
@@ -227,8 +227,8 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
    // =============================================================================================
    if ( _disp.getIsEnabled() && lSingleMatch_XRR != None && lClonesMatch_XRR == None ) {
       // We want to change a enabled output
-      lTempCRTC_RandR.id = lSingleMatch_XRR;
-      lTempCRTC_RandR.mode = _disp.getMode();
+      lTempCRTC_RandR.id      = lSingleMatch_XRR;
+      lTempCRTC_RandR.mode    = _disp.getMode();
       lTempCRTC_RandR.outputs = _disp.getClones();
       lTempCRTC_RandR.outputs.push_back( _disp.getOutput() );
       _disp.getSelectedPosition( lTempCRTC_RandR.posX, lTempCRTC_RandR.posY );

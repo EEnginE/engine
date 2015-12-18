@@ -34,14 +34,14 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
    Rotation lTempRotate_XRR; // Exists only for XRRConfigCurrentConfiguration(...); to make it happy
 
-   vConfig_XRR = XRRGetScreenInfo( vDisplay_X11, vRootWindow_X11 );
+   vConfig_XRR    = XRRGetScreenInfo( vDisplay_X11, vRootWindow_X11 );
    vResources_XRR = XRRGetScreenResources( vDisplay_X11, vRootWindow_X11 );
 
-   lTemoID_suI = XRRConfigCurrentConfiguration( vConfig_XRR, &lTempRotate_XRR );
+   lTemoID_suI                   = XRRConfigCurrentConfiguration( vConfig_XRR, &lTempRotate_XRR );
    XRRScreenSize *lTempSizes_XRR = XRRSizes( vDisplay_X11, 0, &lTempSizes_I );
 
    if ( lTemoID_suI < lTempSizes_I ) {
-      vScreenWidth_uI = static_cast<unsigned>( lTempSizes_XRR[lTemoID_suI].width );
+      vScreenWidth_uI  = static_cast<unsigned>( lTempSizes_XRR[lTemoID_suI].width );
       vScreenHeight_uI = static_cast<unsigned>( lTempSizes_XRR[lTemoID_suI].height );
    }
 
@@ -87,14 +87,14 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
       XRRCrtcInfo *lTempCRTCInfo_XRR =
             XRRGetCrtcInfo( vDisplay_X11, vResources_XRR, vResources_XRR->crtcs[i] );
 
-      lTempCRTC_RandR.id = vResources_XRR->crtcs[i];
+      lTempCRTC_RandR.id        = vResources_XRR->crtcs[i];
       lTempCRTC_RandR.timestamp = lTempCRTCInfo_XRR->timestamp;
-      lTempCRTC_RandR.posX = lTempCRTCInfo_XRR->x;
-      lTempCRTC_RandR.posY = lTempCRTCInfo_XRR->y;
-      lTempCRTC_RandR.width = lTempCRTCInfo_XRR->width;
-      lTempCRTC_RandR.height = lTempCRTCInfo_XRR->height;
-      lTempCRTC_RandR.mode = lTempCRTCInfo_XRR->mode;
-      lTempCRTC_RandR.rotation = lTempCRTCInfo_XRR->rotation;
+      lTempCRTC_RandR.posX      = lTempCRTCInfo_XRR->x;
+      lTempCRTC_RandR.posY      = lTempCRTCInfo_XRR->y;
+      lTempCRTC_RandR.width     = lTempCRTCInfo_XRR->width;
+      lTempCRTC_RandR.height    = lTempCRTCInfo_XRR->height;
+      lTempCRTC_RandR.mode      = lTempCRTCInfo_XRR->mode;
+      lTempCRTC_RandR.rotation  = lTempCRTCInfo_XRR->rotation;
       lTempCRTC_RandR.rotations = lTempCRTCInfo_XRR->rotations;
 
       for ( int j = 0; j < lTempCRTCInfo_XRR->noutput; ++j ) {
@@ -117,15 +117,15 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
       XRROutputInfo *lTempOutputInfo_XRR =
             XRRGetOutputInfo( vDisplay_X11, vResources_XRR, vResources_XRR->outputs[i] );
 
-      lTempOutput_RandR.id = vResources_XRR->outputs[i];
-      lTempOutput_RandR.timestamp = lTempOutputInfo_XRR->timestamp;
-      lTempOutput_RandR.crtc = lTempOutputInfo_XRR->crtc;
-      lTempOutput_RandR.name = lTempOutputInfo_XRR->name;
-      lTempOutput_RandR.mm_width = lTempOutputInfo_XRR->mm_width;
-      lTempOutput_RandR.mm_height = lTempOutputInfo_XRR->mm_height;
-      lTempOutput_RandR.connection = lTempOutputInfo_XRR->connection;
+      lTempOutput_RandR.id             = vResources_XRR->outputs[i];
+      lTempOutput_RandR.timestamp      = lTempOutputInfo_XRR->timestamp;
+      lTempOutput_RandR.crtc           = lTempOutputInfo_XRR->crtc;
+      lTempOutput_RandR.name           = lTempOutputInfo_XRR->name;
+      lTempOutput_RandR.mm_width       = lTempOutputInfo_XRR->mm_width;
+      lTempOutput_RandR.mm_height      = lTempOutputInfo_XRR->mm_height;
+      lTempOutput_RandR.connection     = lTempOutputInfo_XRR->connection;
       lTempOutput_RandR.subpixel_order = lTempOutputInfo_XRR->subpixel_order;
-      lTempOutput_RandR.npreferred = lTempOutputInfo_XRR->npreferred;
+      lTempOutput_RandR.npreferred     = lTempOutputInfo_XRR->npreferred;
 
       for ( int j = 0; j < lTempOutputInfo_XRR->ncrtc; ++j ) {
          lTempOutput_RandR.crtcs.push_back( lTempOutputInfo_XRR->crtcs[j] );
@@ -150,19 +150,19 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
 
       XRRModeInfo lTempModeInfo_XRR = vResources_XRR->modes[i];
 
-      lTempMode_RandR.id = lTempModeInfo_XRR.id;
-      lTempMode_RandR.width = lTempModeInfo_XRR.width;
-      lTempMode_RandR.height = lTempModeInfo_XRR.height;
-      lTempMode_RandR.dotClock = lTempModeInfo_XRR.dotClock;
+      lTempMode_RandR.id         = lTempModeInfo_XRR.id;
+      lTempMode_RandR.width      = lTempModeInfo_XRR.width;
+      lTempMode_RandR.height     = lTempModeInfo_XRR.height;
+      lTempMode_RandR.dotClock   = lTempModeInfo_XRR.dotClock;
       lTempMode_RandR.hSyncStart = lTempModeInfo_XRR.hSyncStart;
-      lTempMode_RandR.hSyncEnd = lTempModeInfo_XRR.hSyncEnd;
-      lTempMode_RandR.hTotal = lTempModeInfo_XRR.hTotal;
-      lTempMode_RandR.hSkew = lTempModeInfo_XRR.hSkew;
+      lTempMode_RandR.hSyncEnd   = lTempModeInfo_XRR.hSyncEnd;
+      lTempMode_RandR.hTotal     = lTempModeInfo_XRR.hTotal;
+      lTempMode_RandR.hSkew      = lTempModeInfo_XRR.hSkew;
       lTempMode_RandR.vSyncStart = lTempModeInfo_XRR.vSyncStart;
-      lTempMode_RandR.vSyncEnd = lTempModeInfo_XRR.vSyncEnd;
-      lTempMode_RandR.vTotal = lTempModeInfo_XRR.vTotal;
-      lTempMode_RandR.name = lTempModeInfo_XRR.name;
-      lTempMode_RandR.modeFlags = lTempModeInfo_XRR.modeFlags;
+      lTempMode_RandR.vSyncEnd   = lTempModeInfo_XRR.vSyncEnd;
+      lTempMode_RandR.vTotal     = lTempModeInfo_XRR.vTotal;
+      lTempMode_RandR.name       = lTempModeInfo_XRR.name;
+      lTempMode_RandR.modeFlags  = lTempModeInfo_XRR.modeFlags;
 
 
       /* v refresh frequency in Hz */

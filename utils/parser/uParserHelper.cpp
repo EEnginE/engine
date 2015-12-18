@@ -68,7 +68,7 @@ int uParserHelper::parse() {
       return lRet;
 
    vIter = lFile.begin();
-   vEnd = lFile.end();
+   vEnd  = lFile.end();
 
    if ( !load_IMPL() ) {
       eLOG( "Failed parsing '", vFilePath_str, "'" );

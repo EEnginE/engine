@@ -53,14 +53,14 @@ eWindowClassRegister CLASS_REGISTER;
 
 iContext::iContext() {
    vWindowsCallbacksError_B = false;
-   vHasContext_B = false;
-   vHasGLEW_B = false;
+   vHasContext_B            = false;
+   vHasGLEW_B               = false;
 
    vIsCursorHidden_B = false;
    vIsMouseGrabbed_B = false;
 
 
-   vWindowRecreate_B = false;
+   vWindowRecreate_B              = false;
    vAThreadOwnsTheOpenGLContext_B = false;
 }
 
@@ -233,10 +233,10 @@ bool iContext::isAContextCurrentForThisThread() {
  * \returns The return value of \c SetWindowPos
  */
 int iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) {
-   GlobConf.win.width = _width;
+   GlobConf.win.width  = _width;
    GlobConf.win.height = _height;
-   GlobConf.win.posX = _posX;
-   GlobConf.win.posY = _posY;
+   GlobConf.win.posX   = _posX;
+   GlobConf.win.posY   = _posY;
 
    return SetWindowPos(
          vHWND_Window_win32, HWND_TOP, _posX, _posY, _width, _height, SWP_SHOWWINDOW );
@@ -315,7 +315,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
             lState1_str,
             " not suppored on Windows ==> change it to NONE, do "
             "(if possible) type2, and return false" );
-      _type1 = NONE;
+      _type1      = NONE;
       lState1_str = "NOT_SUPPORTED";
    }
 
@@ -324,13 +324,13 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
             lState1_str,
             " not suppored on Windows ==> change it to NONE, do "
             "(if possible) type1, and return false" );
-      _type2 = NONE;
+      _type2      = NONE;
       lState2_str = "NOT_SUPPORTED";
    }
 
    switch ( _action ) {
       case C_REMOVE: lMode_STR = "Removed"; break;
-      case C_ADD: lMode_STR = "Enabled"; break;
+      case C_ADD: lMode_STR    = "Enabled"; break;
       case C_TOGGLE: lMode_STR = "Toggled"; break;
       default: return -1;
    }
@@ -443,7 +443,7 @@ bool iContext::setDecoration( ACTION _action ) {
    bool lGlobConfOld_B = GlobConf.win.windowDecoration;
 
    switch ( _action ) {
-      case C_ADD: GlobConf.win.windowDecoration = true; break;
+      case C_ADD: GlobConf.win.windowDecoration    = true; break;
       case C_REMOVE: GlobConf.win.windowDecoration = false; break;
       case C_TOGGLE: GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration; break;
 
@@ -473,7 +473,7 @@ int iContext::fullScreen( ACTION _action, bool ) {
    bool lGlobConfOld_B = GlobConf.win.fullscreen;
 
    switch ( _action ) {
-      case C_ADD: GlobConf.win.fullscreen = true; break;
+      case C_ADD: GlobConf.win.fullscreen    = true; break;
       case C_REMOVE: GlobConf.win.fullscreen = false; break;
       case C_TOGGLE: GlobConf.win.fullscreen = !GlobConf.win.fullscreen; break;
 
@@ -513,9 +513,9 @@ bool iContext::grabMouse() {
    // GetWindowRect(vHWND_Window_win32, &bounds);
 
    // The following allows for more customization
-   bounds.left = GlobConf.win.posX;
-   bounds.top = GlobConf.win.posY;
-   bounds.right = GlobConf.win.posX + GlobConf.win.width;
+   bounds.left   = GlobConf.win.posX;
+   bounds.top    = GlobConf.win.posY;
+   bounds.right  = GlobConf.win.posX + GlobConf.win.width;
    bounds.bottom = GlobConf.win.posY + GlobConf.win.height;
 
    if ( ClipCursor( &bounds ) == 0 ) {

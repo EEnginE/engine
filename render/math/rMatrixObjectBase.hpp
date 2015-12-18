@@ -98,8 +98,8 @@ rMatrixObjectBase<T>::rMatrixObjectBase( rMatrixSceneBase<T> *_scene ) {
    vModelViewMatrix_MAT.toIdentityMatrix();
 
    vViewProjectionMatrix_MAT = _scene->getViewProjectionMatrix();
-   vViewMatrix_MAT = _scene->getViewMatrix();
-   vProjectionMatrix_MAT = _scene->getProjectionMatrix();
+   vViewMatrix_MAT           = _scene->getViewMatrix();
+   vProjectionMatrix_MAT     = _scene->getProjectionMatrix();
 
    vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 

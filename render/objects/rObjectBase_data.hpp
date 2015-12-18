@@ -52,8 +52,8 @@ class rObjectBase_data {
    rObjectBase_data(
          DATA _data,
          std::array<int64_t, rObjectBase::__LAST__> &_hints,
-         std::vector<std::array<int64_t, rObjectBase::__LAST_OBJECT__ - rObjectBase::__LAST__>> &
-               _objHints )
+         std::vector<std::array<int64_t, rObjectBase::__LAST_OBJECT__ - rObjectBase::__LAST__>>
+               &_objHints )
        : vData( _data ) {
 
       _hints[_OBJ( NUM_MESHS )] = 0;

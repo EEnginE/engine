@@ -34,41 +34,41 @@ namespace e_engine {
 class RENDER_API rRenderMultipleLights_3_3 : public rRenderBase {
  private:
    GLuint vVertexBufferObj_OGL = NOT_SET_ui;
-   GLuint vIndexBufferObj_OGL = NOT_SET_ui;
+   GLuint vIndexBufferObj_OGL  = NOT_SET_ui;
 
    GLuint vShader_OGL = NOT_SET_ui;
 
-   GLuint vInputVertexLocation_OGL = NOT_SET_ui;
+   GLuint vInputVertexLocation_OGL  = NOT_SET_ui;
    GLuint vInputNormalsLocation_OGL = NOT_SET_ui;
-   GLint vUniformMVP_OGL = NOT_SET;
-   GLint vUniformModelView_OGL = NOT_SET;
-   GLint vUniformNormal_OGL = NOT_SET;
+   GLint vUniformMVP_OGL            = NOT_SET;
+   GLint vUniformModelView_OGL      = NOT_SET;
+   GLint vUniformNormal_OGL         = NOT_SET;
 
    // Object
-   GLsizei vDataSize_uI = NOT_SET_ui;
+   GLsizei vDataSize_uI  = NOT_SET_ui;
    GLsizei vVertexOffset = NOT_SET_ui;
    GLsizei vVertexStride = NOT_SET_ui;
    GLsizei vNormalOffset = NOT_SET_ui;
    GLsizei vNormalStride = NOT_SET_ui;
-   GLsizei vIndexOffset = NOT_SET_ui;
-   GLsizei vIndexStride = NOT_SET_ui;
+   GLsizei vIndexOffset  = NOT_SET_ui;
+   GLsizei vIndexStride  = NOT_SET_ui;
 
 
    GLint vUniformNumLights = NOT_SET;
 
    struct sUniforms {
-      GLint type = NOT_SET;
-      GLint ambient = NOT_SET;
-      GLint color = NOT_SET;
-      GLint pos = NOT_SET;
+      GLint type        = NOT_SET;
+      GLint ambient     = NOT_SET;
+      GLint color       = NOT_SET;
+      GLint pos         = NOT_SET;
       GLint attenuation = NOT_SET;
    };
 
    std::vector<sUniforms> vUniforms;
 
    rMat4f *vModelViewProjection = nullptr;
-   rMat4f *vModelView = nullptr;
-   rMat3f *vNormal = nullptr;
+   rMat4f *vModelView           = nullptr;
+   rMat3f *vNormal              = nullptr;
 
    std::vector<rRenderDirectionalLight<float>> vDirectionalLight;
    std::vector<rRenderPointLight<float>> vPointLight;

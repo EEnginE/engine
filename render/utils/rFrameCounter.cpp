@@ -51,7 +51,7 @@ void rFrameCounter::frameCounterLoop() {
  * \brief Enables the frame counter
  */
 void rFrameCounter::enableFrameCounter() {
-   *vRenderedFrames = 0;
+   *vRenderedFrames     = 0;
    vFrameCounterEnabled = true;
    frameCounterThread = std::thread( &rFrameCounter::frameCounterLoop, this );
    iLOG( "Frame counter enabled" );

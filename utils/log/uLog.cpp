@@ -312,7 +312,7 @@ void uLog::logLoop() {
             continue;
 
          // Transfer all elements (only the pointers) from vLogEntries to lTempList
-         lEntryWorkerList.splice( lEntryWorkerList.end(), vLogEntries);
+         lEntryWorkerList.splice( lEntryWorkerList.end(), vLogEntries );
       }
 
       while ( !lEntryWorkerList.empty() ) {
@@ -328,7 +328,7 @@ bool uLog::startLogLoop() {
    if ( vIsLogLoopRunning_B == true )
       return false;
 
-   if( GlobConf.log.waitUntilLogEntryPrinted == true ) {
+   if ( GlobConf.log.waitUntilLogEntryPrinted == true ) {
       vLogLoopRun_B = true;
       return true;
    }

@@ -30,7 +30,7 @@ enum EXTENSIONS { ID_ARB_program_interface_query = 0, __EXTENSIONS_END__ };
 
 enum OPENGL_VERSIONS {
    OGL_VERSION_NONE = -1,
-   OGL_VERSION_1_2 = 0,
+   OGL_VERSION_1_2  = 0,
    OGL_VERSION_1_3,
    OGL_VERSION_1_4,
    OGL_VERSION_1_5,

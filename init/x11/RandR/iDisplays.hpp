@@ -80,8 +80,8 @@ class INIT_API iDisplays final : public iDisplayBasic {
 
    iDisplays( std::string _name, RROutput _id, bool _enabled ) : vID_XRR( _id ) {
       vModeToUse_XRR = None;
-      vEnabled_B = _enabled;
-      vName_str = _name;
+      vEnabled_B     = _enabled;
+      vName_str      = _name;
    }
 
    iDisplays( const iDisplays &_e ) = delete;

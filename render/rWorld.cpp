@@ -34,23 +34,23 @@ rWorld::rWorld( iInit *_init )
 
    vInitObjSet_B = false; // Will be set true in setInitObj
 
-   vRenderLoopRunning_B = false;
+   vRenderLoopRunning_B   = false;
    vRenderLoopShouldRun_B = false;
 
-   vRenderLoopIsPaused_B = false;
+   vRenderLoopIsPaused_B     = false;
    vRenderLoopShouldPaused_B = false;
 
    vViewPort.vNeedUpdate_B = false;
-   vViewPort.x = 0;
-   vViewPort.y = 0;
-   vViewPort.width = 0;
-   vViewPort.height = 0;
+   vViewPort.x             = 0;
+   vViewPort.y             = 0;
+   vViewPort.width         = 0;
+   vViewPort.height        = 0;
 
    vClearColor.vNeedUpdate_B = false;
-   vClearColor.r = 0;
-   vClearColor.g = 0;
-   vClearColor.b = 0;
-   vClearColor.a = 1;
+   vClearColor.r             = 0;
+   vClearColor.g             = 0;
+   vClearColor.b             = 0;
+   vClearColor.a             = 1;
 
    vRenderedFrames = 0;
 
@@ -182,18 +182,18 @@ void rWorld::continueRenderLoop() {
 
 void rWorld::updateViewPort( int _x, int _y, int _width, int _height ) {
    vViewPort.vNeedUpdate_B = true;
-   vViewPort.x = _x;
-   vViewPort.y = _y;
-   vViewPort.width = _width;
-   vViewPort.height = _height;
+   vViewPort.x             = _x;
+   vViewPort.y             = _y;
+   vViewPort.width         = _width;
+   vViewPort.height        = _height;
 }
 
 void rWorld::updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a ) {
    vClearColor.vNeedUpdate_B = true;
-   vClearColor.r = _r;
-   vClearColor.g = _b;
-   vClearColor.b = _g;
-   vClearColor.a = _a;
+   vClearColor.r             = _r;
+   vClearColor.g             = _b;
+   vClearColor.b             = _g;
+   vClearColor.a             = _a;
 }
 
 

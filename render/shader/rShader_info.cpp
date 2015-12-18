@@ -199,9 +199,9 @@ void rShader::getInfoNew() {
    GLenum lUniformBlockValues[] = {
          GL_NAME_LENGTH, GL_BUFFER_BINDING, GL_BUFFER_DATA_SIZE, GL_NUM_ACTIVE_VARIABLES};
 
-   GLint lNumOfInputs = -1;
-   GLint lNumOfOutouts = -1;
-   GLint lNumOfUniforms = -1;
+   GLint lNumOfInputs        = -1;
+   GLint lNumOfOutouts       = -1;
+   GLint lNumOfUniforms      = -1;
    GLint lNumOfUniformBlocks = -1;
    glGetProgramInterfaceiv(
          vShaderProgram_OGL, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &lNumOfInputs );
@@ -337,7 +337,7 @@ void rShader::getInfoNew() {
 
          for ( auto &block : vProgramInformation.vUniformBlockInfo ) {
             if ( block.index == lResults[4] ) {
-               lFound_B = true;
+               lFound_B        = true;
                lWhereToPutInfo = &block.uniforms;
                break;
             }
@@ -613,7 +613,7 @@ void rShader::getInfoOld() {
 
          for ( auto &block : vProgramInformation.vUniformBlockInfo ) {
             if ( block.index == lBlockIndex ) {
-               lFound_B = true;
+               lFound_B        = true;
                lWhereToPutInfo = &block.uniforms;
                break;
             }

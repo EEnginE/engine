@@ -31,7 +31,9 @@ namespace e_engine {
 uSHA_2::uSHA_2( HASH_FUNCTION _type ) {
    if ( _type == SHA2_224 || _type == SHA2_256 || _type == SHA2_384 || _type == SHA2_512 ) {
       vType = _type;
-   } else { vType = SHA2_256; }
+   } else {
+      vType = SHA2_256;
+   }
    vBlockCounter_ulI = 0;
 
    vEnded_B = false;
@@ -42,7 +44,7 @@ uSHA_2::uSHA_2( HASH_FUNCTION _type ) {
       vBlockSize_uI = 1024 / 8; // 128
    }
 
-   vCurrentPos512_A_IT = vBuffer512_A_uC.begin();
+   vCurrentPos512_A_IT  = vBuffer512_A_uC.begin();
    vCurrentPos1024_A_IT = vBuffer1024_A_uC.begin();
 
    init();
@@ -201,13 +203,15 @@ void uSHA_2::reset( HASH_FUNCTION _type ) {
 
    vEnded_B = false;
 
-   vCurrentPos512_A_IT = vBuffer512_A_uC.begin();
+   vCurrentPos512_A_IT  = vBuffer512_A_uC.begin();
    vCurrentPos1024_A_IT = vBuffer1024_A_uC.begin();
    vResult_str.clear();
 
    if ( vType == SHA2_224 || vType == SHA2_256 ) {
       vBlockSize_uI = 512 / 8;
-   } else { vBlockSize_uI = 1024 / 8; }
+   } else {
+      vBlockSize_uI = 1024 / 8;
+   }
 
    init();
 }
@@ -216,7 +220,7 @@ namespace {
 
 void int32ToString( std::vector<unsigned char> &_str, uint32_t const &_num, uint32_t _level ) {
    _level *= 4;
-   _str[_level] = static_cast<uint8_t>( _num >> 24 );
+   _str[_level]     = static_cast<uint8_t>( _num >> 24 );
    _str[_level + 1] = static_cast<uint8_t>( _num >> 16 );
    _str[_level + 2] = static_cast<uint8_t>( _num >> 8 );
    _str[_level + 3] = static_cast<uint8_t>( _num );
@@ -224,7 +228,7 @@ void int32ToString( std::vector<unsigned char> &_str, uint32_t const &_num, uint
 
 void int64ToString( std::vector<unsigned char> &_str, uint64_t const &_num, uint32_t _level ) {
    _level *= 8;
-   _str[_level] = static_cast<uint8_t>( _num >> 56 );
+   _str[_level]     = static_cast<uint8_t>( _num >> 56 );
    _str[_level + 1] = static_cast<uint8_t>( _num >> 48 );
    _str[_level + 2] = static_cast<uint8_t>( _num >> 40 );
    _str[_level + 3] = static_cast<uint8_t>( _num >> 32 );
@@ -248,7 +252,9 @@ std::vector<unsigned char> uSHA_2::end() {
 
    if ( vType == SHA2_224 || vType == SHA2_256 ) {
       padd512();
-   } else { padd1024(); }
+   } else {
+      padd1024();
+   }
 
    switch ( vType ) {
       case SHA2_224:

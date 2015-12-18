@@ -74,11 +74,11 @@ class rCameraHandler {
       vInit->addMouseSlot( &vMouseSlot );
       vInit->addKeySlot( &vKeySlot );
 
-      keys[UP] = L'q';
-      keys[DOWN] = L'e';
-      keys[LEFT] = L'a';
-      keys[RIGHT] = L'd';
-      keys[FORWARD] = L'w';
+      keys[UP]       = L'q';
+      keys[DOWN]     = L'e';
+      keys[LEFT]     = L'a';
+      keys[RIGHT]    = L'd';
+      keys[FORWARD]  = L'w';
       keys[BACKWARD] = L's';
 
       updateDirectionAndUp();
@@ -128,7 +128,7 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
    if ( !vCameraMovementEnabled || _event.eKey.state == E_RELEASED )
       return;
 
-   T lSpeed = static_cast<T>( GlobConf.camera.movementSpeed );
+   T lSpeed             = static_cast<T>( GlobConf.camera.movementSpeed );
    KEY_MOVEMENT _action = __LAST__;
 
    rVec3<T> lTempVector;

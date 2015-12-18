@@ -32,7 +32,7 @@ namespace unix_x11 {
  * \returns 1 when everything went fine
  */
 int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
-   RRCrtc lCRTC_XRR = _changeToThis.id;
+   RRCrtc lCRTC_XRR    = _changeToThis.id;
    bool lChangedCRTC_B = false;
 
    bool lCRTCInfoFound = false;
@@ -110,7 +110,9 @@ int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
          return lReturn_I;
       }
 
-   } else { iLOG( "RandR: Changed CRTC ", _changeToThis.id, " -- nothing to do" ); }
+   } else {
+      iLOG( "RandR: Changed CRTC ", _changeToThis.id, " -- nothing to do" );
+   }
 
    XRRFreeCrtcInfo( lTempCRTCInfo_XRR );
 

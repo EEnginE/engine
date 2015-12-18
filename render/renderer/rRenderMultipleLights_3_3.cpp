@@ -222,12 +222,12 @@ bool rRenderMultipleLights_3_3::canRender() {
 
 
 void rRenderMultipleLights_3_3::setDataFromShader( rShader *_s ) {
-   vInputVertexLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::VERTEX_INPUT ) );
+   vInputVertexLocation_OGL  = static_cast<GLuint>( _s->getLocation( rShader::VERTEX_INPUT ) );
    vInputNormalsLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::NORMALS_INPUT ) );
 
    vUniformModelView_OGL = _s->getLocation( rShader::MODEL_VIEW_MATRIX );
-   vUniformNormal_OGL = _s->getLocation( rShader::NORMAL_MATRIX );
-   vUniformMVP_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
+   vUniformNormal_OGL    = _s->getLocation( rShader::NORMAL_MATRIX );
+   vUniformMVP_OGL       = _s->getLocation( rShader::M_V_P_MATRIX );
 
    vUniformNumLights = _s->getLocation( rShader::NUM_LIGHTS );
 
@@ -237,10 +237,10 @@ void rRenderMultipleLights_3_3::setDataFromShader( rShader *_s ) {
 
    unsigned int lCounter = 0;
    for ( auto &i : vUniforms ) {
-      i.type = _s->getLocation( rShader::LIGHT_TYPE, lCounter );
-      i.ambient = _s->getLocation( rShader::AMBIENT_COLOR, lCounter );
-      i.color = _s->getLocation( rShader::LIGHT_COLOR, lCounter );
-      i.pos = _s->getLocation( rShader::LIGHT_POSITION, lCounter );
+      i.type        = _s->getLocation( rShader::LIGHT_TYPE, lCounter );
+      i.ambient     = _s->getLocation( rShader::AMBIENT_COLOR, lCounter );
+      i.color       = _s->getLocation( rShader::LIGHT_COLOR, lCounter );
+      i.pos         = _s->getLocation( rShader::LIGHT_POSITION, lCounter );
       i.attenuation = _s->getLocation( rShader::LIGHT_ATTENUATION, lCounter );
       ++lCounter;
    }
@@ -278,15 +278,15 @@ void rRenderMultipleLights_3_3::setDataFromObject( rObjectBase *_obj ) {
       eLOG( "BIG BIG DATA RENDER ERROR - obj!!! (please consider creating an issue)" );
 
    vVertexBufferObj_OGL = lVBO >= 0 ? static_cast<GLuint>( lVBO ) : NOT_SET_ui;
-   vIndexBufferObj_OGL = lIBO >= 0 ? static_cast<GLuint>( lIBO ) : NOT_SET_ui;
+   vIndexBufferObj_OGL  = lIBO >= 0 ? static_cast<GLuint>( lIBO ) : NOT_SET_ui;
 
    vVertexOffset = lVO >= 0 ? static_cast<GLsizei>( lVO ) : NOT_SET_ui;
    vVertexStride = lVS >= 0 ? static_cast<GLsizei>( lVS ) : NOT_SET_ui; // NOT_SET_ui;
    vNormalOffset = lNO >= 0 ? static_cast<GLsizei>( lNO ) : NOT_SET_ui; // NOT_SET_ui;
    vNormalStride = lNS >= 0 ? static_cast<GLsizei>( lNS ) : NOT_SET_ui; // NOT_SET_ui;
-   vIndexOffset = lIO >= 0 ? static_cast<GLsizei>( lIO ) : NOT_SET_ui;
-   vIndexStride = lIS >= 0 ? static_cast<GLsizei>( lIS ) : NOT_SET_ui; // NOT_SET_ui;
-   vDataSize_uI = lDS_ui > 0 ? static_cast<GLsizei>( lDS_ui ) : NOT_SET_ui;
+   vIndexOffset  = lIO >= 0 ? static_cast<GLsizei>( lIO ) : NOT_SET_ui;
+   vIndexStride  = lIS >= 0 ? static_cast<GLsizei>( lIS ) : NOT_SET_ui; // NOT_SET_ui;
+   vDataSize_uI  = lDS_ui > 0 ? static_cast<GLsizei>( lDS_ui ) : NOT_SET_ui;
 }
 
 void rRenderMultipleLights_3_3::setDataFromAdditionalObjects( rObjectBase *_obj ) {

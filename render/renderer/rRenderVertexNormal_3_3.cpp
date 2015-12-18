@@ -122,7 +122,7 @@ bool rRenderVertexNormal_3_3::canRender() {
 
 
 void rRenderVertexNormal_3_3::setDataFromShader( rShader *_s ) {
-   vInputVertexLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::VERTEX_INPUT ) );
+   vInputVertexLocation_OGL  = static_cast<GLuint>( _s->getLocation( rShader::VERTEX_INPUT ) );
    vInputNormalsLocation_OGL = static_cast<GLuint>( _s->getLocation( rShader::NORMALS_INPUT ) );
 
    vUniformMVP_OGL = _s->getLocation( rShader::M_V_P_MATRIX );
@@ -158,15 +158,15 @@ void rRenderVertexNormal_3_3::setDataFromObject( rObjectBase *_obj ) {
       eLOG( "BIG BIG DATA RENDER ERROR - obj!!! (please consider creating an issue)" );
 
    vVertexBufferObj_OGL = lVBO >= 0 ? static_cast<GLuint>( lVBO ) : NOT_SET_ui;
-   vIndexBufferObj_OGL = lIBO >= 0 ? static_cast<GLuint>( lIBO ) : NOT_SET_ui;
+   vIndexBufferObj_OGL  = lIBO >= 0 ? static_cast<GLuint>( lIBO ) : NOT_SET_ui;
 
    vVertexOffset = lVO >= 0 ? static_cast<GLsizei>( lVO ) : NOT_SET_ui;
    vVertexStride = lVS >= 0 ? static_cast<GLsizei>( lVS ) : NOT_SET_ui; // NOT_SET_ui;
    vNormalOffset = lNO >= 0 ? static_cast<GLsizei>( lNO ) : NOT_SET_ui; // NOT_SET_ui;
    vNormalStride = lNS >= 0 ? static_cast<GLsizei>( lNS ) : NOT_SET_ui; // NOT_SET_ui;
-   vIndexOffset = lIO >= 0 ? static_cast<GLsizei>( lIO ) : NOT_SET_ui;
-   vIndexStride = lIS >= 0 ? static_cast<GLsizei>( lIS ) : NOT_SET_ui; // NOT_SET_ui;
-   vDataSize_uI = lDS_ui > 0 ? static_cast<GLsizei>( lDS_ui ) : NOT_SET_ui;
+   vIndexOffset  = lIO >= 0 ? static_cast<GLsizei>( lIO ) : NOT_SET_ui;
+   vIndexStride  = lIS >= 0 ? static_cast<GLsizei>( lIS ) : NOT_SET_ui; // NOT_SET_ui;
+   vDataSize_uI  = lDS_ui > 0 ? static_cast<GLsizei>( lDS_ui ) : NOT_SET_ui;
 }
 }
 

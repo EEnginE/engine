@@ -122,7 +122,7 @@ class INIT_API iRandR {
       _vMinor = vRandRVersionMinor_I;
    }
    void getScreenResolution( unsigned int &_width, unsigned int &_height ) {
-      _width = vScreenWidth_uI;
+      _width  = vScreenWidth_uI;
       _height = vScreenHeight_uI;
    }
 };

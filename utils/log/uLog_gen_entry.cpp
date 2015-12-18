@@ -41,8 +41,8 @@ inline std::wstring numToSizeString( T _val, unsigned int _size, wchar_t _fill )
 }
 
 void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
-   static const unsigned int lFullTimeSize_cuI = 19;   // 4 + ( 2 * 2 ) + ( 3 * 2 ) + 5
-   static const unsigned int lReducedTimeSize_cuI = 8; //                 ( 3 * 2 ) + 2
+   static const unsigned int lFullTimeSize_cuI    = 19; // 4 + ( 2 * 2 ) + ( 3 * 2 ) + 5
+   static const unsigned int lReducedTimeSize_cuI = 8;  //                 ( 3 * 2 ) + 2
 
    static const unsigned int lFullFileSize_cuI = 20 + 25 + 2 + 4; // Default max filename length +
                                                                   // Default max functionname length
@@ -51,10 +51,10 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
 
    static const unsigned int lThreadSize_cuI = GlobConf.log.threadNameWidth + 2 + 2;
 
-   unsigned int lTimeSize_uI = 0;
+   unsigned int lTimeSize_uI     = 0;
    unsigned int lTimeSizeNext_uI = 0;
 
-   unsigned int lFileSize_uI = 0;
+   unsigned int lFileSize_uI     = 0;
    unsigned int lFileSizeNext_uI = 0;
 
    unsigned int lThreadSize_uI = ( data->data.config.vThread_LPT != OFF ) ? lThreadSize_cuI : 0;
@@ -64,14 +64,14 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
    switch ( data->data.config.vTime_LPT ) {
       case LEFT_FULL: lTimeNext_LPT = LEFT_REDUCED; FALLTHROUGH
       case RIGHT_FULL:
-         lTimeSize_uI = lFullTimeSize_cuI;
+         lTimeSize_uI     = lFullTimeSize_cuI;
          lTimeSizeNext_uI = lReducedTimeSize_cuI;
          if ( lTimeNext_LPT != LEFT_REDUCED )
             lTimeNext_LPT = RIGHT_REDUCED;
          break;
       case LEFT_REDUCED: FALLTHROUGH
       case RIGHT_REDUCED:
-         lTimeSize_uI = lReducedTimeSize_cuI;
+         lTimeSize_uI  = lReducedTimeSize_cuI;
          lTimeNext_LPT = OFF;
          break;
       case OFF: break; // Only because of -Wswitch
@@ -80,14 +80,14 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
    switch ( data->data.config.vFile_LPT ) {
       case LEFT_FULL: lFileNext_LPT = LEFT_REDUCED; FALLTHROUGH
       case RIGHT_FULL:
-         lFileSize_uI = lFullFileSize_cuI;
+         lFileSize_uI     = lFullFileSize_cuI;
          lFileSizeNext_uI = lReducedFileSize_cuI;
          if ( lFileNext_LPT != LEFT_REDUCED )
             lFileNext_LPT = RIGHT_REDUCED;
          break;
       case LEFT_REDUCED:
       case RIGHT_REDUCED:
-         lFileSize_uI = lReducedFileSize_cuI;
+         lFileSize_uI  = lReducedFileSize_cuI;
          lFileNext_LPT = OFF;
          break;
       case OFF: break; // Only because of -Wswitch
@@ -115,7 +115,7 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
 
 
 void uLogEntryRaw::defaultEntryGenerator() {
-   std::wstring lDefCol_STR = L"";    // Default color escape sequence string
+   std::wstring lDefCol_STR    = L""; // Default color escape sequence string
    std::wstring lResetColl_STR = L""; // Default color reset escape sequence
 
    std::wstring lTime_str, lFile_str, lErrorType_str, lThread_str;
@@ -249,7 +249,9 @@ void uLogEntryRaw::defaultEntryGenerator() {
                                          eCMDColor::YELLOW ) +
                        lTempThread_str + eCMDColor::color( eCMDColor::BOLD, eCMDColor::BLUE ) +
                        L"] ";
-      } else { lThread_str = L" [" + lTempThread_str + L"] "; }
+      } else {
+         lThread_str = L" [" + lTempThread_str + L"] ";
+      }
 
       for ( size_t i = lTempThread_str.size(); i < GlobConf.log.threadNameWidth; ++i )
          lThread_str.append( 1, L' ' );
@@ -266,12 +268,12 @@ void uLogEntryRaw::defaultEntryGenerator() {
    const char *lRegexReplace_CSTR = "";
 #endif
 
-   std::wstring BR_OPEN = L"[";
+   std::wstring BR_OPEN  = L"[";
    std::wstring BR_CLOSE = L"]";
 
    if ( data.config.vColor_LCT == FULL ||
         ( data.config.vColor_LCT == REDUCED && data.raw.vBold_B ) ) {
-      BR_OPEN = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + L'[';
+      BR_OPEN  = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + L'[';
       BR_CLOSE = eCMDColor::color( eCMDColor::BOLD, eCMDColor::CYAN ) + L']' + eCMDColor::RESET;
    }
 
@@ -297,15 +299,15 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
    // Directions: -1-Left ; 0-Off ; 1-Right
    int lErrTypeD_I = 0;
-   int lTimeD_I = 0;
-   int lFileD_I = 0;
-   int lThread_I = 0;
+   int lTimeD_I    = 0;
+   int lFileD_I    = 0;
+   int lThread_I   = 0;
 
    if ( data.config.vColumns_I < 0 ) {
       lErrTypeD_I = -1;
-      lTimeD_I = -1;
-      lFileD_I = -1;
-      lThread_I = -1;
+      lTimeD_I    = -1;
+      lFileD_I    = -1;
+      lThread_I   = -1;
    } else {
       lErrTypeD_I =
             data.config.vErrorType_LPT == LEFT_FULL || data.config.vErrorType_LPT == LEFT_REDUCED
@@ -360,14 +362,16 @@ void uLogEntryRaw::defaultEntryGenerator() {
       lErrTypeL_uI =
             std::regex_replace( std::string( lErrorType_str.begin(), lErrorType_str.end() ),
                                 lRmExcape_REGEX,
-                                lRegexReplace_CSTR ).size();
+                                lRegexReplace_CSTR )
+                  .size();
       lFileL_uI = std::regex_replace( std::string( lFile_str.begin(), lFile_str.end() ),
                                       lRmExcape_REGEX,
-                                      lRegexReplace_CSTR ).size();
+                                      lRegexReplace_CSTR )
+                        .size();
 #endif
    } else {
       lErrTypeL_uI = lErrorType_str.size();
-      lFileL_uI = lFile_str.size();
+      lFileL_uI    = lFile_str.size();
    }
 
 
@@ -402,7 +406,9 @@ void uLogEntryRaw::defaultEntryGenerator() {
    if ( lFileD_I == -1 ) {
       if ( lErrTypeD_I == -1 ) {
          lL_STR += L' ';
-      } else if ( lTimeD_I == -1 ) { lL_STR += L' '; }
+      } else if ( lTimeD_I == -1 ) {
+         lL_STR += L' ';
+      }
       lL_STR.append( ( ( lMaxFileSize / 2 ) - ( lFileL_uI / 2 ) ), L' ' );
       lL_STR += lFile_str;
       lL_STR.append( lMaxFileSize - ( ( ( lMaxFileSize / 2 ) - ( lFileL_uI / 2 ) ) + lFileL_uI ),
@@ -439,7 +445,9 @@ void uLogEntryRaw::defaultEntryGenerator() {
    if ( lFileD_I == 1 ) {
       if ( lErrTypeD_I == 1 ) {
          lR_STR += L' ';
-      } else if ( lTimeD_I == 1 ) { lR_STR += L' '; }
+      } else if ( lTimeD_I == 1 ) {
+         lR_STR += L' ';
+      }
       lR_STR.append( ( ( lMaxFileSize + 1 ) - lFileL_uI ), L' ' );
       lR_STR += lFile_str;
    }
@@ -452,18 +460,20 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
    if ( data.config.vColor_LCT != DISABLED ) {
 #if E_COMPILER_SUPPORTS_WREGEX
-      lLeftL_uI = std::regex_replace( lL_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
+      lLeftL_uI  = std::regex_replace( lL_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
       lRightL_uI = std::regex_replace( lR_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();
 #else
       lLeftL_uI = std::regex_replace( std::string( lL_STR.begin(), lL_STR.end() ),
                                       lRmExcape_REGEX,
-                                      lRegexReplace_CSTR ).size();
+                                      lRegexReplace_CSTR )
+                        .size();
       lRightL_uI = std::regex_replace( std::string( lR_STR.begin(), lR_STR.end() ),
                                        lRmExcape_REGEX,
-                                       lRegexReplace_CSTR ).size();
+                                       lRegexReplace_CSTR )
+                         .size();
 #endif
    } else {
-      lLeftL_uI = lL_STR.size();
+      lLeftL_uI  = lL_STR.size();
       lRightL_uI = lR_STR.size();
    }
 
@@ -473,8 +483,8 @@ void uLogEntryRaw::defaultEntryGenerator() {
 
       lL_STR.clear();
       lR_STR.clear();
-      lLeftL_uI = 0;
-      lRightL_uI = 0;
+      lLeftL_uI          = 0;
+      lRightL_uI         = 0;
       lMaxMessageSize_uI = static_cast<size_t>( data.config.vColumns_I );
    }
 
@@ -488,7 +498,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
    // =============================================================================================
    std::wstring lTempMessageString_STR;
    unsigned int lCurrentStringSize = 0;
-   std::wstring lTempColor_STR = lDefCol_STR;
+   std::wstring lTempColor_STR     = lDefCol_STR;
 
 
 
@@ -551,9 +561,12 @@ void uLogEntryRaw::defaultEntryGenerator() {
          lTempMessageSize_uI =
                std::regex_replace( std::string( lMessage_VEC[i].begin(), lMessage_VEC[i].end() ),
                                    lRmExcape_REGEX,
-                                   lRegexReplace_CSTR ).size();
+                                   lRegexReplace_CSTR )
+                     .size();
 #endif
-      } else { lTempMessageSize_uI = lMessage_VEC[i].size(); }
+      } else {
+         lTempMessageSize_uI = lMessage_VEC[i].size();
+      }
 
 #if UNIX
       if ( isatty( fileno( stdout ) ) != 0 && data.config.vColor_LCT != DISABLED ) {

@@ -101,7 +101,7 @@ void rMatrixMath::rotate( const rVec3<T> &_axis, T _angle, rMat4<T> &_out ) {
    rVec3<T> lAxis = _axis;
    lAxis.normalize();
    T lAngleToUse = static_cast<T>( DEG_TO_RAD( _angle ) / 2 );
-   T lSin = static_cast<T>( sin( lAngleToUse ) );
+   T lSin        = static_cast<T>( sin( lAngleToUse ) );
 
 
    rVec4<T> lTemp;

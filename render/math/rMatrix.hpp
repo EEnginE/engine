@@ -660,7 +660,9 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::TYPE2String( uint32_t &&_pos, std::string &_
 
    if ( lTempStr.size() < 10 ) {
       lTempStr.insert( lTempStr.begin(), 10 - lTempStr.size(), ' ' );
-   } else { lTempStr.resize( 10 ); }
+   } else {
+      lTempStr.resize( 10 );
+   }
 
    _str += lTempStr + " ";
 }

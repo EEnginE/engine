@@ -50,14 +50,14 @@ uSystem SYSTEM;
 
 uSystem::uSystem() {
 #if UNIX
-   uid_t tempUserID = geteuid();
+   uid_t tempUserID  = geteuid();
    struct passwd *pw = nullptr;
 
    pw = getpwuid( tempUserID );
 
    vUserLogin = pw->pw_name;
-   vUserName = pw->pw_gecos;
-   vUserHome = pw->pw_dir;
+   vUserName  = pw->pw_gecos;
+   vUserHome  = pw->pw_dir;
 
 #elif WINDOWS
    DWORD lUsername_DWORD = UNLEN + 1;
@@ -84,13 +84,13 @@ uSystem::uSystem() {
       wLOG( "Failed to convert a WCHAR string to a CHAR string using wcstombs (APPDATA)" );
    }
 
-   vUserName = lUsername_CSTR;
-   vUserLogin = vUserName;
-   vUserHome = lAppData_CSTR;
+   vUserName         = lUsername_CSTR;
+   vUserLogin        = vUserName;
+   vUserHome         = lAppData_CSTR;
 #else
-   vUserName = lUsername_TCSTR;
+   vUserName  = lUsername_TCSTR;
    vUserLogin = vUserName;
-   vUserHome = lAppData_LPTSTR;
+   vUserHome  = lAppData_LPTSTR;
 #endif
 
 #endif
@@ -136,14 +136,14 @@ std::string uSystem::getMainConfigDirPath() {
          if ( FILESYSTEM_NAMESPACE::exists( dir1 ) ) {
             if ( FILESYSTEM_NAMESPACE::is_directory( dir1 ) ) {
                dir1_exists = true;
-               dir1_noDir = false;
+               dir1_noDir  = false;
             } else {
                dir1_exists = false;
-               dir1_noDir = true;
+               dir1_noDir  = true;
             }
          } else {
             dir1_exists = false;
-            dir1_noDir = false;
+            dir1_noDir  = false;
          }
 
          // If the $HOME/.cnfig dir doesn't exist use the $HOME location
@@ -154,26 +154,26 @@ std::string uSystem::getMainConfigDirPath() {
                if ( FILESYSTEM_NAMESPACE::exists( dir2 ) ) {
                   if ( FILESYSTEM_NAMESPACE::is_directory( dir2 ) ) {
                      dir2_exists = true;
-                     dir1_noDir = false;
+                     dir1_noDir  = false;
                   } else {
                      dir2_exists = false;
-                     dir2_noDir = true;
+                     dir2_noDir  = true;
                   }
                } else {
                   dir2_exists = false;
-                  dir2_noDir = false;
+                  dir2_noDir  = false;
                }
             } else {
                GlobConf.config.unixPathType = false;
-               dir2_exists = false;
-               dir2_noDir = true;
-               dotConfigExists = false;
+               dir2_exists                  = false;
+               dir2_noDir                   = true;
+               dotConfigExists              = false;
             }
          } else {
             GlobConf.config.unixPathType = false;
-            dir2_exists = false;
-            dir2_noDir = true;
-            dotConfigExists = false;
+            dir2_exists                  = false;
+            dir2_noDir                   = true;
+            dotConfigExists              = false;
          }
 
          // Only $HOME/.NAME already exists
@@ -256,7 +256,9 @@ std::string uSystem::getMainConfigDirPath() {
                FILESYSTEM_NAMESPACE::remove( dir1 );
                FILESYSTEM_NAMESPACE::create_directory( dir1 );
             }
-         } else { FILESYSTEM_NAMESPACE::create_directory( dir1 ); }
+         } else {
+            FILESYSTEM_NAMESPACE::create_directory( dir1 );
+         }
 
          if ( !FILESYSTEM_NAMESPACE::exists( dir1 ) ) {
             wLOG( "Failed to create / select the main config dir ", vMainConfigDir );

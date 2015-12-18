@@ -53,21 +53,21 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
 
    rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient )
        : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
-      vLightColor = _color;
+      vLightColor   = _color;
       vAmbientColor = _ambient;
       setFlags();
    }
 
    rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient, rVec3<T> _att )
        : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
-      vLightColor = _color;
+      vLightColor   = _color;
       vAmbientColor = _ambient;
       vAttenuation = _att;
       setFlags();
    }
 
    void setColor( rVec3<T> _color, rVec3<T> _ambient ) {
-      vLightColor = _color;
+      vLightColor   = _color;
       vAmbientColor = _ambient;
    }
    void setAttenuation( rVec3<T> _att ) { vAttenuation = _att; }
@@ -88,11 +88,11 @@ uint32_t rPointLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
    *_vec = nullptr;
 
    switch ( _type ) {
-      case AMBIENT_COLOR: *_vec = &vAmbientColor; return ALL_OK;
-      case LIGHT_COLOR: *_vec = &vLightColor; return ALL_OK;
+      case AMBIENT_COLOR: *_vec       = &vAmbientColor; return ALL_OK;
+      case LIGHT_COLOR: *_vec         = &vLightColor; return ALL_OK;
       case POSITION_MODEL_VIEW: *_vec = this->getPositionModelView(); return ALL_OK;
-      case POSITION: *_vec = this->getPosition(); return ALL_OK;
-      case ATTENUATION: *_vec = &vAttenuation; return ALL_OK;
+      case POSITION: *_vec            = this->getPosition(); return ALL_OK;
+      case ATTENUATION: *_vec         = &vAttenuation; return ALL_OK;
       case DIRECTION: return UNSUPPORTED_TYPE;
    }
 
@@ -101,9 +101,9 @@ uint32_t rPointLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
 
 template <class T>
 void rPointLight<T>::setFlags() {
-   vObjectHints[FLAGS] = POINT_LIGHT | LIGHT_SOURCE;
+   vObjectHints[FLAGS]         = POINT_LIGHT | LIGHT_SOURCE;
    vObjectHints[IS_DATA_READY] = GL_TRUE;
-   vObjectHints[MATRICES] = 0;
+   vObjectHints[MATRICES]      = 0;
 }
 }
 

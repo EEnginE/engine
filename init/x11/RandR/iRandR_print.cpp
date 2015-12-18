@@ -62,11 +62,11 @@ void iRandR::printRandRStatus() {
    reload( false );
 
    std::wstring lOFF_C = eCMDColor::color( 'O', 'W' );
-   std::wstring lBW_C = eCMDColor::color( 'B', 'W' );
-   std::wstring lBR_C = eCMDColor::color( 'B', 'R' );
-   std::wstring lBG_C = eCMDColor::color( 'B', 'G' );
-   std::wstring lBB_C = eCMDColor::color( 'B', 'B' );
-   std::wstring lBC_C = eCMDColor::color( 'B', 'C' );
+   std::wstring lBW_C  = eCMDColor::color( 'B', 'W' );
+   std::wstring lBR_C  = eCMDColor::color( 'B', 'R' );
+   std::wstring lBG_C  = eCMDColor::color( 'B', 'G' );
+   std::wstring lBB_C  = eCMDColor::color( 'B', 'B' );
+   std::wstring lBC_C  = eCMDColor::color( 'B', 'C' );
 
    std::wstring lR_C = eCMDColor::color( 'O', 'R' );
    std::wstring lG_C = eCMDColor::color( 'O', 'G' );
@@ -126,7 +126,7 @@ void iRandR::printRandRStatus() {
    for ( internal::_output const &fOutput : vOutput_V_RandR ) {
       internal::_crtc lCRTC_RandR;
 
-      std::string lCRTC_str = ( fOutput.crtc == 0 ) ? "OFF" : std::to_string( fOutput.crtc );
+      std::string lCRTC_str    = ( fOutput.crtc == 0 ) ? "OFF" : std::to_string( fOutput.crtc );
       std::string lPrimary_str = ( vLatestConfig_RandR.primary == fOutput.id ) ? "YES" : "NO";
       std::string lConnected_str =
             ( fOutput.connection == 0 ) ? "YES" : ( fOutput.connection == 2 ) ? "???" : "NO";
@@ -138,7 +138,7 @@ void iRandR::printRandRStatus() {
       if ( !( fOutput.crtc == 0 ) ) {
          for ( internal::_crtc const &fCRTC : vCRTC_V_RandR ) {
             if ( fCRTC.id == fOutput.crtc ) {
-               lCRTC_RandR = fCRTC;
+               lCRTC_RandR   = fCRTC;
                lPosition_str = "";
                if ( fCRTC.posX >= 0 )
                   lPosition_str += '+';
@@ -190,7 +190,7 @@ void iRandR::printRandRStatus() {
               "|    OFFLINE    |   OFF   |" );
       }
 
-      unsigned int lWidth_uI = 0;
+      unsigned int lWidth_uI  = 0;
       unsigned int lHeight_uI = 0;
 
       std::string lModeSize_str;
@@ -205,10 +205,10 @@ void iRandR::printRandRStatus() {
       //   -- Modes
       //
       for ( internal::_mode const &fMode : vMode_V_RandR ) {
-         bool lFoundMode_B = false;
-         bool lModePrefered_B = false;
-         char lAtrib_C = 'O';
-         char lColor_C = 'W';
+         bool lFoundMode_B            = false;
+         bool lModePrefered_B         = false;
+         char lAtrib_C                = 'O';
+         char lColor_C                = 'W';
          unsigned int lModeCounter_uI = 0; //!< Needed for preferred check
 
          // Check if the mode is supported by the output
@@ -230,8 +230,8 @@ void iRandR::printRandRStatus() {
          if ( fMode.width == lWidth_uI && fMode.height == lHeight_uI ) {
             lModeSize_str.clear();
          } else {
-            lWidth_uI = fMode.width;
-            lHeight_uI = fMode.height;
+            lWidth_uI     = fMode.width;
+            lHeight_uI    = fMode.height;
             lModeSize_str = std::to_string( lWidth_uI ) + 'x' + std::to_string( lHeight_uI );
          }
 

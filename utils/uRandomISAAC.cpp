@@ -136,7 +136,7 @@ void uRandomISAAC::mixUp( uint32_t _seed[256] ) {
 
       mix( a, b, c, d, e, f, g, h );
 
-      mm[i] = a;
+      mm[i]     = a;
       mm[i + 1] = b;
       mm[i + 2] = c;
       mm[i + 3] = d;
@@ -158,7 +158,7 @@ void uRandomISAAC::mixUp( uint32_t _seed[256] ) {
 
       mix( a, b, c, d, e, f, g, h );
 
-      mm[i] = a;
+      mm[i]     = a;
       mm[i + 1] = b;
       mm[i + 2] = c;
       mm[i + 3] = d;
@@ -189,7 +189,7 @@ uint32_t uRandomISAAC::get() {
       case 2: aa = aa ^ ( aa << 2 ); break;
       case 3: aa = aa ^ ( aa >> 16 ); break;
    }
-   aa = mm[( step + 128 ) % 256] + aa;
+   aa       = mm[( step + 128 ) % 256] + aa;
    mm[step] = y = mm[( x >> 2 ) % 256] + aa + bb;
    bb = mm[( y >> 10 ) % 256] + x;
 

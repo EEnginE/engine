@@ -42,7 +42,7 @@ enum RENDERER_ID { render_NONE, render_OGL_3_3_Normal_Basic_1S_1D, ___RENDERER_E
  */
 class RENDER_API rRenderBase {
  public:
-   const static GLint NOT_SET = std::numeric_limits<GLint>::max();
+   const static GLint NOT_SET     = std::numeric_limits<GLint>::max();
    const static GLuint NOT_SET_ui = static_cast<unsigned>( NOT_SET );
 
  protected:

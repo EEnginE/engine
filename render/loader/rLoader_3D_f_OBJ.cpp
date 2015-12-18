@@ -75,8 +75,10 @@ bool rLoader_3D_f_OBJ::load_IMPL() {
                lMax = 2;
             } else if ( *vIter == ' ' ) {
                lPointer = &lDataRaw.vVertexData;
-               lMax = 3;
-            } else { return unexpectedCharError(); }
+               lMax     = 3;
+            } else {
+               return unexpectedCharError();
+            }
 
             if ( !continueWhitespace() )
                return false;

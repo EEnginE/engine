@@ -30,15 +30,15 @@ iDisplays::iDisplays( const iDisplays &&_e ) {
    vModes_V_mode = std::move( _e.vModes_V_mode );
    vClones_V_XRR = std::move( _e.vClones_V_XRR );
 
-   vID_XRR = _e.vID_XRR;
+   vID_XRR        = _e.vID_XRR;
    vModeToUse_XRR = _e.vModeToUse_XRR;
 }
 
 iDisplays &iDisplays::operator=( const iDisplays &&_e ) {
-   vModes_V_mode = std::move( _e.vModes_V_mode );
-   vClones_V_XRR = std::move( _e.vClones_V_XRR );
+   vModes_V_mode              = std::move( _e.vModes_V_mode );
+   vClones_V_XRR              = std::move( _e.vClones_V_XRR );
 
-   vID_XRR = _e.vID_XRR;
+   vID_XRR        = _e.vID_XRR;
    vModeToUse_XRR = _e.vModeToUse_XRR;
    return *this;
 }
@@ -55,9 +55,9 @@ void iDisplays::addMode(
 
    lTempMode_mode.prefered = _prefered;
 
-   lTempMode_mode.width = _width;
+   lTempMode_mode.width  = _width;
    lTempMode_mode.height = _height;
-   lTempMode_mode.rate = _rate;
+   lTempMode_mode.rate   = _rate;
 
    vModes_V_mode.push_back( lTempMode_mode );
 }
@@ -80,7 +80,7 @@ void iDisplays::autoSelectBest() {
       }
    }
 
-   unsigned int lMaxWidth_uI = 0;  //!< Max currently found width
+   unsigned int lMaxWidth_uI  = 0; //!< Max currently found width
    unsigned int lMaxHeight_uI = 0; //!< Max currently found height
 
    for ( iDisplays::mode const &fMode : vModes_V_mode ) {
@@ -92,7 +92,7 @@ void iDisplays::autoSelectBest() {
 
    if ( autoSelectBySize( lMaxWidth_uI, lMaxHeight_uI ) == 0 ) {
       // There are no modes which can be used
-      vEnabled_B = false;
+      vEnabled_B     = false;
       vModeToUse_XRR = None;
    }
 }
@@ -117,7 +117,7 @@ double iDisplays::findNearestFreqTo( double _rate,
                                      unsigned int _height,
                                      RRMode &_mode,
                                      double &_diff ) const {
-   _diff = 1000000;
+   _diff          = 1000000;
    double lRate_D = -1;
    for ( iDisplays::mode const &fMode : vModes_V_mode ) {
       if ( _width == fMode.width && _height == fMode.height ) {
@@ -127,13 +127,13 @@ double iDisplays::findNearestFreqTo( double _rate,
             return fMode.rate;
          } else if ( ( _rate - fMode.rate ) > 0 ) {
             if ( ( _rate - fMode.rate ) < _diff ) {
-               _diff = ( _rate - fMode.rate );
-               _mode = fMode.id;
+               _diff   = ( _rate - fMode.rate );
+               _mode   = fMode.id;
                lRate_D = fMode.rate;
             }
          } else if ( ( fMode.rate - _rate ) < _diff ) {
-            _diff = ( fMode.rate - _rate );
-            _mode = fMode.id;
+            _diff   = ( fMode.rate - _rate );
+            _mode   = fMode.id;
             lRate_D = fMode.rate;
          }
       }
@@ -186,13 +186,13 @@ double iDisplays::autoSelectBySize( unsigned int _width,
    double lRate480Hz_D;
    double lRatePref_D;
 
-   RRMode l60Hz_XRR = None;
+   RRMode l60Hz_XRR  = None;
    RRMode l120Hz_XRR = None;
    RRMode l240Hz_XRR = None;
    RRMode l480Hz_XRR = None;
-   RRMode lPref_XRR = None;
+   RRMode lPref_XRR  = None;
 
-   bool lFoundOneSizeMatch = false;
+   bool lFoundOneSizeMatch      = false;
    bool lFindPreferedRateFailed = false;
 
    if ( _preferedRate < 0 )
@@ -230,10 +230,10 @@ double iDisplays::autoSelectBySize( unsigned int _width,
    if ( !lFoundOneSizeMatch )
       return false;
 
-   vCurrentWidth_uI = _width;
+   vCurrentWidth_uI  = _width;
    vCurrentHeight_uI = _height;
 
-   lRate60Hz_D = findNearestFreqTo( 60, _width, _height, l60Hz_XRR, lMinDiffTo60Hz_D );
+   lRate60Hz_D  = findNearestFreqTo( 60, _width, _height, l60Hz_XRR, lMinDiffTo60Hz_D );
    lRate120Hz_D = findNearestFreqTo( 120, _width, _height, l120Hz_XRR, lMinDiffTo120Hz_D );
    lRate240Hz_D = findNearestFreqTo( 240, _width, _height, l240Hz_XRR, lMinDiffTo240Hz_D );
    lRate480Hz_D = findNearestFreqTo( 480, _width, _height, l480Hz_XRR, lMinDiffTo480Hz_D );
@@ -277,11 +277,11 @@ double iDisplays::autoSelectBySize( unsigned int _width,
  * \brief Disables the display
  */
 void iDisplays::disable() {
-   vEnabled_B = false;
-   vCurrentWidth_uI = 0;
+   vEnabled_B        = false;
+   vCurrentWidth_uI  = 0;
    vCurrentHeight_uI = 0;
-   vCurrentRate_D = 0;
-   vModeToUse_XRR = None;
+   vCurrentRate_D    = 0;
+   vModeToUse_XRR    = None;
 }
 
 /*!
@@ -334,7 +334,7 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
 
       iDisplayBasic::res lTempRes;
 
-      lTempRes.width = elem.width;
+      lTempRes.width  = elem.width;
       lTempRes.height = elem.height;
 
       lTempSizes_V.push_back( lTempRes );
@@ -353,17 +353,17 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
  */
 void iDisplays::getSelectedRes( unsigned int &_width, unsigned int &_height, double &_rate ) const {
    if ( vModeToUse_XRR == None ) {
-      _width = 0;
+      _width  = 0;
       _height = 0;
-      _rate = 0;
+      _rate   = 0;
       return;
    }
 
    for ( auto &elem : vModes_V_mode ) {
       if ( vModeToUse_XRR == elem.id ) {
-         _width = elem.width;
+         _width  = elem.width;
          _height = elem.height;
-         _rate = elem.rate;
+         _rate   = elem.rate;
          return;
       }
    }
@@ -399,10 +399,10 @@ bool iDisplays::select( unsigned int _width, unsigned int _height, double _rate 
    for ( unsigned int i = 0; vModes_V_mode.size(); ++i ) {
       if ( _width == vModes_V_mode[i].width && _height == vModes_V_mode[i].height &&
            _rate == vModes_V_mode[i].rate ) {
-         vModeToUse_XRR = vModes_V_mode[i].id;
-         vCurrentWidth_uI = _width;
+         vModeToUse_XRR    = vModes_V_mode[i].id;
+         vCurrentWidth_uI  = _width;
          vCurrentHeight_uI = _height;
-         vCurrentRate_D = _rate;
+         vCurrentRate_D    = _rate;
          return true;
       }
    }

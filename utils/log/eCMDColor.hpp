@@ -121,21 +121,21 @@ namespace e_engine {
  *
  */
 struct eCMDColor {
-   static const uint16_t OFF = 0;
-   static const uint16_t BOLD = 1;
+   static const uint16_t OFF        = 0;
+   static const uint16_t BOLD       = 1;
    static const uint16_t UNDERSCORE = 4;
-   static const uint16_t BLINK = 5;
-   static const uint16_t REVERSE = 7;
-   static const uint16_t CONCEALED = 8;
+   static const uint16_t BLINK      = 5;
+   static const uint16_t REVERSE    = 7;
+   static const uint16_t CONCEALED  = 8;
 
-   static const uint16_t BLACK = 30;
-   static const uint16_t RED = 31;
-   static const uint16_t GREEN = 32;
-   static const uint16_t YELLOW = 33;
-   static const uint16_t BLUE = 34;
+   static const uint16_t BLACK   = 30;
+   static const uint16_t RED     = 31;
+   static const uint16_t GREEN   = 32;
+   static const uint16_t YELLOW  = 33;
+   static const uint16_t BLUE    = 34;
    static const uint16_t MAGENTA = 35;
-   static const uint16_t CYAN = 36;
-   static const uint16_t WHITE = 37;
+   static const uint16_t CYAN    = 36;
+   static const uint16_t WHITE   = 37;
 
    static const std::wstring RESET;
 

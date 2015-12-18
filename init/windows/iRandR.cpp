@@ -47,7 +47,7 @@ void iRandR::reload() {
 
    GetWindowRect( lDesktopHWND_win32, &lDesktopRect_win32 );
 
-   vScreenWidth_uI = lDesktopRect_win32.right - lDesktopRect_win32.left;
+   vScreenWidth_uI  = lDesktopRect_win32.right - lDesktopRect_win32.left;
    vScreenHeight_uI = lDesktopRect_win32.bottom - lDesktopRect_win32.top;
 
    vCurrentConfig_eD.clear();
@@ -113,9 +113,9 @@ void iRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left,
                                             unsigned int &_right,
                                             unsigned int &_top,
                                             unsigned int &_bottom ) {
-   _left = 0;
-   _right = 0;
-   _top = 0;
+   _left   = 0;
+   _right  = 0;
+   _top    = 0;
    _bottom = 0;
 }
 
@@ -191,8 +191,8 @@ void iRandR::printRandRStatus() {
  */
 bool iRandR::setPrimary( const iDisplays &_disp ) {
    DEVMODEW lNotReallyNeeded;
-   lNotReallyNeeded.dmSize = sizeof( DEVMODEW );
-   lNotReallyNeeded.dmFields = DM_POSITION; // Set the primary position
+   lNotReallyNeeded.dmSize       = sizeof( DEVMODEW );
+   lNotReallyNeeded.dmFields     = DM_POSITION; // Set the primary position
    lNotReallyNeeded.dmPosition.x = 0;
    lNotReallyNeeded.dmPosition.y = 0;
 

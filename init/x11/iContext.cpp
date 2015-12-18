@@ -66,18 +66,18 @@ bool iContext::isExtensionSupported( const char *_extension ) {
 }
 
 iContext::iContext() {
-   vNumOfFBConfigs_I = 0;
-   vDisplay_X11 = nullptr;
-   vWindow_X11 = 0;
+   vNumOfFBConfigs_I  = 0;
+   vDisplay_X11       = nullptr;
+   vWindow_X11        = 0;
    vWindowHasBorder_B = true;
-   vHaveContext_B = false;
-   vHaveGLEW_B = false;
-   vDisplayCreated_B = false;
-   vWindowCreated_B = false;
+   vHaveContext_B     = false;
+   vHaveGLEW_B        = false;
+   vDisplayCreated_B  = false;
+   vWindowCreated_B   = false;
    vColorMapCreated_B = false;
-   vWindowRecreate_B = false;
-   vIsMouseGrabbed_B = false;
-   vEventMask_lI = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
+   vWindowRecreate_B  = false;
+   vIsMouseGrabbed_B  = false;
+   vEventMask_lI      = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask |
                    PointerMotionMask | ButtonMotionMask | ExposureMask | StructureNotifyMask |
                    SubstructureNotifyMask | VisibilityChangeMask | EnterWindowMask |
                    LeaveWindowMask | FocusChangeMask;
@@ -145,7 +145,9 @@ int iContext::createContext() {
       int lVRRminor_I;
       getRandRVersion( lVRRmajor_I, lVRRminor_I );
       lRandRVersionString_str = std::to_string( lVRRmajor_I ) + '.' + std::to_string( lVRRminor_I );
-   } else { lRandRVersionString_str = "!!! NOT SUPPORTED !!!"; }
+   } else {
+      lRandRVersionString_str = "!!! NOT SUPPORTED !!!";
+   }
 
 
    if ( !vHaveGLEW_B ) {
@@ -201,7 +203,9 @@ int iContext::createContext() {
 
    if ( GlobConf.win.windowDecoration == true ) {
       setDecoration( C_ADD );
-   } else { setDecoration( C_REMOVE ); }
+   } else {
+      setDecoration( C_REMOVE );
+   }
 
    glGenVertexArrays( 1, &vVertexArray_OGL );
    glBindVertexArray( vVertexArray_OGL );
@@ -248,7 +252,7 @@ void iContext::destroyContext() {
    if ( vWindowCreated_B == true ) {
       XDestroyWindow( vDisplay_X11, vWindow_X11 );
       vWindowCreated_B = false;
-      vWindow_X11 = 0;
+      vWindow_X11      = 0;
    }
    if ( vColorMapCreated_B == true ) {
       XFreeColormap( vDisplay_X11, vColorMap_X11 );
@@ -375,7 +379,7 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
 
    struct MwmHints lHints_X11;
 
-   lHints_X11.flags = MWM_HINTS_DECORATIONS;
+   lHints_X11.flags       = MWM_HINTS_DECORATIONS;
    lHints_X11.decorations = _action;
 
    if ( !XChangeProperty( vDisplay_X11,
@@ -392,7 +396,7 @@ bool iContext::setDecoration( e_engine::ACTION _action ) {
    }
 
    switch ( _action ) {
-      case C_ADD: GlobConf.win.windowDecoration = true; break;
+      case C_ADD: GlobConf.win.windowDecoration    = true; break;
       case C_REMOVE: GlobConf.win.windowDecoration = false; break;
       case C_TOGGLE: GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration; break;
    }
@@ -463,7 +467,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    switch ( _action ) {
       case C_REMOVE: lMode_STR = "Removing"; break;
-      case C_ADD: lMode_STR = "Enabling"; break;
+      case C_ADD: lMode_STR    = "Enabling"; break;
       case C_TOGGLE: lMode_STR = "Toggling"; break;
    }
 
@@ -500,19 +504,19 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    if ( _type2 != NONE ) {
       switch ( _type2 ) {
-         case MODAL: lState2_str = "_NET_WM_STATE_MODAL"; break;
-         case STICKY: lState2_str = "_NET_WM_STATE_STICKY"; break;
-         case MAXIMIZED_VERT: lState2_str = "_NET_WM_STATE_MAXIMIZED_VERT"; break;
-         case MAXIMIZED_HORZ: lState2_str = "_NET_WM_STATE_MAXIMIZED_HORZ"; break;
-         case SHADED: lState2_str = "_NET_WM_STATE_SHADED"; break;
-         case SKIP_TASKBAR: lState2_str = "_NET_WM_STATE_SKIP_TASKBAR"; break;
-         case SKIP_PAGER: lState2_str = "_NET_WM_STATE_SKIP_PAGER"; break;
-         case HIDDEN: lState2_str = "_NET_WM_STATE_HIDDEN"; break;
-         case FULLSCREEN: lState2_str = "_NET_WM_STATE_FULLSCREEN"; break;
-         case ABOVE: lState2_str = "_NET_WM_STATE_ABOVE"; break;
-         case BELOW: lState2_str = "_NET_WM_STATE_BELOW"; break;
+         case MODAL: lState2_str             = "_NET_WM_STATE_MODAL"; break;
+         case STICKY: lState2_str            = "_NET_WM_STATE_STICKY"; break;
+         case MAXIMIZED_VERT: lState2_str    = "_NET_WM_STATE_MAXIMIZED_VERT"; break;
+         case MAXIMIZED_HORZ: lState2_str    = "_NET_WM_STATE_MAXIMIZED_HORZ"; break;
+         case SHADED: lState2_str            = "_NET_WM_STATE_SHADED"; break;
+         case SKIP_TASKBAR: lState2_str      = "_NET_WM_STATE_SKIP_TASKBAR"; break;
+         case SKIP_PAGER: lState2_str        = "_NET_WM_STATE_SKIP_PAGER"; break;
+         case HIDDEN: lState2_str            = "_NET_WM_STATE_HIDDEN"; break;
+         case FULLSCREEN: lState2_str        = "_NET_WM_STATE_FULLSCREEN"; break;
+         case ABOVE: lState2_str             = "_NET_WM_STATE_ABOVE"; break;
+         case BELOW: lState2_str             = "_NET_WM_STATE_BELOW"; break;
          case DEMANDS_ATTENTION: lState2_str = "_NET_WM_STATE_DEMANDS_ATTENTION"; break;
-         case FOCUSED: lState2_str = "_NET_WM_STATE_FOCUSED"; break;
+         case FOCUSED: lState2_str           = "_NET_WM_STATE_FOCUSED"; break;
          case NONE: return false;
       }
 
@@ -537,7 +541,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    if ( _type1 == FULLSCREEN || _type2 == FULLSCREEN ) {
       switch ( _action ) {
-         case C_ADD: GlobConf.win.fullscreen = true; break;
+         case C_ADD: GlobConf.win.fullscreen    = true; break;
          case C_REMOVE: GlobConf.win.fullscreen = false; break;
          case C_TOGGLE: GlobConf.win.fullscreen = !GlobConf.win.fullscreen; break;
       }
@@ -619,16 +623,16 @@ bool iContext::sendX11Event(
    XEvent lEvent_X11;
 
    memset( &lEvent_X11, 0, sizeof( lEvent_X11 ) );
-   lEvent_X11.type = ClientMessage;
+   lEvent_X11.type           = ClientMessage;
    lEvent_X11.xclient.window = vWindow_X11;
 
    lEvent_X11.xclient.message_type = lAtom_X11;
-   lEvent_X11.xclient.format = 32;
-   lEvent_X11.xclient.data.l[0] = _l0;
-   lEvent_X11.xclient.data.l[1] = _l1;
-   lEvent_X11.xclient.data.l[2] = _l2;
-   lEvent_X11.xclient.data.l[3] = _l3;
-   lEvent_X11.xclient.data.l[4] = _l4;
+   lEvent_X11.xclient.format       = 32;
+   lEvent_X11.xclient.data.l[0]    = _l0;
+   lEvent_X11.xclient.data.l[1]    = _l1;
+   lEvent_X11.xclient.data.l[2]    = _l2;
+   lEvent_X11.xclient.data.l[3]    = _l3;
+   lEvent_X11.xclient.data.l[4]    = _l4;
 
    return XSendEvent( vDisplay_X11,
                       DefaultRootWindow( vDisplay_X11 ),

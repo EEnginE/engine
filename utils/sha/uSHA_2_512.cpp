@@ -189,8 +189,8 @@ void uSHA_2::padd1024() {
 
    // vBlockCounter_ulI * 128 = number of bytes int the FULL blocks
    temp = vBlockCounter_ulI;
-   v1 = temp << 7;
-   v2 = temp >> 57;
+   v1   = temp << 7;
+   v2   = temp >> 57;
 
    // Add the remaining bytes
    temp = v1;

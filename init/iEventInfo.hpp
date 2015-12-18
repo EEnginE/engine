@@ -44,7 +44,7 @@ class iInit;
  * \sa iInit uSignal uSlot
  */
 struct INIT_API iEventInfo {
-   EVENT_TYPE type = E_EVENT_UNKNOWN;
+   EVENT_TYPE type     = E_EVENT_UNKNOWN;
    iInit *iInitPointer = nullptr;
 
    /*!
@@ -52,10 +52,10 @@ struct INIT_API iEventInfo {
     * \brief The resize part
     */
    struct _eRsize {
-      int posX = 0;
-      int posY = 0;
+      int posX            = 0;
+      int posY            = 0;
       unsigned int height = 0;
-      unsigned int width = 0;
+      unsigned int width  = 0;
    } eResize;
 
    /*!
@@ -63,7 +63,7 @@ struct INIT_API iEventInfo {
     * \brief The key part
     */
    struct _eKey {
-      wchar_t key = 0;
+      wchar_t key        = 0;
       unsigned int state = 0;
    } eKey;
 
@@ -74,8 +74,8 @@ struct INIT_API iEventInfo {
    struct _iMouse {
       unsigned int posX = 0;
       unsigned int posY = 0;
-      int state = 0;
-      E_BUTTON button = E_MOUSE_UNKNOWN;
+      int state         = 0;
+      E_BUTTON button   = E_MOUSE_UNKNOWN;
    } iMouse;
 
    struct _eFocus {
@@ -83,16 +83,16 @@ struct INIT_API iEventInfo {
    } eFocus;
 
    void reset() {
-      type = E_EVENT_UNKNOWN;
-      eResize.posX = 0;
-      eResize.posY = 0;
-      eResize.height = 0;
-      eResize.width = 0;
-      eKey.state = 0;
-      eKey.key = 0;
-      iMouse.posX = 0;
-      iMouse.posY = 0;
-      iMouse.state = 0;
+      type            = E_EVENT_UNKNOWN;
+      eResize.posX    = 0;
+      eResize.posY    = 0;
+      eResize.height  = 0;
+      eResize.width   = 0;
+      eKey.state      = 0;
+      eKey.key        = 0;
+      iMouse.posX     = 0;
+      iMouse.posY     = 0;
+      iMouse.state    = 0;
       eFocus.hasFocus = false;
    }
 

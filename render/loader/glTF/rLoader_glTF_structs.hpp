@@ -38,12 +38,12 @@ class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
  protected:
    struct accessor {
       std::string name;
-      size_t bufferView = static_cast<size_t>( -1 ); //!< required
-      int byteOffset = -1;                           //!< required; min: 0
-      int byteStride = 0;                            //!< required; min: 0; max: 255
-      ELEMENTS componentType = TYPE;                 //!< required
-      int count = -1;                                //!< required; min: 1
-      ELEMENTS type = TYPE;                          //!< required
+      size_t bufferView      = static_cast<size_t>( -1 ); //!< required
+      int byteOffset         = -1;                        //!< required; min: 0
+      int byteStride         = 0;                         //!< required; min: 0; max: 255
+      ELEMENTS componentType = TYPE;                      //!< required
+      int count              = -1;                        //!< required; min: 1
+      ELEMENTS type          = TYPE;                      //!< required
 
       bool test() const;
 #if D_LOG_GLTF
@@ -53,9 +53,9 @@ class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
 
    struct buffer {
       std::string name;
-      std::string uri;                 //!< required
-      int byteLength = 0;              //!< min: 0
-      ELEMENTS type = TG_ARRAY_BUFFER; //!< required
+      std::string uri;                  //!< required
+      int byteLength = 0;               //!< min: 0
+      ELEMENTS type  = TG_ARRAY_BUFFER; //!< required
 
       bool test() const;
 #if D_LOG_GLTF
@@ -65,10 +65,10 @@ class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
 
    struct bufferView {
       std::string name;
-      size_t buffer = static_cast<size_t>( -1 ); //!< required
-      int byteOffset = -1;                       //!< required; min: 0
-      int byteLength = 0;                        //!< min: 0
-      ELEMENTS target = TYPE;                    //!< required
+      size_t buffer   = static_cast<size_t>( -1 ); //!< required
+      int byteOffset  = -1;                        //!< required; min: 0
+      int byteLength  = 0;                         //!< min: 0
+      ELEMENTS target = TYPE;                      //!< required
 
       bool test() const;
 #if D_LOG_GLTF
@@ -87,8 +87,8 @@ class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
          };
 
          std::vector<_attributes> attributes;
-         size_t indices = static_cast<size_t>( -1 );  //!< required;
-         size_t material = static_cast<size_t>( -1 ); //!< required;
+         size_t indices     = static_cast<size_t>( -1 ); //!< required;
+         size_t material    = static_cast<size_t>( -1 ); //!< required;
          ELEMENTS primitive = P_TRIANGLES;
       };
 

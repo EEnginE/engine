@@ -43,8 +43,8 @@ iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
    vMainLoopRunning_B = false;
 
    vEventLoopHasFinished_B = false;
-   vEventLoopISPaused_B = false;
-   vEventLoopPaused_B = false;
+   vEventLoopISPaused_B    = false;
+   vEventLoopPaused_B      = false;
 
    vEventLoopHasFinished_B = true;
 
@@ -234,12 +234,12 @@ int iInit::startMainLoop( bool _wait ) {
 
    // Send a resize signal to ensure that the viewport is updated
    iEventInfo _tempInfo( this );
-   _tempInfo.iInitPointer = this;
-   _tempInfo.type = E_EVENT_RESIZE;
-   _tempInfo.eResize.width = GlobConf.win.width;
+   _tempInfo.iInitPointer   = this;
+   _tempInfo.type           = E_EVENT_RESIZE;
+   _tempInfo.eResize.width  = GlobConf.win.width;
    _tempInfo.eResize.height = GlobConf.win.height;
-   _tempInfo.eResize.posX = GlobConf.win.posX;
-   _tempInfo.eResize.posY = GlobConf.win.posY;
+   _tempInfo.eResize.posX   = GlobConf.win.posX;
+   _tempInfo.eResize.posY   = GlobConf.win.posY;
 
    vResize_SIG.send( _tempInfo );
 
@@ -276,7 +276,9 @@ int iInit::startMainLoop( bool _wait ) {
       if ( vQuitMainLoop_BT.joinable() )
          vQuitMainLoop_BT.join();
 
-   } else { vStartRenderLoopSignal_SIG( false ); }
+   } else {
+      vStartRenderLoopSignal_SIG( false );
+   }
 
    return 1;
 }
