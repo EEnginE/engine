@@ -1,26 +1,32 @@
 if (EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
 
+function( remove_empty_dir path )
+   string( REGEX REPLACE "/[^/]*$" "" dir "${path}" )
+   file( GLOB res "${dir}/*" )
+   list( LENGTH res num )
 
-cmake_policy(SET CMP0007 OLD)
+   if( num EQUAL 0 )
+      file( REMOVE_RECURSE "${dir}" )
+      message( STATUS "${dir}: ${num}" )
+      remove_empty_dir( "${dir}" )
+   endif( num EQUAL 0 )
+endfunction( remove_empty_dir )
 
 file(READ "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
-list(REVERSE files)
+set( counter 0 )
+
 foreach (file ${files})
-    message(STATUS "Uninstalling \"$ENV{DESTDIR}${file}\"")
-    if (EXISTS "$ENV{DESTDIR}${file}")
-        execute_process(
-            COMMAND @CMAKE_COMMAND@ -E remove "$ENV{DESTDIR}${file}"
-            OUTPUT_VARIABLE rm_out
-            RESULT_VARIABLE rm_retval
-        )
-        if(NOT ${rm_retval} EQUAL 0)
-            message(FATAL_ERROR "Problem when removing \"$ENV{DESTDIR}${file}\"")
-        endif (NOT ${rm_retval} EQUAL 0)
-    else (EXISTS "$ENV{DESTDIR}${file}")
-        message(STATUS "File \"$ENV{DESTDIR}${file}\" does not exist.")
-    endif (EXISTS "$ENV{DESTDIR}${file}")
+   if (EXISTS "$ENV{DESTDIR}${file}")
+      file( REMOVE "$ENV{DESTDIR}${file}" )
+      remove_empty_dir( "$ENV{DESTDIR}${file}" )
+
+      math( EXPR counter "${counter} + 1" )
+   endif (EXISTS "$ENV{DESTDIR}${file}")
 endforeach(file)
+
+list( LENGTH files num )
+message( STATUS "${counter} of ${num} files uninstalled" )
 
 
 else(EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
