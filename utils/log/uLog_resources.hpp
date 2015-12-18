@@ -93,38 +93,6 @@ struct uConverter<__A> {
       uLogConverter<__A>::convert( _str, std::forward<__A>( _toConvert ) );
    }
 };
-
-
-/*!
- * \brief Contains raw data for a log entry
- *
- * Stores the raw input data with boost::variant and uses some
- * template metaprogramming.
- */
-struct UTILS_API uLogRawData {
-   virtual std::wstring get() = 0;
-   virtual ~uLogRawData();
-};
-
-template <class... T>
-struct UTILS_API uLogRawDataT : uLogRawData {
-   std::tuple<T...> vData;
-
-   uLogRawDataT( T &&... _d ) : vData( std::forward<T>( _d )... ) {}
-
-   template <int... sequenze>
-   void get( std::wstring &_str, templates::intSequenze<sequenze...> ) {
-      uConverter<T...>::convert( _str, std::forward<T>( std::get<sequenze>( vData ) )... );
-   }
-
-   std::wstring get() {
-      std::wstring lTempStr;
-      get( lTempStr, templates::makeIntSequenze<sizeof...( T )>{} );
-      return lTempStr;
-   }
-
-   virtual ~uLogRawDataT() {}
-};
 }
 
 class uLog;
@@ -177,23 +145,10 @@ class UTILS_API uLogEntryRaw {
    } data;
 
  private:
-   bool vComplete_B;
-   internal::uLogRawData *vElements = nullptr;
    char vType_C;
    std::thread::id vThreadId;
 
-   std::condition_variable vWaitUntilThisIsPrinted_BT;
-   std::mutex vWaitMutex_BT;
-   bool vIsPrinted_B;
-
-   std::condition_variable vWaitUntilEndFinisched_BT;
-   std::mutex vWaitEndMutex_BT;
-   bool vEndFinished_B;
-
    const unsigned int vSize;
-
-   void end();
-   void endLogWaitAndSetPrinted();
 
  public:
    template <class... ARGS>
@@ -205,30 +160,25 @@ class UTILS_API uLogEntryRaw {
                  std::thread::id &&_thread,
                  ARGS &&... _args )
        : data( _rawFilename, _logLine, _functionName, _onlyText ),
-         vComplete_B( false ),
          vType_C( _type ),
          vThreadId( _thread ),
-         vIsPrinted_B( false ),
-         vEndFinished_B( false ),
          vSize( sizeof...( ARGS ) ) {
 
-      vElements = new internal::uLogRawDataT<ARGS...>( std::forward<ARGS>( _args )... );
-      vComplete_B = true;
+      internal::uConverter<ARGS...>::convert( data.raw.vDataString_STR,
+                                              std::forward<ARGS>( _args )... );
    }
 
    uLogEntryRaw() = delete;
+   uLogEntryRaw( uLogEntryRaw & ) = delete;
+   uLogEntryRaw( uLogEntryRaw && ) = default;
 
    ~uLogEntryRaw();
 
-   inline bool getIsComplete() const { return vComplete_B; }
-   inline bool getIsPrinted() const { return vIsPrinted_B; }
    inline size_t getElementsSize() const { return vSize; }
    unsigned int getLogEntry( std::vector<e_engine::internal::uLogType> &_vLogTypes_V_eLT,
                              std::map<std::thread::id, std::wstring> &_threads );
 
    void defaultEntryGenerator();
-
-   friend class uLog;
 };
 }
 

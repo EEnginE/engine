@@ -55,7 +55,7 @@ uLog::uLog()
    vMaxTypeStringLength_usI = 0;
 
    vIsLogLoopRunning_B = false;
-   vLogLoopRun_B = false;
+   vLogLoopRun_B       = false;
 
    vLogFileName_str = "standard_Engine_Log_File";
 
@@ -300,31 +300,25 @@ void uLog::logLoop() {
    vIsLogLoopRunning_B = true;
    std::string lErrorType_STR;
    unsigned int lLogTypeId_uI = 0;
+   std::list<uLogEntryRaw> lEntryWorkerList;
+
    do {
       // Killing the CPU is not our Task
       B_SLEEP( milliseconds, 25 );
 
-      while ( !vLogEntries.empty() ) {
-         while ( !vLogEntries.front().getIsComplete() )
-            B_SLEEP( milliseconds, 50 );
+      {
+         std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
+         if ( vLogEntries.empty() )
+            continue;
 
-         try {
-            lLogTypeId_uI = vLogEntries.front().getLogEntry( vLogTypes_V_eLT, vThreads );
-            vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->send( vLogEntries.front() );
-            vLogEntries.front().endLogWaitAndSetPrinted();
-         } catch ( std::bad_alloc e ) {
-            std::cerr << "Received bad_alloc exeption in log Loop -- FILE: " << __FILE__
-                      << " -- LINE: " << __LINE__ << std::endl;
-            std::cerr << e.what() << std::endl;
-            return;
-         } catch ( ... ) {
-            // A new log entry in a crashing log loop fuction would be useless
-            std::cerr << "Received unknown exeption in log Loop -- FILE: " << __FILE__
-                      << " -- LINE: " << __LINE__ << std::endl;
-            return;
-         }
+         // Transfer all elements (only the pointers) from vLogEntries to lTempList
+         lEntryWorkerList.splice( lEntryWorkerList.end(), vLogEntries);
+      }
 
-         vLogEntries.pop_front();
+      while ( !lEntryWorkerList.empty() ) {
+         lLogTypeId_uI = lEntryWorkerList.front().getLogEntry( vLogTypes_V_eLT, vThreads );
+         vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->send( lEntryWorkerList.front() );
+         lEntryWorkerList.pop_front();
       }
    } while ( vLogLoopRun_B );
    vIsLogLoopRunning_B = false;
@@ -334,6 +328,11 @@ bool uLog::startLogLoop() {
    if ( vIsLogLoopRunning_B == true )
       return false;
 
+   if( GlobConf.log.waitUntilLogEntryPrinted == true ) {
+      vLogLoopRun_B = true;
+      return true;
+   }
+
    // Slow output fix
    if ( setvbuf( stdout, nullptr, _IOLBF, 4096 ) != 0 ) {
       wLOG( "Cannot set Windows output buffer [stdout]" );
@@ -342,7 +341,7 @@ bool uLog::startLogLoop() {
       wLOG( "Cannot set Windows output buffer [stderr]" );
    }
 
-   vLogLoopRun_B = true;
+   vLogLoopRun_B         = true;
    vLogLoopThread_THREAD = std::thread( &uLog::logLoop, this );
 
    return true;

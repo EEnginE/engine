@@ -30,61 +30,20 @@
 #endif
 
 namespace e_engine {
-namespace internal {
 
-uLogRawData::~uLogRawData() {}
-}
-
-uLogEntryRaw::~uLogEntryRaw() {
-   if ( vElements )
-      delete vElements;
-}
-
-
-void uLogEntryRaw::end() {
-   if ( !GlobConf.log.waitUntilLogEntryPrinted || !LOG.getIsLogLoopRunning() ) {
-      vEndFinished_B = true;
-      return;
-   }
-   {
-      std::unique_lock<std::mutex> lLock_BT( vWaitMutex_BT );
-      while ( !vIsPrinted_B )
-         vWaitUntilThisIsPrinted_BT.wait( lLock_BT );
-   }
-   std::lock_guard<std::mutex> lLockWait_BT( vWaitEndMutex_BT );
-   vEndFinished_B = true;
-   vWaitUntilEndFinisched_BT.notify_one();
-}
-
-void uLogEntryRaw::endLogWaitAndSetPrinted() {
-   if ( !GlobConf.log.waitUntilLogEntryPrinted ) {
-      vIsPrinted_B = true;
-      return;
-   }
-   {
-      std::lock_guard<std::mutex> lLockWait_BT( vWaitMutex_BT );
-      vIsPrinted_B = true;
-      vWaitUntilThisIsPrinted_BT.notify_one();
-   }
-   std::unique_lock<std::mutex> lLockWait_BT( vWaitEndMutex_BT );
-   while ( !vEndFinished_B )
-      vWaitUntilEndFinisched_BT.wait( lLockWait_BT );
-}
+uLogEntryRaw::~uLogEntryRaw() {}
 
 unsigned int uLogEntryRaw::getLogEntry( std::vector<internal::uLogType> &_vLogTypes_V_eLT,
                                         std::map<std::thread::id, std::wstring> &_threads ) {
-   data.raw.vDataString_STR.clear();
-   data.raw.vType_STR = L"UNKNOWN";
-   data.raw.vThreadName_STR = L"noname";
+   data.raw.vType_STR         = L"UNKNOWN";
+   data.raw.vThreadName_STR   = L"noname";
    data.raw.vFunctionName_STR = std::wstring( data.raw.vFunctionNameTemp_STR.begin(),
                                               data.raw.vFunctionNameTemp_STR.end() );
 
-   data.raw.vDataString_STR += vElements->get();
-
    if ( _vLogTypes_V_eLT.empty() ) {
+      LOG.devInit();
       eLOG( "No Log type found!! Please add at least one manually or run 'uLog.devInit();', which "
             "will be run now to prevent further Errors" );
-      LOG.devInit();
    }
 
    if ( _threads.find( vThreadId ) != _threads.end() )
@@ -94,9 +53,9 @@ unsigned int uLogEntryRaw::getLogEntry( std::vector<internal::uLogType> &_vLogTy
 
    for ( unsigned int i = 0; i < _vLogTypes_V_eLT.size(); ++i ) {
       if ( _vLogTypes_V_eLT[i].getType() == vType_C ) {
-         data.raw.vType_STR = _vLogTypes_V_eLT[i].getString();
+         data.raw.vType_STR     = _vLogTypes_V_eLT[i].getString();
          data.raw.vBasicColor_C = _vLogTypes_V_eLT[i].getColor();
-         data.raw.vBold_B = _vLogTypes_V_eLT[i].getBold();
+         data.raw.vBold_B       = _vLogTypes_V_eLT[i].getBold();
          return i;
       }
    }
@@ -115,12 +74,12 @@ void uLogEntryRaw::__DATA__::configure( e_engine::LOG_COLOR_TYPE _color,
                                         e_engine::LOG_PRINT_TYPE _errorType,
                                         e_engine::LOG_PRINT_TYPE _thread,
                                         int _columns ) {
-   config.vColor_LCT = _color;
-   config.vTime_LPT = _time;
-   config.vFile_LPT = _file;
+   config.vColor_LCT     = _color;
+   config.vTime_LPT      = _time;
+   config.vFile_LPT      = _file;
    config.vErrorType_LPT = _errorType;
-   config.vColumns_I = _columns;
-   config.vThread_LPT = _thread;
+   config.vColumns_I     = _columns;
+   config.vThread_LPT    = _thread;
 }
 }
 

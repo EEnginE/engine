@@ -162,15 +162,13 @@ class UTILS_API uLog final {
                            const char *_function,
                            std::thread::id &&_thread,
                            ARGS... _data ) {
-      std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
-      vLogEntries.emplace_back( _type,
-                                _onlyText,
-                                _file,
-                                _line,
-                                _function,
-                                std::forward<std::thread::id>( _thread ),
-                                std::forward<ARGS>( _data )... );
-      vLogEntries.back().end();
+      addLogEntry( _type,
+                   _onlyText,
+                   _file,
+                   _line,
+                   _function,
+                   std::forward<std::thread::id>( _thread ),
+                   std::forward<ARGS>( _data )... );
    }
 
    template <class... ARGS>
@@ -180,20 +178,39 @@ class UTILS_API uLog final {
                             const int _line,
                             const char *_function,
                             std::thread::id &&_thread,
-                            ARGS... _data ) {
-      std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
-      vLogEntries.emplace_back( _type,
-                                _onlyText,
-                                _file,
-                                _line,
-                                _function,
-                                std::forward<std::thread::id>( _thread ),
-                                std::forward<ARGS>( _data )... );
-      vLogEntries.back().end();
-   }
+                            ARGS... _data );
 
    std::string getLogFileFullPath() { return vLogFielFullPath_str; }
 };
+
+template <class... ARGS>
+void uLog::addLogEntry( char _type,
+                        bool _onlyText,
+                        const wchar_t *_file,
+                        const int _line,
+                        const char *_function,
+                        std::thread::id &&_thread,
+                        ARGS... _data ) {
+   uLogEntryRaw lTempEntry( _type,
+                            _onlyText,
+                            _file,
+                            _line,
+                            _function,
+                            std::forward<std::thread::id>( _thread ),
+                            std::forward<ARGS>( _data )... );
+
+   std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
+
+   vLogEntries.push_back( std::move( lTempEntry ) );
+
+   if ( GlobConf.log.waitUntilLogEntryPrinted && vLogLoopRun_B ) {
+      while ( !vLogEntries.empty() ) {
+         auto lLogTypeId_uI = vLogEntries.front().getLogEntry( vLogTypes_V_eLT, vThreads );
+         vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->send( vLogEntries.front() );
+         vLogEntries.pop_front();
+      }
+   }
+}
 
 template <class __C>
 bool uLog::connectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot ) {
