@@ -7,7 +7,6 @@ function( remove_empty_dir path )
 
    if( num EQUAL 0 )
       file( REMOVE_RECURSE "${dir}" )
-      message( STATUS "${dir}: ${num}" )
       remove_empty_dir( "${dir}" )
    endif( num EQUAL 0 )
 endfunction( remove_empty_dir )

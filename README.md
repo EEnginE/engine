@@ -30,7 +30,7 @@ Providing modules for networking, physic and 2D/3D graphic.
 ## Linux
 
 ```sh
-$ git clone https://github.com/EEnginE/engine
+$ git clone --recursive https://github.com/EEnginE/engine
 $ mkdir build
 $ cd build
 $ cmake <Additional CMake options> ..
