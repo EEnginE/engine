@@ -1,6 +1,6 @@
 /*!
- * \file rLoader_glTF.hpp
- * \brief \b Classes: \a rLoader_glTF
+ * \file lGLTF.hpp
+ * \brief \b Classes: \a lGLTF
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-#include "rLoader_glTF.hpp"
+#include "lGLTF.hpp"
 
 namespace e_engine {
 
-bool rLoader_glTF::load_IMPL() {
+bool lGLTF::load_IMPL() {
    if ( !expect( '{' ) )
       return false;
 

@@ -1,6 +1,6 @@
 /*!
- * \file rLoader_glTF_interprete.hpp
- * \brief \b Classes: \a rLoader_glTF
+ * \file lGLTF_interprete.hpp
+ * \brief \b Classes: \a lGLTF
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -18,14 +18,14 @@
  * limitations under the License.
  */
 
-#include "rLoader_glTF.hpp"
+#include "lGLTF.hpp"
 #include "uFileIO.hpp"
 #include <string.h> // memcpy
 #include FILESYSTEM_INCLUDE
 
 namespace e_engine {
 
-bool rLoader_glTF::interprete() {
+bool lGLTF::interprete() {
    // Self Tests:
    for ( auto const &i : vAccessors )
       if ( !i.test() )

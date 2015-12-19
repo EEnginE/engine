@@ -22,9 +22,9 @@
 
 #include "defines.hpp"
 
-#include "rLoaderBase.hpp"
+#include "lLoaderBase.hpp"
 #include "rObjectBase.hpp"
-#include "rLoaderStructs.hpp"
+#include "lLoaderStructs.hpp"
 #include <memory>
 
 #ifdef _OBJ

@@ -1,6 +1,6 @@
 /*!
- * \file rLoader_glTF_structs.hpp
- * \brief \b Classes: \a rLoader_glTF_structs
+ * \file lGLTF_structs.hpp
+ * \brief \b Classes: \a lGLTF_structs
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -22,12 +22,12 @@
 #define R_LOADER_GLTF_STRUCTS_HPP
 
 #include "defines.hpp"
-#include "rLoader_glTF_map.hpp"
+#include "lGLTF_map.hpp"
 #include <string>
 #include <vector>
 
 #if D_LOG_GLTF
-#define GLTF_STRUCTS_PRINT void print( rLoader_glTF_structs *_parent ) const;
+#define GLTF_STRUCTS_PRINT void print( lGLTF_structs *_parent ) const;
 #else
 #define GLTF_STRUCTS_PRINT
 #endif
@@ -35,7 +35,7 @@
 namespace e_engine {
 namespace glTF {
 
-class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
+class UTILS_API lGLTF_structs : public lGLTF_map {
  private:
 #if D_LOG_GLTF
    std::string getStringFromElement( ELEMENTS _el );
@@ -110,7 +110,7 @@ class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
    };
 
  public:
-   virtual ~rLoader_glTF_structs();
+   virtual ~lGLTF_structs();
 };
 }
 }

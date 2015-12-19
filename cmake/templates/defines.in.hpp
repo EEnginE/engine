@@ -13,6 +13,7 @@
 #include "utils_export.hpp"
 #include "init_export.hpp"
 #include "render_export.hpp"
+#include "loader_export.hpp"
 
 // clang-format off
 

@@ -1,6 +1,6 @@
 /*!
- * \file rLoader_glTF_map.hpp
- * \brief \b Classes: \a rLoader_glTF_map
+ * \file lGLTF_map.hpp
+ * \brief \b Classes: \a lGLTF_map
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -18,14 +18,14 @@
  * limitations under the License.
  */
 
-#include "rLoader_glTF_map.hpp"
+#include "lGLTF_map.hpp"
 
 namespace e_engine {
 namespace glTF {
 
-rLoader_glTF_map::~rLoader_glTF_map() {}
+lGLTF_map::~lGLTF_map() {}
 
-rLoader_glTF_map::rLoader_glTF_map()
+lGLTF_map::lGLTF_map()
     : vMap( {{"extensions", EXTENSIONS},
              {"additionalProperties", ADDITIONALPROPERTIES},
              {"extras", EXTRAS},

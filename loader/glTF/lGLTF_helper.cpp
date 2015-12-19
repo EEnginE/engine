@@ -1,6 +1,6 @@
 /*!
- * \file rLoader_glTF_helper.hpp
- * \brief \b Classes: \a rLoader_glTF
+ * \file lGLTF_helper.hpp
+ * \brief \b Classes: \a lGLTF
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-#include "rLoader_glTF.hpp"
+#include "lGLTF.hpp"
 
 namespace e_engine {
 
-bool rLoader_glTF::getMapElement( ELEMENTS &_el, bool _isSection ) {
+bool lGLTF::getMapElement( ELEMENTS &_el, bool _isSection ) {
    vMapElStr.clear();
 
    if ( !getString( vMapElStr ) )
@@ -43,7 +43,7 @@ bool rLoader_glTF::getMapElement( ELEMENTS &_el, bool _isSection ) {
    return true;
 }
 
-bool rLoader_glTF::getMapElementETC( ELEMENTS &_el ) {
+bool lGLTF::getMapElementETC( ELEMENTS &_el ) {
    vMapElStr.clear();
 
    if ( !continueWhitespace() )
@@ -74,7 +74,7 @@ VERY_UGLY_GOTO:
    return true;
 }
 
-bool rLoader_glTF::skipSection() {
+bool lGLTF::skipSection() {
    if ( !continueWhitespace() )
       return false;
 
@@ -128,12 +128,12 @@ bool rLoader_glTF::skipSection() {
 
 
 
-bool rLoader_glTF::skipSectionWarning( unsigned int _s ) {
+bool lGLTF::skipSectionWarning( unsigned int _s ) {
    wLOG( "Skipped '", vMapElStr, "' ( ", _s, " - ", vCurrentLine, " ) [", vFilePath_str, "]" );
    return true;
 }
 
-bool rLoader_glTF::wrongKeyWordError() {
+bool lGLTF::wrongKeyWordError() {
    eLOG( "Invalid key word '",
          vMapElStr,
          "' in this context! (",
@@ -144,7 +144,7 @@ bool rLoader_glTF::wrongKeyWordError() {
    return false;
 }
 
-bool rLoader_glTF::selfTestFailed( std::string _type, std::string _name ) {
+bool lGLTF::selfTestFailed( std::string _type, std::string _name ) {
    eLOG( "Self test for ", _type, " '", _name, "' failed [", vFilePath_str, "]" );
    return false;
 }

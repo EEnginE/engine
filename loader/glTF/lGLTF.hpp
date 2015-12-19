@@ -1,6 +1,6 @@
 /*!
- * \file rLoader_glTF.hpp
- * \brief \b Classes: \a rLoader_glTF
+ * \file lGLTF.hpp
+ * \brief \b Classes: \a lGLTF
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -23,8 +23,8 @@
 
 #include "defines.hpp"
 
-#include "rLoaderBase.hpp"
-#include "rLoader_glTF_structs.hpp"
+#include "lLoaderBase.hpp"
+#include "lGLTF_structs.hpp"
 #include <string>
 
 #if D_LOG_GLTF
@@ -35,8 +35,8 @@
 
 namespace e_engine {
 
-class RENDER_API rLoader_glTF final : public internal::rLoaderBase<GLfloat, GLushort>,
-                                      public glTF::rLoader_glTF_structs {
+class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
+                                      public glTF::lGLTF_structs {
 
    typedef std::unordered_map<std::string, size_t> td_MAP;
 
@@ -77,12 +77,12 @@ class RENDER_API rLoader_glTF final : public internal::rLoaderBase<GLfloat, GLus
    std::string vMapElStr;
 
  public:
-   rLoader_glTF() {}
-   rLoader_glTF( std::string _file ) : rLoaderBase( _file ) {}
+   lGLTF() {}
+   lGLTF( std::string _file ) : lLoaderBase( _file ) {}
 };
 
 template <class T>
-size_t rLoader_glTF::getItem( std::vector<T> &_vec, td_MAP &_map, std::string _id ) {
+size_t lGLTF::getItem( std::vector<T> &_vec, td_MAP &_map, std::string _id ) {
    auto lIter = _map.find( _id );
 
    if ( lIter == _map.end() ) {

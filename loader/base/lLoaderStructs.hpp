@@ -1,5 +1,5 @@
 /*!
- * \file rLoaderStructs.hpp
+ * \file lLoaderStructs.hpp
  */
 /*
  * Copyright (C) 2015 EEnginE project

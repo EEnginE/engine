@@ -19,7 +19,7 @@
 
 #include "rObjectBase.hpp"
 #include "uLog.hpp"
-#include "rLoader_3D_f_OBJ.hpp"
+#include "lOBJ_3D_f.hpp"
 #include "iInit.hpp"
 #include <regex>
 

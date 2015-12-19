@@ -1,5 +1,5 @@
 /*!
- * \file rLoaderBase.hpp
+ * \file lLoaderBase.hpp
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -25,7 +25,7 @@
 #include <type_traits>
 #include <memory>
 #include "uParserHelper.hpp"
-#include "rLoaderStructs.hpp"
+#include "lLoaderStructs.hpp"
 
 namespace e_engine {
 
@@ -38,7 +38,7 @@ typedef _3D_Data<GLfloat, GLushort> _3D_DataF;
 typedef _3D_Data<GLdouble, GLushort> _3D_DataD;
 
 template <class T, class I>
-class rLoaderBase : public uParserHelper {
+class lLoaderBase : public uParserHelper {
    static_assert( std::is_floating_point<T>::value, "T must be a floating point type" );
    static_assert( std::is_unsigned<I>::value, "I must be an unsigned type" );
 
@@ -49,9 +49,9 @@ class rLoaderBase : public uParserHelper {
    DATA vData;
 
  public:
-   virtual ~rLoaderBase() {}
-   rLoaderBase() {}
-   rLoaderBase( std::string _file ) : uParserHelper( _file ), vData( std::make_shared<S_TYP>() ) {}
+   virtual ~lLoaderBase() {}
+   lLoaderBase() {}
+   lLoaderBase( std::string _file ) : uParserHelper( _file ), vData( std::make_shared<S_TYP>() ) {}
 
    template <class C, class... ARGS>
    bool generateObjects( std::vector<C> &_output, ARGS &&... _args );
@@ -61,7 +61,7 @@ class rLoaderBase : public uParserHelper {
 
 template <class T, class I>
 template <class C, class... ARGS>
-bool rLoaderBase<T, I>::generateObjects( std::vector<C> &_output, ARGS &&... _args ) {
+bool lLoaderBase<T, I>::generateObjects( std::vector<C> &_output, ARGS &&... _args ) {
    if ( !vData )
       return false;
 
@@ -74,7 +74,7 @@ bool rLoaderBase<T, I>::generateObjects( std::vector<C> &_output, ARGS &&... _ar
  * \brief Clears the memory
  */
 template <class T, class I>
-void rLoaderBase<T, I>::unLoad() {
+void lLoaderBase<T, I>::unLoad() {
    vIsParsed = false;
    if ( vData )
       vData.clear();

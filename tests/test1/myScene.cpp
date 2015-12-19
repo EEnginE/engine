@@ -22,7 +22,7 @@ using namespace e_engine;
 int myScene::init() {
    updateCamera();
 
-   rLoader_glTF lLoader( vFilePath );
+   lGLTF lLoader( vFilePath );
    if ( lLoader() != 1 )
       return 2;
    lLoader.generateObjects( vObjects, this );

@@ -1,6 +1,6 @@
 /*!
- * \file rLoader_glTF_meshs.hpp
- * \brief \b Classes: \a rLoader_glTF
+ * \file lGLTF_meshs.hpp
+ * \brief \b Classes: \a lGLTF
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-#include "rLoader_glTF.hpp"
+#include "lGLTF.hpp"
 
 namespace e_engine {
 
-bool rLoader_glTF::sectionMeshsPrimitives( size_t _id ) {
+bool lGLTF::sectionMeshsPrimitives( size_t _id ) {
    if ( !expect( '[' ) )
       return false;
 
@@ -117,7 +117,7 @@ bool rLoader_glTF::sectionMeshsPrimitives( size_t _id ) {
    return true;
 }
 
-bool rLoader_glTF::sectionMeshs() {
+bool lGLTF::sectionMeshs() {
    if ( !expect( '{' ) )
       return false;
 

@@ -1,6 +1,6 @@
 /*!
- * \file rLoader_glTF_accessors.hpp
- * \brief \b Classes: \a rLoader_glTF
+ * \file lGLTF_bufferViews.hpp
+ * \brief \b Classes: \a lGLTF
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-#include "rLoader_glTF.hpp"
+#include "lGLTF.hpp"
 
 namespace e_engine {
 
-bool rLoader_glTF::sectionAccessors() {
+bool lGLTF::sectionBufferViews() {
    if ( !expect( '{' ) )
       return false;
 
@@ -41,7 +41,7 @@ bool rLoader_glTF::sectionAccessors() {
       if ( !expect( '{' ) )
          return false;
 
-      lID = getItem( vAccessors, vAccessorMap, lName );
+      lID = getItem( vBufferViews, vBufferViewMap, lName );
 
       while ( vIter != vEnd ) {
          lName.clear();
@@ -51,43 +51,31 @@ bool rLoader_glTF::sectionAccessors() {
 
          switch ( lSection ) {
             case NAME:
-               if ( !getString( vAccessors[lID].name ) )
+               if ( !getString( vBufferViews[lID].name ) )
                   return false;
 
                break;
-            case BUFFERVIEW:
+            case BUFFER:
                if ( !getString( lName ) )
                   return false;
 
-               vAccessors[lID].bufferView = getItem( vBufferViews, vBufferViewMap, lName );
+               vBufferViews[lID].buffer = getItem( vBuffers, vBufferMap, lName );
                break;
             case BYTEOFFSET:
-               if ( !getNum( vAccessors[lID].byteOffset ) )
+               if ( !getNum( vBufferViews[lID].byteOffset ) )
                   return false;
 
                break;
-            case BYTESTRIDE:
-               if ( !getNum( vAccessors[lID].byteStride ) )
+            case BYTELENGTH:
+               if ( !getNum( vBufferViews[lID].byteLength ) )
                   return false;
 
                break;
-            case COMPONENTTYPE:
-               if ( !getMapElementETC( vAccessors[lID].componentType ) )
+            case TARGET:
+               if ( !getMapElementETC( vBufferViews[lID].target ) )
                   return false;
 
                break;
-            case COUNT:
-               if ( !getNum( vAccessors[lID].count ) )
-                  return false;
-
-               break;
-            case TYPE:
-               if ( !getMapElement( vAccessors[lID].type, false ) )
-                  return false;
-
-               break;
-            case MAX:
-            case MIN:
             case EXTENSIONS:
             case EXTRAS:
                if ( !skipSection() )
@@ -107,7 +95,7 @@ bool rLoader_glTF::sectionAccessors() {
       }
 
 #if D_LOG_GLTF
-      vAccessors[lID].print( this );
+      vBufferViews[lID].print( this );
 #endif
 
       if ( expect( ',', true, true ) )

@@ -145,7 +145,8 @@ message( "" ) # Newline
 
 add_engine_lib( utils )
 add_engine_lib( init   utils )
-add_engine_lib( render utils init )
+add_engine_lib( loader utils )
+add_engine_lib( render utils init loader )
 
 add_engine_test( oglTest )
 add_engine_test( test1 )

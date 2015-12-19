@@ -23,7 +23,7 @@
 
 #include "defines.hpp"
 
-#include "rLoaderBase.hpp"
+#include "lLoaderBase.hpp"
 #include <string>
 #include <vector>
 
@@ -31,7 +31,7 @@
 
 namespace e_engine {
 
-class RENDER_API rLoader_3D_f_OBJ : public internal::rLoaderBase<GLfloat, GLushort> {
+class LOADER_API rLoader_3D_f_OBJ : public internal::lLoaderBase<GLfloat, GLushort> {
  private:
    std::string vName;
 
@@ -39,7 +39,7 @@ class RENDER_API rLoader_3D_f_OBJ : public internal::rLoaderBase<GLfloat, GLusho
 
  public:
    rLoader_3D_f_OBJ() {}
-   rLoader_3D_f_OBJ( std::string _file ) : rLoaderBase( _file ) {}
+   rLoader_3D_f_OBJ( std::string _file ) : lLoaderBase( _file ) {}
    virtual ~rLoader_3D_f_OBJ() {}
 };
 }
