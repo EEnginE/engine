@@ -50,6 +50,11 @@ bool rLoader_glTF::sectionBuffers() {
             return false;
 
          switch ( lSection ) {
+            case NAME:
+               if ( !getString( vBuffers[lID].name ) )
+                  return false;
+
+               break;
             case URI:
                if ( !getString( vBuffers[lID].uri ) )
                   return false;
@@ -62,6 +67,12 @@ bool rLoader_glTF::sectionBuffers() {
                break;
             case TYPE:
                if ( !getMapElement( vBuffers[lID].type, false ) )
+                  return false;
+
+               break;
+            case EXTENSIONS:
+            case EXTRAS:
+               if ( !skipSection() )
                   return false;
 
                break;

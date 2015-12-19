@@ -50,6 +50,11 @@ bool rLoader_glTF::sectionAccessors() {
             return false;
 
          switch ( lSection ) {
+            case NAME:
+               if ( !getString( vAccessors[lID].name ) )
+                  return false;
+
+               break;
             case BUFFERVIEW:
                if ( !getString( lName ) )
                   return false;
@@ -83,6 +88,8 @@ bool rLoader_glTF::sectionAccessors() {
                break;
             case MAX:
             case MIN:
+            case EXTENSIONS:
+            case EXTRAS:
                if ( !skipSection() )
                   return false;
 

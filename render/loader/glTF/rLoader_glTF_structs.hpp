@@ -26,6 +26,12 @@
 #include <string>
 #include <vector>
 
+#if D_LOG_GLTF
+#define GLTF_STRUCTS_PRINT void print( rLoader_glTF_structs *_parent ) const;
+#else
+#define GLTF_STRUCTS_PRINT
+#endif
+
 namespace e_engine {
 namespace glTF {
 
@@ -36,49 +42,47 @@ class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
 #endif
 
  protected:
-   struct accessor {
+   struct base {
+      std::string id;
       std::string name;
+   };
+
+   struct accessor : base {
       size_t bufferView      = static_cast<size_t>( -1 ); //!< required
       int byteOffset         = -1;                        //!< required; min: 0
-      int byteStride         = 0;                         //!< required; min: 0; max: 255
+      int byteStride         = 0;                         //!< min: 0; max: 255
       ELEMENTS componentType = TYPE;                      //!< required
       int count              = -1;                        //!< required; min: 1
       ELEMENTS type          = TYPE;                      //!< required
 
       bool test() const;
-#if D_LOG_GLTF
-      void print( rLoader_glTF_structs *_parent ) const;
-#endif
+
+      GLTF_STRUCTS_PRINT
    };
 
-   struct buffer {
-      std::string name;
+   struct buffer : base {
       std::string uri;                  //!< required
       int byteLength = 0;               //!< min: 0
       ELEMENTS type  = TG_ARRAY_BUFFER; //!< required
 
       bool test() const;
-#if D_LOG_GLTF
-      void print( rLoader_glTF_structs *_parent ) const;
-#endif
+
+      GLTF_STRUCTS_PRINT
    };
 
-   struct bufferView {
-      std::string name;
+   struct bufferView : base {
       size_t buffer   = static_cast<size_t>( -1 ); //!< required
       int byteOffset  = -1;                        //!< required; min: 0
       int byteLength  = 0;                         //!< min: 0
       ELEMENTS target = TYPE;                      //!< required
 
       bool test() const;
-#if D_LOG_GLTF
-      void print( rLoader_glTF_structs *_parent ) const;
-#endif
+
+      GLTF_STRUCTS_PRINT
    };
 
 
-   struct mesh {
-      std::string name;
+   struct mesh : base {
       std::string userDefName;
       struct _primitives {
          struct _attributes {
@@ -89,23 +93,20 @@ class UTILS_API rLoader_glTF_structs : public rLoader_glTF_map {
          std::vector<_attributes> attributes;
          size_t indices     = static_cast<size_t>( -1 ); //!< required;
          size_t material    = static_cast<size_t>( -1 ); //!< required;
-         ELEMENTS primitive = P_TRIANGLES;
+         ELEMENTS mode      = P_TRIANGLES;
       };
 
       std::vector<_primitives> primitives;
 
       bool test() const;
-#if D_LOG_GLTF
-      void print( rLoader_glTF_structs *_parent ) const;
-#endif
+
+      GLTF_STRUCTS_PRINT
    };
 
-   struct material {
-      std::string name;
+   struct material : base {
       bool test() const;
-#if D_LOG_GLTF
-      void print( rLoader_glTF_structs *_parent ) const;
-#endif
+
+      GLTF_STRUCTS_PRINT
    };
 
  public:

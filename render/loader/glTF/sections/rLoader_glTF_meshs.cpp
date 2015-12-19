@@ -56,8 +56,8 @@ bool rLoader_glTF::sectionMeshsPrimitives( size_t _id ) {
 
                lTemp.material = getItem( vMaterials, vMaterialMap, lName );
                break;
-            case PRIMITIVE:
-               if ( !getMapElementETC( lTemp.primitive ) )
+            case MODE:
+               if ( !getMapElementETC( lTemp.mode ) )
                   return false;
 
                break;
@@ -86,6 +86,12 @@ bool rLoader_glTF::sectionMeshsPrimitives( size_t _id ) {
 
                   return unexpectedCharError();
                }
+               break;
+            case EXTENSIONS:
+            case EXTRAS:
+               if ( !skipSection() )
+                  return false;
+
                break;
             default: return wrongKeyWordError();
          }
@@ -140,7 +146,7 @@ bool rLoader_glTF::sectionMeshs() {
 
          switch ( lSection ) {
             case NAME:
-               if ( !getString( vMeshs[lID].userDefName ) )
+               if ( !getString( vMeshs[lID].name ) )
                   return false;
 
                break;
@@ -148,6 +154,12 @@ bool rLoader_glTF::sectionMeshs() {
             // Main Mesh section
             case PRIMITIVES:
                if ( !sectionMeshsPrimitives( lID ) )
+                  return false;
+
+               break;
+            case EXTENSIONS:
+            case EXTRAS:
+               if ( !skipSection() )
                   return false;
 
                break;

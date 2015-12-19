@@ -29,36 +29,32 @@ bool rLoader_glTF::interprete() {
    // Self Tests:
    for ( auto const &i : vAccessors )
       if ( !i.test() )
-         return selfTestFailed( "accessor", i.name );
+         return selfTestFailed( "accessor", i.id );
 
    for ( auto const &i : vBuffers )
       if ( !i.test() )
-         return selfTestFailed( "buffer", i.name );
+         return selfTestFailed( "buffer", i.id );
 
    for ( auto const &i : vBufferViews )
       if ( !i.test() )
-         return selfTestFailed( "bufferView", i.name );
+         return selfTestFailed( "bufferView", i.id );
 
    for ( auto const &i : vMeshs )
       if ( !i.test() )
-         return selfTestFailed( "mesh", i.name );
+         return selfTestFailed( "mesh", i.id );
 
-//    ___  ___          _
-//    |  \/  |         | |
-//    | .  . | ___  ___| |__
-//    | |\/| |/ _ \/ __| '_ \
+   //    ___  ___          _
+   //    |  \/  |         | |
+   //    | .  . | ___  ___| |__
+   //    | |\/| |/ _ \/ __| '_ \
 //    | |  | |  __/\__ \ | | |
-//    \_|  |_/\___||___/_| |_|
-//
+   //    \_|  |_/\___||___/_| |_|
+   //
 
-#if D_LOG_GLTF
-   dLOG( "START MESHES: " );
-#endif
+   dLOG_glTF( "START MESHES: " );
 
    for ( auto const &i : vMeshs ) {
-#if D_LOG_GLTF
-      dLOG( " - Begin new Mesh: '", i.userDefName, "'" );
-#endif
+      dLOG_glTF( " - Begin new Mesh: '", i.userDefName, "'" );
 
       vData->vName = i.userDefName;
 
@@ -80,40 +76,34 @@ bool rLoader_glTF::interprete() {
          lObject.vStride    = static_cast<unsigned>( lAcc.byteStride );
          lObject.vNumVertex = static_cast<unsigned>( lAcc.count );
 
-#if D_LOG_GLTF
-         dLOG( "   - Begin new Primitive" );
-#endif
+         dLOG_glTF( "   - Begin new Primitive" );
 
-         switch ( j.primitive ) {
-            case P_POINTS: lObject.vType = POINTS_3D;
-#if D_LOG_GLTF
-               dLOG( "     - Type: POINTS_3D" );
-#endif
+         switch ( j.mode ) {
+            case P_POINTS:
+               lObject.vType = POINTS_3D;
+               dLOG_glTF( "     - Type: POINTS_3D" );
                break;
             case P_LINES:
             case P_LINE_LOOP:
-            case P_LINE_STRIP: lObject.vType = LINES_3D;
-#if D_LOG_GLTF
-               dLOG( "     - Type: LINES_3D" );
-#endif
+            case P_LINE_STRIP:
+               lObject.vType = LINES_3D;
+               dLOG_glTF( "     - Type: LINES_3D" );
                break;
             case P_TRIANGLES:
             case P_TRIANGLE_STRIP:
-            case P_TRIANGLE_FAN: lObject.vType = MESH_3D;
-#if D_LOG_GLTF
-               dLOG( "     - Type: MESH_3D" );
-#endif
+            case P_TRIANGLE_FAN:
+               lObject.vType = MESH_3D;
+               dLOG_glTF( "     - Type: MESH_3D" );
                break;
             default:
                eLOG( "Internal error: unsupported primitive type [", i.userDefName, "]" );
                return false;
          }
 
-#if D_LOG_GLTF
-         dLOG( "     - Num Index: ", lAcc.count );
-         dLOG( "     - (Index) Offset: ", lBV.byteOffset, " + ", lAcc.byteOffset, " = ", lOffset );
-         dLOG( "     - (Index) Stride: ", lAcc.byteStride );
-#endif
+         dLOG_glTF( "     - Num Index: ", lAcc.count );
+         dLOG_glTF(
+               "     - (Index) Offset: ", lBV.byteOffset, " + ", lAcc.byteOffset, " = ", lOffset );
+         dLOG_glTF( "     - (Index) Stride: ", lAcc.byteStride );
 
          for ( auto const &k : j.attributes ) {
             lObject.vAccessor.emplace_back();
@@ -135,23 +125,20 @@ bool rLoader_glTF::interprete() {
             typedef internal::_3D_Engine<float, unsigned short> lDATA;
 
             switch ( k.type ) {
-               case TP_POSITION: lObject2.vType = lDATA::POSITION;
-#if D_LOG_GLTF
-                  dLOG( "     - New accessor: POSITION" );
-#endif
+               case SM_POSITION:
+                  lObject2.vType = lDATA::POSITION;
+                  dLOG_glTF( "     - New accessor: POSITION" );
                   break;
-               case TP_NORMAL: lObject2.vType = lDATA::NORMAL;
-#if D_LOG_GLTF
-                  dLOG( "     - New accessor: NORMAL" );
-#endif
+               case SM_NORMAL:
+                  lObject2.vType = lDATA::NORMAL;
+                  dLOG_glTF( "     - New accessor: NORMAL" );
                   break;
                default: eLOG( "Unsupported type! [", i.userDefName, "]" ); return false;
             }
 
-#if D_LOG_GLTF
-            dLOG( "       - Offset: ", lBV2.byteOffset, " + ", lAcc2.byteOffset, " = ", lOffset );
-            dLOG( "       - Stride: ", lAcc2.byteStride );
-#endif
+            dLOG_glTF(
+                  "       - Offset: ", lBV2.byteOffset, " + ", lAcc2.byteOffset, " = ", lOffset );
+            dLOG_glTF( "       - Stride: ", lAcc2.byteStride );
          }
       }
    }
@@ -191,10 +178,8 @@ bool rLoader_glTF::interprete() {
       return false;
    }
 
-#if D_LOG_GLTF
-   dLOG( "" );
-   dLOG( "START BUFFERS" );
-#endif
+   dLOG_glTF( "" );
+   dLOG_glTF( "START BUFFERS" );
 
    // The binary data is in little endian. We can just memcopy the data into the float vector
    for ( auto const &i : vBufferViews ) {
@@ -212,12 +197,10 @@ bool rLoader_glTF::interprete() {
                     &lData->at( static_cast<size_t>( i.byteOffset ) ), // Source
                     static_cast<size_t>( i.byteLength ) );             // Length
 
-#if D_LOG_GLTF
-            dLOG( " - Buffer (ARRAY_BUFFER):         Offset = ",
-                  i.byteOffset,
-                  "; Size = ",
-                  i.byteLength );
-#endif
+            dLOG_glTF( " - Buffer (ARRAY_BUFFER):         Offset = ",
+                       i.byteOffset,
+                       "; Size = ",
+                       i.byteLength );
 
             break;
          }
@@ -235,12 +218,10 @@ bool rLoader_glTF::interprete() {
                     &lData->at( static_cast<size_t>( i.byteOffset ) ), // Source
                     static_cast<size_t>( i.byteLength ) );             // Length
 
-#if D_LOG_GLTF
-            dLOG( " - Buffer (ELEMENT_ARRAY_BUFFER): Offset = ",
-                  i.byteOffset,
-                  "; Size = ",
-                  i.byteLength );
-#endif
+            dLOG_glTF( " - Buffer (ELEMENT_ARRAY_BUFFER): Offset = ",
+                       i.byteOffset,
+                       "; Size = ",
+                       i.byteLength );
 
             break;
          }

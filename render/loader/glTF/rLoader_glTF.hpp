@@ -27,6 +27,12 @@
 #include "rLoader_glTF_structs.hpp"
 #include <string>
 
+#if D_LOG_GLTF
+#define dLOG_glTF( ... ) dLOG( __VA_ARGS__ )
+#else
+#define dLOG_glTF( ... )
+#endif
+
 namespace e_engine {
 
 class RENDER_API rLoader_glTF final : public internal::rLoaderBase<GLfloat, GLushort>,
@@ -82,7 +88,7 @@ size_t rLoader_glTF::getItem( std::vector<T> &_vec, td_MAP &_map, std::string _i
    if ( lIter == _map.end() ) {
       _vec.emplace_back();
       _map[_id] = _vec.size() - 1;
-      _vec.back().name = _id;
+      _vec.back().id = _id;
       return _vec.size() - 1;
    } else {
       return lIter->second;

@@ -51,7 +51,7 @@ bool rLoader_glTF::getMapElementETC( ELEMENTS &_el ) {
 
    while ( vIter != vEnd ) {
       switch ( *vIter ) {
-         case '\n': ++vCurrentLine; FALLTHROUGH
+         case '\n': FALLTHROUGH
          case '\t':
          case ',':
          case ' ':

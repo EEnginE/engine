@@ -28,9 +28,7 @@ bool rLoader_glTF::load_IMPL() {
 
    ELEMENTS lSection;
 
-#if D_LOG_GLTF
-   dLOG( "Begin parsing '", vFilePath_str, "'" );
-#endif
+   dLOG_glTF( "Begin parsing '", vFilePath_str, "'" );
 
    while ( vIter != vEnd ) {
       if ( !getMapElement( lSection ) )
@@ -57,11 +55,11 @@ bool rLoader_glTF::load_IMPL() {
                return false;
 
             break;
+         case EXTENSIONSUSED:
          case ANIMATIONS:
          case ASSET:
          case CAMERAS:
          case IMAGES:
-         case LIGHTS:
          case MATERIALS:
          case NODES:
          case PROGRAMS:

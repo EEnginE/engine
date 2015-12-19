@@ -27,7 +27,7 @@ class cmdANDinit {
    std::vector<std::string> args;
    std::string argv0;
    std::string dataRoot;
-   std::string meshToRender = "mesh";
+   std::string meshToRender = "meshS";
    std::string vShader = "phong";
    std::string vNormalShader = "normals";
 

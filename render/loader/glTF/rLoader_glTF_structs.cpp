@@ -36,64 +36,41 @@ std::string rLoader_glTF_structs::getStringFromElement( ELEMENTS _el ) {
 
    return "<UNKOWN>";
 }
-
+// clang-format off
 void rLoader_glTF_structs::accessor::print( rLoader_glTF_structs *_parent ) const {
-   dLOG( "Accessor '",
-         name,
-         "':",
-         "\n - bufferView: ",
-         bufferView,
-         "\n - byteOffset: ",
-         byteOffset,
-         "\n - byteStride: ",
-         byteStride,
-         "\n - componentType: ",
-         _parent->getStringFromElement( componentType ),
-         "\n - count: ",
-         count,
-         "\n - type: ",
-         _parent->getStringFromElement( type ) );
+   dLOG( "Accessor '", id, "' (", name, "):",
+         "\n - bufferView:    ", bufferView,
+         "\n - byteOffset:    ", byteOffset,
+         "\n - byteStride:    ", byteStride,
+         "\n - componentType: ", _parent->getStringFromElement( componentType ),
+         "\n - count:         ", count,
+         "\n - type:          ", _parent->getStringFromElement( type ) );
 }
 
 void rLoader_glTF_structs::bufferView::print( rLoader_glTF_structs *_parent ) const {
-   dLOG( "Buffer View '",
-         name,
-         "':",
-         "\n - buffer: ",
-         buffer,
-         "\n - byteOffset: ",
-         byteOffset,
-         "\n - byteLength: ",
-         byteLength,
-         "\n - target: ",
-         _parent->getStringFromElement( target ) );
+   dLOG( "Buffer View '", id, "' (", name, "):",
+         "\n - buffer:     ", buffer,
+         "\n - byteOffset: ", byteOffset,
+         "\n - byteLength: ", byteLength,
+         "\n - target:     ", _parent->getStringFromElement( target ) );
 }
 
 void rLoader_glTF_structs::buffer::print( rLoader_glTF_structs *_parent ) const {
-   dLOG( "Buffer '",
-         name,
-         "':",
-         "\n - uri: ",
-         uri,
-         "\n - byteLength: ",
-         byteLength,
-         "\n - type: ",
-         _parent->getStringFromElement( type ) );
+   dLOG( "Buffer '", id, "' (", name, "):",
+         "\n - uri:        ", uri,
+         "\n - byteLength: ", byteLength,
+         "\n - type:       ", _parent->getStringFromElement( type ) );
 }
 
 void rLoader_glTF_structs::mesh::print( rLoader_glTF_structs *_parent ) const {
-   dLOG( "Mesh '", name, "' (", userDefName, "):", "\n - primitives: ", primitives.size() );
+   dLOG( "Mesh '", id, "' (", name, "):", "\n - primitives: ", primitives.size() );
 
    for ( auto const &i : primitives ) {
       dLOG( " - PRIMITIVE:",
-            "\n   - indices:    ",
-            i.indices,
-            "\n   - material:   ",
-            i.material,
-            "\n   - primitive:  ",
-            _parent->getStringFromElement( i.primitive ),
-            "\n   - attributes: ",
-            i.attributes.size() );
+            "\n   - indices:    ", i.indices,
+            "\n   - material:   ", i.material,
+            "\n   - mode:       ", _parent->getStringFromElement( i.mode ),
+            "\n   - attributes: ", i.attributes.size() );
 
       for ( auto const &a : i.attributes ) {
          dLOG( "     - ", _parent->getStringFromElement( a.type ), ": ", a.accessor );
@@ -101,13 +78,15 @@ void rLoader_glTF_structs::mesh::print( rLoader_glTF_structs *_parent ) const {
    }
 }
 
+// clang-format on
+
 #endif
 
 bool rLoader_glTF_structs::accessor::test() const {
    return ( bufferView != static_cast<size_t>( -1 ) ) && ( byteOffset >= 0 ) &&
           ( byteStride >= 0 && byteStride <= 255 ) &&
-          ( componentType >= COMP_BYTE && componentType <= COMP_FLOAT ) && ( count >= 1 ) &&
-          ( type >= TP_SCALAR || type <= TP_MAT4 );
+          ( componentType >= TP_BYTE && componentType <= TP_FLOAT ) && ( count >= 1 ) &&
+          ( type >= SCALAR || type <= MAT4 );
 }
 
 bool rLoader_glTF_structs::bufferView::test() const {
@@ -116,7 +95,7 @@ bool rLoader_glTF_structs::bufferView::test() const {
 }
 
 bool rLoader_glTF_structs::buffer::test() const {
-   return ( !uri.empty() ) && ( byteLength >= 0 ) && ( type >= TP_ARRAYBUFFER && type <= TP_TEXT );
+   return ( !uri.empty() ) && ( byteLength >= 0 ) && ( type >= ARRAYBUFFER && type <= TEXT );
 }
 
 bool rLoader_glTF_structs::mesh::test() const {
@@ -128,11 +107,11 @@ bool rLoader_glTF_structs::mesh::test() const {
    for ( auto const &i : primitives ) {
       lRet = lRet && ( i.indices != static_cast<size_t>( -1 ) ) &&
              ( i.material != static_cast<size_t>( -1 ) ) && ( !i.attributes.empty() ) &&
-             ( i.primitive >= P_POINTS && i.primitive <= P_TRIANGLE_FAN );
+             ( i.mode >= P_POINTS && i.mode <= P_TRIANGLE_FAN );
 
       for ( auto const &a : i.attributes ) {
          lRet = lRet && ( a.accessor != static_cast<size_t>( -1 ) ) &&
-                ( a.type >= TP_NORMAL && a.type <= TP_TEXCOORD_0 );
+                ( a.type >= SM_POSITION && a.type <= SM_WEIGHT );
       }
    }
 

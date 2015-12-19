@@ -34,11 +34,32 @@ class UTILS_API rLoader_glTF_map {
    virtual ~rLoader_glTF_map();
 
    enum ELEMENTS {
-      ALLEXTENSIONS,
-      NAME,
       EXTENSIONS,
+      ADDITIONALPROPERTIES,
       EXTRAS,
+
+      // Root
+      EXTENSIONSUSED,
       ACCESSORS,
+      ANIMATIONS,
+      ASSET,
+      BUFFERS,
+      BUFFERVIEWS,
+      CAMERAS,
+      IMAGES,
+      MATERIALS,
+      MESHES,
+      NODES,
+      PROGRAMS,
+      SAMPLERS,
+      SCENE,
+      SCENES,
+      SHADERS,
+      SKINS,
+      TECHNIQUES,
+      TEXTURES,
+
+      // -- ACCESSORS
       BUFFERVIEW,
       BYTEOFFSET,
       BYTESTRIDE,
@@ -47,29 +68,49 @@ class UTILS_API rLoader_glTF_map {
       TYPE,
       MAX,
       MIN,
-      ANIMATIONS,
+      SCALAR,
+      VEC2,
+      VEC3,
+      VEC4,
+      MAT2,
+      MAT3,
+      MAT4,
+
+      // -- ANIMATIONS [SAMPLERS]
       CHANNELS,
       PARAMETERS,
-      SAMPLERS,
       SAMPLER,
       TARGET,
       ID,
       PATH,
+      TRANSLATION,
+      ROTATION,
+      SCALE,
       INPUT,
       INTERPOLATION,
+      LINEAR,
       OUTPUT,
-      ASSET,
+
+      // -- ASSET
       COPYRIGHT,
       GENERATOR,
       PREMULTIPLIEDALPHA,
       PROFILE,
       VERSION,
-      BUFFERS,
+      API,
+
+      // -- BUFFERS [TYPE]
       URI,
       BYTELENGTH,
-      BUFFERVIEWS,
+      ARRAYBUFFER,
+      TEXT,
+
+      // -- BUFFERVIEWS [BYTEOFFSET, BYTELENGTH, TARGET]
       BUFFER,
-      CAMERAS,
+      TG_ARRAY_BUFFER,         // 34962
+      TG_ELEMENT_ARRAY_BUFFER, // 34963
+
+      // -- CAMERAS [TYPE]
       ORTHOGRAPHIC,
       PERSPECTIVE,
       XMAG,
@@ -78,70 +119,68 @@ class UTILS_API rLoader_glTF_map {
       ZNEAR,
       ASPECTRATIO,
       YFOV,
-      IMAGES,
-      LIGHTS,
-      AMBIENT,
-      DIRECTIONAL,
-      POINT,
-      SPOT,
-      COLOR,
-      CONSTANTATTENUATION,
-      LINEARATTENUATION,
-      QUADRATICATTENUATION,
-      FALLOFFANGLE,
-      FALLOFFEXPONENT,
-      MATERIALS,
-      INSTANCETECHNIQUE,
+
+      // -- MATERIALS
       TECHNIQUE,
       VALUES,
-      MESHES,
+
+      // -- MESHES
       PRIMITIVES,
       ATTRIBUTES,
       INDICES,
       MATERIAL,
-      PRIMITIVE,
-      NODES,
+      MODE,
+      P_POINTS,
+      P_LINES,
+      P_LINE_LOOP,
+      P_LINE_STRIP,
+      P_TRIANGLES,
+      P_TRIANGLE_STRIP,
+      P_TRIANGLE_FAN,
+
+      // -- NODES [MESES; ROTATION, SCALE, TRANSLATION]
       CAMERA,
       CHILDREN,
-      INSTANCESKIN,
-      JOINTNAME,
-      LIGHT,
-      MATRIX,
-      ROTATION,
-      SCALE,
-      TRANSLATION,
       SKELETONS,
       SKIN,
-      PROGRAMS,
+      JOINTNAME,
+      MATRIX,
+
+      // -- PROGRAMS [ATTRIBUTES]
       FRAGMENTSHADER,
       VERTEXSHADER,
+
+      // -- SAMPLERS
       MAGFILTER,
       MINFILTER,
       WRAPS,
       WRAPT,
-      SCENE,
-      SCENES,
-      SHADERS,
-      SKINS,
+      M_NEAREST,
+      M_LINEAR,
+      M_NEAREST_MIPMAP_NEAREST,
+      M_LINEAR_MIPMAP_NEAREST,
+      M_NEAREST_MIPMAP_LINEAR,
+      M_LINEAR_MIPMAP_LINEAR,
+      M_CLAMP_TO_EDGE,
+      M_MIRRORED_REPEAT,
+      M_REPEAT,
+
+      // -- SHADERS [uri]
+      S_FRAGMENT_SHADER,
+      S_VERTEX_SHADER,
+
+      // -- SKINS
       BINDSHAPEMATRIX,
       INVERSEBINDMATRICES,
       JOINTNAMES,
-      TECHNIQUES,
-      PASS,
-      PASSES,
-      SEMANTIC,
-      NODE,
-      VALUE,
-      DETAILS,
-      INSTANCEPROGRAM,
-      STATES,
-      COMMONPROFILE,
-      LIGHTINGMODEL,
-      TEXCOORDBINDINGS,
+
+      // -- TECHNIQUES [PARAMETERS, ATTRIBUTES, COUNT]
       PROGRAM,
       UNIFORMS,
-      ENABLE,
-      FUNCTIONS,
+      STATES,
+      NODE,
+      SEMANTIC,
+      VALUE,
       BLENDCOLOR,
       BLENDEQUATIONSEPARATE,
       BLENDFUNCSEPARATE,
@@ -154,46 +193,102 @@ class UTILS_API rLoader_glTF_map {
       LINEWIDTH,
       POLYGONOFFSET,
       SCISSOR,
-      TEXTURES,
+
+      TP_BYTE,
+      TP_UNSIGNED_BYTE,
+      TP_SHORT,
+      TP_UNSIGNED_SHORT,
+      TP_INT,
+      TP_UNSIGNED_INT,
+      TP_FLOAT,
+      TP_FLOAT_VEC2,
+      TP_FLOAT_VEC3,
+      TP_FLOAT_VEC4,
+      TP_INT_VEC2,
+      TP_INT_VEC3,
+      TP_INT_VEC4,
+      TP_BOOL,
+      TP_BOOL_VEC2,
+      TP_BOOL_VEC3,
+      TP_BOOL_VEC4,
+      TP_FLOAT_MAT2,
+      TP_FLOAT_MAT3,
+      TP_FLOAT_MAT4,
+      TP_SAMPLER_2D,
+
+      SM_LOCAL,
+      SM_MODEL,
+      SM_VIEW,
+      SM_PROJECTION,
+      SM_MODELVIEW,
+      SM_MODELVIEWPROJECTION,
+      SM_MODELINVERSE,
+      SM_VIEWINVERSE,
+      SM_PROJECTIONINVERSE,
+      SM_MODELVIEWINVERSE,
+      SM_MODELVIEWPROJECTIONINVERSE,
+      SM_MODELINVERSETRANSPOSE,
+      SM_MODELVIEWINVERSETRANSPOSE,
+      SM_VIEWPORT,
+
+      SM_POSITION,
+      SM_NORMAL,
+      SM_TEXCOORD,
+      SM_COLOR,
+      SM_JOINT,
+      SM_JOINTMATRIX,
+      SM_WEIGHT,
+
+      TECH_FUNC_ADD,
+      TECH_FUNC_SUBTRACT,
+      TECH_FUNC_REVERSE_SUBTRACT,
+      TECH_ZERO,
+      TECH_ONE,
+      TECH_SRC_COLOR,
+      TECH_ONE_MINUS_SRC_COLOR,
+      TECH_DST_COLOR,
+      TECH_ONE_MINUS_DST_COLOR,
+      TECH_SRC_ALPHA,
+      TECH_ONE_MINUS_SRC_ALPHA,
+      TECH_DST_ALPHA,
+      TECH_ONE_MINUS_DST_ALPHA,
+      TECH_CONSTANT_COLOR,
+      TECH_ONE_MINUS_CONSTANT_COLOR,
+      TECH_CONSTANT_ALPHA,
+      TECH_ONE_MINUS_CONSTANT_ALPHA,
+      TECH_SRC_ALPHA_SATURATE,
+      TECH_FRONT,
+      TECH_BACK,
+      TECH_FRONT_AND_BACK,
+      TECH_NEVER,
+      TECH_LESS,
+      TECH_LEQUAL,
+      TECH_EQUAL,
+      TECH_GREATER,
+      TECH_NOTEQUAL,
+      TECH_GEQUAL,
+      TECH_ALWAYS,
+      TECH_CW,
+      TECH_CCW,
+
+      // -- TEXTURES [SAMPLER, TARGET, TYPE]
       FORMAT,
       INTERNALFORMAT,
       SOURCE,
+      TT_ALPHA,
+      TT_RGB,
+      TT_RGBA,
+      TT_LUMINANCE,
+      TT_LUMINANCE_ALPHA,
+      TT_TEXTURE_2D,
+      TT_UNSIGNED_BYTE,
+      TT_UNSIGNED_SHORT_5_6_5,
+      TT_UNSIGNED_SHORT_4_4_4_4,
+      TT_UNSIGNED_SHORT_5_5_5_1,
 
-      // Component types
-      COMP_BYTE,           //!< 5120
-      COMP_UNSIGNED_BYTE,  //!< 5121
-      COMP_SHORT,          //!< 5122
-      COMP_UNSIGNED_SHORT, //!< 5123
-      COMP_FLOAT,          //!< 5126
+      NAME,
 
-      // Types
-      TP_SCALAR,
-      TP_VEC2,
-      TP_VEC3,
-      TP_VEC4,
-      TP_MAT2,
-      TP_MAT3,
-      TP_MAT4,
 
-      TP_ARRAYBUFFER,
-      TP_TEXT,
-
-      TP_NORMAL,
-      TP_POSITION,
-      TP_TEXCOORD_0,
-
-      // Primitives
-      P_POINTS,         //!< 0
-      P_LINES,          //!< 1
-      P_LINE_LOOP,      //!< 2
-      P_LINE_STRIP,     //!< 3
-      P_TRIANGLES,      //!< 4
-      P_TRIANGLE_STRIP, //!< 5
-      P_TRIANGLE_FAN,   //!< 6
-
-      // Targets
-      TG_ARRAY_BUFFER,         //!< 34962
-      TG_ELEMENT_ARRAY_BUFFER, //!< 34963
    };
 
    std::unordered_map<std::string, ELEMENTS> vMap;
