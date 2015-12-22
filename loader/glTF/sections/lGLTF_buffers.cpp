@@ -18,7 +18,10 @@
  * limitations under the License.
  */
 
+#define ENABLE_GLTF_MACRO_HELPERS
+
 #include "lGLTF.hpp"
+#include "lGLTF_macroHelpers.hpp"
 
 namespace e_engine {
 
@@ -50,26 +53,10 @@ bool lGLTF::sectionBuffers() {
             return false;
 
          switch ( lSection ) {
-            case NAME:
-               if ( !getString( vBuffers[lID].name ) )
-                  return false;
-
-               break;
-            case URI:
-               if ( !getString( vBuffers[lID].uri ) )
-                  return false;
-
-               break;
-            case BYTELENGTH:
-               if ( !getNum( vBuffers[lID].byteLength ) )
-                  return false;
-
-               break;
-            case TYPE:
-               if ( !getMapElement( vBuffers[lID].type, false ) )
-                  return false;
-
-               break;
+            case NAME: READ_STRING( vBuffers[lID].name );
+            case URI: READ_STRING( vBuffers[lID].uri );
+            case BYTELENGTH: READ_NUM( vBuffers[lID].byteLength );
+            case TYPE: READ_MAP_EL( vBuffers[lID].type, false );
             case EXTENSIONS:
             case EXTRAS:
                if ( !skipSection() )
@@ -79,26 +66,14 @@ bool lGLTF::sectionBuffers() {
             default: return wrongKeyWordError();
          }
 
-         if ( expect( ',', true, true ) )
-            continue;
-
-         if ( expect( '}', false ) )
-            break;
-
-         return unexpectedCharError();
+         END_GLTF_OBJECT
       }
 
 #if D_LOG_GLTF
       vBuffers[lID].print( this );
 #endif
 
-      if ( expect( ',', true, true ) )
-         continue;
-
-      if ( expect( '}', false ) )
-         break;
-
-      return unexpectedCharError();
+      END_GLTF_OBJECT
    }
 
    return true;

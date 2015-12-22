@@ -1,5 +1,5 @@
 /*!
- * \file lGLTF.hpp
+ * \file lGLTF_accessors.hpp
  * \brief \b Classes: \a lGLTF
  */
 /*
@@ -25,40 +25,47 @@
 
 namespace e_engine {
 
-bool lGLTF::load_IMPL() {
+bool lGLTF::sectionAsset() {
    if ( !expect( '{' ) )
       return false;
 
    ELEMENTS lSection;
-
-   dLOG_glTF( "Begin parsing '", vFilePath_str, "'" );
 
    while ( vIter != vEnd ) {
       if ( !getMapElement( lSection ) )
          return false;
 
       switch ( lSection ) {
-         // clang-format off
-         case ACCESSORS:    SUB_SECTION( sectionAccessors );
-         case ASSET:        SUB_SECTION( sectionAsset );
-         case BUFFERVIEWS:  SUB_SECTION( sectionBufferViews );
-         case BUFFERS:      SUB_SECTION( sectionBuffers );
-         case MESHES:       SUB_SECTION( sectionMeshs );
-         case EXTENSIONSUSED:
-         case ANIMATIONS:
-         case CAMERAS:
-         case IMAGES:
-         case MATERIALS:
-         case NODES:
-         case PROGRAMS:
-         case SAMPLERS:
-         case SCENE:
-         case SCENES:
-         case SHADERS:
-         case SKINS:
-         case TECHNIQUES:
-         case TEXTURES:
-            // clang-format on
+         case COPYRIGHT: READ_STRING( vAsset.copyright );
+         case GENERATOR: READ_STRING( vAsset.generator );
+         case PREMULTIPLIEDALPHA: READ_BOOL( vAsset.premultipliedAlpha );
+         case PROFILE:
+            if ( !expect( '{' ) )
+               return false;
+
+            while ( vIter != vEnd ) {
+               if ( !getMapElement( lSection ) )
+                  return false;
+
+               switch ( lSection ) {
+                  case API: READ_STRING( vAsset.profile.api );
+                  case VERSION: READ_STRING( vAsset.profile.version );
+                  case EXTENSIONS:
+                  case EXTRAS:
+                     if ( !skipSection() )
+                        return false;
+
+                     break;
+                  default: return wrongKeyWordError();
+               }
+
+               END_GLTF_OBJECT
+            }
+
+            break;
+         case VERSION: READ_STRING( vAsset.version );
+         case EXTENSIONS:
+         case EXTRAS:
             if ( !skipSection() )
                return false;
 
@@ -69,6 +76,10 @@ bool lGLTF::load_IMPL() {
       END_GLTF_OBJECT
    }
 
-   return interprete();
+#if D_LOG_GLTF
+   vAsset.print();
+#endif
+
+   return true;
 }
 }

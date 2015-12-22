@@ -18,7 +18,10 @@
  * limitations under the License.
  */
 
+#define ENABLE_GLTF_MACRO_HELPERS
+
 #include "lGLTF.hpp"
+#include "lGLTF_macroHelpers.hpp"
 
 namespace e_engine {
 
@@ -50,32 +53,13 @@ bool lGLTF::sectionBufferViews() {
             return false;
 
          switch ( lSection ) {
-            case NAME:
-               if ( !getString( vBufferViews[lID].name ) )
-                  return false;
-
-               break;
-            case BUFFER:
-               if ( !getString( lName ) )
-                  return false;
-
-               vBufferViews[lID].buffer = getItem( vBuffers, vBufferMap, lName );
-               break;
-            case BYTEOFFSET:
-               if ( !getNum( vBufferViews[lID].byteOffset ) )
-                  return false;
-
-               break;
-            case BYTELENGTH:
-               if ( !getNum( vBufferViews[lID].byteLength ) )
-                  return false;
-
-               break;
-            case TARGET:
-               if ( !getMapElementETC( vBufferViews[lID].target ) )
-                  return false;
-
-               break;
+            // clang-format off
+            case NAME:       READ_STRING( vBufferViews[lID].name );
+            case BUFFER:     READ_ITEM( vBuffers, vBufferMap, lName, vBufferViews[lID].buffer );
+            case BYTEOFFSET: READ_NUM( vBufferViews[lID].byteOffset );
+            case BYTELENGTH: READ_NUM( vBufferViews[lID].byteLength );
+            case TARGET:     READ_MAP_EL_ETC( vBufferViews[lID].target );
+            // clang-format on
             case EXTENSIONS:
             case EXTRAS:
                if ( !skipSection() )
@@ -85,26 +69,14 @@ bool lGLTF::sectionBufferViews() {
             default: return wrongKeyWordError();
          }
 
-         if ( expect( ',', true, true ) )
-            continue;
-
-         if ( expect( '}', false ) )
-            break;
-
-         return unexpectedCharError();
+         END_GLTF_OBJECT
       }
 
 #if D_LOG_GLTF
       vBufferViews[lID].print( this );
 #endif
 
-      if ( expect( ',', true, true ) )
-         continue;
-
-      if ( expect( '}', false ) )
-         break;
-
-      return unexpectedCharError();
+      END_GLTF_OBJECT
    }
 
    return true;

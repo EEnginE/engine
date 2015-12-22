@@ -165,6 +165,8 @@ bool uParserHelper::getString( std::string &_str, bool _continueWhitespace ) {
    if ( !expect( '"', false ) )
       return false;
 
+   _str.clear();
+
    while ( vIter != vEnd ) {
       switch ( *vIter ) {
          case '\\':

@@ -47,6 +47,16 @@ void lGLTF_structs::accessor::print( lGLTF_structs *_parent ) const {
          "\n - type:          ", _parent->getStringFromElement( type ) );
 }
 
+void lGLTF_structs::asset::print() const {
+   dLOG( "Asset:"
+         "\n - copyright:          ", copyright,
+         "\n - generator:          ", generator,
+         "\n - premultipliedAlpha: ", premultipliedAlpha,
+         "\n - profile.api:        ", profile.api,
+         "\n - profile.version:    ", profile.version,
+         "\n - version:            ", version );
+}
+
 void lGLTF_structs::bufferView::print( lGLTF_structs *_parent ) const {
    dLOG( "Buffer View '", id, "' (", name, "):",
          "\n - buffer:     ", buffer,
@@ -88,6 +98,8 @@ bool lGLTF_structs::accessor::test() const {
           ( componentType >= TP_BYTE && componentType <= TP_FLOAT ) && ( count >= 1 ) &&
           ( type >= SCALAR || type <= MAT4 );
 }
+
+bool lGLTF_structs::asset::test() const { return !version.empty(); }
 
 bool lGLTF_structs::bufferView::test() const {
    return ( buffer != static_cast<size_t>( -1 ) ) && ( byteOffset >= 0 ) && ( byteLength >= 0 ) &&

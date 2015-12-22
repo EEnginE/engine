@@ -18,7 +18,10 @@
  * limitations under the License.
  */
 
+#define ENABLE_GLTF_MACRO_HELPERS
+
 #include "lGLTF.hpp"
+#include "lGLTF_macroHelpers.hpp"
 
 namespace e_engine {
 
@@ -42,25 +45,9 @@ bool lGLTF::sectionMeshsPrimitives( size_t _id ) {
             return false;
 
          switch ( lSection ) {
-            case INDICES:
-               if ( !getString( lName ) )
-                  return false;
-
-               lTemp.indices = getItem( vAccessors, vAccessorMap, lName );
-               break;
-
-            // Main Mesh section
-            case MATERIAL:
-               if ( !getString( lName ) )
-                  return false;
-
-               lTemp.material = getItem( vMaterials, vMaterialMap, lName );
-               break;
-            case MODE:
-               if ( !getMapElementETC( lTemp.mode ) )
-                  return false;
-
-               break;
+            case INDICES: READ_ITEM( vAccessors, vAccessorMap, lName, lTemp.indices );
+            case MATERIAL: READ_ITEM( vMaterials, vMaterialMap, lName, lTemp.material );
+            case MODE: READ_MAP_EL_ETC( lTemp.mode );
             case ATTRIBUTES:
                if ( !expect( '{' ) )
                   return false;
@@ -78,13 +65,7 @@ bool lGLTF::sectionMeshsPrimitives( size_t _id ) {
 
                   lTemp2.accessor = getItem( vAccessors, vAccessorMap, lName );
 
-                  if ( expect( ',', true, true ) )
-                     continue;
-
-                  if ( expect( '}', false ) )
-                     break;
-
-                  return unexpectedCharError();
+                  END_GLTF_OBJECT
                }
                break;
             case EXTENSIONS:
@@ -96,22 +77,10 @@ bool lGLTF::sectionMeshsPrimitives( size_t _id ) {
             default: return wrongKeyWordError();
          }
 
-         if ( expect( ',', true, true ) )
-            continue;
-
-         if ( expect( '}', false ) )
-            break;
-
-         return unexpectedCharError();
+         END_GLTF_OBJECT
       }
 
-      if ( expect( ',', true, true ) )
-         continue;
-
-      if ( expect( ']', false ) )
-         break;
-
-      return unexpectedCharError();
+      END_GLTF_ARRAY
    }
 
    return true;
@@ -145,18 +114,8 @@ bool lGLTF::sectionMeshs() {
             return false;
 
          switch ( lSection ) {
-            case NAME:
-               if ( !getString( vMeshs[lID].name ) )
-                  return false;
-
-               break;
-
-            // Main Mesh section
-            case PRIMITIVES:
-               if ( !sectionMeshsPrimitives( lID ) )
-                  return false;
-
-               break;
+            case NAME: READ_STRING( vMeshs[lID].name );
+            case PRIMITIVES: SUB_SECTION( sectionMeshsPrimitives, lID );
             case EXTENSIONS:
             case EXTRAS:
                if ( !skipSection() )
@@ -166,26 +125,14 @@ bool lGLTF::sectionMeshs() {
             default: return wrongKeyWordError();
          }
 
-         if ( expect( ',', true, true ) )
-            continue;
-
-         if ( expect( '}', false ) )
-            break;
-
-         return unexpectedCharError();
+         END_GLTF_OBJECT
       }
 
 #if D_LOG_GLTF
       vMeshs[lID].print( this );
 #endif
 
-      if ( expect( ',', true, true ) )
-         continue;
-
-      if ( expect( '}', false ) )
-         break;
-
-      return unexpectedCharError();
+      END_GLTF_OBJECT
    }
 
    return true;

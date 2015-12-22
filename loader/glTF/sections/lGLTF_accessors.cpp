@@ -18,7 +18,10 @@
  * limitations under the License.
  */
 
+#define ENABLE_GLTF_MACRO_HELPERS
+
 #include "lGLTF.hpp"
+#include "lGLTF_macroHelpers.hpp"
 
 namespace e_engine {
 
@@ -50,42 +53,15 @@ bool lGLTF::sectionAccessors() {
             return false;
 
          switch ( lSection ) {
-            case NAME:
-               if ( !getString( vAccessors[lID].name ) )
-                  return false;
-
-               break;
-            case BUFFERVIEW:
-               if ( !getString( lName ) )
-                  return false;
-
-               vAccessors[lID].bufferView = getItem( vBufferViews, vBufferViewMap, lName );
-               break;
-            case BYTEOFFSET:
-               if ( !getNum( vAccessors[lID].byteOffset ) )
-                  return false;
-
-               break;
-            case BYTESTRIDE:
-               if ( !getNum( vAccessors[lID].byteStride ) )
-                  return false;
-
-               break;
-            case COMPONENTTYPE:
-               if ( !getMapElementETC( vAccessors[lID].componentType ) )
-                  return false;
-
-               break;
-            case COUNT:
-               if ( !getNum( vAccessors[lID].count ) )
-                  return false;
-
-               break;
-            case TYPE:
-               if ( !getMapElement( vAccessors[lID].type, false ) )
-                  return false;
-
-               break;
+            // clang-format off
+            case NAME:          READ_STRING( vAccessors[lID].name );
+            case BUFFERVIEW:    READ_ITEM( vBufferViews, vBufferViewMap, lName, vAccessors[lID].bufferView );
+            case BYTEOFFSET:    READ_NUM( vAccessors[lID].byteOffset );
+            case BYTESTRIDE:    READ_NUM( vAccessors[lID].byteStride );
+            case COMPONENTTYPE: READ_MAP_EL_ETC( vAccessors[lID].componentType );
+            case COUNT:         READ_NUM( vAccessors[lID].count );
+            case TYPE:          READ_MAP_EL( vAccessors[lID].type, false );
+            // clang-format on
             case MAX:
             case MIN:
             case EXTENSIONS:
@@ -97,26 +73,14 @@ bool lGLTF::sectionAccessors() {
             default: return wrongKeyWordError();
          }
 
-         if ( expect( ',', true, true ) )
-            continue;
-
-         if ( expect( '}', false ) )
-            break;
-
-         return unexpectedCharError();
+         END_GLTF_OBJECT
       }
 
 #if D_LOG_GLTF
       vAccessors[lID].print( this );
 #endif
 
-      if ( expect( ',', true, true ) )
-         continue;
-
-      if ( expect( '}', false ) )
-         break;
-
-      return unexpectedCharError();
+      END_GLTF_OBJECT
    }
 
    return true;

@@ -74,6 +74,48 @@ VERY_UGLY_GOTO:
    return true;
 }
 
+bool lGLTF::getBoolean( bool &_value ) {
+   std::string lTempSTR = "";
+
+   if ( !continueWhitespace() )
+      return false;
+
+   while ( vIter != vEnd ) {
+      switch ( *vIter ) {
+         case 't':
+         case 'r':
+         case 'u':
+         case 'e':
+         case 'f':
+         case 'a':
+         case 'l':
+         case 's': lTempSTR += *vIter; break;
+         case '\n': vCurrentLine++;
+         default:
+            if ( lTempSTR == "true" ) {
+               _value = true;
+               return true;
+            } else if ( lTempSTR == "false" ) {
+               _value = false;
+               return true;
+            }
+            eLOG( "'",
+                  lTempSTR,
+                  "' Is not a boolean at line ",
+                  vCurrentLine,
+                  " [",
+                  vFilePath_str,
+                  "]" );
+            return false;
+            break;
+      }
+
+      vIter++;
+   }
+
+   return false;
+}
+
 bool lGLTF::skipSection() {
    if ( !continueWhitespace() )
       return false;

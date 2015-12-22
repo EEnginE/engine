@@ -28,8 +28,10 @@
 
 #if D_LOG_GLTF
 #define GLTF_STRUCTS_PRINT void print( lGLTF_structs *_parent ) const;
+#define GLTF_STRUCTS_PRINT2 void print() const;
 #else
 #define GLTF_STRUCTS_PRINT
+#define GLTF_STRUCTS_PRINT2
 #endif
 
 namespace e_engine {
@@ -58,6 +60,22 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       bool test() const;
 
       GLTF_STRUCTS_PRINT
+   };
+
+   struct asset {
+      std::string copyright   = "";
+      std::string generator   = "";
+      bool premultipliedAlpha = false;
+      std::string version; //!< required
+
+      struct profileStruct {
+         std::string api     = "WebGL";
+         std::string version = "1.0.3";
+      } profile;
+
+      bool test() const;
+
+      GLTF_STRUCTS_PRINT2
    };
 
    struct buffer : base {
@@ -91,9 +109,9 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
          };
 
          std::vector<_attributes> attributes;
-         size_t indices     = static_cast<size_t>( -1 ); //!< required;
-         size_t material    = static_cast<size_t>( -1 ); //!< required;
-         ELEMENTS mode      = P_TRIANGLES;
+         size_t indices  = static_cast<size_t>( -1 ); //!< required;
+         size_t material = static_cast<size_t>( -1 ); //!< required;
+         ELEMENTS mode   = P_TRIANGLES;
       };
 
       std::vector<_primitives> primitives;

@@ -36,7 +36,7 @@
 namespace e_engine {
 
 class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
-                                      public glTF::lGLTF_structs {
+                               public glTF::lGLTF_structs {
 
    typedef std::unordered_map<std::string, size_t> td_MAP;
 
@@ -46,6 +46,8 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    std::vector<bufferView> vBufferViews;
    std::vector<mesh> vMeshs;
    std::vector<material> vMaterials;
+
+   asset vAsset;
 
    td_MAP vAccessorMap;
    td_MAP vBufferMap;
@@ -57,12 +59,14 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
 
    bool getMapElement( ELEMENTS &_el, bool _isSection = true );
    bool getMapElementETC( ELEMENTS &_el );
+   bool getBoolean( bool &_value );
    bool skipSection();
 
    template <class T>
    size_t getItem( std::vector<T> &_vec, td_MAP &_map, std::string _id );
 
    bool sectionAccessors();
+   bool sectionAsset();
    bool sectionBufferViews();
    bool sectionBuffers();
    bool sectionMeshs();
