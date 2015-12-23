@@ -12,6 +12,7 @@
 #define READ_STRING( ... ) READ( getString, __VA_ARGS__ )
 #define READ_NUM( ... ) READ( getNum, __VA_ARGS__ )
 #define READ_BOOL( ... ) READ( getBoolean, __VA_ARGS__ )
+#define READ_ARRAY( ... ) READ( getArray, __VA_ARGS__ )
 #define READ_MAP_EL_ETC( ... ) READ( getMapElementETC, __VA_ARGS__ )
 #define READ_MAP_EL( ... ) READ( getMapElement, __VA_ARGS__ )
 

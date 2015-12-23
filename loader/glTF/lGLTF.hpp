@@ -60,6 +60,7 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    bool getMapElement( ELEMENTS &_el, bool _isSection = true );
    bool getMapElementETC( ELEMENTS &_el );
    bool getBoolean( bool &_value );
+   bool getArray( std::vector<float> &_array );
    bool skipSection();
 
    template <class T>

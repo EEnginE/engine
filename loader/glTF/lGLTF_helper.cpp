@@ -18,7 +18,10 @@
  * limitations under the License.
  */
 
+#define ENABLE_GLTF_MACRO_HELPERS
+
 #include "lGLTF.hpp"
+#include "lGLTF_macroHelpers.hpp"
 
 namespace e_engine {
 
@@ -114,6 +117,25 @@ bool lGLTF::getBoolean( bool &_value ) {
    }
 
    return false;
+}
+
+bool lGLTF::getArray( std::vector<float> &_array ) {
+   if ( !expect( '[' ) )
+      return false;
+
+   _array.clear();
+   float lTemp = 0;
+
+   while ( vIter != vEnd ) {
+      if ( !getNum( lTemp ) )
+         return false;
+
+      _array.push_back( lTemp );
+
+      END_GLTF_ARRAY
+   }
+
+   return true;
 }
 
 bool lGLTF::skipSection() {

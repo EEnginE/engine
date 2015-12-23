@@ -61,9 +61,9 @@ bool lGLTF::sectionAccessors() {
             case COMPONENTTYPE: READ_MAP_EL_ETC( vAccessors[lID].componentType );
             case COUNT:         READ_NUM( vAccessors[lID].count );
             case TYPE:          READ_MAP_EL( vAccessors[lID].type, false );
+            case MAX:           READ_ARRAY( vAccessors[lID].max );
+            case MIN:           READ_ARRAY( vAccessors[lID].min );
             // clang-format on
-            case MAX:
-            case MIN:
             case EXTENSIONS:
             case EXTRAS:
                if ( !skipSection() )

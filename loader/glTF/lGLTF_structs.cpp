@@ -44,7 +44,17 @@ void lGLTF_structs::accessor::print( lGLTF_structs *_parent ) const {
          "\n - byteStride:    ", byteStride,
          "\n - componentType: ", _parent->getStringFromElement( componentType ),
          "\n - count:         ", count,
-         "\n - type:          ", _parent->getStringFromElement( type ) );
+         "\n - type:          ", _parent->getStringFromElement( type ),
+         "\n - max:"  );
+
+   for( auto lTemp : max ) {
+      dLOG( "   - ", lTemp );
+   }
+
+   dLOG( " - min:" );
+   for( auto lTemp : min ) {
+      dLOG( "   - ", lTemp );
+   }
 }
 
 void lGLTF_structs::asset::print() const {

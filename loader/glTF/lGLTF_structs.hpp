@@ -57,6 +57,9 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       int count              = -1;                        //!< required; min: 1
       ELEMENTS type          = TYPE;                      //!< required
 
+      std::vector<float> max;
+      std::vector<float> min;
+
       bool test() const;
 
       GLTF_STRUCTS_PRINT
