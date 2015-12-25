@@ -1,5 +1,5 @@
 /*!
- * \file lGLTF_meshs.hpp
+ * \file lGLTF_meshs.cpp
  * \brief \b Classes: \a lGLTF
  */
 /*

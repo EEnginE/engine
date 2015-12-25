@@ -36,64 +36,119 @@ std::string lGLTF_structs::getStringFromElement( ELEMENTS _el ) {
 
    return "<UNKOWN>";
 }
+
+void lGLTF_structs::value::print() const {
+   std::string lTypeSTR;
+   switch ( type ) {
+      // clang-format off
+      case NUM:    lTypeSTR = "number";         break;
+      case BOOL:   lTypeSTR = "bool";           break;
+      case STR:    lTypeSTR = "string";         break;
+      case A_NUM:  lTypeSTR = "[array] number"; break;
+      case A_BOOL: lTypeSTR = "[array] bool";   break;
+      case A_STR:  lTypeSTR = "[array] string"; break;
+         // clang-format on
+   }
+
+   dLOG( "     - '", id, "': type: ", lTypeSTR );
+
+   switch ( type ) {
+      case NUM:
+      case A_NUM:
+         for ( auto const &i : valNum ) {
+            dLOG( "       - ", i );
+         }
+         break;
+
+      case BOOL:
+      case A_BOOL:
+         for ( auto i : valBool ) {
+            dLOG( "       - ", i );
+         }
+         break;
+
+      case STR:
+      case A_STR:
+         for ( auto const &i : valStr ) {
+            dLOG( "       - ", i );
+         }
+         break;
+   }
+}
+
 // clang-format off
 void lGLTF_structs::accessor::print( lGLTF_structs *_parent ) const {
    dLOG( "Accessor '", id, "' (", name, "):",
-         "\n - bufferView:    ", bufferView,
-         "\n - byteOffset:    ", byteOffset,
-         "\n - byteStride:    ", byteStride,
-         "\n - componentType: ", _parent->getStringFromElement( componentType ),
-         "\n - count:         ", count,
-         "\n - type:          ", _parent->getStringFromElement( type ),
-         "\n - max:"  );
+         "\n   - bufferView:    ", bufferView,
+         "\n   - byteOffset:    ", byteOffset,
+         "\n   - byteStride:    ", byteStride,
+         "\n   - componentType: ", _parent->getStringFromElement( componentType ),
+         "\n   - count:         ", count,
+         "\n   - type:          ", _parent->getStringFromElement( type ),
+         "\n   - max:"  );
 
    for( auto lTemp : max ) {
-      dLOG( "   - ", lTemp );
+      dLOG( "     - ", lTemp );
    }
 
-   dLOG( " - min:" );
+   dLOG( "   - min:" );
    for( auto lTemp : min ) {
-      dLOG( "   - ", lTemp );
+      dLOG( "     - ", lTemp );
    }
 }
 
 void lGLTF_structs::asset::print() const {
    dLOG( "Asset:"
-         "\n - copyright:          ", copyright,
-         "\n - generator:          ", generator,
-         "\n - premultipliedAlpha: ", premultipliedAlpha,
-         "\n - profile.api:        ", profile.api,
-         "\n - profile.version:    ", profile.version,
-         "\n - version:            ", version );
+         "\n   - copyright:          ", copyright,
+         "\n   - generator:          ", generator,
+         "\n   - premultipliedAlpha: ", premultipliedAlpha,
+         "\n   - profile.api:        ", profile.api,
+         "\n   - profile.version:    ", profile.version,
+         "\n   - version:            ", version );
 }
 
 void lGLTF_structs::bufferView::print( lGLTF_structs *_parent ) const {
    dLOG( "Buffer View '", id, "' (", name, "):",
-         "\n - buffer:     ", buffer,
-         "\n - byteOffset: ", byteOffset,
-         "\n - byteLength: ", byteLength,
-         "\n - target:     ", _parent->getStringFromElement( target ) );
+         "\n   - buffer:     ", buffer,
+         "\n   - byteOffset: ", byteOffset,
+         "\n   - byteLength: ", byteLength,
+         "\n   - target:     ", _parent->getStringFromElement( target ) );
 }
 
 void lGLTF_structs::buffer::print( lGLTF_structs *_parent ) const {
    dLOG( "Buffer '", id, "' (", name, "):",
-         "\n - uri:        ", uri,
-         "\n - byteLength: ", byteLength,
-         "\n - type:       ", _parent->getStringFromElement( type ) );
+         "\n   - uri:        ", uri,
+         "\n   - byteLength: ", byteLength,
+         "\n   - type:       ", _parent->getStringFromElement( type ) );
+}
+
+void lGLTF_structs::image::print() const {
+   dLOG( "Image '", id, "' (", name, "):",
+         "\n   - uri: ", uri );
+}
+
+void lGLTF_structs::material::print() const {
+   dLOG( "Material '", id, "' (", name, "):",
+         "\n   - technique: ", technique,
+         "\n   - values:" );
+
+   for( auto const &v : values ) {
+      v.print();
+   }
 }
 
 void lGLTF_structs::mesh::print( lGLTF_structs *_parent ) const {
-   dLOG( "Mesh '", id, "' (", name, "):", "\n - primitives: ", primitives.size() );
+   dLOG( "Mesh '", id, "' (", name, "):", "\n   - primitives: ", primitives.size() );
 
    for ( auto const &i : primitives ) {
-      dLOG( " - PRIMITIVE:",
-            "\n   - indices:    ", i.indices,
-            "\n   - material:   ", i.material,
-            "\n   - mode:       ", _parent->getStringFromElement( i.mode ),
-            "\n   - attributes: ", i.attributes.size() );
+      dLOG( "   - PRIMITIVE:",
+            "\n     - indices:    ", i.indices,
+            "\n     - material:   ", i.material,
+            "\n     - mode:       ", _parent->getStringFromElement( i.mode ),
+            "\n     - attributes: ", i.attributes.size() );
 
       for ( auto const &a : i.attributes ) {
-         dLOG( "     - ", _parent->getStringFromElement( a.type ), ": ", a.accessor );
+         dLOG( "       - ", _parent->getStringFromElement( a.type ), ": ", a.accessor );
       }
    }
 }
@@ -119,6 +174,10 @@ bool lGLTF_structs::bufferView::test() const {
 bool lGLTF_structs::buffer::test() const {
    return ( !uri.empty() ) && ( byteLength >= 0 ) && ( type >= ARRAYBUFFER && type <= TEXT );
 }
+
+bool lGLTF_structs::image::test() const { return ( !uri.empty() ); }
+
+bool lGLTF_structs::material::test() const { return true; }
 
 bool lGLTF_structs::mesh::test() const {
    if ( primitives.empty() )

@@ -119,6 +119,73 @@ bool lGLTF::getBoolean( bool &_value ) {
    return false;
 }
 
+bool lGLTF::getValue( value &_val ) {
+   if ( !getString( _val.id ) )
+      return false;
+
+   if ( !expect( ':', true ) )
+      return false;
+
+   bool lBoolTemp;
+
+   auto lIterSave    = vIter;
+   auto lCurrentLine = vCurrentLine;
+   char c;
+
+   switch ( *vIter ) {
+      case '"':
+         _val.type = value::STR;
+         _val.valStr.emplace_back();
+         if ( !getString( _val.valStr.back() ) )
+            return false;
+
+         break;
+      case '[':
+         vIter++;
+         if ( !continueWhitespace() )
+            return false;
+
+         c = *vIter;
+
+         vIter        = lIterSave;
+         vCurrentLine = lCurrentLine;
+
+         switch ( c ) {
+            case '"':
+               _val.type = value::A_STR;
+               getArray( _val.valStr );
+               break;
+            case 't':
+            case 'f':
+               _val.type = value::A_BOOL;
+               getArray( _val.valBool );
+               break;
+            default:
+               _val.type = value::A_NUM;
+               getArray( _val.valNum );
+               break;
+         }
+
+         break;
+      case 't':
+      case 'f':
+         _val.type = value::BOOL;
+         if ( !getBoolean( lBoolTemp ) )
+            return false;
+
+         _val.valBool.emplace_back( lBoolTemp );
+
+         break;
+      default:
+         _val.type = value::NUM;
+         _val.valNum.emplace_back();
+         if ( !getNum( _val.valNum.back() ) )
+            return false;
+   }
+
+   return true;
+}
+
 bool lGLTF::getArray( std::vector<float> &_array ) {
    if ( !expect( '[' ) )
       return false;
@@ -128,6 +195,44 @@ bool lGLTF::getArray( std::vector<float> &_array ) {
 
    while ( vIter != vEnd ) {
       if ( !getNum( lTemp ) )
+         return false;
+
+      _array.push_back( lTemp );
+
+      END_GLTF_ARRAY
+   }
+
+   return true;
+}
+
+bool lGLTF::getArray( std::vector<bool> &_array ) {
+   if ( !expect( '[' ) )
+      return false;
+
+   _array.clear();
+   bool lTemp = 0;
+
+   while ( vIter != vEnd ) {
+      if ( !getBoolean( lTemp ) )
+         return false;
+
+      _array.push_back( lTemp );
+
+      END_GLTF_ARRAY
+   }
+
+   return true;
+}
+
+bool lGLTF::getArray( std::vector<std::string> &_array ) {
+   if ( !expect( '[' ) )
+      return false;
+
+   _array.clear();
+   std::string lTemp = 0;
+
+   while ( vIter != vEnd ) {
+      if ( !getString( lTemp ) )
          return false;
 
       _array.push_back( lTemp );

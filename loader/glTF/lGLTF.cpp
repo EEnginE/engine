@@ -43,12 +43,12 @@ bool lGLTF::load_IMPL() {
          case ASSET:        SUB_SECTION( sectionAsset );
          case BUFFERVIEWS:  SUB_SECTION( sectionBufferViews );
          case BUFFERS:      SUB_SECTION( sectionBuffers );
+         case IMAGES:       SUB_SECTION( sectionImages );
+         case MATERIALS:    SUB_SECTION( sectionMaterials );
          case MESHES:       SUB_SECTION( sectionMeshs );
          case EXTENSIONSUSED:
          case ANIMATIONS:
          case CAMERAS:
-         case IMAGES:
-         case MATERIALS:
          case NODES:
          case PROGRAMS:
          case SAMPLERS:

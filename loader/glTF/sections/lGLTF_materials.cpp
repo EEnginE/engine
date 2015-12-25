@@ -1,5 +1,5 @@
 /*!
- * \file lGLTF_bufferViews.cpp
+ * \file lGLTF_materials.cpp
  * \brief \b Classes: \a lGLTF
  */
 /*
@@ -25,7 +25,7 @@
 
 namespace e_engine {
 
-bool lGLTF::sectionBufferViews() {
+bool lGLTF::sectionMaterials() {
    if ( !expect( '{' ) )
       return false;
 
@@ -44,7 +44,7 @@ bool lGLTF::sectionBufferViews() {
       if ( !expect( '{' ) )
          return false;
 
-      lID = getItem( vBufferViews, vBufferViewMap, lName );
+      lID = getItem( vMaterials, vMaterialMap, lName );
 
       while ( vIter != vEnd ) {
          lName.clear();
@@ -54,12 +54,22 @@ bool lGLTF::sectionBufferViews() {
 
          switch ( lSection ) {
             // clang-format off
-            case NAME:       READ_STRING( vBufferViews[lID].name );
-            case BUFFER:     READ_ITEM( vBuffers, vBufferMap, lName, vBufferViews[lID].buffer );
-            case BYTEOFFSET: READ_NUM( vBufferViews[lID].byteOffset );
-            case BYTELENGTH: READ_NUM( vBufferViews[lID].byteLength );
-            case TARGET:     READ_MAP_EL_ETC( vBufferViews[lID].target );
+            case NAME:      READ_STRING( vMaterials[lID].name );
+            case TECHNIQUE: READ_ITEM( vTechniques, vTechniqueMap, lName, vMaterials[lID].technique );
             // clang-format on
+            case VALUES:
+               if ( !expect( '{' ) )
+                  return false;
+
+               while ( vIter != vEnd ) {
+                  vMaterials[lID].values.emplace_back();
+                  if ( !getValue( vMaterials[lID].values.back() ) )
+                     return false;
+
+                  END_GLTF_OBJECT
+               }
+
+               break;
             case EXTENSIONS:
             case EXTRAS:
                if ( !skipSection() )
@@ -73,7 +83,7 @@ bool lGLTF::sectionBufferViews() {
       }
 
 #if D_LOG_GLTF
-      vBufferViews[lID].print( this );
+      vMaterials[lID].print();
 #endif
 
       END_GLTF_OBJECT

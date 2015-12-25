@@ -15,6 +15,7 @@
 #define READ_ARRAY( ... ) READ( getArray, __VA_ARGS__ )
 #define READ_MAP_EL_ETC( ... ) READ( getMapElementETC, __VA_ARGS__ )
 #define READ_MAP_EL( ... ) READ( getMapElement, __VA_ARGS__ )
+#define READ_VALUE( ... ) READ( getValue, __VA_ARGS__ )
 
 #define READ_ITEM( list, map, str, dest )                                                          \
    if ( !getString( str ) )                                                                        \

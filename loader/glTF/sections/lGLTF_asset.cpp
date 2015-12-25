@@ -1,5 +1,5 @@
 /*!
- * \file lGLTF_accessors.hpp
+ * \file lGLTF_asset.cpp
  * \brief \b Classes: \a lGLTF
  */
 /*

@@ -44,16 +44,20 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    std::vector<accessor> vAccessors;
    std::vector<buffer> vBuffers;
    std::vector<bufferView> vBufferViews;
-   std::vector<mesh> vMeshs;
+   std::vector<image> vImages;
    std::vector<material> vMaterials;
+   std::vector<mesh> vMeshs;
+   std::vector<technique> vTechniques;
 
    asset vAsset;
 
    td_MAP vAccessorMap;
    td_MAP vBufferMap;
    td_MAP vBufferViewMap;
-   td_MAP vMeshMap;
+   td_MAP vImageMap;
    td_MAP vMaterialMap;
+   td_MAP vMeshMap;
+   td_MAP vTechniqueMap;
 
    bool load_IMPL();
 
@@ -61,6 +65,9 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    bool getMapElementETC( ELEMENTS &_el );
    bool getBoolean( bool &_value );
    bool getArray( std::vector<float> &_array );
+   bool getArray( std::vector<bool> &_array );
+   bool getArray( std::vector<std::string> &_array );
+   bool getValue( value &_val );
    bool skipSection();
 
    template <class T>
@@ -70,8 +77,10 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    bool sectionAsset();
    bool sectionBufferViews();
    bool sectionBuffers();
+   bool sectionMaterials();
    bool sectionMeshs();
    bool sectionMeshsPrimitives( size_t _id );
+   bool sectionImages();
 
    bool interprete();
 

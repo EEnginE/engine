@@ -1,5 +1,5 @@
 /*!
- * \file lGLTF_bufferViews.cpp
+ * \file lGLTF_images.cpp
  * \brief \b Classes: \a lGLTF
  */
 /*
@@ -25,7 +25,7 @@
 
 namespace e_engine {
 
-bool lGLTF::sectionBufferViews() {
+bool lGLTF::sectionImages() {
    if ( !expect( '{' ) )
       return false;
 
@@ -44,7 +44,7 @@ bool lGLTF::sectionBufferViews() {
       if ( !expect( '{' ) )
          return false;
 
-      lID = getItem( vBufferViews, vBufferViewMap, lName );
+      lID = getItem( vImages, vImageMap, lName );
 
       while ( vIter != vEnd ) {
          lName.clear();
@@ -53,13 +53,8 @@ bool lGLTF::sectionBufferViews() {
             return false;
 
          switch ( lSection ) {
-            // clang-format off
-            case NAME:       READ_STRING( vBufferViews[lID].name );
-            case BUFFER:     READ_ITEM( vBuffers, vBufferMap, lName, vBufferViews[lID].buffer );
-            case BYTEOFFSET: READ_NUM( vBufferViews[lID].byteOffset );
-            case BYTELENGTH: READ_NUM( vBufferViews[lID].byteLength );
-            case TARGET:     READ_MAP_EL_ETC( vBufferViews[lID].target );
-            // clang-format on
+            case NAME: READ_STRING( vImages[lID].name );
+            case URI: READ_STRING( vImages[lID].uri );
             case EXTENSIONS:
             case EXTRAS:
                if ( !skipSection() )
@@ -73,7 +68,7 @@ bool lGLTF::sectionBufferViews() {
       }
 
 #if D_LOG_GLTF
-      vBufferViews[lID].print( this );
+      vImages[lID].print();
 #endif
 
       END_GLTF_OBJECT

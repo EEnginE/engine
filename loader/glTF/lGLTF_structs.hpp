@@ -49,6 +49,17 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       std::string name;
    };
 
+   struct value : base {
+      enum TYPE { NUM, BOOL, STR, A_NUM, A_BOOL, A_STR };
+      TYPE type;
+
+      std::vector<bool> valBool;
+      std::vector<float> valNum;
+      std::vector<std::string> valStr;
+
+      GLTF_STRUCTS_PRINT2
+   };
+
    struct accessor : base {
       size_t bufferView      = static_cast<size_t>( -1 ); //!< required
       int byteOffset         = -1;                        //!< required; min: 0
@@ -102,6 +113,24 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       GLTF_STRUCTS_PRINT
    };
 
+   struct image : base {
+      std::string uri; //!< required
+
+      bool test() const;
+
+      GLTF_STRUCTS_PRINT2
+   };
+
+   struct material : base {
+      size_t technique = static_cast<size_t>( -1 );
+
+      std::vector<value> values;
+
+      bool test() const;
+
+      GLTF_STRUCTS_PRINT2
+   };
+
 
    struct mesh : base {
       std::string userDefName;
@@ -124,11 +153,12 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       GLTF_STRUCTS_PRINT
    };
 
-   struct material : base {
+   struct technique : base {
       bool test() const;
 
       GLTF_STRUCTS_PRINT
    };
+
 
  public:
    virtual ~lGLTF_structs();
