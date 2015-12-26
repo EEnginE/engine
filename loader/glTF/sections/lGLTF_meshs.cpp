@@ -105,7 +105,7 @@ bool lGLTF::sectionMeshs() {
       if ( !expect( '{' ) )
          return false;
 
-      lID = getItem( vMeshs, vMeshMap, lName );
+      lID = getItem( vMeshs, vMeshsMap, lName );
 
       while ( vIter != vEnd ) {
          lName.clear();

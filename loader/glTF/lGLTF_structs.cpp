@@ -153,6 +153,41 @@ void lGLTF_structs::mesh::print( lGLTF_structs *_parent ) const {
    }
 }
 
+void lGLTF_structs::node::print() const {
+   dLOG( "Node '", id, "' (", name, "):",
+         "\n   - camera:    ", camera,
+         "\n   - skin:      ", skin,
+         "\n   - jointName: ", jointName );
+
+   dLOG( "   - children:"  );
+   for( auto const& i : children )
+      dLOG( "     - ", i );
+
+   dLOG( "   - skeletons:"  );
+   for( auto const& i : skeletons )
+      dLOG( "     - ", i );
+
+   dLOG( "   - matrix:"  );
+   for( auto const& i : matrix )
+      dLOG( "     - ", i );
+
+   dLOG( "   - meshes:"  );
+   for( auto const& i : meshes )
+      dLOG( "     - ", i );
+
+   dLOG( "   - rotation:"  );
+   for( auto const& i : rotation )
+      dLOG( "     - ", i );
+
+   dLOG( "   - scale:"  );
+   for( auto const& i : scale )
+      dLOG( "     - ", i );
+
+   dLOG( "   - translation:"  );
+   for( auto const& i : translation )
+      dLOG( "     - ", i );
+}
+
 // clang-format on
 
 #endif
@@ -198,5 +233,7 @@ bool lGLTF_structs::mesh::test() const {
 
    return lRet;
 }
+
+bool lGLTF_structs::node::test() const { return true; }
 }
 }

@@ -161,8 +161,8 @@ bool uParserHelper::expect( std::string _str, bool _continueWhitespace, bool _qu
    return true;
 }
 
-bool uParserHelper::getString( std::string &_str, bool _continueWhitespace ) {
-   if ( !expect( '"', false ) )
+bool uParserHelper::getString( std::string &_str, bool _continueWhitespace, bool _quiet ) {
+   if ( !expect( '"', false, _quiet ) )
       return false;
 
    _str.clear();

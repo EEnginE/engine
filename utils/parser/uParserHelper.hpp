@@ -41,7 +41,7 @@ class UTILS_API uParserHelper {
    bool continueWhitespace( bool _quiet = false );
    bool expect( char _c, bool _continueWhitespace = true, bool _quiet = false );
    bool expect( std::string _str, bool _continueWhitespace = true, bool _quiet = false );
-   bool getString( std::string &_str, bool _continueWhitespace = true );
+   bool getString( std::string &_str, bool _continueWhitespace = true, bool _quiet = false );
    bool getNum( double &_num );
    bool getNum( float &_num );
    bool getNum( int &_num );

@@ -113,6 +113,8 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       GLTF_STRUCTS_PRINT
    };
 
+   struct camera : base {};
+
    struct image : base {
       std::string uri; //!< required
 
@@ -152,6 +154,25 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
 
       GLTF_STRUCTS_PRINT
    };
+
+   struct node : base {
+      size_t camera = static_cast<size_t>( -1 );
+      std::vector<size_t> children;
+      std::vector<size_t> skeletons;
+      size_t skin = static_cast<size_t>( -1 );
+      std::string jointName;
+      std::vector<float> matrix;
+      std::vector<size_t> meshes;
+      std::vector<float> rotation;
+      std::vector<float> scale;
+      std::vector<float> translation;
+
+      bool test() const;
+
+      GLTF_STRUCTS_PRINT2
+   };
+
+   struct skin : base {};
 
    struct technique : base {
       bool test() const;
