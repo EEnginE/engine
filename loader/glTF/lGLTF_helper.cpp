@@ -210,7 +210,7 @@ bool lGLTF::getArray( std::vector<bool> &_array ) {
       return false;
 
    _array.clear();
-   bool lTemp = 0;
+   bool lTemp = false;
 
    while ( vIter != vEnd ) {
       if ( !getBoolean( lTemp ) )
@@ -229,7 +229,7 @@ bool lGLTF::getArray( std::vector<std::string> &_array ) {
       return false;
 
    _array.clear();
-   std::string lTemp = 0;
+   std::string lTemp;
 
    while ( vIter != vEnd ) {
       if ( !getString( lTemp ) )

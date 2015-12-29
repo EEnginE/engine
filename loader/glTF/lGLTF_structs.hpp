@@ -172,6 +172,25 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       GLTF_STRUCTS_PRINT2
    };
 
+   struct program : base {
+      std::vector<std::string> attributes;
+      size_t fragmentShader = static_cast<size_t>( -1 ); //!< required;
+      size_t vertexShader   = static_cast<size_t>( -1 ); //!< required;
+
+      bool test() const;
+
+      GLTF_STRUCTS_PRINT2
+   };
+
+   struct shader : base {
+      std::string uri; //!< required;
+      ELEMENTS type;   //!< required;
+
+      bool test() const;
+
+      GLTF_STRUCTS_PRINT
+   };
+
    struct skin : base {};
 
    struct technique : base {

@@ -188,6 +188,22 @@ void lGLTF_structs::node::print() const {
       dLOG( "     - ", i );
 }
 
+void lGLTF_structs::program::print() const {
+   dLOG( "Program '", id, "' (", name, "):"
+         "\n   - fragmentShader: ", fragmentShader,
+         "\n   - vertexShader:   ", vertexShader,
+         "\n   - attributes:" );
+
+   for( auto const& i : attributes )
+      dLOG( "     - ", i );
+}
+
+void lGLTF_structs::shader::print( lGLTF_structs *_parent ) const {
+   dLOG( "Program '", id, "' (", name, "):"
+         "\n   - uri:  ", uri,
+         "\n   - type: ", _parent->getStringFromElement( type ) );
+}
+
 // clang-format on
 
 #endif
@@ -235,5 +251,14 @@ bool lGLTF_structs::mesh::test() const {
 }
 
 bool lGLTF_structs::node::test() const { return true; }
+
+bool lGLTF_structs::program::test() const {
+   return ( fragmentShader != static_cast<size_t>( -1 ) &&
+            vertexShader != static_cast<size_t>( -1 ) );
+}
+
+bool lGLTF_structs::shader::test() const {
+   return ( !uri.empty() && type <= S_FRAGMENT_SHADER && type >= S_VERTEX_SHADER );
+}
 }
 }

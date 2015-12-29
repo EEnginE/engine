@@ -49,6 +49,8 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    std::vector<material> vMaterials;
    std::vector<mesh> vMeshs;
    std::vector<node> vNodes;
+   std::vector<program> vPrograms;
+   std::vector<shader> vShaders;
    std::vector<skin> vSkins;
    std::vector<technique> vTechniques;
 
@@ -62,6 +64,8 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    td_MAP vMaterialMap;
    td_MAP vMeshsMap;
    td_MAP vNodesMap;
+   td_MAP vProgramsMap;
+   td_MAP vShadersMap;
    td_MAP vSkinsMap;
    td_MAP vTechniqueMap;
 
@@ -87,6 +91,8 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    bool sectionMeshs();
    bool sectionMeshsPrimitives( size_t _id );
    bool sectionNodes();
+   bool sectionPrograms();
+   bool sectionShaders();
    bool sectionImages();
 
    bool interprete();
