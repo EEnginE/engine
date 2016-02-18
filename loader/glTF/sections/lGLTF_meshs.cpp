@@ -87,25 +87,10 @@ bool lGLTF::sectionMeshsPrimitives( size_t _id ) {
 }
 
 bool lGLTF::sectionMeshs() {
-   if ( !expect( '{' ) )
-      return false;
-
-   ELEMENTS lSection;
-   std::string lName;
-   size_t lID;
+   BEGIN_GLTF_SECTION( lSection, lName, lID );
 
    while ( vIter != vEnd ) {
-      lName.clear();
-      if ( !getString( lName ) )
-         return false;
-
-      if ( !expect( ':' ) )
-         return false;
-
-      if ( !expect( '{' ) )
-         return false;
-
-      lID = getItem( vMeshs, vMeshsMap, lName );
+      BEGIN_GLTF_SECTION_MAIN_LOOP( lName, vMeshs, vMeshsMap, lID );
 
       while ( vIter != vEnd ) {
          lName.clear();

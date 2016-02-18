@@ -41,6 +41,8 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    typedef std::unordered_map<std::string, size_t> td_MAP;
 
  private:
+   std::string vScene;
+
    std::vector<accessor> vAccessors;
    std::vector<buffer> vBuffers;
    std::vector<bufferView> vBufferViews;
@@ -51,6 +53,7 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    std::vector<node> vNodes;
    std::vector<program> vPrograms;
    std::vector<shader> vShaders;
+   std::vector<scene> vScenes;
    std::vector<skin> vSkins;
    std::vector<technique> vTechniques;
 
@@ -66,6 +69,7 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    td_MAP vNodesMap;
    td_MAP vProgramsMap;
    td_MAP vShadersMap;
+   td_MAP vScenesMap;
    td_MAP vSkinsMap;
    td_MAP vTechniqueMap;
 
@@ -74,9 +78,11 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    bool getMapElement( ELEMENTS &_el, bool _isSection = true );
    bool getMapElementETC( ELEMENTS &_el );
    bool getBoolean( bool &_value );
+   bool getArray( std::vector<int> &_array );
    bool getArray( std::vector<float> &_array );
    bool getArray( std::vector<bool> &_array );
    bool getArray( std::vector<std::string> &_array );
+   bool getArray( std::vector<ELEMENTS> &_array );
    bool getValue( value &_val );
    bool skipSection();
 
@@ -87,13 +93,20 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
    bool sectionAsset();
    bool sectionBufferViews();
    bool sectionBuffers();
+   bool sectionImages();
    bool sectionMaterials();
    bool sectionMeshs();
    bool sectionMeshsPrimitives( size_t _id );
    bool sectionNodes();
    bool sectionPrograms();
+   bool sectionScene();
+   bool sectionScenes();
    bool sectionShaders();
-   bool sectionImages();
+   bool sectionSkins();
+   bool sectionTechniques();
+   bool sectionTechniquesParameters( size_t _id );
+   bool sectionTechniquesAttributes( size_t _id, std::vector<technique::attribute> &_attrs );
+   bool sectionTechniquesStates( size_t _id );
 
    bool interprete();
 

@@ -50,8 +50,8 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
    };
 
    struct value : base {
-      enum TYPE { NUM, BOOL, STR, A_NUM, A_BOOL, A_STR };
-      TYPE type;
+      enum TYPE { NUM, BOOL, STR, A_NUM, A_BOOL, A_STR, __NOT_SET__ };
+      TYPE type = __NOT_SET__;
 
       std::vector<bool> valBool;
       std::vector<float> valNum;
@@ -182,6 +182,14 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       GLTF_STRUCTS_PRINT2
    };
 
+   struct scene : base {
+      std::vector<size_t> nodes;
+
+      bool test() const { return true; }
+
+      GLTF_STRUCTS_PRINT2
+   };
+
    struct shader : base {
       std::string uri; //!< required;
       ELEMENTS type;   //!< required;
@@ -191,9 +199,65 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
       GLTF_STRUCTS_PRINT
    };
 
-   struct skin : base {};
+   struct skin : base {
+      std::vector<float> bindShapeMatrix = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+      size_t inverseBindMatrices         = static_cast<size_t>( -1 ); //!< required;
+      std::vector<size_t> jointNames;                                 //!< required;
+
+      bool test() const;
+
+      GLTF_STRUCTS_PRINT2
+   };
 
    struct technique : base {
+      typedef std::unordered_map<std::string, size_t> td_MAP;
+
+      struct parameter : base {
+         int count = 0;
+         size_t node;
+         ELEMENTS type; //!< required;
+         ELEMENTS semantic;
+         value lValue;
+
+         GLTF_STRUCTS_PRINT
+      };
+
+      struct attribute {
+         std::string id;
+         size_t parameter;
+
+         GLTF_STRUCTS_PRINT2
+      };
+
+      struct _states {
+         struct {
+            std::vector<float> blendColor               = {0, 0, 0, 0};
+            std::vector<ELEMENTS> blendEquationSeparate = {TECH_FUNC_ADD, TECH_FUNC_ADD};
+            std::vector<int> blendFuncSeparate          = {1, 1, 0, 0};
+            std::vector<bool> colorMask                 = {true, true, true, true};
+            std::vector<ELEMENTS> cullFace              = {TECH_BACK};
+            std::vector<ELEMENTS> depthFunc             = {TECH_LESS};
+            std::vector<bool> depthMask                 = {true};
+            std::vector<float> depthRange               = {0, 1};
+            std::vector<ELEMENTS> frontFace             = {TECH_CCW};
+            std::vector<float> lineWidth                = {1};
+            std::vector<float> polygonOffset            = {0, 0};
+            std::vector<float> scissor                  = {0, 0, 0, 0};
+         } functions;
+
+         std::vector<ELEMENTS> enable;
+
+         GLTF_STRUCTS_PRINT
+      } states;
+
+      td_MAP parametersMap;
+
+      std::vector<parameter> parameters;
+      std::vector<attribute> attributes;
+      std::vector<attribute> uniforms;
+
+      size_t program = static_cast<size_t>( -1 ); //!< required;
+
       bool test() const;
 
       GLTF_STRUCTS_PRINT

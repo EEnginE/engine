@@ -1,9 +1,9 @@
 /*!
- * \file lGLTF_buffers.cpp
+ * \file lGLTF_scenes.cpp
  * \brief \b Classes: \a lGLTF
  */
 /*
- * Copyright (C) 2015 EEnginE project
+ * Copyright (C) 2016 EEnginE project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,22 @@
 
 namespace e_engine {
 
-bool lGLTF::sectionBuffers() {
+bool lGLTF::sectionScene() {
+   if ( !getString( vScene ) )
+      return false;
+
+#if D_LOG_GLTF
+   dLOG( "Scene: '", vScene, "'" );
+#endif
+
+   return true;
+}
+
+bool lGLTF::sectionScenes() {
    BEGIN_GLTF_SECTION( lSection, lName, lID );
 
    while ( vIter != vEnd ) {
-      BEGIN_GLTF_SECTION_MAIN_LOOP( lName, vBuffers, vBufferMap, lID );
+      BEGIN_GLTF_SECTION_MAIN_LOOP( lName, vScenes, vScenesMap, lID );
 
       while ( vIter != vEnd ) {
          lName.clear();
@@ -38,10 +49,24 @@ bool lGLTF::sectionBuffers() {
             return false;
 
          switch ( lSection ) {
-            case NAME: READ_STRING( vBuffers[lID].name );
-            case URI: READ_STRING( vBuffers[lID].uri );
-            case BYTELENGTH: READ_NUM( vBuffers[lID].byteLength );
-            case TYPE: READ_MAP_EL( vBuffers[lID].type, false );
+            case NAME: READ_STRING( vScenes[lID].name );
+            case NODES:
+               if ( !expect( '[' ) )
+                  return false;
+
+               while ( vIter != vEnd ) {
+                  if ( !getString( lName, true, true ) ) {
+                     if ( !expect( ']' ) )
+                        return false;
+
+                     break;
+                  }
+
+                  vScenes[lID].nodes.push_back( getItem( vNodes, vNodesMap, lName ) );
+                  END_GLTF_ARRAY
+               }
+
+               break;
             case EXTENSIONS:
             case EXTRAS:
                if ( !skipSection() )
@@ -55,7 +80,7 @@ bool lGLTF::sectionBuffers() {
       }
 
 #if D_LOG_GLTF
-      vBuffers[lID].print( this );
+      vScenes[lID].print();
 #endif
 
       END_GLTF_OBJECT

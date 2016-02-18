@@ -186,9 +186,34 @@ bool lGLTF::getValue( value &_val ) {
    return true;
 }
 
+bool lGLTF::getArray( std::vector<int> &_array ) {
+   if ( !expect( '[' ) )
+      return false;
+
+   if ( expect( ']', true, true ) )
+      return true;
+
+   _array.clear();
+   int lTemp = 0;
+
+   while ( vIter != vEnd ) {
+      if ( !getNum( lTemp ) )
+         return false;
+
+      _array.push_back( lTemp );
+
+      END_GLTF_ARRAY
+   }
+
+   return true;
+}
+
 bool lGLTF::getArray( std::vector<float> &_array ) {
    if ( !expect( '[' ) )
       return false;
+
+   if ( expect( ']', true, true ) )
+      return true;
 
    _array.clear();
    float lTemp = 0;
@@ -209,6 +234,9 @@ bool lGLTF::getArray( std::vector<bool> &_array ) {
    if ( !expect( '[' ) )
       return false;
 
+   if ( expect( ']', true, true ) )
+      return true;
+
    _array.clear();
    bool lTemp = false;
 
@@ -228,12 +256,45 @@ bool lGLTF::getArray( std::vector<std::string> &_array ) {
    if ( !expect( '[' ) )
       return false;
 
+   if ( expect( ']', true, true ) )
+      return true;
+
    _array.clear();
    std::string lTemp;
 
    while ( vIter != vEnd ) {
       if ( !getString( lTemp ) )
          return false;
+
+      _array.push_back( lTemp );
+
+      END_GLTF_ARRAY
+   }
+
+   return true;
+}
+
+bool lGLTF::getArray( std::vector<ELEMENTS> &_array ) {
+   if ( !expect( '[' ) )
+      return false;
+
+   if ( expect( ']', true, true ) )
+      return true;
+
+   _array.clear();
+   ELEMENTS lTemp;
+
+   while ( vIter != vEnd ) {
+      if ( !continueWhitespace() )
+         return false;
+
+      if ( *vIter == '"' ) {
+         if ( !getMapElement( lTemp ) )
+            return false;
+      } else {
+         if ( !getMapElementETC( lTemp ) )
+            return false;
+      }
 
       _array.push_back( lTemp );
 

@@ -29,6 +29,9 @@ bool lGLTF::sectionAsset() {
    if ( !expect( '{' ) )
       return false;
 
+   if ( expect( '}', true, true ) )
+      return true;
+
    ELEMENTS lSection;
 
    while ( vIter != vEnd ) {

@@ -47,6 +47,7 @@ void lGLTF_structs::value::print() const {
       case A_NUM:  lTypeSTR = "[array] number"; break;
       case A_BOOL: lTypeSTR = "[array] bool";   break;
       case A_STR:  lTypeSTR = "[array] string"; break;
+      default:     lTypeSTR = "<UNDEFINED>";    break;
          // clang-format on
    }
 
@@ -73,6 +74,7 @@ void lGLTF_structs::value::print() const {
             dLOG( "       - ", i );
          }
          break;
+      default: break;
    }
 }
 
@@ -198,11 +200,98 @@ void lGLTF_structs::program::print() const {
       dLOG( "     - ", i );
 }
 
+void lGLTF_structs::scene::print() const {
+   dLOG( "Scene '", id, "' (", name, "):"
+         "\n   - nodes:" );
+   for( auto const& i : nodes )
+      dLOG( "     - ", i );
+}
+
 void lGLTF_structs::shader::print( lGLTF_structs *_parent ) const {
-   dLOG( "Program '", id, "' (", name, "):"
+   dLOG( "Shader '", id, "' (", name, "):"
          "\n   - uri:  ", uri,
          "\n   - type: ", _parent->getStringFromElement( type ) );
 }
+
+void lGLTF_structs::skin::print() const {
+   dLOG( "Skin '", id, "' (", name, "):"
+         "\n   - inverseBindMatrices: ", inverseBindMatrices,
+         "\n   - bindShapeMatrix:" );
+   for( auto const& i : bindShapeMatrix )
+      dLOG( "     - ", i );
+
+   dLOG( "  - jointNames:" );
+   for( auto const& i : jointNames )
+      dLOG( "     - ", i );
+}
+
+void lGLTF_structs::technique::parameter::print(lGLTF_structs *_parent) const {
+   dLOG( "     - Parameter '", id, "' (", name, "):"
+         "\n        - count:    ", count,
+         "\n        - node:     ", node,
+         "\n        - type:     ", _parent->getStringFromElement( type ),
+         "\n        - semantic: ", _parent->getStringFromElement( semantic ),
+         "\n        - value:" );
+
+   if( lValue.type != value::__NOT_SET__ )
+      lValue.print();
+}
+
+void lGLTF_structs::technique::attribute::print() const {
+   dLOG( "     - '", id, "' :", parameter );
+}
+
+#define PRINT_ARRAY_STATES_N( varName )                                     \
+   dLOG( "        - " #varName ":" );                                       \
+   for( auto const& i : functions.varName )                                 \
+      dLOG( "          - ", i );
+
+#define PRINT_ARRAY_STATES_E( varName )                                     \
+   dLOG( "        - " #varName ":" );                                       \
+   for( auto const& i : functions.varName )                                 \
+      dLOG( "          - ", _parent->getStringFromElement( i ) );
+
+void lGLTF_structs::technique::_states::print(lGLTF_structs *_parent) const {
+   dLOG( "     - States:"
+         "\n        - enable:" );
+
+   for( auto const& i : enable )
+      dLOG( "          - ", _parent->getStringFromElement( i ) );
+
+   PRINT_ARRAY_STATES_N( blendColor );
+   PRINT_ARRAY_STATES_E( blendEquationSeparate );
+   PRINT_ARRAY_STATES_N( blendFuncSeparate );
+   PRINT_ARRAY_STATES_N( colorMask );
+   PRINT_ARRAY_STATES_E( cullFace );
+   PRINT_ARRAY_STATES_E( depthFunc );
+   PRINT_ARRAY_STATES_N( depthMask );
+   PRINT_ARRAY_STATES_N( depthRange );
+   PRINT_ARRAY_STATES_E( frontFace );
+   PRINT_ARRAY_STATES_N( lineWidth );
+   PRINT_ARRAY_STATES_N( polygonOffset );
+   PRINT_ARRAY_STATES_N( scissor );
+}
+
+void lGLTF_structs::technique::print(lGLTF_structs *_parent) const {
+   dLOG( "Technique '", id, "' (", name, "):"
+         "\n   - program: ", program,
+         "\n   - parameters:" );
+
+   for( auto const& i : parameters )
+      i.print(_parent);
+
+   dLOG( "  - attributes:" );
+   for( auto const& i : attributes )
+      i.print();
+
+   dLOG( "  - uniforms:" );
+   for( auto const& i : uniforms )
+      i.print();
+
+   dLOG( "  - states:" );
+   states.print(_parent);
+}
+
 
 // clang-format on
 
@@ -259,6 +348,10 @@ bool lGLTF_structs::program::test() const {
 
 bool lGLTF_structs::shader::test() const {
    return ( !uri.empty() && type <= S_FRAGMENT_SHADER && type >= S_VERTEX_SHADER );
+}
+
+bool lGLTF_structs::skin::test() const {
+   return ( inverseBindMatrices != static_cast<size_t>( -1 ) && jointNames.size() > 0 );
 }
 }
 }

@@ -48,15 +48,15 @@ bool lGLTF::load_IMPL() {
          case MESHES:       SUB_SECTION( sectionMeshs );
          case NODES:        SUB_SECTION( sectionNodes );
          case PROGRAMS:     SUB_SECTION( sectionPrograms );
+         case SCENE:        SUB_SECTION( sectionScene );
+         case SCENES:       SUB_SECTION( sectionScenes );
          case SHADERS:      SUB_SECTION( sectionShaders );
+         case SKINS:        SUB_SECTION( sectionSkins );
+         case TECHNIQUES:   SUB_SECTION( sectionTechniques )
          case EXTENSIONSUSED:
          case ANIMATIONS:
          case CAMERAS:
          case SAMPLERS:
-         case SCENE:
-         case SCENES:
-         case SKINS:
-         case TECHNIQUES:
          case TEXTURES:
             // clang-format on
             if ( !skipSection() )

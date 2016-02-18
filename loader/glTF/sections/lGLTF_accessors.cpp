@@ -26,25 +26,10 @@
 namespace e_engine {
 
 bool lGLTF::sectionAccessors() {
-   if ( !expect( '{' ) )
-      return false;
-
-   ELEMENTS lSection;
-   std::string lName;
-   size_t lID;
+   BEGIN_GLTF_SECTION( lSection, lName, lID );
 
    while ( vIter != vEnd ) {
-      lName.clear();
-      if ( !getString( lName ) )
-         return false;
-
-      if ( !expect( ':' ) )
-         return false;
-
-      if ( !expect( '{' ) )
-         return false;
-
-      lID = getItem( vAccessors, vAccessorMap, lName );
+      BEGIN_GLTF_SECTION_MAIN_LOOP( lName, vAccessors, vAccessorMap, lID );
 
       while ( vIter != vEnd ) {
          lName.clear();
