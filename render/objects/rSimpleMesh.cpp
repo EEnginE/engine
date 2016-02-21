@@ -19,7 +19,6 @@
  */
 
 #include "rSimpleMesh.hpp"
-#include "rRenderBase.hpp"
 
 
 namespace e_engine {
@@ -27,9 +26,6 @@ namespace e_engine {
 
 
 int rSimpleMesh::clearOGLData__() {
-   glDeleteBuffers( 1, &vVertexBufferObject );
-   glDeleteBuffers( 1, &vIndexBufferObject );
-
    vObjectHints[DATA_BUFFER]   = -1;
    vObjectHints[INDEX_BUFFER]  = -1;
    vObjectHints[IS_DATA_READY] = 0;
@@ -50,31 +46,7 @@ int rSimpleMesh::clearOGLData__() {
  * \returns 0 if data is empty
  */
 int rSimpleMesh::setOGLData__() {
-   void *lData  = &vData->vData.at( 0 );
-   void *lIndex = &vData->vIndex.at( 0 );
-
-   GLsizeiptr lDataS  = static_cast<GLsizeiptr>( vData->vData.size() * sizeof( float ) );
-   GLsizeiptr lIndexS = static_cast<GLsizeiptr>( vData->vIndex.size() * sizeof( unsigned short ) );
-
-   if ( lIndexS == 0 || lDataS == 0 || !lData || !lIndex ) {
-      eLOG( "Data is empty!" );
-      return 0;
-   }
-
-   glGenBuffers( 1, &vVertexBufferObject );
-   glGenBuffers( 1, &vIndexBufferObject );
-
-   glBindBuffer( GL_ARRAY_BUFFER, vVertexBufferObject );
-   glBufferData( GL_ARRAY_BUFFER, lDataS, lData, GL_STATIC_DRAW );
-
-   glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vIndexBufferObject );
-   glBufferData( GL_ELEMENT_ARRAY_BUFFER, lIndexS, lIndex, GL_STATIC_DRAW );
-
-   vObjectHints[DATA_BUFFER]   = vVertexBufferObject;
-   vObjectHints[INDEX_BUFFER]  = vIndexBufferObject;
-   vObjectHints[IS_DATA_READY] = 1;
-   vObjectHints[LIGHT_MODEL]   = SIMPLE_ADS_LIGHT;
-
+   //!< \todo implement
    return 1;
 }
 

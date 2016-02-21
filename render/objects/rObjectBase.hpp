@@ -24,7 +24,6 @@
 
 #include <string>
 #include <array>
-#include <GL/glew.h>
 #include "lLoaderBase.hpp"
 #include "rMatrixMath.hpp"
 

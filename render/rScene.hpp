@@ -24,8 +24,6 @@
 
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
-#include "rRenderBase.hpp"
-#include "rShader.hpp"
 #include <vector>
 #include <string>
 #include <thread>
@@ -36,31 +34,14 @@ class RENDER_API rSceneBase {
  public:
    struct rObject final {
       rObjectBase *vObjectPointer;
-      rRenderBase *vRenderer;
-      GLint vShaderIndex;
+      int vShaderIndex;
 
-      rObject( rObjectBase *_obj, GLint _index )
-          : vObjectPointer( _obj ), vRenderer( nullptr ), vShaderIndex( _index ) {}
-   };
-
-   template <class... R>
-   struct select {
-      template <class... T>
-      select( T... ) {}
-   };
-
-   template <class T, class... R>
-   struct select<T, R...> : select<R...> {
-      select( rRenderBase **_p, rShader *_s, rObjectBase *_o ) : select<R...>( _p, _s, _o ) {
-         if ( !*_p && T::testShader( _s ) && T::testObject( _o ) ) {
-            *_p = new T();
-         }
-      }
+      rObject( rObjectBase *_obj, int _index )
+          : vObjectPointer( _obj ), vShaderIndex( _index ) {}
    };
 
  private:
    std::vector<rObject> vObjects;
-   std::vector<rShader> vShaders;
 
    std::vector<size_t> vLightSourcesIndex;
 
@@ -69,8 +50,6 @@ class RENDER_API rSceneBase {
    std::mutex vObjects_MUT;
    std::mutex vShaders_MUT;
 
-   int assignObjectRenderer( GLuint _index, rRenderBase *_renderer );
-
  public:
    rSceneBase( std::string _name ) : vName_str( _name ) {}
    virtual ~rSceneBase();
@@ -78,63 +57,14 @@ class RENDER_API rSceneBase {
 
    bool canRenderScene();
 
-   GLuint addObject( rObjectBase *_obj, GLint _shaderIndex );
+   unsigned addObject( rObjectBase *_obj, int _shaderIndex );
 
    int addShader( std::string _shader );
    int compileShaders();
    int parseShaders();
 
    size_t getNumObjects() { return vObjects.size(); }
-
-   template <class T, class... RENDERERS>
-   int setObjectRenderer( GLuint _index );
 };
-
-/*!
- * \brief Assigns a renderer to an object
- *
- * \note You must pass the renderers in REVERSE ORDER
- *
- * The renderer will only be changed if this function returns 0. If the previous
- * renderer is is still valid, nothing will be changed.
- *
- * \returns 0 on success
- * \returns 1 if _index is out of range
- * \returns 2 if the object pointer is invalid
- * \returns 3 if the shader does not exist
- * \returns 4 if no matching renderer was found
- */
-template <class T, class... RENDERERS>
-int rSceneBase::setObjectRenderer( GLuint _index ) {
-   std::lock_guard<std::mutex> lLockObjects( vObjects_MUT );
-   std::lock_guard<std::mutex> lLockShaders( vShaders_MUT );
-
-   if ( _index > vObjects.size() )
-      return 1;
-
-
-   if ( !vObjects[_index].vObjectPointer )
-      return 2;
-
-   if ( static_cast<size_t>( vObjects[_index].vShaderIndex ) > vShaders.size() ||
-        vObjects[_index].vShaderIndex < 0 )
-      return 3;
-
-   rRenderBase *lRenderer = nullptr;
-   select<T, RENDERERS...> selecter(
-         &lRenderer,
-         &vShaders[static_cast<size_t>( vObjects[_index].vShaderIndex )],
-         vObjects[_index].vObjectPointer );
-
-   if ( !lRenderer )
-      return 4;
-
-   return assignObjectRenderer( _index, lRenderer );
-}
-
-
-
-
 
 template <class T>
 class rScene : public rSceneBase, public rMatrixSceneBase<float> {

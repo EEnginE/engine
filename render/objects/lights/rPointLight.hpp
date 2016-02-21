@@ -102,7 +102,7 @@ uint32_t rPointLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
 template <class T>
 void rPointLight<T>::setFlags() {
    vObjectHints[FLAGS]         = POINT_LIGHT | LIGHT_SOURCE;
-   vObjectHints[IS_DATA_READY] = GL_TRUE;
+   vObjectHints[IS_DATA_READY] = true;
    vObjectHints[MATRICES]      = 0;
 }
 }

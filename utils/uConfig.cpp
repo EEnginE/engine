@@ -20,15 +20,6 @@
 
 #include "defines.hpp"
 
-#if UNIX_X11
-#include <GL/glxew.h>
-#endif
-
-#if WINDOWS
-#include <GL/glew.h>
-#include <GL/wglext.h>
-#endif
-
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
@@ -43,7 +34,7 @@ using std::string;
 namespace e_engine {
 
 
-_uConfig::__uConfig_FBA::__uConfig_FBA() { reset(); }
+//_uConfig::__uConfig_FBA::__uConfig_FBA() { reset(); }
 
 _uConfig::__uConfig_Versions::__uConfig_Versions() { reset(); }
 
@@ -53,13 +44,11 @@ _uConfig::__uLogData_Config::__uLogData_Config() { reset(); }
 
 _uConfig::__uConfig_Config::__uConfig_Config() { reset(); }
 
-_uConfig::__uConfig_OpenGL::__uConfig_OpenGL() { reset(); }
-
 _uConfig::__uConfig_Camera::__uConfig_Camera() { reset(); }
 
 
 
-
+#if 0
 void _uConfig::__uConfig_FBA::reset() {
 #if UNIX
    FBA_RENDER_TYPE   = GLX_RGBA_BIT;
@@ -84,12 +73,9 @@ void _uConfig::__uConfig_FBA::reset() {
    FBA_RENDER_TYPE    = WGL_TYPE_RGBA_ARB;
 #endif // WINDOWS
 }
+#endif
 
 void _uConfig::__uConfig_Versions::reset() {
-   minGlxMajorVer = 1;
-   minGlxMinorVer = 3;
-   glMajorVersion = 4;
-   glMinorVersion = 5;
 }
 
 void _uConfig::__uConfig_Window::reset() {
@@ -176,12 +162,6 @@ void _uConfig::__uConfig_Config::reset() {
 
    maxNumOfLogFileBackshift = 10;
 }
-
-void _uConfig::__uConfig_OpenGL::reset() {
-   shaderInfoQueryType = 0;
-   useShaders          = true;
-}
-
 
 void _uConfig::__uConfig_Camera::reset() {
    movementSpeed    = 0.2;

@@ -26,7 +26,6 @@
  */
 
 #include <regex>
-#include <GL/glxew.h> // Must be included BEFORE e_context.hpp!!! (GLEW)
 #include "iContext.hpp"
 #include "uLog.hpp"
 #include "eCMDColor.hpp"
@@ -36,32 +35,7 @@ namespace e_engine {
 namespace unix_x11 {
 
 bool iContext::isExtensionSupported( const char *_extension ) {
-   const char *lExtList_CSTR = glXQueryExtensionsString( vDisplay_X11, vScreen_X11 );
-   const char *lStart_CSTR;
-   const char *lWhere_CSTR, *lTerminator_CSTR;
-
-   // Extension names should not have spaces.
-   lWhere_CSTR = strchr( _extension, ' ' );
-   if ( lWhere_CSTR || *_extension == '\0' )
-      return false;
-
-   /* It takes a bit of care to be fool-proof about parsing the
-      OpenGL extensions string. Don't be fooled by sub-strings,
-      etc. */
-   for ( lStart_CSTR = lExtList_CSTR;; ) {
-      lWhere_CSTR = strstr( lStart_CSTR, _extension );
-
-      if ( !lWhere_CSTR )
-         break;
-
-      lTerminator_CSTR = lWhere_CSTR + strlen( _extension );
-
-      if ( lWhere_CSTR == lStart_CSTR || *( lWhere_CSTR - 1 ) == ' ' )
-         if ( *lTerminator_CSTR == ' ' || *lTerminator_CSTR == '\0' )
-            return true;
-
-      lStart_CSTR = lTerminator_CSTR;
-   }
+   // DUMMY
    return false;
 }
 
@@ -136,9 +110,6 @@ int iContext::createContext() {
    if ( ( lReturnValue_I = createWindow() ) != 1 ) {
       return lReturnValue_I;
    }
-   if ( ( lReturnValue_I = createOGLContext() ) != 1 ) {
-      return lReturnValue_I;
-   }
 
    if ( initRandR( vDisplay_X11, vWindow_X11, vRootWindow_X11 ) ) {
       int lVRRmajor_I;
@@ -147,18 +118,6 @@ int iContext::createContext() {
       lRandRVersionString_str = std::to_string( lVRRmajor_I ) + '.' + std::to_string( lVRRminor_I );
    } else {
       lRandRVersionString_str = "!!! NOT SUPPORTED !!!";
-   }
-
-
-   if ( !vHaveGLEW_B ) {
-      // Init GLEW
-      glewExperimental = GL_TRUE;
-      vHaveGLEW_B = true;
-      if ( GLEW_OK != glewInit() ) {
-         eLOG( "Failed to init GLEW. Aborting. (return 4)" );
-         vHaveGLEW_B = false;
-         return 4;
-      }
    }
 
    std::wstring lC1_C = eCMDColor::color( 'B', 'C' );
@@ -174,25 +133,11 @@ int iContext::createContext() {
          E_GIT_LAST_TAG_DIFF == 0 ? " [RELEASE] "
                                   : ( " +" + std::to_string( E_GIT_LAST_TAG_DIFF ) + " " ),
          E_VERSION_GIT,
-         "\n  - OpenGL: ",
-         lC1_C,
-         glGetString( GL_VERSION ),
-         "\n  - GLSL:   ",
-         lC1_C,
-         glGetString( GL_SHADING_LANGUAGE_VERSION ),
-         "\n  - GLX:    ",
-         lC1_C,
-         vGLXVersionMajor_I,
-         ".",
-         vGLXVersionMinor_I,
          "\n  - X11:    ",
          lC1_C,
          vX11VersionMajor_I,
          ".",
          vX11VersionMinor_I,
-         "\n  - GLEW:   ",
-         lC1_C,
-         glewGetString( GLEW_VERSION ),
          "\n  - RandR:  ",
          lC1_C,
          lRandRVersionString_str );
@@ -206,9 +151,6 @@ int iContext::createContext() {
    } else {
       setDecoration( C_REMOVE );
    }
-
-   glGenVertexArrays( 1, &vVertexArray_OGL );
-   glBindVertexArray( vVertexArray_OGL );
 
    return 1;
 }
@@ -243,12 +185,7 @@ int iContext::changeWindowConfig( unsigned int _width, unsigned int _height, int
  */
 void iContext::destroyContext() {
    endRandR();
-   if ( vHaveContext_B == true ) {
-      glDeleteVertexArrays( 1, &vVertexArray_OGL );
-      glXMakeCurrent( vDisplay_X11, 0, nullptr );
-      glXDestroyContext( vDisplay_X11, vOpenGLContext_GLX );
-      vHaveContext_B = false;
-   }
+   //! \todo Destroy / free vulkan
    if ( vWindowCreated_B == true ) {
       XDestroyWindow( vDisplay_X11, vWindow_X11 );
       vWindowCreated_B = false;
@@ -272,76 +209,20 @@ void iContext::destroyContext() {
  * \brief Enables VSync
  * \returns 0 No Window / OpenGL context
  * \returns 1 \c SUCCESS
- * \returns 2 Extention not supported
- * \returns 3 glXSwapIntervalSGI (main VSync function) returned GLX_BAD_VALUE
- * \returns 4 glXSwapIntervalSGI (main VSync function) returned GLX_BAD_CONTEXT
- * \returns 5 glXSwapIntervalSGI (main VSync function) returned something unknown (!= 0)
  */
 int iContext::enableVSync() {
-   if ( !vHaveGLEW_B )
-      return 0;
-
-   if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
-      switch ( glXSwapIntervalSGI( 1 ) ) {
-         case 0: // Success
-            iLOG( "VSync [GLX] enabled" );
-            return 1;
-         case GLX_BAD_VALUE:
-            wLOG( "VSync Error [GLX] GLX_BAD_VALUE; 1 seams to be not a good value on this "
-                  "System\n==> VSync NOT enabled" );
-            return 3;
-         case GLX_BAD_CONTEXT:
-            wLOG( "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this "
-                  "thread. Use makeContextCurrent() to fix this\n==> VSync NOT enabled" );
-            return 4;
-         default:
-            wLOG( "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> "
-                  "VSync NOT enabled" );
-            return 5;
-      }
-   } else {
-      wLOG( "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported\n==> VSync NOT "
-            "enabled" );
-      return 2;
-   }
+   //! \todo Replace stub
+   return 1;
 }
 
 /*!
  * \brief Disables VSync
  * \returns 0 No Window / OpenGL context
  * \returns 1 \c SUCCESS
- * \returns 2 Extention not supported
- * \returns 3 glXSwapIntervalSGI (main VSync function) returned GLX_BAD_VALUE
- * \returns 4 glXSwapIntervalSGI (main VSync function) returned GLX_BAD_CONTEXT
- * \returns 5 glXSwapIntervalSGI (main VSync function) returned something unknown (!= 0)
  */
 int iContext::disableVSync() {
-   if ( !vHaveGLEW_B )
-      return 0;
-
-   if ( glxewIsSupported( "GLX_SGI_swap_control" ) ) {
-      switch ( glXSwapIntervalSGI( 0 ) ) {
-         case 0: // Success
-            iLOG( "VSync [GLX] disabled" );
-            return 1;
-         case GLX_BAD_VALUE:
-            wLOG( "VSync Error [GLX] GLX_BAD_VALUE; 0 seams to be not a good value on this "
-                  "System\n==> VSync NOT disabled" );
-            return 3;
-         case GLX_BAD_CONTEXT:
-            wLOG( "VSync Error [GLX] GLX_BAD_CONTEXT; There is no *current* OpenGL context in this "
-                  "thread. Use makeContextCurrent() to fix this\n==> VSync NOT disabled" );
-            return 4;
-         default:
-            wLOG( "VSync Error [GLX] <UNKNOWN>; Unknown return value of glXSwapIntervalSGI\n==> "
-                  "VSync NOT disabled" );
-            return 5;
-      }
-   } else {
-      wLOG( "VSync Error [GLX]; Extention GLX_SGI_swap_control not supported\n==> VSync NOT "
-            "disabled" );
-      return 2;
-   }
+   //! \todo Replace stub
+   return 1;
 }
 
 
@@ -612,7 +493,7 @@ int iContext::setFullScreenMonitor( iDisplays &_disp ) {
 
 
 bool iContext::sendX11Event(
-      std::string _atom, GLint64 _l0, GLint64 _l1, GLint64 _l2, GLint64 _l3, GLint64 _l4 ) {
+      std::string _atom, int64_t _l0, int64_t _l1, int64_t _l2, int64_t _l3, int64_t _l4 ) {
    Atom lAtom_X11 = XInternAtom( vDisplay_X11, _atom.c_str(), True );
 
    if ( !lAtom_X11 ) {
@@ -660,57 +541,6 @@ void iContext::getX11Version( int *_major, int *_minor ) {
    *_minor = vX11VersionMinor_I;
 }
 
-/*!
- * \brief Get the \c GLX version
- * \param[out] _major The major version number
- * \param[out] _minor The minor version number
- */
-void iContext::getGLXVersion( int *_major, int *_minor ) {
-   if ( !vDisplayCreated_B ) {
-      *_major = -1;
-      *_minor = -1;
-      return;
-   }
-   *_major = vGLXVersionMajor_I;
-   *_minor = vGLXVersionMinor_I;
-}
-
-
-/*!
- * \brief Make this context current
- * \returns true on success
- * \returns false when there was an error
- */
-bool iContext::makeContextCurrent() {
-   if ( !vHaveContext_B ) {
-      eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with "
-            "iInit::init() before you run this!" );
-      return false;
-   }
-   return glXMakeCurrent( vDisplay_X11, vWindow_X11, vOpenGLContext_GLX ) == True ? true : false;
-}
-
-/*!
- * \brief Make \b NO context current
- * \returns true on success
- * \returns false when there was an error
- */
-bool iContext::makeNOContextCurrent() {
-   if ( !vHaveContext_B ) {
-      eLOG( "OpenGL context Error [GLX]; We do not have any context. Please create it with "
-            "iInit::init() before you run this!" );
-      return false;
-   }
-   return glXMakeCurrent( vDisplay_X11, 0, nullptr ) == True ? true : false;
-}
-
-/*!
- * \brief Returns if a OpenGL context is current for this thread
- * \returns true if a OpenGL context is current for this thread
- */
-bool iContext::isAContextCurrentForThisThread() {
-   return glXGetCurrentContext() == nullptr ? false : true;
-}
 
 
 /*!

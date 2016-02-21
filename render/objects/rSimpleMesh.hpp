@@ -24,7 +24,6 @@
 #include "defines.hpp"
 
 #include <string>
-#include "rRenderBase.hpp"
 #include "rMatrixObjectBase.hpp"
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
@@ -37,8 +36,8 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>,
                                      public rObjectBase,
                                      public rObjectBase_data<float, unsigned short> {
  private:
-   GLuint vVertexBufferObject;
-   GLuint vIndexBufferObject;
+   unsigned vVertexBufferObject;
+   unsigned vIndexBufferObject;
 
    void setFlags();
 

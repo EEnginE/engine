@@ -36,8 +36,8 @@ class cmdANDinit {
    bool vCanUseColor;
    bool vRenderNormals = false;
 
-   GLfloat vNearZ = 0.1f;
-   GLfloat vFarZ = 100.0f;
+   float vNearZ = 0.1f;
+   float vFarZ = 100.0f;
 
    cmdANDinit() {}
 
@@ -52,8 +52,8 @@ class cmdANDinit {
    std::string getShader() const { return dataRoot + "shaders/" + vShader; }
    std::string getNormalShader() const { return dataRoot + "shaders/" + vNormalShader; }
 
-   GLfloat getNearZ() const { return vNearZ; }
-   GLfloat getFarZ() const { return vFarZ; }
+   float getNearZ() const { return vNearZ; }
+   float getFarZ() const { return vFarZ; }
 
    bool getRenderNormals() const { return vRenderNormals; }
 

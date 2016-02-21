@@ -15,7 +15,6 @@
  */
 
 #include "myScene.hpp"
-#include "rRenderVertexNormal_3_3.hpp"
 
 using namespace e_engine;
 
@@ -53,39 +52,9 @@ int myScene::init() {
       }
    }
 
-   GLint lShaderID = addShader( vShader_str ), lNormalShader = -1;
-
-   if ( vRenderNormals )
-      lNormalShader = addShader( vNormalShader_str );
-
-   if ( !compileShaders() ) {
-      eLOG( "Failed to compile the shaders" );
-      return 5;
-   }
-
-   parseShaders();
-
    addObject( &vLight1, -1 );
    addObject( &vLight2, -1 );
    addObject( &vLight3, -1 );
-
-   for ( auto &i : vObjects ) {
-      auto lObjID = addObject( &i, lShaderID );
-      auto lRet = setObjectRenderer<rRenderMultipleLights_3_3>( lObjID );
-
-      switch ( lRet ) {
-         case 0: iLOG( "setObjectRenderer(): DONE" ); break;
-         case 1: eLOG( "setObjectRenderer(): Index out of range Error" ); return 10;
-         case 2: eLOG( "setObjectRenderer(): Invalid object Error" ); return 10;
-         case 3: eLOG( "setObjectRenderer(): Invalid shader Error" ); return 10;
-         case 4: eLOG( "setObjectRenderer(): No Renderer found Error" ); return 10;
-         default: eLOG( "setObjectRenderer(): UNKNOWN Error" ); return 10;
-      }
-
-      if ( vRenderNormals ) {
-         setObjectRenderer<rRenderVertexNormal_3_3>( addObject( &i, lNormalShader ) );
-      }
-   }
 
    if ( !canRenderScene() ) {
       eLOG( "Cannot render scene!" );

@@ -24,7 +24,6 @@ set( COMPILER_TESTS_DIR ${PROJECT_SOURCE_DIR}/cmake/tests )
 
 # Build options
 option( ENGINE_LINK_SHARED  "Link the project shared (1/ON) or static (0/OFF)" ON )
-option( USE_SYSTEM_GLEW     "Use the system GLEW version"                      OFF )
 option( DEBUG_LOG_ALL       "Enable all debug defines"                         OFF )
 
 option( STD_FILESYSTEM_IS_EXPERIMENTAL "Use the experimental filesystem instead of std IF ENGINE_USE_BOOST is false" ON )
@@ -107,20 +106,7 @@ else( STD_FILESYSTEM_IS_EXPERIMENTAL )
    set( CM_FILESYSTEM_INCLUDE   "<filesystem>" )
 endif( STD_FILESYSTEM_IS_EXPERIMENTAL )
 
-find_package(OpenGL       REQUIRED)
 find_package(Threads      REQUIRED)
-
-if( USE_SYSTEM_GLEW )
-   find_package(GLEW REQUIRED)
-else( USE_SYSTEM_GLEW )
-   if( ENGINE_LINK_SHARED )
-      set( GLEW_LIBRARIES glew )
-   else( ENGINE_LINK_SHARED )
-      set( GLEW_LIBRARIES glew_s )
-   endif( ENGINE_LINK_SHARED )
-
-   set( GLEW_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLEW/include )
-endif( USE_SYSTEM_GLEW )
 
 if( CM_UNIX_X11 )
    find_package(X11 REQUIRED)
@@ -132,10 +118,8 @@ if( CM_UNIX_X11 )
    endif( X11_Xrandr_FOUND )
 endif( CM_UNIX_X11 )
 
-add_subdirectory( dependencies )
-
-set( ENGINE_LINK ${GLEW_LIBRARIES}    ${OPENGL_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} ${FS_LIBRARIES} )
-set( ENGINE_INCL ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} )
+set( ENGINE_LINK ${OPENGL_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} ${FS_LIBRARIES} )
+set( ENGINE_INCL ${OPENGL_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} )
 
 message( "" ) # Newline
 

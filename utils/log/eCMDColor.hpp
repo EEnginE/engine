@@ -23,7 +23,6 @@
 #define E_COLOR_HPP
 
 #include <string>
-#include <GL/glew.h>
 
 #include "defines.hpp"
 
@@ -145,12 +144,12 @@ struct eCMDColor {
    static inline std::wstring color( uint16_t _a1, uint16_t _a2 );
    static inline std::wstring color( uint16_t _a1, uint16_t _a2, uint16_t _a3 );
 
-   static inline std::wstring color( GLchar _fg );
-   static inline std::wstring color( GLchar _a, GLchar _fg );
-   static inline std::wstring color( GLchar _a, GLchar _fg, GLchar _bg );
+   static inline std::wstring color( char _fg );
+   static inline std::wstring color( char _a, char _fg );
+   static inline std::wstring color( char _a, char _fg, char _bg );
 
-   static inline uint16_t charToColorId( GLchar _c );
-   static inline uint16_t charToAtributeId( GLchar _c );
+   static inline uint16_t charToColorId( char _c );
+   static inline uint16_t charToAtributeId( char _c );
 };
 
 std::wstring eCMDColor::reset() {
@@ -222,7 +221,7 @@ std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2, uint16_t _a3 ) {
  * \param _fg The attribute character
  * \returns An escape sequence for the attribute
  */
-std::wstring eCMDColor::color( GLchar _fg ) {
+std::wstring eCMDColor::color( char _fg ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
@@ -238,7 +237,7 @@ std::wstring eCMDColor::color( GLchar _fg ) {
  * \param _fg The FG color character
  * \returns An escape sequence for the attribute and the FG color
  */
-std::wstring eCMDColor::color( GLchar _a, GLchar _fg ) {
+std::wstring eCMDColor::color( char _a, char _fg ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
@@ -255,7 +254,7 @@ std::wstring eCMDColor::color( GLchar _a, GLchar _fg ) {
  * \param _bg The BG color character
  * \returns An escape sequence for the attribute the FG and BG color
  */
-std::wstring eCMDColor::color( GLchar _a, GLchar _fg, GLchar _bg ) {
+std::wstring eCMDColor::color( char _a, char _fg, char _bg ) {
 #ifndef E_COLOR_DISABLED
    __IOCTL_TERMTEST__
 
@@ -266,7 +265,7 @@ std::wstring eCMDColor::color( GLchar _a, GLchar _fg, GLchar _bg ) {
 }
 
 
-uint16_t eCMDColor::charToAtributeId( GLchar _c ) {
+uint16_t eCMDColor::charToAtributeId( char _c ) {
    switch ( _c ) {
       case 'O': return OFF;
       case 'B': return BOLD;
@@ -278,7 +277,7 @@ uint16_t eCMDColor::charToAtributeId( GLchar _c ) {
    }
 }
 
-uint16_t eCMDColor::charToColorId( GLchar _c ) {
+uint16_t eCMDColor::charToColorId( char _c ) {
    switch ( _c ) {
       case 'S': return BLACK;
       case 'R': return RED;

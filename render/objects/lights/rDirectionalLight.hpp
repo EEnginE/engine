@@ -96,7 +96,7 @@ uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) 
 template <class T>
 void rDirectionalLight<T>::setFlags() {
    vObjectHints[FLAGS]         = DIRECTIONAL_LIGHT | LIGHT_SOURCE;
-   vObjectHints[IS_DATA_READY] = GL_TRUE;
+   vObjectHints[IS_DATA_READY] = true;
    vObjectHints[MATRICES]      = 0;
 }
 }

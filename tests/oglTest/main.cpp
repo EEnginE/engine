@@ -48,12 +48,12 @@ int main( int argc, char *argv[] ) {
          "init",
          "version",
          "major",
-         S_NUM( GlobConf.versions.glMajorVersion ),
+         S_NUM( 1 ),
          "oglTest",
          "init",
          "version",
          "minor",
-         S_NUM( GlobConf.versions.glMinorVersion ) );
+         S_NUM( 0 ) ); //! \todo replace with vulkan versions
 
    tests.run( data, parseCMD.getDataRoot() );
 

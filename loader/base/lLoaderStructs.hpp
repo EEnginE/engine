@@ -24,7 +24,6 @@
 #include <vector>
 #include <list>
 #include <string>
-#include <GL/glew.h>
 #include "uLog.hpp"
 
 namespace e_engine {
@@ -96,11 +95,11 @@ struct _3D_Engine final {
    _3D_Engine() {}
 };
 
-typedef _3D_Data_RAW<GLfloat, GLushort> _3D_Data_RAWF;
-typedef _3D_Data_RAW<GLdouble, GLushort> _3D_Data_RAWD;
+typedef _3D_Data_RAW<float, unsigned short> _3D_Data_RAWF;
+typedef _3D_Data_RAW<double, unsigned short> _3D_Data_RAWD;
 
-typedef _3D_Data<GLfloat, GLushort> _3D_DataF;
-typedef _3D_Data<GLdouble, GLushort> _3D_DataD;
+typedef _3D_Data<float, unsigned short> _3D_DataF;
+typedef _3D_Data<double, unsigned short> _3D_DataD;
 
 
 //     _____                           _

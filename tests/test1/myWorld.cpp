@@ -21,8 +21,6 @@
 #include "myWorld.hpp"
 #include "config.hpp"
 
-#include <GL/glew.h>
-
 using namespace e_engine;
 
 
@@ -42,7 +40,6 @@ void myWorld::key( iEventInfo const &info ) {
          case E_KEY_F9: info.iInitPointer->fullScreenMultiMonitor(); break;
          case E_KEY_F11:
             info.iInitPointer->fullScreen( e_engine::C_TOGGLE );
-            info.iInitPointer->restartIfNeeded( true );
             break;
          case E_KEY_F10:
             if ( vDisp_RandR.size() > 0 )
@@ -75,25 +72,10 @@ void myWorld::key( iEventInfo const &info ) {
          //          case E_KEY_PAGE_DOWN: vObjects.addPositionDelta( rVec3f( 0, -0.01, 0 ) );
          //          vObjects.updateFinalMatrix(); break;
 
-         // Pause - restart
-         case L'p':
-         case L'P':
-            iLOG( "Pausing" );
-            info.iInitPointer->pauseMainLoop( true );
-            B_SLEEP( seconds, 5 );
-            iLOG( "Unpausing" );
-            info.iInitPointer->continueMainLoop();
-            break;
-         case L'r':
-         case L'R':
-            info.iInitPointer->restart( true );
-            break;
-
          // Window Border
          case L'b':
          case L'B':
             info.iInitPointer->setDecoration( e_engine::C_TOGGLE );
-            info.iInitPointer->restartIfNeeded( true );
             break;
 
          // Quit

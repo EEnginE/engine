@@ -29,15 +29,15 @@ class myWorld final : public e_engine::rWorld, public e_engine::rFrameCounter {
    typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;
 
  private:
-   GLfloat vAlpha;
+   float vAlpha;
 
    std::vector<e_engine::OS_NAMESPACE::iDisplays> vDisp_RandR;
 
    myScene vScene;
    e_engine::iInit *vInitPointer;
 
-   GLfloat vNearZ;
-   GLfloat vFarZ;
+   float vNearZ;
+   float vFarZ;
 
    _SLOT_ slotWindowClose;
    _SLOT_ slotResize;

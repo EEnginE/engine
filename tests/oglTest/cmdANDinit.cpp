@@ -41,15 +41,10 @@ cmdANDinit::cmdANDinit( int argc, char *argv[], testStarter &_starter, bool &_er
    GlobConf.win.iconName = "ICON is missing";
    GlobConf.win.xlibWindowName = "My icon";
    // GlobConf.win.winType         = e_engine::TOOLBAR;
-   GlobConf.useAutoOpenGLVersion();
    GlobConf.config.appName = "OpenGL_TEST";
 
 
    GlobConf.win.restoreOldScreenRes = true;
-
-   GlobConf.versions.glMajorVersion = 4;
-   GlobConf.versions.glMinorVersion = 6;
-
 
    if ( vCanUseColor ) {
       GlobConf.log.logOUT.colors = FULL;
@@ -88,12 +83,6 @@ void cmdANDinit::usage() {
    dLOG( "    --log=<path>     : set a custom log file path to <path>" );
    dLOG( "    -w | --wait      : wait until log entry is printed" );
    dLOG( "    --data=<path>    : set a custom root path for the data dir" );
-   dLOG( "    --glMajor=<v>    : the OpenGL Major version (default: ",
-         GlobConf.versions.glMajorVersion,
-         ")" );
-   dLOG( "    --glMinor=<v>    : the OpenGL Major version (default: ",
-         GlobConf.versions.glMinorVersion,
-         ")" );
    if ( vCanUseColor ) {
       dLOG( "    -n | --nocolor   : disable colored output" );
    }
@@ -139,24 +128,6 @@ bool cmdANDinit::parseArgsAndInit( testStarter &_starter ) {
          std::regex lDataRegexRep( "^\\-\\-data=" );
          const char *lRep = "";
          dataRoot = std::regex_replace( arg, lDataRegexRep, lRep );
-         continue;
-      }
-
-      std::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
-      if ( std::regex_match( arg, lMajorRegex ) ) {
-         std::regex lDataRegexRep( "^\\-\\-glMajor=" );
-         const char *lRep = "";
-         string version = std::regex_replace( arg, lDataRegexRep, lRep );
-         GlobConf.versions.glMajorVersion = atoi( version.c_str() );
-         continue;
-      }
-
-      std::regex lMinorRegex( "^\\-\\-glMinor=[0-9]+$" );
-      if ( std::regex_match( arg, lMinorRegex ) ) {
-         std::regex lDataRegexRep( "^\\-\\-glMinor=" );
-         const char *lRep = "";
-         string version = std::regex_replace( arg, lDataRegexRep, lRep );
-         GlobConf.versions.glMinorVersion = atoi( version.c_str() );
          continue;
       }
 

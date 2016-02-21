@@ -404,7 +404,7 @@ int iContext::createContext() {
 
 
    // Set new Error Handler
-   GLushort version_list[][2] = {
+   unsigned short version_list[][2] = {
          {4, 6},
          {4, 5},
          {4, 4},
@@ -427,7 +427,7 @@ int iContext::createContext() {
 
 
    // Extension supported:
-   GLint lAttributes_A_I[5];
+   int lAttributes_A_I[5];
    if ( ( GlobConf.versions.glMinorVersion < 0 || GlobConf.versions.glMajorVersion < 0 ) &&
         ( GlobConf.versions.glMinorVersion != 0 && GlobConf.versions.glMajorVersion != 0 ) ) {
       lAttributes_A_I[0] = 0;

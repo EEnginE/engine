@@ -27,11 +27,9 @@
 #include <string>
 #include <vector>
 
-#include <GL/glew.h>
-
 namespace e_engine {
 
-class LOADER_API rLoader_3D_f_OBJ : public internal::lLoaderBase<GLfloat, GLushort> {
+class LOADER_API rLoader_3D_f_OBJ : public internal::lLoaderBase<float, unsigned short> {
  private:
    std::string vName;
 

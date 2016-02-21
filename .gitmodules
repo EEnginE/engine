@@ -1,7 +1,3 @@
-[submodule "dependencies/GLEW"]
-	path = dependencies/GLEW
-	url = git://github.com/nigels-com/glew.git
-	ignore = dirty
 [submodule "tests/test1/data/glTF"]
 	path = tests/test1/data/glTF
 	url = git://github.com/EEnginE/engineTestObjects.git

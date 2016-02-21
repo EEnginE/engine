@@ -31,7 +31,7 @@ bool rLoader_3D_f_OBJ::load_IMPL() {
    float lWorker;
    unsigned short lIWorker;
 
-   std::vector<GLfloat> *lPointer;
+   std::vector<float> *lPointer;
    unsigned short int lMax = 3;
 
    internal::_3D_Data_RAWF lDataRaw;
@@ -149,7 +149,7 @@ bool rLoader_3D_f_OBJ::load_IMPL() {
    lTemp.vName = vName;
 
    internal::converter::reindex( lDataRaw, lTemp, vFilePath_str );
-   return internal::convert<GLfloat, GLushort, 3>::toEngine3D( lTemp, vData );
+   return internal::convert<float, unsigned short, 3>::toEngine3D( lTemp, vData );
 }
 }
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

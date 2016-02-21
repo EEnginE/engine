@@ -24,21 +24,8 @@
 
 namespace e_engine {
 
-rWorld::rWorld( iInit *_init )
-    : vRenderLoopStartSlot( &rWorld::startRenderLoop, this ),
-      vRenderLoopStopSlot( &rWorld::stopRenderLoop, this ),
-
-      vPauseRenderLoopSlot( &rWorld::pauseRenderLoop, this ),
-      vContinueRenderLoopSlot( &rWorld::continueRenderLoop, this ) {
-
-
+rWorld::rWorld( iInit *_init ) {
    vInitObjSet_B = false; // Will be set true in setInitObj
-
-   vRenderLoopRunning_B   = false;
-   vRenderLoopShouldRun_B = false;
-
-   vRenderLoopIsPaused_B     = false;
-   vRenderLoopShouldPaused_B = false;
 
    vViewPort.vNeedUpdate_B = false;
    vViewPort.x             = 0;
@@ -59,127 +46,6 @@ rWorld::rWorld( iInit *_init )
 
 rWorld::~rWorld() {}
 
-
-void rWorld::renderLoop() {
-   LOG.nameThread( L"RENDER" );
-   iLOG( "Render loop started" );
-   vRenderLoopRunning_B = true;
-
-   vInitPointer->makeContextCurrent(); // Only ONE thread can have a context
-
-   if ( GlobConf.win.VSync == true )
-      vInitPointer->enableVSync();
-
-
-   glClearColor( vClearColor.r, vClearColor.g, vClearColor.b, vClearColor.a );
-
-   glEnable( GL_CULL_FACE );
-   glEnable( GL_DEPTH_TEST );
-   glEnable( GL_MULTISAMPLE );
-
-   while ( vRenderLoopShouldRun_B ) {
-      if ( vRenderLoopShouldPaused_B ) {
-         std::unique_lock<std::mutex> lLock_BT( vRenderLoopMutex_BT );
-         vInitPointer->makeNOContextCurrent();
-         vRenderLoopIsPaused_B = true;
-         while ( vRenderLoopShouldPaused_B )
-            vRenderLoopWait_BT.wait( lLock_BT );
-         while ( !vInitPointer->getHaveContext() /*|| vInitPointer->vWindowRecreate_B*/ )
-            B_SLEEP( milliseconds, 10 );
-#if WINDOWS
-         B_SLEEP( milliseconds, 100 ); //!< \todo Remove this workaround for Windows (problem with
-// iContext::makeContextCurrent)
-#endif
-         vRenderLoopIsPaused_B = false;
-         if ( !vInitPointer->makeContextCurrent() ) {
-            eLOG( "Failed to make context current ==> Quitting render loop" );
-            return;
-         }
-      }
-
-      if ( vViewPort.vNeedUpdate_B ) {
-         vViewPort.vNeedUpdate_B = false;
-         glViewport( vViewPort.x, vViewPort.y, vViewPort.width, vViewPort.height );
-         dLOG( "Viewport updated" );
-      }
-
-      if ( vClearColor.vNeedUpdate_B ) {
-         vClearColor.vNeedUpdate_B = false;
-         glClearColor( vClearColor.r, vClearColor.g, vClearColor.b, vClearColor.a );
-         dLOG( "Updated clear color: [RGBA] ",
-               vClearColor.r,
-               "; ",
-               vClearColor.g,
-               "; ",
-               vClearColor.b,
-               "; ",
-               vClearColor.a );
-      }
-
-      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
-
-
-      ++vRenderedFrames;
-      renderFrame();
-      vInitPointer->swapBuffers();
-   }
-
-   if ( vInitPointer->getHaveContext() )
-      vInitPointer->makeNOContextCurrent();
-
-   iLOG( "Render Loop finished" );
-   vRenderLoopRunning_B = false;
-}
-
-
-void rWorld::startRenderLoop( bool _wait ) {
-   vRenderLoopShouldRun_B = true;
-
-   vInitPointer->makeNOContextCurrent();
-   vRenderLoop_BT = std::thread( &rWorld::renderLoop, this );
-
-   if ( _wait ) {
-      vRenderLoop_BT.join();
-      if ( vInitPointer->getHaveContext() )
-         vInitPointer->makeContextCurrent(); // Only ONE thread can have a context
-   }
-}
-
-void rWorld::stopRenderLoop() {
-   vRenderLoopShouldRun_B = false;
-
-#if 0
-   if( vRenderLoop_BT.joinable() )
-      vRenderLoop_BT.join(); // Segfault here. Why!?
-#else
-   while ( vRenderLoopRunning_B )
-      B_SLEEP( milliseconds, 100 ); /// \todo Fix this workaround
-#endif
-
-   if ( vRenderLoopRunning_B ) {
-      wLOG( "Render Loop thread finished abnormaly" );
-      vRenderLoopRunning_B = false;
-   }
-}
-
-void rWorld::pauseRenderLoop() {
-   if ( !vRenderLoopShouldRun_B )
-      return;
-
-   vRenderLoopShouldPaused_B = true;
-
-
-   while ( !vRenderLoopIsPaused_B )
-      B_SLEEP( milliseconds, 10 );
-}
-
-void rWorld::continueRenderLoop() {
-   std::lock_guard<std::mutex> lLockMain_BT( vRenderLoopMutex_BT );
-   vRenderLoopShouldPaused_B = false;
-   vRenderLoopWait_BT.notify_one();
-}
-
-
 void rWorld::updateViewPort( int _x, int _y, int _width, int _height ) {
    vViewPort.vNeedUpdate_B = true;
    vViewPort.x             = _x;
@@ -188,7 +54,7 @@ void rWorld::updateViewPort( int _x, int _y, int _width, int _height ) {
    vViewPort.height        = _height;
 }
 
-void rWorld::updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a ) {
+void rWorld::updateClearColor( float _r, float _g, float _b, float _a ) {
    vClearColor.vNeedUpdate_B = true;
    vClearColor.r             = _r;
    vClearColor.g             = _b;
@@ -204,11 +70,6 @@ void rWorld::setInitObj( iInit *_init ) {
    }
 
    vInitPointer = _init;
-   vInitPointer->addRenderSlots<e_engine::rWorld>( &vRenderLoopStartSlot,
-                                                   &vRenderLoopStopSlot,
-                                                   &vPauseRenderLoopSlot,
-                                                   &vContinueRenderLoopSlot );
-
    vInitObjSet_B = true;
 }
 }

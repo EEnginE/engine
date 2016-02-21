@@ -53,6 +53,7 @@ iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
    vCreateWindowReturn_I = -1000;
 
    vAreRenderLoopSignalsConnected_B = false;
+   vIsVulkanSetup_B = false;
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
@@ -76,7 +77,7 @@ iInit::~iInit() {
  * This function makes sure that when focus was lost, the mouse will
  * be ungrabbed and when focus is restored that it will be locked again.
  */
-GLvoid iInit::s_advancedGrabControl( iEventInfo const &_info ) {
+void iInit::s_advancedGrabControl( iEventInfo const &_info ) {
    if ( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
       // Focus restored
       vWasMouseGrabbed_B = false;
@@ -172,17 +173,13 @@ int iInit::init() {
       return vCreateWindowReturn_I;
    }
 
-   if ( GlobConf.extensions.queryAll() < OGL_VERSION_3_3 ) {
-      eLOG( "Bad OpenGL version. At least version 3.3 is needed. Try updating your driver" );
-      destroyContext();
-      return 5;
-   }
-   standardRender( this ); // Fill the Window with black
+   vIsVulkanSetup_B = true;
 
    return 1;
 }
 
 int iInit::shutdown() {
+   vIsVulkanSetup_B = false;
    closeWindow();
 
    if ( vEventLoop_BT.joinable() )
@@ -226,7 +223,7 @@ void iInit::handleSignal( int _signal ) {
  * \returns \c SUCCESS: \a 1 -- \c FAIL: \a 0
  */
 int iInit::startMainLoop( bool _wait ) {
-   if ( !getHaveContext() ) {
+   if ( !vIsVulkanSetup_B ) {
       wLOG( "Cannot start the main loop. There is no OpenGL context!" );
       return 0;
    }
@@ -260,7 +257,6 @@ int iInit::startMainLoop( bool _wait ) {
 #endif
 
    if ( _wait ) {
-      vStartRenderLoopSignal_SIG( true );
 #if WINDOWS
       {
          std::unique_lock<std::mutex> lLockEvent_BT( vStopEventLoopMutex );
@@ -276,14 +272,12 @@ int iInit::startMainLoop( bool _wait ) {
       if ( vQuitMainLoop_BT.joinable() )
          vQuitMainLoop_BT.join();
 
-   } else {
-      vStartRenderLoopSignal_SIG( false );
    }
 
    return 1;
 }
 
-GLvoid iInit::quitMainLoop() { vQuitMainLoop_BT = std::thread( &iInit::quitMainLoopCall, this ); }
+void iInit::quitMainLoop() { vQuitMainLoop_BT = std::thread( &iInit::quitMainLoopCall, this ); }
 
 
 
@@ -304,14 +298,12 @@ int iInit::quitMainLoopCall() {
    iLOG( "Event loop finished" );
 #endif
 
-   vStopRenderLoopSignal_SIG();
-
    return 1;
 }
 
 
 int iInit::closeWindow( bool _waitUntilClosed ) {
-   if ( !getHaveContext() ) {
+   if ( vIsVulkanSetup_B ) {
       return 0;
    }
    if ( vMainLoopRunning_B ) {
@@ -342,122 +334,6 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
    return 1;
 }
 
-
-/*!
- * \brief Paused the main loop
- *
- * \param[in] _runInNewThread set this to true if wish to run the pause in e new thread (default:
- *false)
- *
- * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
- *because
- *          there are some problems with Windows and the event loop.
- */
-void iInit::pauseMainLoop( bool _runInNewThread ) {
-   if ( !vMainLoopRunning_B )
-      return;
-
-   if ( _runInNewThread ) {
-      vPauseThread_BT = std::thread( &iInit::pauseMainLoop, this, false );
-      return;
-   }
-
-   vEventLoopPaused_B = true;
-   vPauseRenderLoop_SIG();
-
-   while ( !vEventLoopISPaused_B )
-      B_SLEEP( milliseconds, 10 );
-
-   iLOG( "Loops paused" );
-}
-
-/*!
- * \brief Continues a paused main loop
- */
-void iInit::continueMainLoop() {
-   std::lock_guard<std::mutex> lLockEvent_BT( vEventLoopMutex_BT );
-   vEventLoopPaused_B = false;
-   vEventLoopWait_BT.notify_one();
-
-   vContinueRenderLoop_SIG();
-
-   iLOG( "Loops unpaused" );
-}
-
-/*!
- * \brief Recreates the Window / OpenGL context
- *
- * Does nothing when the main loop is not running
- *
- * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default:
- *false)
- *
- * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
- *because
- *          there are some problems with Windows and the event loop.
- */
-void iInit::restart( bool _runInNewThread ) {
-   if ( !vMainLoopRunning_B )
-      return;
-
-   // Calling restart in the eventloop can cause some problems
-   if ( _runInNewThread ) {
-      vRestartThread_BT = std::thread( &iInit::restart, this, false );
-      return;
-   }
-
-   pauseMainLoop();
-   vWindowRecreate_B = true;
-   makeContextCurrent();
-   destroyContext();
-#if UNIX
-   createContext();
-   standardRender( iEventInfo( this ) );
-   makeNOContextCurrent();
-#endif
-   continueMainLoop();
-
-#if WINDOWS
-   vContinueWithEventLoop_B = false;
-   if ( vEventLoop_BT.joinable() )
-      vEventLoop_BT.join();
-   else
-      eLOG( "Failed to join the event loop" );
-
-   std::unique_lock<std::mutex> lLock_BT( vCreateWindowMutex_BT );
-   vEventLoop_BT = std::thread( &iInit::eventLoop, this );
-
-   while ( vCreateWindowReturn_I == -1000 )
-      vCreateWindowCondition_BT.wait( lLock_BT );
-
-   {
-      // Make sure lLockEvent_BT will be destroyed
-      std::lock_guard<std::mutex> lLockEvent_BT( vStartEventMutex_BT );
-      vContinueWithEventLoop_B = true;
-      vStartEventCondition_BT.notify_one();
-   }
-#endif
-
-   vWindowRecreate_B = false;
-}
-
-/*!
- * \brief Recreates the window / OpenGL context if needed
- *
- * Does nothing when the main loop is not running
- * (runs iInit::restart)
- *
- * \param[in] _runInNewThread set this to true if wish to run the restart in e new thread (default:
- *false)
- *
- * \warning Set _runInNewThread to true if you are running this in the event loop (in a event slot)
- *because
- *          there are some problems with Windows and the event loop.
- */
-void iInit::restartIfNeeded( bool _runInNewThread ) {
-   if ( vWindowRecreate_B )
-      restart( _runInNewThread );
-}
 }
 
 

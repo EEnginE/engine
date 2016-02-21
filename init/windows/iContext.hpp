@@ -59,7 +59,7 @@ class INIT_API iContext : public iKeyboard, public iRandR, public iInitSignals {
                                    LPARAM _lParam,
                                    iEventInfo _tempInfo );
 
-   GLuint vVertexArray_OGL;
+   unsigned vVertexArray_OGL;
 
    bool vWindowsCallbacksError_B;
 
@@ -124,7 +124,7 @@ class INIT_API iContext : public iKeyboard, public iRandR, public iInitSignals {
    bool showMouseCursor();
    bool getIsCursorHidden() const;
 
-   //       GLuint getVertexArrayOpenGL() { return vVertexArray_OGL; }
+   //       unsigned getVertexArrayOpenGL() { return vVertexArray_OGL; }
 };
 
 /*!

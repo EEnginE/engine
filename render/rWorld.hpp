@@ -31,19 +31,8 @@ namespace e_engine {
 class RENDER_API rWorld {
 
  private:
-   uSlot<void, rWorld, bool> vRenderLoopStartSlot;
-   uSlot<void, rWorld> vRenderLoopStopSlot;
-
-   uSlot<void, rWorld> vPauseRenderLoopSlot;
-   uSlot<void, rWorld> vContinueRenderLoopSlot;
-
    bool vInitObjSet_B;
 
-   bool vRenderLoopRunning_B;
-   bool vRenderLoopShouldRun_B;
-
-   bool vRenderLoopIsPaused_B;
-   bool vRenderLoopShouldPaused_B;
    std::mutex vRenderLoopMutex_BT;
    std::condition_variable vRenderLoopWait_BT;
 
@@ -59,22 +48,16 @@ class RENDER_API rWorld {
 
    struct {
       bool vNeedUpdate_B;
-      GLfloat r;
-      GLfloat g;
-      GLfloat b;
-      GLfloat a;
+      float r;
+      float g;
+      float b;
+      float a;
    } vClearColor;
 
    void renderLoop();
 
    iInit *vInitPointer;
    std::thread vRenderLoop_BT;
-
-   void startRenderLoop( bool _wait );
-   void stopRenderLoop();
-
-   void pauseRenderLoop();
-   void continueRenderLoop();
 
  public:
    rWorld( iInit *_init );
@@ -87,10 +70,9 @@ class RENDER_API rWorld {
    virtual void renderFrame() = 0;
 
    uint64_t *getRenderedFramesPtr() { return &vRenderedFrames; }
-   bool getIsRenderLoopPaused() { return vRenderLoopIsPaused_B; }
 
    void updateViewPort( int _x, int _y, int _width, int _height );
-   void updateClearColor( GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a );
+   void updateClearColor( float _r, float _g, float _b, float _a );
 };
 }
 

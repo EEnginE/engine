@@ -50,14 +50,6 @@ int rObjectBase::clearOGLData() {
       return 100;
    }
 
-   if ( !iInit::isAContextCurrentForThisThread() ) {
-      eLOG( "Can NOT FREE data because no OpenGL context is current for this thread!\nThis "
-            "function may be called from the destructor!  [OBJECT: '",
-            vName_str,
-            "']" );
-      return 101;
-   }
-
    int lRet = clearOGLData__();
 
    if ( lRet < 0 ) {
@@ -103,11 +95,6 @@ int rObjectBase::clearOGLData() {
  * \returns the result of setOGLData__();
  */
 int rObjectBase::setOGLData() {
-   if ( !iInit::isAContextCurrentForThisThread() ) {
-      eLOG( "Cannot init data because no OpenGL context is current for this thread!" );
-      return 100;
-   }
-
    if ( vIsLoaded_B ) {
       eLOG( "Data already loaded [OBJECT: '", vName_str, "']" );
       return 102;

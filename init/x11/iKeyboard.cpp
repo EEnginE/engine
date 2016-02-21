@@ -24,8 +24,11 @@
  * The function keysym2unicode and the idea is from the XTerm project
  */
 
+#define XK_MISCELLANY
+#define XK_XKB_KEYS
+
+#include <X11/keysymdef.h>
 #include "iKeyboard.hpp"
-#include <GL/glxew.h>
 
 namespace e_engine {
 

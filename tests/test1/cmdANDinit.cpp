@@ -42,14 +42,10 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
    GlobConf.win.iconName = "ICON is missing";
    GlobConf.win.xlibWindowName = "My icon";
    // GlobConf.win.winType         = e_engine::TOOLBAR;
-   GlobConf.useAutoOpenGLVersion();
    GlobConf.config.appName = "E Engine";
 
 
    GlobConf.win.restoreOldScreenRes = true;
-
-   GlobConf.versions.glMajorVersion = 4;
-   GlobConf.versions.glMinorVersion = 0;
 
 
    if ( vCanUseColor ) {
@@ -98,12 +94,6 @@ void cmdANDinit::usage() {
          vNormalShader,
          ")" );
    dLOG( "    --conf=<path>      : add a config file to parse" );
-   dLOG( "    --glMajor=<v>      : the OpenGL Major version (default: ",
-         GlobConf.versions.glMajorVersion,
-         ")" );
-   dLOG( "    --glMinor=<v>      : the OpenGL Major version (default: ",
-         GlobConf.versions.glMinorVersion,
-         ")" );
    dLOG( "    -n | --nocolor     : disable colored output" );
    dLOG( "    -c | --color       : enabel colored output" );
    dLOG( "    --near=<z>         : set near z clipping to <z> (default: ", vNearZ, ")" );
@@ -210,24 +200,6 @@ bool cmdANDinit::parseArgsAndInit() {
             iLOG( "Successfully parsed additional JSON config '", conf, "'" );
          } else { wLOG( "Failed to parse additional JSON config '", conf, "'" ); }
 
-         continue;
-      }
-
-      std::regex lMajorRegex( "^\\-\\-glMajor=[0-9]+$" );
-      if ( std::regex_match( arg, lMajorRegex ) ) {
-         std::regex lDataRegexRep( "^\\-\\-glMajor=" );
-         const char *lRep = "";
-         string version = std::regex_replace( arg, lDataRegexRep, lRep );
-         GlobConf.versions.glMajorVersion = atoi( version.c_str() );
-         continue;
-      }
-
-      std::regex lMinorRegex( "^\\-\\-glMinor=[0-9]+$" );
-      if ( std::regex_match( arg, lMinorRegex ) ) {
-         std::regex lDataRegexRep( "^\\-\\-glMinor=" );
-         const char *lRep = "";
-         string version = std::regex_replace( arg, lDataRegexRep, lRep );
-         GlobConf.versions.glMinorVersion = atoi( version.c_str() );
          continue;
       }
 

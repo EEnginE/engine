@@ -24,7 +24,6 @@
 #include "defines.hpp"
 #include <string>
 #include <vector>
-#include "uExtensions.hpp"
 
 namespace e_engine {
 
@@ -75,6 +74,7 @@ struct _uConfig {
 
    long int timeoutForMainLoopThread_mSec;
 
+#if 0
    //  ______                        _            __  __
    //  |  ___|                      | |          / _|/ _|
    //  | |_ _ __ __ _ _ __ ___   ___| |__  _   _| |_| |_ ___ _ __
@@ -108,6 +108,7 @@ struct _uConfig {
        */
       void reset();
    } framebuffer;
+#endif
 
    //   _   _               _
    //  | | | |             (_)
@@ -118,11 +119,7 @@ struct _uConfig {
    //
 
    struct __uConfig_Versions {
-      int minGlxMajorVer;
-      int minGlxMinorVer;
-      int glMajorVersion;
-      int glMinorVersion;
-
+      //! \todo Add vulkan stuff here
       __uConfig_Versions();
 
       /*!
@@ -309,24 +306,6 @@ struct _uConfig {
       void reset();
    } config;
 
-   struct __uConfig_OpenGL {
-      /*!
-       * 1: - force OLD shader query style - should always work
-       * 2: - force NEW shader query style - even if the extension is not
-       * supported ==> may cause
-       * segfault
-       * 0: Let rShader decide [default]
-       */
-      unsigned char shaderInfoQueryType;
-      bool useShaders;
-
-      __uConfig_OpenGL();
-      /*!
-       * \brief Reset to default
-       */
-      void reset();
-   } ogl;
-
    //   _____
    //  /  __ \
    //  | /  \/ __ _ _ __ ___   ___ _ __ __ _
@@ -346,15 +325,9 @@ struct _uConfig {
       void reset();
    } camera;
 
-   uExtensions extensions;
-
    // Versions
 
    _uConfig();
-   void useAutoOpenGLVersion() {
-      versions.glMajorVersion = -5;
-      versions.glMinorVersion = -5;
-   }
 };
 
 /*!

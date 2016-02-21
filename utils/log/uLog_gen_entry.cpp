@@ -589,8 +589,8 @@ void uLogEntryRaw::defaultEntryGenerator() {
  * IMHO, an empty field is the best solution
  */
 #if 0
-         GLuint lLeftNewL_uI;
-         GLuint lRightNewL_uI;
+         unsigned lLeftNewL_uI;
+         unsigned lRightNewL_uI;
 
          if( data.config.vColor_LCT != DISABLED ) {
             lLeftNewL_uI  = std::regex_replace( lL_STR, lRmExcape_REGEX, lRegexReplace_CSTR ).size();

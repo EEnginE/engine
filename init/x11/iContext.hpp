@@ -30,24 +30,11 @@
 
 #include "iRandR.hpp"
 #include "iKeyboard.hpp"
-#include <GL/glew.h>
-// WARNING Can not include <glxew.h> because it would overwrite all <glx.h> macros
-//         which dont work before calling glewInit();
-#include <GL/glx.h>
 
 
 namespace e_engine {
 
 namespace unix_x11 {
-
-typedef GLXContext ( *glXCreateContextAttribsARBProc )( Display *,
-                                                        GLXFBConfig,
-                                                        GLXContext,
-                                                        bool,
-                                                        const int * ); // <= Old Style
-// using glXCreateContextAttribsARBProc = GLXContext( * )( Display *, GLXFBConfig, GLXContext, bool,
-// const int * );   // <= C++11 style (doesnt work with older gcc versions)
-
 
 /*!
  * \brief Handles the 'user presses X button' event
@@ -106,16 +93,9 @@ class INIT_API iContext : public iRandR, public iKeyboard {
    XWMHints *vWmHints_X11;                     //!< The WM hints structure
    XClassHint *vClassHints_X11;                //!< The class hints structure
    Colormap vColorMap_X11;                     //!< The clormap handle
-   GLXContext vOpenGLContext_GLX;              //!< The context handle
-   GLXFBConfig *vFBConfig_GLX;                 //!< The framebuffer handle
    int vNumOfFBConfigs_I;                      //!< Number of found matching framebuffer configs
    long int vEventMask_lI;                     //!< The X11 event mask (needed to recieve events)
 
-   glXCreateContextAttribsARBProc
-         glXCreateContextAttribsARB; //! The context creation function pointer
-
-
-   GLuint vVertexArray_OGL;
 
    int vBestFBConfig_I; //!< The Integer ID of the best FB config we have found
 
@@ -127,16 +107,13 @@ class INIT_API iContext : public iRandR, public iKeyboard {
    bool vDisplayCreated_B;
    bool vHaveGLEW_B;
 
-   int vGLXVersionMajor_I;
-   int vGLXVersionMinor_I;
    int vX11VersionMajor_I;
    int vX11VersionMinor_I;
 
    bool vIsMouseGrabbed_B;
    bool vIsCursorHidden_B;
 
-   bool isExtensionSupported(
-         const char *_extension ); //!< Function checking if extension is supported
+   bool isExtensionSupported( const char *_extension ); //!< stub
 
    //! \todo create a function for setting an icon
 
@@ -149,15 +126,13 @@ class INIT_API iContext : public iRandR, public iKeyboard {
                             //\c ERRORS: \a -3
    int createWindow(); //!< Creates the Window                     \returns \c SUCCESS: \a 1 -- \c
    // ERRORS: \a -4
-   int createOGLContext(); //!< Creates the OpenGL context             \returns \c SUCCESS: \a 1 --
-                           //\c ERRORS: \a 3
 
    bool sendX11Event( std::string _atom,
-                      GLint64 _l0 = 0,
-                      GLint64 _l1 = 0,
-                      GLint64 _l2 = 0,
-                      GLint64 _l3 = 0,
-                      GLint64 _l4 = 0 );
+                      int64_t _l0 = 0,
+                      int64_t _l1 = 0,
+                      int64_t _l2 = 0,
+                      int64_t _l3 = 0,
+                      int64_t _l4 = 0 );
 
  protected:
    bool vWindowRecreate_B;
@@ -170,7 +145,6 @@ class INIT_API iContext : public iRandR, public iKeyboard {
 
 
    void getX11Version( int *_major, int *_minor );
-   void getGLXVersion( int *_major, int *_minor );
 
    Display *getDisplay() {
       return vDisplay_X11;
@@ -178,26 +152,6 @@ class INIT_API iContext : public iRandR, public iKeyboard {
    Window const &getWindow() const {
       return vWindow_X11;
    } //!< \brief Get the window handle          \returns The window handle
-   GLXContext const &getContext() const {
-      return vOpenGLContext_GLX;
-   } //!< \brief Get the context handle         \returns The context handle
-   bool const &getHaveGLEW() const {
-      return vHaveGLEW_B;
-   } //!< \brief Check if GLEW is OK             \returns Whether GLEW is OK
-   bool const &getHaveContext() const {
-      return vHaveContext_B;
-   } //!< \brief Check if we have a OGL context \returns If there is a OpenGL context
-
-   inline void swapBuffers() {
-      glXSwapBuffers( vDisplay_X11, vWindow_X11 );
-   } //!< Swaps the OGL buffers
-
-
-   bool makeContextCurrent();
-   bool makeNOContextCurrent();
-
-   static bool isAContextCurrentForThisThread();
-
 
    void destroyContext();
 
@@ -225,7 +179,7 @@ class INIT_API iContext : public iRandR, public iKeyboard {
    bool getIsCursorHidden() const;
 
 
-   //       GLuint getVertexArrayOpenGL() { return vVertexArray_OGL; }
+   //       unsigned getVertexArrayOpenGL() { return vVertexArray_OGL; }
 };
 
 

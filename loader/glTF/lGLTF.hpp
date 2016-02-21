@@ -35,7 +35,7 @@
 
 namespace e_engine {
 
-class LOADER_API lGLTF final : public internal::lLoaderBase<GLfloat, GLushort>,
+class LOADER_API lGLTF final : public internal::lLoaderBase<float, unsigned short>,
                                public glTF::lGLTF_structs {
 
    typedef std::unordered_map<std::string, size_t> td_MAP;

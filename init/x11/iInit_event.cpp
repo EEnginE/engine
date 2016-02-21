@@ -119,7 +119,7 @@ int iInit::eventLoop() {
          addTimeval( tv, periode, tv );
       }
 
-      while ( XPending( getDisplay() ) > 0 && getHaveContext() ) {
+      while ( XPending( getDisplay() ) > 0 && vIsVulkanSetup_B ) {
 
          XNextEvent( getDisplay(), &lEvent_X11 );
          lKeyState_uI    = E_PRESSED;

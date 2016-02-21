@@ -146,7 +146,7 @@ class INIT_API iRandR {
  */
 
 /*!
- * \fn void iRandR::getVersion( GLint &_vMajor, GLint &_vMinor )
+ * \fn void iRandR::getVersion( int &_vMajor, int &_vMinor )
  * \brief Get the RandR version
  *
  * \param[out] _vMajor the major version
@@ -156,7 +156,7 @@ class INIT_API iRandR {
  */
 
 /*!
- * \fn void iRandR::getScreenResolution( GLuint &_width, GLuint &_height )
+ * \fn void iRandR::getScreenResolution( unsigned &_width, unsigned &_height )
  * \brief Get the current screen resolution
  *
  * \param[out] _width  the current width
