@@ -32,9 +32,6 @@ before_install:
 install:
    - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.7; export CC=clang-3.7; fi
    - if [[ "$CXX" == "g++"     ]]; then export CXX=g++-5;       export CC=gcc-5;     fi
-   - cd dependencies/GLEW
-   - make extensions
-   - cd ../../
 
 script:
    - mkdir build
