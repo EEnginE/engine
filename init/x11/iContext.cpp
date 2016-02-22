@@ -101,15 +101,11 @@ int iContext::createContext() {
       wLOG( "Failed to call XInitThreads();" );
    }
 
-   if ( ( lReturnValue_I = createDisplay() ) != 1 ) {
+   if ( ( lReturnValue_I = initVulkan() ) != 1 ) {
       return lReturnValue_I;
    }
-   if ( ( lReturnValue_I = createFrameBuffer() ) != 1 ) {
-      return lReturnValue_I;
-   }
-   if ( ( lReturnValue_I = createWindow() ) != 1 ) {
-      return lReturnValue_I;
-   }
+
+   return 0;
 
    if ( initRandR( vDisplay_X11, vWindow_X11, vRootWindow_X11 ) ) {
       int lVRRmajor_I;

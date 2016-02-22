@@ -37,10 +37,10 @@ rFrameCounter::rFrameCounter( rWorld *_rWorld, bool _enable )
 void rFrameCounter::frameCounterLoop() {
    LOG.nameThread( L"fps" );
    while ( vFrameCounterEnabled ) {
-         iLOG( "FPS: ", *vRenderedFrames / vHelper ); // Change this to output the
-                                                      // resulting fps in a proper way (and
-                                                      // as a double)
-         *vRenderedFrames = 0;
+      iLOG( "FPS: ", *vRenderedFrames / vHelper ); // Change this to output the
+                                                   // resulting fps in a proper way (and
+                                                   // as a double)
+      *vRenderedFrames = 0;
       B_SLEEP( milliseconds, vSleepDelay );
    }
 }

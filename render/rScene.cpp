@@ -23,8 +23,7 @@
 namespace e_engine {
 
 
-rSceneBase::~rSceneBase() {
-}
+rSceneBase::~rSceneBase() {}
 
 /*!
  * \brief Tests if it is safe to render the scene
@@ -56,11 +55,11 @@ bool rSceneBase::canRenderScene() {
 
       //! \todo Add vulkan stuff
 
-   if ( lCanRender )
-      iLOG( "Scene '", vName_str, "' with ", vObjects.size(), " objects ready for rendering" );
+      if ( lCanRender )
+         iLOG( "Scene '", vName_str, "' with ", vObjects.size(), " objects ready for rendering" );
 
-   return lCanRender;
-}
+      return lCanRender;
+   }
 }
 
 /*!
@@ -99,7 +98,6 @@ unsigned rSceneBase::addObject( e_engine::rObjectBase *_obj, int _shaderIndex ) 
 
    return static_cast<unsigned>( vObjects.size() - 1 );
 }
-
 }
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

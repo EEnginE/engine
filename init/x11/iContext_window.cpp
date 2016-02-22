@@ -26,6 +26,9 @@
  * limitations under the License.
  */
 
+#include <vulkan/vulkan.h>
+#include <vulkan/vk_icd.h>
+
 #include "iContext.hpp"
 #include <X11/Xatom.h>
 #include "uLog.hpp"
@@ -60,6 +63,20 @@ inline std::string numToSizeStringLeft( T _val, unsigned int _size, char _fill )
 namespace e_engine {
 
 namespace unix_x11 {
+
+int iContext::initVulkan() {
+   VkResult lResult;
+   uint32_t lPorpCount;
+
+   lResult = vkEnumerateInstanceLayerProperties( &lPorpCount, NULL );
+
+   iLOG( "lResult:    ", lResult );
+   iLOG( "lPorpCount: ", lPorpCount );
+
+   return 0;
+}
+
+#if 0
 
 Atom atom_wmDeleteWindow;
 
@@ -226,6 +243,8 @@ int iContext::createWindow() {
 
    return 1;
 }
+
+#endif
 
 } // unix_x11
 

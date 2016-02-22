@@ -106,7 +106,8 @@ else( STD_FILESYSTEM_IS_EXPERIMENTAL )
    set( CM_FILESYSTEM_INCLUDE   "<filesystem>" )
 endif( STD_FILESYSTEM_IS_EXPERIMENTAL )
 
-find_package(Threads      REQUIRED)
+find_package(Threads REQUIRED)
+find_package(Vulkan  REQUIRED)
 
 if( CM_UNIX_X11 )
    find_package(X11 REQUIRED)
@@ -118,8 +119,8 @@ if( CM_UNIX_X11 )
    endif( X11_Xrandr_FOUND )
 endif( CM_UNIX_X11 )
 
-set( ENGINE_LINK ${OPENGL_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} ${FS_LIBRARIES} )
-set( ENGINE_INCL ${OPENGL_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} )
+set( ENGINE_LINK ${VULKAN_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} ${FS_LIBRARIES} )
+set( ENGINE_INCL ${VULKAN_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} )
 
 message( "" ) # Newline
 

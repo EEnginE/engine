@@ -37,14 +37,6 @@ namespace e_engine {
 namespace unix_x11 {
 
 /*!
- * \brief Handles the 'user presses X button' event
- *
- * Without defining an event for the X button X11 will
- * force close the window and cause errors
- */
-extern Atom atom_wmDeleteWindow;
-
-/*!
  * \class e_engine::iContext
  * \brief The OpenGL context creation class
  *
@@ -119,6 +111,10 @@ class INIT_API iContext : public iRandR, public iKeyboard {
 
    // bool createIconPixmap();  //! Does NOT work until now
    // void pixmaps2(unsigned int Width, unsigned int Height, const Uint8* Pixels);
+
+
+   int initVulkan();
+
 
    int createDisplay(); //!< Creates the connection to the X-Server \returns \c SUCCESS: \a 1 -- \c
    // ERRORS: \a -1 , \a -2

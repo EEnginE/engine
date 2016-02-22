@@ -55,7 +55,7 @@ void _uConfig::__uConfig_FBA::reset() {
    FBA_RENDERABLE    = GL_TRUE;
    FBA_DRAWABLE_TYPE = GLX_WINDOW_BIT;
    FBA_DOUBLEBUFFER  = GL_TRUE;
-#endif               // UNIX
+#endif // UNIX
    FBA_RED     = 8;  // 8
    FBA_GREEN   = 8;  // 8
    FBA_BLUE    = 8;  // 8
@@ -75,8 +75,7 @@ void _uConfig::__uConfig_FBA::reset() {
 }
 #endif
 
-void _uConfig::__uConfig_Versions::reset() {
-}
+void _uConfig::__uConfig_Versions::reset() {}
 
 void _uConfig::__uConfig_Window::reset() {
    width     = 800;

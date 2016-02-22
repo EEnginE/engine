@@ -257,7 +257,7 @@ int iInit::eventLoop() {
                vFocus_SIG( tempInfo );
             } break;
 
-
+#if 0
             case ClientMessage:
                // Check if the User pressed the [x] button or ALT+F4 [etc.]
                if ( static_cast<Atom>( lEvent_X11.xclient.data.l[0] ) ==
@@ -268,6 +268,7 @@ int iInit::eventLoop() {
                   vWindowClose_SIG( tempInfo );
                }
                break;
+#endif
 
             default: dLOG( "Found Unknown Event: 0x", lEvent_CSTR ); break;
          }

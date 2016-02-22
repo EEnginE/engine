@@ -122,6 +122,10 @@ struct _uConfig {
       //! \todo Add vulkan stuff here
       __uConfig_Versions();
 
+      int vulkanMajorVersion;
+      int vulkanMinorVersion;
+      int vulkanPatchVersion;
+
       /*!
        * \brief Reset to default
        */

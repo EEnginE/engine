@@ -77,8 +77,6 @@ int main( int argc, char *argv[] ) {
  *
  * Syntax: '//#!BIND ' <location in json file> , G_<TYPE>( <GlobConf value>, <default> )
  */
-//#!BIND "oglTest", "init", "version", "major", G_NUM( GlobConf.versions.glMajorVersion, 4 )
-//#!BIND "oglTest", "init", "version", "minor", G_NUM( GlobConf.versions.glMinorVersion, 6 )
 
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

@@ -36,8 +36,7 @@ class RENDER_API rSceneBase {
       rObjectBase *vObjectPointer;
       int vShaderIndex;
 
-      rObject( rObjectBase *_obj, int _index )
-          : vObjectPointer( _obj ), vShaderIndex( _index ) {}
+      rObject( rObjectBase *_obj, int _index ) : vObjectPointer( _obj ), vShaderIndex( _index ) {}
    };
 
  private:

@@ -69,7 +69,7 @@ void rWorld::setInitObj( iInit *_init ) {
       return;
    }
 
-   vInitPointer = _init;
+   vInitPointer  = _init;
    vInitObjSet_B = true;
 }
 }

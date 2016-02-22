@@ -53,7 +53,7 @@ iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
    vCreateWindowReturn_I = -1000;
 
    vAreRenderLoopSignalsConnected_B = false;
-   vIsVulkanSetup_B = false;
+   vIsVulkanSetup_B                 = false;
 
 #if WINDOWS
    vContinueWithEventLoop_B = false;
@@ -271,7 +271,6 @@ int iInit::startMainLoop( bool _wait ) {
       // Wait for quit main loop to finish
       if ( vQuitMainLoop_BT.joinable() )
          vQuitMainLoop_BT.join();
-
    }
 
    return 1;
@@ -333,7 +332,6 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
    vCreateWindowReturn_I = -1000;
    return 1;
 }
-
 }
 
 
