@@ -25,8 +25,10 @@
 
 #include "defines.hpp"
 
+#include <vulkan/vulkan.h>
+
 #if UNIX_X11
-#include "x11/iContext.hpp"
+#include "x11/iWindow.hpp"
 #include "iMouse.hpp"
 #include "iInitSignals.hpp"
 
@@ -62,7 +64,7 @@ typedef void ( *RENDER_FUNC )( iEventInfo info );
  * \sa iContext uConfig e_iInit.cpp e_event.cpp
  */
 #if UNIX_X11
-class INIT_API iInit : public unix_x11::iContext, public iInitSignals, public iMouse {
+class INIT_API iInit : public unix_x11::iWindow, public iInitSignals, public iMouse {
 #elif WINDOWS
 class INIT_API iInit : public windows_win32::iContext {
 #else
@@ -72,6 +74,11 @@ class INIT_API iInit : public windows_win32::iContext {
    SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
 
  private:
+
+   std::vector<std::string> vExtensionList;
+
+   VkInstance vInstance_vk;
+
    bool vMainLoopRunning_B; //!< Should the main loop be running?
 
    bool vEventLoopHasFinished_B; //!< Has the event loop finished?
@@ -109,6 +116,11 @@ class INIT_API iInit : public windows_win32::iContext {
    bool vContinueWithEventLoop_B;
 #endif
 
+   int loadExtensionList();
+   int initVulkan();
+
+   void destroyVulkan();
+
    // Thread Functions --------------------------------------------------------- ###
    int eventLoop();        //!< The event loop function ( In PLATFORM/e_event.cpp )
    int quitMainLoopCall(); //!< The actual function to quit the main loop
@@ -142,6 +154,10 @@ class INIT_API iInit : public windows_win32::iContext {
     * \returns \c SUCCESS: \a 1 -- \c FAIL: \a 0
     */
    int closeWindow( bool _waitUntilClosed = false );
+
+   bool isExtensionSupported( std::string _extension );
+
+   static std::string vkResultToString( VkResult _res );
 };
 
 namespace internal {

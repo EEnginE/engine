@@ -45,13 +45,17 @@ int main( int argc, char *argv[] ) {
 
    iInit start;
 
-   if ( start.init() == 1 ) {
+   if ( start.init() == 0 ) {
+#if 0
       myWorld handler( cmd, &start );
       start.enableDefaultGrabControl();
 
       if ( handler.initGL() == 0 )
          start.startMainLoop();
+#endif
    }
+
+   B_SLEEP( seconds, 2 );
 
    start.shutdown();
 

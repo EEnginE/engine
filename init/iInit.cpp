@@ -19,12 +19,21 @@
  * limitations under the License.
  */
 
+#include "defines.hpp"
 
 #include <csignal>
+#include <vulkan/vulkan.h>
+#include <string.h>
 
 #include "iInit.hpp"
 #include "uSystem.hpp"
 #include "uLog.hpp"
+
+#if D_LOG_VULKAN_INIT
+#define dVkLOG( ... ) dLOG( __VA_ARGS__ )
+#else
+#define dVkLOG( ... )
+#endif
 
 namespace e_engine {
 namespace internal {
@@ -62,10 +71,7 @@ iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
    _setThisForHandluSignal();
 }
 
-iInit::~iInit() {
-   closeWindow();
-   shutdown();
-}
+iInit::~iInit() { shutdown(); }
 
 
 /*!
@@ -115,6 +121,131 @@ bool iInit::enableDefaultGrabControl() { return addFocusSlot( &vGrabControl_SLOT
  */
 bool iInit::disableDefaultGrabControl() { return removeFocusSlot( &vGrabControl_SLOT ); }
 
+std::string iInit::vkResultToString( VkResult _res ) {
+   switch ( _res ) {
+      case VK_SUCCESS: return "VK_SUCCESS";
+      case VK_NOT_READY: return "VK_NOT_READY";
+      case VK_TIMEOUT: return "VK_TIMEOUT";
+      case VK_EVENT_SET: return "VK_EVENT_SET";
+      case VK_EVENT_RESET: return "VK_EVENT_RESET";
+      case VK_INCOMPLETE: return "VK_INCOMPLETE";
+      case VK_ERROR_OUT_OF_HOST_MEMORY: return "VK_ERROR_OUT_OF_HOST_MEMORY";
+      case VK_ERROR_OUT_OF_DEVICE_MEMORY: return "VK_ERROR_OUT_OF_DEVICE_MEMORY";
+      case VK_ERROR_INITIALIZATION_FAILED: return "VK_ERROR_INITIALIZATION_FAILED";
+      case VK_ERROR_DEVICE_LOST: return "VK_ERROR_DEVICE_LOST";
+      case VK_ERROR_MEMORY_MAP_FAILED: return "VK_ERROR_MEMORY_MAP_FAILED";
+      case VK_ERROR_LAYER_NOT_PRESENT: return "VK_ERROR_LAYER_NOT_PRESENT";
+      case VK_ERROR_EXTENSION_NOT_PRESENT: return "VK_ERROR_EXTENSION_NOT_PRESENT";
+      case VK_ERROR_FEATURE_NOT_PRESENT: return "VK_ERROR_FEATURE_NOT_PRESENT";
+      case VK_ERROR_INCOMPATIBLE_DRIVER: return "VK_ERROR_INCOMPATIBLE_DRIVER";
+      case VK_ERROR_TOO_MANY_OBJECTS: return "VK_ERROR_TOO_MANY_OBJECTS";
+      case VK_ERROR_FORMAT_NOT_SUPPORTED: return "VK_ERROR_FORMAT_NOT_SUPPORTED";
+      case VK_ERROR_SURFACE_LOST_KHR: return "VK_ERROR_SURFACE_LOST_KHR";
+      case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR: return "VK_ERROR_NATIVE_WINDOW_IN_USE_KHR";
+      case VK_SUBOPTIMAL_KHR: return "VK_SUBOPTIMAL_KHR";
+      case VK_ERROR_OUT_OF_DATE_KHR: return "VK_ERROR_OUT_OF_DATE_KHR";
+      case VK_ERROR_INCOMPATIBLE_DISPLAY_KHR: return "VK_ERROR_INCOMPATIBLE_DISPLAY_KHR";
+      case VK_ERROR_VALIDATION_FAILED_EXT: return "VK_ERROR_VALIDATION_FAILED_EXT";
+      case VK_RESULT_RANGE_SIZE: return "VK_RESULT_RANGE_SIZE";
+      case VK_RESULT_MAX_ENUM: return "VK_RESULT_MAX_ENUM";
+   }
+}
+
+int iInit::loadExtensionList() {
+   VkResult lResult;
+   uint32_t lExtCount;
+
+   lResult = vkEnumerateInstanceExtensionProperties( NULL, &lExtCount, NULL );
+
+   if ( lResult != VK_SUCCESS ) {
+      eLOG( "'vkEnumerateInstanceExtensionProperties' returned ", vkResultToString( lResult ) );
+      return lResult;
+   }
+
+   dLOG( "Extensions: ", lExtCount );
+   VkExtensionProperties *lPorps = new VkExtensionProperties[lExtCount];
+
+   lResult = vkEnumerateInstanceExtensionProperties( NULL, &lExtCount, lPorps );
+
+   if ( lResult != VK_SUCCESS ) {
+      eLOG( "'vkEnumerateInstanceExtensionProperties' returned ", vkResultToString( lResult ) );
+      delete[] lPorps;
+      return lResult;
+   }
+
+   dVkLOG( lExtCount, " Extensions found:" );
+
+   for ( uint32_t i = 0; i < lExtCount; i++ ) {
+      dVkLOG( "  -- '", lPorps[i].extensionName, "'  -  specVersion: ", lPorps[i].specVersion );
+      vExtensionList.emplace_back( lPorps[i].extensionName );
+   }
+
+   delete[] lPorps;
+
+   return 0;
+}
+
+/*!
+ * \brief Creates the vulkan instance
+ *
+ * \returns  0 -- Success
+ * \returns  1 -- Missing extension(s)
+ */
+int iInit::initVulkan() {
+   VkResult lResult;
+   uint32_t lPorpCount;
+
+   lResult = vkEnumerateInstanceLayerProperties( &lPorpCount, NULL );
+   dVkLOG( "InstanceLayerProperties: ", lPorpCount );
+   //! \todo expand layers section
+
+
+   int lRet = loadExtensionList();
+   if ( lRet != 0 )
+      return lRet;
+
+   static const char *lExtensions[] = {VK_KHR_SURFACE_EXTENSION_NAME,
+                                       E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME};
+
+   dVkLOG( "Using ", sizeof( lExtensions ) / sizeof( lExtensions[0] ), " extension: " );
+
+   for ( auto const &i : lExtensions ) {
+      if ( !isExtensionSupported( i ) ) {
+         eLOG( "Extension '", i, "' is not supported!" );
+         return 1;
+      }
+      dVkLOG( "  -- '", i, '\'' );
+   }
+
+   VkInstanceCreateInfo lCreateInfo_vk;
+   VkApplicationInfo lAppInfo_vk;
+
+   lAppInfo_vk.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+   lAppInfo_vk.pNext              = NULL;
+   lAppInfo_vk.pApplicationName   = GlobConf.config.appName.c_str();
+   lAppInfo_vk.pEngineName        = "EEnginE";
+   lAppInfo_vk.apiVersion         = VK_API_VERSION;
+   lAppInfo_vk.applicationVersion = 1; //!< \todo change this const
+   lAppInfo_vk.engineVersion      = 1; //!< \todo change this const
+
+   lCreateInfo_vk.sType                   = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+   lCreateInfo_vk.pNext                   = NULL;
+   lCreateInfo_vk.flags                   = 0;
+   lCreateInfo_vk.pApplicationInfo        = &lAppInfo_vk;
+   lCreateInfo_vk.enabledLayerCount       = 0;
+   lCreateInfo_vk.ppEnabledLayerNames     = NULL;
+   lCreateInfo_vk.enabledExtensionCount   = sizeof( lExtensions ) / sizeof( lExtensions[0] );
+   lCreateInfo_vk.ppEnabledExtensionNames = lExtensions;
+
+   lResult = vkCreateInstance( &lCreateInfo_vk, NULL, &vInstance_vk );
+
+   if ( lResult != VK_SUCCESS ) {
+      eLOG( "'vkCreateInstance' returned ", vkResultToString( lResult ) );
+      return lResult;
+   }
+
+   return 0;
+}
 
 
 /*!
@@ -128,14 +259,8 @@ bool iInit::disableDefaultGrabControl() { return removeFocusSlot( &vGrabControl_
  *
  * More information iContext
  *
- * \returns  1 -- Success
- * \returns -1 -- Unable to connect to the X-Server
- * \returns -2 -- Need a newer GLX version
- * \returns -3 -- Unable to find any matching fbConfig
- * \returns -4 -- Failed to create a X11 Window
- * \returns  3 -- Failed to create a context
- * \returns  4 -- Failed to init GLEW
- * \returns  5 -- Bad OpenGL version (at least 3.3)
+ * \returns  0 -- Success
+ * \returns  1 -- Missing extension(s)
  */
 int iInit::init() {
 
@@ -156,6 +281,13 @@ int iInit::init() {
 
    LOG.startLogLoop();
 
+   auto lVkInitErr = initVulkan();
+
+   if ( lVkInitErr ) {
+      eLOG( "Failed to init Vulkan" );
+      return lVkInitErr;
+   }
+
 #if WINDOWS
    // Windows needs the PeekMessage call in the same thread where the window is created
    std::unique_lock<std::mutex> lLock_BT( vCreateWindowMutex_BT );
@@ -166,7 +298,7 @@ int iInit::init() {
 
    makeContextCurrent();
 #else
-   vCreateWindowReturn_I = createContext();
+   vCreateWindowReturn_I = createWindow();
 #endif
 
    if ( vCreateWindowReturn_I != 1 ) {
@@ -175,11 +307,20 @@ int iInit::init() {
 
    vIsVulkanSetup_B = true;
 
-   return 1;
+   return 0;
+}
+
+void iInit::destroyVulkan() {
+   if ( !vIsVulkanSetup_B )
+      return;
+
+   vIsVulkanSetup_B = false;
+   vExtensionList.clear();
+   vkDestroyInstance( vInstance_vk, NULL );
 }
 
 int iInit::shutdown() {
-   vIsVulkanSetup_B = false;
+   destroyVulkan();
    closeWindow();
 
    if ( vEventLoop_BT.joinable() )
@@ -197,7 +338,7 @@ void iInit::handleSignal( int _signal ) {
       if ( GlobConf.handleSIGINT == true ) {
          wLOG( "Received SIGINT (Crt-C) => Closing Window and exiting(5);" );
          _THIS->closeWindow( true );
-         _THIS->destroyContext();
+         _THIS->destroyWindow();
          _THIS->shutdown();
          exit( 5 );
       }
@@ -208,7 +349,7 @@ void iInit::handleSignal( int _signal ) {
       if ( GlobConf.handleSIGTERM == true ) {
          wLOG( "Received SIGTERM => Closing Window and exiting(6);" );
          _THIS->closeWindow( true );
-         _THIS->destroyContext();
+         _THIS->destroyWindow();
          _THIS->shutdown();
          exit( 6 );
       }
@@ -310,7 +451,7 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
       if ( _waitUntilClosed && vQuitMainLoop_BT.joinable() )
          vQuitMainLoop_BT.join();
    }
-   destroyContext();
+   destroyWindow();
 
 #if WINDOWS
    // The event loop thread must do some stuff
@@ -331,6 +472,15 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
 
    vCreateWindowReturn_I = -1000;
    return 1;
+}
+
+bool iInit::isExtensionSupported( std::string _extension ) {
+   for ( auto const &i : vExtensionList ) {
+      if ( i == _extension ) {
+         return true;
+      }
+   }
+   return false;
 }
 }
 

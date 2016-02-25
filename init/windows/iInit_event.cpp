@@ -20,7 +20,7 @@
  */
 
 #include "iInit.hpp"
-#include "iContext.hpp"
+#include "iWindow.hpp"
 #include <windows.h>
 #include "uLog.hpp"
 

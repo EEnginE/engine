@@ -31,12 +31,20 @@
 // Select the OS namespace
 #if UNIX_X11
 #define OS_NAMESPACE unix_x11
+#define VK_USE_PLATFORM_XCB_KHR
+#define E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME VK_KHR_XCB_SURFACE_EXTENSION_NAME
 #elif UNIX_WAYLAND
 #define OS_NAMESPACE unix_wayland
+#define VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+#define E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
 #elif UNIX_MIR
 #define OS_NAMESPACE unix_mir
+#define VK_KHR_MIR_SURFACE_EXTENSION_NAME
+#define E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME VK_KHR_MIR_SURFACE_EXTENSION_NAME
 #elif WINDOWS
 #define OS_NAMESPACE windows_win32
+#define VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+#define E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #endif
 
 #define FILESYSTEM_NAMESPACE @CM_FILESYSTEM_NAMESPACE@
@@ -111,6 +119,8 @@
 
 namespace e_engine {
 
+enum LOG_COLOR_TYPE { DISABLED, REDUCED, FULL };
+enum LOG_PRINT_TYPE { OFF, LEFT_FULL, RIGHT_FULL, LEFT_REDUCED, RIGHT_REDUCED };
 
 /*!
 * \brief Attributes for iContext::NET_WM_STATE()
@@ -131,6 +141,23 @@ enum WINDOW_ATTRIBUTE {
    DEMANDS_ATTENTION,  //!< Tells the window manager to make the window borders blink or something like that -- stops usually when the user clicks in the window
    FOCUSED,            //!< Should set the window focused
    NONE                //!< Change nothing
+};
+
+enum WINDOW_TYPE {
+   DESKTOP,
+   DOCK,
+   TOOLBAR,
+   MENU,
+   UTILITY,
+   SPLASH,
+   DIALOG,
+   DROPDOWN_MENU,
+   POPUP_MENU,
+   TOOLTIP,
+   NOTIFICATION,
+   COMBO,
+   DND,
+   NORMAL
 };
 
 /*!
@@ -275,8 +302,9 @@ enum E_BUTTON {
    E_MOUSE_UNKNOWN
 };
 
-
 // clang-format on
+
+// Macros
 
 namespace templates {
 
@@ -313,4 +341,3 @@ struct hash<std::vector<T>> {
 }
 
 #endif // DEFINES_HPP
-

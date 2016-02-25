@@ -27,25 +27,6 @@
 
 namespace e_engine {
 
-enum LOG_COLOR_TYPE { DISABLED, REDUCED, FULL };
-enum LOG_PRINT_TYPE { OFF, LEFT_FULL, RIGHT_FULL, LEFT_REDUCED, RIGHT_REDUCED };
-enum WINDOW_TYPE {
-   DESKTOP,
-   DOCK,
-   TOOLBAR,
-   MENU,
-   UTILITY,
-   SPLASH,
-   DIALOG,
-   DROPDOWN_MENU,
-   POPUP_MENU,
-   TOOLTIP,
-   NOTIFICATION,
-   COMBO,
-   DND,
-   NORMAL
-};
-
 namespace internal {}
 
 /*!

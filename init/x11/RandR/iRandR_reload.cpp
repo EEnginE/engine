@@ -46,7 +46,7 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
    }
 
    if ( _overwriteLatest ) {
-      vLatestConfig_RandR.primary = XRRGetOutputPrimary( vDisplay_X11, vWindow_X11 );
+      vLatestConfig_RandR.primary = XRRGetOutputPrimary( vDisplay_X11, vRootWindow_X11 );
 
       for ( auto &elem : vLatestConfig_RandR.gamma )
          XRRFreeGamma( elem );
@@ -60,7 +60,7 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
    }
 
    if ( _overwriteDefaults ) {
-      vDefaultConfig_RandR.primary = XRRGetOutputPrimary( vDisplay_X11, vWindow_X11 );
+      vDefaultConfig_RandR.primary = XRRGetOutputPrimary( vDisplay_X11, vRootWindow_X11 );
 
       for ( auto &elem : vDefaultConfig_RandR.gamma )
          XRRFreeGamma( elem );

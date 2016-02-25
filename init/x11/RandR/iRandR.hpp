@@ -64,7 +64,6 @@ class INIT_API iRandR {
    std::vector<internal::_crtc> vChangeCRTC_V_RandR;
 
    Display *vDisplay_X11;  //!< The X11 display      -- set in init(...);
-   Window vWindow_X11;     //!< The X11 window       -- set in init(...);
    Window vRootWindow_X11; //!< The X11 root window  -- set in init(...);
 
    XRRScreenResources *vResources_XRR;
@@ -87,8 +86,7 @@ class INIT_API iRandR {
 
  protected:
    void endRandR();
-
-   bool initRandR( Display *_display, Window _window, Window _root );
+   bool initRandR();
 
 
  public:

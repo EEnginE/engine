@@ -65,6 +65,7 @@ namespace e_engine {
 
 int iInit::eventLoop() {
    //! \todo Move this in namespace unix_x11
+#if 0
    vEventLoopHasFinished_B = false;
    XEvent lEvent_X11;
    unsigned int lKeyState_uI, lButtonState_uI;
@@ -275,6 +276,7 @@ int iInit::eventLoop() {
       }
    }
    vEventLoopHasFinished_B = true;
+#endif
    return 1;
 }
 

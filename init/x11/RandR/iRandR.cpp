@@ -58,24 +58,23 @@ iRandR::~iRandR() { endRandR(); }
 
 /*!
  * \brief Sets the standard values and checks if RandR is supported
- * \param _display The connection to the X-Server
- * \param _window  The Window
  * \warning !!! DO NOT CALL THIS METHOD !!!
  *
  * This method is designed to be called from iContext::createDisplay().
  * It is possible to call this manually with a own display and window
  * but it is NOT recommended
  */
-bool iRandR::initRandR( Display *_display, Window _window, Window _root ) {
+bool iRandR::initRandR() {
    if ( vIsRandRSupported_B ) {
       return false;
    }
 
    int lTempVersion_I;
 
-   vDisplay_X11    = _display;
-   vWindow_X11     = _window;
-   vRootWindow_X11 = _root;
+   vDisplay_X11    = XOpenDisplay( nullptr );
+   auto lScreen    = DefaultScreen( vDisplay_X11 );
+   vRootWindow_X11 = RootWindow( vDisplay_X11, lScreen );
+   ;
 
    if ( XQueryExtension(
               vDisplay_X11, "RANDR", &lTempVersion_I, &lTempVersion_I, &lTempVersion_I ) ) {
@@ -106,6 +105,8 @@ bool iRandR::initRandR( Display *_display, Window _window, Window _root ) {
 void iRandR::endRandR() {
    if ( !vIsRandRSupported_B )
       return;
+
+   XCloseDisplay( vDisplay_X11 );
 
    if ( GlobConf.win.restoreOldScreenRes && vWasScreenChanged_B )
       restore( vDefaultConfig_RandR );
