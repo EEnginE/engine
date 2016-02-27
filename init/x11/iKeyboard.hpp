@@ -21,8 +21,12 @@
 #ifndef E_KEYSYM_TO_UNICODE_HPP
 #define E_KEYSYM_TO_UNICODE_HPP
 
-#include <X11/XKBlib.h>
 #include "defines.hpp"
+
+#include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
+#include <xcb/xproto.h>
+
 #include "iKeyboardBasic.hpp"
 
 
@@ -35,19 +39,20 @@ namespace unix_x11 {
  */
 class INIT_API iKeyboard : public iKeyboardBasic {
  private:
-   wchar_t keysym2unicode( KeySym keysym );
+   wchar_t keysym2unicode( xcb_keysym_t keysym );
 
  protected:
    /*!
     * \brief Convert a X11 keyevent to a key and set the state of it
-    * \param _kEv       The key event
-    * \param _key_state The new state
-    * \param _display   The connection to the X-Server
+    * \param _kEv        The key event
+    * \param _key_state  The new state
+    * \param _connection The connection to the X-Server
     * \return The key in wchar
     */
-   wchar_t processX11KeyInput( XKeyPressedEvent _kEv,
+   wchar_t processX11KeyInput( xcb_keycode_t _kEv,
                                short unsigned int _key_state,
-                               Display *_display );
+                               uint32_t _modMask,
+                               xcb_connection_t *_connection );
 
 
  public:

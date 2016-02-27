@@ -80,11 +80,7 @@ internal::iXCBAtom::~iXCBAtom() {
  *
  * \returns  0 -- success
  * \returns  1 -- Unable to connect to the X-Server
- * \returns -2 -- Need a newer GLX version
- * \returns -3 -- Unable to find any matching fbConfig
- * \returns -4 -- Failed to create a X11 Window
- * \returns  3 -- Failed to create a context
- * \returns  4 -- Failed to init GLEW
+ * \returns  2 -- Failed to init EWMH connection
  */
 int iWindow::createWindow() {
    int lScreenNum;
@@ -219,6 +215,8 @@ void iWindow::setWmProperty( iXCBAtom &_property,
                         _format,
                         _length,
                         _data );
+
+   xcb_flush( vConnection_XCB );
 }
 
 void iWindow::setWmPropertyAtom( iXCBAtom &_property, iXCBAtom &_data ) {
@@ -287,6 +285,7 @@ void iWindow::changeWindowConfig( unsigned int _width, unsigned int _height, int
    GlobConf.win.posY   = _posY;
 
    xcb_configure_window( vConnection_XCB, vWindow_XCB, lMask, lValues );
+   xcb_flush( vConnection_XCB );
 }
 
 
@@ -527,7 +526,7 @@ void iWindow::setFullScreenMonitor( iDisplays &_disp ) {
 
 
 void iWindow::sendX11Event(
-      iXCBAtom &_atom, int64_t _l0, int64_t _l1, int64_t _l2, int64_t _l3, int64_t _l4 ) {
+      iXCBAtom &_atom, uint32_t _l0, uint32_t _l1, uint32_t _l2, uint32_t _l3, uint32_t _l4 ) {
    if ( !vWindowCreated_B )
       return;
 
@@ -535,6 +534,7 @@ void iWindow::sendX11Event(
 
    memset( &lEvent_XCB, 0, sizeof( lEvent_XCB ) );
 
+   lEvent_XCB.response_type  = XCB_CLIENT_MESSAGE;
    lEvent_XCB.window         = vWindow_XCB;
    lEvent_XCB.type           = _atom.getAtom();
    lEvent_XCB.format         = 32;
@@ -549,6 +549,9 @@ void iWindow::sendX11Event(
                    vScreen_XCB->root,
                    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
                    reinterpret_cast<const char *>( &lEvent_XCB ) );
+
+   xcb_map_window( vConnection_XCB, vWindow_XCB );
+   xcb_flush( vConnection_XCB );
 }
 
 
@@ -617,6 +620,8 @@ bool iWindow::grabMouse() {
       return false;
    }
 
+   xcb_flush( vConnection_XCB );
+
    vIsMouseGrabbed_B = true;
    iLOG( "Mouse grabbed; status: ", lStatus );
 
@@ -640,6 +645,7 @@ void iWindow::freeMouse() {
 
 
    xcb_ungrab_pointer( vConnection_XCB, XCB_CURRENT_TIME );
+   xcb_flush( vConnection_XCB );
    vIsMouseGrabbed_B = false;
    iLOG( "Mouse ungrabbed" );
 }
@@ -671,6 +677,8 @@ void iWindow::moveMouse( unsigned int _posX, unsigned int _posY ) {
                      static_cast<int>( _posX ), // Posx in the window
                      static_cast<int>( _posY )  // Posy in the window
                      );
+
+   xcb_flush( vConnection_XCB );
 }
 
 /*!
@@ -683,7 +691,6 @@ bool iWindow::getIsMouseGrabbed() const { return vIsMouseGrabbed_B; }
 
 /*!
  * \brief Hides the cursor
- * \returns true if successful and false if not
  */
 void iWindow::hideMouseCursor() {
    if ( vIsCursorHidden_B ) {
@@ -694,12 +701,12 @@ void iWindow::hideMouseCursor() {
    xcb_pixmap_t lPixmap = xcb_generate_id( vConnection_XCB );
    xcb_cursor_t lCursor = xcb_generate_id( vConnection_XCB );
 
-   xcb_create_pixmap( vConnection_XCB,         // Connection to the X-Server
-                      vScreen_XCB->root_depth, // The depth of the screen
-                      lPixmap,                 // The Pixmap ID
-                      vWindow_XCB,             // The drawable
-                      0,                       // width
-                      0                        // height
+   xcb_create_pixmap( vConnection_XCB, // Connection to the X-Server
+                      1,               // The depth of the screen
+                      lPixmap,         // The Pixmap ID
+                      vWindow_XCB,     // The drawable
+                      1,               // width
+                      1                // height
                       );
 
    xcb_create_cursor( vConnection_XCB, lCursor, lPixmap, lPixmap, 0, 0, 0, 0, 0, 0, 0, 0 );
@@ -708,14 +715,13 @@ void iWindow::hideMouseCursor() {
    xcb_free_pixmap( vConnection_XCB, lPixmap );
    xcb_free_cursor( vConnection_XCB, lCursor );
 
+   xcb_flush( vConnection_XCB );
    iLOG( "Cursor hidden" );
-
    vIsCursorHidden_B = true;
 }
 
 /*!
  * \brief Shows the cursor
- * \returns true if successful and false if not
  */
 void iWindow::showMouseCursor() {
    if ( !vIsCursorHidden_B ) {
@@ -723,7 +729,9 @@ void iWindow::showMouseCursor() {
       return;
    }
 
-   xcb_change_window_attributes( vConnection_XCB, vWindow_XCB, XCB_CW_CURSOR, 0 );
+   uint32_t lNewCursor = XCB_CURSOR_NONE;
+   xcb_change_window_attributes( vConnection_XCB, vWindow_XCB, XCB_CW_CURSOR, &lNewCursor );
+   xcb_flush( vConnection_XCB );
    vIsCursorHidden_B = false;
    iLOG( "Cursor visible" );
 }
@@ -734,8 +742,23 @@ void iWindow::showMouseCursor() {
  */
 bool iWindow::getIsCursorHidden() const { return vIsCursorHidden_B; }
 
+/*!
+ * \brief Get if the window is created
+ * \returns true if the window is created
+ */
+bool iWindow::getIsWindowCreated() const { return vWindowCreated_B; }
 
+/*!
+ * \brief Get the XCB connection to the X-Server
+ * \returns the XCB connection to the X-Server
+ */
+xcb_connection_t *iWindow::getXCBConnection() { return vConnection_XCB; }
 
+/*!
+ * \brief Get the XCB WM_DELETE_WINDOW atom
+ * \returns the XCB WM_DELETE_WINDOW atom
+ */
+xcb_atom_t iWindow::getWmDeleteWindowAtom() const { return vWmDeleteWindow_ATOM.getAtom(); }
 
 
 } // unix_x11

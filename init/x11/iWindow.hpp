@@ -53,7 +53,7 @@ class iXCBAtom {
 
    bool genAtom( xcb_connection_t *_connection, std::string _name );
 
-   xcb_atom_t getAtom() { return vAtomReply_XCB->atom; }
+   xcb_atom_t getAtom() const { return vAtomReply_XCB->atom; }
    xcb_atom_t *getAtomRef() { return &vAtomReply_XCB->atom; }
 };
 }
@@ -107,14 +107,16 @@ class INIT_API iWindow : public iRandR, public iKeyboard {
 
 
    void sendX11Event( iXCBAtom &_atom,
-                      int64_t _l0 = 0,
-                      int64_t _l1 = 0,
-                      int64_t _l2 = 0,
-                      int64_t _l3 = 0,
-                      int64_t _l4 = 0 );
+                      uint32_t _l0 = 0,
+                      uint32_t _l1 = 0,
+                      uint32_t _l2 = 0,
+                      uint32_t _l3 = 0,
+                      uint32_t _l4 = 0 );
 
  protected:
    bool vWindowRecreate_B;
+
+   xcb_atom_t getWmDeleteWindowAtom() const;
 
  public:
    iWindow();
@@ -123,6 +125,7 @@ class INIT_API iWindow : public iRandR, public iKeyboard {
    int createWindow();
 
    void getXCBVersion( int *_major, int *_minor );
+   xcb_connection_t *getXCBConnection();
 
    void destroyWindow();
 
@@ -150,6 +153,7 @@ class INIT_API iWindow : public iRandR, public iKeyboard {
    void hideMouseCursor();
    void showMouseCursor();
    bool getIsCursorHidden() const;
+   bool getIsWindowCreated() const;
 
 
    //       unsigned getVertexArrayOpenGL() { return vVertexArray_OGL; }

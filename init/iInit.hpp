@@ -74,7 +74,6 @@ class INIT_API iInit : public windows_win32::iContext {
    SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
 
  private:
-
    std::vector<std::string> vExtensionList;
 
    VkInstance vInstance_vk;
@@ -84,10 +83,6 @@ class INIT_API iInit : public windows_win32::iContext {
    bool vEventLoopHasFinished_B; //!< Has the event loop finished?
 
    std::thread vEventLoop_BT; //!< The thread for the event loop
-   std::thread vQuitMainLoop_BT;
-
-   std::thread vRestartThread_BT;
-   std::thread vPauseThread_BT;
 
    std::mutex vEventLoopMutex_BT;
 
@@ -122,8 +117,8 @@ class INIT_API iInit : public windows_win32::iContext {
    void destroyVulkan();
 
    // Thread Functions --------------------------------------------------------- ###
-   int eventLoop();        //!< The event loop function ( In PLATFORM/e_event.cpp )
-   int quitMainLoopCall(); //!< The actual function to quit the main loop
+   int eventLoop();         //!< The event loop function ( In PLATFORM/e_event.cpp )
+   void quitMainLoopCall(); //!< The actual function to quit the main loop
 
    // Signal handling ---------------------------------------------------------- ###
    static void handleSignal( int _signal ); //!< The signal handle function
@@ -148,12 +143,7 @@ class INIT_API iInit : public windows_win32::iContext {
    bool enableDefaultGrabControl();
    bool disableDefaultGrabControl();
 
-   /*!
-    * \brief Quit the main loop and close the window
-    * \param _waitUntilClosed Wait until window is closed  \c DEFAULT: \b false
-    * \returns \c SUCCESS: \a 1 -- \c FAIL: \a 0
-    */
-   int closeWindow( bool _waitUntilClosed = false );
+   void closeWindow();
 
    bool isExtensionSupported( std::string _extension );
 

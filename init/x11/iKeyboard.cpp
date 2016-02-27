@@ -27,8 +27,11 @@
 #define XK_MISCELLANY
 #define XK_XKB_KEYS
 
+#include "defines.hpp"
+
 #include <X11/keysymdef.h>
 #include "iKeyboard.hpp"
+#include "uLog.hpp"
 
 namespace e_engine {
 
@@ -839,7 +842,7 @@ static struct codepair {
 };
 
 
-wchar_t iKeyboard::keysym2unicode( KeySym keysym ) {
+wchar_t iKeyboard::keysym2unicode( xcb_keysym_t keysym ) {
    int min = 0;
    int max = sizeof( keysymtab ) / sizeof( struct codepair ) - 1;
    int mid;
@@ -869,54 +872,44 @@ wchar_t iKeyboard::keysym2unicode( KeySym keysym ) {
    return E_UNKNOWN;
 }
 
-wchar_t iKeyboard::processX11KeyInput( XKeyPressedEvent _kEv,
+wchar_t iKeyboard::processX11KeyInput( xcb_keycode_t _kEv,
                                        short unsigned int _key_state,
-                                       Display *_display ) {
-   KeySym key;
-   int level1 = 0, level2 = 0, level2_temp;
+                                       uint32_t _modMask,
+                                       xcb_connection_t *_connection ) {
+   uint32_t shift = 0, numLock = 0, altGR = 0, control = 0; // alt = 0
 
    // Num-Lock? Shift?
-   XKeyboardState state;
-   XGetKeyboardControl( _display, &state );
-   switch ( state.led_mask ) {
-      ///   Num-Lock      Shift
-      case 0:
-         level1 = 0;
-         level2 = 0;
-         break; // Num-Lock: off  ;  Shift: off
-      case 1:
-         level1 = 0;
-         level2 = 1;
-         break; // Num-Lock: off  ;  Shift: on
-      case 2:
-         level1 = 1;
-         level2 = 0;
-         break; // Num-Lock: on   ;  Shift: off
-      case 3:
-         level1 = 1;
-         level2 = 1;
-         break; // Num-Lock: on   ;  Shift: on
-      default:
-         level1 = 0;
-         level2 = 0;
-         break;
-   }
-   level2_temp = level2;
-   if ( ( getKeyState( E_KEY_L_SHIFT ) == E_PRESSED ) && ( level2 == 1 ) ) {
-      level2_temp = 0;
-   } else if ( ( getKeyState( E_KEY_L_SHIFT ) == E_PRESSED ) && ( level2 == 0 ) ) {
-      level2_temp = 1;
-   } else if ( ( getKeyState( E_KEY_R_SHIFT ) == E_PRESSED ) && ( level2 == 1 ) ) {
-      level2_temp = 0;
-   } else if ( ( getKeyState( E_KEY_R_SHIFT ) == E_PRESSED ) && ( level2 == 0 ) ) {
-      level2_temp = 1;
-   }
-   level2 = level2_temp;
+   auto lControlCookie = xcb_get_keyboard_control( _connection );
+   auto *lControl      = xcb_get_keyboard_control_reply( _connection, lControlCookie, NULL );
 
-   if ( level1 == 1 ) {
-      // Get KeySym for Num-Lock
-      key = XkbKeycodeToKeysym( _display, static_cast<KeyCode>( _kEv.keycode ), 0, level1 );
-      switch ( key ) {
+   if ( lControl == NULL ) {
+      eLOG( "xcb_get_keyboard_control error" );
+      return E_UNKNOWN;
+   }
+
+   numLock = lControl->led_mask & XCB_MOD_MASK_LOCK;
+   shift   = _modMask & XCB_MOD_MASK_SHIFT;
+   altGR   = _modMask & XCB_MOD_MASK_5;
+   control = _modMask & XCB_MOD_MASK_CONTROL;
+   // alt     = _modMask & XCB_MOD_MASK_1;
+
+   // Get KeySym for the rest
+   auto lKBCookie      = xcb_get_keyboard_mapping( _connection, _kEv, 1 );
+   auto *lKB           = xcb_get_keyboard_mapping_reply( _connection, lKBCookie, NULL );
+   xcb_keysym_t *lKeys = xcb_get_keyboard_mapping_keysyms( lKB );
+
+   if ( lKeys == NULL ) {
+      eLOG( "xcb_get_keyboard_mapping_keysyms failed!" );
+      return E_UNKNOWN;
+   }
+
+   if ( xcb_get_keyboard_mapping_keysyms_length( lKB ) < 7 ) {
+      eLOG( "xcb_get_keyboard_mapping_keysyms_length < 7" );
+      return E_UNKNOWN;
+   }
+
+   if ( numLock ) {
+      switch ( lKeys[3] ) {
          case XK_KP_0: setKeyState( E_KEY_KP_0, _key_state ); return E_KEY_KP_0;
          case XK_KP_1: setKeyState( E_KEY_KP_1, _key_state ); return E_KEY_KP_1;
          case XK_KP_2: setKeyState( E_KEY_KP_2, _key_state ); return E_KEY_KP_2;
@@ -930,8 +923,19 @@ wchar_t iKeyboard::processX11KeyInput( XKeyPressedEvent _kEv,
       }
    }
 
-   // Get KeySym for the rest
-   key = XkbKeycodeToKeysym( _display, static_cast<KeyCode>( _kEv.keycode ), 0, level2 );
+   xcb_keysym_t key = lKeys[0];
+
+   if ( shift )
+      if ( lKeys[1] != 0 )
+         key = lKeys[1];
+
+   if ( control )
+      if ( lKeys[2] != 0 )
+         key = lKeys[2];
+
+   if ( altGR )
+      if ( lKeys[4] != 0 )
+         key = lKeys[4];
 
    // printable keys
    if ( ( key >= 32 && key <= 126 ) || ( key >= 160 && key <= 255 ) ) {

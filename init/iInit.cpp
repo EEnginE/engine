@@ -149,6 +149,7 @@ std::string iInit::vkResultToString( VkResult _res ) {
       case VK_RESULT_RANGE_SIZE: return "VK_RESULT_RANGE_SIZE";
       case VK_RESULT_MAX_ENUM: return "VK_RESULT_MAX_ENUM";
    }
+   return "UNKNOWN";
 }
 
 int iInit::loadExtensionList() {
@@ -301,7 +302,7 @@ int iInit::init() {
    vCreateWindowReturn_I = createWindow();
 #endif
 
-   if ( vCreateWindowReturn_I != 1 ) {
+   if ( vCreateWindowReturn_I != 0 ) {
       return vCreateWindowReturn_I;
    }
 
@@ -323,9 +324,6 @@ int iInit::shutdown() {
    destroyVulkan();
    closeWindow();
 
-   if ( vEventLoop_BT.joinable() )
-      vEventLoop_BT.join();
-
    return LOG.stopLogLoop();
 }
 
@@ -337,8 +335,6 @@ void iInit::handleSignal( int _signal ) {
    if ( _signal == SIGINT ) {
       if ( GlobConf.handleSIGINT == true ) {
          wLOG( "Received SIGINT (Crt-C) => Closing Window and exiting(5);" );
-         _THIS->closeWindow( true );
-         _THIS->destroyWindow();
          _THIS->shutdown();
          exit( 5 );
       }
@@ -348,8 +344,6 @@ void iInit::handleSignal( int _signal ) {
    if ( _signal == SIGTERM ) {
       if ( GlobConf.handleSIGTERM == true ) {
          wLOG( "Received SIGTERM => Closing Window and exiting(6);" );
-         _THIS->closeWindow( true );
-         _THIS->destroyWindow();
          _THIS->shutdown();
          exit( 6 );
       }
@@ -381,11 +375,6 @@ int iInit::startMainLoop( bool _wait ) {
 
    vResize_SIG.send( _tempInfo );
 
-   if ( !vAreRenderLoopSignalsConnected_B ) {
-      eLOG( "iInit is not yet connected with a render system!" );
-      return 0;
-   }
-
 #if UNIX_X11
    vEventLoop_BT = std::thread( &iInit::eventLoop, this );
 #elif WINDOWS
@@ -408,49 +397,27 @@ int iInit::startMainLoop( bool _wait ) {
       if ( vEventLoop_BT.joinable() )
          vEventLoop_BT.join();
 #endif
-
-      // Wait for quit main loop to finish
-      if ( vQuitMainLoop_BT.joinable() )
-         vQuitMainLoop_BT.join();
    }
 
    return 1;
 }
 
-void iInit::quitMainLoop() { vQuitMainLoop_BT = std::thread( &iInit::quitMainLoopCall, this ); }
+void iInit::quitMainLoop() { vMainLoopRunning_B = false; }
 
+/*!
+ * \brief Quit the main loop and close the window
+ */
+void iInit::closeWindow() {
+   if ( vIsVulkanSetup_B || !getIsWindowCreated() )
+      return;
 
-
-int iInit::quitMainLoopCall() {
-   vMainLoopRunning_B = false;
-   LOG.nameThread( L"kill" );
-
-#if WINDOWS
-   vContinueWithEventLoop_B = false;
-#else
-   if ( !vEventLoopHasFinished_B )
-      vEventLoop_BT.join();
-
-   if ( !vEventLoopHasFinished_B ) {
-      wLOG( "Event Loop thread finished abnormaly" );
-      vEventLoopHasFinished_B = true;
-   }
-   iLOG( "Event loop finished" );
-#endif
-
-   return 1;
-}
-
-
-int iInit::closeWindow( bool _waitUntilClosed ) {
-   if ( vIsVulkanSetup_B ) {
-      return 0;
-   }
    if ( vMainLoopRunning_B ) {
       quitMainLoop();
-      if ( _waitUntilClosed && vQuitMainLoop_BT.joinable() )
-         vQuitMainLoop_BT.join();
    }
+
+   if ( vEventLoop_BT.joinable() )
+      vEventLoop_BT.join();
+
    destroyWindow();
 
 #if WINDOWS
@@ -471,7 +438,6 @@ int iInit::closeWindow( bool _waitUntilClosed ) {
 #endif
 
    vCreateWindowReturn_I = -1000;
-   return 1;
 }
 
 bool iInit::isExtensionSupported( std::string _extension ) {

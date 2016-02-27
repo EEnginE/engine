@@ -24,259 +24,203 @@
 #include <X11/XKBlib.h>
 #include <sys/time.h>
 
-/*
- * From class iInit (e_init.h)
- */
-
-/*!
- * \brief Add 2 timevals
- * \param[in]  a      timeval 1
- * \param[in]  b      timeval 2
- * \param[out] result the result
- */
-static inline void addTimeval( timeval &a, timeval &b, timeval &result ) {
-   result.tv_sec  = a.tv_sec + b.tv_sec;
-   result.tv_usec = a.tv_usec + b.tv_usec;
-   while ( result.tv_usec >= 1000000 ) {
-      result.tv_sec++;
-      result.tv_usec -= 1000000;
-   }
-}
-
-/*!
- * \brief Subtract 2 timevals
- * \param[in]  a      timeval 1
- * \param[in]  b      timeval 2
- * \param[out] result the result
- */
-static inline void subTimeval( timeval &a, timeval &b, timeval &result ) {
-   result.tv_sec  = a.tv_sec - b.tv_sec;
-   result.tv_usec = a.tv_usec - b.tv_usec;
-   while ( result.tv_usec < 0 ) {
-      result.tv_sec--;
-      result.tv_usec += 1000000;
-   }
-}
 
 namespace e_engine {
 
 // namespace unix_x11 {
 
+#define CAST_EVENT( type, source, dest )                                                           \
+   xcb_##type##_event_t *dest = reinterpret_cast<xcb_##type##_event_t *>( source );
 
 int iInit::eventLoop() {
    //! \todo Move this in namespace unix_x11
-#if 0
    vEventLoopHasFinished_B = false;
+
+   xcb_generic_event_t *lEvent_XCB;
+   xcb_connection_t *lConnection_XCB = getXCBConnection();
+   uint32_t lAutoRepeatType          = XCB_AUTO_REPEAT_MODE_ON;
+
    XEvent lEvent_X11;
    unsigned int lKeyState_uI, lButtonState_uI;
-   timeval tv_select, tv, periode;
 
    LOG.nameThread( L"EVENT" );
 
    iLOG( "Event loop started" );
 
-   int x11_fd;
-   fd_set in_fds;
-   x11_fd = ConnectionNumber( getDisplay() );
-
-   // Timeout
-   periode.tv_sec  = 0;
-   periode.tv_usec = 250000;
-
-   // Prepare timevals
-   tv_select.tv_sec  = periode.tv_sec;
-   tv_select.tv_usec = periode.tv_usec;
-   gettimeofday( &tv, nullptr );
-   addTimeval( tv, periode, tv );
-
    // Fix autotype keyrelease
-   int lAutoRepeatTempReturn_B;
-   if ( !XkbSetDetectableAutoRepeat( getDisplay(), 1, &lAutoRepeatTempReturn_B ) ) {
-      wLOG( "Failed to better handle autorepeat (when holdink key down)" );
-   }
+   xcb_change_keyboard_control( lConnection_XCB, XCB_KB_AUTO_REPEAT_MODE, &lAutoRepeatType );
 
    while ( vMainLoopRunning_B ) {
-      if ( vEventLoopPaused_B ) {
-         std::unique_lock<std::mutex> lLock_BT( vEventLoopMutex_BT );
-         vEventLoopISPaused_B = true;
-         while ( vEventLoopPaused_B )
-            vEventLoopWait_BT.wait( lLock_BT );
-         vEventLoopISPaused_B = false;
-      }
+      lEvent_XCB = xcb_wait_for_event( lConnection_XCB );
 
-      FD_ZERO( &in_fds );
-      FD_SET( x11_fd, &in_fds );
+      lKeyState_uI    = E_PRESSED;
+      lButtonState_uI = E_PRESSED;
+      char lEvent_CSTR[6];
+      snprintf( lEvent_CSTR, 5, "%04X", lEvent_X11.type );
 
-      // Wait for X Event
-      if ( select( x11_fd + 1, &in_fds, nullptr, nullptr, &tv_select ) ) {
-         // Event
-         gettimeofday( &tv_select, nullptr );
-         subTimeval( tv, tv_select, tv_select );
-      } else {
-         // Tiemout
-         tv_select.tv_sec  = periode.tv_sec;
-         tv_select.tv_usec = periode.tv_usec;
-         gettimeofday( &tv, nullptr );
-         addTimeval( tv, periode, tv );
-      }
+      switch ( lEvent_XCB->response_type ) {
+         case XCB_RESIZE_REQUEST: {
+            CAST_EVENT( resize_request, lEvent_XCB, lEvent );
+            if ( lEvent->width != static_cast<int>( GlobConf.win.width ) ||
+                 lEvent->height != static_cast<int>( GlobConf.win.height ) ) {
 
-      while ( XPending( getDisplay() ) > 0 && vIsVulkanSetup_B ) {
-
-         XNextEvent( getDisplay(), &lEvent_X11 );
-         lKeyState_uI    = E_PRESSED;
-         lButtonState_uI = E_PRESSED;
-         char lEvent_CSTR[6];
-         snprintf( lEvent_CSTR, 5, "%04X", lEvent_X11.type );
-         switch ( lEvent_X11.type ) {
-
-            case ConfigureNotify:
-               if ( lEvent_X11.xconfigure.width != static_cast<int>( GlobConf.win.width ) ||
-                    lEvent_X11.xconfigure.height != static_cast<int>( GlobConf.win.height ) ||
-                    lEvent_X11.xconfigure.x != GlobConf.win.posX ||
-                    lEvent_X11.xconfigure.y != GlobConf.win.posY ) {
-
-                  iEventInfo tempInfo( this );
-                  tempInfo.type = E_EVENT_RESIZE;
-
-                  tempInfo.eResize.width = GlobConf.win.width =
-                        static_cast<unsigned>( lEvent_X11.xconfigure.width );
-                  tempInfo.eResize.height = GlobConf.win.height =
-                        static_cast<unsigned>( lEvent_X11.xconfigure.height );
-
-                  tempInfo.eResize.posX = GlobConf.win.posX = lEvent_X11.xconfigure.x;
-                  tempInfo.eResize.posY = GlobConf.win.posY = lEvent_X11.xconfigure.y;
-
-                  vResize_SIG( tempInfo );
-               }
-               break;
-
-            case KeyRelease: lKeyState_uI = E_RELEASED; FALLTHROUGH
-            case KeyPress: {
                iEventInfo tempInfo( this );
-               tempInfo.type       = E_EVENT_KEY;
-               tempInfo.eKey.state = lKeyState_uI;
-               tempInfo.eKey.key = processX11KeyInput(
-                     lEvent_X11.xkey, static_cast<unsigned short>( lKeyState_uI ), getDisplay() );
-               vKey_SIG( tempInfo );
-            } break;
+               tempInfo.type          = E_EVENT_RESIZE;
+               tempInfo.eResize.width = GlobConf.win.width = lEvent->width;
+               tempInfo.eResize.height = GlobConf.win.height = lEvent->height;
+               tempInfo.eResize.posX = GlobConf.win.posX;
+               tempInfo.eResize.posY = GlobConf.win.posY;
 
-            case ButtonRelease: lButtonState_uI = E_RELEASED; FALLTHROUGH
-            case ButtonPress: {
-               iEventInfo tempInfo( this );
-               tempInfo.type         = E_EVENT_MOUSE;
-               tempInfo.iMouse.state = static_cast<int>( lButtonState_uI );
-               tempInfo.iMouse.posX  = static_cast<unsigned>( lEvent_X11.xbutton.x );
-               tempInfo.iMouse.posY  = static_cast<unsigned>( lEvent_X11.xbutton.y );
-
-               // clang-format off
-               switch ( lEvent_X11.xbutton.button ) {
-                  case Button1: tempInfo.iMouse.button = E_MOUSE_LEFT;       break;
-                  case Button2: tempInfo.iMouse.button = E_MOUSE_MIDDLE;     break;
-                  case Button3: tempInfo.iMouse.button = E_MOUSE_RIGHT;      break;
-                  case Button4: tempInfo.iMouse.button = E_MOUSE_WHEEL_UP;   break;
-                  case Button5: tempInfo.iMouse.button = E_MOUSE_WHEEL_DOWN; break;
-                  case 6:       tempInfo.iMouse.button = E_MOUSE_1;          break;
-                  case 7:       tempInfo.iMouse.button = E_MOUSE_2;          break;
-                  case 8:       tempInfo.iMouse.button = E_MOUSE_3;          break;
-                  case 9:       tempInfo.iMouse.button = E_MOUSE_4;          break;
-                  case 10:      tempInfo.iMouse.button = E_MOUSE_5;          break;
-                  default:
-                     tempInfo.iMouse.button                              = E_MOUSE_UNKNOWN;
-                     wLOG( "Unknown mouse button: ", lEvent_X11.xbutton.button );
-               }
-               // clang-format on
-
-               vMouse_SIG( tempInfo );
-            } break;
-
-
-            case MotionNotify: {
-               iEventInfo tempInfo( this );
-
-               tempInfo.iMouse.button = E_MOUSE_MOVE;
-               tempInfo.type          = E_EVENT_MOUSE;
-
-               GlobConf.win.mousePosX = tempInfo.iMouse.posX =
-                     static_cast<unsigned>( lEvent_X11.xmotion.x );
-               GlobConf.win.mousePosY = tempInfo.iMouse.posY =
-                     static_cast<unsigned>( lEvent_X11.xmotion.y );
-
-               tempInfo.iMouse.state = E_PRESSED;
-
-               GlobConf.win.mouseIsInWindow = true;
-
-               vMouse_SIG( tempInfo );
-            } break;
-
-            case EnterNotify: {
-               iEventInfo tempInfo( this );
-
-               tempInfo.iMouse.button = E_MOUSE_ENTER;
-               tempInfo.type          = E_EVENT_MOUSE;
-
-               GlobConf.win.mousePosX = tempInfo.iMouse.posX =
-                     static_cast<unsigned>( lEvent_X11.xmotion.x );
-               GlobConf.win.mousePosY = tempInfo.iMouse.posY =
-                     static_cast<unsigned>( lEvent_X11.xmotion.y );
-
-               tempInfo.iMouse.state = E_PRESSED;
-
-               GlobConf.win.mouseIsInWindow = true;
-
-               vMouse_SIG( tempInfo );
-            } break;
-
-            case LeaveNotify: {
-               iEventInfo tempInfo( this );
-
-               tempInfo.iMouse.button = E_MOUSE_LEAVE;
-               tempInfo.type          = E_EVENT_MOUSE;
-
-               GlobConf.win.mousePosX = tempInfo.iMouse.posX =
-                     static_cast<unsigned>( lEvent_X11.xmotion.x );
-               GlobConf.win.mousePosY = tempInfo.iMouse.posY =
-                     static_cast<unsigned>( lEvent_X11.xmotion.y );
-
-               tempInfo.iMouse.state = E_PRESSED;
-
-               GlobConf.win.mouseIsInWindow = false;
-
-               vMouse_SIG( tempInfo );
-            } break;
-
-            case FocusIn: {
-               iEventInfo tempInfo( this );
-               tempInfo.type               = E_EVENT_FOCUS;
-               GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = true;
-               vFocus_SIG( tempInfo );
-            } break;
-
-            case FocusOut: {
-               iEventInfo tempInfo( this );
-               tempInfo.type               = E_EVENT_FOCUS;
-               GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = false;
-               vFocus_SIG( tempInfo );
-            } break;
-
-#if 0
-            case ClientMessage:
-               // Check if the User pressed the [x] button or ALT+F4 [etc.]
-               if ( static_cast<Atom>( lEvent_X11.xclient.data.l[0] ) ==
-                    unix_x11::atom_wmDeleteWindow ) {
-                  iLOG( "User pressed the close button" );
-                  iEventInfo tempInfo( this );
-                  tempInfo.type = E_EVENT_WINDOWCLOSE;
-                  vWindowClose_SIG( tempInfo );
-               }
-               break;
-#endif
-
-            default: dLOG( "Found Unknown Event: 0x", lEvent_CSTR ); break;
+               vResize_SIG( tempInfo );
+            }
          }
+
+         case XCB_CONFIGURE_NOTIFY: {
+            CAST_EVENT( configure_notify, lEvent_XCB, lEvent );
+            if ( lEvent->width != static_cast<int>( GlobConf.win.width ) ||
+                 lEvent->height != static_cast<int>( GlobConf.win.height ) ||
+                 lEvent->x != GlobConf.win.posX || lEvent->y != GlobConf.win.posY ) {
+
+               iEventInfo tempInfo( this );
+               tempInfo.type          = E_EVENT_RESIZE;
+               tempInfo.eResize.width = GlobConf.win.width = lEvent->width;
+               tempInfo.eResize.height = GlobConf.win.height = lEvent->height;
+               tempInfo.eResize.posX = GlobConf.win.posX = lEvent->x;
+               tempInfo.eResize.posY = GlobConf.win.posY = lEvent->y;
+
+               vResize_SIG( tempInfo );
+            }
+            break;
+         }
+
+         case XCB_KEY_RELEASE: lKeyState_uI = E_RELEASED; FALLTHROUGH
+         case XCB_KEY_PRESS: {
+            CAST_EVENT( key_press, lEvent_XCB, lEvent );
+            iEventInfo tempInfo( this );
+            tempInfo.type       = E_EVENT_KEY;
+            tempInfo.eKey.state = lKeyState_uI;
+            tempInfo.eKey.key = processX11KeyInput( lEvent->detail,
+                                                    static_cast<unsigned short>( lKeyState_uI ),
+                                                    lEvent->state,
+                                                    lConnection_XCB );
+            vKey_SIG( tempInfo );
+         } break;
+
+         case XCB_BUTTON_RELEASE: lButtonState_uI = E_RELEASED; FALLTHROUGH
+         case XCB_BUTTON_PRESS: {
+            CAST_EVENT( button_press, lEvent_XCB, lEvent );
+            iEventInfo tempInfo( this );
+            tempInfo.type         = E_EVENT_MOUSE;
+            tempInfo.iMouse.state = static_cast<int>( lButtonState_uI );
+            tempInfo.iMouse.posX  = lEvent->event_x;
+            tempInfo.iMouse.posY  = lEvent->event_y;
+
+            tempInfo.iMouse.button = E_MOUSE_LEFT;
+
+            // clang-format off
+            switch ( lEvent->detail ) {
+               case 1:  tempInfo.iMouse.button = E_MOUSE_LEFT;       break;
+               case 2:  tempInfo.iMouse.button = E_MOUSE_MIDDLE;     break;
+               case 3:  tempInfo.iMouse.button = E_MOUSE_RIGHT;      break;
+               case 4:  tempInfo.iMouse.button = E_MOUSE_WHEEL_UP;   break;
+               case 5:  tempInfo.iMouse.button = E_MOUSE_WHEEL_DOWN; break;
+               case 6:  tempInfo.iMouse.button = E_MOUSE_1;          break;
+               case 7:  tempInfo.iMouse.button = E_MOUSE_2;          break;
+               case 8:  tempInfo.iMouse.button = E_MOUSE_3;          break;
+               case 9:  tempInfo.iMouse.button = E_MOUSE_4;          break;
+               case 10: tempInfo.iMouse.button = E_MOUSE_5;          break;
+               default:
+                  tempInfo.iMouse.button       = E_MOUSE_UNKNOWN;
+                  wLOG( "Unknown mouse button: ", lEvent_X11.xbutton.button );
+            }
+            // clang-format on
+
+            vMouse_SIG( tempInfo );
+         } break;
+
+
+         case XCB_MOTION_NOTIFY: {
+            CAST_EVENT( motion_notify, lEvent_XCB, lEvent );
+            iEventInfo tempInfo( this );
+
+            tempInfo.iMouse.button = E_MOUSE_MOVE;
+            tempInfo.type          = E_EVENT_MOUSE;
+            tempInfo.iMouse.state  = E_PRESSED;
+            tempInfo.iMouse.posX = GlobConf.win.mousePosX = lEvent->event_x;
+            tempInfo.iMouse.posY = GlobConf.win.mousePosY = lEvent->event_y;
+
+            GlobConf.win.mouseIsInWindow = true;
+            vMouse_SIG( tempInfo );
+         } break;
+
+         case XCB_ENTER_NOTIFY: {
+            CAST_EVENT( enter_notify, lEvent_XCB, lEvent );
+            iEventInfo tempInfo( this );
+
+            tempInfo.iMouse.button = E_MOUSE_ENTER;
+            tempInfo.type          = E_EVENT_MOUSE;
+            tempInfo.iMouse.state  = E_PRESSED;
+            tempInfo.iMouse.posX = GlobConf.win.mousePosX = lEvent->event_x;
+            tempInfo.iMouse.posY = GlobConf.win.mousePosY = lEvent->event_y;
+
+            GlobConf.win.mouseIsInWindow = true;
+            vMouse_SIG( tempInfo );
+         } break;
+
+         case XCB_LEAVE_NOTIFY: {
+            CAST_EVENT( leave_notify, lEvent_XCB, lEvent );
+            iEventInfo tempInfo( this );
+
+            tempInfo.iMouse.button = E_MOUSE_LEAVE;
+            tempInfo.type          = E_EVENT_MOUSE;
+            tempInfo.iMouse.state  = E_PRESSED;
+            tempInfo.iMouse.posX = GlobConf.win.mousePosX = lEvent->event_x;
+            tempInfo.iMouse.posY = GlobConf.win.mousePosY = lEvent->event_y;
+
+            GlobConf.win.mouseIsInWindow = false;
+            vMouse_SIG( tempInfo );
+         } break;
+
+         case XCB_FOCUS_IN: {
+            iEventInfo tempInfo( this );
+            tempInfo.type               = E_EVENT_FOCUS;
+            GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = true;
+            vFocus_SIG( tempInfo );
+         } break;
+
+         case XCB_FOCUS_OUT: {
+            iEventInfo tempInfo( this );
+            tempInfo.type               = E_EVENT_FOCUS;
+            GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = false;
+            vFocus_SIG( tempInfo );
+         } break;
+
+         case XCB_CLIENT_MESSAGE: {
+            CAST_EVENT( client_message, lEvent_XCB, lEvent );
+            // Check if the User pressed the [x] button or ALT+F4 [etc.]
+            if ( lEvent->type == getWmDeleteWindowAtom() ) {
+               iLOG( "User pressed the close button" );
+               iEventInfo tempInfo( this );
+               tempInfo.type = E_EVENT_WINDOWCLOSE;
+               vWindowClose_SIG( tempInfo );
+            }
+            break;
+         }
+
+         case XCB_DESTROY_NOTIFY: {
+            iLOG( "User pressed the close button" );
+            iEventInfo tempInfo( this );
+            tempInfo.type = E_EVENT_WINDOWCLOSE;
+            vWindowClose_SIG( tempInfo );
+            break;
+         }
+
+         default: dLOG( "Found Unknown Event: ", lEvent_XCB->response_type ); break;
       }
    }
+
+   iLOG( "Event Loop finished" );
    vEventLoopHasFinished_B = true;
-#endif
    return 1;
 }
 
