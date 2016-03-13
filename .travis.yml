@@ -7,6 +7,9 @@ compiler:
    - gcc
 #   - clang Clang / libstdc++ bug: https://llvm.org/bugs/show_bug.cgi?id=25861
 
+python:
+   - 3.5
+
 addons:
    apt:
       sources:
@@ -40,7 +43,7 @@ before_install:
    - make -j2 install
    - popd
    
-   - sudo pip3 install lxml
+   - sudo pip install lxml
    - git clone https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
    - mkdir -p Vulkan-LoaderAndValidationLayers/build
    - pushd Vulkan-LoaderAndValidationLayers/build
