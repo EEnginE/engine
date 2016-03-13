@@ -20,6 +20,9 @@ addons:
          - libx11-dev
          - libx11-xcb-dev
          - libxcb1-dev
+         - libxcb-xkb-dev
+         - libxcb-randr0-dev
+         - libxcb-keysyms1-dev
          - libxrandr-dev
          - graphviz # VulkanSDK
          - graphviz-dev
