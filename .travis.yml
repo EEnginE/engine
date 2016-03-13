@@ -7,9 +7,6 @@ compiler:
    - gcc
 #   - clang Clang / libstdc++ bug: https://llvm.org/bugs/show_bug.cgi?id=25861
 
-python:
-   - "3.5"
-
 addons:
    apt:
       sources:
@@ -22,6 +19,8 @@ addons:
          #- clang-3.7
          - libx11-dev
          - libxrandr-dev
+         - graphviz # VulkanSDK
+         - graphviz-dev
 
 before_install:
 #   - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.7 main" | sudo tee -a /etc/apt/sources.list
