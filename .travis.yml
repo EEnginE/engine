@@ -28,7 +28,7 @@ before_install:
 #   - wget -O - "http://llvm.org/apt/llvm-snapshot.gpg.key"|sudo apt-key add -
 #   - sudo apt-get update -q
 #   - sudo apt-get install libvulkan-dev vulkan-utils -y #clang-3.7 -qq
-   - sudo pip install lxml # For Vulkan
+   - sudo $(which python3) $(which pip) install lxml # For Vulkan
 
    - wget https://cmake.org/files/v3.4/cmake-3.4.0-Linux-x86_64.tar.gz -O cmake.tar.gz
    - tar -xf cmake.tar.gz
