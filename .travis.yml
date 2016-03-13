@@ -19,6 +19,7 @@ addons:
          #- clang-3.7
          - libx11-dev
          - libx11-xcb-dev
+         - libxcb1-dev
          - libxrandr-dev
          - graphviz # VulkanSDK
          - graphviz-dev
