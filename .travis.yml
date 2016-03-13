@@ -40,7 +40,7 @@ before_install:
    - make -j2 install
    - popd
    
-   - sudo pip install lxml
+   - sudo pip3 install lxml
    - git clone https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
    - mkdir -p Vulkan-LoaderAndValidationLayers/build
    - pushd Vulkan-LoaderAndValidationLayers/build
