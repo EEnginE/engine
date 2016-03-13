@@ -33,6 +33,13 @@ before_install:
    - LOCAL_INST="$(pwd)/localInstall"
    - echo "Installing Vulkan to $LOCAL_INST"
    
+   - git clone https://github.com/KhronosGroup/glslang
+   - mkdir -p glslang/build
+   - pushd glslang/build
+   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="$LOCAL_INST" ..
+   - make -j2 install
+   - popd
+   
    - git clone https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
    - mkdir -p Vulkan-LoaderAndValidationLayers/build
    - pushd Vulkan-LoaderAndValidationLayers/build
