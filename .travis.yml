@@ -34,29 +34,25 @@ before_install:
    - tar -xf cmake.tar.gz
    - CMAKE_EXEC="$(pwd)/cmake-3.4.0-Linux-x86_64/bin/cmake"
    
-   - mkdir localInstall
-   - LOCAL_INST="$(pwd)/localInstall"
-   - echo "Installing Vulkan to $LOCAL_INST"
-   
    - git clone https://github.com/KhronosGroup/glslang
    - mkdir -p glslang/build
    - pushd glslang/build
-   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="$LOCAL_INST" ..
-   - make -j2 install
+   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="/usr" ..
+   - sudo make -j2 install
    - popd
    
    - git clone https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
    - mkdir -p Vulkan-LoaderAndValidationLayers/build
    - pushd Vulkan-LoaderAndValidationLayers/build
-   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="$LOCAL_INST" ..
-   - make -j2 install
+   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="/usr" ..
+   - sudo make -j2 install
    - popd
    
    - git clone https://github.com/LunarG/VulkanTools
    - mkdir -p VulkanTools/build
    - pushd VulkanTools/build
-   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="$LOCAL_INST" ..
-   - make -j2 install
+   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="/usr" ..
+   - sudo make -j2 install
    - popd
 
 install:
@@ -66,7 +62,7 @@ install:
 script:
    - mkdir build
    - cd build
-   - $CMAKE_EXEC -DVULKAN_PREFIX="$LOCAL_INST" ..
+   - $CMAKE_EXEC ..
    - if [[ "$CXX" == "clang++-3.7" ]]; then travis_wait make -j2; fi # Building GLEW with clang takes more than 10min https://llvm.org/bugs/show_bug.cgi?id=23708
    - if [[ "$CXX" == "g++-5"       ]]; then             make -j2; fi
 
