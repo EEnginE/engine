@@ -24,6 +24,8 @@ tests/*/CMakeLists.txt
 
 Makefile
 /utils/log/uMacros.hpp
+/utils/uEnum2Str.hpp
+/utils/uEnum2Str.cpp
 *config.h
 *config.hpp
 /.project

@@ -30,6 +30,11 @@ function( add_engine_lib LIB_NAME )
 
    message( STATUS "Library ${LIB_NAME}: (depends on:${CM_CURRENT_LIB_DEP})" )
 
+   if( EXISTS ${ENGINE_LIB_ROOT}/${LIB_NAME}/CMakeScript.cmake )
+      message( STATUS "  - Found CMakeScript.cmake" )
+      include( ${ENGINE_LIB_ROOT}/${LIB_NAME}/CMakeScript.cmake )
+   endif( EXISTS ${ENGINE_LIB_ROOT}/${LIB_NAME}/CMakeScript.cmake )
+
    find_source_files(  ${ENGINE_LIB_ROOT}/${LIB_NAME} )
    export_found_files( ${ENGINE_LIB_ROOT}/${LIB_NAME} )
 

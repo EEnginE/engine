@@ -33,6 +33,7 @@ class UTILS_API lGLTF_map {
    lGLTF_map();
    virtual ~lGLTF_map();
 
+ public:
    enum ELEMENTS {
       EXTENSIONS,
       ADDITIONALPROPERTIES,
@@ -299,6 +300,7 @@ class UTILS_API lGLTF_map {
 
    };
 
+ protected:
    std::unordered_map<std::string, ELEMENTS> vMap;
 };
 }

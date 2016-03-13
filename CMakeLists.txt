@@ -128,6 +128,10 @@ message( "" ) # Newline
 # Config Project #
 ##################
 
+# Generate dummy files
+file( WRITE "${PROJECT_SOURCE_DIR}/utils/uEnum2Str.hpp" "" )
+file( WRITE "${PROJECT_SOURCE_DIR}/utils/uEnum2Str.cpp" "" )
+
 add_engine_lib( utils )
 add_engine_lib( init   utils )
 add_engine_lib( loader utils )
@@ -146,6 +150,37 @@ include_directories( ${ENGINE_INCLUDE_DIRECTORIES} ${PROJECT_SOURCE_DIR}/include
 configure_file( "${TEMPLATES_DIR}/defines.in.hpp"      "${PROJECT_SOURCE_DIR}/include/defines.hpp" )
 configure_file( "${TEMPLATES_DIR}/Doxyfile.in"         "${PROJECT_SOURCE_DIR}/Doxyfile" )
 configure_file( "${TEMPLATES_DIR}/FindEngine.cmake.in" "${PROJECT_SOURCE_DIR}/include/FindEngine.cmake" @ONLY )
+
+enum2str_generate(
+   PATH "${PROJECT_SOURCE_DIR}/utils"
+   CLASS_NAME "uEnum2Str"
+   NAMESPACE "e_engine"
+   FUNC_NAME "toStr"
+   INCLUDES "defines.hpp" "vulkan/vulkan.h" "lGLTF_map.hpp"
+   ENUMS
+      # EEnginE
+      "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
+      "glTF::lGLTF_map::ELEMENTS"
+      # Vulkan
+      "VkResult" "VkStructureType" "VkSystemAllocationScope" "VkInternalAllocationType"
+      "VkFormat" "VkImageType" "VkImageTiling" "VkPhysicalDeviceType" "VkQueryType"
+      "VkSharingMode" "VkImageLayout" "VkImageViewType" "VkComponentSwizzle" "VkVertexInputRate"
+      "VkPrimitiveTopology" "VkPolygonMode" "VkFrontFace" "VkCompareOp" "VkStencilOp"
+      "VkLogicOp" "VkBlendFactor" "VkBlendOp" "VkDynamicState" "VkFilter" "VkSamplerMipmapMode"
+      "VkSamplerAddressMode" "VkBorderColor" "VkDescriptorType" "VkAttachmentLoadOp"
+      "VkAttachmentStoreOp" "VkPipelineBindPoint" "VkCommandBufferLevel" "VkIndexType"
+      "VkSubpassContents" "VkFormatFeatureFlagBits" "VkImageUsageFlagBits" "VkImageCreateFlagBits"
+      "VkSampleCountFlagBits" "VkQueueFlagBits" "VkMemoryPropertyFlagBits" "VkMemoryHeapFlagBits"
+      "VkPipelineStageFlagBits" "VkImageAspectFlagBits" "VkSparseImageFormatFlagBits"
+      "VkSparseMemoryBindFlagBits" "VkFenceCreateFlagBits" "VkQueryPipelineStatisticFlagBits"
+      "VkQueryResultFlagBits" "VkBufferCreateFlagBits" "VkBufferUsageFlagBits" "VkPipelineCreateFlagBits"
+      "VkShaderStageFlagBits" "VkCullModeFlagBits" "VkColorComponentFlagBits" "VkDescriptorPoolCreateFlagBits"
+      "VkAttachmentDescriptionFlagBits" "VkAccessFlagBits" "VkDependencyFlagBits"
+      "VkCommandPoolCreateFlagBits" "VkCommandPoolResetFlagBits" "VkCommandBufferUsageFlagBits"
+      "VkQueryControlFlagBits" "VkCommandBufferResetFlagBits" "VkStencilFaceFlagBits"
+
+   BLACKLIST "VK_SAMPLER_ADDRESS_MODE_RANGE_SIZE"
+)
 
 set(DEPENDENCES "${PROJECT_SOURCE_DIR}/include/FindEngine.cmake" )
 set(OTHER_INC   "${PROJECT_SOURCE_DIR}/include/engine.hpp" "${PROJECT_SOURCE_DIR}/include/defines.hpp" )

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LIBS=( utils init render )
+LIBS=( utils init render loader )
 
 ESC_CLEAR="\x1b[2K\x1b[0G\x1b[?25l"
 
@@ -44,6 +44,8 @@ done
 
 rm_save "include"
 rm_save "utils/log/uMacros.hpp"
+rm_save "utils/uEnum2Str.hpp"
+rm_save "utils/uEnum2Str.cpp"
 rm_save Doxyfile
 
 TEMP=$( ls -d tests/*/ )
