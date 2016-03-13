@@ -8,7 +8,7 @@ compiler:
 #   - clang Clang / libstdc++ bug: https://llvm.org/bugs/show_bug.cgi?id=25861
 
 python:
-   - 3.5
+   - "3.5"
 
 addons:
    apt:
@@ -28,6 +28,8 @@ before_install:
 #   - wget -O - "http://llvm.org/apt/llvm-snapshot.gpg.key"|sudo apt-key add -
 #   - sudo apt-get update -q
 #   - sudo apt-get install libvulkan-dev vulkan-utils -y #clang-3.7 -qq
+   - sudo pip install lxml # For Vulkan
+
    - wget https://cmake.org/files/v3.4/cmake-3.4.0-Linux-x86_64.tar.gz -O cmake.tar.gz
    - tar -xf cmake.tar.gz
    - CMAKE_EXEC="$(pwd)/cmake-3.4.0-Linux-x86_64/bin/cmake"
@@ -43,7 +45,6 @@ before_install:
    - make -j2 install
    - popd
    
-   - sudo pip install lxml
    - git clone https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
    - mkdir -p Vulkan-LoaderAndValidationLayers/build
    - pushd Vulkan-LoaderAndValidationLayers/build
