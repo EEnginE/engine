@@ -18,41 +18,26 @@ addons:
          - gcc-5
          #- clang-3.7
          - libx11-dev
+         - libx11-xcb-dev
+         - libxcb1-dev
+         - libxcb-xkb-dev
+         - libxcb-randr0-dev
+         - libxcb-keysyms1-dev
          - libxrandr-dev
+         - graphviz # VulkanSDK
+         - graphviz-dev
 
 before_install:
 #   - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.7 main" | sudo tee -a /etc/apt/sources.list
 #   - wget -O - "http://llvm.org/apt/llvm-snapshot.gpg.key"|sudo apt-key add -
 #   - sudo apt-get update -q
 #   - sudo apt-get install libvulkan-dev vulkan-utils -y #clang-3.7 -qq
-   - wget https://cmake.org/files/v3.4/cmake-3.4.0-Linux-x86_64.tar.gz -O cmake.tar.gz
+   - wget https://cmake.org/files/v3.5/cmake-3.5.0-Linux-x86_64.tar.gz -O cmake.tar.gz
    - tar -xf cmake.tar.gz
-   - CMAKE_EXEC="$(pwd)/cmake-3.4.0-Linux-x86_64/bin/cmake"
-   
-   - mkdir localInstall
-   - LOCAL_INST="$(pwd)/localInstall"
-   - echo "Installing Vulkan to $LOCAL_INST"
-   
-   - git clone https://github.com/KhronosGroup/glslang
-   - mkdir -p glslang/build
-   - pushd glslang/build
-   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="$LOCAL_INST" ..
-   - make -j2 install
-   - popd
-   
-   - git clone https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
-   - mkdir -p Vulkan-LoaderAndValidationLayers/build
-   - pushd Vulkan-LoaderAndValidationLayers/build
-   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="$LOCAL_INST" ..
-   - make -j2 install
-   - popd
-   
-   - git clone https://github.com/LunarG/VulkanTools
-   - mkdir -p VulkanTools/build
-   - pushd VulkanTools/build
-   - $CMAKE_EXEC -DCMAKE_INSTALL_PREFIX="$LOCAL_INST" ..
-   - make -j2 install
-   - popd
+   - CMAKE_EXEC="$(pwd)/cmake-3.5.0-Linux-x86_64/bin/cmake"
+
+   - git clone https://github.com/EEnginE/travisVulkanBinaries
+   - sudo bash ./travisVulkanBinaries/vulkansdk-linux-x86_64-1.0.5.0.run
 
 install:
    - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.7; export CC=clang-3.7; fi
@@ -61,7 +46,7 @@ install:
 script:
    - mkdir build
    - cd build
-   - $CMAKE_EXEC -DVULKAN_PREFIX="$LOCAL_INST" ..
+   - $CMAKE_EXEC ..
    - if [[ "$CXX" == "clang++-3.7" ]]; then travis_wait make -j2; fi # Building GLEW with clang takes more than 10min https://llvm.org/bugs/show_bug.cgi?id=23708
    - if [[ "$CXX" == "g++-5"       ]]; then             make -j2; fi
 
