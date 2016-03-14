@@ -80,6 +80,8 @@ class INIT_API iWindow : public iRandR, public iKeyboard {
    iXCBAtom vNetWmWindowType_ATOM;
    iXCBAtom vNetWmName_ATOM;
    iXCBAtom vNetWmIconName_ATOM;
+   iXCBAtom vWmName_ATOM;
+   iXCBAtom vWmIconName_ATOM;
    iXCBAtom vMotifWmHints_ATOM;
 
 
@@ -116,6 +118,7 @@ class INIT_API iWindow : public iRandR, public iKeyboard {
  protected:
    bool vWindowRecreate_B;
 
+   xcb_atom_t getWmProtocolAtom() const;
    xcb_atom_t getWmDeleteWindowAtom() const;
 
  public:

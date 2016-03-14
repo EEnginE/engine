@@ -67,6 +67,10 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
                         lTypeStr  = "number";
                         lValueStr = std::to_string( iter->value_num );
                         break;
+                     case JSON_INT:
+                        lTypeStr  = "number";
+                        lValueStr = std::to_string( iter->value_int );
+                        break;
                      case JSON_BOOL:
                         lTypeStr  = "boolean";
                         lValueStr = iter->value_bool ? "true" : "false";

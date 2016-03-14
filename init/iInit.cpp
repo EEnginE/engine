@@ -28,12 +28,16 @@
 #include "iInit.hpp"
 #include "uSystem.hpp"
 #include "uLog.hpp"
+#include "uEnum2Str.hpp"
 
 #if D_LOG_VULKAN_INIT
 #define dVkLOG( ... ) dLOG( __VA_ARGS__ )
 #else
 #define dVkLOG( ... )
 #endif
+
+#define GET_VERSION( v )                                                                           \
+   VK_VERSION_MAJOR( v ), L'.', VK_VERSION_MINOR( v ), L'.', VK_VERSION_PATCH( v )
 
 namespace e_engine {
 namespace internal {
@@ -67,6 +71,9 @@ iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
 #if WINDOWS
    vContinueWithEventLoop_B = false;
 #endif
+
+   vExtensionsToUse.emplace_back( VK_KHR_SURFACE_EXTENSION_NAME );
+   vExtensionsToUse.emplace_back( E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME );
 
    _setThisForHandluSignal();
 }
@@ -121,67 +128,61 @@ bool iInit::enableDefaultGrabControl() { return addFocusSlot( &vGrabControl_SLOT
  */
 bool iInit::disableDefaultGrabControl() { return removeFocusSlot( &vGrabControl_SLOT ); }
 
-std::string iInit::vkResultToString( VkResult _res ) {
-   switch ( _res ) {
-      case VK_SUCCESS: return "VK_SUCCESS";
-      case VK_NOT_READY: return "VK_NOT_READY";
-      case VK_TIMEOUT: return "VK_TIMEOUT";
-      case VK_EVENT_SET: return "VK_EVENT_SET";
-      case VK_EVENT_RESET: return "VK_EVENT_RESET";
-      case VK_INCOMPLETE: return "VK_INCOMPLETE";
-      case VK_ERROR_OUT_OF_HOST_MEMORY: return "VK_ERROR_OUT_OF_HOST_MEMORY";
-      case VK_ERROR_OUT_OF_DEVICE_MEMORY: return "VK_ERROR_OUT_OF_DEVICE_MEMORY";
-      case VK_ERROR_INITIALIZATION_FAILED: return "VK_ERROR_INITIALIZATION_FAILED";
-      case VK_ERROR_DEVICE_LOST: return "VK_ERROR_DEVICE_LOST";
-      case VK_ERROR_MEMORY_MAP_FAILED: return "VK_ERROR_MEMORY_MAP_FAILED";
-      case VK_ERROR_LAYER_NOT_PRESENT: return "VK_ERROR_LAYER_NOT_PRESENT";
-      case VK_ERROR_EXTENSION_NOT_PRESENT: return "VK_ERROR_EXTENSION_NOT_PRESENT";
-      case VK_ERROR_FEATURE_NOT_PRESENT: return "VK_ERROR_FEATURE_NOT_PRESENT";
-      case VK_ERROR_INCOMPATIBLE_DRIVER: return "VK_ERROR_INCOMPATIBLE_DRIVER";
-      case VK_ERROR_TOO_MANY_OBJECTS: return "VK_ERROR_TOO_MANY_OBJECTS";
-      case VK_ERROR_FORMAT_NOT_SUPPORTED: return "VK_ERROR_FORMAT_NOT_SUPPORTED";
-      case VK_ERROR_SURFACE_LOST_KHR: return "VK_ERROR_SURFACE_LOST_KHR";
-      case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR: return "VK_ERROR_NATIVE_WINDOW_IN_USE_KHR";
-      case VK_SUBOPTIMAL_KHR: return "VK_SUBOPTIMAL_KHR";
-      case VK_ERROR_OUT_OF_DATE_KHR: return "VK_ERROR_OUT_OF_DATE_KHR";
-      case VK_ERROR_INCOMPATIBLE_DISPLAY_KHR: return "VK_ERROR_INCOMPATIBLE_DISPLAY_KHR";
-      case VK_ERROR_VALIDATION_FAILED_EXT: return "VK_ERROR_VALIDATION_FAILED_EXT";
-      case VK_RESULT_RANGE_SIZE: return "VK_RESULT_RANGE_SIZE";
-      case VK_RESULT_MAX_ENUM: return "VK_RESULT_MAX_ENUM";
+std::vector<VkExtensionProperties> iInit::getExtProprs( std::string _layerName ) {
+   std::vector<VkExtensionProperties> lPorps;
+   uint32_t lExtCount;
+   VkResult lResult;
+
+   const char *lNamePtr = _layerName.empty() ? nullptr : _layerName.c_str();
+
+   lResult = vkEnumerateInstanceExtensionProperties( lNamePtr, &lExtCount, nullptr );
+   if ( lResult != VK_SUCCESS ) {
+      eLOG( "'vkEnumerateInstanceExtensionProperties' returned ", uEnum2Str::toStr( lResult ) );
+      return lPorps;
    }
-   return "UNKNOWN";
+
+   if ( lExtCount == 0 ) {
+      return lPorps;
+   }
+
+   lPorps.resize( lExtCount );
+   lResult = vkEnumerateInstanceExtensionProperties( lNamePtr, &lExtCount, lPorps.data() );
+   if ( lResult != VK_SUCCESS ) {
+      eLOG( "'vkEnumerateInstanceExtensionProperties' returned ", uEnum2Str::toStr( lResult ) );
+      return lPorps;
+   }
+
+   return lPorps;
 }
 
 int iInit::loadExtensionList() {
-   VkResult lResult;
-   uint32_t lExtCount;
+   std::vector<VkExtensionProperties> lPorps;
 
-   lResult = vkEnumerateInstanceExtensionProperties( NULL, &lExtCount, NULL );
+   lPorps = getExtProprs( "" );
 
-   if ( lResult != VK_SUCCESS ) {
-      eLOG( "'vkEnumerateInstanceExtensionProperties' returned ", vkResultToString( lResult ) );
-      return lResult;
+   for ( auto const &i : vLayersToUse ) {
+      std::vector<VkExtensionProperties> lTemp = getExtProprs( i );
+      lPorps.insert( lPorps.end(), lTemp.begin(), lTemp.end() );
    }
 
-   dLOG( "Extensions: ", lExtCount );
-   VkExtensionProperties *lPorps = new VkExtensionProperties[lExtCount];
+   dVkLOG( "Extensions found:" );
 
-   lResult = vkEnumerateInstanceExtensionProperties( NULL, &lExtCount, lPorps );
+   for ( auto const &i : lPorps ) {
+      bool lFound = false;
 
-   if ( lResult != VK_SUCCESS ) {
-      eLOG( "'vkEnumerateInstanceExtensionProperties' returned ", vkResultToString( lResult ) );
-      delete[] lPorps;
-      return lResult;
+      for ( auto const &j : vExtensionList ) {
+         if ( j == i.extensionName ) {
+            lFound = true;
+            break;
+         }
+      }
+
+      if ( lFound )
+         continue;
+
+      dVkLOG( "  -- '", i.extensionName, "'  -  specVersion: ", i.specVersion );
+      vExtensionList.emplace_back( i.extensionName );
    }
-
-   dVkLOG( lExtCount, " Extensions found:" );
-
-   for ( uint32_t i = 0; i < lExtCount; i++ ) {
-      dVkLOG( "  -- '", lPorps[i].extensionName, "'  -  specVersion: ", lPorps[i].specVersion );
-      vExtensionList.emplace_back( lPorps[i].extensionName );
-   }
-
-   delete[] lPorps;
 
    return 0;
 }
@@ -192,58 +193,275 @@ int iInit::loadExtensionList() {
  * \returns  0 -- Success
  * \returns  1 -- Missing extension(s)
  */
-int iInit::initVulkan() {
+int iInit::initVulkan( std::vector<std::string> _layers ) {
    VkResult lResult;
    uint32_t lPorpCount;
 
-   lResult = vkEnumerateInstanceLayerProperties( &lPorpCount, NULL );
-   dVkLOG( "InstanceLayerProperties: ", lPorpCount );
-   //! \todo expand layers section
+   lResult = vkEnumerateInstanceLayerProperties( &lPorpCount, nullptr );
+   if ( lResult ) {
+      eLOG( "'vkEnumerateInstanceLayerProperties' returned ", uEnum2Str::toStr( lResult ) );
+      return lResult;
+   }
 
+   vLayerProperties_vk.resize( lPorpCount );
+   lResult = vkEnumerateInstanceLayerProperties( &lPorpCount, vLayerProperties_vk.data() );
+   if ( lResult ) {
+      eLOG( "'vkEnumerateInstanceLayerProperties' returned ", uEnum2Str::toStr( lResult ) );
+      return lResult;
+   }
+
+   dVkLOG( "InstanceLayerProperties: ", lPorpCount );
+   for ( auto const &i : vLayerProperties_vk ) {
+      dVkLOG( "  -- ", i.layerName, " (", i.description, ")" );
+   }
+
+   iLOG( "Using ", _layers.size(), " Vulkan Layers:" );
+   for ( auto const &i : _layers ) {
+      bool lFound = false;
+      for ( auto const &j : vLayerProperties_vk ) {
+         if ( i == j.layerName ) {
+            vLayersToUse.emplace_back( i );
+            iLOG( "  -- Using Layer '", i, "'" );
+            lFound = true;
+            break;
+         }
+      }
+
+      if ( !lFound )
+         wLOG( "Vulkan Layer '", i, "' not found!" );
+   }
 
    int lRet = loadExtensionList();
    if ( lRet != 0 )
       return lRet;
 
-   static const char *lExtensions[] = {VK_KHR_SURFACE_EXTENSION_NAME,
-                                       E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME};
+   const char **lExtensions = new const char *[vExtensionsToUse.size()];
 
-   dVkLOG( "Using ", sizeof( lExtensions ) / sizeof( lExtensions[0] ), " extension: " );
-
-   for ( auto const &i : lExtensions ) {
-      if ( !isExtensionSupported( i ) ) {
+   iLOG( "Using ", vExtensionsToUse.size(), " extension: " );
+   for ( uint32_t i = 0; i < vExtensionsToUse.size(); i++ ) {
+      if ( !isExtensionSupported( vExtensionsToUse[i] ) ) {
          eLOG( "Extension '", i, "' is not supported!" );
+         delete[] lExtensions;
          return 1;
       }
-      dVkLOG( "  -- '", i, '\'' );
+      lExtensions[i] = vExtensionsToUse[i].c_str();
+      iLOG( "  -- '", vExtensionsToUse[i], '\'' );
+   }
+
+   const char **lLayers = new const char *[vLayersToUse.size()];
+   for ( uint32_t i = 0; i < vLayersToUse.size(); i++ ) {
+      lLayers[i] = vLayersToUse[i].c_str();
    }
 
    VkInstanceCreateInfo lCreateInfo_vk;
    VkApplicationInfo lAppInfo_vk;
 
    lAppInfo_vk.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-   lAppInfo_vk.pNext              = NULL;
+   lAppInfo_vk.pNext              = nullptr;
    lAppInfo_vk.pApplicationName   = GlobConf.config.appName.c_str();
    lAppInfo_vk.pEngineName        = "EEnginE";
-   lAppInfo_vk.apiVersion         = VK_API_VERSION;
+   lAppInfo_vk.apiVersion         = VK_MAKE_VERSION( 1, 0, 4 );
    lAppInfo_vk.applicationVersion = 1; //!< \todo change this const
    lAppInfo_vk.engineVersion      = 1; //!< \todo change this const
 
    lCreateInfo_vk.sType                   = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-   lCreateInfo_vk.pNext                   = NULL;
+   lCreateInfo_vk.pNext                   = nullptr;
    lCreateInfo_vk.flags                   = 0;
    lCreateInfo_vk.pApplicationInfo        = &lAppInfo_vk;
-   lCreateInfo_vk.enabledLayerCount       = 0;
-   lCreateInfo_vk.ppEnabledLayerNames     = NULL;
-   lCreateInfo_vk.enabledExtensionCount   = sizeof( lExtensions ) / sizeof( lExtensions[0] );
+   lCreateInfo_vk.enabledLayerCount       = vLayersToUse.size();
+   lCreateInfo_vk.ppEnabledLayerNames     = lLayers;
+   lCreateInfo_vk.enabledExtensionCount   = vExtensionsToUse.size();
    lCreateInfo_vk.ppEnabledExtensionNames = lExtensions;
 
-   lResult = vkCreateInstance( &lCreateInfo_vk, NULL, &vInstance_vk );
+   lResult = vkCreateInstance( &lCreateInfo_vk, nullptr, &vInstance_vk );
+
+   delete[] lExtensions;
+   delete[] lLayers;
 
    if ( lResult != VK_SUCCESS ) {
-      eLOG( "'vkCreateInstance' returned ", vkResultToString( lResult ) );
+      eLOG( "'vkCreateInstance' returned ", uEnum2Str::toStr( lResult ) );
       return lResult;
    }
+
+   return 0;
+}
+
+int iInit::loadDevices() {
+   uint32_t lCount;
+   VkResult lResult = vkEnumeratePhysicalDevices( vInstance_vk, &lCount, nullptr );
+
+   if ( lResult != VK_SUCCESS ) {
+      eLOG( "'vkEnumeratePhysicalDevices' returned ", uEnum2Str::toStr( lResult ) );
+      return lResult;
+   }
+
+   std::vector<VkPhysicalDevice> lTempDevs;
+   vPhysicalDevices_vk.resize( lCount );
+   lTempDevs.resize( lCount );
+
+   lResult = vkEnumeratePhysicalDevices( vInstance_vk, &lCount, lTempDevs.data() );
+
+   if ( lResult != VK_SUCCESS ) {
+      eLOG( "'vkEnumeratePhysicalDevices' returned ", uEnum2Str::toStr( lResult ) );
+      return lResult;
+   }
+
+   for ( uint32_t i = 0; i < lTempDevs.size(); i++ ) {
+      vPhysicalDevices_vk[i].device = lTempDevs[i];
+
+      vkGetPhysicalDeviceProperties( lTempDevs[i], &vPhysicalDevices_vk[i].properties );
+      vkGetPhysicalDeviceFeatures( lTempDevs[i], &vPhysicalDevices_vk[i].features );
+      vkGetPhysicalDeviceMemoryProperties( lTempDevs[i], &vPhysicalDevices_vk[i].memoryProperties );
+
+      auto &lQueueAlias = vPhysicalDevices_vk[i].queueFamilyProperties;
+
+      vkGetPhysicalDeviceQueueFamilyProperties( lTempDevs[i], &lCount, nullptr );
+      lQueueAlias.resize( lCount );
+      vkGetPhysicalDeviceQueueFamilyProperties( lTempDevs[i], &lCount, lQueueAlias.data() );
+
+#if D_LOG_VULKAN_INIT
+      auto &props = vPhysicalDevices_vk[i].properties;
+
+      dLOG( L"GPU ", i, ":" );
+      dLOG( L"  -- Device Properties:" );
+      dLOG( L"    - apiVersion    = ", GET_VERSION( props.apiVersion ) );
+      dLOG( L"    - driverVersion = ", GET_VERSION( props.driverVersion ) );
+      dLOG( L"    - vendorID      = ", props.vendorID );
+      dLOG( L"    - deviceID      = ", props.deviceID );
+      dLOG( L"    - deviceType    = ", uEnum2Str::toStr( props.deviceType ) );
+      dLOG( L"    - deviceName    = ", props.deviceName );
+      dLOG( L"  -- Queue Family Properties:" );
+
+      for ( uint32_t i = 0; i < lQueueAlias.size(); i++ ) {
+         dLOG( L"    -- Queue Family ", i );
+         dLOG( L"      - queueFlags: (prefix VK_QUEUE_)" );
+         dLOG( L"        - GRAPHICS_BIT:       ",
+               lQueueAlias[i].queueFlags & VK_QUEUE_GRAPHICS_BIT ? true : false );
+         dLOG( L"        - COMPUTE_BIT:        ",
+               lQueueAlias[i].queueFlags & VK_QUEUE_COMPUTE_BIT ? true : false );
+         dLOG( L"        - TRANSFER_BIT:       ",
+               lQueueAlias[i].queueFlags & VK_QUEUE_TRANSFER_BIT ? true : false );
+         dLOG( L"        - SPARSE_BINDING_BIT: ",
+               lQueueAlias[i].queueFlags & VK_QUEUE_SPARSE_BINDING_BIT ? true : false );
+         dLOG( L"      - queueCount                  = ", lQueueAlias[i].queueCount );
+         dLOG( L"      - timestampValidBits          = ", lQueueAlias[i].timestampValidBits );
+         dLOG( L"      - minImageTransferGranularity = ",
+               lQueueAlias[i].minImageTransferGranularity.width,
+               L'x',
+               lQueueAlias[i].minImageTransferGranularity.height,
+               L"; depth: ",
+               lQueueAlias[i].minImageTransferGranularity.depth );
+      }
+#endif
+   }
+
+   return 0;
+}
+
+iInit::PhysicalDevice_vk *iInit::chooseDevice() {
+   if ( vPhysicalDevices_vk.empty() )
+      return nullptr;
+
+   PhysicalDevice_vk *current = nullptr;
+
+   for ( auto &i : vPhysicalDevices_vk ) {
+      unsigned int lNumQueues        = 0;
+      unsigned int lCurrentNumQueues = 0;
+      bool lSupportsGraphicsBit      = false;
+
+      if ( current == nullptr ) {
+         current = &i;
+         continue;
+      }
+
+      if ( i.properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ) {
+         if ( current->properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU )
+            continue;
+
+         // Integrated GPU may be better than first device type
+         if ( i.properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU )
+            continue;
+      }
+
+      // calc num of queues
+      for ( auto const &j : i.queueFamilyProperties ) {
+         lNumQueues += j.queueCount;
+         if ( j.queueFlags & VK_QUEUE_GRAPHICS_BIT ) {
+            lSupportsGraphicsBit = true;
+         }
+      }
+
+      for ( auto const &j : current->queueFamilyProperties ) {
+         lCurrentNumQueues += j.queueCount;
+      }
+
+      if ( !lSupportsGraphicsBit )
+         continue;
+
+
+      if ( lCurrentNumQueues > lNumQueues )
+         continue;
+
+      //! \todo add more tests here
+
+      // i is better than current
+      current = &i;
+   }
+
+   return current;
+}
+
+/*!
+ * \brief creates the dvice with all queues
+ * \returns 0 -- success
+ */
+int iInit::createDevice() {
+   auto *lPDevPTR = chooseDevice();
+
+   if ( lPDevPTR == nullptr ) {
+      return 1000;
+   }
+
+   std::vector<VkDeviceQueueCreateInfo> lQueueCreateInfo;
+   std::vector<std::vector<float>> lQueuePriorities;
+
+   for ( auto const &i : lPDevPTR->queueFamilyProperties ) {
+      lQueuePriorities.emplace_back();
+      lQueuePriorities.back().resize( i.queueCount );
+
+      // Setting priorities (1.0, 0.5, 0.25, ...)
+      for ( uint32_t j = 0; j < i.queueCount; j++ ) {
+         lQueuePriorities.back()[j] = 1.0f / static_cast<float>( j + 1 );
+      }
+
+      lQueueCreateInfo.emplace_back();
+      lQueueCreateInfo.back().sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+      lQueueCreateInfo.back().pNext = nullptr;
+      lQueueCreateInfo.back().flags = 0;
+      lQueueCreateInfo.back().queueFamilyIndex = lQueueCreateInfo.size() - 1;
+      lQueueCreateInfo.back().queueCount = i.queueCount;
+      lQueueCreateInfo.back().pQueuePriorities = lQueuePriorities.back().data();
+   }
+
+   VkDeviceCreateInfo lCreateInfo;
+   lCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+   lCreateInfo.pNext                   = nullptr;
+   lCreateInfo.flags                   = 0;
+   lCreateInfo.queueCreateInfoCount    = lQueueCreateInfo.size();
+   lCreateInfo.pQueueCreateInfos       = lQueueCreateInfo.data();
+   lCreateInfo.enabledLayerCount       = 0;
+   lCreateInfo.ppEnabledLayerNames     = nullptr;
+   lCreateInfo.enabledExtensionCount   = 0;
+   lCreateInfo.ppEnabledExtensionNames = nullptr;
+   lCreateInfo.pEnabledFeatures        = &lPDevPTR->features;
+
+   auto lResult = vkCreateDevice( lPDevPTR->device, &lCreateInfo, nullptr, &vDevice_vk.device );
+   if ( lResult ) {
+      eLOG( "'vkCreateDevice' returned ", uEnum2Str::toStr( lResult ) );
+      return lResult;
+   }
+
+   vDevice_vk.physicalDevice = lPDevPTR;
 
    return 0;
 }
@@ -261,10 +479,11 @@ int iInit::initVulkan() {
  * More information iContext
  *
  * \returns  0 -- Success
- * \returns  1 -- Missing extension(s)
+ * \returns  1 -- Failed to init vulkan
+ * \returns  2 -- Failed to load devices
+ * \returns  3 -- Failed to create a vulkan device
  */
-int iInit::init() {
-
+int iInit::init( std::vector<std::string> _layers ) {
    signal( SIGINT, handleSignal );
    signal( SIGTERM, handleSignal );
 
@@ -282,12 +501,14 @@ int iInit::init() {
 
    LOG.startLogLoop();
 
-   auto lVkInitErr = initVulkan();
+   if ( initVulkan( _layers ) )
+      return 1;
 
-   if ( lVkInitErr ) {
-      eLOG( "Failed to init Vulkan" );
-      return lVkInitErr;
-   }
+   if ( loadDevices() )
+      return 2;
+
+   if ( createDevice() )
+      return 3;
 
 #if WINDOWS
    // Windows needs the PeekMessage call in the same thread where the window is created
@@ -315,9 +536,21 @@ void iInit::destroyVulkan() {
    if ( !vIsVulkanSetup_B )
       return;
 
+   VkResult lResult;
+
+   if ( vDevice_vk.device != NULL ) {
+      lResult = vkDeviceWaitIdle( vDevice_vk.device );
+
+      if ( lResult ) {
+         wLOG( "'vkDeviceWaitIdle' returned ", uEnum2Str::toStr( lResult ) );
+      }
+
+      vkDestroyDevice( vDevice_vk.device, nullptr );
+   }
+
    vIsVulkanSetup_B = false;
    vExtensionList.clear();
-   vkDestroyInstance( vInstance_vk, NULL );
+   vkDestroyInstance( vInstance_vk, nullptr );
 }
 
 int iInit::shutdown() {

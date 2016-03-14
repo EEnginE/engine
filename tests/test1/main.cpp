@@ -45,7 +45,22 @@ int main( int argc, char *argv[] ) {
 
    iInit start;
 
-   if ( start.init() == 0 ) {
+   std::vector<std::string> layers = {
+      "VK_LAYER_LUNARG_device_limits",
+      "VK_LAYER_LUNARG_draw_state",
+      "VK_LAYER_LUNARG_image",
+      "VK_LAYER_LUNARG_mem_tracker",
+      "VK_LAYER_LUNARG_object_tracker",
+      "VK_LAYER_LUNARG_param_checker",
+      "VK_LAYER_LUNARG_swapchain",
+      "VK_LAYER_GOOGLE_threading",
+      "VK_LAYER_GOOGLE_unique_objects",
+      "VK_LAYER_VALVE_steam_overlay_32",
+      "VK_LAYER_VALVE_steam_overlay_64",
+      "VK_LAYER_LUNARG_standard_validation"
+   };
+
+   if ( start.init(layers) == 0 ) {
       myWorld handler( cmd, &start );
       start.enableDefaultGrabControl();
 

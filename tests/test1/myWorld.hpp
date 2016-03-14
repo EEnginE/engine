@@ -46,7 +46,7 @@ class myWorld final : public e_engine::rWorld, public e_engine::rFrameCounter {
  public:
    myWorld( cmdANDinit &_cmd, e_engine::iInit *_init )
        : rWorld( _init ),
-         rFrameCounter( this, true ),
+         rFrameCounter( this, false ),
          vScene( _init, _cmd ),
          vInitPointer( _init ),
          vNearZ( _cmd.getNearZ() ),
@@ -68,7 +68,7 @@ class myWorld final : public e_engine::rWorld, public e_engine::rFrameCounter {
 
    void windowClose( e_engine::iEventInfo const &info ) {
       iLOG( "User closed window" );
-      info.iInitPointer->closeWindow();
+      info.iInitPointer->quitMainLoop();
    }
    void key( e_engine::iEventInfo const &info );
    void resize( e_engine::iEventInfo const &info ) {

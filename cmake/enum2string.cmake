@@ -107,13 +107,19 @@ function( enum2str_generate )
 
       string( REGEX MATCH "enum[ \t\n]+${ENUM_NAME}[ \t\n]+{[^}]*}" P1 "${RAW_DATA}" )
       if( "${P1}" STREQUAL "" )
-         message( WARNING "enum '${I}' not found!" )
-         continue()
+         string( REGEX MATCH "enum[ \t\n]+{[^}]*}[ \t\n]+${ENUM_NAME};" P1 "${RAW_DATA}" )
+
+         if( "${P1}" STREQUAL "" )
+            message( WARNING "enum '${I}' not found!" )
+            continue()
+         endif( "${P1}" STREQUAL "" )
       endif( "${P1}" STREQUAL "" )
       string( REGEX REPLACE "//[^\n]*" "" P1 "${P1}" )
-      string( REGEX REPLACE "/\\*.*/\\*" "" P1 "${P1}" )
+      string( REGEX REPLACE "/\\*[^\\*]*\\*/" "" P1 "${P1}" )
       string( REGEX REPLACE "enum[ \t\n]+${ENUM_NAME}[ \t\n]+" "" P1 "${P1}" )
-      string( REGEX REPLACE "[ \t\n{}]" "" P1 "${P1}" )
+      string( REGEX REPLACE "enum[ \t\n]{" "" P1 "${P1}" )
+      string( REGEX REPLACE "}[ \t\n]*${ENUM_NAME}[ \t\n]*;" "" P1 "${P1}" )
+      string( REGEX REPLACE "[ \t\n{};]" "" P1 "${P1}" )
       string( REGEX REPLACE ",$" "" P1 "${P1}" ) # Remove trailing ,
       string( REGEX REPLACE "," ";" L1 "${P1}" ) # Make a List
 

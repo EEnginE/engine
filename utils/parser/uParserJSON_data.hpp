@@ -24,6 +24,7 @@
 #include "defines.hpp"
 #include <string>
 #include <vector>
+#include "uLog.hpp"
 
 #define G_STR( _out_, _def_ )                                                                      \
    ::e_engine::JSON_STRING, &_out_, std::string( _def_ ),                                          \
@@ -31,9 +32,25 @@
 #define G_NUM( _out_, _def_ )                                                                      \
    ::e_engine::JSON_NUMBER, &_out_, static_cast<double>( _def_ ),                                  \
          ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+#define G_INT( _out_, _def_ )                                                                      \
+   ::e_engine::JSON_INT, &_out_, static_cast<int>( _def_ ),                                        \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::GET
 #define G_BOOL( _out_, _def_ )                                                                     \
    ::e_engine::JSON_BOOL, &_out_, static_cast<bool>( _def_ ),                                      \
          ::e_engine::uJSON_data::END_MARKER_TYPE::GET
+
+#define E_STR( _exists_, _type_ )                                                                  \
+   ::e_engine::JSON_STRING, _exists_, static_cast<JSON_DATA_TYPE *>( _type_ ),                     \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::EXISTS
+#define E_NUM( _exists_, _type_ )                                                                  \
+   ::e_engine::JSON_NUMBER, _exists_, static_cast<JSON_DATA_TYPE *>( _type_ ),                     \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::EXISTS
+#define E_INT( _exists_, _type_ )                                                                  \
+   ::e_engine::JSON_INT, _exists_, static_cast<JSON_DATA_TYPE *>( _type_ ),                        \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::EXISTS
+#define E_BOOL( _exists_, _type_ )                                                                 \
+   ::e_engine::JSON_BOOL, _exists_, static_cast<JSON_DATA_TYPE *>( _type_ ),                       \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::EXISTS
 
 #define S_STR( _def_ )                                                                             \
    ::e_engine::JSON_STRING, (std::string *)0, std::string( _def_ ),                                \
@@ -41,15 +58,19 @@
 #define S_NUM( _def_ )                                                                             \
    ::e_engine::JSON_NUMBER, static_cast<double *>( 0 ), static_cast<double>( _def_ ),              \
          ::e_engine::uJSON_data::END_MARKER_TYPE::SET
+#define S_INT( _def_ )                                                                             \
+   ::e_engine::JSON_INT, static_cast<int *>( 0 ), static_cast<int>( _def_ ),                       \
+         ::e_engine::uJSON_data::END_MARKER_TYPE::SET
 #define S_BOOL( _def_ )                                                                            \
    ::e_engine::JSON_BOOL, static_cast<bool *>( 0 ), static_cast<bool>( _def_ ),                    \
          ::e_engine::uJSON_data::END_MARKER_TYPE::SET
 
 namespace e_engine {
 
-enum JSON_DATA_TYPE : unsigned char {
+enum JSON_DATA_TYPE {
    JSON_STRING,
    JSON_NUMBER,
+   JSON_INT,
    JSON_BOOL,
    JSON_NULL,
    JSON_ARRAY,
@@ -72,12 +93,13 @@ struct UTILS_API uJSON_data {
    std::string id;
    std::string value_str;
    double value_num;
+   int value_int;
    bool value_bool;
    VALUES value_obj;
 
    JSON_DATA_TYPE type;
 
-   enum END_MARKER_TYPE { GET, SET };
+   enum END_MARKER_TYPE { GET, SET, EXISTS };
 
    uJSON_data() : type( e_engine::__JSON_NOT_SET__ ) {}
    uJSON_data( std::string _id, JSON_DATA_TYPE _type ) : id( _id ), type( _type ) {}
@@ -103,13 +125,21 @@ struct UTILS_API uJSON_data {
                   END_MARKER_TYPE _what,
                   ARGS... _args );
 
+   template <class... ARGS>
+   inline void _( uJSON_data *_first,
+                  JSON_DATA_TYPE _type,
+                  bool *_exists,
+                  JSON_DATA_TYPE *_pointer,
+                  END_MARKER_TYPE _what,
+                  ARGS... _args );
+
 
 
    template <class... ARGS>
    inline void _( uJSON_data *_first, JSON_DATA_TYPE &_type, END_MARKER_TYPE, ARGS... _args );
 
    template <class... ARGS>
-   inline void _( uJSON_data *_first, int &_size, END_MARKER_TYPE, ARGS... _args );
+   inline void _( uJSON_data *_first, int *_size, END_MARKER_TYPE, ARGS... _args );
 
 
    template <class... ARGS>
@@ -161,7 +191,8 @@ void uJSON_data::_( uJSON_data *_first,
                     D const &_setData,
                     END_MARKER_TYPE _what,
                     ARGS... _args ) {
-   if ( type == __JSON_NOT_SET__ || !_pointer || type != _type )
+   if ( type == __JSON_NOT_SET__ || !_pointer ||
+        ( type != _type && !( type == JSON_INT && _type == JSON_NUMBER ) ) )
       _what = SET;
 
    if ( _what == SET ) {
@@ -171,6 +202,7 @@ void uJSON_data::_( uJSON_data *_first,
 
       switch ( _type ) {
          case JSON_STRING: value_str = *static_cast<const std::string *>( lData ); break;
+         case JSON_INT: value_int    = *static_cast<const int *>( lData );
          case JSON_NUMBER: value_num = *static_cast<const double *>( lData ); break;
          case JSON_BOOL: value_bool  = *static_cast<const bool *>( lData ); break;
          case JSON_ARRAY:
@@ -179,6 +211,9 @@ void uJSON_data::_( uJSON_data *_first,
          case __JSON_FAIL__:
          case __JSON_NOT_SET__: break;
       }
+
+      if ( _pointer )
+         *_pointer = static_cast<T>( _setData );
       return _first->_( _first, _args... );
    }
 
@@ -187,6 +222,7 @@ void uJSON_data::_( uJSON_data *_first,
    switch ( _type ) {
       case JSON_STRING: lData = static_cast<void *>( &value_str ); break;
       case JSON_NUMBER: lData = static_cast<void *>( &value_num ); break;
+      case JSON_INT: lData    = static_cast<void *>( &value_int ); break;
       case JSON_BOOL: lData   = static_cast<void *>( &value_bool ); break;
       case JSON_ARRAY:
       case JSON_OBJECT: lData = static_cast<void *>( &value_obj ); break;
@@ -196,14 +232,38 @@ void uJSON_data::_( uJSON_data *_first,
    }
 
    if ( lData )
-      *_pointer = static_cast<T>( *static_cast<D *>( lData ) ); // D must be the right type,
-                                                                // because of the macros, while T
-                                                                // could be something different
+      *_pointer = *static_cast<T *>( lData ); // D must be the right type,
+                                              // because of the macros, while T
+                                              // could be something different
 
    _first->_( _first, _args... );
 }
 
 
+template <class... ARGS>
+void uJSON_data::_( uJSON_data *_first,
+                    JSON_DATA_TYPE _type,
+                    bool *_exists,
+                    JSON_DATA_TYPE *_pointer,
+                    END_MARKER_TYPE _what,
+                    ARGS... _args ) {
+   if ( _what == EXISTS ) {
+
+      if ( _exists ) {
+         if ( type == _type ) {
+            *_exists = true;
+         } else {
+            *_exists = false;
+         }
+      }
+
+      if ( _pointer ) {
+         *_pointer = type;
+      }
+   }
+
+   _first->_( _first, _args... );
+}
 
 
 
@@ -214,11 +274,11 @@ void uJSON_data::_( uJSON_data *_first, JSON_DATA_TYPE &_type, END_MARKER_TYPE, 
 }
 
 template <class... ARGS>
-void uJSON_data::_( uJSON_data *_first, int &_size, END_MARKER_TYPE, ARGS... _args ) {
-   _size = -1;
+void uJSON_data::_( uJSON_data *_first, int *_size, END_MARKER_TYPE, ARGS... _args ) {
+   *_size = -1;
 
    if ( type == JSON_ARRAY )
-      _size = static_cast<int>( value_obj.size() );
+      *_size = static_cast<int>( value_obj.size() );
 
    _first->_( _first, _args... );
 }

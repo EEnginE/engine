@@ -32,7 +32,7 @@ using e_engine::uSlot;
 using e_engine::iInit;
 using e_engine::iEventInfo;
 
-class myScene final : public rScene<float>, public rCameraHandler<float> {
+class myScene final : public rScene<float>/*, public rCameraHandler<float>*/ {
    typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
 
  private:
@@ -56,7 +56,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
 
    myScene( iInit *_init, cmdANDinit &_cmd )
        : rScene( "MAIN SCENE" ),
-         rCameraHandler( this, _init ),
+         //rCameraHandler( this, _init ),
          vLight1( this, "L1" ),
          vLight2( this, "L2" ),
          vLight3( "L3", e_engine::rVec3f( 0.5, -1, 0.5 ) ),

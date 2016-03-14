@@ -150,6 +150,8 @@ int iWindow::createWindow() {
    vNetWmWindowType_ATOM.genAtom( vConnection_XCB, "_NET_WM_WINDOW_TYPE" );
    vNetWmName_ATOM.genAtom( vConnection_XCB, "_NET_WM_NAME" );
    vNetWmIconName_ATOM.genAtom( vConnection_XCB, "_NET_WM_ICON_NAME" );
+   vWmName_ATOM.genAtom( vConnection_XCB, "WM_NAME" );
+   vWmIconName_ATOM.genAtom( vConnection_XCB, "WM_ICON_NAME" );
    vMotifWmHints_ATOM.genAtom( vConnection_XCB, "_MOTIF_WM_HINTS" );
 
    iXCBAtom lNetWmBypass( vConnection_XCB, "_NET_WM_BYPASS_COMPOSITOR" );
@@ -159,6 +161,8 @@ int iWindow::createWindow() {
    setWmPropertyAtom( vWmProtocol_ATOM, vWmDeleteWindow_ATOM );
    setWmPropertyString( vNetWmName_ATOM, GlobConf.win.windowName );
    setWmPropertyString( vNetWmIconName_ATOM, GlobConf.win.iconName );
+   setWmPropertyString( vWmName_ATOM, GlobConf.win.windowName );
+   setWmPropertyString( vWmIconName_ATOM, GlobConf.win.iconName );
    setWmProperty( lNetWmBypass, XCB_ATOM_CARDINAL, 32, 1, &lBypassValue );
 
    // Draw the window
@@ -232,6 +236,8 @@ void iWindow::setWindowNames( std::string _windowName, std::string _iconName ) {
 
    setWmPropertyString( vNetWmName_ATOM, _windowName );
    setWmPropertyString( vNetWmIconName_ATOM, _iconName );
+   setWmPropertyString( vWmName_ATOM, _windowName );
+   setWmPropertyString( vWmIconName_ATOM, _iconName );
 }
 
 void iWindow::setWindowType( WINDOW_TYPE _type ) {
@@ -328,11 +334,11 @@ int iWindow::disableVSync() {
 
 
 struct MwmHints {
-   unsigned long flags;
-   unsigned long functions;
-   unsigned long decorations;
-   long input_mode;
-   unsigned long status;
+   uint32_t flags;
+   uint32_t functions;
+   uint32_t decorations;
+   int32_t input_mode;
+   uint32_t status;
 };
 const long unsigned int MWM_HINTS_DECORATIONS = ( 1L << 1 );
 
@@ -352,6 +358,7 @@ void iWindow::setDecoration( e_engine::ACTION _action ) {
 
    struct MwmHints lHints_X11;
 
+   memset( &lHints_X11, 0, sizeof( MwmHints ) );
    lHints_X11.flags       = MWM_HINTS_DECORATIONS;
    lHints_X11.decorations = _action;
 
@@ -759,6 +766,12 @@ xcb_connection_t *iWindow::getXCBConnection() { return vConnection_XCB; }
  * \returns the XCB WM_DELETE_WINDOW atom
  */
 xcb_atom_t iWindow::getWmDeleteWindowAtom() const { return vWmDeleteWindow_ATOM.getAtom(); }
+
+/*!
+ * \brief Get the XCB WM_PROTOCOLS atom
+ * \returns the XCB WM_PROTOCOLS atom
+ */
+xcb_atom_t iWindow::getWmProtocolAtom() const { return vWmProtocol_ATOM.getAtom(); }
 
 
 } // unix_x11

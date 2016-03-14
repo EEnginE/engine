@@ -93,7 +93,9 @@ class INIT_API iRandR {
    iRandR();
    virtual ~iRandR();
 
+#if D_LOG_XRANDR
    void printRandRStatus();
+#endif
 
    bool setGamma( iDisplays const &_disp, float _r, float _g, float _b, float _brightness = 1 );
 

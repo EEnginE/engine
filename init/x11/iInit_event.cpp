@@ -58,7 +58,7 @@ int iInit::eventLoop() {
       char lEvent_CSTR[6];
       snprintf( lEvent_CSTR, 5, "%04X", lEvent_X11.type );
 
-      switch ( lEvent_XCB->response_type ) {
+      switch ( lEvent_XCB->response_type & ~0x80 ) {
          case XCB_RESIZE_REQUEST: {
             CAST_EVENT( resize_request, lEvent_XCB, lEvent );
             if ( lEvent->width != static_cast<int>( GlobConf.win.width ) ||
@@ -92,6 +92,12 @@ int iInit::eventLoop() {
             }
             break;
          }
+
+         case XCB_EXPOSE:
+         case XCB_VISIBILITY_NOTIFY:
+         case XCB_PROPERTY_NOTIFY:
+            // Ignore for now
+            break;
 
          case XCB_KEY_RELEASE: lKeyState_uI = E_RELEASED; FALLTHROUGH
          case XCB_KEY_PRESS: {
@@ -198,11 +204,13 @@ int iInit::eventLoop() {
          case XCB_CLIENT_MESSAGE: {
             CAST_EVENT( client_message, lEvent_XCB, lEvent );
             // Check if the User pressed the [x] button or ALT+F4 [etc.]
-            if ( lEvent->type == getWmDeleteWindowAtom() ) {
-               iLOG( "User pressed the close button" );
-               iEventInfo tempInfo( this );
-               tempInfo.type = E_EVENT_WINDOWCLOSE;
-               vWindowClose_SIG( tempInfo );
+            if ( lEvent->type == getWmProtocolAtom() ) {
+               if ( lEvent->data.data32[0] == getWmDeleteWindowAtom() ) {
+                  iLOG( "User pressed the close button" );
+                  iEventInfo tempInfo( this );
+                  tempInfo.type = E_EVENT_WINDOWCLOSE;
+                  vWindowClose_SIG( tempInfo );
+               }
             }
             break;
          }

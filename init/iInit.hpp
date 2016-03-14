@@ -40,7 +40,6 @@
 #endif
 
 #include <thread>
-#include <condition_variable>
 
 
 namespace e_engine {
@@ -73,20 +72,35 @@ class INIT_API iInit : public windows_win32::iContext {
  public:
    SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
 
+   typedef struct PhysicalDevice_vk {
+      VkPhysicalDevice device;
+      VkPhysicalDeviceProperties properties;
+      VkPhysicalDeviceFeatures features;
+      VkPhysicalDeviceMemoryProperties memoryProperties;
+      std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+   } PhysicalDevice_vk;
+
+   typedef struct Device_vk {
+      PhysicalDevice_vk *physicalDevice = nullptr;
+      VkDevice device                   = NULL;
+   } Device_vk;
+
  private:
    std::vector<std::string> vExtensionList;
+   std::vector<std::string> vExtensionsToUse;
+   std::vector<std::string> vLayersToUse;
+
+   std::vector<VkLayerProperties> vLayerProperties_vk;
 
    VkInstance vInstance_vk;
+   std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
+   Device_vk vDevice_vk;
 
-   bool vMainLoopRunning_B; //!< Should the main loop be running?
-
+   bool vMainLoopRunning_B;      //!< Should the main loop be running?
    bool vEventLoopHasFinished_B; //!< Has the event loop finished?
 
    std::thread vEventLoop_BT; //!< The thread for the event loop
 
-   std::mutex vEventLoopMutex_BT;
-
-   std::condition_variable vEventLoopWait_BT;
 
    bool vEventLoopPaused_B; //!< SHOULD the event loop be paused?
    bool vEventLoopISPaused_B;
@@ -111,8 +125,13 @@ class INIT_API iInit : public windows_win32::iContext {
    bool vContinueWithEventLoop_B;
 #endif
 
+   PhysicalDevice_vk *chooseDevice();
+
+   std::vector<VkExtensionProperties> getExtProprs( std::string _layerName );
    int loadExtensionList();
-   int initVulkan();
+   int loadDevices();
+   int createDevice();
+   int initVulkan( std::vector<std::string> _layers );
 
    void destroyVulkan();
 
@@ -134,7 +153,7 @@ class INIT_API iInit : public windows_win32::iContext {
    iInit();
    virtual ~iInit();
 
-   int init();
+   int init( std::vector<std::string> _layers = {} );
    int shutdown();
    int startMainLoop( bool _wait = true );
 
@@ -146,8 +165,6 @@ class INIT_API iInit : public windows_win32::iContext {
    void closeWindow();
 
    bool isExtensionSupported( std::string _extension );
-
-   static std::string vkResultToString( VkResult _res );
 };
 
 namespace internal {

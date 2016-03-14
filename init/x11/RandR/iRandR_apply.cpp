@@ -188,7 +188,9 @@ bool iRandR::applyNewRandRSettings() {
    // We now work with lTempAllCRTC_V_RandR only
    vChangeCRTC_V_RandR.clear();
 
+#if D_LOG_XRANDR
    printRandRStatus();
+#endif
 
    return true;
 }

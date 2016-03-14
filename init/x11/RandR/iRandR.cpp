@@ -89,7 +89,9 @@ bool iRandR::initRandR() {
 
    vIsRandRSupported_B = true;
 
+#if D_LOG_XRANDR
    printRandRStatus();
+#endif
 
    return true;
 }

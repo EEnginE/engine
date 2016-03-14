@@ -43,12 +43,14 @@ class UTILS_API uParserJSON final : public internal::uParserHelper {
 
  public:
    virtual ~uParserJSON();
-   uParserJSON() : vWriteIndent_str( "  " ) {}
-   uParserJSON( std::string _file ) : uParserHelper( _file ), vWriteIndent_str( "  " ) {}
+   uParserJSON() : vWriteIndent_str( "   " ) {}
+   uParserJSON( std::string _file ) : uParserHelper( _file ), vWriteIndent_str( "   " ) {}
 
    void clear();
 
    int write( uJSON_data const &_data, bool _overwriteIfNeeded = false );
+
+   std::string toString( uJSON_data const &_data );
 
    uJSON_data getData() { return vData; }
    uJSON_data *getDataP() { return &vData; }

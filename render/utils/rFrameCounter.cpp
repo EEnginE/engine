@@ -62,7 +62,8 @@ void rFrameCounter::enableFrameCounter() {
 void rFrameCounter::disableFrameCounter( bool _join ) {
    vFrameCounterEnabled = false;
    if ( _join )
-      frameCounterThread.join();
+      if ( frameCounterThread.joinable() )
+         frameCounterThread.join();
    iLOG( "Frame counter disabled" );
 }
 }

@@ -80,6 +80,23 @@ int uParserHelper::parse() {
    return 1;
 }
 
+int uParserHelper::parseString( std::string _data ) {
+   if ( vIsParsed )
+      return 6;
+
+   vIter = _data.begin();
+   vEnd  = _data.end();
+
+   if ( !load_IMPL() ) {
+      eLOG( "Failed parsing '", vFilePath_str, "'" );
+      return 2;
+   }
+
+   vIsParsed = true;
+
+   return 1;
+}
+
 
 
 bool uParserHelper::continueWhitespace( bool _quiet ) {
@@ -203,7 +220,7 @@ bool uParserHelper::getString( std::string &_str, bool _continueWhitespace, bool
    return eofError();
 }
 
-bool uParserHelper::getNum( double &_num ) {
+bool uParserHelper::getNum( double &_num, bool _quiet ) {
    if ( !continueWhitespace() )
       return false;
 
@@ -232,8 +249,11 @@ bool uParserHelper::getNum( double &_num ) {
             break;
 
          default:
-            if ( lNum.empty() )
-               return unexpectedCharError();
+            if ( lNum.empty() ) {
+               if( !_quiet )
+                  return unexpectedCharError();
+               return false;
+            }
 
             _num = std::stod( lNum );
             return true;
@@ -243,7 +263,7 @@ bool uParserHelper::getNum( double &_num ) {
    return eofError();
 }
 
-bool uParserHelper::getNum( float &_num ) {
+bool uParserHelper::getNum( float &_num, bool _quiet ) {
    if ( !continueWhitespace() )
       return false;
 
@@ -272,8 +292,11 @@ bool uParserHelper::getNum( float &_num ) {
             break;
 
          default:
-            if ( lNum.empty() )
-               return unexpectedCharError();
+            if ( lNum.empty() ) {
+               if( !_quiet )
+                  return unexpectedCharError();
+               return false;
+            }
 
             _num = static_cast<float>( std::stof( lNum ) );
             return true;
@@ -283,7 +306,7 @@ bool uParserHelper::getNum( float &_num ) {
    return eofError();
 }
 
-bool uParserHelper::getNum( int &_num ) {
+bool uParserHelper::getNum( int &_num, bool _quiet ) {
    if ( !continueWhitespace() )
       return false;
 
@@ -309,8 +332,11 @@ bool uParserHelper::getNum( int &_num ) {
             break;
 
          default:
-            if ( lNum.empty() )
-               return unexpectedCharError();
+            if ( lNum.empty() ) {
+               if( !_quiet )
+                  return unexpectedCharError();
+               return false;
+            }
 
             _num = std::stoi( lNum );
             return true;
@@ -321,7 +347,7 @@ bool uParserHelper::getNum( int &_num ) {
 }
 
 
-bool uParserHelper::getNum( unsigned int &_num ) {
+bool uParserHelper::getNum( unsigned int &_num, bool _quiet ) {
    if ( !continueWhitespace() )
       return false;
 
@@ -346,8 +372,11 @@ bool uParserHelper::getNum( unsigned int &_num ) {
             break;
 
          default:
-            if ( lNum.empty() )
-               return unexpectedCharError();
+            if ( lNum.empty() ) {
+               if( !_quiet )
+                  return unexpectedCharError();
+               return false;
+            }
 
             _num = static_cast<unsigned>( std::stod( lNum ) );
             return true;
@@ -357,7 +386,7 @@ bool uParserHelper::getNum( unsigned int &_num ) {
    return eofError();
 }
 
-bool uParserHelper::getNum( unsigned short &_num ) {
+bool uParserHelper::getNum( unsigned short &_num, bool _quiet ) {
    if ( !continueWhitespace() )
       return false;
 
@@ -382,8 +411,11 @@ bool uParserHelper::getNum( unsigned short &_num ) {
             break;
 
          default:
-            if ( lNum.empty() )
-               return unexpectedCharError();
+            if ( lNum.empty() ) {
+               if( !_quiet )
+                  return unexpectedCharError();
+               return false;
+            }
 
             _num = static_cast<unsigned short>( std::stod( lNum ) );
             return true;

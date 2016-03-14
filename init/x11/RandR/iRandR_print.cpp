@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+#if D_LOG_XRANDR
+
 #include "iRandR.hpp"
 #include "uLog.hpp"
 #include "eCMDColor.hpp"
@@ -321,5 +323,7 @@ void iRandR::printRandRStatus() {
 } // unix_x11
 
 } // e_engine
+
+#endif // D_LOG_XRANDR
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

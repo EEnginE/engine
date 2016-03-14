@@ -34,7 +34,6 @@ class RENDER_API rWorld {
    bool vInitObjSet_B;
 
    std::mutex vRenderLoopMutex_BT;
-   std::condition_variable vRenderLoopWait_BT;
 
    uint64_t vRenderedFrames = 0;
 

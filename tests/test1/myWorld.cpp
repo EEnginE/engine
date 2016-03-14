@@ -91,7 +91,7 @@ int myWorld::initGL() {
    int lReturn = vScene.init();
 
    vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
-   vInitPointer->hideMouseCursor();
+   //vInitPointer->hideMouseCursor();
    return lReturn;
 }
 

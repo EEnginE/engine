@@ -42,11 +42,11 @@ class UTILS_API uParserHelper {
    bool expect( char _c, bool _continueWhitespace = true, bool _quiet = false );
    bool expect( std::string _str, bool _continueWhitespace = true, bool _quiet = false );
    bool getString( std::string &_str, bool _continueWhitespace = true, bool _quiet = false );
-   bool getNum( double &_num );
-   bool getNum( float &_num );
-   bool getNum( int &_num );
-   bool getNum( unsigned int &_num );
-   bool getNum( unsigned short &_num );
+   bool getNum( double &_num, bool _quiet = false );
+   bool getNum( float &_num, bool _quiet = false );
+   bool getNum( int &_num, bool _quiet = false );
+   bool getNum( unsigned int &_num, bool _quiet = false );
+   bool getNum( unsigned short &_num, bool _quiet = false );
 
    bool eofError();
    bool unexpectedCharError();
@@ -59,6 +59,7 @@ class UTILS_API uParserHelper {
    uParserHelper( std::string _file ) : vFilePath_str( _file ) {}
 
    int parse();
+   int parseString( std::string _data );
 
    int operator()() { return parse(); }
 

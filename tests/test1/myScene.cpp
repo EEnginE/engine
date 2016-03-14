@@ -19,7 +19,7 @@
 using namespace e_engine;
 
 int myScene::init() {
-   updateCamera();
+   //updateCamera();
 
    lGLTF lLoader( vFilePath );
    if ( lLoader() != 1 )
