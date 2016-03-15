@@ -78,10 +78,6 @@ add_compiler( MSVC
                DEBUG   "/Od"
                RELEASE "/O2" )
 
-message( STATUS "Testing the compiler:" )
-add_compiler_test( wregex )
-message( "" ) # Newline
-
 ################
 # Dependencies #
 ################

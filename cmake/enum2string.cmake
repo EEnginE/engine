@@ -177,12 +177,12 @@ macro( __enum2str_checkSet )
 endmacro( __enum2str_checkSet )
 
 function( enum2str_add )
-   file( APPEND "${HPP_FILE}" "   static std::string ${FUNC_NAME}( ${ARGV0} _var );\n" )
+   file( APPEND "${HPP_FILE}" "   static std::string ${FUNC_NAME}( ${ARGV0} _var ) noexcept;\n" )
 
    file( APPEND "${CPP_FILE}" "/*!\n * \\brief Converts the enum ${ARGV0} to a std::string\n" )
    file( APPEND "${CPP_FILE}" " * \\param _var The enum value to convert\n" )
    file( APPEND "${CPP_FILE}" " * \\returns _var converted to a std::string\n */\n" )
-   file( APPEND "${CPP_FILE}" "std::string ${CLASS_NAME}::${FUNC_NAME}( ${ARGV0} _var ) {\n" )
+   file( APPEND "${CPP_FILE}" "std::string ${CLASS_NAME}::${FUNC_NAME}( ${ARGV0} _var ) noexcept {\n" )
    file( APPEND "${CPP_FILE}" "   switch ( _var ) {\n" )
 
    foreach( I IN LISTS ENUMS_TO_USE )
