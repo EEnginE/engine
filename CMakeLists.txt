@@ -158,6 +158,7 @@ enum2str_generate(
       "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
       "glTF::lGLTF_map::ELEMENTS"
       # Vulkan
+      "VkPipelineCacheHeaderVersion"
       "VkResult" "VkStructureType" "VkSystemAllocationScope" "VkInternalAllocationType"
       "VkFormat" "VkImageType" "VkImageTiling" "VkPhysicalDeviceType" "VkQueryType"
       "VkSharingMode" "VkImageLayout" "VkImageViewType" "VkComponentSwizzle" "VkVertexInputRate"
@@ -174,8 +175,13 @@ enum2str_generate(
       "VkAttachmentDescriptionFlagBits" "VkAccessFlagBits" "VkDependencyFlagBits"
       "VkCommandPoolCreateFlagBits" "VkCommandPoolResetFlagBits" "VkCommandBufferUsageFlagBits"
       "VkQueryControlFlagBits" "VkCommandBufferResetFlagBits" "VkStencilFaceFlagBits"
+      # Vulkan Surface
+      "VkColorSpaceKHR" "VkPresentModeKHR" "VkSurfaceTransformFlagBitsKHR" "VkCompositeAlphaFlagBitsKHR"
+      "VkDisplayPlaneAlphaFlagBitsKHR"
+      # Vulkan etc
+      "VkDebugReportObjectTypeEXT" "VkDebugReportErrorEXT" "VkDebugReportFlagBitsEXT"
 
-   BLACKLIST "VK_SAMPLER_ADDRESS_MODE_RANGE_SIZE"
+   BLACKLIST "VK_SAMPLER_ADDRESS_MODE_RANGE_SIZE" "VK_PIPELINE_CACHE_HEADER_VERSION_RANGE_SIZE"
 )
 
 set(DEPENDENCES "${PROJECT_SOURCE_DIR}/include/FindEngine.cmake" )

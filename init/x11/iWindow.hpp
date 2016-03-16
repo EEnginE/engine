@@ -29,6 +29,7 @@
 #include "defines.hpp"
 
 #include <xcb/xcb.h>
+#include <vulkan.h>
 
 #include "iRandR.hpp"
 #include "iKeyboard.hpp"
@@ -158,6 +159,7 @@ class INIT_API iWindow : public iRandR, public iKeyboard {
    bool getIsCursorHidden() const;
    bool getIsWindowCreated() const;
 
+   VkSurfaceKHR getVulkanSurface( VkInstance _instance );
 
    //       unsigned getVertexArrayOpenGL() { return vVertexArray_OGL; }
 };

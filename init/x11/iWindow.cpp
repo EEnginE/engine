@@ -34,6 +34,7 @@
 #include "iWindow.hpp"
 #include "uLog.hpp"
 #include "eCMDColor.hpp"
+#include "uEnum2Str.hpp"
 
 namespace e_engine {
 
@@ -772,6 +773,24 @@ xcb_atom_t iWindow::getWmDeleteWindowAtom() const { return vWmDeleteWindow_ATOM.
  * \returns the XCB WM_PROTOCOLS atom
  */
 xcb_atom_t iWindow::getWmProtocolAtom() const { return vWmProtocol_ATOM.getAtom(); }
+
+VkSurfaceKHR iWindow::getVulkanSurface( VkInstance _instance ) {
+   VkXcbSurfaceCreateInfoKHR lInfo;
+   lInfo.sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+   lInfo.pNext      = nullptr;
+   lInfo.flags      = 0;
+   lInfo.connection = vConnection_XCB;
+   lInfo.window     = vWindow_XCB;
+
+   VkSurfaceKHR lSurface;
+   auto lRes = vkCreateXcbSurfaceKHR( _instance, &lInfo, nullptr, &lSurface );
+   if ( lRes ) {
+      eLOG( "'vkCreateXcbSurfaceKHR' returned ", uEnum2Str::toStr( lRes ) );
+      return nullptr;
+   }
+
+   return lSurface;
+}
 
 
 } // unix_x11

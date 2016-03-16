@@ -250,7 +250,7 @@ bool uParserHelper::getNum( double &_num, bool _quiet ) {
 
          default:
             if ( lNum.empty() ) {
-               if( !_quiet )
+               if ( !_quiet )
                   return unexpectedCharError();
                return false;
             }
@@ -293,7 +293,7 @@ bool uParserHelper::getNum( float &_num, bool _quiet ) {
 
          default:
             if ( lNum.empty() ) {
-               if( !_quiet )
+               if ( !_quiet )
                   return unexpectedCharError();
                return false;
             }
@@ -333,7 +333,7 @@ bool uParserHelper::getNum( int &_num, bool _quiet ) {
 
          default:
             if ( lNum.empty() ) {
-               if( !_quiet )
+               if ( !_quiet )
                   return unexpectedCharError();
                return false;
             }
@@ -373,7 +373,7 @@ bool uParserHelper::getNum( unsigned int &_num, bool _quiet ) {
 
          default:
             if ( lNum.empty() ) {
-               if( !_quiet )
+               if ( !_quiet )
                   return unexpectedCharError();
                return false;
             }
@@ -412,7 +412,7 @@ bool uParserHelper::getNum( unsigned short &_num, bool _quiet ) {
 
          default:
             if ( lNum.empty() ) {
-               if( !_quiet )
+               if ( !_quiet )
                   return unexpectedCharError();
                return false;
             }

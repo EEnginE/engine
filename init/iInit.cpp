@@ -4,7 +4,7 @@
  * \sa e_event.cpp e_iInit.hpp
  */
 /*
- * Copyright (C) 2015 EEnginE project
+ * Copyright (C) 2016 EEnginE project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,13 +36,14 @@
 #define dVkLOG( ... )
 #endif
 
-#define GET_VERSION( v )                                                                           \
-   VK_VERSION_MAJOR( v ), L'.', VK_VERSION_MINOR( v ), L'.', VK_VERSION_PATCH( v )
-
 namespace e_engine {
 namespace internal {
 __iInit_Pointer __iInit_Pointer_OBJ;
 }
+
+
+PFN_vkCreateDebugReportCallbackEXT f_vkCreateDebugReportCallbackEXT   = nullptr;
+PFN_vkDestroyDebugReportCallbackEXT f_vkDestroyDebugReportCallbackEXT = nullptr;
 
 void iInit::_setThisForHandluSignal() {
    if ( !internal::__iInit_Pointer_OBJ.set( this ) ) {
@@ -52,28 +53,11 @@ void iInit::_setThisForHandluSignal() {
 }
 
 iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
-
-   vMainLoopRunning_B = false;
-
-   vEventLoopHasFinished_B = false;
-   vEventLoopISPaused_B    = false;
-   vEventLoopPaused_B      = false;
-
-   vEventLoopHasFinished_B = true;
-
-   vWasMouseGrabbed_B = false;
-
-   vCreateWindowReturn_I = -1000;
-
-   vAreRenderLoopSignalsConnected_B = false;
-   vIsVulkanSetup_B                 = false;
-
-#if WINDOWS
-   vContinueWithEventLoop_B = false;
-#endif
-
+   vExtensionsToUse.emplace_back( VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
    vExtensionsToUse.emplace_back( VK_KHR_SURFACE_EXTENSION_NAME );
    vExtensionsToUse.emplace_back( E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME );
+
+   vDeviceExtensionsToUse.emplace_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
 
    _setThisForHandluSignal();
 }
@@ -128,341 +112,87 @@ bool iInit::enableDefaultGrabControl() { return addFocusSlot( &vGrabControl_SLOT
  */
 bool iInit::disableDefaultGrabControl() { return removeFocusSlot( &vGrabControl_SLOT ); }
 
-std::vector<VkExtensionProperties> iInit::getExtProprs( std::string _layerName ) {
-   std::vector<VkExtensionProperties> lPorps;
-   uint32_t lExtCount;
-   VkResult lResult;
+void iInit::vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
+                                VkDebugReportObjectTypeEXT _objType,
+                                uint64_t _obj,
+                                size_t _location,
+                                int32_t _msgCode,
+                                std::string _layerPrefix,
+                                std::string _msg ) {
+   std::string lTempStr;
+   char lLogStr;
 
-   const char *lNamePtr = _layerName.empty() ? nullptr : _layerName.c_str();
-
-   lResult = vkEnumerateInstanceExtensionProperties( lNamePtr, &lExtCount, nullptr );
-   if ( lResult != VK_SUCCESS ) {
-      eLOG( "'vkEnumerateInstanceExtensionProperties' returned ", uEnum2Str::toStr( lResult ) );
-      return lPorps;
+   if ( _flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT ) {
+      lLogStr = 'D';
+      lTempStr += "VK_DEBUG:  ";
    }
 
-   if ( lExtCount == 0 ) {
-      return lPorps;
+   if ( _flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT ) {
+      lLogStr = 'I';
+      lTempStr += "VK_INFO:   ";
    }
 
-   lPorps.resize( lExtCount );
-   lResult = vkEnumerateInstanceExtensionProperties( lNamePtr, &lExtCount, lPorps.data() );
-   if ( lResult != VK_SUCCESS ) {
-      eLOG( "'vkEnumerateInstanceExtensionProperties' returned ", uEnum2Str::toStr( lResult ) );
-      return lPorps;
+   if ( _flags & VK_DEBUG_REPORT_WARNING_BIT_EXT ) {
+      lLogStr = 'W';
+      lTempStr += "VK_WARN:   ";
    }
 
-   return lPorps;
+   if ( _flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT ) {
+      lLogStr = 'W';
+      lTempStr += "VK_P_WARN: ";
+   }
+
+   if ( _flags & VK_DEBUG_REPORT_ERROR_BIT_EXT ) {
+      lLogStr = 'E';
+      lTempStr += "VK_ERROR:  ";
+   }
+
+   LOG( lLogStr,
+        false,
+        W_FILE,
+        __LINE__,
+        W_FUNC,
+        std::this_thread::get_id(),
+        "(",
+        _layerPrefix,
+        ") ",
+        _msgCode,
+        ":",
+        _msg );
 }
 
-int iInit::loadExtensionList() {
-   std::vector<VkExtensionProperties> lPorps;
-
-   lPorps = getExtProprs( "" );
-
-   for ( auto const &i : vLayersToUse ) {
-      std::vector<VkExtensionProperties> lTemp = getExtProprs( i );
-      lPorps.insert( lPorps.end(), lTemp.begin(), lTemp.end() );
+VkBool32 vulkanDebugCallback( VkDebugReportFlagsEXT _flags,
+                              VkDebugReportObjectTypeEXT _objType,
+                              uint64_t _obj,
+                              size_t _location,
+                              int32_t _msgCode,
+                              const char *_layerPrefix,
+                              const char *_msg,
+                              void *_usrData ) {
+   if ( _usrData ) {
+      reinterpret_cast<iInit *>( _usrData )
+            ->vulkanDebugHandler( _flags, _objType, _obj, _location, _msgCode, _layerPrefix, _msg );
    }
-
-   dVkLOG( "Extensions found:" );
-
-   for ( auto const &i : lPorps ) {
-      bool lFound = false;
-
-      for ( auto const &j : vExtensionList ) {
-         if ( j == i.extensionName ) {
-            lFound = true;
-            break;
-         }
-      }
-
-      if ( lFound )
-         continue;
-
-      dVkLOG( "  -- '", i.extensionName, "'  -  specVersion: ", i.specVersion );
-      vExtensionList.emplace_back( i.extensionName );
-   }
-
-   return 0;
+   return VK_FALSE;
 }
 
-/*!
- * \brief Creates the vulkan instance
- *
- * \returns  0 -- Success
- * \returns  1 -- Missing extension(s)
- */
-int iInit::initVulkan( std::vector<std::string> _layers ) {
-   VkResult lResult;
-   uint32_t lPorpCount;
 
-   lResult = vkEnumerateInstanceLayerProperties( &lPorpCount, nullptr );
-   if ( lResult ) {
-      eLOG( "'vkEnumerateInstanceLayerProperties' returned ", uEnum2Str::toStr( lResult ) );
-      return lResult;
+int iInit::initDebug() {
+   f_vkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(
+         vkGetInstanceProcAddr( vInstance_vk, "vkCreateDebugReportCallbackEXT" ) );
+
+   f_vkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(
+         vkGetInstanceProcAddr( vInstance_vk, "vkDestroyDebugReportCallbackEXT" ) );
+
+   if ( !f_vkCreateDebugReportCallbackEXT )
+      return 2;
+
+   auto lRes = f_vkCreateDebugReportCallbackEXT(
+         vInstance_vk, &vDebugCreateInfo_vk, nullptr, &vCallback );
+   if ( lRes ) {
+      eLOG( "'vkCreateDebugReportCallbackEXT' returned ", uEnum2Str::toStr( lRes ) );
+      return 1;
    }
-
-   vLayerProperties_vk.resize( lPorpCount );
-   lResult = vkEnumerateInstanceLayerProperties( &lPorpCount, vLayerProperties_vk.data() );
-   if ( lResult ) {
-      eLOG( "'vkEnumerateInstanceLayerProperties' returned ", uEnum2Str::toStr( lResult ) );
-      return lResult;
-   }
-
-   dVkLOG( "InstanceLayerProperties: ", lPorpCount );
-   for ( auto const &i : vLayerProperties_vk ) {
-      dVkLOG( "  -- ", i.layerName, " (", i.description, ")" );
-   }
-
-   iLOG( "Using ", _layers.size(), " Vulkan Layers:" );
-   for ( auto const &i : _layers ) {
-      bool lFound = false;
-      for ( auto const &j : vLayerProperties_vk ) {
-         if ( i == j.layerName ) {
-            vLayersToUse.emplace_back( i );
-            iLOG( "  -- Using Layer '", i, "'" );
-            lFound = true;
-            break;
-         }
-      }
-
-      if ( !lFound )
-         wLOG( "Vulkan Layer '", i, "' not found!" );
-   }
-
-   int lRet = loadExtensionList();
-   if ( lRet != 0 )
-      return lRet;
-
-   const char **lExtensions = new const char *[vExtensionsToUse.size()];
-
-   iLOG( "Using ", vExtensionsToUse.size(), " extension: " );
-   for ( uint32_t i = 0; i < vExtensionsToUse.size(); i++ ) {
-      if ( !isExtensionSupported( vExtensionsToUse[i] ) ) {
-         eLOG( "Extension '", i, "' is not supported!" );
-         delete[] lExtensions;
-         return 1;
-      }
-      lExtensions[i] = vExtensionsToUse[i].c_str();
-      iLOG( "  -- '", vExtensionsToUse[i], '\'' );
-   }
-
-   const char **lLayers = new const char *[vLayersToUse.size()];
-   for ( uint32_t i = 0; i < vLayersToUse.size(); i++ ) {
-      lLayers[i] = vLayersToUse[i].c_str();
-   }
-
-   VkInstanceCreateInfo lCreateInfo_vk;
-   VkApplicationInfo lAppInfo_vk;
-
-   lAppInfo_vk.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-   lAppInfo_vk.pNext              = nullptr;
-   lAppInfo_vk.pApplicationName   = GlobConf.config.appName.c_str();
-   lAppInfo_vk.pEngineName        = "EEnginE";
-   lAppInfo_vk.apiVersion         = VK_MAKE_VERSION( 1, 0, 4 );
-   lAppInfo_vk.applicationVersion = 1; //!< \todo change this const
-   lAppInfo_vk.engineVersion      = 1; //!< \todo change this const
-
-   lCreateInfo_vk.sType                   = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-   lCreateInfo_vk.pNext                   = nullptr;
-   lCreateInfo_vk.flags                   = 0;
-   lCreateInfo_vk.pApplicationInfo        = &lAppInfo_vk;
-   lCreateInfo_vk.enabledLayerCount       = vLayersToUse.size();
-   lCreateInfo_vk.ppEnabledLayerNames     = lLayers;
-   lCreateInfo_vk.enabledExtensionCount   = vExtensionsToUse.size();
-   lCreateInfo_vk.ppEnabledExtensionNames = lExtensions;
-
-   lResult = vkCreateInstance( &lCreateInfo_vk, nullptr, &vInstance_vk );
-
-   delete[] lExtensions;
-   delete[] lLayers;
-
-   if ( lResult != VK_SUCCESS ) {
-      eLOG( "'vkCreateInstance' returned ", uEnum2Str::toStr( lResult ) );
-      return lResult;
-   }
-
-   return 0;
-}
-
-int iInit::loadDevices() {
-   uint32_t lCount;
-   VkResult lResult = vkEnumeratePhysicalDevices( vInstance_vk, &lCount, nullptr );
-
-   if ( lResult != VK_SUCCESS ) {
-      eLOG( "'vkEnumeratePhysicalDevices' returned ", uEnum2Str::toStr( lResult ) );
-      return lResult;
-   }
-
-   std::vector<VkPhysicalDevice> lTempDevs;
-   vPhysicalDevices_vk.resize( lCount );
-   lTempDevs.resize( lCount );
-
-   lResult = vkEnumeratePhysicalDevices( vInstance_vk, &lCount, lTempDevs.data() );
-
-   if ( lResult != VK_SUCCESS ) {
-      eLOG( "'vkEnumeratePhysicalDevices' returned ", uEnum2Str::toStr( lResult ) );
-      return lResult;
-   }
-
-   for ( uint32_t i = 0; i < lTempDevs.size(); i++ ) {
-      vPhysicalDevices_vk[i].device = lTempDevs[i];
-
-      vkGetPhysicalDeviceProperties( lTempDevs[i], &vPhysicalDevices_vk[i].properties );
-      vkGetPhysicalDeviceFeatures( lTempDevs[i], &vPhysicalDevices_vk[i].features );
-      vkGetPhysicalDeviceMemoryProperties( lTempDevs[i], &vPhysicalDevices_vk[i].memoryProperties );
-
-      auto &lQueueAlias = vPhysicalDevices_vk[i].queueFamilyProperties;
-
-      vkGetPhysicalDeviceQueueFamilyProperties( lTempDevs[i], &lCount, nullptr );
-      lQueueAlias.resize( lCount );
-      vkGetPhysicalDeviceQueueFamilyProperties( lTempDevs[i], &lCount, lQueueAlias.data() );
-
-#if D_LOG_VULKAN_INIT
-      auto &props = vPhysicalDevices_vk[i].properties;
-
-      dLOG( L"GPU ", i, ":" );
-      dLOG( L"  -- Device Properties:" );
-      dLOG( L"    - apiVersion    = ", GET_VERSION( props.apiVersion ) );
-      dLOG( L"    - driverVersion = ", GET_VERSION( props.driverVersion ) );
-      dLOG( L"    - vendorID      = ", props.vendorID );
-      dLOG( L"    - deviceID      = ", props.deviceID );
-      dLOG( L"    - deviceType    = ", uEnum2Str::toStr( props.deviceType ) );
-      dLOG( L"    - deviceName    = ", props.deviceName );
-      dLOG( L"  -- Queue Family Properties:" );
-
-      for ( uint32_t i = 0; i < lQueueAlias.size(); i++ ) {
-         dLOG( L"    -- Queue Family ", i );
-         dLOG( L"      - queueFlags: (prefix VK_QUEUE_)" );
-         dLOG( L"        - GRAPHICS_BIT:       ",
-               lQueueAlias[i].queueFlags & VK_QUEUE_GRAPHICS_BIT ? true : false );
-         dLOG( L"        - COMPUTE_BIT:        ",
-               lQueueAlias[i].queueFlags & VK_QUEUE_COMPUTE_BIT ? true : false );
-         dLOG( L"        - TRANSFER_BIT:       ",
-               lQueueAlias[i].queueFlags & VK_QUEUE_TRANSFER_BIT ? true : false );
-         dLOG( L"        - SPARSE_BINDING_BIT: ",
-               lQueueAlias[i].queueFlags & VK_QUEUE_SPARSE_BINDING_BIT ? true : false );
-         dLOG( L"      - queueCount                  = ", lQueueAlias[i].queueCount );
-         dLOG( L"      - timestampValidBits          = ", lQueueAlias[i].timestampValidBits );
-         dLOG( L"      - minImageTransferGranularity = ",
-               lQueueAlias[i].minImageTransferGranularity.width,
-               L'x',
-               lQueueAlias[i].minImageTransferGranularity.height,
-               L"; depth: ",
-               lQueueAlias[i].minImageTransferGranularity.depth );
-      }
-#endif
-   }
-
-   return 0;
-}
-
-iInit::PhysicalDevice_vk *iInit::chooseDevice() {
-   if ( vPhysicalDevices_vk.empty() )
-      return nullptr;
-
-   PhysicalDevice_vk *current = nullptr;
-
-   for ( auto &i : vPhysicalDevices_vk ) {
-      unsigned int lNumQueues        = 0;
-      unsigned int lCurrentNumQueues = 0;
-      bool lSupportsGraphicsBit      = false;
-
-      if ( current == nullptr ) {
-         current = &i;
-         continue;
-      }
-
-      if ( i.properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ) {
-         if ( current->properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU )
-            continue;
-
-         // Integrated GPU may be better than first device type
-         if ( i.properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU )
-            continue;
-      }
-
-      // calc num of queues
-      for ( auto const &j : i.queueFamilyProperties ) {
-         lNumQueues += j.queueCount;
-         if ( j.queueFlags & VK_QUEUE_GRAPHICS_BIT ) {
-            lSupportsGraphicsBit = true;
-         }
-      }
-
-      for ( auto const &j : current->queueFamilyProperties ) {
-         lCurrentNumQueues += j.queueCount;
-      }
-
-      if ( !lSupportsGraphicsBit )
-         continue;
-
-
-      if ( lCurrentNumQueues > lNumQueues )
-         continue;
-
-      //! \todo add more tests here
-
-      // i is better than current
-      current = &i;
-   }
-
-   return current;
-}
-
-/*!
- * \brief creates the dvice with all queues
- * \returns 0 -- success
- */
-int iInit::createDevice() {
-   auto *lPDevPTR = chooseDevice();
-
-   if ( lPDevPTR == nullptr ) {
-      return 1000;
-   }
-
-   std::vector<VkDeviceQueueCreateInfo> lQueueCreateInfo;
-   std::vector<std::vector<float>> lQueuePriorities;
-
-   for ( auto const &i : lPDevPTR->queueFamilyProperties ) {
-      lQueuePriorities.emplace_back();
-      lQueuePriorities.back().resize( i.queueCount );
-
-      // Setting priorities (1.0, 0.5, 0.25, ...)
-      for ( uint32_t j = 0; j < i.queueCount; j++ ) {
-         lQueuePriorities.back()[j] = 1.0f / static_cast<float>( j + 1 );
-      }
-
-      lQueueCreateInfo.emplace_back();
-      lQueueCreateInfo.back().sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-      lQueueCreateInfo.back().pNext = nullptr;
-      lQueueCreateInfo.back().flags = 0;
-      lQueueCreateInfo.back().queueFamilyIndex = lQueueCreateInfo.size() - 1;
-      lQueueCreateInfo.back().queueCount = i.queueCount;
-      lQueueCreateInfo.back().pQueuePriorities = lQueuePriorities.back().data();
-   }
-
-   VkDeviceCreateInfo lCreateInfo;
-   lCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-   lCreateInfo.pNext                   = nullptr;
-   lCreateInfo.flags                   = 0;
-   lCreateInfo.queueCreateInfoCount    = lQueueCreateInfo.size();
-   lCreateInfo.pQueueCreateInfos       = lQueueCreateInfo.data();
-   lCreateInfo.enabledLayerCount       = 0;
-   lCreateInfo.ppEnabledLayerNames     = nullptr;
-   lCreateInfo.enabledExtensionCount   = 0;
-   lCreateInfo.ppEnabledExtensionNames = nullptr;
-   lCreateInfo.pEnabledFeatures        = &lPDevPTR->features;
-
-   auto lResult = vkCreateDevice( lPDevPTR->device, &lCreateInfo, nullptr, &vDevice_vk.device );
-   if ( lResult ) {
-      eLOG( "'vkCreateDevice' returned ", uEnum2Str::toStr( lResult ) );
-      return lResult;
-   }
-
-   vDevice_vk.physicalDevice = lPDevPTR;
-
    return 0;
 }
 
@@ -480,8 +210,10 @@ int iInit::createDevice() {
  *
  * \returns  0 -- Success
  * \returns  1 -- Failed to init vulkan
- * \returns  2 -- Failed to load devices
- * \returns  3 -- Failed to create a vulkan device
+ * \returns  2 -- Failed to create surface
+ * \returns  3 -- Failed to load devices
+ * \returns  4 -- Failed to create a vulkan device
+ * \returns  5 -- Failed to create the swapchain
  */
 int iInit::init( std::vector<std::string> _layers ) {
    signal( SIGINT, handleSignal );
@@ -501,14 +233,36 @@ int iInit::init( std::vector<std::string> _layers ) {
 
    LOG.startLogLoop();
 
+   vDebugCreateInfo_vk.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+   vDebugCreateInfo_vk.pNext = nullptr;
+   vDebugCreateInfo_vk.flags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT |
+                               VK_DEBUG_REPORT_WARNING_BIT_EXT |
+                               VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT |
+                               VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;
+   vDebugCreateInfo_vk.pfnCallback = &vulkanDebugCallback;
+   vDebugCreateInfo_vk.pUserData   = reinterpret_cast<void *>( this );
+
    if ( initVulkan( _layers ) )
       return 1;
 
-   if ( loadDevices() )
+   if ( vEnableVulkanDebug )
+      initDebug();
+
+   vSurface_vk = getVulkanSurface( vInstance_vk );
+   if ( !vSurface_vk )
       return 2;
 
-   if ( createDevice() )
+   if ( loadDevices() )
       return 3;
+
+   vDevice_vk.pDevice = chooseDevice();
+
+   if ( createDevice( _layers ) )
+      return 4;
+
+   if ( createSwapchain() )
+      return 5;
+
 
 #if WINDOWS
    // Windows needs the PeekMessage call in the same thread where the window is created
@@ -550,7 +304,22 @@ void iInit::destroyVulkan() {
 
    vIsVulkanSetup_B = false;
    vExtensionList.clear();
-   vkDestroyInstance( vInstance_vk, nullptr );
+   vDeviceExtensionList.clear();
+   vQueues_vk.clear();
+   vLayerProperties_vk.clear();
+   vDeviceLayerProperties_vk.clear();
+   vPhysicalDevices_vk.clear();
+
+   if ( vCallback && f_vkDestroyDebugReportCallbackEXT )
+      f_vkDestroyDebugReportCallbackEXT( vInstance_vk, vCallback, nullptr );
+
+   if ( vInstance_vk )
+      vkDestroyInstance( vInstance_vk, nullptr );
+
+   vCallback     = nullptr;
+   vInstance_vk  = nullptr;
+   vSurface_vk   = nullptr;
+   vSwapchain_vk = nullptr;
 }
 
 int iInit::shutdown() {
@@ -680,6 +449,92 @@ bool iInit::isExtensionSupported( std::string _extension ) {
       }
    }
    return false;
+}
+
+bool iInit::isDeviceExtensionSupported( std::string _extension ) {
+   for ( auto const &i : vDeviceExtensionList ) {
+      if ( i == _extension ) {
+         return true;
+      }
+   }
+   return false;
+}
+
+/*!
+ * \brief Selects and returns a vulkan queue
+ *
+ * Selects and returns a vulkan queue. This function will not return the same
+ * queue twice unless the queue is (manualy freed)
+ *
+ * \param _flags    Flags the Queue MUST support
+ * \param _priority Queue target priority
+ * \returns the best matching queue; nullptr if none found
+ */
+VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority ) {
+   float lMinDiff = 100.0f;
+   VkQueue lQueue = nullptr;
+
+   for ( auto i : vQueues_vk ) {
+      if ( i.isBlocked )
+         continue;
+
+      if ( !( i.flags & _flags ) )
+         continue;
+
+      auto lTemp = i.priority - _priority;
+      lTemp = lTemp < 0 ? -lTemp : lTemp; // Make positive
+      if ( lTemp < lMinDiff ) {
+         lMinDiff = lTemp;
+         lQueue   = i.queue;
+      }
+   }
+
+   blockQueue( lQueue );
+   return lQueue;
+}
+
+/*!
+ * \brief Unblocks a queue
+ *
+ * A blocked queue will not be returned by iInit::getQueue
+ *
+ * \param _queue The _queue to unblock
+ * \returns if the queue was found
+ */
+bool iInit::freeQueue( VkQueue _queue ) {
+   bool lFound = false;
+
+   for ( auto i : vQueues_vk ) {
+      if ( i.queue == _queue ) {
+         lFound      = true;
+         i.isBlocked = false;
+         break;
+      }
+   }
+
+   return lFound;
+}
+
+/*!
+ * \brief Blocks a queue
+ *
+ * A blocked queue will not be returned by iInit::getQueue
+ *
+ * \param _queue The _queue to block
+ * \returns if the queue was found
+ */
+bool iInit::blockQueue( VkQueue _queue ) {
+   bool lFound = false;
+
+   for ( auto i : vQueues_vk ) {
+      if ( i.queue == _queue ) {
+         lFound      = true;
+         i.isBlocked = true;
+         break;
+      }
+   }
+
+   return lFound;
 }
 }
 

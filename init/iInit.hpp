@@ -81,36 +81,63 @@ class INIT_API iInit : public windows_win32::iContext {
    } PhysicalDevice_vk;
 
    typedef struct Device_vk {
-      PhysicalDevice_vk *physicalDevice = nullptr;
-      VkDevice device                   = NULL;
+      PhysicalDevice_vk *pDevice = nullptr;
+      VkDevice device            = NULL;
    } Device_vk;
+
+   typedef struct Queue_vk {
+      VkQueue queue;
+      float priority;
+      VkQueueFlags flags;
+      u_int32_t familyIndex;
+      u_int32_t index;
+      bool surfaceSupport;
+
+      bool isBlocked = false;
+
+      Queue_vk( float _priority,
+                VkQueueFlags _flags,
+                u_int32_t _familyIndex,
+                u_int32_t _index,
+                bool _surfaceSupport )
+          : priority( _priority ),
+            flags( _flags ),
+            familyIndex( _familyIndex ),
+            index( _index ),
+            surfaceSupport( _surfaceSupport ) {}
+   } Queue_vk;
 
  private:
    std::vector<std::string> vExtensionList;
+   std::vector<std::string> vDeviceExtensionList;
    std::vector<std::string> vExtensionsToUse;
+   std::vector<std::string> vDeviceExtensionsToUse;
    std::vector<std::string> vLayersToUse;
+   std::vector<std::string> vDeviceLayersToUse;
 
    std::vector<VkLayerProperties> vLayerProperties_vk;
-
-   VkInstance vInstance_vk;
+   std::vector<VkLayerProperties> vDeviceLayerProperties_vk;
    std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
+   std::vector<Queue_vk> vQueues_vk;
+
+   VkDebugReportCallbackCreateInfoEXT vDebugCreateInfo_vk;
+
+   VkDebugReportCallbackEXT vCallback = nullptr;
+   VkInstance vInstance_vk            = nullptr;
+   VkSurfaceKHR vSurface_vk           = nullptr;
+   VkSwapchainKHR vSwapchain_vk       = nullptr;
    Device_vk vDevice_vk;
 
-   bool vMainLoopRunning_B;      //!< Should the main loop be running?
-   bool vEventLoopHasFinished_B; //!< Has the event loop finished?
+   bool vMainLoopRunning_B      = false; //!< Should the main loop be running?
+   bool vEventLoopHasFinished_B = true;  //!< Has the event loop finished?
 
    std::thread vEventLoop_BT; //!< The thread for the event loop
 
-
-   bool vEventLoopPaused_B; //!< SHOULD the event loop be paused?
-   bool vEventLoopISPaused_B;
-
-   bool vWasMouseGrabbed_B;
-
-   int vCreateWindowReturn_I;
-
-   bool vAreRenderLoopSignalsConnected_B;
-   bool vIsVulkanSetup_B;
+   bool vWasMouseGrabbed_B               = false;
+   bool vAreRenderLoopSignalsConnected_B = false;
+   bool vIsVulkanSetup_B                 = false;
+   bool vEnableVulkanDebug               = false;
+   int vCreateWindowReturn_I             = -1000;
 
 #if WINDOWS
    std::mutex vCreateWindowMutex_BT;
@@ -128,16 +155,20 @@ class INIT_API iInit : public windows_win32::iContext {
    PhysicalDevice_vk *chooseDevice();
 
    std::vector<VkExtensionProperties> getExtProprs( std::string _layerName );
+   std::vector<VkExtensionProperties> getDeviceExtProprs( std::string _layerName,
+                                                          VkPhysicalDevice _dev );
    int loadExtensionList();
+   int loadDeviceExtensionList( VkPhysicalDevice _dev );
    int loadDevices();
-   int createDevice();
+   int createDevice( std::vector<std::string> _layers );
    int initVulkan( std::vector<std::string> _layers );
+   int createSwapchain();
+   int initDebug();
 
    void destroyVulkan();
 
    // Thread Functions --------------------------------------------------------- ###
-   int eventLoop();         //!< The event loop function ( In PLATFORM/e_event.cpp )
-   void quitMainLoopCall(); //!< The actual function to quit the main loop
+   int eventLoop(); //!< The event loop function ( In PLATFORM/e_event.cpp )
 
    // Signal handling ---------------------------------------------------------- ###
    static void handleSignal( int _signal ); //!< The signal handle function
@@ -164,7 +195,21 @@ class INIT_API iInit : public windows_win32::iContext {
 
    void closeWindow();
 
+   VkQueue getQueue( VkQueueFlags _flags, float _priority );
+   bool freeQueue( VkQueue _queue );
+   bool blockQueue( VkQueue _queue );
+
    bool isExtensionSupported( std::string _extension );
+   bool isDeviceExtensionSupported( std::string _extension );
+
+   void enableVulkanDebug() { vEnableVulkanDebug = true; }
+   void vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
+                            VkDebugReportObjectTypeEXT _objType,
+                            uint64_t _obj,
+                            size_t _location,
+                            int32_t _msgCode,
+                            std::string _layerPrefix,
+                            std::string _msg );
 };
 
 namespace internal {

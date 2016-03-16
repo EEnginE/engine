@@ -246,8 +246,8 @@ void uLogEntryRaw::defaultEntryGenerator() {
          lThread_str.append( 1, L' ' );
    }
 
-// ========= Prepare Variables
-// ================================================================================================
+   // ========= Prepare Variables
+   // ================================================================================================
 
    std::wregex lRmExcape_REGEX( L"\x1b\\[[0-9;]+m" );
    const wchar_t *lRegexReplace_CSTR = L"";
