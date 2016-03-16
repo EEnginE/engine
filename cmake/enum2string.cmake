@@ -14,15 +14,17 @@
 
 # Usage:
 # enum2str_generate
-#    PATH        <path to generate files in>
-#    CLASS_NAME  <name of the class (file names will be PATH/CLASS_NAME.{hpp,cpp})>
-#    FUNC_NAME   <the name of the function>
-#    INCLUDES    <files to include (where the enums are)>
-#    NAMESPACE   <namespace to use>
-#    ENUMS       <list of enums to generate>
-#    BLACKLIST   <blacklist for enum constants>
+#    PATH           <path to generate files in>
+#    CLASS_NAME     <name of the class (file names will be PATH/CLASS_NAME.{hpp,cpp})>
+#    FUNC_NAME      <the name of the function>
+#    INCLUDES       <files to include (where the enums are)>
+#    NAMESPACE      <namespace to use>
+#    ENUMS          <list of enums to generate>
+#    BLACKLIST      <blacklist for enum constants>
+#    USE_CONSTEXPR  <wheather to use constexpr or not (default: off)>
+#    USE_C_STRINGS  <wheather to use c strings instead of std::string or not (default: off)>
 function( enum2str_generate )
-   set( TARGET_LIST PATH CLASS_NAME FUNC_NAME INCLUDES ENUMS NAMESPACE BLACKLIST )
+   set( TARGET_LIST PATH CLASS_NAME FUNC_NAME INCLUDES ENUMS NAMESPACE BLACKLIST USE_CONSTEXPR USE_C_STRINGS )
    math( EXPR ARGC_M1 "${ARGC} - 1" )
 
    #########################################
@@ -52,6 +54,12 @@ function( enum2str_generate )
 
       list( APPEND ${CURRENT_TARGET} ${ARG} )
    endforeach( I RANGE 1 ${ARGC_M1} )
+
+   if( USE_C_STRINGS )
+      set( STRING_TYPE "const char *" )
+   else( USE_C_STRINGS )
+      set( STRING_TYPE "std::string " )
+   endif( USE_C_STRINGS )
 
    message( STATUS "Generating enum2str files" )
 
@@ -105,7 +113,7 @@ function( enum2str_generate )
          string( REGEX REPLACE "(.*)::[^:]+" "\\1::" ENUM_NS "${I}" )
       endif( "${I}" MATCHES "(.*)::[^:]+" )
 
-      string( REGEX MATCH "enum[ \t\n]+${ENUM_NAME}[ \t\n]+{[^}]*}" P1 "${RAW_DATA}" )
+      string( REGEX MATCH "enum[ \t\n]+${ENUM_NAME}[ \t\n]+(:[^{]+)?{[^}]*}" P1 "${RAW_DATA}" )
       if( "${P1}" STREQUAL "" )
          string( REGEX MATCH "enum[ \t\n]+{[^}]*}[ \t\n]+${ENUM_NAME};" P1 "${RAW_DATA}" )
 
@@ -116,7 +124,7 @@ function( enum2str_generate )
       endif( "${P1}" STREQUAL "" )
       string( REGEX REPLACE "//[^\n]*" "" P1 "${P1}" )
       string( REGEX REPLACE "/\\*[^\\*]*\\*/" "" P1 "${P1}" )
-      string( REGEX REPLACE "enum[ \t\n]+${ENUM_NAME}[ \t\n]+" "" P1 "${P1}" )
+      string( REGEX REPLACE "enum[ \t\n]+${ENUM_NAME}[ \t\n]+(:[^{]+)?" "" P1 "${P1}" )
       string( REGEX REPLACE "enum[ \t\n]{" "" P1 "${P1}" )
       string( REGEX REPLACE "}[ \t\n]*${ENUM_NAME}[ \t\n]*;" "" P1 "${P1}" )
       string( REGEX REPLACE "[ \t\n{};]" "" P1 "${P1}" )
@@ -177,20 +185,35 @@ macro( __enum2str_checkSet )
 endmacro( __enum2str_checkSet )
 
 function( enum2str_add )
-   file( APPEND "${HPP_FILE}" "   static std::string ${FUNC_NAME}( ${ARGV0} _var ) noexcept;\n" )
+   if( USE_CONSTEXPR )
+      file( APPEND "${HPP_FILE}" "   /*!\n    * \\brief Converts the enum ${ARGV0} to a c string\n" )
+      file( APPEND "${HPP_FILE}" "    * \\param _var The enum value to convert\n" )
+      file( APPEND "${HPP_FILE}" "    * \\returns _var converted to a c string\n    */\n" )
+      file( APPEND "${HPP_FILE}" "   static constexpr const char *${FUNC_NAME}( ${ARGV0} _var ) noexcept {\n" )
+      file( APPEND "${HPP_FILE}" "      switch ( _var ) {\n" )
 
-   file( APPEND "${CPP_FILE}" "/*!\n * \\brief Converts the enum ${ARGV0} to a std::string\n" )
-   file( APPEND "${CPP_FILE}" " * \\param _var The enum value to convert\n" )
-   file( APPEND "${CPP_FILE}" " * \\returns _var converted to a std::string\n */\n" )
-   file( APPEND "${CPP_FILE}" "std::string ${CLASS_NAME}::${FUNC_NAME}( ${ARGV0} _var ) noexcept {\n" )
-   file( APPEND "${CPP_FILE}" "   switch ( _var ) {\n" )
+      foreach( I IN LISTS ENUMS_TO_USE )
+         file( APPEND "${HPP_FILE}" "         case ${ENUM_NS}${I}: return \"${I}\";\n" )
+      endforeach( I IN LISTS ENUMS_TO_USE )
 
-   foreach( I IN LISTS ENUMS_TO_USE )
-      file( APPEND "${CPP_FILE}" "      case ${ENUM_NS}${I}: return \"${I}\";\n" )
-   endforeach( I IN LISTS ENUMS_TO_USE )
+      file( APPEND "${HPP_FILE}" "         default: return \"<UNKNOWN>\";\n" )
+      file( APPEND "${HPP_FILE}" "      }\n   }\n\n" )
+   else( USE_CONSTEXPR )
+      file( APPEND "${HPP_FILE}" "   static ${STRING_TYPE}${FUNC_NAME}( ${ARGV0} _var ) noexcept;\n" )
 
-   file( APPEND "${CPP_FILE}" "      default: return \"<UNKNOWN>\";\n" )
-   file( APPEND "${CPP_FILE}" "   }\n}\n\n" )
+      file( APPEND "${CPP_FILE}" "/*!\n * \\brief Converts the enum ${ARGV0} to a ${STRING_TYPE}\n" )
+      file( APPEND "${CPP_FILE}" " * \\param _var The enum value to convert\n" )
+      file( APPEND "${CPP_FILE}" " * \\returns _var converted to a ${STRING_TYPE}\n */\n" )
+      file( APPEND "${CPP_FILE}" "${STRING_TYPE}${CLASS_NAME}::${FUNC_NAME}( ${ARGV0} _var ) noexcept {\n" )
+      file( APPEND "${CPP_FILE}" "   switch ( _var ) {\n" )
+
+      foreach( I IN LISTS ENUMS_TO_USE )
+         file( APPEND "${CPP_FILE}" "      case ${ENUM_NS}${I}: return \"${I}\";\n" )
+      endforeach( I IN LISTS ENUMS_TO_USE )
+
+      file( APPEND "${CPP_FILE}" "      default: return \"<UNKNOWN>\";\n" )
+      file( APPEND "${CPP_FILE}" "   }\n}\n\n" )
+   endif( USE_CONSTEXPR )
 endfunction( enum2str_add )
 
 
@@ -213,12 +236,14 @@ function( enum2str_init )
    file( APPEND "${HPP_FILE}" "class ${CLASS_NAME} {\n" )
    file( APPEND "${HPP_FILE}" " public:\n" )
 
-   file( WRITE  "${CPP_FILE}" "/*!\n" )
-   file( APPEND "${CPP_FILE}" "  * \\file ${CLASS_NAME}.cpp\n" )
-   file( APPEND "${CPP_FILE}" "  * \\warning This is an automatically generated file!\n" )
-   file( APPEND "${CPP_FILE}" "  */\n\n" )
-   file( APPEND "${CPP_FILE}" "#include \"${CLASS_NAME}.hpp\"\n\n" )
-   file( APPEND "${CPP_FILE}" "namespace ${NAMESPACE} {\n\n" )
+   if( NOT USE_CONSTEXPR )
+      file( WRITE  "${CPP_FILE}" "/*!\n" )
+      file( APPEND "${CPP_FILE}" "  * \\file ${CLASS_NAME}.cpp\n" )
+      file( APPEND "${CPP_FILE}" "  * \\warning This is an automatically generated file!\n" )
+      file( APPEND "${CPP_FILE}" "  */\n\n" )
+      file( APPEND "${CPP_FILE}" "#include \"${CLASS_NAME}.hpp\"\n\n" )
+      file( APPEND "${CPP_FILE}" "namespace ${NAMESPACE} {\n\n" )
+   endif( NOT USE_CONSTEXPR )
 endfunction( enum2str_init )
 
 
@@ -226,6 +251,8 @@ function( enum2str_end )
    string( TOUPPER ${CLASS_NAME} CLASS_NAME_UPPERCASE )
 
    file( APPEND "${HPP_FILE}" "};\n\n}\n\n#endif // ${CLASS_NAME_UPPERCASE}_HPP\n\n" )
-   file( APPEND "${CPP_FILE}" "\n}\n" )
+   if( NOT USE_CONSTEXPR )
+      file( APPEND "${CPP_FILE}" "\n}\n" )
+   endif( NOT USE_CONSTEXPR )
 
 endfunction( enum2str_end )
