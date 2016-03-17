@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 
-#ifndef R_SCENE_HPP
-#define R_SCENE_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -72,6 +71,5 @@ class rScene : public rSceneBase, public rMatrixSceneBase<float> {
 };
 }
 
-#endif
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

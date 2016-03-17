@@ -19,9 +19,7 @@
  * limitations under the License.
  */
 
-
-#ifndef E_INIT_HPP
-#define E_INIT_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -246,6 +244,5 @@ extern __iInit_Pointer __iInit_Pointer_OBJ;
 }
 }
 
-#endif // E_INIT_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

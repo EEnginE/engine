@@ -23,8 +23,7 @@
  * limitations under the License.
  */
 
-#ifndef CONTEXT_HPP
-#define CONTEXT_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -190,6 +189,4 @@ extern eWindowClassRegister CLASS_REGISTER;
 
 } // e_engine
 
-
-#endif // CONTEXT_HPP
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

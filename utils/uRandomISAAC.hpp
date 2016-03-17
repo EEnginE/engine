@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef U_RADNDOM_ISAAC_HPP
-#define U_RADNDOM_ISAAC_HPP
+#pragma once
 
 #include "defines.hpp"
 #include <stdint.h>
@@ -53,5 +52,5 @@ class UTILS_API uRandomISAAC {
 };
 }
 
-#endif // U_RADNDOM_ISAAC_HPP
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

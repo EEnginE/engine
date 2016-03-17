@@ -19,8 +19,7 @@
  * limitations under the License.
  */
 
-#ifndef E_RANDR_STRUCTS_HPP
-#define E_RANDR_STRUCTS_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -273,4 +272,3 @@ struct _config {
 }
 }
 
-#endif // E_RANDR_STRUCTS_HPP

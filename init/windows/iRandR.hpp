@@ -18,9 +18,7 @@
  * limitations under the License.
  */
 
-
-#ifndef E_RANDR_WIN32_HPP
-#define E_RANDR_WIN32_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -101,5 +99,5 @@ class INIT_API iRandR {
 
 } // e_engine
 
-#endif
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

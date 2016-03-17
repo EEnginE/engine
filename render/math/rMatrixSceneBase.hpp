@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_MATRIX_WORLD_BASE_HPP
-#define R_MATRIX_WORLD_BASE_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -113,5 +112,5 @@ void rMatrixSceneBase<T>::setCamera( const rVec3<T> &_position,
 }
 }
 
-#endif // R_MATRIX_WORLD_BASE_HPP
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

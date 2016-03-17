@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_WORLD_H
-#define R_WORLD_H
+#pragma once
 
 #include "defines.hpp"
 
@@ -74,7 +73,5 @@ class RENDER_API rWorld {
    void updateClearColor( float _r, float _g, float _b, float _a );
 };
 }
-
-#endif // R_WORLD_H
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

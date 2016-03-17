@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef U_PARSER_JSON_DATA_HPP
-#define U_PARSER_JSON_DATA_HPP
+#pragma once
 
 #include "defines.hpp"
 #include <string>
@@ -284,6 +283,5 @@ void uJSON_data::_( uJSON_data *_first, int *_size, END_MARKER_TYPE, ARGS... _ar
 }
 }
 
-#endif
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

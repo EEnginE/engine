@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_LOADER_GLTF_MAP_HPP
-#define R_LOADER_GLTF_MAP_HPP
+#pragma once
 
 #include "defines.hpp"
 #include <unordered_map>
@@ -305,5 +304,3 @@ class UTILS_API lGLTF_map {
 };
 }
 }
-
-#endif // R_LOADER_GLTF_MAP_HPP

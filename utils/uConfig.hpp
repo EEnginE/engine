@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef U_CONFIG_HPP
-#define U_CONFIG_HPP
+#pragma once
 
 #include "defines.hpp"
 #include <string>
@@ -322,5 +321,5 @@ struct _uConfig {
 extern UTILS_API _uConfig GlobConf;
 }
 
-#endif // U_CONFIG_HPP
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

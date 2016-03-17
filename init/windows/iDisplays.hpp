@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef E_RANDR_DISPLAY_HPP
-#define E_RANDR_DISPLAY_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -128,5 +127,5 @@ class INIT_API iDisplays : public iDisplayBasic {
 
 } // e_engine
 
-#endif // E_RANDR_DISPLAY_HPP
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

@@ -1,5 +1,4 @@
-#ifndef L_GLTF_MACRO_HELPERS_HPP
-#define L_GLTF_MACRO_HELPERS_HPP
+#pragma once
 
 #ifdef ENABLE_GLTF_MACRO_HELPERS
 
@@ -64,6 +63,3 @@
 
 
 #endif // ENABLE_GLTF_MACRO_HELPERS
-
-
-#endif // L_GLTF_MACRO_HELPERS_HPP

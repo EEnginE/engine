@@ -19,8 +19,7 @@
  * limitations under the License.
  */
 
-#ifndef KEYS_BASIC
-#define KEYS_BASIC
+#pragma once
 
 #include "defines.hpp"
 
@@ -70,5 +69,4 @@ class INIT_API iKeyboardBasic {
 }
 
 
-#endif // KEYS_BASIC
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

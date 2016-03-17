@@ -19,8 +19,7 @@
  * limitations under the License.
  */
 
-#ifndef MOUSE
-#define MOUSE
+#pragma once
 
 #include "defines.hpp"
 
@@ -62,7 +61,4 @@ class INIT_API iMouse {
 }
 
 
-
-
-#endif // MOUSE
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

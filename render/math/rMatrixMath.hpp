@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_MATRIX_MATH_HPP
-#define R_MATRIX_MATH_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -225,5 +224,5 @@ void rMatrixMath::getNormalMatrix( rMat3<T> const &_in, rMat3<T> &_out ) {
 }
 }
 
-#endif
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

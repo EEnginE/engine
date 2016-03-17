@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_LOADER_3D_F_OBJ_H
-#define R_LOADER_3D_F_OBJ_H
+#pragma once
 
 #include "defines.hpp"
 
@@ -42,6 +41,5 @@ class LOADER_API rLoader_3D_f_OBJ : public internal::lLoaderBase<float, unsigned
 };
 }
 
-#endif // R_LOADER_3D_F_OBJ_H
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

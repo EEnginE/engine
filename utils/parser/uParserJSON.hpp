@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef U_PARSER_JSON_HPP
-#define U_PARSER_JSON_HPP
+#pragma once
 
 #include "uParserJSON_data.hpp"
 #include "uParserHelper.hpp"
@@ -59,5 +58,5 @@ class UTILS_API uParserJSON final : public internal::uParserHelper {
 };
 }
 
-#endif // U_PARSER_JSON_HPP
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

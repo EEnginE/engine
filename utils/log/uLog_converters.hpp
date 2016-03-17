@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 
-#ifndef U_LOG_CONVERTERS
-#define U_LOG_CONVERTERS
+#pragma once
 
 #include "defines.hpp"
 
@@ -244,8 +243,6 @@ struct uLogConverter<const bool &> {
 };
 }
 }
-
-#endif // U_LOG_CONVERTERS
 
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

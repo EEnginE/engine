@@ -4,8 +4,7 @@
  * Please edit only defines.in.hpp in the project root
  */
 
-#ifndef DEFINES_HPP
-#define DEFINES_HPP
+#pragma once
 
 @CM_DEFINES_DEBUG_DEFINES@
 
@@ -336,5 +335,3 @@ struct hash<std::vector<T>> {
    }
 };
 }
-
-#endif // DEFINES_HPP

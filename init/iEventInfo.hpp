@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef E_EVENT_INFO_HPP
-#define E_EVENT_INFO_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -104,5 +103,5 @@ struct INIT_API iEventInfo {
 };
 }
 
-#endif // E_EVENT_INFO_HPP
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

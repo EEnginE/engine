@@ -18,9 +18,7 @@
  * limitations under the License.
  */
 
-
-#ifndef U_SGNAL_SLOT_HPP
-#define U_SGNAL_SLOT_HPP
+#pragma once
 
 #include <list>
 #include <vector>
@@ -532,5 +530,5 @@ typename uSlot<__R, __C, __A...>::RETURN uSlot<__R, __C, __A...>::call( __A... _
  */
 }
 
-#endif
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

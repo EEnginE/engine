@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef E_LOG_STRUCTS_HPP
-#define E_LOG_STRUCTS_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -182,8 +181,5 @@ class UTILS_API uLogEntryRaw {
 };
 }
 
-
-
-#endif // E_LOG_STRUCTS_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

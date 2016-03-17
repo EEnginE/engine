@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef SHA_HPP
-#define SHA_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -96,6 +95,5 @@ class UTILS_API uSHA_2 {
 };
 }
 
-#endif // SHA_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 
-#ifndef R_DIRECTIONAL_LIGHT_HPP
-#define R_DIRECTIONAL_LIGHT_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -101,6 +100,5 @@ void rDirectionalLight<T>::setFlags() {
 }
 }
 
-#endif // R_DIRECTIONAL_LIGHT_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

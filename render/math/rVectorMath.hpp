@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_VECTOR_MATH_HPP
-#define R_VECTOR_MATH_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -148,5 +147,4 @@ void rVectorMath::quaternionMultiplication( const rVec4<T> &_q1,
 }
 }
 
-#endif
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

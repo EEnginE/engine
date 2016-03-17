@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef KEYBOARD_WIN
-#define KEYBOARD_WIN
+#pragma once
 
 #include "defines.hpp"
 
@@ -52,5 +51,5 @@ class INIT_API iKeyboard : public iKeyboardBasic {
 
 } // e_engine
 
-#endif
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

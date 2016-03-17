@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef DISPLAYS_BASIC_HPP
-#define DISPLAYS_BASIC_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -103,7 +102,5 @@ class INIT_API iDisplayBasic {
  */
 }
 
-
-#endif // DISPLAYS_BASIC_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

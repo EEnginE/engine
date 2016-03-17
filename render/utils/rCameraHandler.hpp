@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 
-#ifndef R_CAMERA_HANDLER_HPP
-#define R_CAMERA_HANDLER_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -219,6 +218,5 @@ void rCameraHandler<T>::printCameraPosition() {
 }
 }
 
-#endif
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

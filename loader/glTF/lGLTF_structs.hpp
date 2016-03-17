@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_LOADER_GLTF_STRUCTS_HPP
-#define R_LOADER_GLTF_STRUCTS_HPP
+#pragma once
 
 #include "defines.hpp"
 #include "lGLTF_map.hpp"
@@ -269,5 +268,3 @@ class UTILS_API lGLTF_structs : public lGLTF_map {
 };
 }
 }
-
-#endif // R_LOADER_GLTF_STRUCTS_HPP

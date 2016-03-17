@@ -19,8 +19,7 @@
  * limitations under the License.
  */
 
-#ifndef E_COLOR_HPP
-#define E_COLOR_HPP
+#pragma once
 
 #include <string>
 
@@ -292,5 +291,4 @@ uint16_t eCMDColor::charToColorId( char _c ) {
 }
 }
 
-#endif
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

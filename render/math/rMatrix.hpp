@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 
-#ifndef RMATRIX_H
-#define RMATRIX_H
+#pragma once
 
 #include "defines.hpp"
 
@@ -686,5 +685,5 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::print( std::string _name, char _type ) {
 }
 }
 
-#endif // RMATRIX_H
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

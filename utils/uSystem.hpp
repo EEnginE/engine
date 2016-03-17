@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef U_SYSTEM_HPP
-#define U_SYSTEM_HPP
+#pragma once
 
 #include "defines.hpp"
 #include <string>
@@ -79,4 +78,3 @@ class UTILS_API uSystem {
 extern UTILS_API uSystem SYSTEM;
 }
 
-#endif // U_SYSTEM_HPP

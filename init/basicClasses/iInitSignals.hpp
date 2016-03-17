@@ -19,8 +19,7 @@
  * limitations under the License.
  */
 
-#ifndef E_INIT_EVENT_BASIC_HPP
-#define E_INIT_EVENT_BASIC_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -189,6 +188,5 @@ class INIT_API iInitSignals {
  */
 }
 
-#endif // E_INIT_EVENT_BASIC_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_NORMAL_OBJECT_HPP
-#define R_NORMAL_OBJECT_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -62,6 +61,5 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>,
 };
 }
 
-#endif // R_NORMAL_OBJECT_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

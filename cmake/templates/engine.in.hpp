@@ -5,12 +5,9 @@
  */
 
 
-#ifndef ENGINE_HPP
-#define ENGINE_HPP
+#pragma once
 
 #include "defines.hpp"
 
 @CM_ALL_ENGINE_INCLUDES@
-
-#endif // ENGINE_HPP
 

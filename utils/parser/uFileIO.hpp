@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef U_FILE_IO_HPP
-#define U_FILE_IO_HPP
+#pragma once
 
 #include "defines.hpp"
 #include <string>
@@ -63,6 +62,5 @@ class UTILS_API uFileIO final {
 };
 }
 
-#endif // U_FILE_IO_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

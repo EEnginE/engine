@@ -17,8 +17,7 @@
 * limitations under the License.
 */
 
-#ifndef R_POINT_LIGHT_HPP
-#define R_POINT_LIGHT_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -107,6 +106,5 @@ void rPointLight<T>::setFlags() {
 }
 }
 
-#endif // R_POINT_LIGHT_HPP
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 
-#ifndef R_OBJECT_BASE_DATA_HPP
-#define R_OBJECT_BASE_DATA_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -104,4 +103,3 @@ class rObjectBase_data {
 #undef _OBJ
 #undef _CALC
 
-#endif

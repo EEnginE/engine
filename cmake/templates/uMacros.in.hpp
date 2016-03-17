@@ -7,8 +7,7 @@
 
 #include "defines.hpp"
 
-#ifndef UMACROS_HPP
-#define UMACROS_HPP
+#pragma once
 
 
 @CM_UNDEFS1@
@@ -28,4 +27,3 @@
 
 @CM_DEFINES3@
 
-#endif // UMACROS_HPP

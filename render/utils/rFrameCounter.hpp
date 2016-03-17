@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+#pragma once
+
 #include "defines.hpp"
 
 #include "rWorld.hpp"

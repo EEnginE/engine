@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef U_PARSER_HELPER_HPP
-#define U_PARSER_HELPER_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -69,5 +68,3 @@ class UTILS_API uParserHelper {
 };
 }
 }
-
-#endif

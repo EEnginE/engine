@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 
-#ifndef R_OBJECT_BASE_HPP
-#define R_OBJECT_BASE_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -266,6 +265,6 @@ bool rObjectBase::getHintsOBJ( MESH_TYPES _type, size_t _obj, ARGS &&... _args )
 
 } // e_engine
 
-#endif
+
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

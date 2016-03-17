@@ -19,9 +19,7 @@
  * limitations under the License.
  */
 
-
-#ifndef E_LOG_HPP
-#define E_LOG_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -260,5 +258,5 @@ bool uLog::disconnectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_sl
 extern UTILS_API uLog LOG;
 }
 
-#endif // E_LOG_HPP
+
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

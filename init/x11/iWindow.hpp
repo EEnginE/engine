@@ -1,9 +1,9 @@
 /*!
  * \file x11/iWindow.hpp
- * \brief \b Classes: \a iContext
+ * \brief \b Classes: \a iWindow
  *
- * This file contains the class \b iContext which creates
- * the window and the OpenGL context on it.
+ * This file contains the class \b iWindow which creates
+ * the window and the Vulkan surface.
  *
  * \sa e_context.cpp e_iInit.cpp
  */
@@ -23,8 +23,7 @@
  * limitations under the License.
  */
 
-#ifndef E_CONTEXT_HPP
-#define E_CONTEXT_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -170,6 +169,4 @@ class INIT_API iWindow : public iRandR, public iKeyboard {
 } // e_engine
 
 
-
-#endif // E_CONTEXT_HPP
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

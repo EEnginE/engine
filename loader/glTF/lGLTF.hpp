@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-#ifndef R_LOADER_GLTF_HPP
-#define R_LOADER_GLTF_HPP
+#pragma once
 
 #include "defines.hpp"
 
@@ -136,4 +135,3 @@ size_t lGLTF::getItem( std::vector<T> &_vec, td_MAP &_map, std::string _id ) {
 }
 }
 
-#endif // R_LOADER_GLTF_HPP
