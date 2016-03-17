@@ -248,6 +248,11 @@ int iInit::init( std::vector<std::string> _layers ) {
    if ( vEnableVulkanDebug )
       initDebug();
 
+   vCreateWindowReturn_I = createWindow();
+   if ( vCreateWindowReturn_I != 0 ) {
+      return vCreateWindowReturn_I;
+   }
+
    vSurface_vk = getVulkanSurface( vInstance_vk );
    if ( !vSurface_vk )
       return 2;
@@ -272,14 +277,7 @@ int iInit::init( std::vector<std::string> _layers ) {
    while ( vCreateWindowReturn_I == -1000 )
       vCreateWindowCondition_BT.wait( lLock_BT );
 
-   makeContextCurrent();
-#else
-   vCreateWindowReturn_I = createWindow();
 #endif
-
-   if ( vCreateWindowReturn_I != 0 ) {
-      return vCreateWindowReturn_I;
-   }
 
    vIsVulkanSetup_B = true;
 

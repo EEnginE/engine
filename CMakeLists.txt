@@ -182,7 +182,7 @@ enum2str_generate(
       "VkDebugReportObjectTypeEXT" "VkDebugReportErrorEXT" "VkDebugReportFlagBitsEXT"
 
    BLACKLIST "VK_SAMPLER_ADDRESS_MODE_RANGE_SIZE" "VK_PIPELINE_CACHE_HEADER_VERSION_RANGE_SIZE"
-   USE_CONSTEXPR ON
+   USE_CONSTEXPR OFF
 )
 
 set(DEPENDENCES "${PROJECT_SOURCE_DIR}/include/FindEngine.cmake" )

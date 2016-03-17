@@ -21,8 +21,8 @@
 #    NAMESPACE      <namespace to use>
 #    ENUMS          <list of enums to generate>
 #    BLACKLIST      <blacklist for enum constants>
-#    USE_CONSTEXPR  <wheather to use constexpr or not (default: off)>
-#    USE_C_STRINGS  <wheather to use c strings instead of std::string or not (default: off)>
+#    USE_CONSTEXPR  <whether to use constexpr or not (default: off)>
+#    USE_C_STRINGS  <whether to use c strings instead of std::string or not (default: off)>
 function( enum2str_generate )
    set( TARGET_LIST PATH CLASS_NAME FUNC_NAME INCLUDES ENUMS NAMESPACE BLACKLIST USE_CONSTEXPR USE_C_STRINGS )
    math( EXPR ARGC_M1 "${ARGC} - 1" )

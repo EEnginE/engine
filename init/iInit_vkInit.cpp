@@ -180,10 +180,12 @@ int iInit::initVulkan( std::vector<std::string> _layers ) {
       return lResult;
    }
 
+#if D_LOG_VULKAN_INIT
    dVkLOG( "InstanceLayerProperties: ", lPorpCount );
    for ( auto const &i : vLayerProperties_vk ) {
       dVkLOG( "  -- ", i.layerName, " (", i.description, ")" );
    }
+#endif
 
    iLOG( "Using ", _layers.size(), " Vulkan Layers:" );
    for ( auto const &i : _layers ) {
@@ -410,10 +412,12 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
       return lResult;
    }
 
+#if D_LOG_VULKAN_INIT
    dVkLOG( "DeviceLayerProperties: ", lPorpCount );
    for ( auto const &i : vDeviceLayerProperties_vk ) {
       dVkLOG( "  -- ", i.layerName, " (", i.description, ")" );
    }
+#endif
 
    iLOG( "Using ", _layers.size(), " Device Layers:" );
    for ( auto const &i : _layers ) {
@@ -548,6 +552,7 @@ int iInit::createSwapchain() {
       return 1;
    }
 
+#if D_LOG_VULKAN_INIT
    dVkLOG( "Surface formats:" );
    for ( auto const &i : lFormats ) {
       dVkLOG( "  -- Format: ",
@@ -555,9 +560,9 @@ int iInit::createSwapchain() {
               "; colorSpace: ",
               uEnum2Str::toStr( i.colorSpace ) );
    }
+#endif
 
-   lRes = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-         vDevice_vk.pDevice->device, vSurface_vk, &lSurfaceInfo );
+   lRes = vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vDevice_vk.pDevice->device, vSurface_vk, &lSurfaceInfo );
 
    eLOG( "AAA" );
 
