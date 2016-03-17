@@ -113,9 +113,9 @@ bool iInit::enableDefaultGrabControl() { return addFocusSlot( &vGrabControl_SLOT
 bool iInit::disableDefaultGrabControl() { return removeFocusSlot( &vGrabControl_SLOT ); }
 
 void iInit::vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
-                                VkDebugReportObjectTypeEXT _objType,
-                                uint64_t _obj,
-                                size_t _location,
+                                VkDebugReportObjectTypeEXT,
+                                uint64_t,
+                                size_t,
                                 int32_t _msgCode,
                                 std::string _layerPrefix,
                                 std::string _msg ) {
@@ -288,17 +288,39 @@ void iInit::destroyVulkan() {
    if ( !vIsVulkanSetup_B )
       return;
 
-   VkResult lResult;
+   dVkLOG( "Vulkan cleanup:" );
 
-   if ( vDevice_vk.device != NULL ) {
-      lResult = vkDeviceWaitIdle( vDevice_vk.device );
+   if ( vDevice_vk.device )
+      vkDeviceWaitIdle( vDevice_vk.device );
 
-      if ( lResult ) {
-         wLOG( "'vkDeviceWaitIdle' returned ", uEnum2Str::toStr( lResult ) );
-      }
+   dVkLOG( "  -- destroying swapchain" );
+   if ( vSwapchain_vk )
+      vkDestroySwapchainKHR( vDevice_vk.device, vSwapchain_vk, nullptr );
 
+
+   dVkLOG( "  -- destroying surface" );
+   if ( vSurface_vk )
+      vkDestroySurfaceKHR( vInstance_vk, vSurface_vk, nullptr );
+
+
+   dVkLOG( "  -- destroying device" );
+   if ( vDevice_vk.device )
       vkDestroyDevice( vDevice_vk.device, nullptr );
-   }
+
+   dVkLOG( "  -- destroying debug callback" );
+   if ( vCallback && f_vkDestroyDebugReportCallbackEXT )
+      f_vkDestroyDebugReportCallbackEXT( vInstance_vk, vCallback, nullptr );
+
+   dVkLOG( "  -- destroying vulkan instance" );
+   if ( vInstance_vk )
+      vkDestroyInstance( vInstance_vk, nullptr );
+
+   vDevice_vk.device  = nullptr;
+   vDevice_vk.pDevice = nullptr;
+   vCallback          = nullptr;
+   vInstance_vk       = nullptr;
+   vSurface_vk        = nullptr;
+   vSwapchain_vk      = nullptr;
 
    vIsVulkanSetup_B = false;
    vExtensionList.clear();
@@ -307,17 +329,9 @@ void iInit::destroyVulkan() {
    vLayerProperties_vk.clear();
    vDeviceLayerProperties_vk.clear();
    vPhysicalDevices_vk.clear();
+   vSwapcainImages_vk.clear();
 
-   if ( vCallback && f_vkDestroyDebugReportCallbackEXT )
-      f_vkDestroyDebugReportCallbackEXT( vInstance_vk, vCallback, nullptr );
-
-   if ( vInstance_vk )
-      vkDestroyInstance( vInstance_vk, nullptr );
-
-   vCallback     = nullptr;
-   vInstance_vk  = nullptr;
-   vSurface_vk   = nullptr;
-   vSwapchain_vk = nullptr;
+   dVkLOG( "  -- DONE" );
 }
 
 int iInit::shutdown() {
@@ -327,6 +341,23 @@ int iInit::shutdown() {
    return LOG.stopLogLoop();
 }
 
+/*!
+ * \brief enables VSync
+ * \note This will only take effect BEFORE creating the swapchain
+ */
+void iInit::enableVSync() { vEnableVSync = true; }
+
+/*!
+ * \brief disables VSync
+ * \note This will only take effect BEFORE creating the swapchain
+ */
+void iInit::disableVSync() { vEnableVSync = false; }
+
+/*!
+ * \brief Sets the prefered surface format
+ * \note This will only take effect BEFORE creating the swapchain
+ */
+void iInit::setPreferedSurfaceFormat( VkFormat _format ) { vPreferedSurfaceFormat = _format; }
 
 void iInit::handleSignal( int _signal ) {
    iInit *_THIS = internal::__iInit_Pointer_OBJ.get();

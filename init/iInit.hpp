@@ -117,6 +117,7 @@ class INIT_API iInit : public windows_win32::iContext {
    std::vector<VkLayerProperties> vDeviceLayerProperties_vk;
    std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
    std::vector<Queue_vk> vQueues_vk;
+   std::vector<VkImage> vSwapcainImages_vk;
 
    VkDebugReportCallbackCreateInfoEXT vDebugCreateInfo_vk;
 
@@ -124,6 +125,7 @@ class INIT_API iInit : public windows_win32::iContext {
    VkInstance vInstance_vk            = nullptr;
    VkSurfaceKHR vSurface_vk           = nullptr;
    VkSwapchainKHR vSwapchain_vk       = nullptr;
+   VkFormat vPreferedSurfaceFormat    = VK_FORMAT_B8G8R8A8_SRGB;
    Device_vk vDevice_vk;
 
    bool vMainLoopRunning_B      = false; //!< Should the main loop be running?
@@ -135,6 +137,7 @@ class INIT_API iInit : public windows_win32::iContext {
    bool vAreRenderLoopSignalsConnected_B = false;
    bool vIsVulkanSetup_B                 = false;
    bool vEnableVulkanDebug               = false;
+   bool vEnableVSync                     = false;
    int vCreateWindowReturn_I             = -1000;
 
 #if WINDOWS
@@ -190,6 +193,10 @@ class INIT_API iInit : public windows_win32::iContext {
 
    bool enableDefaultGrabControl();
    bool disableDefaultGrabControl();
+
+   void enableVSync();
+   void disableVSync();
+   void setPreferedSurfaceFormat(VkFormat _format);
 
    void closeWindow();
 

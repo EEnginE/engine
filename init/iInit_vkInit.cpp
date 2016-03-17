@@ -534,7 +534,10 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
 
 
 int iInit::createSwapchain() {
+   std::vector<VkSurfaceFormatKHR> lFormats;
+   std::vector<VkPresentModeKHR> lPresentModels;
    VkSurfaceCapabilitiesKHR lSurfaceInfo;
+
    uint32_t lNum;
    auto lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(
          vDevice_vk.pDevice->device, vSurface_vk, &lNum, nullptr );
@@ -543,49 +546,141 @@ int iInit::createSwapchain() {
       return 1;
    }
 
-   std::vector<VkSurfaceFormatKHR> lFormats;
    lFormats.resize( lNum );
    lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(
          vDevice_vk.pDevice->device, vSurface_vk, &lNum, lFormats.data() );
    if ( lRes ) {
       eLOG( "'vkGetPhysicalDeviceSurfaceFormatsKHR' returned ", uEnum2Str::toStr( lRes ) );
-      return 1;
+      return 2;
    }
 
-#if D_LOG_VULKAN_INIT
-   dVkLOG( "Surface formats:" );
-   for ( auto const &i : lFormats ) {
-      dVkLOG( "  -- Format: ",
-              uEnum2Str::toStr( i.format ),
-              "; colorSpace: ",
-              uEnum2Str::toStr( i.colorSpace ) );
-   }
-#endif
-
-   lRes = vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vDevice_vk.pDevice->device, vSurface_vk, &lSurfaceInfo );
-
-   eLOG( "AAA" );
-
+   lRes = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+         vDevice_vk.pDevice->device, vSurface_vk, &lSurfaceInfo );
    if ( lRes ) {
       eLOG( "'vkGetPhysicalDeviceSurfaceCapabilitiesKHR' returned ", uEnum2Str::toStr( lRes ) );
-      return 1;
+      return 3;
    }
 
-#if 0
-   VkSwapchainCreateInfoKHR lCreateInfo;
-   lCreateInfo.sType         = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-   lCreateInfo.pNext         = nullptr;
-   lCreateInfo.flags         = 0;
-   lCreateInfo.surface       = vSurface_vk;
-   lCreateInfo.minImageCount = lSurfaceInfo.maxImageCount;      //!< \todo
-   lCreateInfo.imageFormat   = VK_FORMAT_A1R5G5B5_UNORM_PACK16; //!< \todo
+   lRes = vkGetPhysicalDeviceSurfacePresentModesKHR(
+         vDevice_vk.pDevice->device, vSurface_vk, &lNum, nullptr );
+   if ( lRes ) {
+      eLOG( "'vkGetPhysicalDeviceSurfacePresentModesKHR' returned ", uEnum2Str::toStr( lRes ) );
+      return 4;
+   }
 
-   lRes = vkCreateSwapchainKHR( vDevice_vk.device, &lCreateInfo, nullptr, &vSwapchain_vk );
+   lPresentModels.resize( lNum );
+   lRes = vkGetPhysicalDeviceSurfacePresentModesKHR(
+         vDevice_vk.pDevice->device, vSurface_vk, &lNum, lPresentModels.data() );
+   if ( lRes ) {
+      eLOG( "'vkGetPhysicalDeviceSurfacePresentModesKHR' returned ", uEnum2Str::toStr( lRes ) );
+      return 5;
+   }
+
+   VkSurfaceFormatKHR lFormatToUse;
+   VkPresentModeKHR lModelToUse = VK_PRESENT_MODE_MAX_ENUM;
+   lFormatToUse.format          = VK_FORMAT_UNDEFINED;
+
+   dVkLOG( "Surface device info:" );
+   dVkLOG( "  -- Surface formats:" );
+   for ( auto const &i : lFormats ) {
+      if ( lFormatToUse.format == VK_FORMAT_UNDEFINED )
+         lFormatToUse = i;
+
+      if ( i.format == vPreferedSurfaceFormat ) {
+         dVkLOG( "    -- Format: ",
+                 uEnum2Str::toStr( i.format ),
+                 "; colorSpace: ",
+                 uEnum2Str::toStr( i.colorSpace ),
+                 " [PREFERED]" );
+         lFormatToUse = i;
+      } else {
+         dVkLOG( "    -- Format: ",
+                 uEnum2Str::toStr( i.format ),
+                 "; colorSpace: ",
+                 uEnum2Str::toStr( i.colorSpace ) );
+      }
+   }
+
+   dVkLOG( "  -- Present models:" );
+   for ( auto const &i : lPresentModels ) {
+      if ( lModelToUse == VK_PRESENT_MODE_MAX_ENUM )
+         lModelToUse = i;
+
+      if ( vEnableVSync ) {
+         if ( i == VK_PRESENT_MODE_FIFO_KHR )
+            lModelToUse = i;
+      } else {
+         if ( i == VK_PRESENT_MODE_IMMEDIATE_KHR )
+            lModelToUse = i;
+      }
+      dVkLOG( "    -- model: ", uEnum2Str::toStr( i ) );
+   }
+
+   VkSwapchainKHR lOldSwapchain = vSwapchain_vk;
+   VkSwapchainKHR lNewSwapchain;
+
+   uint32_t lNumImages = lSurfaceInfo.minImageCount + 1;
+   if( lNumImages > lSurfaceInfo.maxImageCount )
+      lNumImages = lSurfaceInfo.maxImageCount;
+
+   VkSwapchainCreateInfoKHR lCreateInfo;
+   lCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+   lCreateInfo.pNext                 = nullptr;
+   lCreateInfo.flags                 = 0;
+   lCreateInfo.surface               = vSurface_vk;
+   lCreateInfo.minImageCount         = lNumImages;
+   lCreateInfo.imageFormat           = lFormatToUse.format;
+   lCreateInfo.imageColorSpace       = lFormatToUse.colorSpace;
+   lCreateInfo.imageExtent           = lSurfaceInfo.currentExtent;
+   lCreateInfo.imageArrayLayers      = 1; //!< \todo stereo rendering
+   lCreateInfo.imageUsage            = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+   lCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+   lCreateInfo.queueFamilyIndexCount = 0;
+   lCreateInfo.pQueueFamilyIndices   = nullptr;
+   lCreateInfo.preTransform          = lSurfaceInfo.currentTransform;
+   lCreateInfo.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+   lCreateInfo.presentMode           = lModelToUse;
+   lCreateInfo.clipped               = VK_TRUE;
+   lCreateInfo.oldSwapchain          = lOldSwapchain;
+
+   iLOG( "Creating swapchain with:" );
+   iLOG( "  -- minImageCount:   ", lCreateInfo.minImageCount );
+   iLOG( "  -- imageFormat:     ", uEnum2Str::toStr( lCreateInfo.imageFormat ) );
+   iLOG( "  -- imageColorSpace: ", uEnum2Str::toStr( lCreateInfo.imageColorSpace ) );
+   iLOG( "  -- preTransform:    ", uEnum2Str::toStr( lCreateInfo.preTransform ) );
+   iLOG( "  -- presentMode:     ", uEnum2Str::toStr( lCreateInfo.presentMode ) );
+   iLOG( "  -- imageExtent:     ",
+         lCreateInfo.imageExtent.width,
+         "x",
+         lCreateInfo.imageExtent.height );
+
+   lRes = vkCreateSwapchainKHR( vDevice_vk.device, &lCreateInfo, nullptr, &lNewSwapchain );
    if ( lRes ) {
       eLOG( "'vkCreateSwapchainKHR' returned ", uEnum2Str::toStr( lRes ) );
       return 1;
    }
-#endif
+
+   vkDeviceWaitIdle( vDevice_vk.device );
+   vSwapcainImages_vk.clear();
+   if ( lOldSwapchain ) {
+      vkDestroySwapchainKHR( vDevice_vk.device, lOldSwapchain, nullptr );
+   }
+
+   vSwapchain_vk = lNewSwapchain;
+   lRes = vkGetSwapchainImagesKHR( vDevice_vk.device, vSwapchain_vk, &lNum, nullptr );
+   if ( lRes ) {
+      eLOG( "'vkGetSwapchainImagesKHR' returned ", uEnum2Str::toStr( lRes ) );
+      return 1;
+   }
+
+   vSwapcainImages_vk.resize( lNum );
+
+   lRes = vkGetSwapchainImagesKHR( vDevice_vk.device, vSwapchain_vk, &lNum, vSwapcainImages_vk.data() );
+   if ( lRes ) {
+      eLOG( "'vkGetSwapchainImagesKHR' returned ", uEnum2Str::toStr( lRes ) );
+      return 1;
+   }
+
 
    return 0;
 }
