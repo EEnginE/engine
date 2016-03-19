@@ -533,7 +533,7 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
 }
 
 
-int iInit::createSwapchain() {
+int iInit::recreateSwapchain() {
    std::vector<VkSurfaceFormatKHR> lFormats;
    std::vector<VkPresentModeKHR> lPresentModels;
    VkSurfaceCapabilitiesKHR lSurfaceInfo;
@@ -620,8 +620,20 @@ int iInit::createSwapchain() {
    VkSwapchainKHR lNewSwapchain;
 
    uint32_t lNumImages = lSurfaceInfo.minImageCount + 1;
-   if( lNumImages > lSurfaceInfo.maxImageCount )
+   if ( lNumImages > lSurfaceInfo.maxImageCount )
       lNumImages = lSurfaceInfo.maxImageCount;
+
+   VkExtent2D lExtentToUse;
+   lExtentToUse.width  = GlobConf.win.width;
+   lExtentToUse.height = GlobConf.win.height;
+
+   if ( lExtentToUse.width < lSurfaceInfo.minImageExtent.width ||
+        lExtentToUse.height < lSurfaceInfo.minImageExtent.height )
+      lExtentToUse = lSurfaceInfo.minImageExtent;
+
+   if ( lExtentToUse.width > lSurfaceInfo.maxImageExtent.width ||
+        lExtentToUse.height > lSurfaceInfo.maxImageExtent.height )
+      lExtentToUse = lSurfaceInfo.maxImageExtent;
 
    VkSwapchainCreateInfoKHR lCreateInfo;
    lCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -631,7 +643,7 @@ int iInit::createSwapchain() {
    lCreateInfo.minImageCount         = lNumImages;
    lCreateInfo.imageFormat           = lFormatToUse.format;
    lCreateInfo.imageColorSpace       = lFormatToUse.colorSpace;
-   lCreateInfo.imageExtent           = lSurfaceInfo.currentExtent;
+   lCreateInfo.imageExtent           = lExtentToUse;
    lCreateInfo.imageArrayLayers      = 1; //!< \todo stereo rendering
    lCreateInfo.imageUsage            = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
    lCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
@@ -642,6 +654,9 @@ int iInit::createSwapchain() {
    lCreateInfo.presentMode           = lModelToUse;
    lCreateInfo.clipped               = VK_TRUE;
    lCreateInfo.oldSwapchain          = lOldSwapchain;
+
+   iLOG( "Stopping old swapchain..." );
+   vStopSwapchain();
 
    iLOG( "Creating swapchain with:" );
    iLOG( "  -- minImageCount:   ", lCreateInfo.minImageCount );
@@ -654,6 +669,7 @@ int iInit::createSwapchain() {
          "x",
          lCreateInfo.imageExtent.height );
 
+   vkDeviceWaitIdle( vDevice_vk.device );
    lRes = vkCreateSwapchainKHR( vDevice_vk.device, &lCreateInfo, nullptr, &lNewSwapchain );
    if ( lRes ) {
       eLOG( "'vkCreateSwapchainKHR' returned ", uEnum2Str::toStr( lRes ) );
@@ -675,11 +691,15 @@ int iInit::createSwapchain() {
 
    vSwapcainImages_vk.resize( lNum );
 
-   lRes = vkGetSwapchainImagesKHR( vDevice_vk.device, vSwapchain_vk, &lNum, vSwapcainImages_vk.data() );
+   lRes = vkGetSwapchainImagesKHR(
+         vDevice_vk.device, vSwapchain_vk, &lNum, vSwapcainImages_vk.data() );
    if ( lRes ) {
       eLOG( "'vkGetSwapchainImagesKHR' returned ", uEnum2Str::toStr( lRes ) );
       return 1;
    }
+
+   iLOG( "Restarting with new swapchain..." );
+   vContinueSwapchain();
 
 
    return 0;

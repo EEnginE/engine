@@ -265,7 +265,7 @@ int iInit::init( std::vector<std::string> _layers ) {
    if ( createDevice( _layers ) )
       return 4;
 
-   if ( createSwapchain() )
+   if ( recreateSwapchain() )
       return 5;
 
 

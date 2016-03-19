@@ -163,7 +163,6 @@ class INIT_API iInit : public windows_win32::iContext {
    int loadDevices();
    int createDevice( std::vector<std::string> _layers );
    int initVulkan( std::vector<std::string> _layers );
-   int createSwapchain();
    int initDebug();
 
    void destroyVulkan();
@@ -196,9 +195,11 @@ class INIT_API iInit : public windows_win32::iContext {
 
    void enableVSync();
    void disableVSync();
-   void setPreferedSurfaceFormat(VkFormat _format);
+   void setPreferedSurfaceFormat( VkFormat _format );
 
    void closeWindow();
+
+   int recreateSwapchain();
 
    VkQueue getQueue( VkQueueFlags _flags, float _priority );
    bool freeQueue( VkQueue _queue );

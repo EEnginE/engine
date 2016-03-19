@@ -72,27 +72,11 @@ int iInit::eventLoop() {
                tempInfo.eResize.posY = GlobConf.win.posY;
 
                vResize_SIG( tempInfo );
+               recreateSwapchain();
             }
          }
 
-         case XCB_CONFIGURE_NOTIFY: {
-            CAST_EVENT( configure_notify, lEvent_XCB, lEvent );
-            if ( lEvent->width != static_cast<int>( GlobConf.win.width ) ||
-                 lEvent->height != static_cast<int>( GlobConf.win.height ) ||
-                 lEvent->x != GlobConf.win.posX || lEvent->y != GlobConf.win.posY ) {
-
-               iEventInfo tempInfo( this );
-               tempInfo.type          = E_EVENT_RESIZE;
-               tempInfo.eResize.width = GlobConf.win.width = lEvent->width;
-               tempInfo.eResize.height = GlobConf.win.height = lEvent->height;
-               tempInfo.eResize.posX = GlobConf.win.posX = lEvent->x;
-               tempInfo.eResize.posY = GlobConf.win.posY = lEvent->y;
-
-               vResize_SIG( tempInfo );
-            }
-            break;
-         }
-
+         case XCB_CONFIGURE_NOTIFY:
          case XCB_EXPOSE:
          case XCB_VISIBILITY_NOTIFY:
          case XCB_PROPERTY_NOTIFY:

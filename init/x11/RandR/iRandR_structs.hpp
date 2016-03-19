@@ -271,4 +271,3 @@ struct _config {
 };
 }
 }
-

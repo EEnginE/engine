@@ -46,6 +46,9 @@ class INIT_API iInitSignals {
    SIGNAL vMouse_SIG;       //!< The signal for Mouse
    SIGNAL vFocus_SIG;       //!< The signal for focus change
 
+   uSignal<void> vStopSwapchain;
+   uSignal<void> vContinueSwapchain;
+
  public:
    iInitSignals() {}
    virtual ~iInitSignals();
@@ -70,6 +73,14 @@ class INIT_API iInitSignals {
    bool addFocusSlot( SLOT_C<__C> *_slot ) {
       return _slot->connect( &vFocus_SIG );
    }
+   template <class __C>
+   bool addStopSwapchainSlot( SLOT_C<__C> *_slot ) {
+      return _slot->connect( &vStopSwapchain );
+   }
+   template <class __C>
+   bool addContinueSwapchainSlot( SLOT_C<__C> *_slot ) {
+      return _slot->connect( &vContinueSwapchain );
+   }
 
    void removeAllSlots();
 
@@ -92,6 +103,14 @@ class INIT_API iInitSignals {
    template <class __C>
    bool removeFocusSlot( SLOT_C<__C> *_slot ) {
       return vFocus_SIG.disconnect( _slot );
+   }
+   template <class __C>
+   bool removeStopSwapchainSlot( SLOT_C<__C> *_slot ) {
+      return vStopSwapchain.disconnect( _slot );
+   }
+   template <class __C>
+   bool removeContinueSwapchainSlot( SLOT_C<__C> *_slot ) {
+      return vContinueSwapchain.disconnect( _slot );
    }
 };
 

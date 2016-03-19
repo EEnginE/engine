@@ -77,4 +77,3 @@ class UTILS_API uSystem {
  */
 extern UTILS_API uSystem SYSTEM;
 }
-

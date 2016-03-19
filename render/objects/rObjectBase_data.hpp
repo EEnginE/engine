@@ -102,4 +102,3 @@ class rObjectBase_data {
 
 #undef _OBJ
 #undef _CALC
-

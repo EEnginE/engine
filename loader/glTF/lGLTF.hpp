@@ -134,4 +134,3 @@ size_t lGLTF::getItem( std::vector<T> &_vec, td_MAP &_map, std::string _id ) {
    }
 }
 }
-
