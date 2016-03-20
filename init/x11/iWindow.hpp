@@ -27,7 +27,6 @@
 
 #include "defines.hpp"
 
-#include <xcb/xcb.h>
 #include <vulkan.h>
 
 #include "iRandR.hpp"

@@ -25,6 +25,7 @@
 
 #include <fstream>
 #include <chrono>
+#include <thread>
 #include "uLog_resources.hpp"
 #include "uMacros.hpp"
 
@@ -141,6 +142,7 @@ class UTILS_API uLog final {
 
    void addType( char _type, std::wstring _name, char _color, bool _bold );
    void nameThread( std::wstring _name );
+   std::wstring getThreadName( std::thread::id _id );
 
    template <class __C>
    bool connectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot );
@@ -256,6 +258,16 @@ bool uLog::disconnectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_sl
  * be used for \b all Logging operations
  */
 extern UTILS_API uLog LOG;
+
+
+namespace internal {
+template <>
+struct uLogConverter<std::thread::id> {
+   static void convert( std::wstring &_str, std::thread::id _t ) {
+      _str.append( std::forward<std::wstring>( LOG.getThreadName( _t ) ) );
+   }
+};
+}
 }
 
 

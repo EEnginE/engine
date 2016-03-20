@@ -22,7 +22,6 @@
 
 #include "defines.hpp"
 
-#include "rMatrixMath.hpp"
 #include "rMatrixSceneBase.hpp"
 
 namespace e_engine {

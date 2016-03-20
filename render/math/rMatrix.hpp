@@ -21,8 +21,9 @@
 
 #include "defines.hpp"
 
-#include "uLog.hpp"
 #include <type_traits>
+#include <string>
+#include <stdint.h>
 
 #define TOLERANCE 0.001
 

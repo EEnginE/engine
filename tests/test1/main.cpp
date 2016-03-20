@@ -63,8 +63,11 @@ int main( int argc, char *argv[] ) {
    //start.enableVulkanDebug();
 
    if ( start.init(layers) == 0 ) {
+      rRoot lRoot(&start);
       myWorld handler( cmd, &start );
       start.enableDefaultGrabControl();
+
+      lRoot.getCommandPoolFlags( VK_QUEUE_GRAPHICS_BIT );
 
       if ( handler.initGL() == 0 )
          start.startMainLoop();

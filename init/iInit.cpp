@@ -490,6 +490,27 @@ bool iInit::isDeviceExtensionSupported( std::string _extension ) {
 }
 
 /*!
+ * \brief Returns the queue family index, that supports _flags
+ * \param _flags Flags the Queue family MUST support
+ * \returns the queue family index, that supports _flags (UINT32_MAX on not found / error)
+ *
+ * \todo Prefere queue families who have ONLY _flags
+ */
+uint32_t iInit::getQueueFamily( VkQueueFlags _flags ) {
+   if ( vDevice_vk.pDevice == nullptr )
+      return UINT32_MAX;
+
+   uint32_t lCounter = 0;
+   for ( auto const &i : vDevice_vk.pDevice->queueFamilyProperties ) {
+      if ( i.queueFlags & _flags )
+         return lCounter;
+
+      lCounter++;
+   }
+   return UINT32_MAX;
+}
+
+/*!
  * \brief Selects and returns a vulkan queue
  *
  * Selects and returns a vulkan queue. This function will not return the same
@@ -498,6 +519,8 @@ bool iInit::isDeviceExtensionSupported( std::string _extension ) {
  * \param _flags    Flags the Queue MUST support
  * \param _priority Queue target priority
  * \returns the best matching queue; nullptr if none found
+ *
+ * \todo Prefere queue families who have ONLY _flags
  */
 VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority ) {
    float lMinDiff = 100.0f;
@@ -565,9 +588,15 @@ bool iInit::blockQueue( VkQueue _queue ) {
 
    return lFound;
 }
+
+/*!
+ * \returns The vulkan device handle
+ */
+VkDevice iInit::getDevice() {
+   return vDevice_vk.device;
 }
 
-
+}
 
 
 

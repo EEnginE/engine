@@ -129,6 +129,13 @@ void uLog::nameThread( std::wstring _name ) {
       iLOG( L"New Thread name: '", _name, L"'" );
 }
 
+std::wstring uLog::getThreadName( std::thread::id _id ) {
+   if ( vThreads.count( _id ) == 0 )
+      return L"<UNKNOWN>";
+
+   return vThreads[_id];
+}
+
 
 bool uLog::openLogFile( uint16_t i ) {
    std::stringstream lThisLog_SS;

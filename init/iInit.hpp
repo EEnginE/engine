@@ -174,7 +174,7 @@ class INIT_API iInit : public windows_win32::iContext {
    static void handleSignal( int _signal ); //!< The signal handle function
    void _setThisForHandluSignal();          //!< Unfortunately you cannot pass this with signal()
 
-   // Standart callbacks NEW --------------------------------------------------- ###
+   // Standard callbacks NEW --------------------------------------------------- ###
 
    void s_advancedGrabControl( iEventInfo const &_info );
 
@@ -201,9 +201,13 @@ class INIT_API iInit : public windows_win32::iContext {
 
    int recreateSwapchain();
 
+   uint32_t getQueueFamily( VkQueueFlags _flags );
+
    VkQueue getQueue( VkQueueFlags _flags, float _priority );
    bool freeQueue( VkQueue _queue );
    bool blockQueue( VkQueue _queue );
+
+   VkDevice getDevice();
 
    bool isExtensionSupported( std::string _extension );
    bool isDeviceExtensionSupported( std::string _extension );

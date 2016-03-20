@@ -22,7 +22,6 @@
 
 #include "defines.hpp"
 
-#include "rMatrix.hpp"
 #include "rVectorMath.hpp"
 
 namespace e_engine {
