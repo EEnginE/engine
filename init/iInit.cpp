@@ -78,22 +78,22 @@ void iInit::s_advancedGrabControl( iEventInfo const &_info ) {
    if ( ( _info.type == E_EVENT_FOCUS ) && _info.eFocus.hasFocus && vWasMouseGrabbed_B ) {
       // Focus restored
       vWasMouseGrabbed_B = false;
-      if ( !grabMouse() ) {
+      if ( !vWindow.grabMouse() ) {
          // Cannot grab again when X11 has not handled some events
 
          for ( unsigned short int i = 0; i < 25; ++i ) {
             iLOG( "Try Grab ", i + 1, " of 25" );
-            if ( grabMouse() )
+            if ( vWindow.grabMouse() )
                break; // Grab success
             B_SLEEP( milliseconds, 100 );
          }
       }
       return;
    }
-   if ( ( _info.type == E_EVENT_FOCUS ) && !_info.eFocus.hasFocus && getIsMouseGrabbed() ) {
+   if ( ( _info.type == E_EVENT_FOCUS ) && !_info.eFocus.hasFocus && vWindow.getIsMouseGrabbed() ) {
       // Focus lost
       vWasMouseGrabbed_B = true;
-      freeMouse();
+      vWindow.freeMouse();
       return;
    }
 }
@@ -248,12 +248,12 @@ int iInit::init( std::vector<std::string> _layers ) {
    if ( vEnableVulkanDebug )
       initDebug();
 
-   vCreateWindowReturn_I = createWindow();
+   vCreateWindowReturn_I = vWindow.createWindow();
    if ( vCreateWindowReturn_I != 0 ) {
       return vCreateWindowReturn_I;
    }
 
-   vSurface_vk = getVulkanSurface( vInstance_vk );
+   vSurface_vk = vWindow.getVulkanSurface( vInstance_vk );
    if ( !vSurface_vk )
       return 2;
 
@@ -406,7 +406,7 @@ int iInit::startMainLoop( bool _wait ) {
 
    vResize_SIG.send( _tempInfo );
 
-#if UNIX_X11
+#if UNIX_X11 || UNIX_WAYLAND
    vEventLoop_BT = std::thread( &iInit::eventLoop, this );
 #elif WINDOWS
    {
@@ -439,7 +439,7 @@ void iInit::quitMainLoop() { vMainLoopRunning_B = false; }
  * \brief Quit the main loop and close the window
  */
 void iInit::closeWindow() {
-   if ( vIsVulkanSetup_B || !getIsWindowCreated() )
+   if ( vIsVulkanSetup_B || !vWindow.getIsWindowCreated() )
       return;
 
    if ( vMainLoopRunning_B ) {
@@ -449,7 +449,7 @@ void iInit::closeWindow() {
    if ( vEventLoop_BT.joinable() )
       vEventLoop_BT.join();
 
-   destroyWindow();
+   vWindow.destroyWindow();
 
 #if WINDOWS
    // The event loop thread must do some stuff
@@ -470,6 +470,8 @@ void iInit::closeWindow() {
 
    vCreateWindowReturn_I = -1000;
 }
+
+iWindowBasic *iInit::getWindow() { return static_cast<iWindowBasic *>( &vWindow ); }
 
 bool iInit::isExtensionSupported( std::string _extension ) {
    for ( auto const &i : vExtensionList ) {

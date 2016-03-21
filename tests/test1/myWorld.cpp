@@ -28,34 +28,40 @@ myWorld::~myWorld() {}
 
 
 void myWorld::key( iEventInfo const &info ) {
+#if UNIX_X11
    if ( vDisp_RandR.empty() )
-      vDisp_RandR = info.iInitPointer->getDisplayResolutions();
+      vDisp_RandR = static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->getDisplayResolutions();
+#endif
 
    if ( info.eKey.state == E_PRESSED ) {
       switch ( info.eKey.key ) {
          // Handle fullscreen
          case E_KEY_F8:
-            info.iInitPointer->setAttribute( C_TOGGLE, MAXIMIZED_VERT, MAXIMIZED_HORZ );
+            info.iInitPointer->getWindow()->setAttribute( C_TOGGLE, MAXIMIZED_VERT, MAXIMIZED_HORZ );
             break;
-         case E_KEY_F9: info.iInitPointer->fullScreenMultiMonitor(); break;
+#if UNIX_X11
+         case E_KEY_F9: static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->fullScreenMultiMonitor(); break;
+#endif
          case E_KEY_F11:
-            info.iInitPointer->fullScreen( e_engine::C_TOGGLE );
+            info.iInitPointer->getWindow()->fullScreen( e_engine::C_TOGGLE );
             break;
+#if UNIX_X11
          case E_KEY_F10:
             if ( vDisp_RandR.size() > 0 )
-               info.iInitPointer->setFullScreenMonitor( vDisp_RandR[0] );
+               static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->setFullScreenMonitor( vDisp_RandR[0] );
             break;
          case E_KEY_F12:
             if ( vDisp_RandR.size() > 1 )
-               info.iInitPointer->setFullScreenMonitor( vDisp_RandR[1] );
+               static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->setFullScreenMonitor( vDisp_RandR[1] );
             break;
+#endif
 
          // Mouse control
-         case L'g': info.iInitPointer->grabMouse(); break;
-         case L'G': info.iInitPointer->freeMouse(); break;
-         case L'c': info.iInitPointer->hideMouseCursor(); break;
+         case L'g': info.iInitPointer->getWindow()->grabMouse(); break;
+         case L'G': info.iInitPointer->getWindow()->freeMouse(); break;
+         case L'c': info.iInitPointer->getWindow()->hideMouseCursor(); break;
          case L'C':
-            info.iInitPointer->showMouseCursor();
+            info.iInitPointer->getWindow()->showMouseCursor();
             break;
 
          // Object control
@@ -75,7 +81,7 @@ void myWorld::key( iEventInfo const &info ) {
          // Window Border
          case L'b':
          case L'B':
-            info.iInitPointer->setDecoration( e_engine::C_TOGGLE );
+            info.iInitPointer->getWindow()->setDecoration( e_engine::C_TOGGLE );
             break;
 
          // Quit
@@ -90,7 +96,7 @@ int myWorld::initGL() {
    // vInitPointer->fullScreen( C_ADD );
    int lReturn = vScene.init();
 
-   vInitPointer->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
+   vInitPointer->getWindow()->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    //vInitPointer->hideMouseCursor();
    return lReturn;
 }

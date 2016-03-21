@@ -205,7 +205,7 @@ void rCameraHandler<T>::mouse( iEventInfo const &_event ) {
 
    GlobConf.camera.angleHorizontal += GlobConf.camera.mouseSensitivity * lDifX;
    GlobConf.camera.angleVertical += GlobConf.camera.mouseSensitivity * lDifY;
-   vInit->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
+   vInit->getWindow()->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
 
    updateDirectionAndUp();
 

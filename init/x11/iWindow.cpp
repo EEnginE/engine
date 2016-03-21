@@ -312,28 +312,6 @@ void iWindow::destroyWindow() {
    vWindowCreated_B = false;
 }
 
-
-/*!
- * \brief Enables VSync
- * \returns 0 No Window / OpenGL context
- * \returns 1 \c SUCCESS
- */
-int iWindow::enableVSync() {
-   //! \todo Replace stub
-   return 1;
-}
-
-/*!
- * \brief Disables VSync
- * \returns 0 No Window / OpenGL context
- * \returns 1 \c SUCCESS
- */
-int iWindow::disableVSync() {
-   //! \todo Replace stub
-   return 1;
-}
-
-
 struct MwmHints {
    uint32_t flags;
    uint32_t functions;

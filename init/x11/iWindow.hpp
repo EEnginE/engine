@@ -29,6 +29,7 @@
 
 #include <vulkan.h>
 
+#include "iWindowBasic.hpp"
 #include "iRandR.hpp"
 #include "iKeyboard.hpp"
 
@@ -64,7 +65,7 @@ class iXCBAtom {
  * This class creates the connection to the X-Server and
  * opens a window via xcb
  */
-class INIT_API iWindow : public iRandR, public iKeyboard {
+class INIT_API iWindow : public iRandR, public iKeyboard, public iWindowBasic {
    using iXCBAtom = internal::iXCBAtom;
 
  private:
@@ -117,49 +118,48 @@ class INIT_API iWindow : public iRandR, public iKeyboard {
  protected:
    bool vWindowRecreate_B;
 
-   xcb_atom_t getWmProtocolAtom() const;
-   xcb_atom_t getWmDeleteWindowAtom() const;
-
  public:
    iWindow();
    virtual ~iWindow();
 
-   int createWindow();
+   virtual int createWindow();
 
    void getXCBVersion( int *_major, int *_minor );
    xcb_connection_t *getXCBConnection();
+   xcb_atom_t getWmProtocolAtom() const;
+   xcb_atom_t getWmDeleteWindowAtom() const;
 
-   void destroyWindow();
+   virtual void destroyWindow();
 
-   int enableVSync();
-   int disableVSync();
+   virtual void changeWindowConfig( unsigned int _width,
+                                    unsigned int _height,
+                                    int _posX,
+                                    int _posY );
 
-   void changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
+   virtual void setWindowType( WINDOW_TYPE _type );
+   virtual void setWindowNames( std::string _windowName, std::string _iconName = "<NONE>" );
+   virtual void setAttribute( ACTION _action,
+                              WINDOW_ATTRIBUTE _type1,
+                              WINDOW_ATTRIBUTE _type2 = NONE );
 
-   void setWindowType( WINDOW_TYPE _type );
-   void setWindowNames( std::string _windowName, std::string _iconName = "<NONE>" );
-   void setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
-
-   void fullScreen( ACTION _action, bool _allMonitors = false );
+   virtual void fullScreen( ACTION _action, bool _allMonitors = false );
    void fullScreenMultiMonitor();
    void setFullScreenMonitor( iDisplays &_disp );
-   void maximize( ACTION _action );
-   void setDecoration( ACTION _action );
+   virtual void maximize( ACTION _action );
+   virtual void setDecoration( ACTION _action );
 
-   bool grabMouse();
-   void freeMouse();
-   bool getIsMouseGrabbed() const;
+   virtual bool grabMouse();
+   virtual void freeMouse();
+   virtual bool getIsMouseGrabbed() const;
 
-   void moveMouse( unsigned int _posX, unsigned int _posY );
+   virtual void moveMouse( unsigned int _posX, unsigned int _posY );
 
-   void hideMouseCursor();
-   void showMouseCursor();
-   bool getIsCursorHidden() const;
-   bool getIsWindowCreated() const;
+   virtual void hideMouseCursor();
+   virtual void showMouseCursor();
+   virtual bool getIsCursorHidden() const;
+   virtual bool getIsWindowCreated() const;
 
-   VkSurfaceKHR getVulkanSurface( VkInstance _instance );
-
-   //       unsigned getVertexArrayOpenGL() { return vVertexArray_OGL; }
+   virtual VkSurfaceKHR getVulkanSurface( VkInstance _instance );
 };
 
 

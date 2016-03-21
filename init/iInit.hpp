@@ -25,10 +25,17 @@
 
 #include <vulkan/vulkan.h>
 
-#if UNIX_X11
-#include "x11/iWindow.hpp"
+#if UNIX_X11 || UNIX_WAYLAND
+#include "iWindowBasic.hpp"
 #include "iMouse.hpp"
 #include "iInitSignals.hpp"
+#endif
+
+#if UNIX_X11
+#include "x11/iWindow.hpp"
+
+#elif UNIX_WAYLAND
+#include "wayland/iWindow.hpp"
 
 #elif WINDOWS
 #include "windows/iContext.hpp"
@@ -60,8 +67,8 @@ typedef void ( *RENDER_FUNC )( iEventInfo info );
  *
  * \sa iContext uConfig e_iInit.cpp e_event.cpp
  */
-#if UNIX_X11
-class INIT_API iInit : public unix_x11::iWindow, public iInitSignals, public iMouse {
+#if UNIX_X11 || UNIX_WAYLAND
+class INIT_API iInit : public iInitSignals, public iMouse {
 #elif WINDOWS
 class INIT_API iInit : public windows_win32::iContext {
 #else
@@ -106,6 +113,12 @@ class INIT_API iInit : public windows_win32::iContext {
    } Queue_vk;
 
  private:
+#if UNIX_X11
+   unix_x11::iWindow vWindow;
+#elif UNIX_WAYLAND
+   unix_wayland::iWindow vWindow;
+#endif
+
    std::vector<std::string> vExtensionList;
    std::vector<std::string> vDeviceExtensionList;
    std::vector<std::string> vExtensionsToUse;
@@ -197,6 +210,7 @@ class INIT_API iInit : public windows_win32::iContext {
    void disableVSync();
    void setPreferedSurfaceFormat( VkFormat _format );
 
+   iWindowBasic *getWindow();
    void closeWindow();
 
    int recreateSwapchain();

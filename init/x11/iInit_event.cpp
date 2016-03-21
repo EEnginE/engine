@@ -24,7 +24,6 @@
 #include <X11/XKBlib.h>
 #include <sys/time.h>
 
-
 namespace e_engine {
 
 // namespace unix_x11 {
@@ -37,7 +36,7 @@ int iInit::eventLoop() {
    vEventLoopHasFinished_B = false;
 
    xcb_generic_event_t *lEvent_XCB;
-   xcb_connection_t *lConnection_XCB = getXCBConnection();
+   xcb_connection_t *lConnection_XCB = vWindow.getXCBConnection();
    uint32_t lAutoRepeatType          = XCB_AUTO_REPEAT_MODE_ON;
 
    unsigned int lKeyState_uI, lButtonState_uI;
@@ -91,10 +90,11 @@ int iInit::eventLoop() {
             iEventInfo tempInfo( this );
             tempInfo.type       = E_EVENT_KEY;
             tempInfo.eKey.state = lKeyState_uI;
-            tempInfo.eKey.key = processX11KeyInput( lEvent->detail,
-                                                    static_cast<unsigned short>( lKeyState_uI ),
-                                                    lEvent->state,
-                                                    lConnection_XCB );
+            tempInfo.eKey.key =
+                  vWindow.processX11KeyInput( lEvent->detail,
+                                              static_cast<unsigned short>( lKeyState_uI ),
+                                              lEvent->state,
+                                              lConnection_XCB );
             vKey_SIG( tempInfo );
          } break;
 
@@ -189,8 +189,8 @@ int iInit::eventLoop() {
          case XCB_CLIENT_MESSAGE: {
             CAST_EVENT( client_message, lEvent_XCB, lEvent );
             // Check if the User pressed the [x] button or ALT+F4 [etc.]
-            if ( lEvent->type == getWmProtocolAtom() ) {
-               if ( lEvent->data.data32[0] == getWmDeleteWindowAtom() ) {
+            if ( lEvent->type == vWindow.getWmProtocolAtom() ) {
+               if ( lEvent->data.data32[0] == vWindow.getWmDeleteWindowAtom() ) {
                   iLOG( "User pressed the close button" );
                   iEventInfo tempInfo( this );
                   tempInfo.type = E_EVENT_WINDOWCLOSE;

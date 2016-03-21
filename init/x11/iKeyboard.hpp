@@ -41,7 +41,10 @@ class INIT_API iKeyboard : public iKeyboardBasic {
  private:
    wchar_t keysym2unicode( xcb_keysym_t keysym );
 
- protected:
+ public:
+   iKeyboard() {}
+   virtual ~iKeyboard();
+
    /*!
     * \brief Convert a X11 keyevent to a key and set the state of it
     * \param _kEv        The key event
@@ -53,11 +56,6 @@ class INIT_API iKeyboard : public iKeyboardBasic {
                                short unsigned int _key_state,
                                uint32_t _modMask,
                                xcb_connection_t *_connection );
-
-
- public:
-   iKeyboard() {}
-   virtual ~iKeyboard();
 
    inline unsigned short int getKeyState( wchar_t _key ) { return getKeyStateArray( _key ); }
 };
