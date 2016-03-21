@@ -11,19 +11,17 @@
 
 # EEnginE [![Build Status](<https://travis-ci.org/EEnginE/engine.svg?branch=master>)](<https://travis-ci.org/EEnginE/engine>) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/EEnginE/engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-EEnginE is (or will be) a simple - but fullfeatured - OpenGL 3D engine.
-Providing modules for networking, physic and 2D/3D graphic.
+EEnginE is (or will be) a simple - but fullfeatured - Vulkan 3D engine.
+Providing modules for networking, physic (both not started yet) and 2D/3D graphic.
 
 # Denpendencies
 
 -   [CMake](http://www.cmake.org/) v3.4 or newer
--   The OpenGL headers (often in a mesa package)
+-   The [LunarG Vulkan SDK](http://lunarg.com/vulkan-sdk/)
 -   Linux/UNIX (at least one of those):
-    -   X11 and it's headers (including RandR)
+    -   X11 (xcb) and it's headers (including RandR)
     -   Wayland and it's headers (not yet supported)
     -   Mir and it's headers (not yet supported)
-
--   GLEW - downloaded and built automatically [<http://glew.sourceforge.net/>]
 
 # Installation
 
@@ -93,17 +91,3 @@ Using Mingw or Clang may also work.
     Enables / Disables all ALL additional debug messages. You can
     enable and disable those seperately with `-DLOG_<type>=<0/1>`.
     This will overwrite `-DDEBUG_LOG_ALL=<0/1>`
-
-## GLEW
-
--   `-DUSE_SYSTEM_GLEW=<0/1>`
-
-    Use the system GLEW version or build GLEW with the engine
-
-# Troubleshooting
-
-
-### CMake can not find GLEW
-
-Try to set:
--    `-DUSE_SYSTEM_GLEW=OFF -DBUILD_GLEW=ON`
