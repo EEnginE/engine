@@ -68,7 +68,7 @@ VkCommandPool rRoot::getCommandPool( uint32_t _queueFamilyIndex, VkCommandPoolCr
 
    std::lock_guard<std::mutex> lLock( vCommandPoolsMutex );
 
-   if ( vCmdPools_vk.count(lTemp) > 0 )
+   if ( vCmdPools_vk.count( lTemp ) > 0 )
       return vCmdPools_vk[lTemp];
 
    // Command pool does not exists

@@ -592,10 +592,7 @@ bool iInit::blockQueue( VkQueue _queue ) {
 /*!
  * \returns The vulkan device handle
  */
-VkDevice iInit::getDevice() {
-   return vDevice_vk.device;
-}
-
+VkDevice iInit::getDevice() { return vDevice_vk.device; }
 }
 
 

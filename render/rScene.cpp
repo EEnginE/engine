@@ -60,6 +60,8 @@ bool rSceneBase::canRenderScene() {
 
       return lCanRender;
    }
+   wLOG( "No objects in scene" );
+   return false;
 }
 
 /*!

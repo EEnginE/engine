@@ -47,7 +47,7 @@ bool lGLTF::interprete() {
    //    |  \/  |         | |
    //    | .  . | ___  ___| |__
    //    | |\/| |/ _ \/ __| '_ \
-//    | |  | |  __/\__ \ | | |
+   //    | |  | |  __/\__ \ | | |
    //    \_|  |_/\___||___/_| |_|
    //
 
@@ -65,8 +65,9 @@ bool lGLTF::interprete() {
          auto const &lAcc = vAccessors[j.indices];
          auto const &lBV  = vBufferViews[lAcc.bufferView];
 
+#if D_LOG_GLTF
          auto lOffset = lBV.byteOffset + lAcc.byteOffset;
-
+#endif
          if ( lBV.target != TG_ELEMENT_ARRAY_BUFFER ) {
             eLOG( "Bad target for index accessor (need 34963)! [", i.userDefName, "]" );
             return false;
@@ -117,7 +118,9 @@ bool lGLTF::interprete() {
                return false;
             }
 
+#if D_LOG_GLTF
             lOffset = lBV2.byteOffset + lAcc2.byteOffset;
+#endif
 
             lObject2.vOffset = static_cast<unsigned>( lAcc2.byteOffset );
             lObject2.vStride = static_cast<unsigned>( lAcc2.byteStride );

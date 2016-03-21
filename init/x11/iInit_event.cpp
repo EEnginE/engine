@@ -40,7 +40,6 @@ int iInit::eventLoop() {
    xcb_connection_t *lConnection_XCB = getXCBConnection();
    uint32_t lAutoRepeatType          = XCB_AUTO_REPEAT_MODE_ON;
 
-   XEvent lEvent_X11;
    unsigned int lKeyState_uI, lButtonState_uI;
 
    LOG.nameThread( L"EVENT" );
@@ -53,10 +52,13 @@ int iInit::eventLoop() {
    while ( vMainLoopRunning_B ) {
       lEvent_XCB = xcb_wait_for_event( lConnection_XCB );
 
+      if ( lEvent_XCB == nullptr ) {
+         wLOG( "XCB returned null event" );
+         continue;
+      }
+
       lKeyState_uI    = E_PRESSED;
       lButtonState_uI = E_PRESSED;
-      char lEvent_CSTR[6];
-      snprintf( lEvent_CSTR, 5, "%04X", lEvent_X11.type );
 
       switch ( lEvent_XCB->response_type & ~0x80 ) {
          case XCB_RESIZE_REQUEST: {
@@ -121,7 +123,6 @@ int iInit::eventLoop() {
                case 10: tempInfo.iMouse.button = E_MOUSE_5;          break;
                default:
                   tempInfo.iMouse.button       = E_MOUSE_UNKNOWN;
-                  wLOG( "Unknown mouse button: ", lEvent_X11.xbutton.button );
             }
             // clang-format on
 
