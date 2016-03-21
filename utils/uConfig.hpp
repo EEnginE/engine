@@ -23,6 +23,7 @@
 #include "defines.hpp"
 #include <string>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 namespace e_engine {
 
@@ -54,41 +55,17 @@ struct _uConfig {
 
    long int timeoutForMainLoopThread_mSec;
 
-#if 0
-   //  ______                        _            __  __
-   //  |  ___|                      | |          / _|/ _|
-   //  | |_ _ __ __ _ _ __ ___   ___| |__  _   _| |_| |_ ___ _ __
-   //  |  _| '__/ _` | '_ ` _ \ / _ \ '_ \| | | |  _|  _/ _ \ '__|
-   //  | | | | | (_| | | | | | |  __/ |_) | |_| | | | ||  __/ |
-   //  \_| |_|  \__,_|_| |_| |_|\___|_.__/ \__,_|_| |_| \___|_|
-   //
 
-   struct __uConfig_FBA {
-      int FBA_RENDER_TYPE;
-      int FBA_RENDERABLE;
-      int FBA_DRAWABLE_TYPE;
-      int FBA_DOUBLEBUFFER;
-      int FBA_RED;
-      int FBA_GREEN;
-      int FBA_BLUE;
-      int FBA_ALPHA;
-      int FBA_DEPTH;
-      int FBA_STENCIL;
-      int FBA_VISUAL_TYPE;
-      // int         FBA_STEREO;
+   struct __uConfig_Vulkan {
+      __uConfig_Vulkan();
 
-      int FBA_DRAW_TO_WINDOW;
-      int FBA_ACCELERATION;
-      int FBA_OGL_SUPPORTED;
-
-      __uConfig_FBA();
+      VkSampleCountFlagBits samples;
 
       /*!
        * \brief Reset to default
        */
       void reset();
-   } framebuffer;
-#endif
+   } vk;
 
    //   _   _               _
    //  | | | |             (_)

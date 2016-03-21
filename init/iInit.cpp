@@ -265,7 +265,7 @@ int iInit::init( std::vector<std::string> _layers ) {
    if ( createDevice( _layers ) )
       return 4;
 
-   if ( recreateSwapchain() )
+   if( handleResize() )
       return 5;
 
 
@@ -284,6 +284,22 @@ int iInit::init( std::vector<std::string> _layers ) {
    return 0;
 }
 
+int iInit::handleResize() {
+   iLOG( "Stopping old swapchain..." );
+   vStopSwapchain();
+
+   if ( recreateSwapchain() )
+      return 1;
+
+   if ( recreateDepthAndStencilBuffer() )
+      return 2;
+
+   iLOG( "Restarting with new swapchain..." );
+   vContinueSwapchain();
+
+   return 0;
+}
+
 void iInit::destroyVulkan() {
    if ( !vIsVulkanSetup_B )
       return;
@@ -292,6 +308,16 @@ void iInit::destroyVulkan() {
 
    if ( vDevice_vk.device )
       vkDeviceWaitIdle( vDevice_vk.device );
+
+   dVkLOG( "  -- destroying depth and stencil buffer" );
+   if ( vDepthBufferView_vk )
+      vkDestroyImageView( vDevice_vk.device, vDepthBufferView_vk, nullptr );
+
+   if ( vDepthBuffer_vk )
+      vkDestroyImage( vDevice_vk.device, vDepthBuffer_vk, nullptr );
+
+   if ( vDepthBufferMem_vk )
+      vkFreeMemory( vDevice_vk.device, vDepthBufferMem_vk, nullptr );
 
    dVkLOG( "  -- destroying swapchain" );
    if ( vSwapchain_vk )
@@ -315,12 +341,15 @@ void iInit::destroyVulkan() {
    if ( vInstance_vk )
       vkDestroyInstance( vInstance_vk, nullptr );
 
-   vDevice_vk.device  = nullptr;
-   vDevice_vk.pDevice = nullptr;
-   vCallback          = nullptr;
-   vInstance_vk       = nullptr;
-   vSurface_vk        = nullptr;
-   vSwapchain_vk      = nullptr;
+   vDepthBufferView_vk = nullptr;
+   vDepthBuffer_vk     = nullptr;
+   vDepthBufferMem_vk  = nullptr;
+   vDevice_vk.device   = nullptr;
+   vDevice_vk.pDevice  = nullptr;
+   vCallback           = nullptr;
+   vInstance_vk        = nullptr;
+   vSurface_vk         = nullptr;
+   vSwapchain_vk       = nullptr;
 
    vIsVulkanSetup_B = false;
    vExtensionList.clear();
@@ -590,6 +619,67 @@ bool iInit::blockQueue( VkQueue _queue ) {
 }
 
 /*!
+ * \brief Checks whether a format is supported on the device
+ */
+bool iInit::isFormatSupported( VkFormat _format ) {
+   if ( vDevice_vk.pDevice == nullptr )
+      return false;
+
+   return vDevice_vk.pDevice->formats[_format].linearTilingFeatures != 0 ||
+          vDevice_vk.pDevice->formats[_format].optimalTilingFeatures != 0 ||
+          vDevice_vk.pDevice->formats[_format].bufferFeatures != 0;
+}
+
+/*!
+ * \brief Checks whether a format supports a feature
+ * \param _format The format to check
+ * \param _flags  The flags the format must support
+ * \param _type   The feature type
+ *
+ * Supported values for _type:
+ *   - VK_IMAGE_TILING_LINEAR
+ *   - VK_IMAGE_TILING_OPTIMAL
+ *   - VK_IMAGE_TILING_MAX_ENUM == buffer
+ */
+bool iInit::formatSupportsFeature( VkFormat _format,
+                                   VkFormatFeatureFlagBits _flags,
+                                   VkImageTiling _type ) {
+   if ( vDevice_vk.pDevice == nullptr )
+      return false;
+
+   switch ( _type ) {
+      case VK_IMAGE_TILING_LINEAR:
+         return ( vDevice_vk.pDevice->formats[_format].linearTilingFeatures & _flags ) != 0;
+      case VK_IMAGE_TILING_OPTIMAL:
+         return ( vDevice_vk.pDevice->formats[_format].optimalTilingFeatures & _flags ) != 0;
+      case VK_IMAGE_TILING_MAX_ENUM:
+         return ( vDevice_vk.pDevice->formats[_format].bufferFeatures & _flags ) != 0;
+      default: return false;
+   }
+}
+
+/*!
+ * \brief returns the best supported memory index
+ * \param _bits  The bitfield (see vkGetImageMemoryRequirements)
+ * \param _flags Flags the memory type must support
+ * \returns a memory index or UINT32_MAX on error
+ */
+uint32_t iInit::getMemoryTypeIndexFromBitfield( uint32_t _bits, VkMemoryHeapFlags _flags ) {
+   for ( uint16_t i = 0; i < vDevice_vk.pDevice->memoryProperties.memoryTypeCount; i++ ) {
+      if ( ( _bits & 1 ) ) {
+         // Finds best match because of memory type ordering
+         if ( _flags ==
+              ( vDevice_vk.pDevice->memoryProperties.memoryTypes[i].propertyFlags & _flags ) ) {
+            return i;
+         }
+      }
+      _bits >>= 1;
+   }
+
+   return UINT32_MAX;
+}
+
+/*!
  * \returns The vulkan device handle
  */
 VkDevice iInit::getDevice() { return vDevice_vk.device; }
@@ -598,3 +688,4 @@ VkDevice iInit::getDevice() { return vDevice_vk.device; }
 
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+

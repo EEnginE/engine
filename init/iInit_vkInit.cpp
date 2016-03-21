@@ -295,6 +295,10 @@ int iInit::loadDevices() {
       lQueueAlias.resize( lCount );
       vkGetPhysicalDeviceQueueFamilyProperties( lTempDevs[i], &lCount, lQueueAlias.data() );
 
+      for ( uint32_t j = 0; j <= VK_FORMAT_END_RANGE; j++ )
+         vkGetPhysicalDeviceFormatProperties(
+               lTempDevs[i], static_cast<VkFormat>( j ), &vPhysicalDevices_vk[i].formats[j] );
+
 #if D_LOG_VULKAN_INIT
       auto &props = vPhysicalDevices_vk[i].properties;
 
@@ -694,9 +698,6 @@ int iInit::recreateSwapchain() {
    lCreateInfo.clipped               = VK_TRUE;
    lCreateInfo.oldSwapchain          = lOldSwapchain;
 
-   iLOG( "Stopping old swapchain..." );
-   vStopSwapchain();
-
    iLOG( "Creating swapchain with:" );
    iLOG( "  -- minImageCount:   ", lCreateInfo.minImageCount );
    iLOG( "  -- imageFormat:     ", uEnum2Str::toStr( lCreateInfo.imageFormat ) );
@@ -739,9 +740,161 @@ int iInit::recreateSwapchain() {
       return 1;
    }
 
-   iLOG( "Restarting with new swapchain..." );
-   vContinueSwapchain();
+   return 0;
+}
 
+/*!
+ * \brief creteates the depth and stencil buffer
+ *
+ * Destroies old buffers (if exist)
+ *
+ * \todo Stencil buffer implementation
+ */
+int iInit::recreateDepthAndStencilBuffer() {
+   if ( !vDevice_vk.device ) {
+      eLOG( "Device not created!" );
+      return -1;
+   }
+
+   // Destroy functions ignore nullptr
+   if ( vDepthBufferView_vk )
+      vkDestroyImageView( vDevice_vk.device, vDepthBufferView_vk, nullptr );
+
+   if ( vDepthBuffer_vk )
+      vkDestroyImage( vDevice_vk.device, vDepthBuffer_vk, nullptr );
+
+   if ( vDepthBufferMem_vk )
+      vkFreeMemory( vDevice_vk.device, vDepthBufferMem_vk, nullptr );
+
+   vDepthBufferView_vk = nullptr;
+   vDepthBuffer_vk     = nullptr;
+   vDepthBufferMem_vk  = nullptr;
+
+   static const VkFormat lDepthFormats[] = {
+         VK_FORMAT_D32_SFLOAT_S8_UINT,
+         VK_FORMAT_D24_UNORM_S8_UINT,
+         VK_FORMAT_D16_UNORM_S8_UINT,
+         VK_FORMAT_D32_SFLOAT,
+         VK_FORMAT_X8_D24_UNORM_PACK32,
+         VK_FORMAT_D16_UNORM,
+   };
+
+   VkFormat lDepthStencilFormat = VK_FORMAT_UNDEFINED;
+   VkImageTiling lTiling        = VK_IMAGE_TILING_MAX_ENUM;
+
+   for ( auto i : lDepthFormats ) {
+      if ( formatSupportsFeature(
+                 i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_LINEAR ) ) {
+         lDepthStencilFormat = i;
+         lTiling             = VK_IMAGE_TILING_LINEAR;
+         break;
+      } else if ( formatSupportsFeature( i,
+                                         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                         VK_IMAGE_TILING_OPTIMAL ) ) {
+         lDepthStencilFormat = i;
+         lTiling             = VK_IMAGE_TILING_OPTIMAL;
+         break;
+      }
+   }
+
+   if ( lDepthStencilFormat == VK_FORMAT_UNDEFINED ) {
+      eLOG( "Unable to find depth format for the depth buffer" );
+      return 1;
+   }
+
+   bool lHasStencil = lDepthStencilFormat == VK_FORMAT_D32_SFLOAT_S8_UINT ||
+                      lDepthStencilFormat == VK_FORMAT_D24_UNORM_S8_UINT ||
+                      lDepthStencilFormat == VK_FORMAT_D16_UNORM_S8_UINT;
+
+   VkImageAspectFlags lAspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
+   lAspectFlags |= lHasStencil ? VK_IMAGE_ASPECT_STENCIL_BIT : 0;
+
+   VkImageCreateInfo lImageCreate;
+   VkMemoryAllocateInfo lMemoryAlloc;
+   VkMemoryRequirements lRequirements;
+   VkImageViewCreateInfo lImageViewCreate;
+
+   lImageCreate.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+   lImageCreate.pNext                 = nullptr;
+   lImageCreate.flags                 = 0;
+   lImageCreate.imageType             = VK_IMAGE_TYPE_2D;
+   lImageCreate.format                = lDepthStencilFormat;
+   lImageCreate.extent.width          = GlobConf.win.width;
+   lImageCreate.extent.height         = GlobConf.win.height;
+   lImageCreate.extent.depth          = 1;
+   lImageCreate.mipLevels             = 1;
+   lImageCreate.arrayLayers           = 1;
+   lImageCreate.samples               = GlobConf.vk.samples;
+   lImageCreate.tiling                = lTiling;
+   lImageCreate.usage                 = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+   lImageCreate.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+   lImageCreate.queueFamilyIndexCount = 0;
+   lImageCreate.pQueueFamilyIndices   = nullptr;
+   lImageCreate.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+   lMemoryAlloc.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+   lMemoryAlloc.pNext           = nullptr;
+   lMemoryAlloc.allocationSize  = 0; // Will be set further down
+   lMemoryAlloc.memoryTypeIndex = 0;
+
+   lImageViewCreate.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+   lImageViewCreate.pNext                           = nullptr;
+   lImageViewCreate.flags                           = 0;
+   lImageViewCreate.image                           = nullptr; // set further down
+   lImageViewCreate.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+   lImageViewCreate.format                          = lDepthStencilFormat;
+   lImageViewCreate.components.r                    = VK_COMPONENT_SWIZZLE_R;
+   lImageViewCreate.components.g                    = VK_COMPONENT_SWIZZLE_G;
+   lImageViewCreate.components.b                    = VK_COMPONENT_SWIZZLE_B;
+   lImageViewCreate.components.a                    = VK_COMPONENT_SWIZZLE_A;
+   lImageViewCreate.subresourceRange.aspectMask     = lAspectFlags;
+   lImageViewCreate.subresourceRange.baseMipLevel   = 0;
+   lImageViewCreate.subresourceRange.levelCount     = 1;
+   lImageViewCreate.subresourceRange.baseArrayLayer = 0;
+   lImageViewCreate.subresourceRange.layerCount     = 1;
+
+   auto lRes = vkCreateImage( vDevice_vk.device, &lImageCreate, nullptr, &vDepthBuffer_vk );
+   if ( lRes ) {
+      eLOG( "'vkCreateImage' returned ", uEnum2Str::toStr( lRes ) );
+      return 2;
+   }
+
+   vkGetImageMemoryRequirements( vDevice_vk.device, vDepthBuffer_vk, &lRequirements );
+   lMemoryAlloc.allocationSize  = lRequirements.size;
+   lMemoryAlloc.memoryTypeIndex = getMemoryTypeIndexFromBitfield( lRequirements.memoryTypeBits );
+
+   if ( lMemoryAlloc.memoryTypeIndex == UINT32_MAX ) {
+      eLOG( "No valid memory type found!" );
+      return 3;
+   }
+
+   lRes = vkAllocateMemory( vDevice_vk.device, &lMemoryAlloc, nullptr, &vDepthBufferMem_vk );
+   if ( lRes ) {
+      eLOG( "'vkAllocateMemory' returned ", uEnum2Str::toStr( lRes ) );
+      return 4;
+   }
+
+   lRes = vkBindImageMemory( vDevice_vk.device, vDepthBuffer_vk, vDepthBufferMem_vk, 0 );
+   if ( lRes ) {
+      eLOG( "'vkBindImageMemory' returned ", uEnum2Str::toStr( lRes ) );
+      return 5;
+   }
+
+   lImageViewCreate.image = vDepthBuffer_vk;
+   lRes = vkCreateImageView( vDevice_vk.device, &lImageViewCreate, nullptr, &vDepthBufferView_vk );
+   if ( lRes ) {
+      eLOG( "'vkCreateImageView' returned ", uEnum2Str::toStr( lRes ) );
+      return 6;
+   }
+
+   #if D_LOG_VULKAN_INIT
+   dLOG( "Creating Depth buffer" );
+   dLOG( "  -- lHasStencil:     ", lHasStencil );
+   dLOG( "  -- imageType:       ", uEnum2Str::toStr( lImageCreate.imageType ) );
+   dLOG( "  -- fromat:          ", uEnum2Str::toStr( lImageCreate.format ) );
+   dLOG( "  -- tiling:          ", uEnum2Str::toStr( lImageCreate.tiling ) );
+   dLOG( "  -- memoryTypeIndex: ", lMemoryAlloc.memoryTypeIndex );
+#endif
 
    return 0;
 }

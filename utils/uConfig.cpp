@@ -34,46 +34,16 @@ using std::string;
 namespace e_engine {
 
 
-//_uConfig::__uConfig_FBA::__uConfig_FBA() { reset(); }
-
+_uConfig::__uConfig_Vulkan::__uConfig_Vulkan() { reset(); }
 _uConfig::__uConfig_Versions::__uConfig_Versions() { reset(); }
-
 _uConfig::__uConfig_Window::__uConfig_Window() { reset(); }
-
 _uConfig::__uLogData_Config::__uLogData_Config() { reset(); }
-
 _uConfig::__uConfig_Config::__uConfig_Config() { reset(); }
-
 _uConfig::__uConfig_Camera::__uConfig_Camera() { reset(); }
 
 
+void _uConfig::__uConfig_Vulkan::reset() { samples = VK_SAMPLE_COUNT_1_BIT; }
 
-#if 0
-void _uConfig::__uConfig_FBA::reset() {
-#if UNIX
-   FBA_RENDER_TYPE   = GLX_RGBA_BIT;
-   FBA_RENDERABLE    = GL_TRUE;
-   FBA_DRAWABLE_TYPE = GLX_WINDOW_BIT;
-   FBA_DOUBLEBUFFER  = GL_TRUE;
-#endif // UNIX
-   FBA_RED     = 8;  // 8
-   FBA_GREEN   = 8;  // 8
-   FBA_BLUE    = 8;  // 8
-   FBA_ALPHA   = 8;  // 8
-   FBA_DEPTH   = 24; // 24
-   FBA_STENCIL = 8;  // 8
-#if UNIX
-   FBA_VISUAL_TYPE = GLX_TRUE_COLOR;
-#endif
-// FBA_STEREO                = GL_TRUE;
-
-#if WINDOWS
-   FBA_DRAW_TO_WINDOW = 1;
-   FBA_ACCELERATION   = WGL_FULL_ACCELERATION_ARB;
-   FBA_RENDER_TYPE    = WGL_TYPE_RGBA_ARB;
-#endif // WINDOWS
-}
-#endif
 
 void _uConfig::__uConfig_Versions::reset() {}
 

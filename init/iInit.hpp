@@ -76,6 +76,7 @@ class INIT_API iInit : public windows_win32::iContext {
       VkPhysicalDeviceFeatures features;
       VkPhysicalDeviceMemoryProperties memoryProperties;
       std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+      VkFormatProperties formats[VK_FORMAT_RANGE_SIZE];
    } PhysicalDevice_vk;
 
    typedef struct Device_vk {
@@ -126,7 +127,11 @@ class INIT_API iInit : public windows_win32::iContext {
    VkSurfaceKHR vSurface_vk           = nullptr;
    VkSwapchainKHR vSwapchain_vk       = nullptr;
    VkFormat vPreferedSurfaceFormat    = VK_FORMAT_B8G8R8A8_SRGB;
+   VkImage vDepthBuffer_vk            = nullptr;
+   VkDeviceMemory vDepthBufferMem_vk  = nullptr;
+   VkImageView vDepthBufferView_vk    = nullptr;
    Device_vk vDevice_vk;
+
 
    bool vMainLoopRunning_B      = false; //!< Should the main loop be running?
    bool vEventLoopHasFinished_B = true;  //!< Has the event loop finished?
@@ -165,6 +170,9 @@ class INIT_API iInit : public windows_win32::iContext {
    int initVulkan( std::vector<std::string> _layers );
    int initDebug();
 
+   int recreateSwapchain();
+   int recreateDepthAndStencilBuffer();
+
    void destroyVulkan();
 
    // Thread Functions --------------------------------------------------------- ###
@@ -199,7 +207,7 @@ class INIT_API iInit : public windows_win32::iContext {
 
    void closeWindow();
 
-   int recreateSwapchain();
+   int handleResize();
 
    uint32_t getQueueFamily( VkQueueFlags _flags );
 
@@ -211,6 +219,13 @@ class INIT_API iInit : public windows_win32::iContext {
 
    bool isExtensionSupported( std::string _extension );
    bool isDeviceExtensionSupported( std::string _extension );
+
+   uint32_t getMemoryTypeIndexFromBitfield( uint32_t _bits, VkMemoryHeapFlags _flags = 0 );
+
+   bool isFormatSupported( VkFormat _format );
+   bool formatSupportsFeature( VkFormat _format,
+                               VkFormatFeatureFlagBits _flags,
+                               VkImageTiling _type );
 
    void enableVulkanDebug() { vEnableVulkanDebug = true; }
    void vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
