@@ -616,6 +616,35 @@ int iInit::recreateSwapchain() {
       dVkLOG( "    -- model: ", uEnum2Str::toStr( i ) );
    }
 
+// clang-format off
+#if D_LOG_VULKAN_INIT
+   dLOG( "  -- Supported usage flags: (prefix VK_IMAGE_USAGE_)" );
+   dLOG( "    -- TRANSFER_SRC_BIT:                 ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT )                           != 0 );
+   dLOG( "    -- TRANSFER_DST_BIT:                 ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT )                           != 0 );
+   dLOG( "    -- USAGE_SAMPLED_BIT:                ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT )                                != 0 );
+   dLOG( "    -- STORAGE_BIT:                      ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_STORAGE_BIT )                                != 0 );
+   dLOG( "    -- ATTACHMENT_BIT:                   ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT )                       != 0 );
+   dLOG( "    -- DEPTH_STENCIL_ATTACHMENT_BIT:     ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT )               != 0 );
+   dLOG( "    -- TRANSIENT_ATTACHMENT_BIT:         ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT )                   != 0 );
+   dLOG( "    -- INPUT_ATTACHMENT_BIT:             ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT )                       != 0 );
+   dLOG( "  -- Supported composite alpha flags: (prefix VK_COMPOSITE_ALPHA_)" );
+   dLOG( "    -- OPAQUE_BIT_KHR:                   ", ( lSurfaceInfo.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR )                     != 0 );
+   dLOG( "    -- PRE_MULTIPLIED_BIT_KHR:           ", ( lSurfaceInfo.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR )             != 0 );
+   dLOG( "    -- POST_MULTIPLIED_BIT_KHR:          ", ( lSurfaceInfo.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR )            != 0 );
+   dLOG( "    -- INHERIT_BIT_KHR:                  ", ( lSurfaceInfo.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR )                    != 0 );
+   dLOG( "  -- Supported transform flags: (prefix VK_SURFACE_TRANSFORM_)" );
+   dLOG( "    -- IDENTITY_BIT:                     ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR )                     != 0 );
+   dLOG( "    -- ROTATE_90_BIT:                    ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR )                    != 0 );
+   dLOG( "    -- ROTATE_180_BIT:                   ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR )                   != 0 );
+   dLOG( "    -- ROTATE_270_BIT:                   ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR )                   != 0 );
+   dLOG( "    -- HORIZONTAL_MIRROR_BIT:            ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR )            != 0 );
+   dLOG( "    -- HORIZONTAL_MIRROR_ROTATE_90_BIT:  ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR )  != 0 );
+   dLOG( "    -- HORIZONTAL_MIRROR_ROTATE_180_BIT: ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR ) != 0 );
+   dLOG( "    -- HORIZONTAL_MIRROR_ROTATE_270_BIT: ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR ) != 0 );
+   dLOG( "    -- INHERIT_BIT:                      ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR )                      != 0 );
+#endif
+   // clang-format on
+
    VkSwapchainKHR lOldSwapchain = vSwapchain_vk;
    VkSwapchainKHR lNewSwapchain;
 
@@ -623,9 +652,9 @@ int iInit::recreateSwapchain() {
    if ( lNumImages > lSurfaceInfo.maxImageCount )
       lNumImages = lSurfaceInfo.maxImageCount;
 
-   VkExtent2D lExtentToUse;
-   lExtentToUse.width  = GlobConf.win.width;
-   lExtentToUse.height = GlobConf.win.height;
+   VkExtent2D lExtentToUse = lSurfaceInfo.currentExtent;
+   lExtentToUse.width      = GlobConf.win.width;
+   lExtentToUse.height     = GlobConf.win.height;
 
    if ( lExtentToUse.width < lSurfaceInfo.minImageExtent.width ||
         lExtentToUse.height < lSurfaceInfo.minImageExtent.height )
@@ -634,6 +663,16 @@ int iInit::recreateSwapchain() {
    if ( lExtentToUse.width > lSurfaceInfo.maxImageExtent.width ||
         lExtentToUse.height > lSurfaceInfo.maxImageExtent.height )
       lExtentToUse = lSurfaceInfo.maxImageExtent;
+
+   auto lUsageFlags = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+   if ( ( lSurfaceInfo.supportedUsageFlags & lUsageFlags ) == 0 ) {
+      lUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+   }
+
+   if ( ( lSurfaceInfo.supportedUsageFlags & lUsageFlags ) == 0 ) {
+      eLOG( "Surface does not support requierd image usage flags" );
+      return 6;
+   }
 
    VkSwapchainCreateInfoKHR lCreateInfo;
    lCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -645,7 +684,7 @@ int iInit::recreateSwapchain() {
    lCreateInfo.imageColorSpace       = lFormatToUse.colorSpace;
    lCreateInfo.imageExtent           = lExtentToUse;
    lCreateInfo.imageArrayLayers      = 1; //!< \todo stereo rendering
-   lCreateInfo.imageUsage            = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+   lCreateInfo.imageUsage            = lUsageFlags;
    lCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
    lCreateInfo.queueFamilyIndexCount = 0;
    lCreateInfo.pQueueFamilyIndices   = nullptr;
@@ -664,6 +703,8 @@ int iInit::recreateSwapchain() {
    iLOG( "  -- imageColorSpace: ", uEnum2Str::toStr( lCreateInfo.imageColorSpace ) );
    iLOG( "  -- preTransform:    ", uEnum2Str::toStr( lCreateInfo.preTransform ) );
    iLOG( "  -- presentMode:     ", uEnum2Str::toStr( lCreateInfo.presentMode ) );
+   iLOG( "  -- imageUsage:      ",
+         uEnum2Str::toStr( static_cast<VkImageUsageFlagBits>( lCreateInfo.imageUsage ) ) );
    iLOG( "  -- imageExtent:     ",
          lCreateInfo.imageExtent.width,
          "x",
