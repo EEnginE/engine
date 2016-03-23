@@ -537,10 +537,15 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
 }
 
 
-int iInit::recreateSwapchain() {
-   std::vector<VkSurfaceFormatKHR> lFormats;
-   std::vector<VkPresentModeKHR> lPresentModels;
-   VkSurfaceCapabilitiesKHR lSurfaceInfo;
+
+int iInit::loadDeviceSurfaceInfo() {
+   if ( !vDevice_vk.device ) {
+      eLOG( "Device not setup!" );
+      return 6;
+   }
+
+   vSurfaceInfo_vk.formats.clear();
+   vSurfaceInfo_vk.presentModels.clear();
 
    uint32_t lNum;
    auto lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(
@@ -550,16 +555,16 @@ int iInit::recreateSwapchain() {
       return 1;
    }
 
-   lFormats.resize( lNum );
+   vSurfaceInfo_vk.formats.resize( lNum );
    lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(
-         vDevice_vk.pDevice->device, vSurface_vk, &lNum, lFormats.data() );
+         vDevice_vk.pDevice->device, vSurface_vk, &lNum, vSurfaceInfo_vk.formats.data() );
    if ( lRes ) {
       eLOG( "'vkGetPhysicalDeviceSurfaceFormatsKHR' returned ", uEnum2Str::toStr( lRes ) );
       return 2;
    }
 
    lRes = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-         vDevice_vk.pDevice->device, vSurface_vk, &lSurfaceInfo );
+         vDevice_vk.pDevice->device, vSurface_vk, &vSurfaceInfo_vk.surfaceInfo );
    if ( lRes ) {
       eLOG( "'vkGetPhysicalDeviceSurfaceCapabilitiesKHR' returned ", uEnum2Str::toStr( lRes ) );
       return 3;
@@ -572,329 +577,13 @@ int iInit::recreateSwapchain() {
       return 4;
    }
 
-   lPresentModels.resize( lNum );
+   vSurfaceInfo_vk.presentModels.resize( lNum );
    lRes = vkGetPhysicalDeviceSurfacePresentModesKHR(
-         vDevice_vk.pDevice->device, vSurface_vk, &lNum, lPresentModels.data() );
+         vDevice_vk.pDevice->device, vSurface_vk, &lNum, vSurfaceInfo_vk.presentModels.data() );
    if ( lRes ) {
       eLOG( "'vkGetPhysicalDeviceSurfacePresentModesKHR' returned ", uEnum2Str::toStr( lRes ) );
       return 5;
    }
-
-   VkSurfaceFormatKHR lFormatToUse;
-   VkPresentModeKHR lModelToUse = VK_PRESENT_MODE_MAX_ENUM;
-   lFormatToUse.format          = VK_FORMAT_UNDEFINED;
-
-   dVkLOG( "Surface device info:" );
-   dVkLOG( "  -- Surface formats:" );
-   for ( auto const &i : lFormats ) {
-      if ( lFormatToUse.format == VK_FORMAT_UNDEFINED )
-         lFormatToUse = i;
-
-      if ( i.format == vPreferedSurfaceFormat ) {
-         dVkLOG( "    -- Format: ",
-                 uEnum2Str::toStr( i.format ),
-                 "; colorSpace: ",
-                 uEnum2Str::toStr( i.colorSpace ),
-                 " [PREFERED]" );
-         lFormatToUse = i;
-      } else {
-         dVkLOG( "    -- Format: ",
-                 uEnum2Str::toStr( i.format ),
-                 "; colorSpace: ",
-                 uEnum2Str::toStr( i.colorSpace ) );
-      }
-   }
-
-   dVkLOG( "  -- Present models:" );
-   for ( auto const &i : lPresentModels ) {
-      if ( lModelToUse == VK_PRESENT_MODE_MAX_ENUM )
-         lModelToUse = i;
-
-      if ( vEnableVSync ) {
-         if ( i == VK_PRESENT_MODE_FIFO_KHR )
-            lModelToUse = i;
-      } else {
-         if ( i == VK_PRESENT_MODE_IMMEDIATE_KHR )
-            lModelToUse = i;
-      }
-      dVkLOG( "    -- model: ", uEnum2Str::toStr( i ) );
-   }
-
-// clang-format off
-#if D_LOG_VULKAN_INIT
-   dLOG( "  -- Supported usage flags: (prefix VK_IMAGE_USAGE_)" );
-   dLOG( "    -- TRANSFER_SRC_BIT:                 ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT )                           != 0 );
-   dLOG( "    -- TRANSFER_DST_BIT:                 ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT )                           != 0 );
-   dLOG( "    -- USAGE_SAMPLED_BIT:                ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT )                                != 0 );
-   dLOG( "    -- STORAGE_BIT:                      ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_STORAGE_BIT )                                != 0 );
-   dLOG( "    -- ATTACHMENT_BIT:                   ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT )                       != 0 );
-   dLOG( "    -- DEPTH_STENCIL_ATTACHMENT_BIT:     ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT )               != 0 );
-   dLOG( "    -- TRANSIENT_ATTACHMENT_BIT:         ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT )                   != 0 );
-   dLOG( "    -- INPUT_ATTACHMENT_BIT:             ", ( lSurfaceInfo.supportedUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT )                       != 0 );
-   dLOG( "  -- Supported composite alpha flags: (prefix VK_COMPOSITE_ALPHA_)" );
-   dLOG( "    -- OPAQUE_BIT_KHR:                   ", ( lSurfaceInfo.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR )                     != 0 );
-   dLOG( "    -- PRE_MULTIPLIED_BIT_KHR:           ", ( lSurfaceInfo.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR )             != 0 );
-   dLOG( "    -- POST_MULTIPLIED_BIT_KHR:          ", ( lSurfaceInfo.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR )            != 0 );
-   dLOG( "    -- INHERIT_BIT_KHR:                  ", ( lSurfaceInfo.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR )                    != 0 );
-   dLOG( "  -- Supported transform flags: (prefix VK_SURFACE_TRANSFORM_)" );
-   dLOG( "    -- IDENTITY_BIT:                     ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR )                     != 0 );
-   dLOG( "    -- ROTATE_90_BIT:                    ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR )                    != 0 );
-   dLOG( "    -- ROTATE_180_BIT:                   ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR )                   != 0 );
-   dLOG( "    -- ROTATE_270_BIT:                   ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR )                   != 0 );
-   dLOG( "    -- HORIZONTAL_MIRROR_BIT:            ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR )            != 0 );
-   dLOG( "    -- HORIZONTAL_MIRROR_ROTATE_90_BIT:  ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR )  != 0 );
-   dLOG( "    -- HORIZONTAL_MIRROR_ROTATE_180_BIT: ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR ) != 0 );
-   dLOG( "    -- HORIZONTAL_MIRROR_ROTATE_270_BIT: ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR ) != 0 );
-   dLOG( "    -- INHERIT_BIT:                      ", ( lSurfaceInfo.supportedTransforms & VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR )                      != 0 );
-#endif
-   // clang-format on
-
-   VkSwapchainKHR lOldSwapchain = vSwapchain_vk;
-   VkSwapchainKHR lNewSwapchain;
-
-   uint32_t lNumImages = lSurfaceInfo.minImageCount + 1;
-   if ( lNumImages > lSurfaceInfo.maxImageCount )
-      lNumImages = lSurfaceInfo.maxImageCount;
-
-   VkExtent2D lExtentToUse = lSurfaceInfo.currentExtent;
-   lExtentToUse.width      = GlobConf.win.width;
-   lExtentToUse.height     = GlobConf.win.height;
-
-   if ( lExtentToUse.width < lSurfaceInfo.minImageExtent.width ||
-        lExtentToUse.height < lSurfaceInfo.minImageExtent.height )
-      lExtentToUse = lSurfaceInfo.minImageExtent;
-
-   if ( lExtentToUse.width > lSurfaceInfo.maxImageExtent.width ||
-        lExtentToUse.height > lSurfaceInfo.maxImageExtent.height )
-      lExtentToUse = lSurfaceInfo.maxImageExtent;
-
-   auto lUsageFlags = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-   if ( ( lSurfaceInfo.supportedUsageFlags & lUsageFlags ) == 0 ) {
-      lUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-   }
-
-   if ( ( lSurfaceInfo.supportedUsageFlags & lUsageFlags ) == 0 ) {
-      eLOG( "Surface does not support requierd image usage flags" );
-      return 6;
-   }
-
-   VkSwapchainCreateInfoKHR lCreateInfo;
-   lCreateInfo.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-   lCreateInfo.pNext                 = nullptr;
-   lCreateInfo.flags                 = 0;
-   lCreateInfo.surface               = vSurface_vk;
-   lCreateInfo.minImageCount         = lNumImages;
-   lCreateInfo.imageFormat           = lFormatToUse.format;
-   lCreateInfo.imageColorSpace       = lFormatToUse.colorSpace;
-   lCreateInfo.imageExtent           = lExtentToUse;
-   lCreateInfo.imageArrayLayers      = 1; //!< \todo stereo rendering
-   lCreateInfo.imageUsage            = lUsageFlags;
-   lCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
-   lCreateInfo.queueFamilyIndexCount = 0;
-   lCreateInfo.pQueueFamilyIndices   = nullptr;
-   lCreateInfo.preTransform          = lSurfaceInfo.currentTransform;
-   lCreateInfo.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-   lCreateInfo.presentMode           = lModelToUse;
-   lCreateInfo.clipped               = VK_TRUE;
-   lCreateInfo.oldSwapchain          = lOldSwapchain;
-
-   iLOG( "Creating swapchain with:" );
-   iLOG( "  -- minImageCount:   ", lCreateInfo.minImageCount );
-   iLOG( "  -- imageFormat:     ", uEnum2Str::toStr( lCreateInfo.imageFormat ) );
-   iLOG( "  -- imageColorSpace: ", uEnum2Str::toStr( lCreateInfo.imageColorSpace ) );
-   iLOG( "  -- preTransform:    ", uEnum2Str::toStr( lCreateInfo.preTransform ) );
-   iLOG( "  -- presentMode:     ", uEnum2Str::toStr( lCreateInfo.presentMode ) );
-   iLOG( "  -- imageUsage:      ",
-         uEnum2Str::toStr( static_cast<VkImageUsageFlagBits>( lCreateInfo.imageUsage ) ) );
-   iLOG( "  -- imageExtent:     ",
-         lCreateInfo.imageExtent.width,
-         "x",
-         lCreateInfo.imageExtent.height );
-
-   vkDeviceWaitIdle( vDevice_vk.device );
-   lRes = vkCreateSwapchainKHR( vDevice_vk.device, &lCreateInfo, nullptr, &lNewSwapchain );
-   if ( lRes ) {
-      eLOG( "'vkCreateSwapchainKHR' returned ", uEnum2Str::toStr( lRes ) );
-      return 1;
-   }
-
-   vkDeviceWaitIdle( vDevice_vk.device );
-   vSwapcainImages_vk.clear();
-   if ( lOldSwapchain ) {
-      vkDestroySwapchainKHR( vDevice_vk.device, lOldSwapchain, nullptr );
-   }
-
-   vSwapchain_vk = lNewSwapchain;
-   lRes = vkGetSwapchainImagesKHR( vDevice_vk.device, vSwapchain_vk, &lNum, nullptr );
-   if ( lRes ) {
-      eLOG( "'vkGetSwapchainImagesKHR' returned ", uEnum2Str::toStr( lRes ) );
-      return 1;
-   }
-
-   vSwapcainImages_vk.resize( lNum );
-
-   lRes = vkGetSwapchainImagesKHR(
-         vDevice_vk.device, vSwapchain_vk, &lNum, vSwapcainImages_vk.data() );
-   if ( lRes ) {
-      eLOG( "'vkGetSwapchainImagesKHR' returned ", uEnum2Str::toStr( lRes ) );
-      return 1;
-   }
-
-   return 0;
-}
-
-/*!
- * \brief creteates the depth and stencil buffer
- *
- * Destroies old buffers (if exist)
- *
- * \todo Stencil buffer implementation
- */
-int iInit::recreateDepthAndStencilBuffer() {
-   if ( !vDevice_vk.device ) {
-      eLOG( "Device not created!" );
-      return -1;
-   }
-
-   // Destroy functions ignore nullptr
-   if ( vDepthBufferView_vk )
-      vkDestroyImageView( vDevice_vk.device, vDepthBufferView_vk, nullptr );
-
-   if ( vDepthBuffer_vk )
-      vkDestroyImage( vDevice_vk.device, vDepthBuffer_vk, nullptr );
-
-   if ( vDepthBufferMem_vk )
-      vkFreeMemory( vDevice_vk.device, vDepthBufferMem_vk, nullptr );
-
-   vDepthBufferView_vk = nullptr;
-   vDepthBuffer_vk     = nullptr;
-   vDepthBufferMem_vk  = nullptr;
-
-   static const VkFormat lDepthFormats[] = {
-         VK_FORMAT_D32_SFLOAT_S8_UINT,
-         VK_FORMAT_D24_UNORM_S8_UINT,
-         VK_FORMAT_D16_UNORM_S8_UINT,
-         VK_FORMAT_D32_SFLOAT,
-         VK_FORMAT_X8_D24_UNORM_PACK32,
-         VK_FORMAT_D16_UNORM,
-   };
-
-   VkFormat lDepthStencilFormat = VK_FORMAT_UNDEFINED;
-   VkImageTiling lTiling        = VK_IMAGE_TILING_MAX_ENUM;
-
-   for ( auto i : lDepthFormats ) {
-      if ( formatSupportsFeature(
-                 i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_LINEAR ) ) {
-         lDepthStencilFormat = i;
-         lTiling             = VK_IMAGE_TILING_LINEAR;
-         break;
-      } else if ( formatSupportsFeature( i,
-                                         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                         VK_IMAGE_TILING_OPTIMAL ) ) {
-         lDepthStencilFormat = i;
-         lTiling             = VK_IMAGE_TILING_OPTIMAL;
-         break;
-      }
-   }
-
-   if ( lDepthStencilFormat == VK_FORMAT_UNDEFINED ) {
-      eLOG( "Unable to find depth format for the depth buffer" );
-      return 1;
-   }
-
-   bool lHasStencil = lDepthStencilFormat == VK_FORMAT_D32_SFLOAT_S8_UINT ||
-                      lDepthStencilFormat == VK_FORMAT_D24_UNORM_S8_UINT ||
-                      lDepthStencilFormat == VK_FORMAT_D16_UNORM_S8_UINT;
-
-   VkImageAspectFlags lAspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
-   lAspectFlags |= lHasStencil ? VK_IMAGE_ASPECT_STENCIL_BIT : 0;
-
-   VkImageCreateInfo lImageCreate;
-   VkMemoryAllocateInfo lMemoryAlloc;
-   VkMemoryRequirements lRequirements;
-   VkImageViewCreateInfo lImageViewCreate;
-
-   lImageCreate.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-   lImageCreate.pNext                 = nullptr;
-   lImageCreate.flags                 = 0;
-   lImageCreate.imageType             = VK_IMAGE_TYPE_2D;
-   lImageCreate.format                = lDepthStencilFormat;
-   lImageCreate.extent.width          = GlobConf.win.width;
-   lImageCreate.extent.height         = GlobConf.win.height;
-   lImageCreate.extent.depth          = 1;
-   lImageCreate.mipLevels             = 1;
-   lImageCreate.arrayLayers           = 1;
-   lImageCreate.samples               = GlobConf.vk.samples;
-   lImageCreate.tiling                = lTiling;
-   lImageCreate.usage                 = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-   lImageCreate.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-   lImageCreate.queueFamilyIndexCount = 0;
-   lImageCreate.pQueueFamilyIndices   = nullptr;
-   lImageCreate.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
-
-   lMemoryAlloc.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-   lMemoryAlloc.pNext           = nullptr;
-   lMemoryAlloc.allocationSize  = 0; // Will be set further down
-   lMemoryAlloc.memoryTypeIndex = 0;
-
-   lImageViewCreate.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-   lImageViewCreate.pNext                           = nullptr;
-   lImageViewCreate.flags                           = 0;
-   lImageViewCreate.image                           = nullptr; // set further down
-   lImageViewCreate.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-   lImageViewCreate.format                          = lDepthStencilFormat;
-   lImageViewCreate.components.r                    = VK_COMPONENT_SWIZZLE_R;
-   lImageViewCreate.components.g                    = VK_COMPONENT_SWIZZLE_G;
-   lImageViewCreate.components.b                    = VK_COMPONENT_SWIZZLE_B;
-   lImageViewCreate.components.a                    = VK_COMPONENT_SWIZZLE_A;
-   lImageViewCreate.subresourceRange.aspectMask     = lAspectFlags;
-   lImageViewCreate.subresourceRange.baseMipLevel   = 0;
-   lImageViewCreate.subresourceRange.levelCount     = 1;
-   lImageViewCreate.subresourceRange.baseArrayLayer = 0;
-   lImageViewCreate.subresourceRange.layerCount     = 1;
-
-   auto lRes = vkCreateImage( vDevice_vk.device, &lImageCreate, nullptr, &vDepthBuffer_vk );
-   if ( lRes ) {
-      eLOG( "'vkCreateImage' returned ", uEnum2Str::toStr( lRes ) );
-      return 2;
-   }
-
-   vkGetImageMemoryRequirements( vDevice_vk.device, vDepthBuffer_vk, &lRequirements );
-   lMemoryAlloc.allocationSize  = lRequirements.size;
-   lMemoryAlloc.memoryTypeIndex = getMemoryTypeIndexFromBitfield( lRequirements.memoryTypeBits );
-
-   if ( lMemoryAlloc.memoryTypeIndex == UINT32_MAX ) {
-      eLOG( "No valid memory type found!" );
-      return 3;
-   }
-
-   lRes = vkAllocateMemory( vDevice_vk.device, &lMemoryAlloc, nullptr, &vDepthBufferMem_vk );
-   if ( lRes ) {
-      eLOG( "'vkAllocateMemory' returned ", uEnum2Str::toStr( lRes ) );
-      return 4;
-   }
-
-   lRes = vkBindImageMemory( vDevice_vk.device, vDepthBuffer_vk, vDepthBufferMem_vk, 0 );
-   if ( lRes ) {
-      eLOG( "'vkBindImageMemory' returned ", uEnum2Str::toStr( lRes ) );
-      return 5;
-   }
-
-   lImageViewCreate.image = vDepthBuffer_vk;
-   lRes = vkCreateImageView( vDevice_vk.device, &lImageViewCreate, nullptr, &vDepthBufferView_vk );
-   if ( lRes ) {
-      eLOG( "'vkCreateImageView' returned ", uEnum2Str::toStr( lRes ) );
-      return 6;
-   }
-
-   #if D_LOG_VULKAN_INIT
-   dLOG( "Creating Depth buffer" );
-   dLOG( "  -- lHasStencil:     ", lHasStencil );
-   dLOG( "  -- imageType:       ", uEnum2Str::toStr( lImageCreate.imageType ) );
-   dLOG( "  -- fromat:          ", uEnum2Str::toStr( lImageCreate.format ) );
-   dLOG( "  -- tiling:          ", uEnum2Str::toStr( lImageCreate.tiling ) );
-   dLOG( "  -- memoryTypeIndex: ", lMemoryAlloc.memoryTypeIndex );
-#endif
 
    return 0;
 }

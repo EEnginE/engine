@@ -42,7 +42,11 @@ _uConfig::__uConfig_Config::__uConfig_Config() { reset(); }
 _uConfig::__uConfig_Camera::__uConfig_Camera() { reset(); }
 
 
-void _uConfig::__uConfig_Vulkan::reset() { samples = VK_SAMPLE_COUNT_1_BIT; }
+void _uConfig::__uConfig_Vulkan::reset() {
+   samples               = VK_SAMPLE_COUNT_1_BIT;
+   preferedSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
+   enableVSync           = false;
+}
 
 
 void _uConfig::__uConfig_Versions::reset() {}

@@ -265,7 +265,7 @@ int iInit::init( std::vector<std::string> _layers ) {
    if ( createDevice( _layers ) )
       return 4;
 
-   if( handleResize() )
+   if ( loadDeviceSurfaceInfo() )
       return 5;
 
 
@@ -284,45 +284,14 @@ int iInit::init( std::vector<std::string> _layers ) {
    return 0;
 }
 
-int iInit::handleResize() {
-   iLOG( "Stopping old swapchain..." );
-   vStopSwapchain();
-
-   if ( recreateSwapchain() )
-      return 1;
-
-   if ( recreateDepthAndStencilBuffer() )
-      return 2;
-
-   iLOG( "Restarting with new swapchain..." );
-   vContinueSwapchain();
-
-   return 0;
-}
-
 void iInit::destroyVulkan() {
    if ( !vIsVulkanSetup_B )
       return;
 
-   dVkLOG( "Vulkan cleanup:" );
+   dVkLOG( "Vulkan cleanup [iInit]:" );
 
    if ( vDevice_vk.device )
       vkDeviceWaitIdle( vDevice_vk.device );
-
-   dVkLOG( "  -- destroying depth and stencil buffer" );
-   if ( vDepthBufferView_vk )
-      vkDestroyImageView( vDevice_vk.device, vDepthBufferView_vk, nullptr );
-
-   if ( vDepthBuffer_vk )
-      vkDestroyImage( vDevice_vk.device, vDepthBuffer_vk, nullptr );
-
-   if ( vDepthBufferMem_vk )
-      vkFreeMemory( vDevice_vk.device, vDepthBufferMem_vk, nullptr );
-
-   dVkLOG( "  -- destroying swapchain" );
-   if ( vSwapchain_vk )
-      vkDestroySwapchainKHR( vDevice_vk.device, vSwapchain_vk, nullptr );
-
 
    dVkLOG( "  -- destroying surface" );
    if ( vSurface_vk )
@@ -341,15 +310,11 @@ void iInit::destroyVulkan() {
    if ( vInstance_vk )
       vkDestroyInstance( vInstance_vk, nullptr );
 
-   vDepthBufferView_vk = nullptr;
-   vDepthBuffer_vk     = nullptr;
-   vDepthBufferMem_vk  = nullptr;
-   vDevice_vk.device   = nullptr;
-   vDevice_vk.pDevice  = nullptr;
-   vCallback           = nullptr;
-   vInstance_vk        = nullptr;
-   vSurface_vk         = nullptr;
-   vSwapchain_vk       = nullptr;
+   vDevice_vk.device  = nullptr;
+   vDevice_vk.pDevice = nullptr;
+   vCallback          = nullptr;
+   vInstance_vk       = nullptr;
+   vSurface_vk        = nullptr;
 
    vIsVulkanSetup_B = false;
    vExtensionList.clear();
@@ -358,7 +323,8 @@ void iInit::destroyVulkan() {
    vLayerProperties_vk.clear();
    vDeviceLayerProperties_vk.clear();
    vPhysicalDevices_vk.clear();
-   vSwapcainImages_vk.clear();
+   vSurfaceInfo_vk.formats.clear();
+   vSurfaceInfo_vk.presentModels.clear();
 
    dVkLOG( "  -- DONE" );
 }
@@ -382,11 +348,6 @@ void iInit::enableVSync() { vEnableVSync = true; }
  */
 void iInit::disableVSync() { vEnableVSync = false; }
 
-/*!
- * \brief Sets the prefered surface format
- * \note This will only take effect BEFORE creating the swapchain
- */
-void iInit::setPreferedSurfaceFormat( VkFormat _format ) { vPreferedSurfaceFormat = _format; }
 
 void iInit::handleSignal( int _signal ) {
    iInit *_THIS = internal::__iInit_Pointer_OBJ.get();
@@ -685,9 +646,18 @@ uint32_t iInit::getMemoryTypeIndexFromBitfield( uint32_t _bits, VkMemoryHeapFlag
  * \returns The vulkan device handle
  */
 VkDevice iInit::getDevice() { return vDevice_vk.device; }
+
+/*!
+ * \returns The vulkan surface
+ */
+VkSurfaceKHR iInit::getVulkanSurface() { return vSurface_vk; }
+
+/*!
+ * \returns The vulkan surface info
+ */
+iInit::SurfaceInfo_vk iInit::getSurfaceInfo() { return vSurfaceInfo_vk; }
 }
 
 
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
-

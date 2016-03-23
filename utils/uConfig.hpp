@@ -60,6 +60,8 @@ struct _uConfig {
       __uConfig_Vulkan();
 
       VkSampleCountFlagBits samples;
+      VkFormat preferedSurfaceFormat;
+      bool enableVSync;
 
       /*!
        * \brief Reset to default

@@ -113,6 +113,12 @@ class INIT_API iInit : public windows_win32::iContext {
             surfaceSupport( _surfaceSupport ) {}
    } Queue_vk;
 
+   typedef struct SurfaceInfo_vk {
+      std::vector<VkSurfaceFormatKHR> formats;
+      std::vector<VkPresentModeKHR> presentModels;
+      VkSurfaceCapabilitiesKHR surfaceInfo;
+   } SurfaceInfo_vk;
+
  private:
 #if UNIX_X11
    unix_x11::iWindow vWindow;
@@ -131,20 +137,16 @@ class INIT_API iInit : public windows_win32::iContext {
    std::vector<VkLayerProperties> vDeviceLayerProperties_vk;
    std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
    std::vector<Queue_vk> vQueues_vk;
-   std::vector<VkImage> vSwapcainImages_vk;
 
    VkDebugReportCallbackCreateInfoEXT vDebugCreateInfo_vk;
 
    VkDebugReportCallbackEXT vCallback = nullptr;
    VkInstance vInstance_vk            = nullptr;
    VkSurfaceKHR vSurface_vk           = nullptr;
-   VkSwapchainKHR vSwapchain_vk       = nullptr;
-   VkFormat vPreferedSurfaceFormat    = VK_FORMAT_B8G8R8A8_SRGB;
-   VkImage vDepthBuffer_vk            = nullptr;
-   VkDeviceMemory vDepthBufferMem_vk  = nullptr;
-   VkImageView vDepthBufferView_vk    = nullptr;
-   Device_vk vDevice_vk;
 
+   SurfaceInfo_vk vSurfaceInfo_vk;
+
+   Device_vk vDevice_vk;
 
    bool vMainLoopRunning_B      = false; //!< Should the main loop be running?
    bool vEventLoopHasFinished_B = true;  //!< Has the event loop finished?
@@ -179,12 +181,10 @@ class INIT_API iInit : public windows_win32::iContext {
    int loadExtensionList();
    int loadDeviceExtensionList( VkPhysicalDevice _dev );
    int loadDevices();
+   int loadDeviceSurfaceInfo();
    int createDevice( std::vector<std::string> _layers );
    int initVulkan( std::vector<std::string> _layers );
    int initDebug();
-
-   int recreateSwapchain();
-   int recreateDepthAndStencilBuffer();
 
    void destroyVulkan();
 
@@ -216,12 +216,9 @@ class INIT_API iInit : public windows_win32::iContext {
 
    void enableVSync();
    void disableVSync();
-   void setPreferedSurfaceFormat( VkFormat _format );
 
    iWindowBasic *getWindow();
    void closeWindow();
-
-   int handleResize();
 
    uint32_t getQueueFamily( VkQueueFlags _flags );
 
@@ -249,6 +246,9 @@ class INIT_API iInit : public windows_win32::iContext {
                             int32_t _msgCode,
                             std::string _layerPrefix,
                             std::string _msg );
+
+   VkSurfaceKHR getVulkanSurface();
+   SurfaceInfo_vk getSurfaceInfo();
 };
 
 namespace internal {

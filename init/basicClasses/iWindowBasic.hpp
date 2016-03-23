@@ -46,11 +46,16 @@ class INIT_API iWindowBasic {
    virtual int createWindow() = 0;
    virtual void destroyWindow() = 0;
 
-   virtual void changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY ) = 0;
+   virtual void changeWindowConfig( unsigned int _width,
+                                    unsigned int _height,
+                                    int _posX,
+                                    int _posY ) = 0;
 
    virtual void setWindowType( WINDOW_TYPE _type ) = 0;
    virtual void setWindowNames( std::string _windowName, std::string _iconName = "<NONE>" ) = 0;
-   virtual void setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE ) = 0;
+   virtual void setAttribute( ACTION _action,
+                              WINDOW_ATTRIBUTE _type1,
+                              WINDOW_ATTRIBUTE _type2 = NONE ) = 0;
 
    virtual void fullScreen( ACTION _action, bool _allMonitors = false ) = 0;
    virtual void maximize( ACTION _action ) = 0;

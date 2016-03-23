@@ -26,9 +26,11 @@
 #include <mutex>
 #include <vulkan/vulkan.h>
 #include "rRoot_structs.hpp"
+#include "uSignalSlot.hpp"
 
 namespace e_engine {
 
+class iEventInfo;
 class iInit;
 
 /*!
@@ -45,18 +47,82 @@ class iInit;
 class RENDER_API rRoot {
  public:
    typedef internal::CommandPoolInfo PoolInfo;
+   typedef std::unordered_map<uint32_t, VkImageLayout> AttachmentLayoutMap;
+
+   typedef struct Buffer_vk {
+      VkImage img        = nullptr;
+      VkImageView iv     = nullptr;
+      VkDeviceMemory mem = nullptr;
+   } Buffer_vk;
+
+   typedef struct RenderPass_vk {
+      struct SubPassData {
+         std::vector<uint32_t> preserve;
+         std::vector<VkAttachmentReference> color;
+         std::vector<VkAttachmentReference> input;
+         std::vector<VkAttachmentReference> resolve;
+         VkAttachmentReference depth = {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
+      };
+
+      std::vector<SubPassData> data;
+      std::vector<VkAttachmentDescription> attachments;
+      std::vector<VkSubpassDescription> subpasses;
+      std::vector<VkSubpassDependency> dependecies;
+
+      uint32_t frameAttachID;
+      uint32_t depthAttachID;
+
+      VkRenderPass renderPass = nullptr;
+   } RenderPass_vk;
 
  private:
    iInit *vInitPtr;
 
-   std::unordered_map<PoolInfo, VkCommandPool> vCmdPools_vk;
+   VkDevice vDevice_vk;
+   VkSurfaceKHR vSurface_vk;
+   VkSwapchainKHR vSwapchain_vk = nullptr;
 
+   Buffer_vk vDepthStencilBuf_vk;
+   RenderPass_vk vRenderPass_vk;
+
+   std::vector<Buffer_vk> vFramebuffers_vk;
+
+   VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLORSPACE_MAX_ENUM};
+
+   std::unordered_map<PoolInfo, VkCommandPool> vCmdPools_vk;
    std::mutex vCommandPoolsMutex;
+
+   uSlot<void, rRoot, iEventInfo const &> vResizeSlot;
+
+   bool vHasStencilBuffer  = false;
+   bool vIsResizeSlotSetup = false;
+
+   int recreateSwapchain();
+   int recreateSwapchainImages();
+   int recreateDepthAndStencilBuffer();
+   int recreateRenderPass();
+
+   void handleResize( iEventInfo const & );
 
  public:
    rRoot() = delete;
    rRoot( iInit *_init );
    virtual ~rRoot();
+
+   int initBasic();
+   int initRenderPass();
+   void defaultSetup();
+
+   uint32_t getDepthBufferAttachmentIndex() const;
+   uint32_t getFrameBufferAttachmentIndex() const;
+
+   uint32_t addSubpass( VkPipelineBindPoint _bindPoint,
+                        uint32_t _deptStencil           = UINT32_MAX,
+                        std::vector<uint32_t> _color    = {UINT32_MAX},
+                        std::vector<uint32_t> _input    = {},
+                        std::vector<uint32_t> _preserve = {},
+                        std::vector<uint32_t> _resolve  = {},
+                        AttachmentLayoutMap _layoutMap = {} );
 
    VkCommandPool getCommandPool(
          uint32_t _queueFamilyIndex,

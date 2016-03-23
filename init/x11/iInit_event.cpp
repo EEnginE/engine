@@ -73,7 +73,6 @@ int iInit::eventLoop() {
                tempInfo.eResize.posY = GlobConf.win.posY;
 
                vResize_SIG( tempInfo );
-               handleResize();
             }
          }
 
