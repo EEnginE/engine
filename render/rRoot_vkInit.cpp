@@ -525,7 +525,7 @@ int rRoot::recreateRenderPass() {
 }
 
 int rRoot::recreateFramebuffers() {
-   if( vAttachmentImageViews.size() != vRenderPass_vk.attachments.size() ) {
+   if ( vAttachmentImageViews.size() != vRenderPass_vk.attachments.size() ) {
       eLOG( "Invalid number of framebuffer attachments" );
       return 2;
    }

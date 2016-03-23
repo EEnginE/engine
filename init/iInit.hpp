@@ -99,8 +99,6 @@ class INIT_API iInit : public windows_win32::iContext {
       u_int32_t index;
       bool surfaceSupport;
 
-      bool isBlocked = false;
-
       Queue_vk( float _priority,
                 VkQueueFlags _flags,
                 u_int32_t _familyIndex,
@@ -223,8 +221,6 @@ class INIT_API iInit : public windows_win32::iContext {
    uint32_t getQueueFamily( VkQueueFlags _flags );
 
    VkQueue getQueue( VkQueueFlags _flags, float _priority );
-   bool freeQueue( VkQueue _queue );
-   bool blockQueue( VkQueue _queue );
 
    VkDevice getDevice();
 

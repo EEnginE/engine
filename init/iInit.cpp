@@ -519,9 +519,6 @@ VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority ) {
    VkQueue lQueue = nullptr;
 
    for ( auto i : vQueues_vk ) {
-      if ( i.isBlocked )
-         continue;
-
       if ( !( i.flags & _flags ) )
          continue;
 
@@ -533,7 +530,6 @@ VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority ) {
       }
    }
 
-   blockQueue( lQueue );
    return lQueue;
 }
 
