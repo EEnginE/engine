@@ -55,6 +55,8 @@ class RENDER_API rRoot {
       VkDeviceMemory mem = nullptr;
    } Buffer_vk;
 
+   typedef struct Framebuffer_vk : Buffer_vk { VkFramebuffer fb = nullptr; } Framebuffer_vk;
+
    typedef struct RenderPass_vk {
       struct SubPassData {
          std::vector<uint32_t> preserve;
@@ -85,7 +87,8 @@ class RENDER_API rRoot {
    Buffer_vk vDepthStencilBuf_vk;
    RenderPass_vk vRenderPass_vk;
 
-   std::vector<Buffer_vk> vFramebuffers_vk;
+   std::vector<VkImageView> vAttachmentImageViews;
+   std::vector<Framebuffer_vk> vFramebuffers_vk;
 
    VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLORSPACE_MAX_ENUM};
 
@@ -101,6 +104,7 @@ class RENDER_API rRoot {
    int recreateSwapchainImages();
    int recreateDepthAndStencilBuffer();
    int recreateRenderPass();
+   int recreateFramebuffers();
 
    void handleResize( iEventInfo const & );
 

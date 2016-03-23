@@ -523,4 +523,37 @@ int rRoot::recreateRenderPass() {
 
    return 0;
 }
+
+int rRoot::recreateFramebuffers() {
+   if( vAttachmentImageViews.size() != vRenderPass_vk.attachments.size() ) {
+      eLOG( "Invalid number of framebuffer attachments" );
+      return 2;
+   }
+
+   VkFramebufferCreateInfo lInfo;
+   lInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+   lInfo.pNext           = nullptr;
+   lInfo.flags           = 0;
+   lInfo.renderPass      = vRenderPass_vk.renderPass;
+   lInfo.attachmentCount = vAttachmentImageViews.size();
+   lInfo.pAttachments    = vAttachmentImageViews.data();
+   lInfo.width           = GlobConf.win.width;
+   lInfo.height          = GlobConf.win.height;
+   lInfo.layers          = 1;
+
+   vAttachmentImageViews[vRenderPass_vk.depthAttachID] = vDepthStencilBuf_vk.iv;
+
+   dVkLOG( "Creating framebuffers:" );
+
+   for ( auto i : vFramebuffers_vk ) {
+      vAttachmentImageViews[vRenderPass_vk.frameAttachID] = i.iv;
+
+      auto lRes = vkCreateFramebuffer( vDevice_vk, &lInfo, nullptr, &i.fb );
+      if ( lRes ) {
+         eLOG( "'vkCreateFramebuffer' returned ", uEnum2Str::toStr( lRes ) );
+         return 1;
+      }
+   }
+   return 0;
+}
 }

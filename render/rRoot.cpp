@@ -46,6 +46,7 @@ rRoot::rRoot( iInit *_init ) : vInitPtr( _init ), vResizeSlot( &rRoot::handleRes
    vRenderPass_vk.attachments.resize( 2 );
    vRenderPass_vk.frameAttachID = 0;
    vRenderPass_vk.depthAttachID = 1;
+   vAttachmentImageViews.resize( 2 );
 }
 
 rRoot::~rRoot() {
@@ -64,7 +65,12 @@ rRoot::~rRoot() {
       vkDestroyCommandPool( vInitPtr->getDevice(), i.second, nullptr );
    }
 
-   dVkLOG( "  -- destroying old renderpass" );
+   dVkLOG( "  -- destroying framebuffers" );
+   for ( auto &i : vFramebuffers_vk )
+      if ( i.fb )
+         vkDestroyFramebuffer( vDevice_vk, i.fb, nullptr );
+
+   dVkLOG( "  -- destroying renderpass" );
    if ( vRenderPass_vk.renderPass )
       vkDestroyRenderPass( vDevice_vk, vRenderPass_vk.renderPass, nullptr );
 
@@ -98,6 +104,11 @@ rRoot::~rRoot() {
  */
 int rRoot::initBasic() {
    dVkLOG( "Destroying old render pass data" );
+
+   dVkLOG( "  -- destroying old framebuffers" );
+   for ( auto &i : vFramebuffers_vk )
+      if ( i.fb )
+         vkDestroyFramebuffer( vDevice_vk, i.fb, nullptr );
 
    dVkLOG( "  -- destroying old renderpass" );
    if ( vRenderPass_vk.renderPass )
@@ -147,10 +158,8 @@ int rRoot::initRenderPass() {
    if ( recreateRenderPass() )
       return 4;
 
-   if ( !vIsResizeSlotSetup )
-      vInitPtr->addResizeSlot( &vResizeSlot );
-
-   vIsResizeSlotSetup = true;
+   if ( recreateFramebuffers() )
+      return 5;
 
    if ( !vIsResizeSlotSetup )
       vInitPtr->addResizeSlot( &vResizeSlot );
