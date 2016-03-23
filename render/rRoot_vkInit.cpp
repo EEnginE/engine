@@ -205,7 +205,7 @@ int rRoot::recreateSwapchain() {
  * \brief recreates swapchain image views
  * \returns 0 on success
  */
-int rRoot::recreateSwapchainImages() {
+int rRoot::recreateSwapchainImages( VkCommandBuffer _buf ) {
    if ( !vDevice_vk )
       return 1;
 
@@ -247,6 +247,16 @@ int rRoot::recreateSwapchainImages() {
       lInfo.subresourceRange.layerCount     = 1;
 
       lRes = vkCreateImageView( vDevice_vk, &lInfo, nullptr, &vFramebuffers_vk.back().iv );
+      if ( lRes ) {
+         eLOG( "'vkCreateImageView' returned ", uEnum2Str::toStr( lRes ) );
+         return 4;
+      }
+
+      cmdChangeImageLayout( _buf,
+                            lInfo.image,
+                            lInfo.subresourceRange,
+                            VK_IMAGE_LAYOUT_UNDEFINED,
+                            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
    }
 
    VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[vRenderPass_vk.frameAttachID];
@@ -273,7 +283,7 @@ int rRoot::recreateSwapchainImages() {
  *
  * \todo Stencil buffer implementation
  */
-int rRoot::recreateDepthAndStencilBuffer() {
+int rRoot::recreateDepthAndStencilBuffer( VkCommandBuffer _buf ) {
    if ( !vDevice_vk ) {
       eLOG( "Device not created!" );
       return -1;
@@ -421,6 +431,12 @@ int rRoot::recreateDepthAndStencilBuffer() {
    dLOG( "  -- tiling:          ", uEnum2Str::toStr( lImageCreate.tiling ) );
    dLOG( "  -- memoryTypeIndex: ", lMemoryAlloc.memoryTypeIndex );
 #endif
+
+   cmdChangeImageLayout( _buf,
+                         lImageViewCreate.image,
+                         lImageViewCreate.subresourceRange,
+                         VK_IMAGE_LAYOUT_UNDEFINED,
+                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
 
    return 0;
 }

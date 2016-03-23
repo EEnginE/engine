@@ -101,8 +101,8 @@ class RENDER_API rRoot {
    bool vIsResizeSlotSetup = false;
 
    int recreateSwapchain();
-   int recreateSwapchainImages();
-   int recreateDepthAndStencilBuffer();
+   int recreateSwapchainImages( VkCommandBuffer _buf );
+   int recreateDepthAndStencilBuffer( VkCommandBuffer _buf );
    int recreateRenderPass();
    int recreateFramebuffers();
 
@@ -128,6 +128,17 @@ class RENDER_API rRoot {
                         std::vector<uint32_t> _resolve  = {},
                         AttachmentLayoutMap _layoutMap = {} );
 
+   VkCommandBuffer createCommandBuffer(
+         VkCommandPool _pool, VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY );
+
+   VkResult beginCommandBuffer( VkCommandBuffer _buf, VkCommandBufferUsageFlags _flags = 0 );
+
+   void cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
+                              VkImage _img,
+                              VkImageSubresourceRange _imgSubres,
+                              VkImageLayout _src,
+                              VkImageLayout _dst );
+
    VkCommandPool getCommandPool(
          uint32_t _queueFamilyIndex,
          VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
@@ -135,5 +146,7 @@ class RENDER_API rRoot {
    VkCommandPool getCommandPoolFlags(
          VkQueueFlags _qFlags,
          VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
+
+   VkFence createFence( VkFenceCreateFlags _flags = 0 );
 };
 }

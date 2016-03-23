@@ -325,6 +325,7 @@ void iInit::destroyVulkan() {
    vPhysicalDevices_vk.clear();
    vSurfaceInfo_vk.formats.clear();
    vSurfaceInfo_vk.presentModels.clear();
+   vQueueMutexMap.clear();
 
    dVkLOG( "  -- DONE" );
 }
@@ -514,7 +515,8 @@ uint32_t iInit::getQueueFamily( VkQueueFlags _flags ) {
  *
  * \todo Prefere queue families who have ONLY _flags
  */
-VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority ) {
+VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority, uint32_t *_queueFamily ) {
+   std::lock_guard<std::mutex> lGuard( vQueueAccessMutex );
    float lMinDiff = 100.0f;
    VkQueue lQueue = nullptr;
 
@@ -526,11 +528,19 @@ VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority ) {
       lTemp = lTemp < 0 ? -lTemp : lTemp; // Make positive
       if ( lTemp < lMinDiff ) {
          lMinDiff = lTemp;
-         lQueue   = i.queue;
+         lQueue = i.queue;
+         if ( _queueFamily )
+            *_queueFamily = i.familyIndex;
       }
    }
 
    return lQueue;
+}
+
+
+std::mutex &iInit::getQueueMutex( VkQueue _queue ) {
+   std::lock_guard<std::mutex> lGuard( vQueueAccessMutex );
+   return vQueueMutexMap[_queue];
 }
 
 

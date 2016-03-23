@@ -135,14 +135,56 @@ int rRoot::initBasic() {
 
    vFramebuffers_vk.clear();
 
+   uint32_t lQueueFamily;
+   VkQueue lQueue       = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
+   VkCommandPool lPool  = getCommandPool( lQueueFamily );
+   VkCommandBuffer lBuf = createCommandBuffer( lPool );
+   VkFence lFence       = createFence();
+
+   if ( !lBuf )
+      return -1;
+
+   if ( beginCommandBuffer( lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) )
+      return -2;
+
    if ( recreateSwapchain() )
       return 1;
 
-   if ( recreateDepthAndStencilBuffer() )
+   if ( recreateDepthAndStencilBuffer( lBuf ) )
       return 2;
 
-   if ( recreateSwapchainImages() )
+   if ( recreateSwapchainImages( lBuf ) )
       return 3;
+
+   vkEndCommandBuffer( lBuf );
+
+   VkSubmitInfo lInfo;
+   lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+   lInfo.pNext                = nullptr;
+   lInfo.waitSemaphoreCount   = 0;
+   lInfo.pWaitSemaphores      = nullptr;
+   lInfo.pWaitDstStageMask    = nullptr;
+   lInfo.commandBufferCount   = 1;
+   lInfo.pCommandBuffers      = &lBuf;
+   lInfo.signalSemaphoreCount = 0;
+   lInfo.pSignalSemaphores    = nullptr;
+
+   dVkLOG( "Submitting image layout change command buffer..." );
+
+   {
+      std::lock_guard<std::mutex> lGuard( vInitPtr->getQueueMutex( lQueue ) );
+      vkQueueSubmit( lQueue, 1, &lInfo, lFence );
+   }
+
+   auto lRes = vkWaitForFences( vDevice_vk, 1, &lFence, VK_TRUE, UINT64_MAX );
+   if ( lRes ) {
+      eLOG( "'vkWaitForFences' returned ", uEnum2Str::toStr( lRes ) );
+      return 4;
+   }
+
+   vkDestroyFence( vDevice_vk, lFence, nullptr );
+   vkFreeCommandBuffers( vDevice_vk, lPool, 1, &lBuf );
+   dVkLOG( "...DONE" );
 
    return 0;
 }
@@ -282,6 +324,86 @@ void rRoot::defaultSetup() {
 }
 
 
+void rRoot::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
+                                  VkImage _img,
+                                  VkImageSubresourceRange _imgSubres,
+                                  VkImageLayout _src,
+                                  VkImageLayout _dst ) {
+   VkImageMemoryBarrier lBarriar;
+   lBarriar.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+   lBarriar.pNext               = nullptr;
+   lBarriar.oldLayout           = _src;
+   lBarriar.newLayout           = _dst;
+   lBarriar.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+   lBarriar.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+   lBarriar.image               = _img;
+   lBarriar.subresourceRange    = _imgSubres;
+
+   switch ( _src ) {
+      case VK_IMAGE_LAYOUT_PREINITIALIZED:
+         lBarriar.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+         lBarriar.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+         lBarriar.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+         lBarriar.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+         lBarriar.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+         lBarriar.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+         lBarriar.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+         break;
+      default: lBarriar.srcAccessMask = 0; break;
+   }
+
+   switch ( _dst ) {
+      case VK_IMAGE_LAYOUT_PREINITIALIZED:
+         lBarriar.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+         lBarriar.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+         lBarriar.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+         lBarriar.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+         lBarriar.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+         lBarriar.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+         break;
+      case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+         lBarriar.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+         break;
+      default: lBarriar.dstAccessMask = 0; break;
+   }
+
+   vkCmdPipelineBarrier( _cmdBuffer,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                         0,
+                         0,
+                         nullptr,
+                         0,
+                         nullptr,
+                         1,
+                         &lBarriar );
+}
+
+
 /*!
  * \brief Get a command pool
  *
@@ -323,6 +445,39 @@ VkCommandPool rRoot::getCommandPool( uint32_t _queueFamilyIndex, VkCommandPoolCr
    return lPool;
 }
 
+VkCommandBuffer rRoot::createCommandBuffer( VkCommandPool _pool, VkCommandBufferLevel _level ) {
+   VkCommandBuffer lBuf;
+   VkCommandBufferAllocateInfo lInfo;
+   lInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+   lInfo.pNext              = nullptr;
+   lInfo.commandPool        = _pool;
+   lInfo.level              = _level;
+   lInfo.commandBufferCount = 1;
+
+   auto lRes = vkAllocateCommandBuffers( vDevice_vk, &lInfo, &lBuf );
+   if ( lRes ) {
+      eLOG( "'vkAllocateCommandBuffers' returned ", uEnum2Str::toStr( lRes ) );
+      return nullptr;
+   }
+
+   return lBuf;
+}
+
+VkResult rRoot::beginCommandBuffer( VkCommandBuffer _buf, VkCommandBufferUsageFlags _flags ) {
+   VkCommandBufferBeginInfo lBegin;
+   lBegin.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+   lBegin.pNext            = nullptr;
+   lBegin.flags            = _flags;
+   lBegin.pInheritanceInfo = nullptr;
+
+   VkResult lRes = vkBeginCommandBuffer( _buf, &lBegin );
+   if ( lRes ) {
+      eLOG( "'vkBeginCommandBuffer' returned ", uEnum2Str::toStr( lRes ) );
+   }
+
+   return lRes;
+}
+
 /*!
  * \brief Get a command pool
  *
@@ -342,6 +497,23 @@ VkCommandPool rRoot::getCommandPoolFlags( VkQueueFlags _qFlags, VkCommandPoolCre
    }
 
    return getCommandPool( lFamilyIndex, _flags );
+}
+
+VkFence rRoot::createFence( VkFenceCreateFlags _flags ) {
+   VkFence lFence;
+
+   VkFenceCreateInfo lInfo;
+   lInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+   lInfo.pNext = nullptr;
+   lInfo.flags = _flags;
+
+   auto lRes = vkCreateFence( vDevice_vk, &lInfo, nullptr, &lFence );
+   if ( lRes ) {
+      eLOG( "'vkCreateFence' returned ", uEnum2Str::toStr( lRes ) );
+      return nullptr;
+   }
+
+   return lFence;
 }
 
 

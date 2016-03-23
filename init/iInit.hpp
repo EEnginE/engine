@@ -45,6 +45,7 @@
 #endif
 
 #include <thread>
+#include <unordered_map>
 
 
 namespace e_engine {
@@ -136,6 +137,9 @@ class INIT_API iInit : public windows_win32::iContext {
    std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
    std::vector<Queue_vk> vQueues_vk;
 
+   std::unordered_map<VkQueue, std::mutex> vQueueMutexMap;
+   std::mutex vQueueAccessMutex;
+
    VkDebugReportCallbackCreateInfoEXT vDebugCreateInfo_vk;
 
    VkDebugReportCallbackEXT vCallback = nullptr;
@@ -220,7 +224,8 @@ class INIT_API iInit : public windows_win32::iContext {
 
    uint32_t getQueueFamily( VkQueueFlags _flags );
 
-   VkQueue getQueue( VkQueueFlags _flags, float _priority );
+   VkQueue getQueue( VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr );
+   std::mutex &getQueueMutex( VkQueue _queue );
 
    VkDevice getDevice();
 
