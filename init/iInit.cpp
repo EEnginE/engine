@@ -533,49 +533,6 @@ VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority ) {
    return lQueue;
 }
 
-/*!
- * \brief Unblocks a queue
- *
- * A blocked queue will not be returned by iInit::getQueue
- *
- * \param _queue The _queue to unblock
- * \returns if the queue was found
- */
-bool iInit::freeQueue( VkQueue _queue ) {
-   bool lFound = false;
-
-   for ( auto i : vQueues_vk ) {
-      if ( i.queue == _queue ) {
-         lFound      = true;
-         i.isBlocked = false;
-         break;
-      }
-   }
-
-   return lFound;
-}
-
-/*!
- * \brief Blocks a queue
- *
- * A blocked queue will not be returned by iInit::getQueue
- *
- * \param _queue The _queue to block
- * \returns if the queue was found
- */
-bool iInit::blockQueue( VkQueue _queue ) {
-   bool lFound = false;
-
-   for ( auto i : vQueues_vk ) {
-      if ( i.queue == _queue ) {
-         lFound      = true;
-         i.isBlocked = true;
-         break;
-      }
-   }
-
-   return lFound;
-}
 
 /*!
  * \brief Checks whether a format is supported on the device
