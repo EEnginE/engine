@@ -64,9 +64,7 @@ int main( int argc, char *argv[] ) {
 
    if ( start.init(layers) == 0 ) {
       rRoot lRoot(&start);
-      lRoot.initBasic();
-      lRoot.defaultSetup();
-      lRoot.initRenderPass();
+      lRoot.init();
 
       myWorld handler( cmd, &start );
       start.enableDefaultGrabControl();
