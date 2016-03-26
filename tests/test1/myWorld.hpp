@@ -46,7 +46,7 @@ class myWorld final : public e_engine::rWorld, public e_engine::rFrameCounter {
  public:
    myWorld( cmdANDinit &_cmd, e_engine::iInit *_init )
        : rWorld( _init ),
-         rFrameCounter( this, false ),
+         rFrameCounter( this, true ),
          vScene( _init, _cmd ),
          vInitPointer( _init ),
          vNearZ( _cmd.getNearZ() ),
@@ -82,8 +82,6 @@ class myWorld final : public e_engine::rWorld, public e_engine::rFrameCounter {
    }
 
    int initGL();
-
-   virtual void renderFrame() { vScene.renderScene(); }
 };
 
 

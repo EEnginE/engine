@@ -20,7 +20,7 @@ using namespace e_engine;
 
 int myScene::init() {
    //updateCamera();
-
+#if 0
    lGLTF lLoader( vFilePath );
    if ( lLoader() != 1 )
       return 2;
@@ -52,15 +52,15 @@ int myScene::init() {
       }
    }
 
-   addObject( &vLight1, -1 );
-   addObject( &vLight2, -1 );
-   addObject( &vLight3, -1 );
+   addObject( &vLight1 );
+   addObject( &vLight2 );
+   addObject( &vLight3 );
 
    if ( !canRenderScene() ) {
       eLOG( "Cannot render scene!" );
       return 2;
    }
-
+#endif
    return 0;
 }
 

@@ -1,6 +1,6 @@
 /*!
- * \file rRoot.cpp
- * \brief \b Classes: \a rRoot
+ * \file rWorld.cpp
+ * \brief \b Classes: \a rWorld
  */
 /*
  * Copyright (C) 2016 EEnginE project
@@ -22,7 +22,7 @@
 #include "defines.hpp"
 #include "uConfig.hpp"
 
-#include "rRoot.hpp"
+#include "rWorld.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
 #include "iInit.hpp"
@@ -41,7 +41,7 @@ namespace e_engine {
  * \brief recreates the vulkan swapchain
  * \return 0 on success
  */
-int rRoot::recreateSwapchain() {
+int rWorld::recreateSwapchain() {
    auto lSInfo = vInitPtr->getSurfaceInfo();
 
    VkPresentModeKHR lModelToUse = VK_PRESENT_MODE_MAX_ENUM;
@@ -165,18 +165,20 @@ int rRoot::recreateSwapchain() {
    lCreateInfo.clipped               = VK_TRUE;
    lCreateInfo.oldSwapchain          = lOldSwapchain;
 
-   iLOG( "Creating swapchain with:" );
-   iLOG( "  -- minImageCount:   ", lCreateInfo.minImageCount );
-   iLOG( "  -- imageFormat:     ", uEnum2Str::toStr( lCreateInfo.imageFormat ) );
-   iLOG( "  -- imageColorSpace: ", uEnum2Str::toStr( lCreateInfo.imageColorSpace ) );
-   iLOG( "  -- preTransform:    ", uEnum2Str::toStr( lCreateInfo.preTransform ) );
-   iLOG( "  -- presentMode:     ", uEnum2Str::toStr( lCreateInfo.presentMode ) );
-   iLOG( "  -- imageUsage:      ",
+#if D_LOG_VULKAN
+   dLOG( "Creating swapchain with:" );
+   dLOG( "  -- minImageCount:   ", lCreateInfo.minImageCount );
+   dLOG( "  -- imageFormat:     ", uEnum2Str::toStr( lCreateInfo.imageFormat ) );
+   dLOG( "  -- imageColorSpace: ", uEnum2Str::toStr( lCreateInfo.imageColorSpace ) );
+   dLOG( "  -- preTransform:    ", uEnum2Str::toStr( lCreateInfo.preTransform ) );
+   dLOG( "  -- presentMode:     ", uEnum2Str::toStr( lCreateInfo.presentMode ) );
+   dLOG( "  -- imageUsage:      ",
          uEnum2Str::toStr( static_cast<VkImageUsageFlagBits>( lCreateInfo.imageUsage ) ) );
-   iLOG( "  -- imageExtent:     ",
+   dLOG( "  -- imageExtent:     ",
          lCreateInfo.imageExtent.width,
          "x",
          lCreateInfo.imageExtent.height );
+#endif
 
    vkDeviceWaitIdle( vDevice_vk );
    VkResult lRes = vkCreateSwapchainKHR( vDevice_vk, &lCreateInfo, nullptr, &lNewSwapchain );
@@ -201,7 +203,7 @@ int rRoot::recreateSwapchain() {
  * \brief recreates swapchain image views
  * \returns 0 on success
  */
-int rRoot::recreateSwapchainImages( VkCommandBuffer _buf ) {
+int rWorld::recreateSwapchainImages( VkCommandBuffer _buf ) {
    if ( !vDevice_vk )
       return 1;
 

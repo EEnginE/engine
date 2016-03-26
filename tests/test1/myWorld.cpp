@@ -30,29 +30,34 @@ myWorld::~myWorld() {}
 void myWorld::key( iEventInfo const &info ) {
 #if UNIX_X11
    if ( vDisp_RandR.empty() )
-      vDisp_RandR = static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->getDisplayResolutions();
+      vDisp_RandR = static_cast<unix_x11::iWindow *>( info.iInitPointer->getWindow() )
+                          ->getDisplayResolutions();
 #endif
 
    if ( info.eKey.state == E_PRESSED ) {
       switch ( info.eKey.key ) {
          // Handle fullscreen
          case E_KEY_F8:
-            info.iInitPointer->getWindow()->setAttribute( C_TOGGLE, MAXIMIZED_VERT, MAXIMIZED_HORZ );
+            info.iInitPointer->getWindow()->setAttribute(
+                  C_TOGGLE, MAXIMIZED_VERT, MAXIMIZED_HORZ );
             break;
 #if UNIX_X11
-         case E_KEY_F9: static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->fullScreenMultiMonitor(); break;
-#endif
-         case E_KEY_F11:
-            info.iInitPointer->getWindow()->fullScreen( e_engine::C_TOGGLE );
+         case E_KEY_F9:
+            static_cast<unix_x11::iWindow *>( info.iInitPointer->getWindow() )
+                  ->fullScreenMultiMonitor();
             break;
+#endif
+         case E_KEY_F11: info.iInitPointer->getWindow()->fullScreen( e_engine::C_TOGGLE ); break;
 #if UNIX_X11
          case E_KEY_F10:
             if ( vDisp_RandR.size() > 0 )
-               static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->setFullScreenMonitor( vDisp_RandR[0] );
+               static_cast<unix_x11::iWindow *>( info.iInitPointer->getWindow() )
+                     ->setFullScreenMonitor( vDisp_RandR[0] );
             break;
          case E_KEY_F12:
             if ( vDisp_RandR.size() > 1 )
-               static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->setFullScreenMonitor( vDisp_RandR[1] );
+               static_cast<unix_x11::iWindow *>( info.iInitPointer->getWindow() )
+                     ->setFullScreenMonitor( vDisp_RandR[1] );
             break;
 #endif
 
@@ -95,9 +100,11 @@ void myWorld::key( iEventInfo const &info ) {
 int myWorld::initGL() {
    // vInitPointer->fullScreen( C_ADD );
    int lReturn = vScene.init();
+   init();
+   renderScene( &vScene );
 
    vInitPointer->getWindow()->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
-   //vInitPointer->hideMouseCursor();
+   // vInitPointer->hideMouseCursor();
    return lReturn;
 }
 

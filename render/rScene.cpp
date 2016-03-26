@@ -34,18 +34,17 @@ bool rSceneBase::canRenderScene() {
    for ( auto const &d : vObjects ) {
       int64_t lIsObjectReady, lFlags;
 
-      if ( !d.vObjectPointer ) {
+      if ( !d ) {
          wLOG( "Invalid Object Pointer" );
          lCanRender = false;
          continue;
       }
 
-      d.vObjectPointer->getHints(
-            rObjectBase::IS_DATA_READY, lIsObjectReady, rObjectBase::FLAGS, lFlags );
+      d->getHints( rObjectBase::IS_DATA_READY, lIsObjectReady, rObjectBase::FLAGS, lFlags );
 
       if ( lIsObjectReady != true ) {
          wLOG( "Object data for '",
-               d.vObjectPointer->getName(),
+               d->getName(),
                "' is not completely loaded --> Do not render scene '",
                vName_str,
                "'" );
@@ -65,32 +64,18 @@ bool rSceneBase::canRenderScene() {
 }
 
 /*!
- * \brief Renders the scene
- *
- * \warning This function does \b NOT check if it is safe to render the objects and if all pointers
- *are OK.
- * \note This function needs an \b active OpenGL context. Again there is no checking for one here!
- */
-void rSceneBase::renderScene() {
-   //! \todo add rendering
-}
-
-/*!
  * \brief Adds an object to render
  *
  * \todo Implement functions to remove / disable / enable objects
- *
- * \note This function does not test if the shader exists
- *
- * \param[in] _obj         Pointer to an object
- * \param[in] _shaderIndex Shader to use
+*
+ * \param[in] _obj Pointer to an object
  *
  * \returns The Index of the object
  */
-unsigned rSceneBase::addObject( e_engine::rObjectBase *_obj, int _shaderIndex ) {
+unsigned rSceneBase::addObject( e_engine::rObjectBase *_obj ) {
    std::lock_guard<std::mutex> lLockObjects( vObjects_MUT );
 
-   vObjects.emplace_back( _obj, _shaderIndex );
+   vObjects.emplace_back( _obj );
 
    int64_t lFlags;
 
@@ -100,6 +85,8 @@ unsigned rSceneBase::addObject( e_engine::rObjectBase *_obj, int _shaderIndex ) 
 
    return static_cast<unsigned>( vObjects.size() - 1 );
 }
+
+std::vector<rObjectBase *> rSceneBase::getObjects() { return vObjects; }
 }
 
 // kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;

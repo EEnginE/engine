@@ -30,16 +30,8 @@
 namespace e_engine {
 
 class RENDER_API rSceneBase {
- public:
-   struct rObject final {
-      rObjectBase *vObjectPointer;
-      int vShaderIndex;
-
-      rObject( rObjectBase *_obj, int _index ) : vObjectPointer( _obj ), vShaderIndex( _index ) {}
-   };
-
  private:
-   std::vector<rObject> vObjects;
+   std::vector<rObjectBase *> vObjects;
 
    std::vector<size_t> vLightSourcesIndex;
 
@@ -51,21 +43,17 @@ class RENDER_API rSceneBase {
  public:
    rSceneBase( std::string _name ) : vName_str( _name ) {}
    virtual ~rSceneBase();
-   void renderScene();
 
    bool canRenderScene();
 
-   unsigned addObject( rObjectBase *_obj, int _shaderIndex );
-
-   int addShader( std::string _shader );
-   int compileShaders();
-   int parseShaders();
+   unsigned addObject( rObjectBase *_obj );
+   std::vector<rObjectBase *> getObjects();
 
    size_t getNumObjects() { return vObjects.size(); }
 };
 
 template <class T>
-class rScene : public rSceneBase, public rMatrixSceneBase<float> {
+class RENDER_API rScene : public rSceneBase, public rMatrixSceneBase<float> {
  public:
    rScene( std::string _name ) : rSceneBase( _name ) {}
 };

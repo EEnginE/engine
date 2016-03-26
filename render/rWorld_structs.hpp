@@ -1,5 +1,5 @@
 /*!
- * \file rRoot_structs.hpp
+ * \file rWorld_structs.hpp
  */
 /*
  * Copyright (C) 2016 EEnginE project

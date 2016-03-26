@@ -20,7 +20,8 @@
  */
 
 #include "rRenderer.hpp"
-#include "rRoot.hpp"
+#include "rWorld.hpp"
+#include "rObjectBase.hpp"
 #include "iInit.hpp"
 #include "uLog.hpp"
 #include "uEnum2Str.hpp"
@@ -32,9 +33,18 @@
 #define dVkLOG( ... )
 #endif
 
+#if D_LOG_RENDER_LOOP
+#define dRLOG( ... ) dLOG( __VA_ARGS__ )
+#else
+#define dRLOG( ... )
+#endif
+
 namespace e_engine {
 
-rRenderer::rRenderer( iInit *_init, rRoot *_root ) : vInitPtr( _init ), vRootPtr( _root ) {
+uint64_t rRenderer::vRenderedFrames = 0;
+
+rRenderer::rRenderer( iInit *_init, rWorld *_root, std::wstring _id )
+    : vInitPtr( _init ), vWorldPtr( _root ), vID( _id ) {
    vDevice_vk = vInitPtr->getDevice();
 
    vRenderPass_vk.attachments.resize( 2 );
@@ -42,7 +52,21 @@ rRenderer::rRenderer( iInit *_init, rRoot *_root ) : vInitPtr( _init ), vRootPtr
    vRenderPass_vk.frameAttachID = 0;
    vRenderPass_vk.depthAttachID = 1;
 
+   vRenderThread = std::thread( &rRenderer::renderLoop, this );
+
    defaultSetup();
+}
+
+rRenderer::~rRenderer() {
+   vRunRenderThread = false;
+   if ( vRunRenderLoop )
+      stop();
+
+   vVarStartRecording.notify_all();
+   vVarStartLogLoop.notify_one();
+
+   if ( vRenderThread.joinable() )
+      vRenderThread.join();
 }
 
 int rRenderer::init() {
@@ -51,7 +75,7 @@ int rRenderer::init() {
 
    VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[vRenderPass_vk.frameAttachID];
    lAttachment->flags                   = 0;
-   lAttachment->format                  = vRootPtr->getSwapchainFormat().format;
+   lAttachment->format                  = vWorldPtr->getSwapchainFormat().format;
    lAttachment->samples                 = GlobConf.vk.samples;
    lAttachment->loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
    lAttachment->storeOp                 = VK_ATTACHMENT_STORE_OP_STORE;
@@ -62,14 +86,14 @@ int rRenderer::init() {
 
    uint32_t lQueueFamily;
    VkQueue lQueue       = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
-   VkCommandPool lPool  = vRootPtr->getCommandPool( lQueueFamily );
-   VkCommandBuffer lBuf = vRootPtr->createCommandBuffer( lPool );
-   VkFence lFence       = vRootPtr->createFence();
+   VkCommandPool lPool  = vWorldPtr->getCommandPool( lQueueFamily );
+   VkCommandBuffer lBuf = vWorldPtr->createCommandBuffer( lPool );
+   VkFence lFence       = vWorldPtr->createFence();
 
    if ( !lBuf )
       return -1;
 
-   if ( vRootPtr->beginCommandBuffer( lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) )
+   if ( vWorldPtr->beginCommandBuffer( lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) )
       return -2;
 
    if ( initDepthAndStencilBuffer( lBuf ) )
@@ -113,9 +137,10 @@ int rRenderer::init() {
 }
 
 void rRenderer::destroy() {
+   if ( vRunRenderLoop )
+      stop();
    if ( !vIsSetup )
       return;
-   stop();
    dVkLOG( "Destroying old render pass data" );
 
    dVkLOG( "  -- destroying old framebuffers" );
@@ -140,13 +165,131 @@ void rRenderer::destroy() {
    vIsSetup = false;
 }
 
+void rRenderer::renderLoop() {
+   LOG.nameThread( L"ren_" + vID );
+   iLOG( "Starting render thread" );
+
+   while ( vRunRenderThread ) {
+      std::unique_lock<std::mutex> lWait1( vMutexStartRecording );
+      std::unique_lock<std::mutex> lWait2( vMutexStartLogLoop );
+
+      dRLOG( "Waiting for command buffer recording signal" );
+      vVarStartRecording.wait( lWait1 );
+
+      // Check for deconstructor
+      if ( !vRunRenderThread )
+         return;
+
+      std::vector<VkCommandBuffer> lBuffers;
+
+      {
+         std::lock_guard<std::mutex> lGuard( vMutexFinishedRecording );
+         vFinishedRecording = true;
+      }
+      vVarFinishedRecording.notify_all();
+
+
+
+      dRLOG( "Waiting for start render loop signal" );
+      vVarStartLogLoop.wait( lWait2 );
+
+      // Check for deconstructor
+      if ( !vRunRenderThread )
+         return;
+
+      iLOG( "Starting the render loop" );
+      while ( vRunRenderLoop ) {
+         B_SLEEP( milliseconds, 20 ); // Do not kill the CPU
+         if ( !vIsSetup ) {
+            eLOG( "FATAL ERROR NOT SETUP" );
+         }
+         //! \todo RENDER HERE
+         vRenderedFrames++;
+      }
+      iLOG( "Render loop stopped" );
+
+
+
+
+      std::lock_guard<std::mutex> lGuard1( vMutexStopLogLoop );
+      std::lock_guard<std::mutex> lGuard2( vMutexFinishedRecording );
+      vVarStopLogLoop.notify_all();
+      vFinishedRecording = false;
+   }
+
+   iLOG( "Stopping render thread" );
+}
+
 bool rRenderer::start() {
-   //! \todo STUB
+   if ( vRunRenderLoop ) {
+      wLOG( "Render loop already running! [renderer ", vID, "]" );
+      return false;
+   }
+
+   if ( !vIsSetup ) {
+      eLOG( "Can not start uninitialized renderer! [renderer ", vID, "]" );
+      return false;
+   }
+
+   dRLOG( "Sending start render loop to [renderer ", vID, "]" );
+
+   std::unique_lock<std::mutex> lWait( vMutexFinishedRecording );
+   std::lock_guard<std::mutex> lGuard( vMutexStartLogLoop );
+
+   if ( !vFinishedRecording )
+      vVarFinishedRecording.wait( lWait );
+
+   vRunRenderLoop = true;
+   vVarStartLogLoop.notify_all();
    return true;
 }
 
 bool rRenderer::stop() {
-   //! \todo STUB
+   if ( !vRunRenderLoop ) {
+      wLOG( "Render loop already stopped! [renderer ", vID, "]" );
+      return false;
+   }
+
+   dRLOG( "Sending stop render loop to [renderer ", vID, "]" );
+
+   vRunRenderLoop = false;
+
+   std::unique_lock<std::mutex> lWait( vMutexStopLogLoop );
+
+   vVarStopLogLoop.wait( lWait );
+   return true;
+}
+
+bool rRenderer::applyChanges() {
+   dRLOG( "Applying changes to [renderer ", vID, "]" );
+
+   {
+      std::lock_guard<std::mutex> lGuard( vMutexStartRecording );
+      if ( vFinishedRecording ) {
+         wLOG( "Already recorded [renderer ", vID, "]" );
+         return false;
+      }
+   }
+
+   std::unique_lock<std::mutex> lWait( vMutexFinishedRecording );
+   vVarStartRecording.notify_one();
+   vVarFinishedRecording.wait( lWait );
+   return true;
+}
+
+bool rRenderer::addObject( rObjectBase *_obj ) {
+   vObjects.emplace_back( _obj );
+   return true;
+}
+
+bool rRenderer::resetObjects() {
+   std::lock_guard<std::mutex> lGuard( vMutexStartRecording );
+   if ( vRunRenderLoop ) {
+      wLOG( "Can not clear objects while render loop is running!" );
+      return false;
+   }
+
+   vObjects.clear();
    return true;
 }
 
@@ -263,4 +406,7 @@ void rRenderer::defaultSetup() {
 
 uint32_t rRenderer::getDepthBufferAttachmentIndex() const { return vRenderPass_vk.depthAttachID; }
 uint32_t rRenderer::getFrameBufferAttachmentIndex() const { return vRenderPass_vk.frameAttachID; }
+uint64_t *rRenderer::getRenderedFramesPtr() { return &vRenderedFrames; }
+bool rRenderer::getIsRunning() const { return vRunRenderLoop; }
+bool rRenderer::getIsInit() const { return vIsSetup; }
 }

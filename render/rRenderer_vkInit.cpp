@@ -20,7 +20,7 @@
  */
 
 #include "rRenderer.hpp"
-#include "rRoot.hpp"
+#include "rWorld.hpp"
 #include "iInit.hpp"
 #include "uLog.hpp"
 #include "uEnum2Str.hpp"
@@ -189,7 +189,7 @@ int rRenderer::initDepthAndStencilBuffer( VkCommandBuffer _buf ) {
    dLOG( "  -- memoryTypeIndex: ", lMemoryAlloc.memoryTypeIndex );
 #endif
 
-   vRootPtr->cmdChangeImageLayout( _buf,
+   vWorldPtr->cmdChangeImageLayout( _buf,
                                    lImageViewCreate.image,
                                    lImageViewCreate.subresourceRange,
                                    VK_IMAGE_LAYOUT_UNDEFINED,
@@ -298,7 +298,7 @@ int rRenderer::initRenderPass() {
 }
 
 int rRenderer::initFramebuffers() {
-   auto lTempViews = vRootPtr->getSwapchainImageViews();
+   auto lTempViews = vWorldPtr->getSwapchainImageViews();
    for ( auto i : lTempViews ) {
       vFramebuffers_vk.emplace_back();
       vFramebuffers_vk.back().iv = i;

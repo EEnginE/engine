@@ -25,14 +25,18 @@
 
 #include <vector>
 #include <unordered_map>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 #include <vulkan.h>
 
 namespace e_engine {
 
 class iInit;
-class rRoot;
+class rWorld;
+class rObjectBase;
 
-class rRenderer {
+class RENDER_API rRenderer {
  public:
    typedef std::unordered_map<uint32_t, VkImageLayout> AttachmentLayoutMap;
 
@@ -67,16 +71,37 @@ class rRenderer {
    typedef struct Framebuffer_vk : Buffer_vk { VkFramebuffer fb = nullptr; } Framebuffer_vk;
 
  private:
+   static uint64_t vRenderedFrames;
+
    iInit *vInitPtr;
-   rRoot *vRootPtr;
+   rWorld *vWorldPtr;
+
+   std::wstring vID;
 
    VkDevice vDevice_vk;
    Buffer_vk vDepthStencilBuf_vk;
    RenderPass_vk vRenderPass_vk;
    std::vector<Framebuffer_vk> vFramebuffers_vk;
 
-   bool vHasStencilBuffer = false;
-   bool vIsSetup          = false;
+   std::vector<rObjectBase *> vObjects;
+
+   std::thread vRenderThread;
+
+   std::mutex vMutexStartRecording;
+   std::mutex vMutexFinishedRecording;
+   std::mutex vMutexStartLogLoop;
+   std::mutex vMutexStopLogLoop;
+
+   std::condition_variable vVarStartRecording;
+   std::condition_variable vVarFinishedRecording;
+   std::condition_variable vVarStartLogLoop;
+   std::condition_variable vVarStopLogLoop;
+
+   bool vHasStencilBuffer  = false;
+   bool vIsSetup           = false;
+   bool vFinishedRecording = false;
+   bool vRunRenderThread   = true;
+   bool vRunRenderLoop     = false;
 
    int initDepthAndStencilBuffer( VkCommandBuffer _buf );
    int initRenderPass();
@@ -86,9 +111,16 @@ class rRenderer {
 
  public:
    rRenderer() = delete;
-   rRenderer( iInit *_init, rRoot *_root );
+   rRenderer( iInit *_init, rWorld *_root, std::wstring _id );
+   rRenderer( const rRenderer &_obj ) = delete;
+   rRenderer( rRenderer && ) = delete;
+   rRenderer &operator=( const rRenderer & ) = delete;
+   rRenderer &operator=( rRenderer && ) = delete;
+   virtual ~rRenderer();
 
    void defaultSetup();
+   bool addObject( rObjectBase *_obj );
+   bool resetObjects();
 
    uint32_t getDepthBufferAttachmentIndex() const;
    uint32_t getFrameBufferAttachmentIndex() const;
@@ -109,5 +141,7 @@ class rRenderer {
    bool start();
    bool stop();
    bool getIsRunning() const;
+   bool getIsInit() const;
+   uint64_t *getRenderedFramesPtr();
 };
 }
