@@ -49,6 +49,7 @@ rRenderer::rRenderer( iInit *_init, rWorld *_root, std::wstring _id )
 
    vRenderPass_vk.attachments.resize( 2 );
    vRenderPass_vk.attachmentViews.resize( 2 );
+   vRenderPass_vk.clearValues.resize( 2 );
    vRenderPass_vk.frameAttachID = 0;
    vRenderPass_vk.depthAttachID = 1;
 
@@ -141,17 +142,17 @@ void rRenderer::destroy() {
       stop();
    if ( !vIsSetup )
       return;
-   dVkLOG( "Destroying old render pass data" );
+   dVkLOG( "Destroying old render pass data [renderer ", vID, "]" );
 
-   dVkLOG( "  -- destroying old framebuffers" );
+   dVkLOG( "  -- destroying old framebuffers [renderer ", vID, "]" );
    for ( auto &i : vFramebuffers_vk )
       if ( i.fb )
          vkDestroyFramebuffer( vDevice_vk, i.fb, nullptr );
 
-   dVkLOG( "  -- destroying old renderpass" );
+   dVkLOG( "  -- destroying old renderpass [renderer ", vID, "]" );
    vkDestroyRenderPass( vDevice_vk, vRenderPass_vk.renderPass, nullptr );
 
-   dVkLOG( "  -- destroying old depth and stencil buffer" );
+   dVkLOG( "  -- destroying old depth and stencil buffer [renderer ", vID, "]" );
    vkDestroyImageView( vDevice_vk, vDepthStencilBuf_vk.iv, nullptr );
    vkDestroyImage( vDevice_vk, vDepthStencilBuf_vk.img, nullptr );
    vkFreeMemory( vDevice_vk, vDepthStencilBuf_vk.mem, nullptr );
@@ -180,15 +181,114 @@ void rRenderer::renderLoop() {
       if ( !vRunRenderThread )
          return;
 
-      std::vector<VkCommandBuffer> lBuffers;
+      //    _____      _ _
+      //   |_   _|    (_) |
+      //     | | _ __  _| |_
+      //     | || '_ \| | __|
+      //    _| || | | | | |_
+      //    \___/_| |_|_|\__|
+      //
 
+      uint32_t lQueueFamily = 0;
+
+      VkSwapchainKHR lSwapchain_vk = vWorldPtr->getSwapchain();
+      VkQueue lQueue               = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
+      VkCommandPool lCommandPool   = vWorldPtr->getCommandPool( lQueueFamily );
+
+      initFrameCommandBuffers( lCommandPool );
+
+      VkSemaphore lSemPresentComplete = vWorldPtr->createSemaphore();
+      VkSemaphore lSemRenderPre       = vWorldPtr->createSemaphore();
+      VkSemaphore lSemRenderPost      = vWorldPtr->createSemaphore();
+      VkSemaphore lSemPresent         = vWorldPtr->createSemaphore();
+
+      VkSubmitInfo lRenderSubmit[3];
+      lRenderSubmit[0].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+      lRenderSubmit[0].pNext                = nullptr;
+      lRenderSubmit[0].waitSemaphoreCount   = 0;
+      lRenderSubmit[0].pWaitSemaphores      = nullptr;
+      lRenderSubmit[0].pWaitDstStageMask    = nullptr;
+      lRenderSubmit[0].commandBufferCount   = 1;
+      lRenderSubmit[0].pCommandBuffers      = nullptr; // set in render loop
+      lRenderSubmit[0].signalSemaphoreCount = 1;
+      lRenderSubmit[0].pSignalSemaphores    = &lSemRenderPre;
+
+      lRenderSubmit[1].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+      lRenderSubmit[1].pNext                = nullptr;
+      lRenderSubmit[1].waitSemaphoreCount   = 1;
+      lRenderSubmit[1].pWaitSemaphores      = &lSemRenderPre;
+      lRenderSubmit[1].pWaitDstStageMask    = nullptr;
+      lRenderSubmit[1].commandBufferCount   = 1;
+      lRenderSubmit[1].pCommandBuffers      = nullptr; // set in render loop
+      lRenderSubmit[1].signalSemaphoreCount = 1;
+      lRenderSubmit[1].pSignalSemaphores    = &lSemRenderPost;
+
+      lRenderSubmit[2].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+      lRenderSubmit[2].pNext                = nullptr;
+      lRenderSubmit[2].waitSemaphoreCount   = 1;
+      lRenderSubmit[2].pWaitSemaphores      = &lSemRenderPost;
+      lRenderSubmit[2].pWaitDstStageMask    = nullptr;
+      lRenderSubmit[2].commandBufferCount   = 1;
+      lRenderSubmit[2].pCommandBuffers      = nullptr; // set in render loop
+      lRenderSubmit[2].signalSemaphoreCount = 1;
+      lRenderSubmit[2].pSignalSemaphores    = &lSemPresent;
+
+      VkPresentInfoKHR lPresentInfo   = {};
+      lPresentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+      lPresentInfo.pNext              = nullptr;
+      lPresentInfo.waitSemaphoreCount = 1;
+      lPresentInfo.pWaitSemaphores    = &lSemPresent;
+      lPresentInfo.swapchainCount     = 1;
+      lPresentInfo.pSwapchains        = &lSwapchain_vk;
+      lPresentInfo.pImageIndices      = nullptr; // set in render loop
+      lPresentInfo.pResults           = nullptr;
+
+      VkClearValue *lClearValue = &vRenderPass_vk.clearValues[vRenderPass_vk.frameAttachID];
+      lClearValue->depthStencil = {1.0f, 0};
+
+      lClearValue->color = {{vClearColor.float32[0],
+                             vClearColor.float32[1],
+                             vClearColor.float32[2],
+                             vClearColor.float32[3]}};
+
+      VkRenderPassBeginInfo lRPInfo    = {};
+      lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+      lRPInfo.pNext                    = nullptr;
+      lRPInfo.renderPass               = vRenderPass_vk.renderPass;
+      lRPInfo.framebuffer              = nullptr; // set in the loop below
+      lRPInfo.renderArea.extent.width  = GlobConf.win.width;
+      lRPInfo.renderArea.extent.height = GlobConf.win.height;
+      lRPInfo.renderArea.offset        = {0, 0};
+      lRPInfo.clearValueCount          = vRenderPass_vk.clearValues.size();
+      lRPInfo.pClearValues             = vRenderPass_vk.clearValues.data();
+
+      for ( auto &i : vFramebuffers_vk ) {
+         vWorldPtr->beginCommandBuffer( i.render );
+
+         lRPInfo.framebuffer = i.fb;
+         vkCmdBeginRenderPass( i.render, &lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
+
+         //! \todo Record secondary command buffer to render stuff HERE
+
+         vkCmdEndRenderPass( i.render );
+
+         auto lRes = vkEndCommandBuffer( i.render );
+         if ( lRes ) {
+            eLOG( "'vkEndCommandBuffer' returned ", uEnum2Str::toStr( lRes ) );
+            //! \todo Handle this somehow (practically this code must not execute)
+         }
+      }
+
+
+
+
+
+      // Notifying other thread to continue
       {
          std::lock_guard<std::mutex> lGuard( vMutexFinishedRecording );
          vFinishedRecording = true;
       }
       vVarFinishedRecording.notify_all();
-
-
 
       dRLOG( "Waiting for start render loop signal" );
       vVarStartLogLoop.wait( lWait2 );
@@ -197,18 +297,81 @@ void rRenderer::renderLoop() {
       if ( !vRunRenderThread )
          return;
 
+      //   ______               _             _
+      //   | ___ \             | |           | |
+      //   | |_/ /___ _ __   __| | ___ _ __  | |     ___   ___  _ __
+      //   |    // _ \ '_ \ / _` |/ _ \ '__| | |    / _ \ / _ \| '_ \
+      //   | |\ \  __/ | | | (_| |  __/ |    | |___| (_) | (_) | |_) |
+      //   \_| \_\___|_| |_|\__,_|\___|_|    \_____/\___/ \___/| .__/
+      //                                                       | |
+      //                                                       |_|
+
+      uint32_t lNextImg;
+
       iLOG( "Starting the render loop" );
       while ( vRunRenderLoop ) {
-         B_SLEEP( milliseconds, 20 ); // Do not kill the CPU
          if ( !vIsSetup ) {
-            eLOG( "FATAL ERROR NOT SETUP" );
+            eLOG( "FATAL ERROR NOT SETUP" ); // Should never execute
+            break;
          }
-         //! \todo RENDER HERE
+
+         // Get present image
+         auto lRes = vkAcquireNextImageKHR( vDevice_vk,
+                                            lSwapchain_vk,
+                                            UINT32_MAX,
+                                            lSemPresentComplete,
+                                            VK_NULL_HANDLE,
+                                            &lNextImg );
+         if ( lRes ) {
+            eLOG( "'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr( lRes ) );
+            break;
+         }
+
+         // Clear
+         lRenderSubmit[0].pCommandBuffers = &vFramebuffers_vk[lNextImg].preRender;
+         lRenderSubmit[1].pCommandBuffers = &vFramebuffers_vk[lNextImg].render;
+         lRenderSubmit[2].pCommandBuffers = &vFramebuffers_vk[lNextImg].postRender;
+
+         // Render
+         lRes = vkQueueSubmit( lQueue, 3, &lRenderSubmit[0], VK_NULL_HANDLE );
+         if ( lRes ) {
+            eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
+            break;
+         }
+
+         lPresentInfo.pImageIndices = &lNextImg;
+         lRes = vkQueuePresentKHR( lQueue, &lPresentInfo );
+         if ( lRes ) {
+            eLOG( "'vkQueuePresentKHR' returned ", uEnum2Str::toStr( lRes ) );
+            break;
+         }
+
+         lRes = vkQueueWaitIdle( lQueue );
+         if ( lRes ) {
+            eLOG( "'vkQueueWaitIdle' returned ", uEnum2Str::toStr( lRes ) );
+            break;
+         }
+
          vRenderedFrames++;
       }
       iLOG( "Render loop stopped" );
 
+      //    _____ _
+      //   /  __ \ |
+      //   | /  \/ | ___  __ _ _ __  _   _ _ __
+      //   | |   | |/ _ \/ _` | '_ \| | | | '_ \
+      //   | \__/\ |  __/ (_| | | | | |_| | |_) |
+      //    \____/_|\___|\__,_|_| |_|\__,_| .__/
+      //                                  | |
+      //                                  |_|
 
+      vkDeviceWaitIdle( vDevice_vk );
+      vkDestroySemaphore( vDevice_vk, lSemPresentComplete, nullptr );
+      vkDestroySemaphore( vDevice_vk, lSemRenderPre, nullptr );
+      vkDestroySemaphore( vDevice_vk, lSemRenderPost, nullptr );
+      vkDestroySemaphore( vDevice_vk, lSemPresent, nullptr );
+
+      freeFrameCommandBuffers( lCommandPool );
 
 
       std::lock_guard<std::mutex> lGuard1( vMutexStopLogLoop );
@@ -276,6 +439,56 @@ bool rRenderer::applyChanges() {
    vVarFinishedRecording.wait( lWait );
    return true;
 }
+
+
+void rRenderer::initFrameCommandBuffers( VkCommandPool _pool ) {
+   VkImageSubresourceRange lSubResRange = {};
+   lSubResRange.aspectMask              = VK_IMAGE_ASPECT_COLOR_BIT;
+   lSubResRange.baseMipLevel            = 0;
+   lSubResRange.levelCount              = 1;
+   lSubResRange.baseArrayLayer          = 0;
+   lSubResRange.layerCount              = 1;
+
+   for ( auto &i : vFramebuffers_vk ) {
+      i.preRender  = vWorldPtr->createCommandBuffer( _pool );
+      i.render     = vWorldPtr->createCommandBuffer( _pool );
+      i.postRender = vWorldPtr->createCommandBuffer( _pool );
+
+      vWorldPtr->beginCommandBuffer( i.preRender );
+      vWorldPtr->cmdChangeImageLayout( i.preRender,
+                                       i.img,
+                                       lSubResRange,
+                                       VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                       VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                       VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
+      vkEndCommandBuffer( i.preRender );
+
+      vWorldPtr->beginCommandBuffer( i.postRender );
+      vWorldPtr->cmdChangeImageLayout( i.postRender,
+                                       i.img,
+                                       lSubResRange,
+                                       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                       VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                       VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                       VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT );
+      vkEndCommandBuffer( i.postRender );
+   }
+}
+
+void rRenderer::freeFrameCommandBuffers( VkCommandPool _pool ) {
+   for ( auto &i : vFramebuffers_vk ) {
+      vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.preRender );
+      vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.render );
+      vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.postRender );
+
+      i.preRender  = nullptr;
+      i.render     = nullptr;
+      i.postRender = nullptr;
+   }
+}
+
+
 
 bool rRenderer::addObject( rObjectBase *_obj ) {
    vObjects.emplace_back( _obj );
@@ -409,4 +622,5 @@ uint32_t rRenderer::getFrameBufferAttachmentIndex() const { return vRenderPass_v
 uint64_t *rRenderer::getRenderedFramesPtr() { return &vRenderedFrames; }
 bool rRenderer::getIsRunning() const { return vRunRenderLoop; }
 bool rRenderer::getIsInit() const { return vIsSetup; }
+void rRenderer::setClearColor( VkClearColorValue _clearColor ) { vClearColor = _clearColor; }
 }

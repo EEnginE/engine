@@ -284,6 +284,21 @@ int iInit::init( std::vector<std::string> _layers ) {
    return 0;
 }
 
+int iInit::handleResize() {
+   dVkLOG( "destroying old vulkan surface" );
+   if ( vSurface_vk )
+      vkDestroySurfaceKHR( vInstance_vk, vSurface_vk, nullptr );
+
+   vSurface_vk = vWindow.getVulkanSurface( vInstance_vk );
+   if ( !vSurface_vk )
+      return 1;
+
+   if ( loadDeviceSurfaceInfo() )
+      return 2;
+
+   return 0;
+}
+
 void iInit::destroyVulkan() {
    if ( !vIsVulkanSetup_B )
       return;

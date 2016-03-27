@@ -42,6 +42,7 @@ namespace e_engine {
  * \return 0 on success
  */
 int rWorld::recreateSwapchain() {
+   vSurface_vk = vInitPtr->getVulkanSurface();
    auto lSInfo = vInitPtr->getSurfaceInfo();
 
    VkPresentModeKHR lModelToUse = VK_PRESENT_MODE_MAX_ENUM;
@@ -116,9 +117,6 @@ int rWorld::recreateSwapchain() {
 #endif
    // clang-format on
 
-   VkSwapchainKHR lOldSwapchain = vSwapchain_vk;
-   VkSwapchainKHR lNewSwapchain;
-
    uint32_t lNumImages = lSInfo.surfaceInfo.minImageCount + 1;
    if ( lNumImages > lSInfo.surfaceInfo.maxImageCount )
       lNumImages = lSInfo.surfaceInfo.maxImageCount;
@@ -163,7 +161,7 @@ int rWorld::recreateSwapchain() {
    lCreateInfo.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
    lCreateInfo.presentMode           = lModelToUse;
    lCreateInfo.clipped               = VK_TRUE;
-   lCreateInfo.oldSwapchain          = lOldSwapchain;
+   lCreateInfo.oldSwapchain          = nullptr;
 
 #if D_LOG_VULKAN
    dLOG( "Creating swapchain with:" );
@@ -181,7 +179,7 @@ int rWorld::recreateSwapchain() {
 #endif
 
    vkDeviceWaitIdle( vDevice_vk );
-   VkResult lRes = vkCreateSwapchainKHR( vDevice_vk, &lCreateInfo, nullptr, &lNewSwapchain );
+   VkResult lRes = vkCreateSwapchainKHR( vDevice_vk, &lCreateInfo, nullptr, &vSwapchain_vk );
    if ( lRes ) {
       eLOG( "'vkCreateSwapchainKHR' returned ", uEnum2Str::toStr( lRes ) );
       return 1;
@@ -189,11 +187,6 @@ int rWorld::recreateSwapchain() {
 
    vkDeviceWaitIdle( vDevice_vk );
 
-   if ( lOldSwapchain ) {
-      vkDestroySwapchainKHR( vDevice_vk, lOldSwapchain, nullptr );
-   }
-
-   vSwapchain_vk = lNewSwapchain;
    return 0;
 }
 
@@ -253,7 +246,7 @@ int rWorld::recreateSwapchainImages( VkCommandBuffer _buf ) {
                             lInfo.image,
                             lInfo.subresourceRange,
                             VK_IMAGE_LAYOUT_UNDEFINED,
-                            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+                            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
    }
 
    return 0;

@@ -57,6 +57,7 @@ class RENDER_API rRenderer {
 
       std::vector<SubPassData> data;
       std::vector<VkAttachmentDescription> attachments;
+      std::vector<VkClearValue> clearValues;
       std::vector<VkSubpassDescription> subpasses;
       std::vector<VkSubpassDependency> dependecies;
 
@@ -68,7 +69,12 @@ class RENDER_API rRenderer {
       VkRenderPass renderPass = nullptr;
    } RenderPass_vk;
 
-   typedef struct Framebuffer_vk : Buffer_vk { VkFramebuffer fb = nullptr; } Framebuffer_vk;
+   typedef struct Framebuffer_vk : Buffer_vk {
+      VkFramebuffer fb           = nullptr;
+      VkCommandBuffer preRender  = nullptr;
+      VkCommandBuffer render     = nullptr;
+      VkCommandBuffer postRender = nullptr;
+   } Framebuffer_vk;
 
  private:
    static uint64_t vRenderedFrames;
@@ -97,6 +103,8 @@ class RENDER_API rRenderer {
    std::condition_variable vVarStartLogLoop;
    std::condition_variable vVarStopLogLoop;
 
+   VkClearColorValue vClearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
+
    bool vHasStencilBuffer  = false;
    bool vIsSetup           = false;
    bool vFinishedRecording = false;
@@ -106,6 +114,9 @@ class RENDER_API rRenderer {
    int initDepthAndStencilBuffer( VkCommandBuffer _buf );
    int initRenderPass();
    int initFramebuffers();
+
+   void initFrameCommandBuffers( VkCommandPool _pool );
+   void freeFrameCommandBuffers( VkCommandPool _pool );
 
    void renderLoop();
 
@@ -142,6 +153,9 @@ class RENDER_API rRenderer {
    bool stop();
    bool getIsRunning() const;
    bool getIsInit() const;
+
+   void setClearColor( VkClearColorValue _clearColor );
+
    uint64_t *getRenderedFramesPtr();
 };
 }

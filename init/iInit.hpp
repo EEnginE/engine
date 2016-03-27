@@ -208,6 +208,7 @@ class INIT_API iInit : public windows_win32::iContext {
    virtual ~iInit();
 
    int init( std::vector<std::string> _layers = {} );
+   int handleResize();
    int shutdown();
    int startMainLoop( bool _wait = true );
 

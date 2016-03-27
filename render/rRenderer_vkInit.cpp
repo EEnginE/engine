@@ -90,6 +90,7 @@ int rRenderer::initDepthAndStencilBuffer( VkCommandBuffer _buf ) {
    VkMemoryRequirements lRequirements;
    VkImageViewCreateInfo lImageViewCreate;
    VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[vRenderPass_vk.depthAttachID];
+   VkClearValue *lClearValue            = &vRenderPass_vk.clearValues[vRenderPass_vk.depthAttachID];
 
    lImageCreate.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
    lImageCreate.pNext                 = nullptr;
@@ -140,6 +141,12 @@ int rRenderer::initDepthAndStencilBuffer( VkCommandBuffer _buf ) {
    lAttachment->initialLayout  = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
    lAttachment->finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+   lClearValue->color = {{vClearColor.float32[0],
+                          vClearColor.float32[1],
+                          vClearColor.float32[2],
+                          vClearColor.float32[3]}};
+   lClearValue->depthStencil = {1.0f, 0};
+
    if ( vHasStencilBuffer ) {
       lAttachment->stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
       lAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -180,20 +187,21 @@ int rRenderer::initDepthAndStencilBuffer( VkCommandBuffer _buf ) {
       return 6;
    }
 
-#if D_LOG_VULKAN_INIT
-   dLOG( "Creating Depth buffer" );
+#if D_LOG_VULKAN
+   dLOG( "Creating Depth buffer [renderer ", vID, "]" );
    dLOG( "  -- lHasStencil:     ", vHasStencilBuffer );
    dLOG( "  -- imageType:       ", uEnum2Str::toStr( lImageCreate.imageType ) );
    dLOG( "  -- fromat:          ", uEnum2Str::toStr( lImageCreate.format ) );
    dLOG( "  -- tiling:          ", uEnum2Str::toStr( lImageCreate.tiling ) );
    dLOG( "  -- memoryTypeIndex: ", lMemoryAlloc.memoryTypeIndex );
+   dLOG( "  -- extent:          ", lImageCreate.extent.width, "x", lImageCreate.extent.height );
 #endif
 
    vWorldPtr->cmdChangeImageLayout( _buf,
-                                   lImageViewCreate.image,
-                                   lImageViewCreate.subresourceRange,
-                                   VK_IMAGE_LAYOUT_UNDEFINED,
-                                   VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
+                                    lImageViewCreate.image,
+                                    lImageViewCreate.subresourceRange,
+                                    VK_IMAGE_LAYOUT_UNDEFINED,
+                                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
 
    return 0;
 }
@@ -216,7 +224,7 @@ int rRenderer::initRenderPass() {
 
 #if D_LOG_VULKAN
    uint32_t lCounter = 0;
-   dLOG( "Creating a renderPass:" );
+   dLOG( "Creating a renderPass: [renderer ", vID, "]" );
    dLOG( "  -- attachments:" );
    for ( auto const &i : vRenderPass_vk.attachments ) {
       dLOG( "    -- attachment ", lCounter++ );
@@ -322,9 +330,10 @@ int rRenderer::initFramebuffers() {
 
    vRenderPass_vk.attachmentViews[vRenderPass_vk.depthAttachID] = vDepthStencilBuf_vk.iv;
 
-   dVkLOG( "Creating framebuffers:" );
+   dVkLOG( "Creating framebuffers: [renderer ", vID, "]" );
+   dVkLOG( "  -- extent: ", lInfo.width, "x", lInfo.height );
 
-   for ( auto i : vFramebuffers_vk ) {
+   for ( auto &i : vFramebuffers_vk ) {
       vRenderPass_vk.attachmentViews[vRenderPass_vk.frameAttachID] = i.iv;
 
       auto lRes = vkCreateFramebuffer( vDevice_vk, &lInfo, nullptr, &i.fb );

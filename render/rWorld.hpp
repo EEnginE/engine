@@ -115,7 +115,10 @@ class RENDER_API rWorld {
                               VkImage _img,
                               VkImageSubresourceRange _imgSubres,
                               VkImageLayout _src,
-                              VkImageLayout _dst );
+                              VkImageLayout _dst,
+                              VkPipelineStageFlags _srcFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                              VkPipelineStageFlags _dstFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
+                            );
 
    VkCommandPool getCommandPool(
          uint32_t _queueFamilyIndex,
@@ -126,7 +129,9 @@ class RENDER_API rWorld {
          VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
 
    VkFence createFence( VkFenceCreateFlags _flags = 0 );
+   VkSemaphore createSemaphore();
 
+   VkSwapchainKHR getSwapchain();
    std::vector<VkImageView> getSwapchainImageViews();
    VkSurfaceFormatKHR getSwapchainFormat();
 

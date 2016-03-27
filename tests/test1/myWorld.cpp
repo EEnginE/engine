@@ -101,6 +101,7 @@ int myWorld::initGL() {
    // vInitPointer->fullScreen( C_ADD );
    int lReturn = vScene.init();
    init();
+   updateClearColor( 0.005f, 0.001f, 0.001f, 1.0f );
    renderScene( &vScene );
 
    vInitPointer->getWindow()->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );

@@ -102,6 +102,10 @@ int rWorld::init() {
    for ( auto &i : vSwapchainViews_vk )
       vkDestroyImageView( vDevice_vk, i, nullptr );
 
+   dVkLOG( "  -- destroying old swapchain" );
+   if ( vSwapchain_vk )
+      vkDestroySwapchainKHR( vDevice_vk, vSwapchain_vk, nullptr );
+
    vSwapchainViews_vk.clear();
 
    uint32_t lQueueFamily;
@@ -115,6 +119,10 @@ int rWorld::init() {
 
    if ( beginCommandBuffer( lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) )
       return -2;
+
+   if ( vInitPtr->handleResize() )
+      return -3;
+   vSurface_vk = vInitPtr->getVulkanSurface();
 
    if ( recreateSwapchain() )
       return 1;
@@ -152,6 +160,7 @@ int rWorld::init() {
    vkFreeCommandBuffers( vDevice_vk, lPool, 1, &lBuf );
    dVkLOG( "...DONE" );
 
+   vBackRenderer->init();
    vFrontRenderer->init();
    vFrontRenderer->applyChanges();
    vFrontRenderer->start();
@@ -177,8 +186,8 @@ bool rWorld::renderScene( rSceneBase *_scene ) {
 
    //! \todo Add other stuff here
 
-   if( !vBackRenderer->getIsInit() ) {
-      if( vBackRenderer->init() ) {
+   if ( !vBackRenderer->getIsInit() ) {
+      if ( vBackRenderer->init() ) {
          eLOG( "Faield to init renderer!" );
          return false;
       }
@@ -199,10 +208,12 @@ bool rWorld::renderScene( rSceneBase *_scene ) {
 }
 
 void rWorld::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
-                                  VkImage _img,
-                                  VkImageSubresourceRange _imgSubres,
-                                  VkImageLayout _src,
-                                  VkImageLayout _dst ) {
+                                   VkImage _img,
+                                   VkImageSubresourceRange _imgSubres,
+                                   VkImageLayout _src,
+                                   VkImageLayout _dst,
+                                   VkPipelineStageFlags _srcFlags,
+                                   VkPipelineStageFlags _dstFlags ) {
    VkImageMemoryBarrier lBarriar;
    lBarriar.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
    lBarriar.pNext               = nullptr;
@@ -236,6 +247,9 @@ void rWorld::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
       case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
          lBarriar.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
          break;
+      case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+         lBarriar.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+         break;
       default: lBarriar.srcAccessMask = 0; break;
    }
 
@@ -265,16 +279,8 @@ void rWorld::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
       default: lBarriar.dstAccessMask = 0; break;
    }
 
-   vkCmdPipelineBarrier( _cmdBuffer,
-                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                         0,
-                         0,
-                         nullptr,
-                         0,
-                         nullptr,
-                         1,
-                         &lBarriar );
+   vkCmdPipelineBarrier(
+         _cmdBuffer, _srcFlags, _dstFlags, 0, 0, nullptr, 0, nullptr, 1, &lBarriar );
 }
 
 
@@ -288,7 +294,8 @@ void rWorld::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
  * \param __flags           command pool flags
  * \returns a command buffer (or nullptr)
  */
-VkCommandPool rWorld::getCommandPool( uint32_t _queueFamilyIndex, VkCommandPoolCreateFlags _flags ) {
+VkCommandPool rWorld::getCommandPool( uint32_t _queueFamilyIndex,
+                                      VkCommandPoolCreateFlags _flags ) {
    PoolInfo lTemp;
    lTemp.tID     = std::this_thread::get_id();
    lTemp.qfIndex = _queueFamilyIndex;
@@ -390,6 +397,24 @@ VkFence rWorld::createFence( VkFenceCreateFlags _flags ) {
    return lFence;
 }
 
+VkSemaphore rWorld::createSemaphore() {
+   VkSemaphore lTemp;
+
+   VkSemaphoreCreateInfo lInfo = {};
+   lInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+   lInfo.pNext                 = nullptr;
+   lInfo.flags                 = 0;
+
+   auto lRes = vkCreateSemaphore( vDevice_vk, &lInfo, nullptr, &lTemp );
+   if ( lRes ) {
+      eLOG( "'vkCreateSemaphore' returned ", uEnum2Str::toStr( lRes ) );
+      return nullptr;
+   }
+
+   return lTemp;
+}
+
+VkSwapchainKHR rWorld::getSwapchain() { return vSwapchain_vk; }
 std::vector<VkImageView> rWorld::getSwapchainImageViews() { return vSwapchainViews_vk; }
 VkSurfaceFormatKHR rWorld::getSwapchainFormat() { return vSwapchainFormat; }
 
@@ -401,12 +426,14 @@ void rWorld::updateViewPort( int _x, int _y, int _width, int _height ) {
    vViewPort.height        = _height;
 }
 
+/*!
+ * \brief Updates the clear color
+ * \note This function will only take effect once the render loop is restarted!
+ */
 void rWorld::updateClearColor( float _r, float _g, float _b, float _a ) {
-   vClearColor.vNeedUpdate_B = true;
-   vClearColor.r             = _r;
-   vClearColor.g             = _b;
-   vClearColor.b             = _g;
-   vClearColor.a             = _a;
+   VkClearColorValue lClear = {{_r, _g, _b, _a}};
+   vFrontRenderer->setClearColor( lClear );
+   vBackRenderer->setClearColor( lClear );
 }
 
 uint64_t *rWorld::getRenderedFramesPtr() { return vRenderer1.getRenderedFramesPtr(); }
