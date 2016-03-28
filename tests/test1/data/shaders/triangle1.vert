@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#version 120
+#version 450
 
-attribute vec3 iVertex;
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
 
-uniform mat4 uMVP;
+layout (location = 0) in vec3 iVertex;
 
-void main()
-{
-    gl_Position = uMVP * vec4(iVertex, 1.0);
-    gl_FrontColor = vec4(clamp(iVertex, 0.0, 1.0), 1.0);
+layout (binding = 0) uniform UBuffer {
+   mat4 mvp[2];
+} uBuff;
+
+void main() {
+   gl_Position = uBuff.mvp[0] * vec4(iVertex, 1.0);
 }

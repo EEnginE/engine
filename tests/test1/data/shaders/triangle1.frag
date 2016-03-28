@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-#version 120
+#version 450
+
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+
+layout (location = 0) out vec4 outFragColor;
 
 void main()
 {
-  gl_FragColor = gl_Color;
+  outFragColor = vec4( 0.8, 0.25, 0.25, 1.0 );
 }

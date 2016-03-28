@@ -2,7 +2,7 @@
 
 LIBS=( utils init render loader )
 
-ESC_CLEAR="\x1b[2K\x1b[0G\x1b[?25l"
+ESC_CLEAR="\x1b[2K\x1b[0G"
 
 msg1() {
     wait
@@ -15,9 +15,13 @@ msg2() {
 }
 
 rm_save() {
+    local I TMP
     if [[ "$1" == *'*'* ]]; then
-        msg2 "Removing $1: Files removed"
-        rm -rf "$1"
+        TMP=( $1 )
+        for I in "${TMP[@]}"; do
+            [[ "$I" == "$1" ]] && return # Nothing
+            rm_save "$I"
+        done
         return
     fi
     if [ -e "$1" ]; then
@@ -48,13 +52,11 @@ rm_save "utils/uEnum2Str.hpp"
 rm_save "utils/uEnum2Str.cpp"
 rm_save Doxyfile
 
-TEMP=$( ls -d tests/*/ )
-
-for I in $TEMP; do
-   rm_save "$I/CMakeLists.txt"
-   if [ -f "$I/.gitignore" ]; then
-      for J in $( cat "$I/.gitignore" ); do
-         rm_save "$I/$J"
+for I in tests/*/; do
+   rm_save "${I}CMakeLists.txt"
+   if [ -f "${I}.gitignore" ]; then
+      for J in $( cat "${I}.gitignore" ); do
+         rm_save "${I}$J"
       done
    fi
 done

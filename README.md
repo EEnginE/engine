@@ -18,6 +18,7 @@ Providing modules for networking, physic (both not started yet) and 2D/3D graphi
 
 -   [CMake](http://www.cmake.org/) v3.4 or newer
 -   The [LunarG Vulkan SDK](http://lunarg.com/vulkan-sdk/)
+-   [glslang](https://github.com/KhronosGroup/glslang), required for building shaders
 -   Linux/UNIX (at least one of those):
     -   X11 (xcb) and it's headers (including RandR)
     -   Wayland and it's headers (not yet supported)
@@ -91,3 +92,7 @@ Using Mingw or Clang may also work.
     Enables / Disables all ALL additional debug messages. You can
     enable and disable those seperately with `-DLOG_<type>=<0/1>`.
     This will overwrite `-DDEBUG_LOG_ALL=<0/1>`
+
+-   `-DGLSL_TO_SPIRV_COMPILER=</path/to/glslangValidator(.exe)>`
+
+    Sets the path to the GLSL to SPIR-V compiler

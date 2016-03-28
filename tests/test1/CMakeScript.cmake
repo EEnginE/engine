@@ -13,3 +13,5 @@
 # limitations under the License.
 
 ogltest_gen_binding_class( oglTestBind "${ENGINE_TEST_ROOT}/test1" )
+
+createSPIRV( triangle1 "${ENGINE_TEST_ROOT}/test1/data/shaders" "${ENGINE_TEST_ROOT}/test1/shaders" )

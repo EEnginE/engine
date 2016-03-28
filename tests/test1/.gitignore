@@ -2,3 +2,4 @@ oglTestBind.hpp
 oglTestBind.cpp
 data/obj/*.obj
 data/blendfiles/*.blend1
+shaders/*pp

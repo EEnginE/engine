@@ -28,6 +28,10 @@ option( DEBUG_LOG_ALL       "Enable all debug defines"                         O
 
 option( STD_FILESYSTEM_IS_EXPERIMENTAL "Use the experimental filesystem instead of std IF ENGINE_USE_BOOST is false" ON )
 
+if( NOT DEFINED GLSL_TO_SPIRV_COMPILER )
+   set( GLSL_TO_SPIRV_COMPILER "glslangValidator" )
+endif( NOT DEFINED GLSL_TO_SPIRV_COMPILER )
+
 if( NOT EXISTS "${PROJECT_SOURCE_DIR}/include" )
    file( MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/include" )
 endif( NOT EXISTS "${PROJECT_SOURCE_DIR}/include" )
