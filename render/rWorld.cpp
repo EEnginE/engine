@@ -437,4 +437,5 @@ void rWorld::updateClearColor( float _r, float _g, float _b, float _a ) {
 }
 
 uint64_t *rWorld::getRenderedFramesPtr() { return vRenderer1.getRenderedFramesPtr(); }
+VkDevice rWorld::getDevice() { return vDevice_vk; }
 }

@@ -22,9 +22,9 @@
 layout (location = 0) in vec3 iVertex;
 
 layout (binding = 0) uniform UBuffer {
-   mat4 mvp[2];
+   mat4 mvp;
 } uBuff;
 
 void main() {
-   gl_Position = uBuff.mvp[0] * vec4(iVertex, 1.0);
+   gl_Position = uBuff.mvp * vec4(iVertex, 1.0);
 }

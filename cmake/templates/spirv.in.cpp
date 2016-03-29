@@ -8,27 +8,27 @@
 
 namespace e_engine {
 
-std::vector<unsigned char> @CLASSNAME@::vRawData_vert = {
+const std::vector<unsigned char> @CLASSNAME@::vRawData_vert = {
 @FINAL_DATA_VERT@
 };
 
-std::vector<unsigned char> @CLASSNAME@::vRawData_tesc = {
+const std::vector<unsigned char> @CLASSNAME@::vRawData_tesc = {
 @FINAL_DATA_TESC@
 };
 
-std::vector<unsigned char> @CLASSNAME@::vRawData_tese = {
+const std::vector<unsigned char> @CLASSNAME@::vRawData_tese = {
 @FINAL_DATA_TESE@
 };
 
-std::vector<unsigned char> @CLASSNAME@::vRawData_geom = {
+const std::vector<unsigned char> @CLASSNAME@::vRawData_geom = {
 @FINAL_DATA_GEOM@
 };
 
-std::vector<unsigned char> @CLASSNAME@::vRawData_frag = {
+const std::vector<unsigned char> @CLASSNAME@::vRawData_frag = {
 @FINAL_DATA_FRAG@
 };
 
-std::vector<unsigned char> @CLASSNAME@::vRawData_comp = {
+const std::vector<unsigned char> @CLASSNAME@::vRawData_comp = {
 @FINAL_DATA_COMP@
 };
 

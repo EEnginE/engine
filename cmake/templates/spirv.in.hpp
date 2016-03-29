@@ -11,14 +11,17 @@
 
 namespace e_engine {
 
+class iInit;
+class rWorld;
+
 class @CLASSNAME@ : public rShaderBase {
  private:
-   static std::vector<unsigned char> vRawData_vert;
-   static std::vector<unsigned char> vRawData_tesc;
-   static std::vector<unsigned char> vRawData_tese;
-   static std::vector<unsigned char> vRawData_geom;
-   static std::vector<unsigned char> vRawData_frag;
-   static std::vector<unsigned char> vRawData_comp;
+   static const std::vector<unsigned char> vRawData_vert;
+   static const std::vector<unsigned char> vRawData_tesc;
+   static const std::vector<unsigned char> vRawData_tese;
+   static const std::vector<unsigned char> vRawData_geom;
+   static const std::vector<unsigned char> vRawData_frag;
+   static const std::vector<unsigned char> vRawData_comp;
 
  public:
    virtual bool has_vert() const { return @HAS_VERT@; }
@@ -38,6 +41,9 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_VERT@
+         },
+         { // Uniform Blocks
+@UNIFORM_B_VERT@
          }
       };
    }
@@ -52,6 +58,9 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_TESC@
+         },
+         { // Uniform Blocks
+@UNIFORM_B_TESC@
          }
       };
    }
@@ -66,6 +75,9 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_TESE@
+         },
+         { // Uniform Blocks
+@UNIFORM_B_TESE@
          }
       };
    }
@@ -80,6 +92,9 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_GEOM@
+         },
+         { // Uniform Blocks
+@UNIFORM_B_GEOM@
          }
       };
    }
@@ -94,6 +109,9 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_FRAG@
+         },
+         { // Uniform Blocks
+@UNIFORM_B_FRAG@
          }
       };
    }
@@ -108,11 +126,18 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_COMP@
+         },
+         { // Uniform Blocks
+@UNIFORM_B_COMP@
          }
       };
    }
 
 
+   @CLASSNAME@() = delete;
+   @CLASSNAME@( VkDevice _device )   : rShaderBase( _device )    {}
+   @CLASSNAME@( iInit *_tempInit )   : rShaderBase( _tempInit )  {}
+   @CLASSNAME@( rWorld *_tempWorld ) : rShaderBase( _tempWorld ) {}
 
    virtual std::vector<unsigned char> getRawData_vert() const;
    virtual std::vector<unsigned char> getRawData_tesc() const;

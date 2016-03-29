@@ -117,8 +117,7 @@ class RENDER_API rWorld {
                               VkImageLayout _src,
                               VkImageLayout _dst,
                               VkPipelineStageFlags _srcFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                              VkPipelineStageFlags _dstFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
-                            );
+                              VkPipelineStageFlags _dstFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
 
    VkCommandPool getCommandPool(
          uint32_t _queueFamilyIndex,
@@ -138,5 +137,6 @@ class RENDER_API rWorld {
    void updateViewPort( int _x, int _y, int _width, int _height );
    void updateClearColor( float _r, float _g, float _b, float _a );
    uint64_t *getRenderedFramesPtr();
+   VkDevice getDevice();
 };
 }

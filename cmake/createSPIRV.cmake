@@ -85,6 +85,7 @@ function( createSPIRV )
       string( REGEX REPLACE ";" "`" RAW_DATA "${RAW_DATA}" ) # ';' seperates CMake list elements, so we can't use it
       string( REGEX MATCHALL "${LAYOUT_1}in[ \t\n]+[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`"  S_IN  "${RAW_DATA}" )
       string( REGEX MATCHALL "${LAYOUT_1}out[ \t\n]+[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`" S_OUT "${RAW_DATA}" )
+      string( REGEX MATCHALL "${LAYOUT_2}uniform[ \t\n]+[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`" S_U1 "${RAW_DATA}" )
       string( REGEX MATCHALL "${LAYOUT_2}uniform[ \t\n]+[a-zA-Z_0-9]+[ \t\n]*{([ \t\n]*[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`[ \t\n]*)*}" S_UNIFORM "${RAW_DATA}" )
 
 
@@ -116,11 +117,25 @@ function( createSPIRV )
       endforeach( J IN LISTS S_OUT )
 
 
+      foreach( J IN LISTS S_U1 )
+         set( ARRAY 1 )
+         string( REGEX REPLACE ".*\\)[ \t\n]*uniform[ \t\n]+([a-zA-Z_0-9]+).*"             "\\1" TP  "${J}" )
+         string( REGEX REPLACE ".*uniform[ \t\n]+[a-zA-Z_0-9]+[ \t\n]+([][a-zA-Z_0-9]+).*" "\\1" NAM "${J}" )
+         string( REGEX REPLACE ".*binding[ \t\n]*=[ \t\n]*([0-9]+).*"                      "\\1" LOC "${J}" )
+         string( REGEX REPLACE "[a-zA-Z_0-9]+\\[?([0-9]*)\\]?" "\\1" TMP "${NAM}" )
+         string( REGEX REPLACE "\\[[0-9]*\\]" "" NAM "${NAM}" )
+         if( NOT "${TMP}" STREQUAL "" )
+            set( ARRAY ${TMP} )
+         endif( NOT "${TMP}" STREQUAL "" )
+         string( APPEND UNIFORM_${I_UPPER} "            {\"${TP}\", \"${NAM}\", ${LOC}, ${ARRAY}},\n" )
+      endforeach( J IN LISTS S_OUT )
+
+
       foreach( J IN LISTS S_UNIFORM )
          string( REGEX REPLACE ".*\\)[ \t\n]*uniform[ \t\n]+([a-zA-Z_0-9]+).*" "\\1" NAM  "${J}" )
          string( REGEX REPLACE ".*binding[ \t\n]*=[ \t\n]*([0-9]+).*"          "\\1" BIND "${J}" )
 
-         string( APPEND UNIFORM_${I_UPPER} "            {\"${NAM}\", ${BIND}, {\n" )
+         string( APPEND UNIFORM_B_${I_UPPER} "            {\"${NAM}\", ${BIND}, {\n" )
 
          string( REGEX MATCH   "{.*}"           TEMP "${J}" )
          string( REGEX REPLACE "[{}]"       ""  TEMP "${TEMP}" )
@@ -136,16 +151,16 @@ function( createSPIRV )
             if( NOT "${TMP}" STREQUAL "" )
                set( ARRAY ${TMP} )
             endif( NOT "${TMP}" STREQUAL "" )
-            string( APPEND UNIFORM_${I_UPPER} "               {\"${TP}\", \"${NAM}\", UINT32_MAX, ${ARRAY}},\n" )
+            string( APPEND UNIFORM_B_${I_UPPER} "               {\"${TP}\", \"${NAM}\", UINT32_MAX, ${ARRAY}},\n" )
          endforeach( K IN LISTS TEMP )
 
-         string( REGEX REPLACE ",\n$" "" UNIFORM_${I_UPPER} "${UNIFORM_${I_UPPER}}" )
-         string( APPEND UNIFORM_${I_UPPER} "\n            }},\n" )
+         string( REGEX REPLACE ",\n$" "" UNIFORM_B_${I_UPPER} "${UNIFORM_B_${I_UPPER}}" )
+         string( APPEND UNIFORM_B_${I_UPPER} "\n            }},\n" )
       endforeach( J IN LISTS S_UNIFORM )
 
-      string( REGEX REPLACE ",\n$" "" INPUT_${I_UPPER}   "${INPUT_${I_UPPER}}" )
-      string( REGEX REPLACE ",\n$" "" OUTPUT_${I_UPPER}  "${OUTPUT_${I_UPPER}}" )
-      string( REGEX REPLACE ",\n$" "" UNIFORM_${I_UPPER} "${UNIFORM_${I_UPPER}}" )
+      string( REGEX REPLACE ",\n$" "" INPUT_${I_UPPER}     "${INPUT_${I_UPPER}}" )
+      string( REGEX REPLACE ",\n$" "" OUTPUT_${I_UPPER}    "${OUTPUT_${I_UPPER}}" )
+      string( REGEX REPLACE ",\n$" "" UNIFORM_B_${I_UPPER} "${UNIFORM_B_${I_UPPER}}" )
    endforeach( I IN LISTS SHADER_TYPES )
 
    configure_file( "${TEMPLATES_DIR}/spirv.in.hpp" "${ARGV2}/${FILENAME_HPP}" @ONLY )
