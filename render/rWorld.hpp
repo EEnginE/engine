@@ -83,7 +83,7 @@ class RENDER_API rWorld {
    rRenderer *vFrontRenderer = &vRenderer1;
    rRenderer *vBackRenderer  = &vRenderer2;
 
-   VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLORSPACE_MAX_ENUM};
+   VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
 
    std::unordered_map<PoolInfo, VkCommandPool> vCmdPools_vk;
    std::mutex vCommandPoolsMutex;

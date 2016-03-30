@@ -45,7 +45,7 @@ int rWorld::recreateSwapchain() {
    vSurface_vk = vInitPtr->getVulkanSurface();
    auto lSInfo = vInitPtr->getSurfaceInfo();
 
-   VkPresentModeKHR lModelToUse = VK_PRESENT_MODE_MAX_ENUM;
+   VkPresentModeKHR lModelToUse = VK_PRESENT_MODE_MAX_ENUM_KHR;
    vSwapchainFormat.format      = VK_FORMAT_UNDEFINED;
 
    dVkLOG( "Surface device info:" );
@@ -71,7 +71,7 @@ int rWorld::recreateSwapchain() {
 
    dVkLOG( "  -- Present models:" );
    for ( auto const &i : lSInfo.presentModels ) {
-      if ( lModelToUse == VK_PRESENT_MODE_MAX_ENUM )
+      if ( lModelToUse == VK_PRESENT_MODE_MAX_ENUM_KHR )
          lModelToUse = i;
 
       if ( GlobConf.vk.preferedSurfaceFormat ) {
