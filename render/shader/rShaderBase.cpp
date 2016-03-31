@@ -24,6 +24,7 @@
 #include "rWorld.hpp"
 #include "uLog.hpp"
 #include "uEnum2Str.hpp"
+#include <algorithm>
 
 namespace e_engine {
 
@@ -31,6 +32,49 @@ rShaderBase::rShaderBase( iInit *_tempInit ) : rShaderBase( _tempInit->getDevice
 rShaderBase::rShaderBase( rWorld *_tempWorld ) : rShaderBase( _tempWorld->getDevice() ) {}
 
 rShaderBase::rShaderBase( VkDevice _device ) : vDevice_vk( _device ) {}
+
+/*!
+ * \brief Compare operator
+ *
+ * Sort criteria:
+ *  - vertex input first (looking for name and then location)
+ *  - normal input second (looking for name and then location)
+ *  - uv coords input third (looking for name and then location)
+ */
+bool rShaderBase::InOut::operator<( const InOut &rhs ) {
+   // Vertex
+   for ( auto const &i : gShaderVertexInputVarName )
+      if ( name == i )
+         return true;
+
+   // Normal
+   for ( auto const &i : gShaderNormalsInputVarName ) {
+      if ( name == i ) {
+         for ( auto const &j : gShaderVertexInputVarName )
+            if ( rhs.name == j )
+               return false;
+
+         return true;
+      }
+   }
+
+   // UV
+   for ( auto const &i : gShaderUVInputVarName ) {
+      if ( name == i ) {
+         for ( auto const &j : gShaderVertexInputVarName )
+            if ( rhs.name == j )
+               return false;
+
+         for ( auto const &j : gShaderNormalsInputVarName )
+            if ( rhs.name == j )
+               return false;
+
+         return true;
+      }
+   }
+
+   return location < rhs.location;
+}
 
 rShaderBase::~rShaderBase() {
    if ( vVertModule_vk )
@@ -153,6 +197,30 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlags _stage, ShaderInfo _info
    }
 }
 
+bool rShaderBase::getGLSLTypeInfo( std::string _name, uint32_t &_size, VkFormat &_format ) {
+   if ( _name == "vec4" ) {
+      _size   = sizeof( float ) * 4;
+      _format = VK_FORMAT_R32G32B32A32_SFLOAT;
+      return true;
+   }
+
+   if ( _name == "vec3" ) {
+      _size   = sizeof( float ) * 3;
+      _format = VK_FORMAT_R32G32B32_SFLOAT;
+      return true;
+   }
+
+   if ( _name == "vec2" ) {
+      _size   = sizeof( float ) * 2;
+      _format = VK_FORMAT_R32G32_SFLOAT;
+      return true;
+   }
+
+   //! \todo expand list
+
+   return false;
+}
+
 /*!
  * \brief creates all vulkan shader stuff to create a pipeline
  * \todo Evaluate support for multiple descriptor sets
@@ -182,6 +250,28 @@ bool rShaderBase::init() {
       lInfo.module = vVertModule_vk;
       lTemp.push_back( lInfo );
       addLayoutBindings( VK_SHADER_STAGE_VERTEX_BIT, getInfo_vert() );
+
+      vInputBindingDesc.binding   = 0;
+      vInputBindingDesc.stride    = 0;
+      vInputBindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+      auto lInputInfo = getInfo_vert().input;
+      std::sort( lInputInfo.begin(), lInputInfo.end() );
+
+      for ( auto const &i : lInputInfo ) {
+         vInputDescs.emplace_back();
+         uint32_t lSize = 0;
+
+         if ( !getGLSLTypeInfo( i.type, lSize, vInputDescs.back().format ) ) {
+            eLOG( "Format ", i.type, " currently not supported! [skip]" );
+            return false;
+         }
+
+         vInputDescs.back().binding = 0;
+         vInputDescs.back().location = i.location;
+         vInputDescs.back().offset = vInputBindingDesc.stride;
+         vInputBindingDesc.stride += lSize;
+      }
    }
 
    if ( has_tesc() ) {
@@ -318,6 +408,22 @@ VkPipelineLayout rShaderBase::getPipelineLayout() {
          return nullptr;
 
    return vPipelineLayout_vk;
+}
+
+VkVertexInputBindingDescription rShaderBase::getVertexInputBindingDescription() {
+   if ( !vModulesCreated )
+      if ( !init() )
+         return {};
+
+   return vInputBindingDesc;
+}
+
+std::vector<VkVertexInputAttributeDescription> rShaderBase::getVertexInputAttribureDescriptions() {
+   if ( !vModulesCreated )
+      if ( !init() )
+         return {};
+
+   return vInputDescs;
 }
 
 

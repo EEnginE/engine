@@ -31,6 +31,10 @@ namespace e_engine {
 class iInit;
 class rWorld;
 
+static const std::string gShaderVertexInputVarName[]  = {"iVertex", "iVertices", "iVert"};
+static const std::string gShaderNormalsInputVarName[] = {"iNormal", "iNormals", "iNorm"};
+static const std::string gShaderUVInputVarName[]      = {"iUV", "iUVs"};
+
 class rShaderBase {
  public:
    typedef struct InOut {
@@ -38,6 +42,8 @@ class rShaderBase {
       std::string name;
       uint32_t location;
       uint32_t arraySize;
+
+      bool operator<( const InOut &rhs );
    } InOut;
 
    typedef struct Uniform {
@@ -69,6 +75,9 @@ class rShaderBase {
    VkDescriptorSet vDescSet_vk          = nullptr;
    VkPipelineLayout vPipelineLayout_vk  = nullptr;
 
+   VkVertexInputBindingDescription vInputBindingDesc = {};
+   std::vector<VkVertexInputAttributeDescription> vInputDescs;
+
    std::vector<VkPipelineShaderStageCreateInfo> vShaderStageInfo;
    std::vector<VkDescriptorSetLayoutBinding> vLayoutBindings;
    std::vector<VkDescriptorPoolSize> vDescPoolSizes;
@@ -92,6 +101,10 @@ class rShaderBase {
    VkDescriptorSet getDescriptorSet();
    VkDescriptorSetLayout getDescriptorSetLayout();
    VkPipelineLayout getPipelineLayout();
+   VkVertexInputBindingDescription getVertexInputBindingDescription();
+   std::vector<VkVertexInputAttributeDescription> getVertexInputAttribureDescriptions();
+
+   static bool getGLSLTypeInfo( std::string _name, uint32_t &_size, VkFormat &_format );
 
    virtual bool has_vert() const = 0;
    virtual bool has_tesc() const = 0;
