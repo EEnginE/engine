@@ -19,7 +19,6 @@
 
 #include "rObjectBase.hpp"
 #include "uLog.hpp"
-#include "lOBJ_3D_f.hpp"
 #include "iInit.hpp"
 #include <regex>
 
