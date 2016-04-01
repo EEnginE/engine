@@ -19,18 +19,26 @@
 using namespace e_engine;
 
 int myScene::init() {
-   //updateCamera();
-#if 0
+   // updateCamera();
+
    lGLTF lLoader( vFilePath );
    if ( lLoader() != 1 )
       return 2;
-   lLoader.generateObjects( vObjects, this );
 
+   auto *lObjects = lLoader.getData();
 
-   for ( auto &i : vObjects ) {
-      i.setOGLData();
-      i.setPosition( rVec3f( 0, 0, -5 ) );
+   beginInitObject();
+
+   for ( auto const &i : lObjects[0] ) {
+      if ( i.type != MESH_3D )
+         continue;
+
+      vObjects.emplace_back( this, i.name );
+      initObject( &vObjects.back(), i.index, i.vertex, i.normal, i.uv );
+      vObjects.back().setPosition( rVec3f( 0, 0, -5 ) );
    }
+
+   endInitObject();
 
    vLight1.setPosition( rVec3f( 1, 1, -4 ) );
    vLight2.setPosition( rVec3f( -1, -1, -4 ) );
@@ -43,14 +51,8 @@ int myScene::init() {
    vLight2.setAttenuation( 0.1f, 0.02f, 0.2f );
 
 
-   for ( auto &i : vObjects ) {
-      int64_t lLight;
-      i.getHints( rObjectBase::LIGHT_MODEL, lLight );
-      if ( lLight != rObjectBase::SIMPLE_ADS_LIGHT ) {
-         wLOG( "Light not supported! Normals missing!" );
-         vRenderNormals = false;
-      }
-   }
+   for ( auto &i : vObjects )
+      addObject( &i );
 
    addObject( &vLight1 );
    addObject( &vLight2 );
@@ -60,7 +62,7 @@ int myScene::init() {
       eLOG( "Cannot render scene!" );
       return 2;
    }
-#endif
+
    return 0;
 }
 

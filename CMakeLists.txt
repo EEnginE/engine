@@ -161,7 +161,7 @@ enum2str_generate(
       # EEnginE
       "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
       "glTF::lGLTF_map::ELEMENTS" "rObjectBase::MATRIX_TYPES" "rObjectBase::VECTOR_TYPES" "rObjectBase::LIGHT_MODEL_T"
-      "rObjectBase::OBJECT_HINTS" "rObjectBase::ERROR_FLAGS"
+      "rObjectBase::ERROR_FLAGS"
       # Vulkan
       "VkPipelineCacheHeaderVersion"
       "VkResult" "VkStructureType" "VkSystemAllocationScope" "VkInternalAllocationType"

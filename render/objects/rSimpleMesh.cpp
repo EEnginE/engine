@@ -19,35 +19,74 @@
  */
 
 #include "rSimpleMesh.hpp"
-
+#include "rWorld.hpp"
+#include "uLog.hpp"
 
 namespace e_engine {
 
+rSimpleMesh::rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name )
+    : rMatrixObjectBase( _scene ),
+      rObjectBase( _name ),
+      vIndex( _scene->getWorldPtr()->getInitPtr() ),
+      vVertex( _scene->getWorldPtr()->getInitPtr() ) {}
 
+/*!
+ * \brief Inits the object (partialy)
+ * \note This function SHOULD NOT be called directly! Use the functions in rScene instead!
+ */
+bool rSimpleMesh::setData( VkCommandBuffer _buf,
+                           std::vector<uint32_t> const &_index,
+                           std::vector<float> const &_pos,
+                           std::vector<float> const &_norm,
+                           std::vector<float> const & ) {
+   if ( vIsLoaded_B ) {
+      eLOG( "Data already loaded! Object ", vName_str );
+      return false;
+   }
 
-int rSimpleMesh::clearOGLData__() {
-   vObjectHints[DATA_BUFFER]   = -1;
-   vObjectHints[INDEX_BUFFER]  = -1;
-   vObjectHints[IS_DATA_READY] = 0;
-   vObjectHints[LIGHT_MODEL]   = NO_LIGHTS;
+   std::vector<float> lTemp;
 
-   return 1;
+   iLOG( "Initializing simple mesh object ", vName_str );
+
+   if ( _pos.size() != _norm.size() || ( _pos.size() % 3 ) != 0 ) {
+      eLOG( "Invalid data! Object ", vName_str );
+      return false;
+   }
+
+   lTemp.resize( _pos.size() * 2 );
+   for ( uint32_t i = 0, counter = 0; i < _pos.size(); i += 3, counter++ ) {
+      lTemp[6 * counter + 0] = _pos[i + 0];
+      lTemp[6 * counter + 1] = _pos[i + 1];
+      lTemp[6 * counter + 2] = _pos[i + 2];
+      lTemp[6 * counter + 3] = _norm[i + 0];
+      lTemp[6 * counter + 4] = _norm[i + 1];
+      lTemp[6 * counter + 5] = _norm[i + 2];
+   }
+
+   bool lRes = true;
+   lRes      = lRes && vIndex.cmdInit( _index, _buf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
+   lRes      = lRes && vVertex.cmdInit( lTemp, _buf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
+   return lRes;
 }
 
 /*!
- * \brief Loads the content of the object
- *
- * This function loads the content of the object and prepares it for
- * rendering.
- *
- * \warning This function needs an \b ACTIVE OpenGL context for THIS THREAD
- *
- * \returns 1 if everything went fine
- * \returns 0 if data is empty
+ * \brief Inits the object (partialy)
+ * \note This function SHOULD NOT be called directly! Use the functions in rScene instead!
  */
-int rSimpleMesh::setOGLData__() {
-   //!< \todo implement
-   return 1;
+bool rSimpleMesh::finishData() {
+   if ( vIsLoaded_B ) {
+      eLOG( "Data already loaded! Object ", vName_str );
+      return false;
+   }
+
+   bool lRes = true;
+   lRes      = lRes && vIndex.doneCopying();
+   lRes      = lRes && vVertex.doneCopying();
+
+   if ( lRes )
+      vIsLoaded_B = true;
+
+   return lRes;
 }
 
 uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) {
@@ -72,16 +111,6 @@ uint32_t rSimpleMesh::getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type 
       case NORMAL_MATRIX: *_mat = getNormalMatrix(); return 0;
       default: return INDEX_OUT_OF_RANGE;
    }
-}
-
-void rSimpleMesh::setFlags() {
-   vObjectHints[FLAGS]    = MESH_OBJECT;
-   vObjectHints[MATRICES] = SCALE_MATRIX_FLAG | ROTATION_MATRIX_FLAG | TRANSLATION_MATRIX_FLAG |
-                            CAMERA_MATRIX_FLAG | MODEL_MATRIX_FLAG | VIEW_MATRIX_FLAG |
-                            PROJECTION_MATRIX_FLAG | MODEL_VIEW_MATRIX_FLAG | NORMAL_MATRIX_FLAG |
-                            MODEL_VIEW_PROJECTION_MATRIX_FLAG;
-
-   vObjectHints[IS_DATA_READY] = 0;
 }
 }
 

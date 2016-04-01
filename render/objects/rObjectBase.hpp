@@ -23,6 +23,7 @@
 
 #include <string>
 #include <array>
+#include <vulkan.h>
 #include "lLoaderBase.hpp"
 #include "rMatrixMath.hpp"
 
@@ -65,36 +66,6 @@ namespace e_engine {
  */
 class RENDER_API rObjectBase {
  public:
-   enum OBJECT_HINTS {
-      FLAGS,
-      MATRICES,
-      LIGHT_MODEL,
-      IS_DATA_READY,
-
-      DATA_BUFFER,
-      INDEX_BUFFER,
-
-      NUM_MESHS,  //!< Number of mesh targets
-      NUM_LINES,  //!< Number of line targets
-      NUM_POINTS, //!< Number of point targets
-      __LAST__,
-
-      INDEX_OFFSET,
-      INDEX_STRIDE,
-      NUM_INDEXES,
-
-      VERTEX_OFFSET,
-      VERTEX_STRIDE,
-      NORMAL_OFFSET,
-      NORMAL_STRIDE,
-      UV_OFFSET,
-      UV_STRIDE,
-
-      MESH_TYPE,
-
-      __LAST_OBJECT__
-   };
-
    enum ERROR_FLAGS {
       ALL_OK                             = 0,
       FUNCTION_NOT_VALID_FOR_THIS_OBJECT = ( 1 << 0 ),
@@ -128,26 +99,12 @@ class RENDER_API rObjectBase {
    enum LIGHT_MODEL_T { NO_LIGHTS = 0, SIMPLE_ADS_LIGHT };
 
  protected:
-   std::array<int64_t, __LAST__> vObjectHints;
-   std::vector<std::array<int64_t, __LAST_OBJECT__ - __LAST__>> vObjects;
    std::string vName_str;
 
-   bool vIsLoaded_B;
-
-   virtual int clearOGLData__() = 0;
-   virtual int setOGLData__() = 0;
-
- private:
-   template <class... ARGS>
-   inline bool getHintsOBJ( size_t _obj, OBJECT_HINTS _hint, int64_t &_ret, ARGS &&... _args );
-   inline bool getHintsOBJ( size_t _obj, OBJECT_HINTS _hint, int64_t &_ret );
+   bool vIsLoaded_B = false;
 
  public:
-   rObjectBase( std::string _name ) : vName_str( _name ), vIsLoaded_B( false ) {
-      for ( auto &i : vObjectHints )
-         i = -1;
-   }
-
+   rObjectBase( std::string _name ) : vName_str( _name ) {}
    rObjectBase() = delete;
 
    // Forbid copying
@@ -155,20 +112,18 @@ class RENDER_API rObjectBase {
    rObjectBase &operator=( const rObjectBase & ) = delete;
 
    // Allow moving
-   rObjectBase( rObjectBase && ) {}
-   rObjectBase &operator=( rObjectBase && ) { return *this; }
+   rObjectBase( rObjectBase && ) = default;
+   rObjectBase &operator=( rObjectBase && ) = default;
 
    virtual ~rObjectBase();
 
-   int clearOGLData();
-   int setOGLData();
+   virtual bool setData( VkCommandBuffer _buf,
+                         std::vector<uint32_t> const &_index,
+                         std::vector<float> const &_pos,
+                         std::vector<float> const &_norm,
+                         std::vector<float> const &_uv ) = 0;
 
-   template <class... ARGS>
-   inline bool getHints( OBJECT_HINTS _hint, int64_t &_ret, ARGS &&... _args );
-   inline bool getHints( OBJECT_HINTS _hint, int64_t &_ret );
-
-   template <class... ARGS>
-   inline bool getHintsOBJ( MESH_TYPES _type, size_t _obj, ARGS &&... _args );
+   virtual bool finishData() = 0;
 
    bool getIsDataLoaded() const { return vIsLoaded_B; }
    std::string getName() const { return vName_str; }
@@ -186,81 +141,6 @@ class RENDER_API rObjectBase {
    virtual uint32_t getVector( rVec3d **_vec, VECTOR_TYPES _type );
 };
 
-template <class... ARGS>
-bool rObjectBase::getHints( OBJECT_HINTS _hint, int64_t &_ret, ARGS &&... _args ) {
-   if ( _hint < __LAST__ )
-      _ret = vObjectHints[_hint];
-   else
-      return false;
-
-   return getHints( std::forward<ARGS>( _args )... );
-}
-
-bool rObjectBase::getHints( OBJECT_HINTS _hint, int64_t &_ret ) {
-   if ( _hint < __LAST__ )
-      _ret = vObjectHints[_hint];
-   else
-      return false;
-
-   return true;
-}
-
-template <class... ARGS>
-bool rObjectBase::getHintsOBJ( size_t _obj, OBJECT_HINTS _hint, int64_t &_ret, ARGS &&... _args ) {
-   if ( _hint < __LAST_OBJECT__ && _hint > __LAST__ )
-      _ret = vObjects[_obj][_hint - __LAST__];
-   else
-      return false;
-
-   return getHintsOBJ( _obj, std::forward<ARGS>( _args )... );
-}
-
-bool rObjectBase::getHintsOBJ( size_t _obj, OBJECT_HINTS _hint, int64_t &_ret ) {
-   if ( _hint < __LAST_OBJECT__ && _hint > __LAST__ )
-      _ret = vObjects[_obj][_hint - __LAST__];
-   else
-      return false;
-
-   return true;
-}
-
-template <class... ARGS>
-bool rObjectBase::getHintsOBJ( MESH_TYPES _type, size_t _obj, ARGS &&... _args ) {
-   switch ( _type ) {
-      case MESH_3D:
-         if ( vObjectHints[NUM_MESHS] <= static_cast<int64_t>( _obj ) )
-            return false;
-
-         break;
-      case LINES_3D:
-         if ( vObjectHints[NUM_LINES] <= static_cast<int64_t>( _obj ) )
-            return false;
-
-         break;
-
-      case POINTS_3D:
-         if ( vObjectHints[NUM_POINTS] <= static_cast<int64_t>( _obj ) )
-            return false;
-
-         break;
-   }
-
-   size_t lTemp = 0;
-   _obj += 1; // Is a bit ugly but the best solution beacuse _obj is unsigned
-
-   for ( ; lTemp < vObjects.size(); ++lTemp ) {
-      if ( vObjects[lTemp][MESH_TYPE - __LAST__] == _type )
-         --_obj;
-
-      if ( _obj == 0 )
-         return getHintsOBJ( lTemp, std::forward<ARGS>( _args )... );
-   }
-
-   eLOG( "WHAT!?!?!" );
-
-   // Object not found
-   return false;
-}
 
 
 } // e_engine

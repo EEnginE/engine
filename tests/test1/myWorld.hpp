@@ -47,7 +47,7 @@ class myWorld final : public e_engine::rWorld, public e_engine::rFrameCounter {
    myWorld( cmdANDinit &_cmd, e_engine::iInit *_init )
        : rWorld( _init ),
          rFrameCounter( this, true ),
-         vScene( _init, _cmd ),
+         vScene( this, _cmd ),
          vInitPointer( _init ),
          vNearZ( _cmd.getNearZ() ),
          vFarZ( _cmd.getFarZ() ),

@@ -26,38 +26,35 @@
 #include "rMatrixObjectBase.hpp"
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
-#include "rObjectBase_data.hpp"
-
+#include "rBuffer.hpp"
 
 namespace e_engine {
 
-class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>,
-                                     public rObjectBase,
-                                     public rObjectBase_data<float, unsigned short> {
+class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
  private:
-   unsigned vVertexBufferObject;
-   unsigned vIndexBufferObject;
-
-   void setFlags();
-
-   int clearOGLData__();
-   int setOGLData__();
+   rBuffer vIndex;
+   rBuffer vVertex;
 
  public:
-   rSimpleMesh( rMatrixSceneBase<float> *_scene, DATA _data )
-       : rMatrixObjectBase( _scene ),
-         rObjectBase( _data->vName ),
-         rObjectBase_data( _data, vObjectHints, vObjects ) {
-      setFlags();
-   }
+   rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name );
 
-   virtual ~rSimpleMesh() { clearOGLData(); }
+   virtual ~rSimpleMesh() {}
 
    rSimpleMesh() = delete;
    rSimpleMesh( rSimpleMesh && ) = default;
+   rSimpleMesh &operator=( const rSimpleMesh & ) = delete;
+   rSimpleMesh &operator=( rSimpleMesh && ) = default;
 
-   virtual uint32_t getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type );
-   virtual uint32_t getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type );
+   bool setData( VkCommandBuffer _buf,
+                 std::vector<uint32_t> const &_index,
+                 std::vector<float> const &_pos,
+                 std::vector<float> const &_norm,
+                 std::vector<float> const & ) override;
+
+   bool finishData() override;
+
+   uint32_t getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) override;
+   uint32_t getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) override;
 };
 }
 

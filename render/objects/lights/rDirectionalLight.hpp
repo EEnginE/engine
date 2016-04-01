@@ -33,22 +33,23 @@ class rDirectionalLight : public rObjectBase {
    rVec3<T> vLightColor;
    rVec3<T> vLightDirection;
 
-   void setFlags();
+   bool setData( VkCommandBuffer,
+                 std::vector<uint32_t> const &,
+                 std::vector<float> const &,
+                 std::vector<float> const &,
+                 std::vector<float> const & ) override {
+      return false;
+   }
 
-
-   virtual int clearOGLData__() { return -1; }
-   virtual int setOGLData__() { return -1; }
+   bool finishData() override { return false; }
 
  public:
-   rDirectionalLight( std::string _name ) : rObjectBase( _name ) {
-      vLightColor.fill( 0 );
-      setFlags();
-   }
+   rDirectionalLight( std::string _name ) : rObjectBase( _name ) { vLightColor.fill( 0 ); }
 
    rDirectionalLight( std::string _name, rVec3<T> _direction ) : rObjectBase( _name ) {
       vLightDirection = _direction;
+      vIsLoaded_B = true;
       vLightDirection.normalize();
-      setFlags();
    }
 
    rDirectionalLight( std::string _name, rVec3<T> _direction, rVec3<T> _color, rVec3<T> _ambient )
@@ -56,9 +57,9 @@ class rDirectionalLight : public rObjectBase {
       vLightDirection = _direction;
       vLightColor     = _color;
       vAmbientColor   = _ambient;
+      vIsLoaded_B     = true;
 
       vLightDirection.normalize();
-      setFlags();
    }
 
    void setColor( rVec3<T> _color, rVec3<T> _ambient ) {
@@ -90,13 +91,6 @@ uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) 
    }
 
    return UNSUPPORTED_TYPE;
-}
-
-template <class T>
-void rDirectionalLight<T>::setFlags() {
-   vObjectHints[FLAGS]         = DIRECTIONAL_LIGHT | LIGHT_SOURCE;
-   vObjectHints[IS_DATA_READY] = true;
-   vObjectHints[MATRICES]      = 0;
 }
 }
 

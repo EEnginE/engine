@@ -138,5 +138,6 @@ class RENDER_API rWorld {
    void updateClearColor( float _r, float _g, float _b, float _a );
    uint64_t *getRenderedFramesPtr();
    VkDevice getDevice();
+   iInit *getInitPtr();
 };
 }

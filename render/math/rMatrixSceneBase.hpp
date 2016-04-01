@@ -26,6 +26,8 @@
 
 namespace e_engine {
 
+class rWorld;
+
 /*!
  * \brief Class for managing Camera space matrix
  *
@@ -34,12 +36,15 @@ namespace e_engine {
 template <class T>
 class rMatrixSceneBase {
  private:
+   rWorld *vWoldPtr;
+
    rMat4<T> vProjectionMatrix_MAT;
    rMat4<T> vViewMatrix_MAT;
    rMat4<T> vViewProjectionMatrix_MAT;
 
  public:
-   rMatrixSceneBase();
+   rMatrixSceneBase() = delete;
+   rMatrixSceneBase( rWorld *_init );
 
    inline void calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy );
    inline void calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy );
@@ -51,11 +56,14 @@ class rMatrixSceneBase {
    inline rMat4<T> *getProjectionMatrix() { return &vProjectionMatrix_MAT; }
    inline rMat4<T> *getViewMatrix() { return &vViewMatrix_MAT; }
    inline rMat4<T> *getViewProjectionMatrix() { return &vViewProjectionMatrix_MAT; }
+
+   rWorld *getWorldPtr() { return vWoldPtr; }
 };
 
 
 template <class T>
-rMatrixSceneBase<T>::rMatrixSceneBase() {
+rMatrixSceneBase<T>::rMatrixSceneBase( rWorld *_init )
+    : vWoldPtr( _init ) {
    vProjectionMatrix_MAT.toIdentityMatrix();
    vViewMatrix_MAT.toIdentityMatrix();
    vViewProjectionMatrix_MAT.toIdentityMatrix();

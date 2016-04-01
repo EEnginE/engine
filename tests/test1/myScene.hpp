@@ -31,6 +31,7 @@ using e_engine::rDirectionalLight;
 using e_engine::uSlot;
 using e_engine::iInit;
 using e_engine::iEventInfo;
+using e_engine::rWorld;
 
 class myScene final : public rScene<float>/*, public rCameraHandler<float>*/ {
    typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
@@ -54,8 +55,8 @@ class myScene final : public rScene<float>/*, public rCameraHandler<float>*/ {
  public:
    myScene() = delete;
 
-   myScene( iInit *_init, cmdANDinit &_cmd )
-       : rScene( "MAIN SCENE" ),
+   myScene( rWorld *_world, cmdANDinit &_cmd )
+       : rScene( "MAIN SCENE", _world ),
          //rCameraHandler( this, _init ),
          vLight1( this, "L1" ),
          vLight2( this, "L2" ),
@@ -66,7 +67,7 @@ class myScene final : public rScene<float>/*, public rCameraHandler<float>*/ {
          vKeySlot( &myScene::keySlot, this ),
          vRotationAngle( 0 ),
          vRenderNormals( _cmd.getRenderNormals() ) {
-      _init->addKeySlot( &vKeySlot );
+      _world->getInitPtr()->addKeySlot( &vKeySlot );
    }
 
    int init();

@@ -26,11 +26,17 @@
 #include <vector>
 #include <string>
 #include <thread>
+#include <mutex>
+#include <vulkan.h>
 
 namespace e_engine {
 
+class rWorld;
+
 class RENDER_API rSceneBase {
  private:
+   rWorld *vWorldPtr;
+
    std::vector<rObjectBase *> vObjects;
 
    std::vector<size_t> vLightSourcesIndex;
@@ -38,10 +44,19 @@ class RENDER_API rSceneBase {
    std::string vName_str;
 
    std::mutex vObjects_MUT;
-   std::mutex vShaders_MUT;
+   std::recursive_mutex vObjectsInit_MUT;
+
+   bool vInitializingObjects = false;
+   VkCommandPool vInitPool_vk;
+   VkCommandBuffer vInitBuff_vk;
+   VkQueue vInitQueue_vk;
+
+   std::vector<rObjectBase *> vInitObjs;
+
 
  public:
-   rSceneBase( std::string _name ) : vName_str( _name ) {}
+   rSceneBase() = delete;
+   rSceneBase( std::string _name, rWorld *_world ) : vWorldPtr( _world ), vName_str( _name ) {}
    virtual ~rSceneBase();
 
    bool canRenderScene();
@@ -49,13 +64,22 @@ class RENDER_API rSceneBase {
    unsigned addObject( rObjectBase *_obj );
    std::vector<rObjectBase *> getObjects();
 
+   bool beginInitObject();
+   bool initObject( rObjectBase *_obj,
+                    std::vector<uint32_t> const &_index,
+                    std::vector<float> const &_pos,
+                    std::vector<float> const &_norm,
+                    std::vector<float> const &_uv );
+   bool endInitObject();
+
    size_t getNumObjects() { return vObjects.size(); }
 };
 
 template <class T>
 class RENDER_API rScene : public rSceneBase, public rMatrixSceneBase<float> {
  public:
-   rScene( std::string _name ) : rSceneBase( _name ) {}
+   rScene( std::string _name, rWorld *_world )
+       : rSceneBase( _name, _world ), rMatrixSceneBase<float>( _world ) {}
 };
 }
 

@@ -35,11 +35,15 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    rVec3<T> vLightColor;
    rVec3<T> vAttenuation;
 
-   void setFlags();
+   bool setData( VkCommandBuffer,
+                 std::vector<uint32_t> const &,
+                 std::vector<float> const &,
+                 std::vector<float> const &,
+                 std::vector<float> const & ) override {
+      return false;
+   }
 
-
-   virtual int clearOGLData__() { return -1; }
-   virtual int setOGLData__() { return -1; }
+   bool finishData() override { return false; }
 
  public:
    using rMatrixObjectBase<T>::getPosition;
@@ -47,22 +51,22 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    rPointLight( SCENE _scene, std::string _name )
        : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor.fill( 0 );
-      setFlags();
+      vIsLoaded_B = true;
    }
 
    rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient )
        : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor   = _color;
       vAmbientColor = _ambient;
-      setFlags();
+      vIsLoaded_B   = true;
    }
 
    rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient, rVec3<T> _att )
        : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor   = _color;
       vAmbientColor = _ambient;
-      vAttenuation = _att;
-      setFlags();
+      vAttenuation  = _att;
+      vIsLoaded_B   = true;
    }
 
    void setColor( rVec3<T> _color, rVec3<T> _ambient ) {
@@ -78,7 +82,7 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    rVec3<T> *getColor() { return &vLightColor; }
    rVec3<T> *getAttenuation() { return &vAttenuation; }
 
-   virtual uint32_t getVector( rVec3<T> **_vec, VECTOR_TYPES _type );
+   uint32_t getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) override;
 };
 
 
@@ -96,13 +100,6 @@ uint32_t rPointLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
    }
 
    return UNSUPPORTED_TYPE;
-}
-
-template <class T>
-void rPointLight<T>::setFlags() {
-   vObjectHints[FLAGS]         = POINT_LIGHT | LIGHT_SOURCE;
-   vObjectHints[IS_DATA_READY] = true;
-   vObjectHints[MATRICES]      = 0;
 }
 }
 

@@ -34,12 +34,34 @@
 
 namespace e_engine {
 
-class LOADER_API lGLTF final : public internal::lLoaderBase<float, unsigned short>,
+/*!
+ * \brief GLTF importer class
+ *
+ * \todo Replace with assimp
+ */
+class LOADER_API lGLTF final : public internal::lLoaderBase<float, uint32_t>,
                                public glTF::lGLTF_structs {
 
    typedef std::unordered_map<std::string, size_t> td_MAP;
 
+   struct DATA {
+      std::vector<float> vertex;
+      std::vector<float> normal;
+      std::vector<float> uv;
+
+      std::vector<uint32_t> index;
+
+      std::string name;
+
+      MESH_TYPES type;
+   };
+
  private:
+   std::vector<DATA> vData;
+
+   std::vector<float> vRaw;
+   std::vector<uint16_t> vRawIndex;
+
    std::string vScene;
 
    std::vector<accessor> vAccessors;
@@ -72,7 +94,7 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<float, unsigned shor
    td_MAP vSkinsMap;
    td_MAP vTechniqueMap;
 
-   bool load_IMPL();
+   bool load_IMPL() override;
 
    bool getMapElement( ELEMENTS &_el, bool _isSection = true );
    bool getMapElementETC( ELEMENTS &_el );
@@ -118,6 +140,11 @@ class LOADER_API lGLTF final : public internal::lLoaderBase<float, unsigned shor
  public:
    lGLTF() {}
    lGLTF( std::string _file ) : lLoaderBase( _file ) {}
+
+   virtual void unLoad() override;
+
+
+   std::vector<DATA> *getData() { return &vData; }
 };
 
 template <class T>

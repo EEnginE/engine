@@ -19,6 +19,9 @@
 
 #include "rScene.hpp"
 #include "uLog.hpp"
+#include "rWorld.hpp"
+#include "iInit.hpp"
+#include "uEnum2Str.hpp"
 
 namespace e_engine {
 
@@ -32,7 +35,7 @@ rSceneBase::~rSceneBase() {}
 bool rSceneBase::canRenderScene() {
    bool lCanRender = true;
    for ( auto const &d : vObjects ) {
-      int64_t lIsObjectReady, lFlags;
+      int64_t lIsObjectReady;
 
       if ( !d ) {
          wLOG( "Invalid Object Pointer" );
@@ -40,7 +43,7 @@ bool rSceneBase::canRenderScene() {
          continue;
       }
 
-      d->getHints( rObjectBase::IS_DATA_READY, lIsObjectReady, rObjectBase::FLAGS, lFlags );
+      lIsObjectReady = d->getIsDataLoaded();
 
       if ( lIsObjectReady != true ) {
          wLOG( "Object data for '",
@@ -51,23 +54,136 @@ bool rSceneBase::canRenderScene() {
          lCanRender = false;
          continue;
       }
-
-      //! \todo Add vulkan stuff
-
-      if ( lCanRender )
-         iLOG( "Scene '", vName_str, "' with ", vObjects.size(), " objects ready for rendering" );
-
-      return lCanRender;
    }
+
+   //! \todo Add vulkan stuff
+
+   if ( lCanRender )
+      iLOG( "Scene '", vName_str, "' with ", vObjects.size(), " objects ready for rendering" );
+
+   return lCanRender;
+
    wLOG( "No objects in scene" );
    return false;
+}
+
+/*!
+ * \brief Objects can be initialized after calling this function
+ *
+ * Sets up internal command buffers and queues, needed to initialize objects
+ *
+ * \note calling this function will lock initializing for other threads, because only one thread can
+ * \note initialize objects per scene
+ * \returns true on success
+ */
+bool rSceneBase::beginInitObject() {
+   if ( vInitializingObjects ) {
+      eLOG( "beginInitObject already called on secene ", vName_str );
+      return false;
+   }
+   vObjectsInit_MUT.lock();
+
+   uint32_t lQueueFamily;
+
+   vInitQueue_vk = vWorldPtr->getInitPtr()->getQueue( VK_QUEUE_TRANSFER_BIT, 0.25f, &lQueueFamily );
+   vInitPool_vk  = vWorldPtr->getCommandPool( lQueueFamily );
+   vInitBuff_vk  = vWorldPtr->createCommandBuffer( vInitPool_vk );
+
+   if ( vWorldPtr->beginCommandBuffer( vInitBuff_vk,
+                                       VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) ) {
+      vkFreeCommandBuffers( vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk );
+      vObjectsInit_MUT.unlock();
+      return false;
+   }
+
+   vInitializingObjects = true;
+   return true;
+}
+
+/*!
+ * \brief STARTS initializing an object
+ *
+ * The object will NOT be fully initialized until endInitObject() is called
+ */
+bool rSceneBase::initObject( rObjectBase *_obj,
+                             std::vector<uint32_t> const &_index,
+                             std::vector<float> const &_pos,
+                             std::vector<float> const &_norm,
+                             std::vector<float> const &_uv ) {
+   if ( !vInitializingObjects ) {
+      eLOG( "beginInitObject was NOT called on secene ", vName_str );
+      return false;
+   }
+
+   std::lock_guard<std::recursive_mutex> lGuard( vObjectsInit_MUT );
+
+   _obj->setData( vInitBuff_vk, _index, _pos, _norm, _uv );
+   vInitObjs.emplace_back( _obj );
+   return true;
+}
+
+/*!
+ * \brief Finishes initializing all previously recorded objects
+ *
+ * Submits internal vulkan command buffer
+ */
+bool rSceneBase::endInitObject() {
+   if ( !vInitializingObjects ) {
+      eLOG( "beginInitObject was NOT called on secene ", vName_str );
+      return false;
+   }
+
+   vkEndCommandBuffer( vInitBuff_vk );
+
+   VkSubmitInfo lInfo         = {};
+   lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+   lInfo.pNext                = nullptr;
+   lInfo.waitSemaphoreCount   = 0;
+   lInfo.pWaitSemaphores      = nullptr;
+   lInfo.pWaitDstStageMask    = nullptr;
+   lInfo.commandBufferCount   = 1;
+   lInfo.pCommandBuffers      = &vInitBuff_vk;
+   lInfo.signalSemaphoreCount = 0;
+   lInfo.pSignalSemaphores    = nullptr;
+
+   auto lFence = vWorldPtr->createFence();
+
+   VkResult lRes;
+
+   {
+      std::lock_guard<std::mutex> lLock( vWorldPtr->getInitPtr()->getQueueMutex( vInitQueue_vk ) );
+      lRes = vkQueueSubmit( vInitQueue_vk, 1, &lInfo, lFence );
+   }
+
+   if ( lRes ) {
+      eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
+      vInitObjs.clear();
+      vObjectsInit_MUT.unlock();
+      return false;
+   }
+
+   lRes = vkWaitForFences( vWorldPtr->getDevice(), 1, &lFence, VK_TRUE, UINT64_MAX );
+   if ( lRes ) {
+      eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
+   }
+
+   for ( auto &i : vInitObjs )
+      i->finishData();
+
+   vkDestroyFence( vWorldPtr->getDevice(), lFence, nullptr );
+   vkFreeCommandBuffers( vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk );
+
+   vInitObjs.clear();
+   vInitializingObjects = false;
+   vObjectsInit_MUT.unlock();
+   return true;
 }
 
 /*!
  * \brief Adds an object to render
  *
  * \todo Implement functions to remove / disable / enable objects
-*
+ *
  * \param[in] _obj Pointer to an object
  *
  * \returns The Index of the object
@@ -77,11 +193,13 @@ unsigned rSceneBase::addObject( e_engine::rObjectBase *_obj ) {
 
    vObjects.emplace_back( _obj );
 
+#if 0
    int64_t lFlags;
 
    _obj->getHints( rObjectBase::FLAGS, lFlags );
    if ( lFlags & LIGHT_SOURCE )
       vLightSourcesIndex.emplace_back( vObjects.size() - 1 );
+#endif
 
    return static_cast<unsigned>( vObjects.size() - 1 );
 }

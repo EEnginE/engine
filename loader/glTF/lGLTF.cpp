@@ -71,4 +71,38 @@ bool lGLTF::load_IMPL() {
 
    return interprete();
 }
+
+void lGLTF::unLoad() {
+   vData.clear();
+
+   vScene.clear();
+
+   vAccessors.clear();
+   vBuffers.clear();
+   vBufferViews.clear();
+   vCameras.clear();
+   vImages.clear();
+   vMaterials.clear();
+   vMeshs.clear();
+   vNodes.clear();
+   vPrograms.clear();
+   vShaders.clear();
+   vScenes.clear();
+   vSkins.clear();
+   vTechniques.clear();
+
+   vAccessorMap.clear();
+   vBufferMap.clear();
+   vBufferViewMap.clear();
+   vCamerasMap.clear();
+   vImageMap.clear();
+   vMaterialMap.clear();
+   vMeshsMap.clear();
+   vNodesMap.clear();
+   vProgramsMap.clear();
+   vShadersMap.clear();
+   vScenesMap.clear();
+   vSkinsMap.clear();
+   vTechniqueMap.clear();
+}
 }

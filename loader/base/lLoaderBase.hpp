@@ -25,60 +25,23 @@
 #include <type_traits>
 #include <memory>
 #include "uParserHelper.hpp"
-#include "lLoaderStructs.hpp"
 
 namespace e_engine {
 
 namespace internal {
-
-typedef _3D_Data_RAW<float, unsigned short> _3D_Data_RAWF;
-typedef _3D_Data_RAW<double, unsigned short> _3D_Data_RAWD;
-
-typedef _3D_Data<float, unsigned short> _3D_DataF;
-typedef _3D_Data<double, unsigned short> _3D_DataD;
 
 template <class T, class I>
 class lLoaderBase : public uParserHelper {
    static_assert( std::is_floating_point<T>::value, "T must be a floating point type" );
    static_assert( std::is_unsigned<I>::value, "I must be an unsigned type" );
 
-   using S_TYP = _3D_Engine<T, I>;
-   using DATA  = std::shared_ptr<S_TYP>;
-
- protected:
-   DATA vData;
-
  public:
    virtual ~lLoaderBase() {}
    lLoaderBase() {}
-   lLoaderBase( std::string _file ) : uParserHelper( _file ), vData( std::make_shared<S_TYP>() ) {}
+   lLoaderBase( std::string _file ) : uParserHelper( _file ) {}
 
-   template <class C, class... ARGS>
-   bool generateObjects( std::vector<C> &_output, ARGS &&... _args );
-
-   void unLoad();
+   virtual void unLoad() = 0;
 };
-
-template <class T, class I>
-template <class C, class... ARGS>
-bool lLoaderBase<T, I>::generateObjects( std::vector<C> &_output, ARGS &&... _args ) {
-   if ( !vData )
-      return false;
-
-   _output.emplace_back( std::forward<ARGS>( _args )..., vData );
-   return true;
-}
-
-
-/*!
- * \brief Clears the memory
- */
-template <class T, class I>
-void lLoaderBase<T, I>::unLoad() {
-   vIsParsed = false;
-   if ( vData )
-      vData.clear();
-}
 }
 }
 
