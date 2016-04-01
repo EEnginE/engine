@@ -20,11 +20,15 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (location = 0) in vec3 iVertex;
+layout (location = 1) in vec3 iNormals;
 
 layout (binding = 0) uniform UBuffer {
    mat4 mvp;
 } uBuff;
 
+layout (location = 0) out vec3 vColor;
+
 void main() {
+   vColor = normalize( iNormals );
    gl_Position = uBuff.mvp * vec4(iVertex, 1.0);
 }

@@ -55,6 +55,7 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
 
    uint32_t getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) override;
    uint32_t getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) override;
+   bool checkIsCompatible( rPipeline *_pipe ) override;
 };
 }
 

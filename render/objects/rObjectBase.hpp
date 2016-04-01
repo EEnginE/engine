@@ -49,6 +49,8 @@ namespace e_engine {
 #define MODEL_VIEW_PROJECTION_MATRIX_FLAG ( 1 << 8 )
 #define NORMAL_MATRIX_FLAG ( 1 << 9 )
 
+class rPipeline;
+
 /*!
  * \brief Base class for creating objects
  *
@@ -101,7 +103,8 @@ class RENDER_API rObjectBase {
  protected:
    std::string vName_str;
 
-   bool vIsLoaded_B = false;
+   bool vIsLoaded_B     = false;
+   rPipeline *vPipeline = nullptr;
 
  public:
    rObjectBase( std::string _name ) : vName_str( _name ) {}
@@ -125,8 +128,11 @@ class RENDER_API rObjectBase {
 
    virtual bool finishData() = 0;
 
+   virtual bool checkIsCompatible( rPipeline *_pipe ) = 0;
+
    bool getIsDataLoaded() const { return vIsLoaded_B; }
    std::string getName() const { return vName_str; }
+   bool setPipeline( rPipeline *_pipe );
 
    virtual uint32_t getMatrix( rMat4f **_mat, MATRIX_TYPES _type );
    virtual uint32_t getMatrix( rMat4d **_mat, MATRIX_TYPES _type );

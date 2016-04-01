@@ -262,11 +262,27 @@ void rRenderer::renderLoop() {
       lRPInfo.clearValueCount          = vRenderPass_vk.clearValues.size();
       lRPInfo.pClearValues             = vRenderPass_vk.clearValues.data();
 
+      VkViewport lViewPort = {};
+      lViewPort.x          = 0;
+      lViewPort.y          = 0;
+      lViewPort.width      = GlobConf.win.width;
+      lViewPort.height     = GlobConf.win.height;
+      lViewPort.minDepth   = 0.0f;
+      lViewPort.maxDepth   = 1.0f;
+
+      VkRect2D lScissors      = {};
+      lScissors.offset.x      = 0;
+      lScissors.offset.y      = 0;
+      lScissors.extent.width  = GlobConf.win.width;
+      lScissors.extent.height = GlobConf.win.height;
+
       for ( auto &i : vFramebuffers_vk ) {
          vWorldPtr->beginCommandBuffer( i.render );
 
          lRPInfo.framebuffer = i.fb;
          vkCmdBeginRenderPass( i.render, &lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
+         vkCmdSetViewport( i.render, 0, 1, &lViewPort );
+         vkCmdSetScissor( i.render, 0, 1, &lScissors );
 
          //! \todo Record secondary command buffer to render stuff HERE
 

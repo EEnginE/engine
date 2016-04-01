@@ -30,6 +30,15 @@ namespace e_engine {
  */
 rObjectBase::~rObjectBase() {}
 
+bool rObjectBase::setPipeline( rPipeline *_pipe ) {
+   if ( !checkIsCompatible( _pipe ) ) {
+      eLOG( "Pipeline not compatible with object ", vName_str );
+      return false;
+   }
+
+   vPipeline = _pipe;
+   return true;
+}
 
 #if COMPILER_CLANG
 #pragma clang diagnostic push // This warning is irrelevant here

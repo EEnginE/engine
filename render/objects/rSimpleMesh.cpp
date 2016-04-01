@@ -21,6 +21,7 @@
 #include "rSimpleMesh.hpp"
 #include "rWorld.hpp"
 #include "uLog.hpp"
+#include "rPipeline.hpp"
 
 namespace e_engine {
 
@@ -87,6 +88,10 @@ bool rSimpleMesh::finishData() {
       vIsLoaded_B = true;
 
    return lRes;
+}
+
+bool rSimpleMesh::checkIsCompatible( rPipeline *_pipe ) {
+   return _pipe->checkInputCompatible( {{3, sizeof( float )}, {3, sizeof( float )}} );
 }
 
 uint32_t rSimpleMesh::getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) {

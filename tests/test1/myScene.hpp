@@ -22,6 +22,7 @@
 
 #include <engine.hpp>
 #include "cmdANDinit.hpp"
+#include "SPIRV_triangle1.hpp"
 
 using e_engine::rScene;
 using e_engine::rCameraHandler;
@@ -32,8 +33,10 @@ using e_engine::uSlot;
 using e_engine::iInit;
 using e_engine::iEventInfo;
 using e_engine::rWorld;
+using e_engine::rPipeline;
+using e_engine::SPIRV_triangle1;
 
-class myScene final : public rScene<float>/*, public rCameraHandler<float>*/ {
+class myScene final : public rScene<float> /*, public rCameraHandler<float>*/ {
    typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
 
  private:
@@ -42,6 +45,8 @@ class myScene final : public rScene<float>/*, public rCameraHandler<float>*/ {
    rPointLight<float> vLight1;
    rPointLight<float> vLight2;
    rDirectionalLight<float> vLight3;
+   rPipeline vPipeline;
+   SPIRV_triangle1 vShader;
 
    std::string vShader_str;
    std::string vNormalShader_str;
@@ -57,10 +62,11 @@ class myScene final : public rScene<float>/*, public rCameraHandler<float>*/ {
 
    myScene( rWorld *_world, cmdANDinit &_cmd )
        : rScene( "MAIN SCENE", _world ),
-         //rCameraHandler( this, _init ),
+         // rCameraHandler( this, _init ),
          vLight1( this, "L1" ),
          vLight2( this, "L2" ),
          vLight3( "L3", e_engine::rVec3f( 0.5, -1, 0.5 ) ),
+         vShader( _world ),
          vShader_str( _cmd.getShader() ),
          vNormalShader_str( _cmd.getNormalShader() ),
          vFilePath( _cmd.getMesh() ),

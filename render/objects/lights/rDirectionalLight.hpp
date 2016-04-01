@@ -73,7 +73,8 @@ class rDirectionalLight : public rObjectBase {
    }
    rVec3<T> *getColor() { return &vLightColor; }
 
-   virtual uint32_t getVector( rVec3<T> **_vec, VECTOR_TYPES _type );
+   uint32_t getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) override;
+   bool checkIsCompatible( rPipeline * ) override { return true; }
 };
 
 

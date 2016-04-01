@@ -83,6 +83,8 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    rVec3<T> *getAttenuation() { return &vAttenuation; }
 
    uint32_t getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) override;
+
+   bool checkIsCompatible( rPipeline * ) override { return true; }
 };
 
 

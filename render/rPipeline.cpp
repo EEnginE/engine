@@ -131,6 +131,11 @@ bool rPipeline::create( VkDevice _device,
       return false;
    }
 
+   if ( vIsCreated ) {
+      eLOG( "Pipeline already created!" );
+      return false;
+   }
+
    vDevice_vk = _device;
 
    std::vector<VkDynamicState> lDynStates;
@@ -195,6 +200,25 @@ bool rPipeline::create( VkDevice _device,
       return false;
    }
 
+   vIsCreated = true;
+   return true;
+}
+
+/*!
+ * \brief destroyes the pipeline
+ * \note The renderer will call this function
+ */
+bool rPipeline::destroy() {
+   if ( !vIsCreated ) {
+      eLOG( "Pipeline already destroyed" );
+      return false;
+   }
+
+   if ( vPipeline_vk )
+      vkDestroyPipeline( vDevice_vk, vPipeline_vk, nullptr );
+
+   vPipeline_vk = nullptr;
+
    return true;
 }
 
@@ -205,6 +229,51 @@ bool rPipeline::create( VkDevice _device,
 bool rPipeline::isReadyToCreate() const {
    if ( vShader == nullptr )
       return false;
+
+   return true;
+}
+
+/*!
+ * \brief Checks if the input interface matches
+ */
+bool rPipeline::checkInputCompatible( std::vector<InputDesc> _inputs ) {
+   if ( vShader == nullptr ) {
+      eLOG( "Shader not yet set!" );
+      return false;
+   }
+
+   uint32_t lSum = 0;
+
+   auto lVertexInfo1 = vShader->getVertexInputBindingDescription();
+   auto lVertexInfo2 = vShader->getVertexInputAttribureDescriptions();
+
+   if ( _inputs.size() != lVertexInfo2.size() )
+      return false;
+
+   for ( uint32_t i = 0; i < _inputs.size(); i++ ) {
+      if ( lVertexInfo2[i].offset != lSum )
+         return false;
+
+      lSum += _inputs[i].num * _inputs[i].size;
+   }
+
+   if ( lVertexInfo1.stride != lSum )
+      return false;
+
+   return true;
+}
+
+bool rPipeline::cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bindPoint ) {
+   if ( !vIsCreated ) {
+      eLOG( "Pipeline not created yet" );
+      return false;
+   }
+
+   VkDescriptorSet lSet     = vShader->getDescriptorSet();
+   VkPipelineLayout lLayout = vShader->getPipelineLayout();
+
+   vkCmdBindDescriptorSets( _buf, _bindPoint, lLayout, 0, 1, &lSet, 0, nullptr );
+   vkCmdBindPipeline( _buf, _bindPoint, vPipeline_vk );
 
    return true;
 }

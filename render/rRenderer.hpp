@@ -36,6 +36,11 @@ class iInit;
 class rWorld;
 class rObjectBase;
 
+/*!
+ * \brief Main render class
+ *
+ * \todo Multiple viewports scissors
+ */
 class RENDER_API rRenderer {
  public:
    typedef std::unordered_map<uint32_t, VkImageLayout> AttachmentLayoutMap;

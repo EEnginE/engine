@@ -21,6 +21,9 @@ using namespace e_engine;
 int myScene::init() {
    // updateCamera();
 
+   vPipeline.enableCulling()->setDynamicViewports( 1 )->setDynamicScissors( 1 )->enableDepthTest();
+   vPipeline.setShader( &vShader );
+
    lGLTF lLoader( vFilePath );
    if ( lLoader() != 1 )
       return 2;
@@ -51,8 +54,10 @@ int myScene::init() {
    vLight2.setAttenuation( 0.1f, 0.02f, 0.2f );
 
 
-   for ( auto &i : vObjects )
+   for ( auto &i : vObjects ) {
+      i.setPipeline( &vPipeline );
       addObject( &i );
+   }
 
    addObject( &vLight1 );
    addObject( &vLight2 );

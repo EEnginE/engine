@@ -72,6 +72,8 @@ class rPipeline {
    VkPipelineColorBlendStateCreateInfo vColorBlend       = {};
    VkPipelineDynamicStateCreateInfo vDynamic             = {};
 
+   bool vIsCreated = false;
+
  public:
    rPipeline();
    rPipeline( const rPipeline &_obj ) = delete;
@@ -107,6 +109,18 @@ class rPipeline {
                 VkRenderPass _renderPass,
                 uint32_t _subPass,
                 VkPipelineCache _cache = VK_NULL_HANDLE );
+
+   bool destroy();
+   VkPipeline getPipeline();
+
+   bool cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bindPoint );
+
+   struct InputDesc {
+      uint32_t num;
+      uint32_t size;
+   };
+
+   bool checkInputCompatible( std::vector<InputDesc> _inputs );
 
    virtual ~rPipeline();
 };
