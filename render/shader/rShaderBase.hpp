@@ -31,12 +31,15 @@ namespace e_engine {
 class iInit;
 class rWorld;
 
-static const std::string gShaderVertexInputVarName[]  = {"iVertex", "iVertices", "iVert"};
-static const std::string gShaderNormalsInputVarName[] = {"iNormal", "iNormals", "iNorm"};
-static const std::string gShaderUVInputVarName[]      = {"iUV", "iUVs"};
+static const std::string gShaderVertexInputVarName[]   = {"iVertex", "iVertices", "iVert"};
+static const std::string gShaderNormalsInputVarName[]  = {"iNormal", "iNormals", "iNorm"};
+static const std::string gShaderUVInputVarName[]       = {"iUV", "iUVs"};
+static const std::string gShaderUniformMVPMatrixName[] = {"uMVP", "MVP"};
 
 class rShaderBase {
  public:
+   enum UNIFORM_ROLE { MODEL_VIEW_PROJECTION_MATRIX, UNKONOWN };
+
    typedef struct InOut {
       std::string type;
       std::string name;
@@ -60,8 +63,27 @@ class rShaderBase {
       std::vector<Uniform> uniformBlocks;
    } ShaderInfo;
 
+   typedef struct UniformBuffer {
+      typedef struct Var {
+         std::string name;
+         std::string type;
+         uint32_t offset;
+         uint32_t size;
+
+         UNIFORM_ROLE guessedRole = UNKONOWN;
+         VkDeviceMemory mem;
+      } Var;
+
+      VkShaderStageFlags stage;
+      uint32_t size;
+      VkDeviceMemory mem;
+
+      std::vector<Var> vars;
+   } UniformBuffer;
+
  private:
    VkDevice vDevice_vk;
+   iInit *vInitPtr;
 
    VkShaderModule vVertModule_vk = nullptr;
    VkShaderModule vTescModule_vk = nullptr;
@@ -81,6 +103,13 @@ class rShaderBase {
    std::vector<VkPipelineShaderStageCreateInfo> vShaderStageInfo;
    std::vector<VkDescriptorSetLayoutBinding> vLayoutBindings;
    std::vector<VkDescriptorPoolSize> vDescPoolSizes;
+   std::vector<VkWriteDescriptorSet> vWriteDescData;
+   std::vector<VkBuffer> vBuffers;
+   std::vector<VkDeviceMemory> vMemory;
+   std::vector<UniformBuffer> vUniformBufferDescs;
+
+   // Data storage
+   std::vector<VkDescriptorBufferInfo> vDataBufferInfo;
 
    bool vModulesCreated = false;
 
@@ -88,10 +117,11 @@ class rShaderBase {
    VkDescriptorType getDescriptorType( std::string _str );
    void addLayoutBindings( VkShaderStageFlags _stage, ShaderInfo _info );
 
+   uint32_t createUniformBuffer( uint32_t _size );
+
  public:
    rShaderBase() = delete;
-   rShaderBase( VkDevice _device );
-   rShaderBase( iInit *_tempInit );
+   rShaderBase( iInit *_init );
    rShaderBase( rWorld *_tempWorld );
    ~rShaderBase();
 
@@ -103,8 +133,11 @@ class rShaderBase {
    VkPipelineLayout getPipelineLayout();
    VkVertexInputBindingDescription getVertexInputBindingDescription();
    std::vector<VkVertexInputAttributeDescription> getVertexInputAttribureDescriptions();
+   UniformBuffer const *getUniformBuffer( VkShaderStageFlagBits _stage );
 
    static bool getGLSLTypeInfo( std::string _name, uint32_t &_size, VkFormat &_format );
+
+   bool updateUniform( UniformBuffer::Var const &_var, void const *_data );
 
    virtual bool has_vert() const = 0;
    virtual bool has_tesc() const = 0;

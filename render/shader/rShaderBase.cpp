@@ -25,13 +25,12 @@
 #include "uLog.hpp"
 #include "uEnum2Str.hpp"
 #include <algorithm>
+#include <string.h> // memcpy
 
 namespace e_engine {
 
-rShaderBase::rShaderBase( iInit *_tempInit ) : rShaderBase( _tempInit->getDevice() ) {}
-rShaderBase::rShaderBase( rWorld *_tempWorld ) : rShaderBase( _tempWorld->getDevice() ) {}
-
-rShaderBase::rShaderBase( VkDevice _device ) : vDevice_vk( _device ) {}
+rShaderBase::rShaderBase( iInit *_init ) : vDevice_vk( _init->getDevice() ), vInitPtr( _init ) {}
+rShaderBase::rShaderBase( rWorld *_tempWorld ) : rShaderBase( _tempWorld->getInitPtr() ) {}
 
 /*!
  * \brief Compare operator
@@ -77,6 +76,12 @@ bool rShaderBase::InOut::operator<( const InOut &rhs ) {
 }
 
 rShaderBase::~rShaderBase() {
+   for ( auto i : vBuffers )
+      vkDestroyBuffer( vDevice_vk, i, nullptr );
+
+   for ( auto i : vMemory )
+      vkFreeMemory( vDevice_vk, i, nullptr );
+
    if ( vVertModule_vk )
       vkDestroyShaderModule( vDevice_vk, vVertModule_vk, nullptr );
 
@@ -117,6 +122,59 @@ bool rShaderBase::createModule( VkShaderModule *_module, std::vector<unsigned ch
    }
 
    return true;
+}
+
+uint32_t rShaderBase::createUniformBuffer( uint32_t _size ) {
+   vBuffers.emplace_back();
+   vMemory.emplace_back();
+
+   uint32_t lIndex;
+   VkMemoryRequirements lMemReqs;
+
+   VkBufferCreateInfo lBuffInfo    = {};
+   lBuffInfo.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+   lBuffInfo.pNext                 = nullptr;
+   lBuffInfo.flags                 = 0;
+   lBuffInfo.size                  = _size;
+   lBuffInfo.usage                 = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+   lBuffInfo.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+   lBuffInfo.queueFamilyIndexCount = 0;
+   lBuffInfo.pQueueFamilyIndices   = nullptr;
+
+   auto lRes = vkCreateBuffer( vDevice_vk, &lBuffInfo, nullptr, &vBuffers.back() );
+   if ( lRes ) {
+      eLOG( "'vkCreateBuffer' returned ", uEnum2Str::toStr( lRes ) );
+      return UINT32_MAX;
+   }
+
+   vkGetBufferMemoryRequirements( vDevice_vk, vBuffers.back(), &lMemReqs );
+
+   lIndex = vInitPtr->getMemoryTypeIndexFromBitfield( lMemReqs.memoryTypeBits,
+                                                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT );
+
+   if ( lIndex == UINT32_MAX ) {
+      eLOG( "Unable to find memory type" );
+      return UINT32_MAX;
+   }
+
+   VkMemoryAllocateInfo lAllocInfo = {};
+   lAllocInfo.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+   lAllocInfo.pNext                = nullptr;
+   lAllocInfo.allocationSize       = lMemReqs.size;
+   lAllocInfo.memoryTypeIndex      = lIndex;
+   lRes = vkAllocateMemory( vDevice_vk, &lAllocInfo, nullptr, &vMemory.back() );
+   if ( lRes ) {
+      eLOG( "'vkAllocateMemory' returned ", uEnum2Str::toStr( lRes ) );
+      return UINT32_MAX;
+   }
+
+   lRes = vkBindBufferMemory( vDevice_vk, vBuffers.back(), vMemory.back(), 0 );
+   if ( lRes ) {
+      eLOG( "'vkBindBufferMemory' returned ", uEnum2Str::toStr( lRes ) );
+      return UINT32_MAX;
+   }
+
+   return vMemory.size() - 1;
 }
 
 VkDescriptorType rShaderBase::getDescriptorType( std::string _str ) {
@@ -194,6 +252,70 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlags _stage, ShaderInfo _info
 
       if ( !lFound )
          vDescPoolSizes.push_back( {lTemp.descriptorType, 1} );
+
+      uint32_t lSize     = 0;
+      uint32_t lTempSize = 0;
+      VkFormat lTempF;
+
+      vUniformBufferDescs.emplace_back();
+      vWriteDescData.emplace_back();
+
+      bool lError = false;
+      for ( auto const &j : i.vars ) {
+         if ( !getGLSLTypeInfo( j.type, lTempSize, lTempF ) ) {
+            wLOG( "Unknown uniform type '", j.type, "' -- ignore" );
+            lError = true;
+         }
+
+         vUniformBufferDescs.back().vars.emplace_back();
+         auto *lAlias = &vUniformBufferDescs.back().vars.back();
+
+         lAlias->offset = lSize;
+         lAlias->type   = j.type;
+         lAlias->name   = j.name;
+         lAlias->size   = lTempSize * j.arraySize;
+
+         // Check for MVP Matrix
+         if ( j.type == "mat4" || j.type == "mat4x4" )
+            for ( auto const &k : gShaderUniformMVPMatrixName )
+               if ( k == j.name )
+                  lAlias->guessedRole = MODEL_VIEW_PROJECTION_MATRIX;
+
+         lSize += lTempSize * j.arraySize;
+      }
+
+      if ( lError )
+         continue;
+
+      auto lIndex = createUniformBuffer( lSize );
+      if ( lIndex == UINT32_MAX )
+         continue;
+
+      vDataBufferInfo.emplace_back();
+      auto *lAlias2 = &vDataBufferInfo.back();
+      auto *lAlias1 = &vWriteDescData.back();
+
+      lAlias2->buffer = vBuffers[lIndex];
+      lAlias2->offset = 0;
+      lAlias2->range  = lSize;
+
+      lAlias1->sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      lAlias1->pNext            = nullptr;
+      lAlias1->dstSet           = nullptr; // Set further down
+      lAlias1->dstBinding       = i.binding;
+      lAlias1->dstArrayElement  = 0;
+      lAlias1->descriptorCount  = 1;
+      lAlias1->descriptorType   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+      lAlias1->pImageInfo       = nullptr;
+      lAlias1->pBufferInfo      = lAlias2;
+      lAlias1->pTexelBufferView = nullptr;
+
+      vUniformBufferDescs.back().stage = _stage;
+      vUniformBufferDescs.back().size = lSize;
+      vUniformBufferDescs.back().mem = vMemory[lIndex];
+
+      for ( auto &j : vUniformBufferDescs.back().vars )
+         j.mem = vMemory[lIndex];
    }
 }
 
@@ -212,6 +334,24 @@ bool rShaderBase::getGLSLTypeInfo( std::string _name, uint32_t &_size, VkFormat 
 
    if ( _name == "vec2" ) {
       _size   = sizeof( float ) * 2;
+      _format = VK_FORMAT_R32G32_SFLOAT;
+      return true;
+   }
+
+   if ( _name == "mat4" ) {
+      _size   = sizeof( float ) * 4 * 4;
+      _format = VK_FORMAT_R32G32B32A32_SFLOAT;
+      return true;
+   }
+
+   if ( _name == "mat3" ) {
+      _size   = sizeof( float ) * 3 * 3;
+      _format = VK_FORMAT_R32G32B32_SFLOAT;
+      return true;
+   }
+
+   if ( _name == "mat2" ) {
+      _size   = sizeof( float ) * 2 * 2;
       _format = VK_FORMAT_R32G32_SFLOAT;
       return true;
    }
@@ -372,8 +512,33 @@ bool rShaderBase::init() {
       return false;
    }
 
+   // Update uniform buffers descriptor set
+   for ( auto &i : vWriteDescData )
+      i.dstSet = vDescSet_vk;
+
+   vkUpdateDescriptorSets( vDevice_vk, vWriteDescData.size(), vWriteDescData.data(), 0, nullptr );
+
 
    vModulesCreated = true;
+   return true;
+}
+
+/*!
+ * \brief Updates the uniform memory buffer
+ * \note This function does NO MEMORY SYNCHRONISATION!
+ */
+bool rShaderBase::updateUniform( UniformBuffer::Var const &_var, void const *_data ) {
+   void *lData;
+   auto lRes = vkMapMemory( vDevice_vk, _var.mem, _var.offset, _var.size, 0, &lData );
+   if ( lRes ) {
+      eLOG( "'vkMapMemory' returned ", uEnum2Str::toStr( lRes ) );
+      return false;
+   }
+
+   memcpy( lData, _data, _var.size );
+
+   vkUnmapMemory( vDevice_vk, _var.mem );
+
    return true;
 }
 
@@ -386,6 +551,9 @@ std::vector<VkPipelineShaderStageCreateInfo> rShaderBase::getShaderStageInfo() {
    return vShaderStageInfo;
 }
 
+/*!
+ * \returns nullptr on error
+ */
 VkDescriptorSet rShaderBase::getDescriptorSet() {
    if ( !vModulesCreated )
       if ( !init() )
@@ -394,6 +562,9 @@ VkDescriptorSet rShaderBase::getDescriptorSet() {
    return vDescSet_vk;
 }
 
+/*!
+ * \returns nullptr on error
+ */
 VkDescriptorSetLayout rShaderBase::getDescriptorSetLayout() {
    if ( !vModulesCreated )
       if ( !init() )
@@ -402,6 +573,9 @@ VkDescriptorSetLayout rShaderBase::getDescriptorSetLayout() {
    return vDescLayout_vk;
 }
 
+/*!
+ * \returns nullptr on error
+ */
 VkPipelineLayout rShaderBase::getPipelineLayout() {
    if ( !vModulesCreated )
       if ( !init() )
@@ -424,6 +598,22 @@ std::vector<VkVertexInputAttributeDescription> rShaderBase::getVertexInputAttrib
          return {};
 
    return vInputDescs;
+}
+
+/*!
+ * \brief get shader stage pusch constant information
+ * \returns nullptr on failure
+ */
+rShaderBase::UniformBuffer const *rShaderBase::getUniformBuffer( VkShaderStageFlagBits _stage ) {
+   if ( !vModulesCreated )
+      if ( !init() )
+         return nullptr;
+
+   for ( auto const &i : vUniformBufferDescs )
+      if ( i.stage == _stage )
+         return &i;
+
+   return nullptr;
 }
 
 

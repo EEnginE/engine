@@ -156,12 +156,12 @@ enum2str_generate(
    CLASS_NAME "uEnum2Str"
    NAMESPACE "e_engine"
    FUNC_NAME "toStr"
-   INCLUDES "defines.hpp" "vulkan/vulkan.h" "lGLTF_map.hpp" "rObjectBase.hpp"
+   INCLUDES "defines.hpp" "vulkan/vulkan.h" "lGLTF_map.hpp" "rObjectBase.hpp" "rShaderBase.hpp"
    ENUMS
       # EEnginE
       "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
       "glTF::lGLTF_map::ELEMENTS" "rObjectBase::MATRIX_TYPES" "rObjectBase::VECTOR_TYPES" "rObjectBase::LIGHT_MODEL_T"
-      "rObjectBase::ERROR_FLAGS"
+      "rObjectBase::ERROR_FLAGS" "rShaderBase::UNIFORM_ROLE"
       # Vulkan
       "VkPipelineCacheHeaderVersion"
       "VkResult" "VkStructureType" "VkSystemAllocationScope" "VkInternalAllocationType"

@@ -135,7 +135,6 @@ class @CLASSNAME@ : public rShaderBase {
 
 
    @CLASSNAME@() = delete;
-   @CLASSNAME@( VkDevice _device )   : rShaderBase( _device )    {}
    @CLASSNAME@( iInit *_tempInit )   : rShaderBase( _tempInit )  {}
    @CLASSNAME@( rWorld *_tempWorld ) : rShaderBase( _tempWorld ) {}
 
