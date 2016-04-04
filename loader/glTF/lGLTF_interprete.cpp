@@ -151,9 +151,6 @@ bool lGLTF::interprete() {
          auto const &lAcc = vAccessors[j.indices];
          auto const &lBV  = vBufferViews[lAcc.bufferView];
 
-#if D_LOG_GLTF
-         auto lOffset = lBV.byteOffset + lAcc.byteOffset;
-#endif
          if ( lBV.target != TG_ELEMENT_ARRAY_BUFFER ) {
             eLOG( "Bad target for index accessor (need 34963)! [", i.userDefName, "]" );
             return false;
@@ -190,16 +187,15 @@ bool lGLTF::interprete() {
 
          vData.back().index.resize( lAcc.count );
 
-         for ( int32_t k = lAcc.byteOffset / sizeof( uint16_t ), counter = 0; k < lAcc.count;
+         for ( int32_t k = lAcc.byteOffset / sizeof( uint16_t ), counter = 0; counter < lAcc.count;
                k += 3 + lAcc.byteStride / sizeof( uint16_t ), counter += 3 ) {
-            vData.back().index[counter + 0] = vRawIndex[k + 0];
-            vData.back().index[counter + 1] = vRawIndex[k + 1];
-            vData.back().index[counter + 2] = vRawIndex[k + 2];
+            vData.back().index[counter + 0] = static_cast<uint32_t>( vRawIndex[k + 0] );
+            vData.back().index[counter + 1] = static_cast<uint32_t>( vRawIndex[k + 1] );
+            vData.back().index[counter + 2] = static_cast<uint32_t>( vRawIndex[k + 2] );
          }
 
          dLOG_glTF( "     - Num Index: ", lAcc.count );
-         dLOG_glTF(
-               "     - (Index) Offset: ", lBV.byteOffset, " + ", lAcc.byteOffset, " = ", lOffset );
+         dLOG_glTF( "     - (Index) Offset: ", lAcc.byteOffset );
          dLOG_glTF( "     - (Index) Stride: ", lAcc.byteStride );
 
          for ( auto const &k : j.attributes ) {
@@ -211,12 +207,8 @@ bool lGLTF::interprete() {
                return false;
             }
 
-#if D_LOG_GLTF
-            lOffset = lBV2.byteOffset + lAcc2.byteOffset;
-#endif
-
             std::vector<float> *lDataNew = nullptr;
-            uint32_t lNumEle             = 0;
+            int32_t lNumEle              = 0;
 
             switch ( k.type ) {
                case SM_POSITION:
@@ -233,20 +225,20 @@ bool lGLTF::interprete() {
                   lDataNew = &vData.back().uv;
                   lNumEle = 2;
                   dLOG_glTF( "     - New accessor: TEXTCORD" );
+                  break;
                default: eLOG( "Unsupported type! [", i.userDefName, "]" ); return false;
             }
 
-            lDataNew->resize( lAcc2.count * 3 );
+            lDataNew->resize( lAcc2.count * lNumEle );
 
-            for ( int32_t l = lAcc2.byteOffset / sizeof( uint16_t ), counter = 0;
-                  l < lAcc2.count * 3;
-                  l += lNumEle + lAcc2.byteStride / sizeof( uint16_t ), counter += lNumEle ) {
-               for ( uint32_t m = 0; m < lNumEle; m++ )
+            for ( int32_t l = lAcc2.byteOffset / sizeof( float ), counter = 0;
+                  counter < lAcc2.count * lNumEle;
+                  l += lNumEle, counter += lNumEle ) {
+               for ( int32_t m = 0; m < lNumEle; m++ )
                   lDataNew->operator[]( counter + m ) = vRaw[l + m];
             }
 
-            dLOG_glTF(
-                  "       - Offset: ", lBV2.byteOffset, " + ", lAcc2.byteOffset, " = ", lOffset );
+            dLOG_glTF( "       - Offset: ", lAcc2.byteOffset );
             dLOG_glTF( "       - Stride: ", lAcc2.byteStride );
          }
       }

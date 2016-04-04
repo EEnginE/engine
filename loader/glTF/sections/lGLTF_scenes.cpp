@@ -22,6 +22,7 @@
 
 #include "lGLTF.hpp"
 #include "lGLTF_macroHelpers.hpp"
+#include "uLog.hpp"
 
 namespace e_engine {
 

@@ -29,6 +29,6 @@ layout (binding = 0) uniform UBuffer {
 layout (location = 0) out vec3 vColor;
 
 void main() {
-   vColor = vec3( 0.5, 0.0, 0.0 ); // normalize( iNormals );
+   vColor = normalize( iNormals );
    gl_Position = uBuff.mvp * vec4(iVertex, 1.0);
 }
