@@ -41,6 +41,7 @@ class rMatrixSceneBase {
    rMat4<T> vProjectionMatrix_MAT;
    rMat4<T> vViewMatrix_MAT;
    rMat4<T> vViewProjectionMatrix_MAT;
+   rMat4<T> vVulkanClipSpace_MAT;
 
  public:
    rMatrixSceneBase() = delete;
@@ -68,7 +69,14 @@ rMatrixSceneBase<T>::rMatrixSceneBase( rWorld *_init )
    vViewMatrix_MAT.toIdentityMatrix();
    vViewProjectionMatrix_MAT.toIdentityMatrix();
 
-   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
+   // clang-format off
+   vVulkanClipSpace_MAT.setMat( 1.0,  0.0, 0.0, 0.0,
+                                0.0, -1.0, 0.0, 0.0,
+                                0.0,  0.0, 0.5, 0.0,
+                                0.0,  0.0, 0.5, 1.0 );
+   // clang-format on
+
+   vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -85,7 +93,7 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio,
                                                           T _farZ,
                                                           T _fofy ) {
    rMatrixMath::perspective( _aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
+   vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -101,7 +109,7 @@ template <class T>
 void rMatrixSceneBase<T>::calculateProjectionPerspective(
       T _width, T _height, T _nearZ, T _farZ, T _fofy ) {
    rMatrixMath::perspective( _width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
+   vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -116,7 +124,7 @@ void rMatrixSceneBase<T>::setCamera( const rVec3<T> &_position,
                                      const rVec3<T> &_lookAt,
                                      const rVec3<T> &_upVector ) {
    rMatrixMath::camera( _position, _lookAt, _upVector, vViewMatrix_MAT );
-   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
+   vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 }
 

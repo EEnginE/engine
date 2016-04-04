@@ -31,6 +31,17 @@ rSimpleMesh::rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name )
       vIndex( _scene->getWorldPtr()->getInitPtr() ),
       vVertex( _scene->getWorldPtr()->getInitPtr() ) {}
 
+
+void rSimpleMesh::record( VkCommandBuffer _buf ) {
+   VkDeviceSize lOffsets[] = {0};
+   VkBuffer lVertex        = vVertex.getBuffer();
+
+   vPipeline->cmdBindPipeline( _buf, VK_PIPELINE_BIND_POINT_GRAPHICS );
+   vkCmdBindVertexBuffers( _buf, vPipeline->getVertexBindPoint(), 1, &lVertex, &lOffsets[0] );
+   vkCmdBindIndexBuffer( _buf, vIndex.getBuffer(), 0, VK_INDEX_TYPE_UINT32 );
+   vkCmdDrawIndexed( _buf, vIndex.getSize(), 1, 0, 0, 1 );
+}
+
 /*!
  * \brief Inits the object (partialy)
  * \note This function SHOULD NOT be called directly! Use the functions in rScene instead!
@@ -88,6 +99,40 @@ bool rSimpleMesh::finishData() {
       vIsLoaded_B = true;
 
    return lRes;
+}
+
+void rSimpleMesh::signalRenderReset() {
+   if ( !vPipeline ) {
+      eLOG( "Pipeline not setup!" );
+      return;
+   }
+
+   vShader      = vPipeline->getShader();
+   vVertUniform = vShader->getUniformBuffer( VK_SHADER_STAGE_VERTEX_BIT );
+
+   if ( !vVertUniform ) {
+      wLOG( "No uniform buffers in shader" );
+      return;
+   }
+
+   vHasMVPMatrix = false;
+
+   for ( auto const &i : vVertUniform->vars ) {
+      if ( i.guessedRole == rShaderBase::MODEL_VIEW_PROJECTION_MATRIX ) {
+         vHasMVPMatrix = true;
+         vMatrixMVPVar = i;
+      }
+   }
+}
+
+void rSimpleMesh::updateUniforms() {
+   if ( !vPipeline || !vShader ) {
+      eLOG( "Pipeline / shader not setup!" );
+      return;
+   }
+
+   if ( vHasMVPMatrix )
+      vShader->updateUniform( vMatrixMVPVar, getModelViewProjectionMatrix()->getMatrix() );
 }
 
 bool rSimpleMesh::checkIsCompatible( rPipeline *_pipe ) {

@@ -129,7 +129,12 @@ class RENDER_API rObjectBase {
    virtual bool finishData() = 0;
 
    virtual bool checkIsCompatible( rPipeline *_pipe ) = 0;
+   virtual bool canRecord() = 0;
+   virtual void updateUniforms() {}
+   virtual void record( VkCommandBuffer ) {}
+   virtual void signalRenderReset() {}
 
+   rPipeline *getPipeline() { return vPipeline; }
    bool getIsDataLoaded() const { return vIsLoaded_B; }
    std::string getName() const { return vName_str; }
    bool setPipeline( rPipeline *_pipe );

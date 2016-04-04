@@ -84,6 +84,7 @@ class rPipeline {
    bool isReadyToCreate() const;
 
    void setShader( rShaderBase *_shader );
+   rShaderBase *getShader() { return vShader; }
 
    rPipeline *setTopology( VkPrimitiveTopology _val = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
    rPipeline *enablePrimitiveRestart();
@@ -105,7 +106,6 @@ class rPipeline {
    rPipeline *disableStencilTest();
 
    bool create( VkDevice _device,
-                VkPipelineLayout _layout,
                 VkRenderPass _renderPass,
                 uint32_t _subPass,
                 VkPipelineCache _cache = VK_NULL_HANDLE );
@@ -115,12 +115,17 @@ class rPipeline {
 
    bool cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bindPoint );
 
+   uint32_t getVertexBindPoint();
+   uint32_t getNumViewpors() { return vViewport.viewportCount; }
+   uint32_t getNumScissors() { return vViewport.scissorCount; }
+
    struct InputDesc {
       uint32_t num;
       uint32_t size;
    };
 
    bool checkInputCompatible( std::vector<InputDesc> _inputs );
+   bool getIsCreated() { return vIsCreated; }
 
    virtual ~rPipeline();
 };

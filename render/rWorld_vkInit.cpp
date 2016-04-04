@@ -133,7 +133,7 @@ int rWorld::recreateSwapchain() {
         lExtentToUse.height > lSInfo.surfaceInfo.maxImageExtent.height )
       lExtentToUse = lSInfo.surfaceInfo.maxImageExtent;
 
-   auto lUsageFlags = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+   auto lUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
    if ( ( lSInfo.surfaceInfo.supportedUsageFlags & lUsageFlags ) == 0 ) {
       lUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
    }
@@ -207,16 +207,17 @@ int rWorld::recreateSwapchainImages( VkCommandBuffer _buf ) {
       return 1;
    }
 
-   std::vector<VkImage> lSwapcainImages;
-   lSwapcainImages.resize( lNum );
+   vSwapchainImages_vk.resize( lNum );
 
-   lRes = vkGetSwapchainImagesKHR( vDevice_vk, vSwapchain_vk, &lNum, lSwapcainImages.data() );
+   lRes = vkGetSwapchainImagesKHR( vDevice_vk, vSwapchain_vk, &lNum, vSwapchainImages_vk.data() );
    if ( lRes ) {
       eLOG( "'vkGetSwapchainImagesKHR' returned ", uEnum2Str::toStr( lRes ) );
       return 2;
    }
 
-   for ( auto &i : lSwapcainImages ) {
+   dVkLOG( "Final number of swapchain images: ", lNum );
+
+   for ( auto &i : vSwapchainImages_vk ) {
       vSwapchainViews_vk.emplace_back();
 
       VkImageViewCreateInfo lInfo;

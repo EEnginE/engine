@@ -20,6 +20,7 @@
  */
 
 #include "rRenderer.hpp"
+#include "rPipeline.hpp"
 #include "rWorld.hpp"
 #include "rObjectBase.hpp"
 #include "iInit.hpp"
@@ -195,7 +196,15 @@ void rRenderer::renderLoop() {
       VkQueue lQueue               = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
       VkCommandPool lCommandPool   = vWorldPtr->getCommandPool( lQueueFamily );
 
-      initFrameCommandBuffers( lCommandPool );
+      std::vector<rObjectBase *> lRenderObjects;
+      for ( auto i : vObjects ) {
+         i->signalRenderReset();
+         if ( i->canRecord() ) {
+            lRenderObjects.emplace_back( i );
+         }
+      }
+
+      initFrameCommandBuffers( lCommandPool, lRenderObjects.size() );
 
       VkSemaphore lSemPresentComplete = vWorldPtr->createSemaphore();
       VkSemaphore lSemRenderPre       = vWorldPtr->createSemaphore();
@@ -276,16 +285,70 @@ void rRenderer::renderLoop() {
       lScissors.extent.width  = GlobConf.win.width;
       lScissors.extent.height = GlobConf.win.height;
 
+
+      // ======================
+      // Rocord command buffers
+      // ======================
+
+
+      VkCommandBufferInheritanceInfo lInherit = {};
+      lInherit.sType                          = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+      lInherit.pNext                          = nullptr;
+      lInherit.renderPass                     = vRenderPass_vk.renderPass;
+      lInherit.framebuffer                    = nullptr; // set in loop
+      lInherit.occlusionQueryEnable           = VK_FALSE;
+      lInherit.queryFlags                     = 0;
+      lInherit.pipelineStatistics             = 0;
+
+      // Destroy old pipelines
+      for ( auto &i : vObjects ) {
+         rPipeline *lPipe = i->getPipeline();
+         if ( lPipe != nullptr ) {
+            if ( lPipe->getIsCreated() ) {
+               lPipe->destroy();
+            }
+         }
+      }
+
+      // Create new pipelines
+      for ( auto &i : vObjects ) {
+         rPipeline *lPipe = i->getPipeline();
+         if ( lPipe != nullptr ) {
+            if ( !lPipe->getIsCreated() ) {
+               lPipe->create( vDevice_vk, vRenderPass_vk.renderPass, 0 );
+            }
+         }
+      }
+
       for ( auto &i : vFramebuffers_vk ) {
          vWorldPtr->beginCommandBuffer( i.render );
 
-         lRPInfo.framebuffer = i.fb;
+         lInherit.framebuffer = i.fb;
+         lRPInfo.framebuffer  = i.fb;
+
          vkCmdBeginRenderPass( i.render, &lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
-         vkCmdSetViewport( i.render, 0, 1, &lViewPort );
-         vkCmdSetScissor( i.render, 0, 1, &lScissors );
 
-         //! \todo Record secondary command buffer to render stuff HERE
+         for ( uint32_t j = 0; j < lRenderObjects.size(); j++ ) {
+            auto *lPipe = lRenderObjects[j]->getPipeline();
+            if ( !lPipe ) {
+               eLOG( "Object ", lRenderObjects[j]->getName(), " has no pipeline!" );
+               continue;
+            }
 
+            vWorldPtr->beginCommandBuffer(
+                  i.secondary[j], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &lInherit );
+
+            if ( lPipe->getNumViewpors() > 0 )
+               vkCmdSetViewport( i.render, 0, 1, &lViewPort );
+
+            if ( lPipe->getNumScissors() > 0 )
+               vkCmdSetScissor( i.render, 0, 1, &lScissors );
+
+            lRenderObjects[j]->record( i.render );
+            vkEndCommandBuffer( i.secondary[j] );
+         }
+
+         vkCmdExecuteCommands( i.render, i.secondary.size(), i.secondary.data() );
          vkCmdEndRenderPass( i.render );
 
          auto lRes = vkEndCommandBuffer( i.render );
@@ -331,13 +394,13 @@ void rRenderer::renderLoop() {
             break;
          }
 
+         // Update Uniforms
+         for ( auto i : lRenderObjects )
+            i->updateUniforms();
+
          // Get present image
-         auto lRes = vkAcquireNextImageKHR( vDevice_vk,
-                                            lSwapchain_vk,
-                                            UINT32_MAX,
-                                            lSemPresentComplete,
-                                            VK_NULL_HANDLE,
-                                            &lNextImg );
+         auto lRes = vkAcquireNextImageKHR(
+               vDevice_vk, lSwapchain_vk, UINT32_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &lNextImg );
          if ( lRes ) {
             eLOG( "'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr( lRes ) );
             break;
@@ -371,6 +434,8 @@ void rRenderer::renderLoop() {
          vRenderedFrames++;
       }
       iLOG( "Render loop stopped" );
+
+
 
       //    _____ _
       //   /  __ \ |
@@ -457,7 +522,7 @@ bool rRenderer::applyChanges() {
 }
 
 
-void rRenderer::initFrameCommandBuffers( VkCommandPool _pool ) {
+void rRenderer::initFrameCommandBuffers( VkCommandPool _pool, uint32_t _numSecondary ) {
    VkImageSubresourceRange lSubResRange = {};
    lSubResRange.aspectMask              = VK_IMAGE_ASPECT_COLOR_BIT;
    lSubResRange.baseMipLevel            = 0;
@@ -469,6 +534,10 @@ void rRenderer::initFrameCommandBuffers( VkCommandPool _pool ) {
       i.preRender  = vWorldPtr->createCommandBuffer( _pool );
       i.render     = vWorldPtr->createCommandBuffer( _pool );
       i.postRender = vWorldPtr->createCommandBuffer( _pool );
+
+      i.secondary.resize( _numSecondary );
+      for ( auto &j : i.secondary )
+         j = vWorldPtr->createCommandBuffer( _pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY );
 
       vWorldPtr->beginCommandBuffer( i.preRender );
       vWorldPtr->cmdChangeImageLayout( i.preRender,
@@ -494,6 +563,9 @@ void rRenderer::initFrameCommandBuffers( VkCommandPool _pool ) {
 
 void rRenderer::freeFrameCommandBuffers( VkCommandPool _pool ) {
    for ( auto &i : vFramebuffers_vk ) {
+      if ( i.secondary.size() > 0 )
+         vkFreeCommandBuffers( vDevice_vk, _pool, i.secondary.size(), i.secondary.data() );
+
       vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.preRender );
       vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.render );
       vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.postRender );
@@ -501,6 +573,7 @@ void rRenderer::freeFrameCommandBuffers( VkCommandPool _pool ) {
       i.preRender  = nullptr;
       i.render     = nullptr;
       i.postRender = nullptr;
+      i.secondary.clear();
    }
 }
 
@@ -555,9 +628,12 @@ uint32_t rRenderer::addSubpass( VkPipelineBindPoint _bindPoint,
          return UINT32_MAX;
       }
 
+      VkImageLayout lLayout = vRenderPass_vk.attachments[i].initialLayout;
       VkAttachmentReference lTemp;
       lTemp.attachment = i;
-      lTemp.layout     = vRenderPass_vk.attachments[i].initialLayout;
+      lTemp.layout     = lLayout != VK_IMAGE_LAYOUT_UNDEFINED
+                           ? lLayout
+                           : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
       if ( _layoutMap.count( i ) > 0 )
          lTemp.layout = _layoutMap[i];
@@ -601,8 +677,11 @@ uint32_t rRenderer::addSubpass( VkPipelineBindPoint _bindPoint,
          return UINT32_MAX;
       }
 
+      VkImageLayout lLayout   = vRenderPass_vk.attachments[_deptStencil].initialLayout;
       lData->depth.attachment = _deptStencil;
-      lData->depth.layout     = vRenderPass_vk.attachments[_deptStencil].initialLayout;
+      lData->depth.layout     = lLayout != VK_IMAGE_LAYOUT_UNDEFINED
+                                  ? lLayout
+                                  : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
       if ( _layoutMap.count( _deptStencil ) > 0 )
          lData->depth.layout = _layoutMap[_deptStencil];

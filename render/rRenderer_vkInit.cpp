@@ -309,7 +309,8 @@ int rRenderer::initFramebuffers() {
    auto lTempViews = vWorldPtr->getSwapchainImageViews();
    for ( auto i : lTempViews ) {
       vFramebuffers_vk.emplace_back();
-      vFramebuffers_vk.back().iv = i;
+      vFramebuffers_vk.back().img = i.img;
+      vFramebuffers_vk.back().iv = i.iv;
    }
 
    if ( vRenderPass_vk.attachmentViews.size() != vRenderPass_vk.attachments.size() ) {

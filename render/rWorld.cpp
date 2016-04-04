@@ -31,6 +31,8 @@
 #define dVkLOG( ... )
 #endif
 
+#define DEBUG_DISABLE_MULTIRENDER 0
+
 namespace e_engine {
 
 void rWorld::handleResize( iEventInfo const & ) { init(); }
@@ -143,8 +145,6 @@ int rWorld::init() {
    lInfo.signalSemaphoreCount = 0;
    lInfo.pSignalSemaphores    = nullptr;
 
-   dVkLOG( "Submitting image layout change command buffer..." );
-
    {
       std::lock_guard<std::mutex> lGuard( vInitPtr->getQueueMutex( lQueue ) );
       vkQueueSubmit( lQueue, 1, &lInfo, lFence );
@@ -158,9 +158,10 @@ int rWorld::init() {
 
    vkDestroyFence( vDevice_vk, lFence, nullptr );
    vkFreeCommandBuffers( vDevice_vk, lPool, 1, &lBuf );
-   dVkLOG( "...DONE" );
 
+#if !DEBUG_DISABLE_MULTIRENDER
    vBackRenderer->init();
+#endif
    vFrontRenderer->init();
    vFrontRenderer->applyChanges();
    vFrontRenderer->start();
@@ -172,6 +173,14 @@ int rWorld::init() {
    return 0;
 }
 
+void rWorld::shutdown() {
+   if ( vRenderer1.getIsRunning() )
+      vRenderer1.stop();
+
+   if ( vRenderer2.getIsRunning() )
+      vRenderer2.stop();
+}
+
 
 bool rWorld::renderScene( rSceneBase *_scene ) {
    if ( !_scene )
@@ -181,6 +190,7 @@ bool rWorld::renderScene( rSceneBase *_scene ) {
 
    std::lock_guard<std::mutex> lGuard( vRenderAccessMutex );
 
+#if !DEBUG_DISABLE_MULTIRENDER
    for ( auto &i : lObjects )
       vBackRenderer->addObject( i );
 
@@ -203,6 +213,20 @@ bool rWorld::renderScene( rSceneBase *_scene ) {
    auto lTemp     = vFrontRenderer;
    vFrontRenderer = vBackRenderer;
    vBackRenderer  = lTemp;
+#else
+   if ( vFrontRenderer->getIsRunning() )
+      vFrontRenderer->stop();
+
+   vFrontRenderer->destroy();
+   vFrontRenderer->resetObjects();
+   vFrontRenderer->init();
+
+   for ( auto &i : lObjects )
+      vFrontRenderer->addObject( i );
+
+   vFrontRenderer->applyChanges();
+   vFrontRenderer->start();
+#endif
 
    return true;
 }
@@ -344,12 +368,14 @@ VkCommandBuffer rWorld::createCommandBuffer( VkCommandPool _pool, VkCommandBuffe
    return lBuf;
 }
 
-VkResult rWorld::beginCommandBuffer( VkCommandBuffer _buf, VkCommandBufferUsageFlags _flags ) {
+VkResult rWorld::beginCommandBuffer( VkCommandBuffer _buf,
+                                     VkCommandBufferUsageFlags _flags,
+                                     VkCommandBufferInheritanceInfo *_info ) {
    VkCommandBufferBeginInfo lBegin;
    lBegin.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
    lBegin.pNext            = nullptr;
    lBegin.flags            = _flags;
-   lBegin.pInheritanceInfo = nullptr;
+   lBegin.pInheritanceInfo = _info;
 
    VkResult lRes = vkBeginCommandBuffer( _buf, &lBegin );
    if ( lRes ) {
@@ -415,8 +441,18 @@ VkSemaphore rWorld::createSemaphore() {
 }
 
 VkSwapchainKHR rWorld::getSwapchain() { return vSwapchain_vk; }
-std::vector<VkImageView> rWorld::getSwapchainImageViews() { return vSwapchainViews_vk; }
 VkSurfaceFormatKHR rWorld::getSwapchainFormat() { return vSwapchainFormat; }
+
+std::vector<rWorld::SwapChainImg> rWorld::getSwapchainImageViews() {
+   std::vector<SwapChainImg> lTemp;
+
+   for ( uint32_t i = 0; i < vSwapchainViews_vk.size(); i++ ) {
+      lTemp.emplace_back();
+      lTemp.back() = {vSwapchainImages_vk[i], vSwapchainViews_vk[i]};
+   }
+
+   return lTemp;
+}
 
 void rWorld::updateViewPort( int _x, int _y, int _width, int _height ) {
    vViewPort.vNeedUpdate_B = true;

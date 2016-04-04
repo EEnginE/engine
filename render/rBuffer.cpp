@@ -216,6 +216,7 @@ bool rBuffer::cmdInit( std::vector<T> const &_data,
 
    vkCmdCopyBuffer( _buff, vTempBuffer_vk, vBuffer_vk, 1, &lRegion );
 
+   vSize                = _data.size();
    vSettingUpInProgress = true;
    return true;
 }
@@ -267,6 +268,16 @@ bool rBuffer::destroy() {
    vMem_vk        = nullptr;
 
    return true;
+}
+
+/*!
+ * \brief returns nullptr on error
+ */
+VkBuffer rBuffer::getBuffer() {
+   if ( !vIsLoaded )
+      return nullptr;
+
+   return vBuffer_vk;
 }
 
 // Explicit isntanciate rBuffer::cmdInit

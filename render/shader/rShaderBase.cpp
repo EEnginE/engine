@@ -27,6 +27,12 @@
 #include <algorithm>
 #include <string.h> // memcpy
 
+#if D_LOG_VULKAN
+#define dVkLOG( ... ) dLOG( __VA_ARGS__ )
+#else
+#define dVkLOG( ... )
+#endif
+
 namespace e_engine {
 
 rShaderBase::rShaderBase( iInit *_init ) : vDevice_vk( _init->getDevice() ), vInitPtr( _init ) {}
@@ -141,6 +147,8 @@ uint32_t rShaderBase::createUniformBuffer( uint32_t _size ) {
    lBuffInfo.queueFamilyIndexCount = 0;
    lBuffInfo.pQueueFamilyIndices   = nullptr;
 
+   dVkLOG( "    -- Creating uniform buffer, size = ", _size );
+
    auto lRes = vkCreateBuffer( vDevice_vk, &lBuffInfo, nullptr, &vBuffers.back() );
    if ( lRes ) {
       eLOG( "'vkCreateBuffer' returned ", uEnum2Str::toStr( lRes ) );
@@ -202,7 +210,9 @@ VkDescriptorType rShaderBase::getDescriptorType( std::string _str ) {
    return VK_DESCRIPTOR_TYPE_MAX_ENUM; // Error nor found
 }
 
-void rShaderBase::addLayoutBindings( VkShaderStageFlags _stage, ShaderInfo _info ) {
+void rShaderBase::addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _info ) {
+   dVkLOG( "  -- stage ", uEnum2Str::toStr( _stage ) );
+
    for ( auto const &i : _info.uniforms ) {
       VkDescriptorSetLayoutBinding lTemp = {};
       lTemp.binding                      = i.location;
@@ -210,6 +220,8 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlags _stage, ShaderInfo _info
       lTemp.descriptorCount              = i.arraySize;
       lTemp.stageFlags                   = _stage;
       lTemp.pImmutableSamplers           = nullptr; //! \todo Implement if found useful
+
+      dVkLOG( "    -- Unifrom binding = ", i.location, " ", i.type, " ", i.name );
 
       if ( lTemp.descriptorType == VK_DESCRIPTOR_TYPE_MAX_ENUM ) {
          wLOG( "Unknown uniform descriptor type '", i.type, "' -- ignore" );
@@ -238,6 +250,8 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlags _stage, ShaderInfo _info
       lTemp.descriptorCount              = 1;
       lTemp.stageFlags                   = _stage;
       lTemp.pImmutableSamplers           = nullptr; //! \todo Implement if found useful
+
+      dVkLOG( "    -- Unifrom Block binding = ", i.binding, " ", i.name );
 
       vLayoutBindings.emplace_back( lTemp );
 
@@ -282,6 +296,7 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlags _stage, ShaderInfo _info
                   lAlias->guessedRole = MODEL_VIEW_PROJECTION_MATRIX;
 
          lSize += lTempSize * j.arraySize;
+         dVkLOG( "      - ", j.type, " ", j.name, " | ", uEnum2Str::toStr( lAlias->guessedRole ) );
       }
 
       if ( lError )
@@ -371,6 +386,8 @@ bool rShaderBase::init() {
       return false;
    }
 
+   dVkLOG( "Initilizing shader ", getName() );
+
    bool lStatus = true;
 
    VkPipelineShaderStageCreateInfo lInfo;
@@ -382,13 +399,11 @@ bool rShaderBase::init() {
    lInfo.pName               = "main";              // There is no point in using another name
    lInfo.pSpecializationInfo = nullptr; //! \todo evaluate if this feature is should be supported
 
-   std::vector<VkPipelineShaderStageCreateInfo> lTemp;
-
    if ( has_vert() ) {
       lStatus      = lStatus && createModule( &vVertModule_vk, getRawData_vert() );
       lInfo.stage  = VK_SHADER_STAGE_VERTEX_BIT;
       lInfo.module = vVertModule_vk;
-      lTemp.push_back( lInfo );
+      vShaderStageInfo.push_back( lInfo );
       addLayoutBindings( VK_SHADER_STAGE_VERTEX_BIT, getInfo_vert() );
 
       vInputBindingDesc.binding   = 0;
@@ -407,6 +422,9 @@ bool rShaderBase::init() {
             return false;
          }
 
+         dVkLOG(
+               "    -- Input location = ", i.location, " ", i.type, " ", i.name, " (", lSize, ")" );
+
          vInputDescs.back().binding = 0;
          vInputDescs.back().location = i.location;
          vInputDescs.back().offset = vInputBindingDesc.stride;
@@ -418,7 +436,7 @@ bool rShaderBase::init() {
       lStatus      = lStatus && createModule( &vTescModule_vk, getRawData_tesc() );
       lInfo.stage  = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
       lInfo.module = vTescModule_vk;
-      lTemp.push_back( lInfo );
+      vShaderStageInfo.push_back( lInfo );
       addLayoutBindings( VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT, getInfo_tesc() );
    }
 
@@ -426,7 +444,7 @@ bool rShaderBase::init() {
       lStatus      = lStatus && createModule( &vTeseModule_vk, getRawData_tese() );
       lInfo.stage  = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
       lInfo.module = vTeseModule_vk;
-      lTemp.push_back( lInfo );
+      vShaderStageInfo.push_back( lInfo );
       addLayoutBindings( VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT, getInfo_tese() );
    }
 
@@ -434,7 +452,7 @@ bool rShaderBase::init() {
       lStatus      = lStatus && createModule( &vGeomModule_vk, getRawData_geom() );
       lInfo.stage  = VK_SHADER_STAGE_GEOMETRY_BIT;
       lInfo.module = vGeomModule_vk;
-      lTemp.push_back( lInfo );
+      vShaderStageInfo.push_back( lInfo );
       addLayoutBindings( VK_SHADER_STAGE_GEOMETRY_BIT, getInfo_geom() );
    }
 
@@ -442,7 +460,7 @@ bool rShaderBase::init() {
       lStatus      = lStatus && createModule( &vFragModule_vk, getRawData_frag() );
       lInfo.stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
       lInfo.module = vFragModule_vk;
-      lTemp.push_back( lInfo );
+      vShaderStageInfo.push_back( lInfo );
       addLayoutBindings( VK_SHADER_STAGE_FRAGMENT_BIT, getInfo_frag() );
    }
 
@@ -450,7 +468,7 @@ bool rShaderBase::init() {
       lStatus      = lStatus && createModule( &vCompModule_vk, getRawData_comp() );
       lInfo.stage  = VK_SHADER_STAGE_COMPUTE_BIT;
       lInfo.module = vCompModule_vk;
-      lTemp.push_back( lInfo );
+      vShaderStageInfo.push_back( lInfo );
       addLayoutBindings( VK_SHADER_STAGE_COMPUTE_BIT, getInfo_comp() );
    }
 
@@ -601,7 +619,7 @@ std::vector<VkVertexInputAttributeDescription> rShaderBase::getVertexInputAttrib
 }
 
 /*!
- * \brief get shader stage pusch constant information
+ * \brief get shader stage unifrom buffer information
  * \returns nullptr on failure
  */
 rShaderBase::UniformBuffer const *rShaderBase::getUniformBuffer( VkShaderStageFlagBits _stage ) {

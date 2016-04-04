@@ -27,6 +27,7 @@
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
 #include "rBuffer.hpp"
+#include "rShaderBase.hpp"
 
 namespace e_engine {
 
@@ -34,6 +35,12 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
  private:
    rBuffer vIndex;
    rBuffer vVertex;
+
+   rShaderBase *vShader                           = nullptr;
+   const rShaderBase::UniformBuffer *vVertUniform = nullptr;
+
+   rShaderBase::UniformBuffer::Var vMatrixMVPVar = {};
+   bool vHasMVPMatrix                            = false;
 
  public:
    rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name );
@@ -52,6 +59,11 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
                  std::vector<float> const & ) override;
 
    bool finishData() override;
+
+   bool canRecord() override { return true; }
+   void record( VkCommandBuffer _buf ) override;
+   void updateUniforms() override;
+   void signalRenderReset() override;
 
    uint32_t getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) override;
    uint32_t getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) override;

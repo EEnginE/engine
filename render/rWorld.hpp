@@ -66,6 +66,11 @@ class RENDER_API rWorld {
       float a;
    };
 
+   struct SwapChainImg {
+      VkImage img;
+      VkImageView iv;
+   };
+
  private:
    iInit *vInitPtr;
 
@@ -73,6 +78,7 @@ class RENDER_API rWorld {
    VkSurfaceKHR vSurface_vk;
    VkSwapchainKHR vSwapchain_vk = nullptr;
 
+   std::vector<VkImage> vSwapchainImages_vk;
    std::vector<VkImageView> vSwapchainViews_vk;
 
    ViewPort vViewPort;
@@ -105,11 +111,14 @@ class RENDER_API rWorld {
 
    int init();
    bool renderScene( rSceneBase *_scene );
+   void shutdown();
 
    VkCommandBuffer createCommandBuffer(
          VkCommandPool _pool, VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY );
 
-   VkResult beginCommandBuffer( VkCommandBuffer _buf, VkCommandBufferUsageFlags _flags = 0 );
+   VkResult beginCommandBuffer( VkCommandBuffer _buf,
+                                VkCommandBufferUsageFlags _flags      = 0,
+                                VkCommandBufferInheritanceInfo *_info = nullptr );
 
    void cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
                               VkImage _img,
@@ -131,7 +140,7 @@ class RENDER_API rWorld {
    VkSemaphore createSemaphore();
 
    VkSwapchainKHR getSwapchain();
-   std::vector<VkImageView> getSwapchainImageViews();
+   std::vector<SwapChainImg> getSwapchainImageViews();
    VkSurfaceFormatKHR getSwapchainFormat();
 
    void updateViewPort( int _x, int _y, int _width, int _height );

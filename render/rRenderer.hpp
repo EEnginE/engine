@@ -79,6 +79,8 @@ class RENDER_API rRenderer {
       VkCommandBuffer preRender  = nullptr;
       VkCommandBuffer render     = nullptr;
       VkCommandBuffer postRender = nullptr;
+
+      std::vector<VkCommandBuffer> secondary;
    } Framebuffer_vk;
 
  private:
@@ -120,7 +122,7 @@ class RENDER_API rRenderer {
    int initRenderPass();
    int initFramebuffers();
 
-   void initFrameCommandBuffers( VkCommandPool _pool );
+   void initFrameCommandBuffers( VkCommandPool _pool, uint32_t _numSecondary );
    void freeFrameCommandBuffers( VkCommandPool _pool );
 
    void renderLoop();

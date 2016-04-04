@@ -21,7 +21,7 @@ using namespace e_engine;
 int myScene::init() {
    // updateCamera();
 
-   vPipeline.enableCulling()->setDynamicViewports( 1 )->setDynamicScissors( 1 )->enableDepthTest();
+   vPipeline.setDynamicViewports( 1 )->setDynamicScissors( 1 )->enableDepthTest();
    vPipeline.setShader( &vShader );
 
    lGLTF lLoader( vFilePath );

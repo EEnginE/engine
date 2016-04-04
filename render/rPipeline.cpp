@@ -122,7 +122,6 @@ rPipeline::~rPipeline() {
  * \note The renderer will call this function
  */
 bool rPipeline::create( VkDevice _device,
-                        VkPipelineLayout _layout,
                         VkRenderPass _renderPass,
                         uint32_t _subPass,
                         VkPipelineCache _cache ) {
@@ -158,7 +157,7 @@ bool rPipeline::create( VkDevice _device,
       lDynStates.emplace_back( VK_DYNAMIC_STATE_STENCIL_WRITE_MASK );
    }
 
-   lDynStates.emplace_back( VK_DYNAMIC_STATE_LINE_WIDTH );
+   //    lDynStates.emplace_back( VK_DYNAMIC_STATE_LINE_WIDTH );
 
    auto lShaderCreateInfo = vShader->getShaderStageInfo();
    auto lVertexInfo1      = vShader->getVertexInputBindingDescription();
@@ -187,7 +186,7 @@ bool rPipeline::create( VkDevice _device,
    lInfo.pDepthStencilState           = &vDepthStencil;
    lInfo.pColorBlendState             = &vColorBlend;
    lInfo.pDynamicState                = &vDynamic;
-   lInfo.layout                       = _layout;
+   lInfo.layout                       = vShader->getPipelineLayout();
    lInfo.renderPass                   = _renderPass;
    lInfo.subpass                      = _subPass;
    lInfo.basePipelineHandle           = VK_NULL_HANDLE;
@@ -218,6 +217,7 @@ bool rPipeline::destroy() {
       vkDestroyPipeline( vDevice_vk, vPipeline_vk, nullptr );
 
    vPipeline_vk = nullptr;
+   vIsCreated   = false;
 
    return true;
 }
@@ -269,6 +269,11 @@ bool rPipeline::cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bind
       return false;
    }
 
+   if ( !vPipeline_vk ) {
+      eLOG( "Fatal error while creating pipeline" );
+      return false;
+   }
+
    VkDescriptorSet lSet     = vShader->getDescriptorSet();
    VkPipelineLayout lLayout = vShader->getPipelineLayout();
 
@@ -278,6 +283,21 @@ bool rPipeline::cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bind
    return true;
 }
 
+uint32_t rPipeline::getVertexBindPoint() {
+   return vShader->getVertexInputBindingDescription().binding;
+}
+
+/*!
+ * \returns nullptr on error / pipeline not created yet
+ */
+VkPipeline rPipeline::getPipeline() {
+   if ( !vIsCreated ) {
+      eLOG( "Pipeline not created yet!" );
+      return nullptr;
+   }
+
+   return vPipeline_vk;
+}
 
 /*!
  * \brief Sets the shader for the pipeline

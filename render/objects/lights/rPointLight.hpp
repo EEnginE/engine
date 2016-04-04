@@ -44,6 +44,7 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    }
 
    bool finishData() override { return false; }
+   bool canRecord() override { return false; }
 
  public:
    using rMatrixObjectBase<T>::getPosition;

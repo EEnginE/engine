@@ -17,6 +17,7 @@ function( createSPIRV )
       message( FATAL_ERROR "createSPIRV: USAGE: <shader name> <shader path> <class path>" )
    endif( NOT "${ARGC}" STREQUAL "3" )
 
+   set( S_NAME "${ARGV0}" )
    set( CLASSNAME "SPIRV_${ARGV0}" )
    set( FILENAME_HPP "${CLASSNAME}.hpp" )
    set( FILENAME_CPP "${CLASSNAME}.cpp" )

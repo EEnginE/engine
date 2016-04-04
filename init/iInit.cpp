@@ -36,6 +36,12 @@
 #define dVkLOG( ... )
 #endif
 
+#if D_LOG_VK_DEBUG_REPORT_INFO
+#define CONTINUE_DB_REPORT_INFO
+#else
+#define CONTINUE_DB_REPORT_INFO return;
+#endif
+
 namespace e_engine {
 namespace internal {
 __iInit_Pointer __iInit_Pointer_OBJ;
@@ -125,11 +131,13 @@ void iInit::vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
    if ( _flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT ) {
       lLogStr = 'D';
       lTempStr += "VK_DEBUG:  ";
+      CONTINUE_DB_REPORT_INFO
    }
 
    if ( _flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT ) {
       lLogStr = 'I';
       lTempStr += "VK_INFO:   ";
+      CONTINUE_DB_REPORT_INFO
    }
 
    if ( _flags & VK_DEBUG_REPORT_WARNING_BIT_EXT ) {
@@ -285,11 +293,11 @@ int iInit::init( std::vector<std::string> _layers ) {
 }
 
 int iInit::handleResize() {
-   dVkLOG( "destroying old vulkan surface" );
-   if ( vSurface_vk )
-      vkDestroySurfaceKHR( vInstance_vk, vSurface_vk, nullptr );
+   if ( !vIsVulkanSetup_B ) {
+      eLOG( "Vulkan not setup yet" );
+      return -1;
+   }
 
-   vSurface_vk = vWindow.getVulkanSurface( vInstance_vk );
    if ( !vSurface_vk )
       return 1;
 

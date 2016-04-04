@@ -68,6 +68,8 @@ int main( int argc, char *argv[] ) {
 
       if ( handler.initGL() == 0 )
          start.startMainLoop();
+
+      handler.shutdown();
    }
 
    start.shutdown();

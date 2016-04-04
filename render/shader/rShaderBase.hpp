@@ -34,7 +34,7 @@ class rWorld;
 static const std::string gShaderVertexInputVarName[]   = {"iVertex", "iVertices", "iVert"};
 static const std::string gShaderNormalsInputVarName[]  = {"iNormal", "iNormals", "iNorm"};
 static const std::string gShaderUVInputVarName[]       = {"iUV", "iUVs"};
-static const std::string gShaderUniformMVPMatrixName[] = {"uMVP", "MVP"};
+static const std::string gShaderUniformMVPMatrixName[] = {"uMVP", "MVP", "mvp"};
 
 class rShaderBase {
  public:
@@ -115,7 +115,7 @@ class rShaderBase {
 
    bool createModule( VkShaderModule *_module, std::vector<unsigned char> _data );
    VkDescriptorType getDescriptorType( std::string _str );
-   void addLayoutBindings( VkShaderStageFlags _stage, ShaderInfo _info );
+   void addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _info );
 
    uint32_t createUniformBuffer( uint32_t _size );
 
@@ -138,6 +138,8 @@ class rShaderBase {
    static bool getGLSLTypeInfo( std::string _name, uint32_t &_size, VkFormat &_format );
 
    bool updateUniform( UniformBuffer::Var const &_var, void const *_data );
+
+   virtual std::string getName() = 0;
 
    virtual bool has_vert() const = 0;
    virtual bool has_tesc() const = 0;

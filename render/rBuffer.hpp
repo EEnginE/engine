@@ -44,6 +44,8 @@ class rBuffer {
    bool vIsLoaded            = false;
    bool vSettingUpInProgress = false;
 
+   uint32_t vSize = 0;
+
    bool errorCleanup();
 
  public:
@@ -61,5 +63,8 @@ class rBuffer {
 
    bool doneCopying();
    bool destroy();
+
+   VkBuffer getBuffer();
+   uint32_t getSize() { return vSize; }
 };
 }

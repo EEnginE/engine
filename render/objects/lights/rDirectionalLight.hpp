@@ -42,6 +42,7 @@ class rDirectionalLight : public rObjectBase {
    }
 
    bool finishData() override { return false; }
+   bool canRecord() override { return false; }
 
  public:
    rDirectionalLight( std::string _name ) : rObjectBase( _name ) { vLightColor.fill( 0 ); }

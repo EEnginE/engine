@@ -24,6 +24,8 @@ class @CLASSNAME@ : public rShaderBase {
    static const std::vector<unsigned char> vRawData_comp;
 
  public:
+   virtual std::string getName() { return "@S_NAME@"; }
+
    virtual bool has_vert() const { return @HAS_VERT@; }
    virtual bool has_tesc() const { return @HAS_TESC@; }
    virtual bool has_tese() const { return @HAS_TESE@; }

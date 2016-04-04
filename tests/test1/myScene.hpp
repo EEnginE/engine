@@ -36,7 +36,7 @@ using e_engine::rWorld;
 using e_engine::rPipeline;
 using e_engine::SPIRV_triangle1;
 
-class myScene final : public rScene<float> /*, public rCameraHandler<float>*/ {
+class myScene final : public rScene<float>, public rCameraHandler<float> {
    typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
 
  private:
@@ -62,7 +62,7 @@ class myScene final : public rScene<float> /*, public rCameraHandler<float>*/ {
 
    myScene( rWorld *_world, cmdANDinit &_cmd )
        : rScene( "MAIN SCENE", _world ),
-         // rCameraHandler( this, _init ),
+         rCameraHandler( this, _world->getInitPtr() ),
          vLight1( this, "L1" ),
          vLight2( this, "L2" ),
          vLight3( "L3", e_engine::rVec3f( 0.5, -1, 0.5 ) ),
