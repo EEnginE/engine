@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+#include "defines.hpp"
+
 #if D_LOG_XRANDR
 
 #include "iRandR.hpp"
