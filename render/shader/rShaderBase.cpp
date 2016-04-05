@@ -636,4 +636,38 @@ rShaderBase::UniformBuffer const *rShaderBase::getUniformBuffer( VkShaderStageFl
 
 
 bool rShaderBase::isInitialized() { return vModulesCreated; }
+
+
+
+// Uniform handling
+
+/*!
+ * \brief Reserves modifying a uniform variable
+ *
+ * All uniform variables in a uniform block are constant during a render pass. Therefore they only
+ * have to be modified once.
+ *
+ * This function is supposed to be called from an implementation of rObjectBase::signalRenderReset()
+ *
+ * The reserved uniforms will be automatically reset during the init phase of the render loop.
+ *
+ * \param _var The variable to reserve
+ * \returns whether the variable is already reserved by another object (true == not reserved)
+ *
+ * \note This function does not check if the variable exists!
+ */
+bool rShaderBase::tryReserveUniform( UniformBuffer::Var const &_var ) {
+   for ( auto const &i : vReservedUniforms )
+      if ( i == _var )
+         return false;
+
+   vReservedUniforms.push_back( _var );
+   return true;
+}
+
+/*!
+ * \brief Clears reserved uniforms
+ * \note This function is only supposed to be called by rRender::renderLoop during the init phase
+ */
+void rShaderBase::signalRenderReset() { vReservedUniforms.clear(); }
 }

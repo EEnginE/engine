@@ -26,6 +26,7 @@
 #include "iInit.hpp"
 #include "uLog.hpp"
 #include "uEnum2Str.hpp"
+#include "rShaderBase.hpp"
 
 
 #if D_LOG_VULKAN
@@ -199,7 +200,6 @@ void rRenderer::renderLoop() {
 
       std::vector<rObjectBase *> lRenderObjects;
       for ( auto i : vObjects ) {
-         i->signalRenderReset();
          if ( i->canRecord() ) {
             lRenderObjects.emplace_back( i );
          }
@@ -287,11 +287,17 @@ void rRenderer::renderLoop() {
 
       // Destroy old pipelines
       for ( auto &i : vObjects ) {
-         rPipeline *lPipe = i->getPipeline();
+         rPipeline *lPipe     = i->getPipeline();
+         rShaderBase *lShader = i->getShader();
          if ( lPipe != nullptr ) {
             if ( lPipe->getIsCreated() ) {
                lPipe->destroy();
             }
+         }
+
+         // Clear reserved uniforms, part of making sure not to change one uniform more than once
+         if ( lShader != nullptr ) {
+            lShader->signalRenderReset();
          }
       }
 
@@ -303,6 +309,9 @@ void rRenderer::renderLoop() {
                lPipe->create( vDevice_vk, vRenderPass_vk.renderPass, 0 );
             }
          }
+
+         // Setup object for rendering (preparing uniforms)
+         i->signalRenderReset();
       }
 
       for ( auto &i : vFramebuffers_vk ) {
@@ -723,4 +732,3 @@ bool rRenderer::getIsInit() const { return vIsSetup; }
 void rRenderer::setClearColor( VkClearColorValue _clearColor ) { vClearColor = _clearColor; }
 }
 }
-

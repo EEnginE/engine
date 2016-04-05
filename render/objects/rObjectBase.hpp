@@ -51,6 +51,7 @@ namespace e_engine {
 #define NORMAL_MATRIX_FLAG ( 1 << 9 )
 
 class rPipeline;
+class rShaderBase;
 
 /*!
  * \brief Base class for creating objects
@@ -148,6 +149,7 @@ class RENDER_API rObjectBase {
    virtual void signalRenderReset() {}
 
    rPipeline *getPipeline() { return vPipeline; }
+   rShaderBase *getShader();
    bool getIsDataLoaded() const { return vIsLoaded_B; }
    std::string getName() const { return vName_str; }
    bool setPipeline( rPipeline *_pipe );

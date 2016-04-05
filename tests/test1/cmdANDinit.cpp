@@ -35,6 +35,8 @@ cmdANDinit::cmdANDinit( int argc, char *argv[] ) {
       args.push_back( argv[i] );
    }
 
+   GlobConf.vk.enableVSync = true;
+
    GlobConf.win.width = 1280;
    GlobConf.win.height = 1024;
    GlobConf.win.fullscreen = false;

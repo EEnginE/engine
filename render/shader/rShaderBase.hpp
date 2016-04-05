@@ -31,6 +31,10 @@ namespace e_engine {
 class iInit;
 class rWorld;
 
+namespace internal {
+class rRenderer;
+}
+
 static const std::string gShaderVertexInputVarName[]   = {"iVertex", "iVertices", "iVert"};
 static const std::string gShaderNormalsInputVarName[]  = {"iNormal", "iNormals", "iNorm"};
 static const std::string gShaderUVInputVarName[]       = {"iUV", "iUVs"};
@@ -63,8 +67,8 @@ class rShaderBase {
       std::vector<Uniform> uniformBlocks;
    } ShaderInfo;
 
-   typedef struct UniformBuffer {
-      typedef struct Var {
+   struct UniformBuffer {
+      struct Var {
          std::string name;
          std::string type;
          uint32_t offset;
@@ -72,14 +76,16 @@ class rShaderBase {
 
          UNIFORM_ROLE guessedRole = UNKONOWN;
          VkDeviceMemory mem;
-      } Var;
+
+         bool operator==( const Var &rhs ) const { return mem == rhs.mem && offset == rhs.offset; }
+      };
 
       VkShaderStageFlags stage;
       uint32_t size;
       VkDeviceMemory mem;
 
       std::vector<Var> vars;
-   } UniformBuffer;
+   };
 
  private:
    VkDevice vDevice_vk;
@@ -119,6 +125,13 @@ class rShaderBase {
 
    uint32_t createUniformBuffer( uint32_t _size );
 
+
+   // Uniform handling
+
+   std::vector<UniformBuffer::Var> vReservedUniforms;
+
+   void signalRenderReset();
+
  public:
    rShaderBase() = delete;
    rShaderBase( iInit *_init );
@@ -133,11 +146,15 @@ class rShaderBase {
    VkPipelineLayout getPipelineLayout();
    VkVertexInputBindingDescription getVertexInputBindingDescription();
    std::vector<VkVertexInputAttributeDescription> getVertexInputAttribureDescriptions();
-   UniformBuffer const *getUniformBuffer( VkShaderStageFlagBits _stage );
 
    static bool getGLSLTypeInfo( std::string _name, uint32_t &_size, VkFormat &_format );
 
+
+   // Uniform handling
+
+   UniformBuffer const *getUniformBuffer( VkShaderStageFlagBits _stage );
    bool updateUniform( UniformBuffer::Var const &_var, void const *_data );
+   bool tryReserveUniform( UniformBuffer::Var const &_var );
 
    virtual std::string getName() = 0;
 
@@ -161,5 +178,7 @@ class rShaderBase {
    virtual std::vector<unsigned char> getRawData_geom() const = 0;
    virtual std::vector<unsigned char> getRawData_frag() const = 0;
    virtual std::vector<unsigned char> getRawData_comp() const = 0;
+
+   friend class internal::rRenderer;
 };
 }

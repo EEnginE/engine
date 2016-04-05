@@ -20,6 +20,8 @@
 #include "rObjectBase.hpp"
 #include "uLog.hpp"
 #include "iInit.hpp"
+#include "rPipeline.hpp"
+#include "rShaderBase.hpp"
 #include <regex>
 
 namespace e_engine {
@@ -99,6 +101,16 @@ bool rObjectBase::setupVertexData_PN( std::vector<float> const &_pos,
    return true;
 }
 
+/*!
+ * \brief returns the shader object
+ * \returns the shader or nullptr on error
+ */
+rShaderBase *rObjectBase::getShader() {
+   if( !vPipeline )
+      return nullptr;
+
+   return vPipeline->getShader();
+}
 
 #if COMPILER_CLANG
 #pragma clang diagnostic push // This warning is irrelevant here

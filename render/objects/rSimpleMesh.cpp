@@ -73,7 +73,7 @@ void rSimpleMesh::signalRenderReset() {
       return;
    }
 
-   vShader      = vPipeline->getShader();
+   vShader      = getShader();
    vVertUniform = vShader->getUniformBuffer( VK_SHADER_STAGE_VERTEX_BIT );
 
    if ( !vVertUniform ) {
@@ -85,8 +85,9 @@ void rSimpleMesh::signalRenderReset() {
 
    for ( auto const &i : vVertUniform->vars ) {
       if ( i.guessedRole == rShaderBase::MODEL_VIEW_PROJECTION_MATRIX ) {
-         vHasMVPMatrix = true;
+         vHasMVPMatrix = vShader->tryReserveUniform( i );
          vMatrixMVPVar = i;
+         break;
       }
    }
 }
