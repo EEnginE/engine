@@ -60,7 +60,7 @@ rPipeline::rPipeline() {
    vRasterization.depthClampEnable         = VK_FALSE;
    vRasterization.rasterizerDiscardEnable  = VK_FALSE;
    vRasterization.polygonMode              = VK_POLYGON_MODE_FILL;
-   vRasterization.cullMode                 = VK_CULL_MODE_BACK_BIT;
+   vRasterization.cullMode                 = VK_CULL_MODE_NONE;
    vRasterization.frontFace                = VK_FRONT_FACE_COUNTER_CLOCKWISE;
    vRasterization.depthBiasEnable          = VK_FALSE;
    vRasterization.depthBiasConstantFactor  = 0.0f;
@@ -120,6 +120,7 @@ rPipeline::~rPipeline() {
 /*!
  * \brief creates the pipeline
  * \note The renderer will call this function
+ * \vkIntern
  */
 bool rPipeline::create( VkDevice _device,
                         VkRenderPass _renderPass,
@@ -206,6 +207,7 @@ bool rPipeline::create( VkDevice _device,
 /*!
  * \brief destroyes the pipeline
  * \note The renderer will call this function
+ * \vkIntern
  */
 bool rPipeline::destroy() {
    if ( !vIsCreated ) {
@@ -263,6 +265,10 @@ bool rPipeline::checkInputCompatible( std::vector<InputDesc> _inputs ) {
    return true;
 }
 
+/*!
+ * \brief Binds the pipeline and descriptor set to the command buffer
+ * \vkIntern
+ */
 bool rPipeline::cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bindPoint ) {
    if ( !vIsCreated ) {
       eLOG( "Pipeline not created yet" );
@@ -283,12 +289,17 @@ bool rPipeline::cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bind
    return true;
 }
 
+/*!
+ * \returns The vertex bind point
+ * \vkIntern
+ */
 uint32_t rPipeline::getVertexBindPoint() {
    return vShader->getVertexInputBindingDescription().binding;
 }
 
 /*!
  * \returns nullptr on error / pipeline not created yet
+ * \vkIntern
  */
 VkPipeline rPipeline::getPipeline() {
    if ( !vIsCreated ) {
@@ -334,14 +345,14 @@ rPipeline *rPipeline::setPolygonMode( VkPolygonMode _val ) {
    return this;
 }
 
-rPipeline *rPipeline::enableCulling( VkFrontFace _front ) {
-   vRasterization.rasterizerDiscardEnable = VK_TRUE;
-   vRasterization.frontFace               = _front;
+rPipeline *rPipeline::enableCulling( VkFrontFace _front, VkCullModeFlags _mode ) {
+   vRasterization.cullMode  = _mode;
+   vRasterization.frontFace = _front;
    return this;
 }
 
 rPipeline *rPipeline::disableCulling() {
-   vRasterization.rasterizerDiscardEnable = VK_FALSE;
+   vRasterization.cullMode = VK_CULL_MODE_NONE;
    return this;
 }
 

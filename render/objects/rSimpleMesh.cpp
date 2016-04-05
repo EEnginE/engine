@@ -32,6 +32,11 @@ rSimpleMesh::rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name )
       vVertex( _scene->getWorldPtr()->getInitPtr() ) {}
 
 
+/*!
+ * \brief records the command buffer
+ * \param _buf The command buffer to record
+ * \vkIntern
+ */
 void rSimpleMesh::record( VkCommandBuffer _buf ) {
    VkDeviceSize lOffsets[] = {0};
    VkBuffer lVertex        = vVertex.getBuffer();
@@ -46,59 +51,20 @@ void rSimpleMesh::record( VkCommandBuffer _buf ) {
  * \brief Inits the object (partialy)
  * \note This function SHOULD NOT be called directly! Use the functions in rScene instead!
  */
-bool rSimpleMesh::setData( VkCommandBuffer _buf,
-                           std::vector<uint32_t> const &_index,
-                           std::vector<float> const &_pos,
-                           std::vector<float> const &_norm,
-                           std::vector<float> const & ) {
-   if ( vIsLoaded_B ) {
-      eLOG( "Data already loaded! Object ", vName_str );
-      return false;
-   }
-
-   std::vector<float> lTemp;
-
+std::vector<rBuffer *> rSimpleMesh::setData_IMPL( VkCommandBuffer _buf,
+                                                  std::vector<uint32_t> const &_index,
+                                                  std::vector<float> const &_pos,
+                                                  std::vector<float> const &_norm,
+                                                  std::vector<float> const & ) {
    iLOG( "Initializing simple mesh object ", vName_str );
 
-   if ( _pos.size() != _norm.size() || ( _pos.size() % 3 ) != 0 ) {
-      eLOG( "Invalid data! Object ", vName_str );
-      return false;
-   }
+   std::vector<float> lTemp;
+   setupVertexData_PN( _pos, _norm, lTemp );
 
-   lTemp.resize( _pos.size() * 2 );
-   for ( uint32_t i = 0, counter = 0; i < _pos.size(); i += 3, counter++ ) {
-      lTemp[6 * counter + 0] = _pos[i + 0];
-      lTemp[6 * counter + 1] = _pos[i + 1];
-      lTemp[6 * counter + 2] = _pos[i + 2];
-      lTemp[6 * counter + 3] = _norm[i + 0];
-      lTemp[6 * counter + 4] = _norm[i + 1];
-      lTemp[6 * counter + 5] = _norm[i + 2];
-   }
+   vIndex.cmdInit( _index, _buf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
+   vVertex.cmdInit( lTemp, _buf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
 
-   bool lRes = true;
-   lRes      = lRes && vIndex.cmdInit( _index, _buf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
-   lRes      = lRes && vVertex.cmdInit( lTemp, _buf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
-   return lRes;
-}
-
-/*!
- * \brief Inits the object (partialy)
- * \note This function SHOULD NOT be called directly! Use the functions in rScene instead!
- */
-bool rSimpleMesh::finishData() {
-   if ( vIsLoaded_B ) {
-      eLOG( "Data already loaded! Object ", vName_str );
-      return false;
-   }
-
-   bool lRes = true;
-   lRes      = lRes && vIndex.doneCopying();
-   lRes      = lRes && vVertex.doneCopying();
-
-   if ( lRes )
-      vIsLoaded_B = true;
-
-   return lRes;
+   return {&vIndex, &vVertex};
 }
 
 void rSimpleMesh::signalRenderReset() {

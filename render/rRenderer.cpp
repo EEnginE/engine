@@ -41,6 +41,7 @@
 #endif
 
 namespace e_engine {
+namespace internal {
 
 uint64_t rRenderer::vRenderedFrames = 0;
 
@@ -206,10 +207,8 @@ void rRenderer::renderLoop() {
 
       initFrameCommandBuffers( lCommandPool, lRenderObjects.size() );
 
-      VkSemaphore lSemPresentComplete = vWorldPtr->createSemaphore();
-      VkSemaphore lSemRenderPre       = vWorldPtr->createSemaphore();
-      VkSemaphore lSemRenderPost      = vWorldPtr->createSemaphore();
-      VkSemaphore lSemPresent         = vWorldPtr->createSemaphore();
+      VkSemaphore lSemPresent  = vWorldPtr->createSemaphore();
+      VkFence lWaitRenderFence = vWorldPtr->createFence();
 
       VkSubmitInfo lRenderSubmit[3];
       lRenderSubmit[0].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -219,26 +218,12 @@ void rRenderer::renderLoop() {
       lRenderSubmit[0].pWaitDstStageMask    = nullptr;
       lRenderSubmit[0].commandBufferCount   = 1;
       lRenderSubmit[0].pCommandBuffers      = nullptr; // set in render loop
-      lRenderSubmit[0].signalSemaphoreCount = 1;
-      lRenderSubmit[0].pSignalSemaphores    = &lSemRenderPre;
+      lRenderSubmit[0].signalSemaphoreCount = 0;
+      lRenderSubmit[0].pSignalSemaphores    = nullptr;
 
-      lRenderSubmit[1].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-      lRenderSubmit[1].pNext                = nullptr;
-      lRenderSubmit[1].waitSemaphoreCount   = 1;
-      lRenderSubmit[1].pWaitSemaphores      = &lSemRenderPre;
-      lRenderSubmit[1].pWaitDstStageMask    = nullptr;
-      lRenderSubmit[1].commandBufferCount   = 1;
-      lRenderSubmit[1].pCommandBuffers      = nullptr; // set in render loop
-      lRenderSubmit[1].signalSemaphoreCount = 1;
-      lRenderSubmit[1].pSignalSemaphores    = &lSemRenderPost;
+      lRenderSubmit[1] = lRenderSubmit[0];
+      lRenderSubmit[2] = lRenderSubmit[0];
 
-      lRenderSubmit[2].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-      lRenderSubmit[2].pNext                = nullptr;
-      lRenderSubmit[2].waitSemaphoreCount   = 1;
-      lRenderSubmit[2].pWaitSemaphores      = &lSemRenderPost;
-      lRenderSubmit[2].pWaitDstStageMask    = nullptr;
-      lRenderSubmit[2].commandBufferCount   = 1;
-      lRenderSubmit[2].pCommandBuffers      = nullptr; // set in render loop
       lRenderSubmit[2].signalSemaphoreCount = 1;
       lRenderSubmit[2].pSignalSemaphores    = &lSemPresent;
 
@@ -387,6 +372,10 @@ void rRenderer::renderLoop() {
 
       uint32_t lNextImg;
 
+      // Init Uniforms
+      for ( auto i : vObjects )
+         i->updateUniforms();
+
       iLOG( "Starting the render loop" );
       while ( vRunRenderLoop ) {
          if ( !vIsSetup ) {
@@ -394,25 +383,35 @@ void rRenderer::renderLoop() {
             break;
          }
 
-         // Update Uniforms
-         for ( auto i : lRenderObjects )
-            i->updateUniforms();
-
-         // Get present image
+         // Get present image (this command blocks)
          auto lRes = vkAcquireNextImageKHR(
-               vDevice_vk, lSwapchain_vk, UINT32_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &lNextImg );
+               vDevice_vk, lSwapchain_vk, UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &lNextImg );
          if ( lRes ) {
             eLOG( "'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr( lRes ) );
             break;
          }
 
-         // Clear
+         // Set CMD buffers
          lRenderSubmit[0].pCommandBuffers = &vFramebuffers_vk[lNextImg].preRender;
          lRenderSubmit[1].pCommandBuffers = &vFramebuffers_vk[lNextImg].render;
          lRenderSubmit[2].pCommandBuffers = &vFramebuffers_vk[lNextImg].postRender;
 
+         // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  -->  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[0], VK_NULL_HANDLE );
+         if ( lRes ) {
+            eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
+            break;
+         }
+
          // Render
-         lRes = vkQueueSubmit( lQueue, 3, &lRenderSubmit[0], VK_NULL_HANDLE );
+         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[1], lWaitRenderFence );
+         if ( lRes ) {
+            eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
+            break;
+         }
+
+         // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  -->  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[2], VK_NULL_HANDLE );
          if ( lRes ) {
             eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
             break;
@@ -425,11 +424,17 @@ void rRenderer::renderLoop() {
             break;
          }
 
-         lRes = vkQueueWaitIdle( lQueue );
+         // Wait until rendering is done
+         lRes = vkWaitForFences( vDevice_vk, 1, &lWaitRenderFence, VK_TRUE, UINT64_MAX );
          if ( lRes ) {
-            eLOG( "'vkQueueWaitIdle' returned ", uEnum2Str::toStr( lRes ) );
+            eLOG( "'vkWaitForFences' returned ", uEnum2Str::toStr( lRes ) );
             break;
          }
+
+         // Update Uniforms
+         for ( auto i : vObjects )
+            i->updateUniforms();
+
 
          vRenderedFrames++;
       }
@@ -447,10 +452,8 @@ void rRenderer::renderLoop() {
       //                                  |_|
 
       vkDeviceWaitIdle( vDevice_vk );
-      vkDestroySemaphore( vDevice_vk, lSemPresentComplete, nullptr );
-      vkDestroySemaphore( vDevice_vk, lSemRenderPre, nullptr );
-      vkDestroySemaphore( vDevice_vk, lSemRenderPost, nullptr );
       vkDestroySemaphore( vDevice_vk, lSemPresent, nullptr );
+      vkDestroyFence( vDevice_vk, lWaitRenderFence, nullptr );
 
       freeFrameCommandBuffers( lCommandPool );
 
@@ -719,3 +722,5 @@ bool rRenderer::getIsRunning() const { return vRunRenderLoop; }
 bool rRenderer::getIsInit() const { return vIsSetup; }
 void rRenderer::setClearColor( VkClearColorValue _clearColor ) { vClearColor = _clearColor; }
 }
+}
+

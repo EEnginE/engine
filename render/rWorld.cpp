@@ -90,7 +90,8 @@ rWorld::~rWorld() {
 /*!
  * \brief initializes the swapchain and the depth and stencil buffer
  *
- * Frees old objects (if they exist) and then recreates them with the new settings
+ * Frees old objects (if they exist) and then recreates them with the new settings.
+ * Call this function manually if you want to update a global setting like multi sampling.
  *
  * \returns 0 on success
  * \note this function will be automatically called every time the window is resized
@@ -173,6 +174,9 @@ int rWorld::init() {
    return 0;
 }
 
+/*!
+ * \brief Stops all render loops
+ */
 void rWorld::shutdown() {
    if ( vRenderer1.getIsRunning() )
       vRenderer1.stop();
@@ -182,6 +186,11 @@ void rWorld::shutdown() {
 }
 
 
+/*!
+ * \brief Renders all objects of a scene
+ *
+ * This function will apply the changes to the back rendere and then swap back and front rendere
+ */
 bool rWorld::renderScene( rSceneBase *_scene ) {
    if ( !_scene )
       return false;
@@ -231,6 +240,19 @@ bool rWorld::renderScene( rSceneBase *_scene ) {
    return true;
 }
 
+/*!
+ * \brief Changes a Vulkan image layout
+ *
+ * \param _cmdBuffer The command buffer to record to
+ * \param _img       The image to change
+ * \param _imgSubres Subresource information (also required for crating an image)
+ * \param _src       The current layout
+ * \param _dst       The destination layout
+ * \param _srcFlags  Pipeline src flags (for vkCmdPipelineBarrier)
+ * \param _dstFlags  Pipeline dst flags (for vkCmdPipelineBarrier)
+ *
+ * \vkIntern
+ */
 void rWorld::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
                                    VkImage _img,
                                    VkImageSubresourceRange _imgSubres,
@@ -310,6 +332,7 @@ void rWorld::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
 
 /*!
  * \brief Get a command pool
+ * \vkIntern
  *
  * This function selects (or generates if needed) a command pool for the current thread (commad
  * pools are not thread safe ==> one command pool for every thread).
@@ -350,6 +373,15 @@ VkCommandPool rWorld::getCommandPool( uint32_t _queueFamilyIndex,
    return lPool;
 }
 
+/*!
+ * \brief Creates a vulkan command buffer
+ * \vkIntern
+ *
+ * \param _pool  The command pool to use
+ * \param _level The command buffer level (primary/secondary)
+ *
+ * \returns the command buffer or nullptr on error
+ */
 VkCommandBuffer rWorld::createCommandBuffer( VkCommandPool _pool, VkCommandBufferLevel _level ) {
    VkCommandBuffer lBuf;
    VkCommandBufferAllocateInfo lInfo;
@@ -368,6 +400,16 @@ VkCommandBuffer rWorld::createCommandBuffer( VkCommandPool _pool, VkCommandBuffe
    return lBuf;
 }
 
+/*!
+ * \brief Starts recording a command buffer
+ * \vkIntern
+ *
+ * \param _buf   The command buffer to start recording
+ * \param _flags Vulkan flags to specify the command buffer usage
+ * \param _info  Inheritance info for secondary command buffers
+ *
+ * \returns the result of vkBeginCommandBuffer
+ */
 VkResult rWorld::beginCommandBuffer( VkCommandBuffer _buf,
                                      VkCommandBufferUsageFlags _flags,
                                      VkCommandBufferInheritanceInfo *_info ) {
@@ -387,6 +429,7 @@ VkResult rWorld::beginCommandBuffer( VkCommandBuffer _buf,
 
 /*!
  * \brief Get a command pool
+ * \vkIntern
  *
  * This function selects (or generates if needed) a command pool for the current thread (commad
  * pools are not thread safe ==> one command pool for every thread).
@@ -406,6 +449,14 @@ VkCommandPool rWorld::getCommandPoolFlags( VkQueueFlags _qFlags, VkCommandPoolCr
    return getCommandPool( lFamilyIndex, _flags );
 }
 
+/*!
+ * \brief Creates a Vulkan fence
+ * \vkIntern
+ *
+ * \param _flags Some Vulkan flags (default value should be fine in most cases)
+ *
+ * \returns The fence or nullptr on error
+ */
 VkFence rWorld::createFence( VkFenceCreateFlags _flags ) {
    VkFence lFence;
 
@@ -423,6 +474,12 @@ VkFence rWorld::createFence( VkFenceCreateFlags _flags ) {
    return lFence;
 }
 
+/*!
+ * \brief Creates a Vulkan semaphore
+ * \vkIntern
+ *
+ * \returns The semaphore or nullptr on error
+ */
 VkSemaphore rWorld::createSemaphore() {
    VkSemaphore lTemp;
 
@@ -439,6 +496,7 @@ VkSemaphore rWorld::createSemaphore() {
 
    return lTemp;
 }
+
 
 VkSwapchainKHR rWorld::getSwapchain() { return vSwapchain_vk; }
 VkSurfaceFormatKHR rWorld::getSwapchainFormat() { return vSwapchainFormat; }
@@ -472,7 +530,19 @@ void rWorld::updateClearColor( float _r, float _g, float _b, float _a ) {
    vBackRenderer->setClearColor( lClear );
 }
 
+/*!
+ * \returns A pointer to the integer counting the number of rendered frames
+ */
 uint64_t *rWorld::getRenderedFramesPtr() { return vRenderer1.getRenderedFramesPtr(); }
+
+/*!
+ * \returns The used vulkan device handle
+ * \vkIntern
+ */
 VkDevice rWorld::getDevice() { return vDevice_vk; }
+
+/*!
+ * \returns the internaly used iInit pointer
+ */
 iInit *rWorld::getInitPtr() { return vInitPtr; }
 }

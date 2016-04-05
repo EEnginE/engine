@@ -510,7 +510,7 @@ bool iInit::isDeviceExtensionSupported( std::string _extension ) {
  * \param _flags Flags the Queue family MUST support
  * \returns the queue family index, that supports _flags (UINT32_MAX on not found / error)
  *
- * \todo Prefere queue families who have ONLY _flags
+ * \vkIntern
  */
 uint32_t iInit::getQueueFamily( VkQueueFlags _flags ) {
    if ( vDevice_vk.pDevice == nullptr )
@@ -536,7 +536,7 @@ uint32_t iInit::getQueueFamily( VkQueueFlags _flags ) {
  * \param _priority Queue target priority
  * \returns the best matching queue; nullptr if none found
  *
- * \todo Prefere queue families who have ONLY _flags
+ * \vkIntern
  */
 VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority, uint32_t *_queueFamily ) {
    std::lock_guard<std::mutex> lGuard( vQueueAccessMutex );
@@ -569,6 +569,7 @@ std::mutex &iInit::getQueueMutex( VkQueue _queue ) {
 
 /*!
  * \brief Checks whether a format is supported on the device
+ * \vkIntern
  */
 bool iInit::isFormatSupported( VkFormat _format ) {
    if ( vDevice_vk.pDevice == nullptr )
@@ -589,6 +590,8 @@ bool iInit::isFormatSupported( VkFormat _format ) {
  *   - VK_IMAGE_TILING_LINEAR
  *   - VK_IMAGE_TILING_OPTIMAL
  *   - VK_IMAGE_TILING_MAX_ENUM == buffer
+ *
+ * \vkIntern
  */
 bool iInit::formatSupportsFeature( VkFormat _format,
                                    VkFormatFeatureFlagBits _flags,
@@ -612,6 +615,7 @@ bool iInit::formatSupportsFeature( VkFormat _format,
  * \param _bits  The bitfield (see vkGetImageMemoryRequirements)
  * \param _flags Flags the memory type must support
  * \returns a memory index or UINT32_MAX on error
+ * \vkIntern
  */
 uint32_t iInit::getMemoryTypeIndexFromBitfield( uint32_t _bits, VkMemoryHeapFlags _flags ) {
    for ( uint16_t i = 0; i < vDevice_vk.pDevice->memoryProperties.memoryTypeCount; i++ ) {
@@ -630,16 +634,19 @@ uint32_t iInit::getMemoryTypeIndexFromBitfield( uint32_t _bits, VkMemoryHeapFlag
 
 /*!
  * \returns The vulkan device handle
+ * \vkIntern
  */
 VkDevice iInit::getDevice() { return vDevice_vk.device; }
 
 /*!
  * \returns The vulkan surface
+ * \vkIntern
  */
 VkSurfaceKHR iInit::getVulkanSurface() { return vSurface_vk; }
 
 /*!
  * \returns The vulkan surface info
+ * \vkIntern
  */
 iInit::SurfaceInfo_vk iInit::getSurfaceInfo() { return vSurfaceInfo_vk; }
 }

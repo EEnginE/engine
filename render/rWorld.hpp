@@ -38,10 +38,16 @@ class rSceneBase;
 /*!
  * \brief root render class
  *
- * This class is responsible for
+ * This class manages
+ *   - the renderers
+ *
+ * This class is responsible for (Vulkan)
  *   - command pool handling
  *   - presenting images (todo)
  *   - eventually other stuff
+ *
+ * This class handles two render class instances. A front and a back renderer. This allows modifying
+ * and setting up the back rendere without impacting the performance to mutch.
  *
  * \warning An object of this class must be destroyed BEFORE the vulkan context is destroyed (= the
  *          iInit object is destroyed)!!!
@@ -84,10 +90,10 @@ class RENDER_API rWorld {
    ViewPort vViewPort;
    ClearColor vClearColor;
 
-   rRenderer vRenderer1;
-   rRenderer vRenderer2;
-   rRenderer *vFrontRenderer = &vRenderer1;
-   rRenderer *vBackRenderer  = &vRenderer2;
+   internal::rRenderer vRenderer1;
+   internal::rRenderer vRenderer2;
+   internal::rRenderer *vFrontRenderer = &vRenderer1;
+   internal::rRenderer *vBackRenderer  = &vRenderer2;
 
    VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
 
@@ -104,6 +110,10 @@ class RENDER_API rWorld {
 
    void handleResize( iEventInfo const & );
 
+   VkSwapchainKHR getSwapchain();
+   std::vector<SwapChainImg> getSwapchainImageViews();
+   VkSurfaceFormatKHR getSwapchainFormat();
+
  public:
    rWorld() = delete;
    rWorld( iInit *_init );
@@ -112,6 +122,9 @@ class RENDER_API rWorld {
    int init();
    bool renderScene( rSceneBase *_scene );
    void shutdown();
+
+
+   // Begin Low level Vulkan section
 
    VkCommandBuffer createCommandBuffer(
          VkCommandPool _pool, VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY );
@@ -139,14 +152,12 @@ class RENDER_API rWorld {
    VkFence createFence( VkFenceCreateFlags _flags = 0 );
    VkSemaphore createSemaphore();
 
-   VkSwapchainKHR getSwapchain();
-   std::vector<SwapChainImg> getSwapchainImageViews();
-   VkSurfaceFormatKHR getSwapchainFormat();
-
    void updateViewPort( int _x, int _y, int _width, int _height );
    void updateClearColor( float _r, float _g, float _b, float _a );
    uint64_t *getRenderedFramesPtr();
    VkDevice getDevice();
    iInit *getInitPtr();
+
+   friend class internal::rRenderer;
 };
 }

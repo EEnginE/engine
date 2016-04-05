@@ -86,13 +86,16 @@ class rPipeline {
    void setShader( rShaderBase *_shader );
    rShaderBase *getShader() { return vShader; }
 
+   // Setter functions
+
    rPipeline *setTopology( VkPrimitiveTopology _val = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
    rPipeline *enablePrimitiveRestart();
    rPipeline *disablePrimitiveRestart();
    rPipeline *setDynamicViewports( uint32_t _val = 1 );
    rPipeline *setDynamicScissors( uint32_t _val = 1 );
    rPipeline *setPolygonMode( VkPolygonMode _val = VK_POLYGON_MODE_FILL );
-   rPipeline *enableCulling( VkFrontFace _front = VK_FRONT_FACE_COUNTER_CLOCKWISE );
+   rPipeline *enableCulling( VkFrontFace _front = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+                             VkCullModeFlags _mode = VK_CULL_MODE_BACK_BIT );
    rPipeline *disableCulling();
    rPipeline *enableDepthClamp();
    rPipeline *disableDepthClamp();

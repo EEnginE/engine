@@ -26,6 +26,7 @@
 #include <vulkan.h>
 #include "lLoaderBase.hpp"
 #include "rMatrixMath.hpp"
+#include "rBuffer.hpp"
 
 namespace e_engine {
 
@@ -100,11 +101,23 @@ class RENDER_API rObjectBase {
 
    enum LIGHT_MODEL_T { NO_LIGHTS = 0, SIMPLE_ADS_LIGHT };
 
+ private:
+   std::vector<rBuffer *> vLoadBuffers;
+
  protected:
    std::string vName_str;
 
-   bool vIsLoaded_B     = false;
-   rPipeline *vPipeline = nullptr;
+   bool vPartialLoaded_B = false;
+   bool vIsLoaded_B      = false;
+   rPipeline *vPipeline  = nullptr;
+
+   virtual std::vector<rBuffer *> setData_IMPL( VkCommandBuffer,
+                                                std::vector<uint32_t> const &,
+                                                std::vector<float> const &,
+                                                std::vector<float> const &,
+                                                std::vector<float> const & ) {
+      return {};
+   };
 
  public:
    rObjectBase( std::string _name ) : vName_str( _name ) {}
@@ -120,13 +133,13 @@ class RENDER_API rObjectBase {
 
    virtual ~rObjectBase();
 
-   virtual bool setData( VkCommandBuffer _buf,
-                         std::vector<uint32_t> const &_index,
-                         std::vector<float> const &_pos,
-                         std::vector<float> const &_norm,
-                         std::vector<float> const &_uv ) = 0;
+   bool setData( VkCommandBuffer _buf,
+                 std::vector<uint32_t> const &_index,
+                 std::vector<float> const &_pos,
+                 std::vector<float> const &_norm,
+                 std::vector<float> const &_uv );
 
-   virtual bool finishData() = 0;
+   bool finishData();
 
    virtual bool checkIsCompatible( rPipeline *_pipe ) = 0;
    virtual bool canRecord() = 0;
@@ -150,6 +163,10 @@ class RENDER_API rObjectBase {
 
    virtual uint32_t getVector( rVec3f **_vec, VECTOR_TYPES _type );
    virtual uint32_t getVector( rVec3d **_vec, VECTOR_TYPES _type );
+
+   bool setupVertexData_PN( std::vector<float> const &_pos,
+                            std::vector<float> const &_norm,
+                            std::vector<float> &_out );
 };
 
 

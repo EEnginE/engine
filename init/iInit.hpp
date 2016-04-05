@@ -201,6 +201,8 @@ class INIT_API iInit : public windows_win32::iContext {
 
    void s_advancedGrabControl( iEventInfo const &_info );
 
+   SurfaceInfo_vk getSurfaceInfo();
+
    virtual void makeEInitEventBasicAbstract() {}
 
  public:
@@ -250,7 +252,8 @@ class INIT_API iInit : public windows_win32::iContext {
                             std::string _msg );
 
    VkSurfaceKHR getVulkanSurface();
-   SurfaceInfo_vk getSurfaceInfo();
+
+   friend class rWorld;
 };
 
 namespace internal {

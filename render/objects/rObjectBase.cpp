@@ -40,6 +40,66 @@ bool rObjectBase::setPipeline( rPipeline *_pipe ) {
    return true;
 }
 
+bool rObjectBase::setData( VkCommandBuffer _buf,
+                           std::vector<uint32_t> const &_index,
+                           std::vector<float> const &_pos,
+                           std::vector<float> const &_norm,
+                           std::vector<float> const &_uv ) {
+   if ( vIsLoaded_B || vPartialLoaded_B ) {
+      eLOG( "Data already loaded! Object ", vName_str );
+      return false;
+   }
+
+   vLoadBuffers = setData_IMPL( _buf, _index, _pos, _norm, _uv );
+
+   vPartialLoaded_B = true;
+   return true;
+}
+
+bool rObjectBase::finishData() {
+   if ( vIsLoaded_B ) {
+      eLOG( "Data already loaded! Object ", vName_str );
+      return false;
+   }
+
+   if ( !vPartialLoaded_B ) {
+      eLOG( "setData not called yet! Object ", vName_str );
+      return false;
+   }
+
+   for ( auto const &i : vLoadBuffers ) {
+      if ( !i->doneCopying() ) {
+         eLOG( "Failed to init data for object ", vName_str );
+         return false;
+      }
+   }
+
+   vIsLoaded_B = true;
+   return true;
+}
+
+bool rObjectBase::setupVertexData_PN( std::vector<float> const &_pos,
+                                      std::vector<float> const &_norm,
+                                      std::vector<float> &_out ) {
+   if ( _pos.size() != _norm.size() || ( _pos.size() % 3 ) != 0 ) {
+      eLOG( "Invalid data! Object ", vName_str );
+      return false;
+   }
+
+   _out.resize( _pos.size() * 2 );
+   for ( uint32_t i = 0, counter = 0; i < _pos.size(); i += 3, counter++ ) {
+      _out[6 * counter + 0] = _pos[i + 0];
+      _out[6 * counter + 1] = _pos[i + 1];
+      _out[6 * counter + 2] = _pos[i + 2];
+      _out[6 * counter + 3] = _norm[i + 0];
+      _out[6 * counter + 4] = _norm[i + 1];
+      _out[6 * counter + 5] = _norm[i + 2];
+   }
+
+   return true;
+}
+
+
 #if COMPILER_CLANG
 #pragma clang diagnostic push // This warning is irrelevant here
 #pragma clang diagnostic ignored "-Wunused-parameter"

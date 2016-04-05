@@ -61,6 +61,7 @@ bool rBuffer::errorCleanup() {
 
 /*!
  * \brief Creates the buffer
+ * \vkIntern
  *
  * This function creates the buffers and allocates the memory for the data. The command buffer must
  * be submitted to a queue supporting TRANSFER before the buffer can be marked ready with
@@ -222,6 +223,12 @@ bool rBuffer::cmdInit( std::vector<T> const &_data,
 }
 
 
+/*!
+ * \brief Signals the buffer object that the command buffer has executed
+ * \vkIntern
+ *
+ * Call this function when the command bufer used int cmdInit has finished executing
+ */
 bool rBuffer::doneCopying() {
    if ( vIsLoaded ) {
       eLOG( "Data already loaded!" );

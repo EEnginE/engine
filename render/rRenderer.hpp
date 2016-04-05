@@ -36,6 +36,8 @@ class iInit;
 class rWorld;
 class rObjectBase;
 
+namespace internal {
+
 /*!
  * \brief Main render class
  *
@@ -165,4 +167,5 @@ class RENDER_API rRenderer {
 
    uint64_t *getRenderedFramesPtr();
 };
+}
 }

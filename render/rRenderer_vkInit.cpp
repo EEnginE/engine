@@ -32,6 +32,7 @@
 #endif
 
 namespace e_engine {
+namespace internal {
 
 /*!
  * \brief creteates the depth and stencil buffer
@@ -344,5 +345,6 @@ int rRenderer::initFramebuffers() {
       }
    }
    return 0;
+}
 }
 }

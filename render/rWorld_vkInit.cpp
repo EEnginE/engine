@@ -74,8 +74,9 @@ int rWorld::recreateSwapchain() {
       if ( lModelToUse == VK_PRESENT_MODE_MAX_ENUM_KHR )
          lModelToUse = i;
 
-      if ( GlobConf.vk.preferedSurfaceFormat ) {
-         if ( i == VK_PRESENT_MODE_FIFO_KHR )
+      if ( GlobConf.vk.enableVSync ) {
+         if ( i == VK_PRESENT_MODE_MAILBOX_KHR ||
+              ( i == VK_PRESENT_MODE_FIFO_KHR && lModelToUse != VK_PRESENT_MODE_MAILBOX_KHR ) )
             lModelToUse = i;
       } else {
          if ( i == VK_PRESENT_MODE_IMMEDIATE_KHR )

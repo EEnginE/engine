@@ -25,6 +25,8 @@
 #include <windows.h>
 #endif
 
+#define USE_LAYERS 0
+
 using namespace std;
 using namespace e_engine;
 
@@ -60,7 +62,11 @@ int main( int argc, char *argv[] ) {
       "VK_LAYER_LUNARG_standard_validation"
    };
 
-   //start.enableVulkanDebug();
+#if USE_LAYERS
+   start.enableVulkanDebug();
+#else
+   layers.clear();
+#endif
 
    if ( start.init(layers) == 0 ) {
       myWorld handler( cmd, &start );

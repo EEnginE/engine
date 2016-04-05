@@ -42,6 +42,12 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
    rShaderBase::UniformBuffer::Var vMatrixMVPVar = {};
    bool vHasMVPMatrix                            = false;
 
+   std::vector<rBuffer *> setData_IMPL( VkCommandBuffer _buf,
+                                        const std::vector<uint32_t> &_index,
+                                        const std::vector<float> &_pos,
+                                        const std::vector<float> &_norm,
+                                        const std::vector<float> &_uv ) override;
+
  public:
    rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name );
 
@@ -51,14 +57,6 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
    rSimpleMesh( rSimpleMesh && ) = default;
    rSimpleMesh &operator=( const rSimpleMesh & ) = delete;
    rSimpleMesh &operator=( rSimpleMesh && ) = default;
-
-   bool setData( VkCommandBuffer _buf,
-                 std::vector<uint32_t> const &_index,
-                 std::vector<float> const &_pos,
-                 std::vector<float> const &_norm,
-                 std::vector<float> const & ) override;
-
-   bool finishData() override;
 
    bool canRecord() override { return true; }
    void record( VkCommandBuffer _buf ) override;

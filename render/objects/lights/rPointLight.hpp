@@ -35,15 +35,6 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    rVec3<T> vLightColor;
    rVec3<T> vAttenuation;
 
-   bool setData( VkCommandBuffer,
-                 std::vector<uint32_t> const &,
-                 std::vector<float> const &,
-                 std::vector<float> const &,
-                 std::vector<float> const & ) override {
-      return false;
-   }
-
-   bool finishData() override { return false; }
    bool canRecord() override { return false; }
 
  public:
