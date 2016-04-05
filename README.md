@@ -9,10 +9,15 @@
                       |___/
 ```
 
-# EEnginE [![Build Status](https://travis-ci.org/EEnginE/engine.svg?branch=master)](https://travis-ci.org/EEnginE/engine) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/EEnginE/engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# EEnginE [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/EEnginE/engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 EEnginE is (or will be) a simple - but fullfeatured - Vulkan 3D engine.
 Providing modules for networking, physic (both not started yet) and 2D/3D graphic.
+
+Branch  | Build Status
+------- | ------------
+master  | [![Build Status](https://travis-ci.org/EEnginE/engine.svg?branch=master)](https://travis-ci.org/EEnginE/engine)
+develop | [![Build Status](https://travis-ci.org/EEnginE/engine.svg?branch=develop)](https://travis-ci.org/EEnginE/engine)
 
 # Denpendencies
 

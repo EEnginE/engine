@@ -32,12 +32,14 @@ before_install:
 #   - wget -O - "http://llvm.org/apt/llvm-snapshot.gpg.key"|sudo apt-key add -
 #   - sudo apt-get update -q
 #   - sudo apt-get install libvulkan-dev vulkan-utils -y #clang-3.7 -qq
-   - wget https://cmake.org/files/v3.5/cmake-3.5.0-Linux-x86_64.tar.gz -O cmake.tar.gz
-   - tar -xf cmake.tar.gz
-   - CMAKE_EXEC="$(pwd)/cmake-3.5.0-Linux-x86_64/bin/cmake"
-
    - git clone https://github.com/EEnginE/travisVulkanBinaries
-   - sudo bash ./travisVulkanBinaries/vulkansdk-linux-x86_64-1.0.5.0.run
+   - cd travisVulkanBinaries
+
+   - tar -xf cmake.tar.gz
+   - CMAKE_EXEC="$(pwd)/cmake-3.5.1-Linux-x86_64/bin/cmake"
+
+   - sudo bash ./vulkansdk-linux-x86_64-1.0.5.0.run
+   - cd ..
 
 install:
    - if [[ "$CXX" == "clang++" ]]; then export CXX=clang++-3.7; export CC=clang-3.7; fi
