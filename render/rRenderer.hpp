@@ -28,6 +28,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <memory>
 #include <vulkan.h>
 
 namespace e_engine {
@@ -85,6 +86,8 @@ class RENDER_API rRenderer {
       std::vector<VkCommandBuffer> secondary;
    } Framebuffer_vk;
 
+   using OBJECTS = std::vector<std::shared_ptr<rObjectBase>>;
+
  private:
    static uint64_t vRenderedFrames;
 
@@ -98,7 +101,7 @@ class RENDER_API rRenderer {
    RenderPass_vk vRenderPass_vk;
    std::vector<Framebuffer_vk> vFramebuffers_vk;
 
-   std::vector<rObjectBase *> vObjects;
+   OBJECTS vObjects;
 
    std::thread vRenderThread;
 
@@ -139,7 +142,7 @@ class RENDER_API rRenderer {
    virtual ~rRenderer();
 
    void defaultSetup();
-   bool addObject( rObjectBase *_obj );
+   bool addObject( std::shared_ptr<rObjectBase> _obj );
    bool resetObjects();
 
    uint32_t getDepthBufferAttachmentIndex() const;

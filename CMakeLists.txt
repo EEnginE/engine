@@ -46,6 +46,17 @@ configure_file("${TEMPLATES_DIR}/cmake_uninstall.cmake.in"
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
+##############
+# Submodules #
+##############
+
+# assimp
+set( ASSIMP_BUILD_ASSIMP_TOOLS OFF )
+set( ASSIMP_BUILD_SAMPLES      OFF )
+set( ASSIMP_BUILD_TESTS        OFF )
+
+add_subdirectory( ${PROJECT_SOURCE_DIR}/dependencies/assimp )
+
 ###################################################
 # Load all modules in ${PROJECT_SOURCE_DIR}/cmake #
 ###################################################
@@ -119,8 +130,9 @@ if( CM_UNIX_X11 )
    endif( X11_Xrandr_FOUND )
 endif( CM_UNIX_X11 )
 
-set( ENGINE_LINK ${VULKAN_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} ${FS_LIBRARIES} )
-set( ENGINE_INCL ${VULKAN_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} )
+
+set( ENGINE_LINK ${VULKAN_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} ${FS_LIBRARIES} assimp )
+set( ENGINE_INCL ${VULKAN_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} ${PROJECT_SOURCE_DIR}/dependencies/assimp/include )
 
 message( "" ) # Newline
 
@@ -134,8 +146,7 @@ file( WRITE "${PROJECT_SOURCE_DIR}/utils/uEnum2Str.cpp" "" )
 
 add_engine_lib( utils )
 add_engine_lib( init   utils )
-add_engine_lib( loader utils )
-add_engine_lib( render utils init loader )
+add_engine_lib( render utils init )
 
 add_engine_test( oglTest )
 add_engine_test( test1 )
@@ -156,12 +167,12 @@ enum2str_generate(
    CLASS_NAME "uEnum2Str"
    NAMESPACE "e_engine"
    FUNC_NAME "toStr"
-   INCLUDES "defines.hpp" "vulkan/vulkan.h" "lGLTF_map.hpp" "rObjectBase.hpp" "rShaderBase.hpp"
+   INCLUDES "defines.hpp" "vulkan/vulkan.h" "rObjectBase.hpp" "rShaderBase.hpp"
    ENUMS
       # EEnginE
       "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
-      "glTF::lGLTF_map::ELEMENTS" "rObjectBase::MATRIX_TYPES" "rObjectBase::VECTOR_TYPES" "rObjectBase::LIGHT_MODEL_T"
-      "rObjectBase::ERROR_FLAGS" "rShaderBase::UNIFORM_ROLE"
+      "rObjectBase::MATRIX_TYPES" "rObjectBase::VECTOR_TYPES" "rObjectBase::LIGHT_MODEL_T"
+      "rObjectBase::ERROR_FLAGS" "rObjectBase::VERTEX_DATA_LAYOUT" "rShaderBase::UNIFORM_ROLE"
       # Vulkan
       "VkPipelineCacheHeaderVersion"
       "VkResult" "VkStructureType" "VkSystemAllocationScope" "VkInternalAllocationType"

@@ -12,7 +12,6 @@
 #include "utils_export.hpp"
 #include "init_export.hpp"
 #include "render_export.hpp"
-#include "loader_export.hpp"
 
 // clang-format off
 
@@ -169,7 +168,9 @@ enum ACTION {
 enum MESH_TYPES {
    MESH_3D,
    LINES_3D,
-   POINTS_3D
+   POINTS_3D,
+   POLYGON_3D,
+   UNDEFINED_3D
 };
 
 }

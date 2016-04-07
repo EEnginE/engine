@@ -24,7 +24,7 @@
 #include <string>
 #include <array>
 #include <vulkan.h>
-#include "lLoaderBase.hpp"
+#include <assimp/scene.h>
 #include "rMatrixMath.hpp"
 #include "rBuffer.hpp"
 
@@ -102,6 +102,17 @@ class RENDER_API rObjectBase {
 
    enum LIGHT_MODEL_T { NO_LIGHTS = 0, SIMPLE_ADS_LIGHT };
 
+   enum VERTEX_DATA_LAYOUT {
+      POS,
+      POS_NORM,
+      POS_COLOR,
+      POS_UV,
+      POS_NORM_COLOR,
+      POS_NORM_UV,
+      POS_NORM_UV_COLOR,
+      UNDEFINED
+   };
+
  private:
    std::vector<rBuffer *> vLoadBuffers;
 
@@ -114,15 +125,18 @@ class RENDER_API rObjectBase {
 
    virtual std::vector<rBuffer *> setData_IMPL( VkCommandBuffer,
                                                 std::vector<uint32_t> const &,
-                                                std::vector<float> const &,
-                                                std::vector<float> const &,
                                                 std::vector<float> const & ) {
       return {};
    };
 
+   bool setupVertexData_PN( aiMesh const *_mesh, std::vector<float> &_out );
+
  public:
    rObjectBase( std::string _name ) : vName_str( _name ) {}
    rObjectBase() = delete;
+
+   virtual VERTEX_DATA_LAYOUT getDataLayout() const { return UNDEFINED; }
+   virtual MESH_TYPES getMeshType() const { return UNDEFINED_3D; }
 
    // Forbid copying
    rObjectBase( const rObjectBase & ) = delete;
@@ -134,11 +148,7 @@ class RENDER_API rObjectBase {
 
    virtual ~rObjectBase();
 
-   bool setData( VkCommandBuffer _buf,
-                 std::vector<uint32_t> const &_index,
-                 std::vector<float> const &_pos,
-                 std::vector<float> const &_norm,
-                 std::vector<float> const &_uv );
+   bool setData( VkCommandBuffer _buf, aiMesh const *_mesh );
 
    bool finishData();
 
@@ -165,10 +175,6 @@ class RENDER_API rObjectBase {
 
    virtual uint32_t getVector( rVec3f **_vec, VECTOR_TYPES _type );
    virtual uint32_t getVector( rVec3d **_vec, VECTOR_TYPES _type );
-
-   bool setupVertexData_PN( std::vector<float> const &_pos,
-                            std::vector<float> const &_norm,
-                            std::vector<float> &_out );
 };
 
 

@@ -52,17 +52,12 @@ void rSimpleMesh::record( VkCommandBuffer _buf ) {
  * \note This function SHOULD NOT be called directly! Use the functions in rScene instead!
  */
 std::vector<rBuffer *> rSimpleMesh::setData_IMPL( VkCommandBuffer _buf,
-                                                  std::vector<uint32_t> const &_index,
-                                                  std::vector<float> const &_pos,
-                                                  std::vector<float> const &_norm,
-                                                  std::vector<float> const & ) {
+                                                  const std::vector<uint32_t> &_index,
+                                                  const std::vector<float> &_data ) {
    iLOG( "Initializing simple mesh object ", vName_str );
 
-   std::vector<float> lTemp;
-   setupVertexData_PN( _pos, _norm, lTemp );
-
    vIndex.cmdInit( _index, _buf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
-   vVertex.cmdInit( lTemp, _buf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
+   vVertex.cmdInit( _data, _buf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
 
    return {&vIndex, &vVertex};
 }

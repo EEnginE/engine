@@ -37,6 +37,10 @@ namespace e_engine {
 
 void rWorld::handleResize( iEventInfo const & ) { init(); }
 
+/*!
+ * \brief Constructor
+ * \note The pointer _init must be valid over the lifetime of the object!
+ */
 rWorld::rWorld( iInit *_init )
     : vInitPtr( _init ),
       vRenderer1( vInitPtr, this, L"A" ),

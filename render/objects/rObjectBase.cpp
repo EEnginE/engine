@@ -18,6 +18,7 @@
  */
 
 #include "rObjectBase.hpp"
+#include "uEnum2Str.hpp"
 #include "uLog.hpp"
 #include "iInit.hpp"
 #include "rPipeline.hpp"
@@ -42,17 +43,87 @@ bool rObjectBase::setPipeline( rPipeline *_pipe ) {
    return true;
 }
 
-bool rObjectBase::setData( VkCommandBuffer _buf,
-                           std::vector<uint32_t> const &_index,
-                           std::vector<float> const &_pos,
-                           std::vector<float> const &_norm,
-                           std::vector<float> const &_uv ) {
+bool rObjectBase::setData( VkCommandBuffer _buf, aiMesh const *_mesh ) {
    if ( vIsLoaded_B || vPartialLoaded_B ) {
       eLOG( "Data already loaded! Object ", vName_str );
       return false;
    }
 
-   vLoadBuffers = setData_IMPL( _buf, _index, _pos, _norm, _uv );
+   if ( !_mesh ) {
+      eLOG( "Invalid mesh object!" );
+      return false;
+   }
+
+   uint32_t lIndexSize = 3;
+
+   switch ( getMeshType() ) {
+      case POINTS_3D:
+         if ( _mesh->mPrimitiveTypes != aiPrimitiveType_POINT ) {
+            eLOG( "Invalid primitive type ",
+                  _mesh->mPrimitiveTypes,
+                  " expected ",
+                  aiPrimitiveType_POINT,
+                  " (point)" );
+            return false;
+         }
+
+         lIndexSize = 1;
+         break;
+      case LINES_3D:
+         if ( _mesh->mPrimitiveTypes != aiPrimitiveType_LINE ) {
+            eLOG( "Invalid primitive type ",
+                  _mesh->mPrimitiveTypes,
+                  " expected ",
+                  aiPrimitiveType_LINE,
+                  " (line)" );
+            return false;
+         }
+
+         lIndexSize = 2;
+         break;
+      case MESH_3D:
+         if ( _mesh->mPrimitiveTypes != aiPrimitiveType_TRIANGLE ) {
+            eLOG( "Invalid primitive type ",
+                  _mesh->mPrimitiveTypes,
+                  " expected ",
+                  aiPrimitiveType_TRIANGLE,
+                  " (triangle)" );
+            return false;
+         }
+
+         lIndexSize = 3;
+         break;
+      case POLYGON_3D:
+         if ( _mesh->mPrimitiveTypes != aiPrimitiveType_POLYGON ) {
+            eLOG( "Invalid primitive type ",
+                  _mesh->mPrimitiveTypes,
+                  " expected ",
+                  aiPrimitiveType_POLYGON,
+                  " (polygon)" );
+            return false;
+         }
+
+         eLOG( "Polygon type currently not supported!" );
+         return false;
+
+         break;
+      default: eLOG( "This object type does not support mesh data!" ); return false;
+   }
+
+   std::vector<uint32_t> lIndex;
+   std::vector<float> lData;
+
+   lIndex.resize( lIndexSize * _mesh->mNumFaces );
+   for ( uint32_t i = 0; i < _mesh->mNumFaces; i++ )
+      for ( uint32_t j = 0; j < lIndexSize; j++ )
+         lIndex[i * lIndexSize + j] = _mesh->mFaces[i].mIndices[j];
+
+   switch ( getDataLayout() ) {
+      case POS_NORM: setupVertexData_PN( _mesh, lData ); break;
+      default: eLOG( "Data layout ", uEnum2Str::toStr( getDataLayout() ) ); return false;
+   }
+
+   vLoadBuffers = setData_IMPL( _buf, lIndex, lData );
 
    vPartialLoaded_B = true;
    return true;
@@ -80,22 +151,20 @@ bool rObjectBase::finishData() {
    return true;
 }
 
-bool rObjectBase::setupVertexData_PN( std::vector<float> const &_pos,
-                                      std::vector<float> const &_norm,
-                                      std::vector<float> &_out ) {
-   if ( _pos.size() != _norm.size() || ( _pos.size() % 3 ) != 0 ) {
+bool rObjectBase::setupVertexData_PN( aiMesh const *_mesh, std::vector<float> &_out ) {
+   if ( !_mesh->HasNormals() ) {
       eLOG( "Invalid data! Object ", vName_str );
       return false;
    }
 
-   _out.resize( _pos.size() * 2 );
-   for ( uint32_t i = 0, counter = 0; i < _pos.size(); i += 3, counter++ ) {
-      _out[6 * counter + 0] = _pos[i + 0];
-      _out[6 * counter + 1] = _pos[i + 1];
-      _out[6 * counter + 2] = _pos[i + 2];
-      _out[6 * counter + 3] = _norm[i + 0];
-      _out[6 * counter + 4] = _norm[i + 1];
-      _out[6 * counter + 5] = _norm[i + 2];
+   _out.resize( _mesh->mNumVertices * 3 * 2 );
+   for ( uint32_t i = 0; i < _mesh->mNumVertices; i++ ) {
+      _out[6 * i + 0] = _mesh->mVertices[i].x;
+      _out[6 * i + 1] = _mesh->mVertices[i].y;
+      _out[6 * i + 2] = _mesh->mVertices[i].z;
+      _out[6 * i + 3] = _mesh->mNormals[i].x;
+      _out[6 * i + 4] = _mesh->mNormals[i].y;
+      _out[6 * i + 5] = _mesh->mNormals[i].z;
    }
 
    return true;
@@ -106,7 +175,7 @@ bool rObjectBase::setupVertexData_PN( std::vector<float> const &_pos,
  * \returns the shader or nullptr on error
  */
 rShaderBase *rObjectBase::getShader() {
-   if( !vPipeline )
+   if ( !vPipeline )
       return nullptr;
 
    return vPipeline->getShader();

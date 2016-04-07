@@ -198,7 +198,7 @@ void rRenderer::renderLoop() {
       VkQueue lQueue               = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
       VkCommandPool lCommandPool   = vWorldPtr->getCommandPool( lQueueFamily );
 
-      std::vector<rObjectBase *> lRenderObjects;
+      OBJECTS lRenderObjects;
       for ( auto i : vObjects ) {
          if ( i->canRecord() ) {
             lRenderObjects.emplace_back( i );
@@ -591,7 +591,7 @@ void rRenderer::freeFrameCommandBuffers( VkCommandPool _pool ) {
 
 
 
-bool rRenderer::addObject( rObjectBase *_obj ) {
+bool rRenderer::addObject( std::shared_ptr<rObjectBase> _obj ) {
    vObjects.emplace_back( _obj );
    return true;
 }

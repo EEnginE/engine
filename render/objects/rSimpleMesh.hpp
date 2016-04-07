@@ -44,9 +44,10 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
 
    std::vector<rBuffer *> setData_IMPL( VkCommandBuffer _buf,
                                         const std::vector<uint32_t> &_index,
-                                        const std::vector<float> &_pos,
-                                        const std::vector<float> &_norm,
-                                        const std::vector<float> &_uv ) override;
+                                        const std::vector<float> &_data ) override;
+
+   VERTEX_DATA_LAYOUT getDataLayout() const override { return POS_NORM; }
+   MESH_TYPES getMeshType() const override { return MESH_3D; }
 
  public:
    rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name );

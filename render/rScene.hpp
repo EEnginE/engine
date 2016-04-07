@@ -27,17 +27,32 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <memory>
 #include <vulkan.h>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
 
 namespace e_engine {
 
 class rWorld;
 
 class RENDER_API rSceneBase {
+ public:
+   struct MeshInfo {
+      uint32_t index;
+      std::string name;
+      MESH_TYPES type;
+   };
+
+   template <typename T>
+   using OBJECTS   = std::vector<std::shared_ptr<T>>;
+   using BASE_OBJS = OBJECTS<rObjectBase>;
+
  private:
    rWorld *vWorldPtr;
 
-   std::vector<rObjectBase *> vObjects;
+   BASE_OBJS vObjects;
 
    std::vector<size_t> vLightSourcesIndex;
 
@@ -51,25 +66,27 @@ class RENDER_API rSceneBase {
    VkCommandBuffer vInitBuff_vk;
    VkQueue vInitQueue_vk;
 
-   std::vector<rObjectBase *> vInitObjs;
+   BASE_OBJS vInitObjects;
+
+   Assimp::Importer vImporter_assimp;
+   aiScene const *vScene_assimp = nullptr;
 
 
  public:
    rSceneBase() = delete;
-   rSceneBase( std::string _name, rWorld *_world ) : vWorldPtr( _world ), vName_str( _name ) {}
+   rSceneBase( std::string _name, rWorld *_world );
    virtual ~rSceneBase();
 
    bool canRenderScene();
 
-   unsigned addObject( rObjectBase *_obj );
-   std::vector<rObjectBase *> getObjects();
+   unsigned addObject( std::shared_ptr<rObjectBase> _obj );
+   BASE_OBJS getObjects();
+
+   std::vector<MeshInfo> loadFile( std::string _file );
+   aiMesh const *getAiMesh( uint32_t _objIndex );
 
    bool beginInitObject();
-   bool initObject( rObjectBase *_obj,
-                    std::vector<uint32_t> const &_index,
-                    std::vector<float> const &_pos,
-                    std::vector<float> const &_norm,
-                    std::vector<float> const &_uv );
+   bool initObject( std::shared_ptr<rObjectBase> _obj, uint32_t _objIndex );
    bool endInitObject();
 
    size_t getNumObjects() { return vObjects.size(); }

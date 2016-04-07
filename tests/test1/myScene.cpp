@@ -24,44 +24,40 @@ int myScene::init() {
    vPipeline.setDynamicViewports( 1 )->setDynamicScissors( 1 )->enableDepthTest()->enableCulling();
    vPipeline.setShader( &vShader );
 
-   lGLTF lLoader( vFilePath );
-   if ( lLoader() != 1 )
-      return 2;
-
-   auto *lObjects = lLoader.getData();
-
    beginInitObject();
 
-   for ( auto const &i : lObjects[0] ) {
+   auto lNames = loadFile( vFilePath );
+   for ( auto const &i : lNames ) {
       if ( i.type != MESH_3D )
          continue;
 
-      vObjects.emplace_back( this, i.name );
-      initObject( &vObjects.back(), i.index, i.vertex, i.normal, i.uv );
-      vObjects.back().setPosition( rVec3f( 0, 0, -5 ) );
+      vObjects.emplace_back( std::make_shared<rSimpleMesh>( this, i.name ) );
+
+      initObject( vObjects.back(), i.index );
+      vObjects.back()->setPosition( rVec3f( 0, 0, -5 ) );
    }
 
    endInitObject();
 
-   vLight1.setPosition( rVec3f( 1, 1, -4 ) );
-   vLight2.setPosition( rVec3f( -1, -1, -4 ) );
-
-   vLight1.setColor( rVec3f( 1.0f, 0.2f, 0.2f ), rVec3f( 0.1f, 0.0f, 0.0f ) );
-   vLight2.setColor( rVec3f( 0.2f, 0.2f, 1.0f ), rVec3f( 0.0, 0.0f, 0.1f ) );
-   vLight3.setColor( rVec3f( 0.9f, 0.9f, 0.9f ), rVec3f( 0.05f, 0.05f, 0.05f ) );
-
-   vLight1.setAttenuation( 0.1f, 0.01f, 0.1f );
-   vLight2.setAttenuation( 0.1f, 0.02f, 0.2f );
+   //    vLight1.setPosition( rVec3f( 1, 1, -4 ) );
+   //    vLight2.setPosition( rVec3f( -1, -1, -4 ) );
+   //
+   //    vLight1.setColor( rVec3f( 1.0f, 0.2f, 0.2f ), rVec3f( 0.1f, 0.0f, 0.0f ) );
+   //    vLight2.setColor( rVec3f( 0.2f, 0.2f, 1.0f ), rVec3f( 0.0, 0.0f, 0.1f ) );
+   //    vLight3.setColor( rVec3f( 0.9f, 0.9f, 0.9f ), rVec3f( 0.05f, 0.05f, 0.05f ) );
+   //
+   //    vLight1.setAttenuation( 0.1f, 0.01f, 0.1f );
+   //    vLight2.setAttenuation( 0.1f, 0.02f, 0.2f );
 
 
    for ( auto &i : vObjects ) {
-      i.setPipeline( &vPipeline );
-      addObject( &i );
+      i->setPipeline( &vPipeline );
+      addObject( i );
    }
 
-   addObject( &vLight1 );
-   addObject( &vLight2 );
-   addObject( &vLight3 );
+   //    addObject( &vLight1 );
+   //    addObject( &vLight2 );
+   //    addObject( &vLight3 );
 
    if ( !canRenderScene() ) {
       eLOG( "Cannot render scene!" );
@@ -79,11 +75,11 @@ void myScene::keySlot( const iEventInfo &_inf ) {
       switch ( _inf.eKey.key ) {
          case L'z':
             vRotationAngle += 0.25;
-            i.setRotation( rVec3f( 0, 1, 0 ), vRotationAngle );
+            i->setRotation( rVec3f( 0, 1, 0 ), vRotationAngle );
             break;
          case L't':
             vRotationAngle -= 0.25;
-            i.setRotation( rVec3f( 0, 1, 0 ), vRotationAngle );
+            i->setRotation( rVec3f( 0, 1, 0 ), vRotationAngle );
             break;
       }
    }
@@ -92,10 +88,10 @@ void myScene::keySlot( const iEventInfo &_inf ) {
 
 void myScene::afterCameraUpdate() {
    for ( auto &i : vObjects )
-      i.updateFinalMatrix();
+      i->updateFinalMatrix();
 
-   vLight1.updateFinalMatrix();
-   vLight2.updateFinalMatrix();
+   //    vLight1.updateFinalMatrix();
+   //    vLight2.updateFinalMatrix();
 }
 
 
