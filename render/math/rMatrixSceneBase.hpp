@@ -23,6 +23,7 @@
 #include "defines.hpp"
 
 #include "rMatrixMath.hpp"
+#include <mutex>
 
 namespace e_engine {
 
@@ -42,6 +43,8 @@ class rMatrixSceneBase {
    rMat4<T> vViewMatrix_MAT;
    rMat4<T> vViewProjectionMatrix_MAT;
    rMat4<T> vVulkanClipSpace_MAT;
+
+   std::recursive_mutex vMatrixAccess;
 
  public:
    rMatrixSceneBase() = delete;
@@ -92,6 +95,7 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio,
                                                           T _nearZ,
                                                           T _farZ,
                                                           T _fofy ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    rMatrixMath::perspective( _aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
    vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
@@ -108,6 +112,7 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio,
 template <class T>
 void rMatrixSceneBase<T>::calculateProjectionPerspective(
       T _width, T _height, T _nearZ, T _farZ, T _fofy ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    rMatrixMath::perspective( _width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
    vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
@@ -123,6 +128,7 @@ template <class T>
 void rMatrixSceneBase<T>::setCamera( const rVec3<T> &_position,
                                      const rVec3<T> &_lookAt,
                                      const rVec3<T> &_upVector ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    rMatrixMath::camera( _position, _lookAt, _upVector, vViewMatrix_MAT );
    vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }

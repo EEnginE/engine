@@ -18,6 +18,11 @@
 
 using namespace e_engine;
 
+myScene::~myScene() {
+   if ( vMovementThread.joinable() )
+      vMovementThread.join();
+}
+
 int myScene::init() {
    // updateCamera();
 
@@ -64,7 +69,33 @@ int myScene::init() {
       return 2;
    }
 
+   vMovementThread = std::thread( &myScene::objectMoveLoop, this );
    return 0;
+}
+
+void myScene::objectMoveLoop() {
+   LOG.nameThread( L"move1" );
+   std::mutex lWaitMutex;
+   std::chrono::system_clock::time_point lStart = std::chrono::system_clock::now();
+   std::chrono::system_clock::time_point lNow;
+   std::chrono::milliseconds lDuration;
+
+   rVec3f lAxis( 0.0, 1.0, 0.0 );
+
+   getWorldPtr()->waitForFrame( lWaitMutex );
+
+   while ( getWorldPtr()->isSetup() ) {
+      lNow      = std::chrono::system_clock::now();
+      lDuration = std::chrono::duration_cast<std::chrono::milliseconds>( lNow - lStart );
+
+      float lRotDeg = lDuration.count() / 50.0f;
+
+      std::lock_guard<std::mutex> lLock( vObjAccesMut );
+      for ( auto &i : vObjects )
+         i->setRotation( lAxis, lRotDeg );
+
+      getWorldPtr()->waitForFrame( lWaitMutex );
+   }
 }
 
 void myScene::keySlot( const iEventInfo &_inf ) {

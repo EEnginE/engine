@@ -93,8 +93,10 @@ void rSimpleMesh::updateUniforms() {
       return;
    }
 
-   if ( vHasMVPMatrix )
+   if ( vHasMVPMatrix ) {
+      std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
       vShader->updateUniform( vMatrixMVPVar, getModelViewProjectionMatrix()->getMatrix() );
+   }
 }
 
 bool rSimpleMesh::checkIsCompatible( rPipeline *_pipe ) {

@@ -445,6 +445,7 @@ void rRenderer::renderLoop() {
             i->updateUniforms();
 
 
+         vWorldPtr->signalRenderdFrame();
          vRenderedFrames++;
       }
       iLOG( "Render loop stopped" );

@@ -53,12 +53,18 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
 
    std::string vFilePath;
 
+   std::thread vMovementThread;
+   std::mutex vObjAccesMut;
+
    _SLOT_ vKeySlot;
    float vRotationAngle;
    bool vRenderNormals;
 
+   void objectMoveLoop();
+
  public:
    myScene() = delete;
+   ~myScene();
 
    myScene( rWorld *_world, cmdANDinit &_cmd )
        : rScene( "MAIN SCENE", _world ),

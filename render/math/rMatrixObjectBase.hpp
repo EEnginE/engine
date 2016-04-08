@@ -23,6 +23,7 @@
 #include "defines.hpp"
 
 #include "rMatrixSceneBase.hpp"
+#include <mutex>
 
 namespace e_engine {
 
@@ -53,6 +54,9 @@ class rMatrixObjectBase {
    rVec3<T> vScale;
 
    rMatrixObjectBase();
+
+ protected:
+   std::recursive_mutex vMatrixAccess;
 
  public:
    rMatrixObjectBase( rMatrixSceneBase<T> *_scene );
@@ -109,6 +113,7 @@ rMatrixObjectBase<T>::rMatrixObjectBase( rMatrixSceneBase<T> *_scene ) {
 
 template <class T>
 void rMatrixObjectBase<T>::setScale( T _scale ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    vScale.fill( _scale );
 
    vScaleMatrix_MAT.setMat( _scale, 0, 0, 0, 0, _scale, 0, 0, 0, 0, _scale, 0, 0, 0, 0, 1 );
@@ -118,6 +123,7 @@ void rMatrixObjectBase<T>::setScale( T _scale ) {
 
 template <class T>
 void rMatrixObjectBase<T>::setScale( const rVec3<T> &_scale ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    vScale = _scale;
 
    vScaleMatrix_MAT.setMat( _scale.x, 0, 0, 0, 0, _scale.y, 0, 0, 0, 0, _scale.z, 0, 0, 0, 0, 1 );
@@ -128,6 +134,7 @@ void rMatrixObjectBase<T>::setScale( const rVec3<T> &_scale ) {
 
 template <class T>
 void rMatrixObjectBase<T>::addScaleDelta( const rVec3<T> &_scale ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    vScale += _scale;
 
    vScaleMatrix_MAT.setMat( vScale.x, 0, 0, 0, 0, vScale.y, 0, 0, 0, 0, vScale.z, 0, 0, 0, 0, 1 );
@@ -137,6 +144,7 @@ void rMatrixObjectBase<T>::addScaleDelta( const rVec3<T> &_scale ) {
 
 template <class T>
 void rMatrixObjectBase<T>::setRotation( const rVec3<T> &_axis, T _angle ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    rMatrixMath::rotate( _axis, _angle, vRotationMatrix_MAT );
 
    updateFinalMatrix();
@@ -145,6 +153,7 @@ void rMatrixObjectBase<T>::setRotation( const rVec3<T> &_axis, T _angle ) {
 
 template <class T>
 void rMatrixObjectBase<T>::setPosition( const rVec3<T> &_pos ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    vPosition = _pos;
 
    vTranslationMatrix_MAT.setMat( 1, 0, 0, _pos.x, 0, 1, 0, _pos.y, 0, 0, 1, _pos.z, 0, 0, 0, 1 );
@@ -155,6 +164,7 @@ void rMatrixObjectBase<T>::setPosition( const rVec3<T> &_pos ) {
 
 template <class T>
 void rMatrixObjectBase<T>::addPositionDelta( const rVec3<T> &_pos ) {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    vPosition += _pos;
 
    vTranslationMatrix_MAT.setMat(
@@ -166,6 +176,7 @@ void rMatrixObjectBase<T>::addPositionDelta( const rVec3<T> &_pos ) {
 
 template <class T>
 void rMatrixObjectBase<T>::updateFinalMatrix() {
+   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
    vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
    if ( vViewProjectionMatrix_MAT )

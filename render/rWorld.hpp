@@ -24,6 +24,7 @@
 #include "defines.hpp"
 #include <unordered_map>
 #include <mutex>
+#include <condition_variable>
 #include <vulkan/vulkan.h>
 #include "rWorld_structs.hpp"
 #include "rRenderer.hpp"
@@ -100,10 +101,12 @@ class RENDER_API rWorld {
    std::unordered_map<PoolInfo, VkCommandPool> vCmdPools_vk;
    std::mutex vCommandPoolsMutex;
    std::mutex vRenderAccessMutex;
+   std::condition_variable vRenderedFrameSignal;
 
    uSlot<void, rWorld, iEventInfo const &> vResizeSlot;
 
    bool vIsResizeSlotSetup = false;
+   bool vIsSetup           = false;
 
    int recreateSwapchain();
    int recreateSwapchainImages( VkCommandBuffer _buf );
@@ -113,6 +116,7 @@ class RENDER_API rWorld {
    VkSwapchainKHR getSwapchain();
    std::vector<SwapChainImg> getSwapchainImageViews();
    VkSurfaceFormatKHR getSwapchainFormat();
+   inline void signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
 
  public:
    rWorld() = delete;
@@ -122,6 +126,9 @@ class RENDER_API rWorld {
    int init();
    bool renderScene( rSceneBase *_scene );
    void shutdown();
+
+   bool isSetup() { return vIsSetup; }
+   bool waitForFrame( std::mutex &_mutex );
 
 
    // Begin Low level Vulkan section

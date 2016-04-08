@@ -62,33 +62,7 @@ rWorld::rWorld( iInit *_init )
    vClearColor.a             = 1;
 }
 
-rWorld::~rWorld() {
-   dVkLOG( "Vulkan cleanup [rWorld]:" );
-   vFrontRenderer->destroy();
-   vBackRenderer->destroy();
-
-   dVkLOG( "  -- Destroying command pools..." );
-
-   std::lock_guard<std::mutex> lLock( vCommandPoolsMutex );
-   vkDeviceWaitIdle( vInitPtr->getDevice() );
-   for ( auto &i : vCmdPools_vk ) {
-      dVkLOG( "    -- tID: ", i.first.tID, "; queue family: ", i.first.qfIndex );
-      if ( i.second == nullptr ) {
-         wLOG( "Command pool already destroyed" );
-         continue;
-      }
-
-      vkDestroyCommandPool( vInitPtr->getDevice(), i.second, nullptr );
-   }
-
-   dVkLOG( "  -- destroying swapchain image views" );
-   for ( auto &i : vSwapchainViews_vk )
-      vkDestroyImageView( vDevice_vk, i, nullptr );
-
-   dVkLOG( "  -- destroying swapchain" );
-   if ( vSwapchain_vk )
-      vkDestroySwapchainKHR( vDevice_vk, vSwapchain_vk, nullptr );
-}
+rWorld::~rWorld() { shutdown(); }
 
 
 /*!
@@ -175,6 +149,7 @@ int rWorld::init() {
       vInitPtr->addResizeSlot( &vResizeSlot );
 
    vIsResizeSlotSetup = true;
+   vIsSetup           = true;
    return 0;
 }
 
@@ -182,11 +157,58 @@ int rWorld::init() {
  * \brief Stops all render loops
  */
 void rWorld::shutdown() {
+   if( !vIsSetup )
+      return;
+
    if ( vRenderer1.getIsRunning() )
       vRenderer1.stop();
 
    if ( vRenderer2.getIsRunning() )
       vRenderer2.stop();
+
+   dVkLOG( "Vulkan cleanup [rWorld]:" );
+   vFrontRenderer->destroy();
+   vBackRenderer->destroy();
+
+   dVkLOG( "  -- Destroying command pools..." );
+
+   std::lock_guard<std::mutex> lLock( vCommandPoolsMutex );
+   vkDeviceWaitIdle( vInitPtr->getDevice() );
+   for ( auto &i : vCmdPools_vk ) {
+      dVkLOG( "    -- tID: ", i.first.tID, "; queue family: ", i.first.qfIndex );
+      if ( i.second == nullptr ) {
+         wLOG( "Command pool already destroyed" );
+         continue;
+      }
+
+      vkDestroyCommandPool( vInitPtr->getDevice(), i.second, nullptr );
+   }
+
+   dVkLOG( "  -- destroying swapchain image views" );
+   for ( auto &i : vSwapchainViews_vk )
+      vkDestroyImageView( vDevice_vk, i, nullptr );
+
+   dVkLOG( "  -- destroying swapchain" );
+   if ( vSwapchain_vk )
+      vkDestroySwapchainKHR( vDevice_vk, vSwapchain_vk, nullptr );
+
+   vIsSetup = false;
+}
+
+/*!
+ * \brief Waits until a frame is rendered or a timeout occurs
+ *
+ * The timeout is 500ms
+ *
+ * \returns false on timeout
+ */
+bool rWorld::waitForFrame( std::mutex &_mutex ) {
+   std::unique_lock<std::mutex> lLock( _mutex );
+   if ( vRenderedFrameSignal.wait_for( lLock, std::chrono::milliseconds( 500 ) ) ==
+        std::cv_status::timeout )
+      return false;
+   else
+      return true;
 }
 
 

@@ -477,14 +477,12 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, COLLUMNS, COLL
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 2, 2> &_matrix,
                                               rMatrix<TYPE, 2, 2> *_targetMatrix ) {
-   _targetMatrix->vDataMat[0] =
-         ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[2] * _matrix.vDataMat[1] ) );
-   _targetMatrix->vDataMat[1] =
-         ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[3] * _matrix.vDataMat[1] ) );
-   _targetMatrix->vDataMat[2] =
-         ( ( vDataMat[0] * _matrix.vDataMat[2] ) + ( vDataMat[2] * _matrix.vDataMat[3] ) );
-   _targetMatrix->vDataMat[3] =
-         ( ( vDataMat[1] * _matrix.vDataMat[2] ) + ( vDataMat[3] * _matrix.vDataMat[3] ) );
+   // clang-format off
+   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[2] * _matrix.vDataMat[1] ) );
+   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[3] * _matrix.vDataMat[1] ) );
+   _targetMatrix->vDataMat[2] = ( ( vDataMat[0] * _matrix.vDataMat[2] ) + ( vDataMat[2] * _matrix.vDataMat[3] ) );
+   _targetMatrix->vDataMat[3] = ( ( vDataMat[1] * _matrix.vDataMat[2] ) + ( vDataMat[3] * _matrix.vDataMat[3] ) );
+   // clang-format on
 }
 
 
@@ -492,33 +490,17 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 2, 2> &_matrix
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 3, 3> &_matrix,
                                               rMatrix<TYPE, 3, 3> *_targetMatrix ) {
-   _targetMatrix->vDataMat[0] =
-         ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[3] * _matrix.vDataMat[1] ) +
-           ( vDataMat[6] * _matrix.vDataMat[2] ) );
-   _targetMatrix->vDataMat[1] =
-         ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) +
-           ( vDataMat[7] * _matrix.vDataMat[2] ) );
-   _targetMatrix->vDataMat[2] =
-         ( ( vDataMat[2] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) +
-           ( vDataMat[8] * _matrix.vDataMat[2] ) );
-   _targetMatrix->vDataMat[3] =
-         ( ( vDataMat[0] * _matrix.vDataMat[3] ) + ( vDataMat[3] * _matrix.vDataMat[4] ) +
-           ( vDataMat[6] * _matrix.vDataMat[5] ) );
-   _targetMatrix->vDataMat[4] =
-         ( ( vDataMat[1] * _matrix.vDataMat[3] ) + ( vDataMat[4] * _matrix.vDataMat[4] ) +
-           ( vDataMat[7] * _matrix.vDataMat[5] ) );
-   _targetMatrix->vDataMat[5] =
-         ( ( vDataMat[2] * _matrix.vDataMat[3] ) + ( vDataMat[5] * _matrix.vDataMat[4] ) +
-           ( vDataMat[8] * _matrix.vDataMat[5] ) );
-   _targetMatrix->vDataMat[6] =
-         ( ( vDataMat[0] * _matrix.vDataMat[6] ) + ( vDataMat[3] * _matrix.vDataMat[7] ) +
-           ( vDataMat[6] * _matrix.vDataMat[8] ) );
-   _targetMatrix->vDataMat[7] =
-         ( ( vDataMat[1] * _matrix.vDataMat[6] ) + ( vDataMat[4] * _matrix.vDataMat[7] ) +
-           ( vDataMat[7] * _matrix.vDataMat[8] ) );
-   _targetMatrix->vDataMat[8] =
-         ( ( vDataMat[2] * _matrix.vDataMat[6] ) + ( vDataMat[5] * _matrix.vDataMat[7] ) +
-           ( vDataMat[8] * _matrix.vDataMat[8] ) );
+   // clang-format off
+   _targetMatrix->vDataMat[0] = ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[3] * _matrix.vDataMat[1] ) + ( vDataMat[6] * _matrix.vDataMat[2] ) );
+   _targetMatrix->vDataMat[1] = ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) + ( vDataMat[7] * _matrix.vDataMat[2] ) );
+   _targetMatrix->vDataMat[2] = ( ( vDataMat[2] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) + ( vDataMat[8] * _matrix.vDataMat[2] ) );
+   _targetMatrix->vDataMat[3] = ( ( vDataMat[0] * _matrix.vDataMat[3] ) + ( vDataMat[3] * _matrix.vDataMat[4] ) + ( vDataMat[6] * _matrix.vDataMat[5] ) );
+   _targetMatrix->vDataMat[4] = ( ( vDataMat[1] * _matrix.vDataMat[3] ) + ( vDataMat[4] * _matrix.vDataMat[4] ) + ( vDataMat[7] * _matrix.vDataMat[5] ) );
+   _targetMatrix->vDataMat[5] = ( ( vDataMat[2] * _matrix.vDataMat[3] ) + ( vDataMat[5] * _matrix.vDataMat[4] ) + ( vDataMat[8] * _matrix.vDataMat[5] ) );
+   _targetMatrix->vDataMat[6] = ( ( vDataMat[0] * _matrix.vDataMat[6] ) + ( vDataMat[3] * _matrix.vDataMat[7] ) + ( vDataMat[6] * _matrix.vDataMat[8] ) );
+   _targetMatrix->vDataMat[7] = ( ( vDataMat[1] * _matrix.vDataMat[6] ) + ( vDataMat[4] * _matrix.vDataMat[7] ) + ( vDataMat[7] * _matrix.vDataMat[8] ) );
+   _targetMatrix->vDataMat[8] = ( ( vDataMat[2] * _matrix.vDataMat[6] ) + ( vDataMat[5] * _matrix.vDataMat[7] ) + ( vDataMat[8] * _matrix.vDataMat[8] ) );
+   // clang-format on
 }
 
 
@@ -526,54 +508,24 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 3, 3> &_matrix
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, 4, 4> &_matrix,
                                               rMatrix<TYPE, 4, 4> *_targetMatrix ) {
-   _targetMatrix->vDataMat[0] =
-         ( ( vDataMat[0] * _matrix.vDataMat[0] ) + ( vDataMat[4] * _matrix.vDataMat[1] ) +
-           ( vDataMat[8] * _matrix.vDataMat[2] ) + ( vDataMat[12] * _matrix.vDataMat[3] ) );
-   _targetMatrix->vDataMat[1] =
-         ( ( vDataMat[1] * _matrix.vDataMat[0] ) + ( vDataMat[5] * _matrix.vDataMat[1] ) +
-           ( vDataMat[9] * _matrix.vDataMat[2] ) + ( vDataMat[13] * _matrix.vDataMat[3] ) );
-   _targetMatrix->vDataMat[2] =
-         ( ( vDataMat[2] * _matrix.vDataMat[0] ) + ( vDataMat[6] * _matrix.vDataMat[1] ) +
-           ( vDataMat[10] * _matrix.vDataMat[2] ) + ( vDataMat[14] * _matrix.vDataMat[3] ) );
-   _targetMatrix->vDataMat[3] =
-         ( ( vDataMat[3] * _matrix.vDataMat[0] ) + ( vDataMat[7] * _matrix.vDataMat[1] ) +
-           ( vDataMat[11] * _matrix.vDataMat[2] ) + ( vDataMat[15] * _matrix.vDataMat[3] ) );
-   _targetMatrix->vDataMat[4] =
-         ( ( vDataMat[0] * _matrix.vDataMat[4] ) + ( vDataMat[4] * _matrix.vDataMat[5] ) +
-           ( vDataMat[8] * _matrix.vDataMat[6] ) + ( vDataMat[12] * _matrix.vDataMat[7] ) );
-   _targetMatrix->vDataMat[5] =
-         ( ( vDataMat[1] * _matrix.vDataMat[4] ) + ( vDataMat[5] * _matrix.vDataMat[5] ) +
-           ( vDataMat[9] * _matrix.vDataMat[6] ) + ( vDataMat[13] * _matrix.vDataMat[7] ) );
-   _targetMatrix->vDataMat[6] =
-         ( ( vDataMat[2] * _matrix.vDataMat[4] ) + ( vDataMat[6] * _matrix.vDataMat[5] ) +
-           ( vDataMat[10] * _matrix.vDataMat[6] ) + ( vDataMat[14] * _matrix.vDataMat[7] ) );
-   _targetMatrix->vDataMat[7] =
-         ( ( vDataMat[3] * _matrix.vDataMat[4] ) + ( vDataMat[7] * _matrix.vDataMat[5] ) +
-           ( vDataMat[11] * _matrix.vDataMat[6] ) + ( vDataMat[15] * _matrix.vDataMat[7] ) );
-   _targetMatrix->vDataMat[8] =
-         ( ( vDataMat[0] * _matrix.vDataMat[8] ) + ( vDataMat[4] * _matrix.vDataMat[9] ) +
-           ( vDataMat[8] * _matrix.vDataMat[10] ) + ( vDataMat[12] * _matrix.vDataMat[11] ) );
-   _targetMatrix->vDataMat[9] =
-         ( ( vDataMat[1] * _matrix.vDataMat[8] ) + ( vDataMat[5] * _matrix.vDataMat[9] ) +
-           ( vDataMat[9] * _matrix.vDataMat[10] ) + ( vDataMat[13] * _matrix.vDataMat[11] ) );
-   _targetMatrix->vDataMat[10] =
-         ( ( vDataMat[2] * _matrix.vDataMat[8] ) + ( vDataMat[6] * _matrix.vDataMat[9] ) +
-           ( vDataMat[10] * _matrix.vDataMat[10] ) + ( vDataMat[14] * _matrix.vDataMat[11] ) );
-   _targetMatrix->vDataMat[11] =
-         ( ( vDataMat[3] * _matrix.vDataMat[8] ) + ( vDataMat[7] * _matrix.vDataMat[9] ) +
-           ( vDataMat[11] * _matrix.vDataMat[10] ) + ( vDataMat[15] * _matrix.vDataMat[11] ) );
-   _targetMatrix->vDataMat[12] =
-         ( ( vDataMat[0] * _matrix.vDataMat[12] ) + ( vDataMat[4] * _matrix.vDataMat[13] ) +
-           ( vDataMat[8] * _matrix.vDataMat[14] ) + ( vDataMat[12] * _matrix.vDataMat[15] ) );
-   _targetMatrix->vDataMat[13] =
-         ( ( vDataMat[1] * _matrix.vDataMat[12] ) + ( vDataMat[5] * _matrix.vDataMat[13] ) +
-           ( vDataMat[9] * _matrix.vDataMat[14] ) + ( vDataMat[13] * _matrix.vDataMat[15] ) );
-   _targetMatrix->vDataMat[14] =
-         ( ( vDataMat[2] * _matrix.vDataMat[12] ) + ( vDataMat[6] * _matrix.vDataMat[13] ) +
-           ( vDataMat[10] * _matrix.vDataMat[14] ) + ( vDataMat[14] * _matrix.vDataMat[15] ) );
-   _targetMatrix->vDataMat[15] =
-         ( ( vDataMat[3] * _matrix.vDataMat[12] ) + ( vDataMat[7] * _matrix.vDataMat[13] ) +
-           ( vDataMat[11] * _matrix.vDataMat[14] ) + ( vDataMat[15] * _matrix.vDataMat[15] ) );
+   // clang-format off
+   _targetMatrix->vDataMat[0]  = ( ( vDataMat[0] * _matrix.vDataMat[0]  ) + ( vDataMat[4] * _matrix.vDataMat[1]  ) + ( vDataMat[8]  * _matrix.vDataMat[2]  ) + ( vDataMat[12] * _matrix.vDataMat[3]  ) );
+   _targetMatrix->vDataMat[1]  = ( ( vDataMat[1] * _matrix.vDataMat[0]  ) + ( vDataMat[5] * _matrix.vDataMat[1]  ) + ( vDataMat[9]  * _matrix.vDataMat[2]  ) + ( vDataMat[13] * _matrix.vDataMat[3]  ) );
+   _targetMatrix->vDataMat[2]  = ( ( vDataMat[2] * _matrix.vDataMat[0]  ) + ( vDataMat[6] * _matrix.vDataMat[1]  ) + ( vDataMat[10] * _matrix.vDataMat[2]  ) + ( vDataMat[14] * _matrix.vDataMat[3]  ) );
+   _targetMatrix->vDataMat[3]  = ( ( vDataMat[3] * _matrix.vDataMat[0]  ) + ( vDataMat[7] * _matrix.vDataMat[1]  ) + ( vDataMat[11] * _matrix.vDataMat[2]  ) + ( vDataMat[15] * _matrix.vDataMat[3]  ) );
+   _targetMatrix->vDataMat[4]  = ( ( vDataMat[0] * _matrix.vDataMat[4]  ) + ( vDataMat[4] * _matrix.vDataMat[5]  ) + ( vDataMat[8]  * _matrix.vDataMat[6]  ) + ( vDataMat[12] * _matrix.vDataMat[7]  ) );
+   _targetMatrix->vDataMat[5]  = ( ( vDataMat[1] * _matrix.vDataMat[4]  ) + ( vDataMat[5] * _matrix.vDataMat[5]  ) + ( vDataMat[9]  * _matrix.vDataMat[6]  ) + ( vDataMat[13] * _matrix.vDataMat[7]  ) );
+   _targetMatrix->vDataMat[6]  = ( ( vDataMat[2] * _matrix.vDataMat[4]  ) + ( vDataMat[6] * _matrix.vDataMat[5]  ) + ( vDataMat[10] * _matrix.vDataMat[6]  ) + ( vDataMat[14] * _matrix.vDataMat[7]  ) );
+   _targetMatrix->vDataMat[7]  = ( ( vDataMat[3] * _matrix.vDataMat[4]  ) + ( vDataMat[7] * _matrix.vDataMat[5]  ) + ( vDataMat[11] * _matrix.vDataMat[6]  ) + ( vDataMat[15] * _matrix.vDataMat[7]  ) );
+   _targetMatrix->vDataMat[8]  = ( ( vDataMat[0] * _matrix.vDataMat[8]  ) + ( vDataMat[4] * _matrix.vDataMat[9]  ) + ( vDataMat[8]  * _matrix.vDataMat[10] ) + ( vDataMat[12] * _matrix.vDataMat[11] ) );
+   _targetMatrix->vDataMat[9]  = ( ( vDataMat[1] * _matrix.vDataMat[8]  ) + ( vDataMat[5] * _matrix.vDataMat[9]  ) + ( vDataMat[9]  * _matrix.vDataMat[10] ) + ( vDataMat[13] * _matrix.vDataMat[11] ) );
+   _targetMatrix->vDataMat[10] = ( ( vDataMat[2] * _matrix.vDataMat[8]  ) + ( vDataMat[6] * _matrix.vDataMat[9]  ) + ( vDataMat[10] * _matrix.vDataMat[10] ) + ( vDataMat[14] * _matrix.vDataMat[11] ) );
+   _targetMatrix->vDataMat[11] = ( ( vDataMat[3] * _matrix.vDataMat[8]  ) + ( vDataMat[7] * _matrix.vDataMat[9]  ) + ( vDataMat[11] * _matrix.vDataMat[10] ) + ( vDataMat[15] * _matrix.vDataMat[11] ) );
+   _targetMatrix->vDataMat[12] = ( ( vDataMat[0] * _matrix.vDataMat[12] ) + ( vDataMat[4] * _matrix.vDataMat[13] ) + ( vDataMat[8]  * _matrix.vDataMat[14] ) + ( vDataMat[12] * _matrix.vDataMat[15] ) );
+   _targetMatrix->vDataMat[13] = ( ( vDataMat[1] * _matrix.vDataMat[12] ) + ( vDataMat[5] * _matrix.vDataMat[13] ) + ( vDataMat[9]  * _matrix.vDataMat[14] ) + ( vDataMat[13] * _matrix.vDataMat[15] ) );
+   _targetMatrix->vDataMat[14] = ( ( vDataMat[2] * _matrix.vDataMat[12] ) + ( vDataMat[6] * _matrix.vDataMat[13] ) + ( vDataMat[10] * _matrix.vDataMat[14] ) + ( vDataMat[14] * _matrix.vDataMat[15] ) );
+   _targetMatrix->vDataMat[15] = ( ( vDataMat[3] * _matrix.vDataMat[12] ) + ( vDataMat[7] * _matrix.vDataMat[13] ) + ( vDataMat[11] * _matrix.vDataMat[14] ) + ( vDataMat[15] * _matrix.vDataMat[15] ) );
+   // clang-format on
 }
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
