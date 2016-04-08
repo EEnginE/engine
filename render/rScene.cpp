@@ -34,7 +34,8 @@ rSceneBase::~rSceneBase() {}
  * \brief Constructor
  * \note The pointer _world must be valid over the lifetime of the object!
  */
-rSceneBase::rSceneBase( std::string _name, rWorld *_world ) : vWorldPtr( _world ), vName_str( _name ) {}
+rSceneBase::rSceneBase( std::string _name, rWorld *_world )
+    : vWorldPtr( _world ), vName_str( _name ) {}
 
 /*!
  * \brief Tests if it is safe to render the scene

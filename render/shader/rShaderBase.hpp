@@ -33,16 +33,35 @@ class rWorld;
 
 namespace internal {
 class rRenderer;
-}
 
-static const std::string gShaderVertexInputVarName[]   = {"iVertex", "iVertices", "iVert"};
-static const std::string gShaderNormalsInputVarName[]  = {"iNormal", "iNormals", "iNorm"};
-static const std::string gShaderUVInputVarName[]       = {"iUV", "iUVs"};
-static const std::string gShaderUniformMVPMatrixName[] = {"uMVP", "MVP", "mvp"};
+
+static const std::vector<std::vector<std::string>> gShaderInputVarNames = {
+      {"iVertex", "iVertices", "iVert"},                // Input Verex
+      {"iNormal", "iNormals", "iNorm"},                 // Input Normal
+      {"iUV", "iUVs"},                                  // Input UV
+      {"uMVP", "MVP", "mvp"},                           // Matrix Model View Projection
+      {"uViewProject", "uView", "viewProject", "view"}, // View Projection matrix
+      {"uModel", "Model", "model"},                     // Model matrix
+      {}};
+
+enum SHADER_INPUT_NAME_INDEX {
+   IN_VERTEX = 0,
+   IN_NORMAL = 1,
+   IN_UV     = 2,
+   U_M_MVP   = 3,
+   U_M_VP    = 4,
+   U_M_M     = 5
+};
+}
 
 class rShaderBase {
  public:
-   enum UNIFORM_ROLE { MODEL_VIEW_PROJECTION_MATRIX, UNKONOWN };
+   enum UNIFORM_ROLE {
+      MODEL_VIEW_PROJECTION_MATRIX,
+      VIEW_PROJECTION_MATRIX,
+      MODEL_MATRIX,
+      UNKONOWN
+   };
 
    typedef struct InOut {
       std::string type;
@@ -64,6 +83,7 @@ class rShaderBase {
       std::vector<InOut> input;
       std::vector<InOut> output;
       std::vector<InOut> uniforms;
+      std::vector<InOut> pushConstants;
       std::vector<Uniform> uniformBlocks;
    } ShaderInfo;
 
@@ -85,6 +105,17 @@ class rShaderBase {
       VkDeviceMemory mem;
 
       std::vector<Var> vars;
+   };
+
+   struct PushConstantVar {
+      VkShaderStageFlagBits stage;
+
+      std::string name;
+      std::string type;
+      uint32_t offset;
+      uint32_t size;
+
+      UNIFORM_ROLE guessedRole = UNKONOWN;
    };
 
  private:
@@ -110,9 +141,11 @@ class rShaderBase {
    std::vector<VkDescriptorSetLayoutBinding> vLayoutBindings;
    std::vector<VkDescriptorPoolSize> vDescPoolSizes;
    std::vector<VkWriteDescriptorSet> vWriteDescData;
+   std::vector<VkPushConstantRange> vPushConstants;
    std::vector<VkBuffer> vBuffers;
    std::vector<VkDeviceMemory> vMemory;
    std::vector<UniformBuffer> vUniformBufferDescs;
+   std::vector<PushConstantVar> vPushConstantDescs;
 
    // Data storage
    std::vector<VkDescriptorBufferInfo> vDataBufferInfo;
@@ -121,6 +154,7 @@ class rShaderBase {
 
    bool createModule( VkShaderModule *_module, std::vector<unsigned char> _data );
    VkDescriptorType getDescriptorType( std::string _str );
+   UNIFORM_ROLE guessRole( std::string _type, std::string _name );
    void addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _info );
 
    uint32_t createUniformBuffer( uint32_t _size );
@@ -152,6 +186,7 @@ class rShaderBase {
 
    // Uniform handling
 
+   std::vector<PushConstantVar> getPushConstants( VkShaderStageFlagBits _stage );
    UniformBuffer const *getUniformBuffer( VkShaderStageFlagBits _stage );
    bool updateUniform( UniformBuffer::Var const &_var, void const *_data );
    bool tryReserveUniform( UniformBuffer::Var const &_var );

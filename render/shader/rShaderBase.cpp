@@ -38,6 +38,8 @@ namespace e_engine {
 rShaderBase::rShaderBase( iInit *_init ) : vDevice_vk( _init->getDevice() ), vInitPtr( _init ) {}
 rShaderBase::rShaderBase( rWorld *_tempWorld ) : rShaderBase( _tempWorld->getInitPtr() ) {}
 
+using namespace internal;
+
 /*!
  * \brief Compare operator
  *
@@ -48,14 +50,14 @@ rShaderBase::rShaderBase( rWorld *_tempWorld ) : rShaderBase( _tempWorld->getIni
  */
 bool rShaderBase::InOut::operator<( const InOut &rhs ) {
    // Vertex
-   for ( auto const &i : gShaderVertexInputVarName )
+   for ( auto const &i : gShaderInputVarNames[IN_VERTEX] )
       if ( name == i )
          return true;
 
    // Normal
-   for ( auto const &i : gShaderNormalsInputVarName ) {
+   for ( auto const &i : gShaderInputVarNames[IN_NORMAL] ) {
       if ( name == i ) {
-         for ( auto const &j : gShaderVertexInputVarName )
+         for ( auto const &j : gShaderInputVarNames[IN_VERTEX] )
             if ( rhs.name == j )
                return false;
 
@@ -64,13 +66,13 @@ bool rShaderBase::InOut::operator<( const InOut &rhs ) {
    }
 
    // UV
-   for ( auto const &i : gShaderUVInputVarName ) {
+   for ( auto const &i : gShaderInputVarNames[IN_UV] ) {
       if ( name == i ) {
-         for ( auto const &j : gShaderVertexInputVarName )
+         for ( auto const &j : gShaderInputVarNames[IN_VERTEX] )
             if ( rhs.name == j )
                return false;
 
-         for ( auto const &j : gShaderNormalsInputVarName )
+         for ( auto const &j : gShaderInputVarNames[IN_NORMAL] )
             if ( rhs.name == j )
                return false;
 
@@ -210,8 +212,25 @@ VkDescriptorType rShaderBase::getDescriptorType( std::string _str ) {
    return VK_DESCRIPTOR_TYPE_MAX_ENUM; // Error nor found
 }
 
+rShaderBase::UNIFORM_ROLE rShaderBase::guessRole( std::string _type, std::string _name ) {
+   if ( _type == "mat4" || _type == "mat4x4" ) {
+
+      // Check MVP
+      for ( auto const &i : gShaderInputVarNames[U_M_MVP] )
+         if ( i == _name )
+            return MODEL_VIEW_PROJECTION_MATRIX;
+   }
+
+   return UNKONOWN;
+}
+
+/*!
+ * \brief Does all the setup for uniforms
+ */
 void rShaderBase::addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _info ) {
    dVkLOG( "  -- stage ", uEnum2Str::toStr( _stage ) );
+
+   // Handle Uniforms
 
    for ( auto const &i : _info.uniforms ) {
       VkDescriptorSetLayoutBinding lTemp = {};
@@ -242,6 +261,42 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _i
       if ( !lFound )
          vDescPoolSizes.push_back( {lTemp.descriptorType, 1} );
    }
+
+
+   // Push Constants
+   VkPushConstantRange lRange = {};
+   lRange.stageFlags          = _stage;
+   lRange.offset              = 0;
+   lRange.size                = 0;
+
+   vPushConstantDescs.reserve( _info.pushConstants.size() );
+   for ( auto const &i : _info.pushConstants ) {
+      uint32_t lTempSize;
+      VkFormat lTempF;
+
+      if ( !getGLSLTypeInfo( i.type, lTempSize, lTempF ) ) {
+         wLOG( "Unknown uniform type '", i.type, "' -- ignore" );
+         continue;
+      }
+
+      vPushConstantDescs.emplace_back();
+      auto *lAlias = &vPushConstantDescs.back();
+
+      lAlias->stage       = _stage;
+      lAlias->name        = i.name;
+      lAlias->type        = i.type;
+      lAlias->offset      = lRange.size;
+      lAlias->size        = lTempSize;
+      lAlias->guessedRole = guessRole( i.type, i.name );
+
+      lRange.size += lTempSize;
+   }
+
+   if ( lRange.size != 0 )
+      vPushConstants.push_back( lRange );
+
+
+   // Handle Uniform block
 
    for ( auto const &i : _info.uniformBlocks ) {
       VkDescriptorSetLayoutBinding lTemp = {};
@@ -284,16 +339,11 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _i
          vUniformBufferDescs.back().vars.emplace_back();
          auto *lAlias = &vUniformBufferDescs.back().vars.back();
 
-         lAlias->offset = lSize;
-         lAlias->type   = j.type;
-         lAlias->name   = j.name;
-         lAlias->size   = lTempSize * j.arraySize;
-
-         // Check for MVP Matrix
-         if ( j.type == "mat4" || j.type == "mat4x4" )
-            for ( auto const &k : gShaderUniformMVPMatrixName )
-               if ( k == j.name )
-                  lAlias->guessedRole = MODEL_VIEW_PROJECTION_MATRIX;
+         lAlias->offset      = lSize;
+         lAlias->type        = j.type;
+         lAlias->name        = j.name;
+         lAlias->size        = lTempSize * j.arraySize;
+         lAlias->guessedRole = guessRole( j.type, j.name );
 
          lSize += lTempSize * j.arraySize;
          dVkLOG( "      - ", j.type, " ", j.name, " | ", uEnum2Str::toStr( lAlias->guessedRole ) );
@@ -494,8 +544,8 @@ bool rShaderBase::init() {
    lPipeInfo.flags                  = 0;
    lPipeInfo.setLayoutCount         = 1;
    lPipeInfo.pSetLayouts            = &vDescLayout_vk;
-   lPipeInfo.pushConstantRangeCount = 0;
-   lPipeInfo.pPushConstantRanges    = nullptr; //! \todo Add push constants support
+   lPipeInfo.pushConstantRangeCount = vPushConstants.size();
+   lPipeInfo.pPushConstantRanges    = vPushConstants.data();
 
    lRes = vkCreatePipelineLayout( vDevice_vk, &lPipeInfo, nullptr, &vPipelineLayout_vk );
    if ( lRes ) {
@@ -616,6 +666,21 @@ std::vector<VkVertexInputAttributeDescription> rShaderBase::getVertexInputAttrib
          return {};
 
    return vInputDescs;
+}
+
+std::vector<rShaderBase::PushConstantVar> rShaderBase::getPushConstants(
+      VkShaderStageFlagBits _stage ) {
+   if ( !vModulesCreated )
+      if ( !init() )
+         return {};
+
+   std::vector<rShaderBase::PushConstantVar> lTemp;
+
+   for ( auto const &i : vPushConstantDescs )
+      if ( i.stage == _stage )
+         lTemp.push_back( i );
+
+   return lTemp;
 }
 
 /*!

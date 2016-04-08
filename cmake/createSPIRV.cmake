@@ -78,8 +78,10 @@ function( createSPIRV )
       string( REGEX REPLACE ",[ \n]*$" "" FINAL_DATA_${I_UPPER} "${FINAL_DATA_${I_UPPER}}" )
       set( HAS_${I_UPPER} "true" )
 
-      set( LAYOUT_1 "layout[ \t\n]+\\([a-zA-Z0-9= \t\n]*location[ \t\n]*=[ \t\n]*[0-9]+[a-zA-Z0-9= \t\n]*\\)[ \t\n]+" )
-      set( LAYOUT_2 "layout[ \t\n]+\\([a-zA-Z0-9= \t\n]*binding[ \t\n]*=[ \t\n]*[0-9]+[a-zA-Z0-9= \t\n]*\\)[ \t\n]+" )
+      set( LAYOUT_1 "layout[ \t\n]*\\([a-zA-Z0-9= \t\n]*location[ \t\n]*=[ \t\n]*[0-9]+[a-zA-Z0-9= \t\n]*\\)[ \t\n]*" )
+      set( LAYOUT_2 "layout[ \t\n]*\\([a-zA-Z0-9= \t\n]*binding[ \t\n]*=[ \t\n]*[0-9]+[a-zA-Z0-9= \t\n]*\\)[ \t\n]*" )
+      set( LAYOUT_3 "layout[ \t\n]*\\([ \t\n]*push_constant[ \t\n]*\\)[ \t\n]*" )
+      set( BLOCK "{([ \t\n]*[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`[ \t\n]*)*}" )
 
       # parsing GLSL code
       file( READ "${SOURCE_FILE}" RAW_DATA )
@@ -87,8 +89,8 @@ function( createSPIRV )
       string( REGEX MATCHALL "${LAYOUT_1}in[ \t\n]+[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`"  S_IN  "${RAW_DATA}" )
       string( REGEX MATCHALL "${LAYOUT_1}out[ \t\n]+[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`" S_OUT "${RAW_DATA}" )
       string( REGEX MATCHALL "${LAYOUT_2}uniform[ \t\n]+[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`" S_U1 "${RAW_DATA}" )
-      string( REGEX MATCHALL "${LAYOUT_2}uniform[ \t\n]+[a-zA-Z_0-9]+[ \t\n]*{([ \t\n]*[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`[ \t\n]*)*}" S_UNIFORM "${RAW_DATA}" )
-
+      string( REGEX MATCHALL "${LAYOUT_3}uniform[ \t\n]+[a-zA-Z_0-9]+[ \t\n]*${BLOCK}" S_PUSH    "${RAW_DATA}" )
+      string( REGEX MATCHALL "${LAYOUT_2}uniform[ \t\n]+[a-zA-Z_0-9]+[ \t\n]*${BLOCK}" S_UNIFORM "${RAW_DATA}" )
 
       foreach( J IN LISTS S_IN )
          set( ARRAY 1 )
@@ -129,7 +131,29 @@ function( createSPIRV )
             set( ARRAY ${TMP} )
          endif( NOT "${TMP}" STREQUAL "" )
          string( APPEND UNIFORM_${I_UPPER} "            {\"${TP}\", \"${NAM}\", ${LOC}, ${ARRAY}},\n" )
-      endforeach( J IN LISTS S_OUT )
+      endforeach( J IN LISTS S_U1 )
+
+
+      foreach( J IN LISTS S_PUSH )
+         string( REGEX MATCH   "{.*}"           TEMP "${J}" )
+         string( REGEX REPLACE "[{}]"       ""  TEMP "${TEMP}" )
+         string( REGEX REPLACE "`[ \t\n]*$" ""  TEMP "${TEMP}" )
+         string( REGEX REPLACE "`"          ";" TEMP "${TEMP}" )
+
+         foreach( K IN LISTS TEMP )
+            set( ARRAY 1 )
+            string( REGEX REPLACE "[ \t\n]*([a-zA-Z_0-9]+)[ \t\n]+[a-zA-Z_0-9]+.*"   "\\1" TP  "${K}" )
+            string( REGEX REPLACE "[ \t\n]*[a-zA-Z_0-9]+[ \t\n]+([][a-zA-Z_0-9]+).*" "\\1" NAM "${K}" )
+            string( REGEX REPLACE "[a-zA-Z_0-9]+\\[?([0-9]*)\\]?" "\\1" TMP "${NAM}" )
+            string( REGEX REPLACE "\\[[0-9]*\\]" "" NAM "${NAM}" )
+            if( NOT "${TMP}" STREQUAL "" )
+               set( ARRAY ${TMP} )
+            endif( NOT "${TMP}" STREQUAL "" )
+            string( APPEND PUSH_${I_UPPER} "            {\"${TP}\", \"${NAM}\", UINT32_MAX, ${ARRAY}},\n" )
+         endforeach( K IN LISTS TEMP )
+
+         string( REGEX REPLACE ",\n$" "" PUSH_${I_UPPER} "${PUSH_${I_UPPER}}" )
+      endforeach( J IN LISTS S_PUSH )
 
 
       foreach( J IN LISTS S_UNIFORM )

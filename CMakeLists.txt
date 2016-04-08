@@ -173,6 +173,7 @@ enum2str_generate(
       "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
       "rObjectBase::MATRIX_TYPES" "rObjectBase::VECTOR_TYPES" "rObjectBase::LIGHT_MODEL_T"
       "rObjectBase::ERROR_FLAGS" "rObjectBase::VERTEX_DATA_LAYOUT" "rShaderBase::UNIFORM_ROLE"
+      "internal::SHADER_INPUT_NAME_INDEX"
       # Vulkan
       "VkPipelineCacheHeaderVersion"
       "VkResult" "VkStructureType" "VkSystemAllocationScope" "VkInternalAllocationType"

@@ -26,6 +26,11 @@ layout (binding = 0) uniform UBuffer {
    mat4 mvp;
 } uBuff;
 
+layout(push_constant) uniform PBlock {
+   vec4 test;
+   mat4 model;
+} pConst;
+
 layout (location = 0) out vec3 vColor;
 
 void main() {

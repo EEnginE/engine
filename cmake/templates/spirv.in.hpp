@@ -44,6 +44,9 @@ class @CLASSNAME@ : public rShaderBase {
          { // Uniforms
 @UNIFORM_VERT@
          },
+         { // Push constants
+@PUSH_VERT@
+         },
          { // Uniform Blocks
 @UNIFORM_B_VERT@
          }
@@ -60,6 +63,9 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_TESC@
+         },
+         { // Push constants
+@PUSH_TESC@
          },
          { // Uniform Blocks
 @UNIFORM_B_TESC@
@@ -78,6 +84,9 @@ class @CLASSNAME@ : public rShaderBase {
          { // Uniforms
 @UNIFORM_TESE@
          },
+         { // Push constants
+@PUSH_TESE@
+         },
          { // Uniform Blocks
 @UNIFORM_B_TESE@
          }
@@ -94,6 +103,9 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_GEOM@
+         },
+         { // Push constants
+@PUSH_GEOM@
          },
          { // Uniform Blocks
 @UNIFORM_B_GEOM@
@@ -112,6 +124,9 @@ class @CLASSNAME@ : public rShaderBase {
          { // Uniforms
 @UNIFORM_FRAG@
          },
+         { // Push constants
+@PUSH_FRAG@
+         },
          { // Uniform Blocks
 @UNIFORM_B_FRAG@
          }
@@ -128,6 +143,9 @@ class @CLASSNAME@ : public rShaderBase {
          },
          { // Uniforms
 @UNIFORM_COMP@
+         },
+         { // Push constants
+@PUSH_COMPT@
          },
          { // Uniform Blocks
 @UNIFORM_B_COMP@
