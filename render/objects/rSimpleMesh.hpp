@@ -36,11 +36,15 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
    rBuffer vIndex;
    rBuffer vVertex;
 
-   rShaderBase *vShader                           = nullptr;
-   const rShaderBase::UniformBuffer *vVertUniform = nullptr;
+   rShaderBase *vShader        = nullptr;
+   UNIFORM_BUFFER vVertUniform = nullptr;
 
-   rShaderBase::UniformBuffer::Var vMatrixMVPVar = {};
-   bool vHasMVPMatrix                            = false;
+   UNIFORM_VAR vMatrixMVPVar        = {};
+   UNIFORM_VAR vMatrixVPVar         = {};
+   PUSH_CONSTANT vMatrixModelVar_PC = {};
+   bool vHasMVPMatrix               = false;
+   bool vHasVPMatrix                = false;
+   bool vHasModelMatrix_PC          = false;
 
    std::vector<rBuffer *> setData_IMPL( VkCommandBuffer _buf,
                                         const std::vector<uint32_t> &_index,
@@ -60,6 +64,7 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
    rSimpleMesh &operator=( rSimpleMesh && ) = default;
 
    bool canRecord() override { return true; }
+   bool supportsPushConstants() override { return vHasModelMatrix_PC; }
    void record( VkCommandBuffer _buf ) override;
    void updateUniforms() override;
    void signalRenderReset() override;

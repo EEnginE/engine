@@ -27,6 +27,7 @@
 #include <assimp/scene.h>
 #include "rMatrixMath.hpp"
 #include "rBuffer.hpp"
+#include "rShaderBase.hpp"
 
 namespace e_engine {
 
@@ -51,7 +52,6 @@ namespace e_engine {
 #define NORMAL_MATRIX_FLAG ( 1 << 9 )
 
 class rPipeline;
-class rShaderBase;
 
 /*!
  * \brief Base class for creating objects
@@ -113,6 +113,10 @@ class RENDER_API rObjectBase {
       UNDEFINED
    };
 
+   using UNIFORM_BUFFER = const rShaderBase::UniformBuffer *;
+   using UNIFORM_VAR    = rShaderBase::UniformBuffer::Var;
+   using PUSH_CONSTANT  = rShaderBase::PushConstantVar;
+
  private:
    std::vector<rBuffer *> vLoadBuffers;
 
@@ -157,6 +161,7 @@ class RENDER_API rObjectBase {
    virtual void updateUniforms() {}
    virtual void record( VkCommandBuffer ) {}
    virtual void signalRenderReset() {}
+   virtual bool supportsPushConstants() { return false; };
 
    rPipeline *getPipeline() { return vPipeline; }
    rShaderBase *getShader();

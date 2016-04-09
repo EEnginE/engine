@@ -86,6 +86,13 @@ class RENDER_API rRenderer {
       std::vector<VkCommandBuffer> secondary;
    } Framebuffer_vk;
 
+   typedef struct RecordInfo_vk {
+      VkRenderPassBeginInfo lRPInfo           = {};
+      VkViewport lViewPort                    = {};
+      VkRect2D lScissors                      = {};
+      VkCommandBufferInheritanceInfo lInherit = {};
+   } RecordInfo_vk;
+
    using OBJECTS = std::vector<std::shared_ptr<rObjectBase>>;
 
  private:
@@ -101,6 +108,7 @@ class RENDER_API rRenderer {
    RenderPass_vk vRenderPass_vk;
    std::vector<Framebuffer_vk> vFramebuffers_vk;
 
+   RecordInfo_vk vCmdRecordInfo;
    OBJECTS vObjects;
 
    std::thread vRenderThread;
@@ -129,6 +137,8 @@ class RENDER_API rRenderer {
 
    void initFrameCommandBuffers( VkCommandPool _pool, uint32_t _numSecondary );
    void freeFrameCommandBuffers( VkCommandPool _pool );
+
+   void recordCmdBuffers( Framebuffer_vk &_fb, OBJECTS &_toRender );
 
    void renderLoop();
 

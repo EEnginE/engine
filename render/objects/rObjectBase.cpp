@@ -22,7 +22,6 @@
 #include "uLog.hpp"
 #include "iInit.hpp"
 #include "rPipeline.hpp"
-#include "rShaderBase.hpp"
 #include <regex>
 
 namespace e_engine {
@@ -40,6 +39,7 @@ bool rObjectBase::setPipeline( rPipeline *_pipe ) {
    }
 
    vPipeline = _pipe;
+   signalRenderReset();
    return true;
 }
 

@@ -59,6 +59,36 @@ rRenderer::rRenderer( iInit *_init, rWorld *_root, std::wstring _id )
    vRenderThread = std::thread( &rRenderer::renderLoop, this );
 
    defaultSetup();
+
+   vCmdRecordInfo.lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+   vCmdRecordInfo.lRPInfo.pNext                    = nullptr;
+   vCmdRecordInfo.lRPInfo.renderPass               = nullptr;
+   vCmdRecordInfo.lRPInfo.framebuffer              = nullptr;
+   vCmdRecordInfo.lRPInfo.renderArea.extent.width  = GlobConf.win.width;
+   vCmdRecordInfo.lRPInfo.renderArea.extent.height = GlobConf.win.height;
+   vCmdRecordInfo.lRPInfo.renderArea.offset        = {0, 0};
+   vCmdRecordInfo.lRPInfo.clearValueCount          = 0;
+   vCmdRecordInfo.lRPInfo.pClearValues             = nullptr;
+
+   vCmdRecordInfo.lViewPort.x        = 0;
+   vCmdRecordInfo.lViewPort.y        = 0;
+   vCmdRecordInfo.lViewPort.width    = GlobConf.win.width;
+   vCmdRecordInfo.lViewPort.height   = GlobConf.win.height;
+   vCmdRecordInfo.lViewPort.minDepth = 0.0f;
+   vCmdRecordInfo.lViewPort.maxDepth = 1.0f;
+
+   vCmdRecordInfo.lScissors.offset.x      = 0;
+   vCmdRecordInfo.lScissors.offset.y      = 0;
+   vCmdRecordInfo.lScissors.extent.width  = GlobConf.win.width;
+   vCmdRecordInfo.lScissors.extent.height = GlobConf.win.height;
+
+   vCmdRecordInfo.lInherit.sType                = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+   vCmdRecordInfo.lInherit.pNext                = nullptr;
+   vCmdRecordInfo.lInherit.renderPass           = nullptr;
+   vCmdRecordInfo.lInherit.framebuffer          = nullptr; // set in loop
+   vCmdRecordInfo.lInherit.occlusionQueryEnable = VK_FALSE;
+   vCmdRecordInfo.lInherit.queryFlags           = 0;
+   vCmdRecordInfo.lInherit.pipelineStatistics   = 0;
 }
 
 rRenderer::~rRenderer() {
@@ -169,6 +199,94 @@ void rRenderer::destroy() {
    vIsSetup = false;
 }
 
+/*!
+ * \brief Records the Vulkan command buffers, for a framebuffer
+ * \note _toRender.size() MUST BE EQUAL TO _fb.secondary.size()
+ * Elements in _toRender can be skipped by setting them to nullptr
+ */
+void rRenderer::recordCmdBuffers( Framebuffer_vk &_fb, OBJECTS &_toRender ) {
+   if ( _toRender.size() != _fb.secondary.size() ) {
+      eLOG( "Internal error: _toRender.size() != _fb.secondary.size()" );
+      return;
+   }
+
+   VkClearValue *lClearValue = &vRenderPass_vk.clearValues[vRenderPass_vk.frameAttachID];
+   lClearValue->depthStencil = {1.0f, 0};
+
+   lClearValue->color = {{vClearColor.float32[0],
+                          vClearColor.float32[1],
+                          vClearColor.float32[2],
+                          vClearColor.float32[3]}};
+
+   vCmdRecordInfo.lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+   vCmdRecordInfo.lRPInfo.pNext                    = nullptr;
+   vCmdRecordInfo.lRPInfo.renderPass               = vRenderPass_vk.renderPass;
+   vCmdRecordInfo.lRPInfo.framebuffer              = _fb.fb;
+   vCmdRecordInfo.lRPInfo.renderArea.extent.width  = GlobConf.win.width;
+   vCmdRecordInfo.lRPInfo.renderArea.extent.height = GlobConf.win.height;
+   vCmdRecordInfo.lRPInfo.renderArea.offset        = {0, 0};
+   vCmdRecordInfo.lRPInfo.clearValueCount          = vRenderPass_vk.clearValues.size();
+   vCmdRecordInfo.lRPInfo.pClearValues             = vRenderPass_vk.clearValues.data();
+
+   vCmdRecordInfo.lViewPort.x        = 0;
+   vCmdRecordInfo.lViewPort.y        = 0;
+   vCmdRecordInfo.lViewPort.width    = GlobConf.win.width;
+   vCmdRecordInfo.lViewPort.height   = GlobConf.win.height;
+   vCmdRecordInfo.lViewPort.minDepth = 0.0f;
+   vCmdRecordInfo.lViewPort.maxDepth = 1.0f;
+
+   vCmdRecordInfo.lScissors.offset.x      = 0;
+   vCmdRecordInfo.lScissors.offset.y      = 0;
+   vCmdRecordInfo.lScissors.extent.width  = GlobConf.win.width;
+   vCmdRecordInfo.lScissors.extent.height = GlobConf.win.height;
+
+   vCmdRecordInfo.lInherit.sType                = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+   vCmdRecordInfo.lInherit.pNext                = nullptr;
+   vCmdRecordInfo.lInherit.renderPass           = vRenderPass_vk.renderPass;
+   vCmdRecordInfo.lInherit.framebuffer          = _fb.fb;
+   vCmdRecordInfo.lInherit.occlusionQueryEnable = VK_FALSE;
+   vCmdRecordInfo.lInherit.queryFlags           = 0;
+   vCmdRecordInfo.lInherit.pipelineStatistics   = 0;
+
+   vWorldPtr->beginCommandBuffer( _fb.render );
+
+   vkCmdBeginRenderPass(
+         _fb.render, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
+
+   for ( uint32_t i = 0; i < _toRender.size(); i++ ) {
+      if ( _toRender[i].get() == nullptr )
+         continue;
+
+      auto *lPipe = _toRender[i]->getPipeline();
+      if ( !lPipe ) {
+         eLOG( "Object ", _toRender[i]->getName(), " has no pipeline!" );
+         continue;
+      }
+
+      vWorldPtr->beginCommandBuffer( _fb.secondary[i],
+                                     VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
+                                     &vCmdRecordInfo.lInherit );
+
+      if ( lPipe->getNumViewpors() > 0 )
+         vkCmdSetViewport( _fb.secondary[i], 0, 1, &vCmdRecordInfo.lViewPort );
+
+      if ( lPipe->getNumScissors() > 0 )
+         vkCmdSetScissor( _fb.secondary[i], 0, 1, &vCmdRecordInfo.lScissors );
+
+      _toRender[i]->record( _fb.secondary[i] );
+      vkEndCommandBuffer( _fb.secondary[i] );
+   }
+
+   vkCmdExecuteCommands( _fb.render, _fb.secondary.size(), _fb.secondary.data() );
+   vkCmdEndRenderPass( _fb.render );
+
+   auto lRes = vkEndCommandBuffer( _fb.render );
+   if ( lRes ) {
+      eLOG( "'vkEndCommandBuffer' returned ", uEnum2Str::toStr( lRes ) );
+      //! \todo Handle this somehow (practically this code must not execute)
+   }
+}
+
 void rRenderer::renderLoop() {
    LOG.nameThread( L"ren_" + vID );
    iLOG( "Starting render thread" );
@@ -237,53 +355,10 @@ void rRenderer::renderLoop() {
       lPresentInfo.pImageIndices      = nullptr; // set in render loop
       lPresentInfo.pResults           = nullptr;
 
-      VkClearValue *lClearValue = &vRenderPass_vk.clearValues[vRenderPass_vk.frameAttachID];
-      lClearValue->depthStencil = {1.0f, 0};
-
-      lClearValue->color = {{vClearColor.float32[0],
-                             vClearColor.float32[1],
-                             vClearColor.float32[2],
-                             vClearColor.float32[3]}};
-
-      VkRenderPassBeginInfo lRPInfo    = {};
-      lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-      lRPInfo.pNext                    = nullptr;
-      lRPInfo.renderPass               = vRenderPass_vk.renderPass;
-      lRPInfo.framebuffer              = nullptr; // set in the loop below
-      lRPInfo.renderArea.extent.width  = GlobConf.win.width;
-      lRPInfo.renderArea.extent.height = GlobConf.win.height;
-      lRPInfo.renderArea.offset        = {0, 0};
-      lRPInfo.clearValueCount          = vRenderPass_vk.clearValues.size();
-      lRPInfo.pClearValues             = vRenderPass_vk.clearValues.data();
-
-      VkViewport lViewPort = {};
-      lViewPort.x          = 0;
-      lViewPort.y          = 0;
-      lViewPort.width      = GlobConf.win.width;
-      lViewPort.height     = GlobConf.win.height;
-      lViewPort.minDepth   = 0.0f;
-      lViewPort.maxDepth   = 1.0f;
-
-      VkRect2D lScissors      = {};
-      lScissors.offset.x      = 0;
-      lScissors.offset.y      = 0;
-      lScissors.extent.width  = GlobConf.win.width;
-      lScissors.extent.height = GlobConf.win.height;
-
 
       // ======================
       // Rocord command buffers
       // ======================
-
-
-      VkCommandBufferInheritanceInfo lInherit = {};
-      lInherit.sType                          = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-      lInherit.pNext                          = nullptr;
-      lInherit.renderPass                     = vRenderPass_vk.renderPass;
-      lInherit.framebuffer                    = nullptr; // set in loop
-      lInherit.occlusionQueryEnable           = VK_FALSE;
-      lInherit.queryFlags                     = 0;
-      lInherit.pipelineStatistics             = 0;
 
       // Destroy old pipelines
       for ( auto &i : vObjects ) {
@@ -314,44 +389,20 @@ void rRenderer::renderLoop() {
          i->signalRenderReset();
       }
 
-      for ( auto &i : vFramebuffers_vk ) {
-         vWorldPtr->beginCommandBuffer( i.render );
-
-         lInherit.framebuffer = i.fb;
-         lRPInfo.framebuffer  = i.fb;
-
-         vkCmdBeginRenderPass( i.render, &lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
-
-         for ( uint32_t j = 0; j < lRenderObjects.size(); j++ ) {
-            auto *lPipe = lRenderObjects[j]->getPipeline();
-            if ( !lPipe ) {
-               eLOG( "Object ", lRenderObjects[j]->getName(), " has no pipeline!" );
-               continue;
-            }
-
-            vWorldPtr->beginCommandBuffer(
-                  i.secondary[j], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &lInherit );
-
-            if ( lPipe->getNumViewpors() > 0 )
-               vkCmdSetViewport( i.render, 0, 1, &lViewPort );
-
-            if ( lPipe->getNumScissors() > 0 )
-               vkCmdSetScissor( i.render, 0, 1, &lScissors );
-
-            lRenderObjects[j]->record( i.render );
-            vkEndCommandBuffer( i.secondary[j] );
-         }
-
-         vkCmdExecuteCommands( i.render, i.secondary.size(), i.secondary.data() );
-         vkCmdEndRenderPass( i.render );
-
-         auto lRes = vkEndCommandBuffer( i.render );
-         if ( lRes ) {
-            eLOG( "'vkEndCommandBuffer' returned ", uEnum2Str::toStr( lRes ) );
-            //! \todo Handle this somehow (practically this code must not execute)
+      // Select objects with push constants -- we do not need to rerecord objects without them
+      OBJECTS lPuschConstObjects;
+      lPuschConstObjects.resize( lRenderObjects.size() );
+      for ( uint32_t i = 0; i < lRenderObjects.size(); i++ ) {
+         if ( lRenderObjects[i]->supportsPushConstants() ) {
+            lPuschConstObjects[i] = lRenderObjects[i];
+         } else {
+            lPuschConstObjects[i] = nullptr;
          }
       }
 
+      // Record all command buffers
+      for ( auto &i : vFramebuffers_vk )
+         recordCmdBuffers( i, lRenderObjects );
 
 
 
@@ -399,6 +450,9 @@ void rRenderer::renderLoop() {
             eLOG( "'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr( lRes ) );
             break;
          }
+
+         // Rerecord command buffers to update push constants
+         recordCmdBuffers( vFramebuffers_vk[lNextImg], lPuschConstObjects );
 
          // Set CMD buffers
          lRenderSubmit[0].pCommandBuffers = &vFramebuffers_vk[lNextImg].preRender;

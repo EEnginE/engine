@@ -157,7 +157,7 @@ int rWorld::init() {
  * \brief Stops all render loops
  */
 void rWorld::shutdown() {
-   if( !vIsSetup )
+   if ( !vIsSetup )
       return;
 
    if ( vRenderer1.getIsRunning() )

@@ -214,11 +214,17 @@ VkDescriptorType rShaderBase::getDescriptorType( std::string _str ) {
 
 rShaderBase::UNIFORM_ROLE rShaderBase::guessRole( std::string _type, std::string _name ) {
    if ( _type == "mat4" || _type == "mat4x4" ) {
-
-      // Check MVP
       for ( auto const &i : gShaderInputVarNames[U_M_MVP] )
          if ( i == _name )
             return MODEL_VIEW_PROJECTION_MATRIX;
+
+      for ( auto const &i : gShaderInputVarNames[U_M_VP] )
+         if ( i == _name )
+            return VIEW_PROJECTION_MATRIX;
+
+      for ( auto const &i : gShaderInputVarNames[U_M_M] )
+         if ( i == _name )
+            return MODEL_MATRIX;
    }
 
    return UNKONOWN;
@@ -608,6 +614,19 @@ bool rShaderBase::updateUniform( UniformBuffer::Var const &_var, void const *_da
    vkUnmapMemory( vDevice_vk, _var.mem );
 
    return true;
+}
+
+/*!
+ * \brief Updates a push constant
+ * \vkIntern
+ * \warning This function does no error checking
+ *
+ * _var MUST BE acquired from this object!
+ */
+void rShaderBase::cmdUpdatePushConstant( VkCommandBuffer _buf,
+                                         PushConstantVar const &_var,
+                                         void const *_data ) {
+   vkCmdPushConstants( _buf, vPipelineLayout_vk, _var.stage, _var.offset, _var.size, _data );
 }
 
 

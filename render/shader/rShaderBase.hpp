@@ -186,10 +186,13 @@ class rShaderBase {
 
    // Uniform handling
 
-   std::vector<PushConstantVar> getPushConstants( VkShaderStageFlagBits _stage );
    UniformBuffer const *getUniformBuffer( VkShaderStageFlagBits _stage );
    bool updateUniform( UniformBuffer::Var const &_var, void const *_data );
    bool tryReserveUniform( UniformBuffer::Var const &_var );
+   std::vector<PushConstantVar> getPushConstants( VkShaderStageFlagBits _stage );
+   void cmdUpdatePushConstant( VkCommandBuffer _buf,
+                               PushConstantVar const &_var,
+                               void const *_data );
 
    virtual std::string getName() = 0;
 
