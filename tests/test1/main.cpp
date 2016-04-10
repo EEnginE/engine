@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-#define USE_LAYERS 0
+#define USE_LAYERS 1
 
 using namespace std;
 using namespace e_engine;
@@ -48,12 +48,13 @@ int main( int argc, char *argv[] ) {
    iInit start;
 
    std::vector<std::string> layers = {
+      "VK_LAYER_LUNARG_core_validation",
       "VK_LAYER_LUNARG_device_limits",
       "VK_LAYER_LUNARG_draw_state",
       "VK_LAYER_LUNARG_image",
       "VK_LAYER_LUNARG_mem_tracker",
       "VK_LAYER_LUNARG_object_tracker",
-      "VK_LAYER_LUNARG_param_checker",
+      "VK_LAYER_LUNARG_parameter_validation",
       "VK_LAYER_LUNARG_swapchain",
       "VK_LAYER_GOOGLE_threading",
       "VK_LAYER_GOOGLE_unique_objects",

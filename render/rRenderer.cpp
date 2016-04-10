@@ -310,11 +310,24 @@ void rRenderer::renderLoop() {
       //    \___/_| |_|_|\__|
       //
 
+      const static uint32_t NUM_FENCES      = 4;
+      const static uint32_t FENCE_RENDER    = 0;
+      const static uint32_t FENCE_SWAPCHAIN = 1;
+      const static uint32_t FENCE_IMG_1     = 2;
+      const static uint32_t FENCE_IMG_2     = 3;
+
       uint32_t lQueueFamily = 0;
 
       VkSwapchainKHR lSwapchain_vk = vWorldPtr->getSwapchain();
       VkQueue lQueue               = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
       VkCommandPool lCommandPool   = vWorldPtr->getCommandPool( lQueueFamily );
+      VkSemaphore lSemPresent      = vWorldPtr->createSemaphore();
+      VkFence lFences[4];
+
+      for ( uint32_t i = 0; i < NUM_FENCES; i++ ) {
+         lFences[i] = vWorldPtr->createFence();
+      }
+
 
       OBJECTS lRenderObjects;
       for ( auto i : vObjects ) {
@@ -324,9 +337,6 @@ void rRenderer::renderLoop() {
       }
 
       initFrameCommandBuffers( lCommandPool, lRenderObjects.size() );
-
-      VkSemaphore lSemPresent  = vWorldPtr->createSemaphore();
-      VkFence lWaitRenderFence = vWorldPtr->createFence();
 
       VkSubmitInfo lRenderSubmit[3];
       lRenderSubmit[0].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -444,12 +454,18 @@ void rRenderer::renderLoop() {
          }
 
          // Get present image (this command blocks)
-         auto lRes = vkAcquireNextImageKHR(
-               vDevice_vk, lSwapchain_vk, UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &lNextImg );
+         auto lRes = vkAcquireNextImageKHR( vDevice_vk,
+                                            lSwapchain_vk,
+                                            UINT64_MAX,
+                                            VK_NULL_HANDLE,
+                                            lFences[FENCE_SWAPCHAIN],
+                                            &lNextImg );
          if ( lRes ) {
             eLOG( "'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr( lRes ) );
             break;
          }
+
+         vkWaitForFences( vDevice_vk, 1, &lFences[FENCE_SWAPCHAIN], VK_TRUE, UINT64_MAX );
 
          // Rerecord command buffers to update push constants
          recordCmdBuffers( vFramebuffers_vk[lNextImg], lPuschConstObjects );
@@ -460,21 +476,21 @@ void rRenderer::renderLoop() {
          lRenderSubmit[2].pCommandBuffers = &vFramebuffers_vk[lNextImg].postRender;
 
          // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  -->  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[0], VK_NULL_HANDLE );
+         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[0], lFences[FENCE_IMG_1] );
          if ( lRes ) {
             eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
             break;
          }
 
          // Render
-         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[1], lWaitRenderFence );
+         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[1], lFences[FENCE_RENDER] );
          if ( lRes ) {
             eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
             break;
          }
 
          // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  -->  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[2], VK_NULL_HANDLE );
+         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[2], lFences[FENCE_IMG_2] );
          if ( lRes ) {
             eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
             break;
@@ -488,16 +504,18 @@ void rRenderer::renderLoop() {
          }
 
          // Wait until rendering is done
-         lRes = vkWaitForFences( vDevice_vk, 1, &lWaitRenderFence, VK_TRUE, UINT64_MAX );
-         if ( lRes ) {
-            eLOG( "'vkWaitForFences' returned ", uEnum2Str::toStr( lRes ) );
-            break;
-         }
+         vkWaitForFences( vDevice_vk, 1, &lFences[FENCE_RENDER], VK_TRUE, UINT64_MAX );
 
          // Update Uniforms
          for ( auto i : vObjects )
             i->updateUniforms();
 
+         vkWaitForFences( vDevice_vk, 1, &lFences[FENCE_IMG_1], VK_TRUE, UINT64_MAX );
+         vkWaitForFences( vDevice_vk, 1, &lFences[FENCE_IMG_2], VK_TRUE, UINT64_MAX );
+
+         vkResetFences( vDevice_vk, NUM_FENCES, lFences );
+
+         //          vkDeviceWaitIdle( vDevice_vk );
 
          vWorldPtr->signalRenderdFrame();
          vRenderedFrames++;
@@ -517,7 +535,9 @@ void rRenderer::renderLoop() {
 
       vkDeviceWaitIdle( vDevice_vk );
       vkDestroySemaphore( vDevice_vk, lSemPresent, nullptr );
-      vkDestroyFence( vDevice_vk, lWaitRenderFence, nullptr );
+
+      for ( uint32_t i = 0; i < NUM_FENCES; i++ )
+         vkDestroyFence( vDevice_vk, lFences[i], nullptr );
 
       freeFrameCommandBuffers( lCommandPool );
 
