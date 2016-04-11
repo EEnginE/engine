@@ -25,6 +25,9 @@
 #include <vulkan.h>
 #include <vector>
 #include <string>
+#include <unordered_map>
+
+#include "rMaterial.hpp"
 
 namespace e_engine {
 
@@ -42,15 +45,21 @@ static const std::vector<std::vector<std::string>> gShaderInputVarNames = {
       {"uMVP", "MVP", "mvp"},                           // Matrix Model View Projection
       {"uViewProject", "uView", "viewProject", "view"}, // View Projection matrix
       {"uModel", "Model", "model"},                     // Model matrix
+      {"uPos", "uPosition", "pos", "position"},         // Subpass position data
+      {"uNormal", "normal"},                            // Subpass normal data
+      {"uColor", "uAlbedo", "color", "albedo"},         // Subpass color / albedo data
       {}};
 
 enum SHADER_INPUT_NAME_INDEX {
-   IN_VERTEX = 0,
-   IN_NORMAL = 1,
-   IN_UV     = 2,
-   U_M_MVP   = 3,
-   U_M_VP    = 4,
-   U_M_M     = 5
+   IN_VERTEX   = 0,
+   IN_NORMAL   = 1,
+   IN_UV       = 2,
+   U_M_MVP     = 3,
+   U_M_VP      = 4,
+   U_M_M       = 5,
+   U_SP_POS    = 6,
+   U_SP_NORM   = 7,
+   U_SP_ALBEDO = 8
 };
 }
 
@@ -60,6 +69,9 @@ class rShaderBase {
       MODEL_VIEW_PROJECTION_MATRIX,
       VIEW_PROJECTION_MATRIX,
       MODEL_MATRIX,
+      POSITION_SUBPASS_DATA,
+      NORMAL_SUBPASS_DATA,
+      ALBEDO_SUBPASS_DATA,
       UNKONOWN
    };
 
@@ -118,6 +130,17 @@ class rShaderBase {
       UNIFORM_ROLE guessedRole = UNKONOWN;
    };
 
+   struct UniformVar {
+      VkShaderStageFlagBits stage;
+
+      std::string name;
+      std::string type;
+      uint32_t binding;
+      uint32_t arraySize;
+
+      UNIFORM_ROLE guessedRole = UNKONOWN;
+   };
+
  private:
    VkDevice vDevice_vk;
    iInit *vInitPtr;
@@ -131,7 +154,6 @@ class rShaderBase {
 
    VkDescriptorSetLayout vDescLayout_vk = nullptr;
    VkDescriptorPool vDescPool_vk        = nullptr;
-   VkDescriptorSet vDescSet_vk          = nullptr;
    VkPipelineLayout vPipelineLayout_vk  = nullptr;
 
    VkVertexInputBindingDescription vInputBindingDesc = {};
@@ -144,8 +166,11 @@ class rShaderBase {
    std::vector<VkPushConstantRange> vPushConstants;
    std::vector<VkBuffer> vBuffers;
    std::vector<VkDeviceMemory> vMemory;
+   std::vector<UniformVar> vUniformDesc;
    std::vector<UniformBuffer> vUniformBufferDescs;
    std::vector<PushConstantVar> vPushConstantDescs;
+
+   std::unordered_map<rMaterial const *, VkDescriptorSet> vDescSetMap;
 
    // Data storage
    std::vector<VkDescriptorBufferInfo> vDataBufferInfo;
@@ -175,7 +200,7 @@ class rShaderBase {
    bool init();
    bool isInitialized();
    std::vector<VkPipelineShaderStageCreateInfo> getShaderStageInfo();
-   VkDescriptorSet getDescriptorSet();
+   VkDescriptorSet getDescriptorSet( rMaterial const *_materialPtr = nullptr );
    VkDescriptorSetLayout getDescriptorSetLayout();
    VkPipelineLayout getPipelineLayout();
    VkVertexInputBindingDescription getVertexInputBindingDescription();
@@ -190,9 +215,20 @@ class rShaderBase {
    bool updateUniform( UniformBuffer::Var const &_var, void const *_data );
    bool tryReserveUniform( UniformBuffer::Var const &_var );
    std::vector<PushConstantVar> getPushConstants( VkShaderStageFlagBits _stage );
+   std::vector<UniformVar> getUniforms();
+
+   bool updateDescriptorSet( UniformVar const &_var,
+                             void *_data,
+                             rMaterial const *_materialPtr = nullptr,
+                             uint32_t _elemet = 0 );
+
    void cmdUpdatePushConstant( VkCommandBuffer _buf,
                                PushConstantVar const &_var,
                                void const *_data );
+
+   void cmdBindDescriptorSets( VkCommandBuffer _buf,
+                               VkPipelineBindPoint _bindPoint,
+                               rMaterial const *_materialPtr = nullptr );
 
    virtual std::string getName() = 0;
 

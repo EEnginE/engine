@@ -128,6 +128,7 @@ class rPipeline {
    };
 
    bool checkInputCompatible( std::vector<InputDesc> _inputs );
+   bool checkUniformCompatible( std::vector<rShaderBase::UNIFORM_ROLE> _uniforms );
    bool getIsCreated() { return vIsCreated; }
 
    virtual ~rPipeline();

@@ -122,7 +122,7 @@ void iInit::vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
                                 VkDebugReportObjectTypeEXT,
                                 uint64_t,
                                 size_t,
-                                int32_t _msgCode,
+                                int32_t,
                                 std::string _layerPrefix,
                                 std::string _msg ) {
    std::string lTempStr;
@@ -164,8 +164,6 @@ void iInit::vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
         "(",
         _layerPrefix,
         ") ",
-        _msgCode,
-        ":",
         _msg );
 }
 

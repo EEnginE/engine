@@ -117,6 +117,8 @@ namespace e_engine {
 enum LOG_COLOR_TYPE { DISABLED, REDUCED, FULL };
 enum LOG_PRINT_TYPE { OFF, LEFT_FULL, RIGHT_FULL, LEFT_REDUCED, RIGHT_REDUCED };
 
+const unsigned int NUM_MAX_DESCRIPTOR_SETS = 32;
+
 /*!
 * \brief Attributes for iContext::NET_WM_STATE()
 * \sa iContext::NET_WM_STATE()

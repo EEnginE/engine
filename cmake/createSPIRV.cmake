@@ -38,10 +38,15 @@ function( createSPIRV )
          continue()
       endif( NOT EXISTS "${SOURCE_FILE}" )
 
-      execute_process( COMMAND "${GLSL_TO_SPIRV_COMPILER}" -V "${SOURCE_FILE}" -o "${SPIRV_FILE}" RESULT_VARIABLE OUT_RES OUTPUT_QUIET ERROR_QUIET )
+      execute_process(
+         COMMAND "${GLSL_TO_SPIRV_COMPILER}" -V "${SOURCE_FILE}" -o "${SPIRV_FILE}"
+         RESULT_VARIABLE OUT_RES
+         OUTPUT_VARIABLE CMD_OUTPUT
+         ERROR_VARIABLE  CMD_OUTPUT)
 
       if( NOT "${OUT_RES}" STREQUAL "0" )
          message( SEND_ERROR "Failed to compile GLSL file ${SOURCE_FILE} (${OUT_RES})" )
+         message( SEND_ERROR "${CMD_OUTPUT}" )
          continue()
       endif( NOT "${OUT_RES}" STREQUAL "0" )
 
@@ -64,7 +69,7 @@ function( createSPIRV )
 
          math( EXPR J      "${J} + 2" )
          math( EXPR MOD_4  "${J} % 8" )
-         math( EXPR MOD_16 "${J} % 24" )
+         math( EXPR MOD_16 "${J} % 32" )
 
          if( MOD_16 EQUAL 0 )
             string( APPEND FINAL_DATA_${I_UPPER} "\n   " )
@@ -78,8 +83,8 @@ function( createSPIRV )
       string( REGEX REPLACE ",[ \n]*$" "" FINAL_DATA_${I_UPPER} "${FINAL_DATA_${I_UPPER}}" )
       set( HAS_${I_UPPER} "true" )
 
-      set( LAYOUT_1 "layout[ \t\n]*\\([a-zA-Z0-9= \t\n]*location[ \t\n]*=[ \t\n]*[0-9]+[a-zA-Z0-9= \t\n]*\\)[ \t\n]*" )
-      set( LAYOUT_2 "layout[ \t\n]*\\([a-zA-Z0-9= \t\n]*binding[ \t\n]*=[ \t\n]*[0-9]+[a-zA-Z0-9= \t\n]*\\)[ \t\n]*" )
+      set( LAYOUT_1 "layout[ \t\n]*\\([a-zA-Z_0-9,= \t\n]*location[ \t\n]*=[ \t\n]*[0-9]+[a-zA-Z_0-9,= \t\n]*\\)[ \t\n]*" )
+      set( LAYOUT_2 "layout[ \t\n]*\\([a-zA-Z_0-9,= \t\n]*binding[ \t\n]*=[ \t\n]*[0-9]+[a-zA-Z_0-9,= \t\n]*\\)[ \t\n]*" )
       set( LAYOUT_3 "layout[ \t\n]*\\([ \t\n]*push_constant[ \t\n]*\\)[ \t\n]*" )
       set( BLOCK "{([ \t\n]*[a-zA-Z_0-9]+[ \t\n]+[][a-zA-Z_0-9]+[ \t\n]*`[ \t\n]*)*}" )
 

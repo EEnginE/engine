@@ -227,6 +227,20 @@ rShaderBase::UNIFORM_ROLE rShaderBase::guessRole( std::string _type, std::string
             return MODEL_MATRIX;
    }
 
+   if ( _type == "subpassInput" ) {
+      for ( auto const &i : gShaderInputVarNames[U_SP_POS] )
+         if ( i == _name )
+            return POSITION_SUBPASS_DATA;
+
+      for ( auto const &i : gShaderInputVarNames[U_SP_NORM] )
+         if ( i == _name )
+            return NORMAL_SUBPASS_DATA;
+
+      for ( auto const &i : gShaderInputVarNames[U_SP_ALBEDO] )
+         if ( i == _name )
+            return ALBEDO_SUBPASS_DATA;
+   }
+
    return UNKONOWN;
 }
 
@@ -246,7 +260,22 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _i
       lTemp.stageFlags                   = _stage;
       lTemp.pImmutableSamplers           = nullptr; //! \todo Implement if found useful
 
-      dVkLOG( "    -- Unifrom binding = ", i.location, " ", i.type, " ", i.name );
+      vUniformDesc.emplace_back();
+      auto *lAlias        = &vUniformDesc.back();
+      lAlias->stage       = _stage;
+      lAlias->name        = i.name;
+      lAlias->type        = i.type;
+      lAlias->binding     = i.location;
+      lAlias->guessedRole = guessRole( i.type, i.name );
+
+      dVkLOG( "    -- Unifrom binding = ",
+              i.location,
+              " ",
+              i.type,
+              " ",
+              i.name,
+              " | ",
+              uEnum2Str::toStr( lAlias->guessedRole ) );
 
       if ( lTemp.descriptorType == VK_DESCRIPTOR_TYPE_MAX_ENUM ) {
          wLOG( "Unknown uniform descriptor type '", i.type, "' -- ignore" );
@@ -336,6 +365,7 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _i
       vWriteDescData.emplace_back();
 
       bool lError = false;
+      vDataBufferInfo.reserve( i.vars.size() );
       for ( auto const &j : i.vars ) {
          if ( !getGLSLTypeInfo( j.type, lTempSize, lTempF ) ) {
             wLOG( "Unknown uniform type '", j.type, "' -- ignore" );
@@ -563,7 +593,7 @@ bool rShaderBase::init() {
    lDescPoolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
    lDescPoolInfo.pNext         = nullptr;
    lDescPoolInfo.flags         = 0;
-   lDescPoolInfo.maxSets       = 1;
+   lDescPoolInfo.maxSets       = NUM_MAX_DESCRIPTOR_SETS;
    lDescPoolInfo.poolSizeCount = vDescPoolSizes.size();
    lDescPoolInfo.pPoolSizes    = vDescPoolSizes.data();
 
@@ -572,26 +602,6 @@ bool rShaderBase::init() {
       eLOG( "'vkCreateDescriptorPool' returend ", uEnum2Str::toStr( lRes ) );
       return false;
    }
-
-   VkDescriptorSetAllocateInfo lAllocInfo;
-   lAllocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-   lAllocInfo.pNext              = nullptr;
-   lAllocInfo.descriptorPool     = vDescPool_vk;
-   lAllocInfo.descriptorSetCount = 1;
-   lAllocInfo.pSetLayouts        = &vDescLayout_vk;
-
-   lRes = vkAllocateDescriptorSets( vDevice_vk, &lAllocInfo, &vDescSet_vk );
-   if ( lRes ) {
-      eLOG( "'vkAllocateDescriptorSets' returend ", uEnum2Str::toStr( lRes ) );
-      return false;
-   }
-
-   // Update uniform buffers descriptor set
-   for ( auto &i : vWriteDescData )
-      i.dstSet = vDescSet_vk;
-
-   vkUpdateDescriptorSets( vDevice_vk, vWriteDescData.size(), vWriteDescData.data(), 0, nullptr );
-
 
    vModulesCreated = true;
    return true;
@@ -630,6 +640,27 @@ void rShaderBase::cmdUpdatePushConstant( VkCommandBuffer _buf,
 }
 
 
+/*!
+ * \brief Binds the descriptor set associated with _materialPtr
+ * \vkIntern
+ * \warning This function does no error checking
+ *
+ * _materialPtr functions only as an ID. The material itself will not be accessed, so nullptr is a
+ * valid value.
+ */
+void rShaderBase::cmdBindDescriptorSets( VkCommandBuffer _buf,
+                                         VkPipelineBindPoint _bindPoint,
+                                         rMaterial const *_materialPtr ) {
+   VkDescriptorSet lSet = getDescriptorSet( _materialPtr );
+
+   if ( lSet == nullptr ) {
+      eLOG( "Failed to aquire descriptor set" );
+      return;
+   }
+
+   vkCmdBindDescriptorSets( _buf, _bindPoint, vPipelineLayout_vk, 0, 1, &lSet, 0, nullptr );
+}
+
 std::vector<VkPipelineShaderStageCreateInfo> rShaderBase::getShaderStageInfo() {
    if ( !vModulesCreated )
       if ( !init() )
@@ -639,14 +670,105 @@ std::vector<VkPipelineShaderStageCreateInfo> rShaderBase::getShaderStageInfo() {
 }
 
 /*!
+ * \brief Get a descriptor set for a material
+ * \param[in] _materialPtr The pointer to a material (nullptr is valid)
+ *
+ * _materialPtr functions only as an ID. The material itself will not be accessed, so nullptr is a
+ * valid value.
+ *
  * \returns nullptr on error
  */
-VkDescriptorSet rShaderBase::getDescriptorSet() {
+VkDescriptorSet rShaderBase::getDescriptorSet( rMaterial const *_materialPtr ) {
    if ( !vModulesCreated )
       if ( !init() )
          return nullptr;
 
-   return vDescSet_vk;
+   if ( vDescSetMap.find( _materialPtr ) != vDescSetMap.end() )
+      return vDescSetMap[_materialPtr];
+
+   VkDescriptorSet lDescSet = nullptr;
+
+   VkDescriptorSetAllocateInfo lAllocInfo;
+   lAllocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+   lAllocInfo.pNext              = nullptr;
+   lAllocInfo.descriptorPool     = vDescPool_vk;
+   lAllocInfo.descriptorSetCount = 1;
+   lAllocInfo.pSetLayouts        = &vDescLayout_vk;
+
+   dVkLOG( "Allocating new descriptor set for shader ", getName() );
+
+   auto lRes = vkAllocateDescriptorSets( vDevice_vk, &lAllocInfo, &lDescSet );
+   if ( lRes ) {
+      eLOG( "'vkAllocateDescriptorSets' returend ", uEnum2Str::toStr( lRes ) );
+      return nullptr;
+   }
+
+   // Update uniform buffers descriptor set
+   for ( auto &i : vWriteDescData )
+      i.dstSet = lDescSet;
+
+   vkUpdateDescriptorSets( vDevice_vk, vWriteDescData.size(), vWriteDescData.data(), 0, nullptr );
+
+   vDescSetMap[_materialPtr] = lDescSet;
+
+   return lDescSet;
+}
+
+/*!
+ * \brief Updates a descriptor set for a material
+ * \param[in] _data        What to update (a VkImage, ...)
+ * \param[in] _materialPtr The pointer to a material (nullptr is valid)
+ *
+ * _materialPtr functions only as an ID. The material itself will not be accessed, so nullptr is a
+ * valid value.
+ *
+ * \returns false on error
+ */
+bool rShaderBase::updateDescriptorSet( UniformVar const &_var,
+                                       void *_data,
+                                       rMaterial const *_materialPtr,
+                                       uint32_t _elemet ) {
+   VkDescriptorSet lDescSet = getDescriptorSet( _materialPtr );
+   if ( lDescSet == nullptr ) {
+      eLOG( "Failed to aquire descriptor set" );
+      return false;
+   }
+
+   VkDescriptorImageInfo lImageInfo = {nullptr, nullptr, VK_IMAGE_LAYOUT_UNDEFINED};
+   //    VkDescriptorBufferInfo lBufferInfo = {nullptr, 0, 0};
+
+   bool lFound = false;
+
+   VkWriteDescriptorSet lWrite;
+   lWrite.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+   lWrite.pNext            = nullptr;
+   lWrite.dstSet           = lDescSet;
+   lWrite.dstBinding       = _var.binding;
+   lWrite.dstArrayElement  = _elemet;
+   lWrite.descriptorCount  = 1;
+   lWrite.descriptorType   = VK_DESCRIPTOR_TYPE_MAX_ENUM;
+   lWrite.pImageInfo       = nullptr;
+   lWrite.pBufferInfo      = nullptr;
+   lWrite.pTexelBufferView = nullptr;
+
+   if ( _var.guessedRole == POSITION_SUBPASS_DATA || _var.guessedRole == NORMAL_SUBPASS_DATA ||
+        _var.guessedRole == ALBEDO_SUBPASS_DATA ) {
+      lFound                 = true;
+      lImageInfo.imageView   = reinterpret_cast<VkImageView>( _data );
+      lImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+      lWrite.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+      lWrite.pImageInfo     = &lImageInfo;
+   }
+
+   if ( !lFound ) {
+      eLOG( "Unknown type ", _var.type, " and/or role ", uEnum2Str::toStr( _var.guessedRole ) );
+      eLOG( "DEVELOP: TODO IMPLEMENT!" );
+      return false;
+   }
+
+   vkUpdateDescriptorSets( vDevice_vk, 1, &lWrite, 0, nullptr );
+   return true;
 }
 
 /*!
@@ -700,6 +822,14 @@ std::vector<rShaderBase::PushConstantVar> rShaderBase::getPushConstants(
          lTemp.push_back( i );
 
    return lTemp;
+}
+
+std::vector<rShaderBase::UniformVar> rShaderBase::getUniforms() {
+   if ( !vModulesCreated )
+      if ( !init() )
+         return {};
+
+   return vUniformDesc;
 }
 
 /*!

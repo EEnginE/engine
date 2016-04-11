@@ -236,7 +236,7 @@ int iInit::initVulkan( std::vector<std::string> _layers ) {
    lAppInfo_vk.pNext              = nullptr;
    lAppInfo_vk.pApplicationName   = GlobConf.config.appName.c_str();
    lAppInfo_vk.pEngineName        = "EEnginE";
-   lAppInfo_vk.apiVersion         = VK_MAKE_VERSION( 1, 0, 3 );
+   lAppInfo_vk.apiVersion         = VK_MAKE_VERSION( 1, 0, 8 );
    lAppInfo_vk.applicationVersion = 1; //!< \todo change this const
    lAppInfo_vk.engineVersion      = 1; //!< \todo change this const
 

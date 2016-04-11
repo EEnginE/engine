@@ -265,6 +265,31 @@ bool rPipeline::checkInputCompatible( std::vector<InputDesc> _inputs ) {
    return true;
 }
 
+bool rPipeline::checkUniformCompatible( std::vector<rShaderBase::UNIFORM_ROLE> _uniforms ) {
+   if ( vShader == nullptr ) {
+      eLOG( "Shader not yet set!" );
+      return false;
+   }
+
+   auto lUniforms = vShader->getUniforms();
+
+   for ( auto const &i : _uniforms ) {
+      bool lFound = false;
+
+      for ( auto const &j : lUniforms ) {
+         if ( i == j.guessedRole ) {
+            lFound = true;
+            break;
+         }
+      }
+
+      if ( !lFound )
+         return false;
+   }
+
+   return true;
+}
+
 /*!
  * \brief Binds the pipeline and descriptor set to the command buffer
  * \vkIntern
@@ -280,12 +305,7 @@ bool rPipeline::cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bind
       return false;
    }
 
-   VkDescriptorSet lSet     = vShader->getDescriptorSet();
-   VkPipelineLayout lLayout = vShader->getPipelineLayout();
-
-   vkCmdBindDescriptorSets( _buf, _bindPoint, lLayout, 0, 1, &lSet, 0, nullptr );
    vkCmdBindPipeline( _buf, _bindPoint, vPipeline_vk );
-
    return true;
 }
 
@@ -313,7 +333,11 @@ VkPipeline rPipeline::getPipeline() {
 /*!
  * \brief Sets the shader for the pipeline
  */
-void rPipeline::setShader( rShaderBase *_shader ) { vShader = _shader; }
+void rPipeline::setShader( rShaderBase *_shader ) {
+   vShader = _shader;
+   if ( !vShader->isInitialized() )
+      vShader->init();
+}
 
 
 rPipeline *rPipeline::setTopology( VkPrimitiveTopology _val ) {

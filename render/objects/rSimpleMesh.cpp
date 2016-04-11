@@ -41,6 +41,7 @@ void rSimpleMesh::record( VkCommandBuffer _buf ) {
    VkDeviceSize lOffsets[] = {0};
    VkBuffer lVertex        = vVertex.getBuffer();
 
+   vShader->cmdBindDescriptorSets( _buf, VK_PIPELINE_BIND_POINT_GRAPHICS );
    vPipeline->cmdBindPipeline( _buf, VK_PIPELINE_BIND_POINT_GRAPHICS );
 
    if ( vHasModelMatrix_PC ) {
