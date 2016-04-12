@@ -63,6 +63,7 @@ class rBuffer {
 
    bool doneCopying();
    bool destroy();
+   bool getIsSetup() const { return vIsLoaded; }
 
    VkBuffer getBuffer();
    uint32_t getSize() { return vSize; }

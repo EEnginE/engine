@@ -274,6 +274,9 @@ bool rBuffer::destroy() {
    vMemTemp_vk    = nullptr;
    vMem_vk        = nullptr;
 
+   vIsLoaded            = false;
+   vSettingUpInProgress = false;
+
    return true;
 }
 
