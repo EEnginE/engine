@@ -59,7 +59,7 @@ int main( int argc, char *argv[] ) {
       "VK_LAYER_GOOGLE_threading",
       "VK_LAYER_GOOGLE_unique_objects",
 //      "VK_LAYER_VALVE_steam_overlay_32",
-      "VK_LAYER_VALVE_steam_overlay_64",
+//      "VK_LAYER_VALVE_steam_overlay_64",
       "VK_LAYER_LUNARG_standard_validation"
    };
 

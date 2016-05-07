@@ -310,11 +310,10 @@ void rRenderer::renderLoop() {
       //    \___/_| |_|_|\__|
       //
 
-      const static uint32_t NUM_FENCES      = 4;
-      const static uint32_t FENCE_RENDER    = 0;
-      const static uint32_t FENCE_SWAPCHAIN = 1;
-      const static uint32_t FENCE_IMG_1     = 2;
-      const static uint32_t FENCE_IMG_2     = 3;
+      const static uint32_t NUM_FENCES   = 3;
+      const static uint32_t FENCE_RENDER = 0;
+      const static uint32_t FENCE_IMG_1  = 1;
+      const static uint32_t FENCE_IMG_2  = 2;
 
       uint32_t lQueueFamily = 0;
 
@@ -322,7 +321,8 @@ void rRenderer::renderLoop() {
       VkQueue lQueue               = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
       VkCommandPool lCommandPool   = vWorldPtr->getCommandPool( lQueueFamily );
       VkSemaphore lSemPresent      = vWorldPtr->createSemaphore();
-      VkFence lFences[4];
+      VkSemaphore lSemAcquireImg   = vWorldPtr->createSemaphore();
+      VkFence lFences[NUM_FENCES];
 
       for ( uint32_t i = 0; i < NUM_FENCES; i++ ) {
          lFences[i] = vWorldPtr->createFence();
@@ -338,6 +338,9 @@ void rRenderer::renderLoop() {
 
       initFrameCommandBuffers( lCommandPool, lRenderObjects.size() );
 
+      VkPipelineStageFlags lSubmitWaitFlags =
+            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
       VkSubmitInfo lRenderSubmit[3];
       lRenderSubmit[0].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
       lRenderSubmit[0].pNext                = nullptr;
@@ -352,6 +355,9 @@ void rRenderer::renderLoop() {
       lRenderSubmit[1] = lRenderSubmit[0];
       lRenderSubmit[2] = lRenderSubmit[0];
 
+      lRenderSubmit[0].waitSemaphoreCount   = 1;
+      lRenderSubmit[0].pWaitSemaphores      = &lSemAcquireImg;
+      lRenderSubmit[0].pWaitDstStageMask    = &lSubmitWaitFlags;
       lRenderSubmit[2].signalSemaphoreCount = 1;
       lRenderSubmit[2].pSignalSemaphores    = &lSemPresent;
 
@@ -454,18 +460,12 @@ void rRenderer::renderLoop() {
          }
 
          // Get present image (this command blocks)
-         auto lRes = vkAcquireNextImageKHR( vDevice_vk,
-                                            lSwapchain_vk,
-                                            UINT64_MAX,
-                                            VK_NULL_HANDLE,
-                                            lFences[FENCE_SWAPCHAIN],
-                                            &lNextImg );
+         auto lRes = vkAcquireNextImageKHR(
+               vDevice_vk, lSwapchain_vk, UINT64_MAX, lSemAcquireImg, VK_NULL_HANDLE, &lNextImg );
          if ( lRes ) {
             eLOG( "'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr( lRes ) );
             break;
          }
-
-         vkWaitForFences( vDevice_vk, 1, &lFences[FENCE_SWAPCHAIN], VK_TRUE, UINT64_MAX );
 
          // Rerecord command buffers to update push constants
          recordCmdBuffers( vFramebuffers_vk[lNextImg], lPuschConstObjects );
