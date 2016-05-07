@@ -38,7 +38,7 @@ before_install:
    - tar -xf cmake.tar.gz
    - CMAKE_EXEC="$(pwd)/cmake-3.5.1-Linux-x86_64/bin/cmake"
 
-   - sudo bash ./vulkansdk-linux-x86_64-1.0.8.0.run
+   - sudo bash ./vulkansdk-linux-x86_64-1.0.11.0.run
    - cd ..
 
 install:
