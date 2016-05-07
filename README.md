@@ -70,10 +70,10 @@ Using Mingw or Clang may also work.
 -   `-DDISPLAY_SERVER=<which>`
 
     Possible options:
-      - UNIX_X11: stable - default
-      - WIN32_WINDOWS: stable
-      - UNIX_WAYLAND: not yet supported
-      - UNIX_MIR: not yet supported
+      - UNIX_X11: stable - default on Linux / Unix
+      - WIN32_WINDOWS: work in progress
+      - UNIX_WAYLAND: work in progress
+      - UNIX_MIR: not yet started
 
 
 -   `-DENGINE_LINK_SHARED=<0/1>`
