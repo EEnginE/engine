@@ -41,11 +41,7 @@ void rWorld::handleResize( iEventInfo const & ) { init(); }
  * \brief Constructor
  * \note The pointer _init must be valid over the lifetime of the object!
  */
-rWorld::rWorld( iInit *_init )
-    : vInitPtr( _init ),
-      vRenderer1( vInitPtr, this, L"A" ),
-      vRenderer2( vInitPtr, this, L"B" ),
-      vResizeSlot( &rWorld::handleResize, this ) {
+rWorld::rWorld( iInit *_init ) : vInitPtr( _init ), vResizeSlot( &rWorld::handleResize, this ) {
    vDevice_vk  = vInitPtr->getDevice();
    vSurface_vk = vInitPtr->getVulkanSurface();
 
@@ -75,6 +71,9 @@ rWorld::~rWorld() { shutdown(); }
  * \note this function will be automatically called every time the window is resized
  */
 int rWorld::init() {
+   if ( !vFrontRenderer || !vBackRenderer )
+      setRendererPtr( &vFrontRenderer, &vBackRenderer );
+
    std::lock_guard<std::mutex> lGuard( vRenderAccessMutex );
    vFrontRenderer->destroy();
    vBackRenderer->destroy();
@@ -160,11 +159,11 @@ void rWorld::shutdown() {
    if ( !vIsSetup )
       return;
 
-   if ( vRenderer1.getIsRunning() )
-      vRenderer1.stop();
+   if ( vFrontRenderer->getIsRunning() )
+      vFrontRenderer->stop();
 
-   if ( vRenderer2.getIsRunning() )
-      vRenderer2.stop();
+   if ( vBackRenderer->getIsRunning() )
+      vBackRenderer->stop();
 
    dVkLOG( "Vulkan cleanup [rWorld]:" );
    vFrontRenderer->destroy();
@@ -218,6 +217,9 @@ bool rWorld::waitForFrame( std::mutex &_mutex ) {
  * This function will apply the changes to the back rendere and then swap back and front rendere
  */
 bool rWorld::renderScene( rSceneBase *_scene ) {
+   if ( !vFrontRenderer || !vBackRenderer )
+      setRendererPtr( &vFrontRenderer, &vBackRenderer );
+
    if ( !_scene )
       return false;
 
@@ -551,6 +553,9 @@ void rWorld::updateViewPort( int _x, int _y, int _width, int _height ) {
  * \note This function will only take effect once the render loop is restarted!
  */
 void rWorld::updateClearColor( float _r, float _g, float _b, float _a ) {
+   if ( !vFrontRenderer || !vBackRenderer )
+      setRendererPtr( &vFrontRenderer, &vBackRenderer );
+
    VkClearColorValue lClear = {{_r, _g, _b, _a}};
    vFrontRenderer->setClearColor( lClear );
    vBackRenderer->setClearColor( lClear );
@@ -559,7 +564,12 @@ void rWorld::updateClearColor( float _r, float _g, float _b, float _a ) {
 /*!
  * \returns A pointer to the integer counting the number of rendered frames
  */
-uint64_t *rWorld::getRenderedFramesPtr() { return vRenderer1.getRenderedFramesPtr(); }
+uint64_t *rWorld::getRenderedFramesPtr() {
+   if ( !vFrontRenderer || !vBackRenderer )
+      setRendererPtr( &vFrontRenderer, &vBackRenderer );
+
+   return vFrontRenderer->getRenderedFramesPtr();
+}
 
 /*!
  * \returns The used vulkan device handle

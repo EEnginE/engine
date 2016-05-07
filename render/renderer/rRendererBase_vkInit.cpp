@@ -1,6 +1,6 @@
 /*!
- * \file rRenderer_vkInit.cpp
- * \brief \b Classes: \a rRenderer
+ * \file rRendererBase_vkInit.cpp
+ * \brief \b Classes: \a rRendererBase
  */
 /*
  * Copyright (C) 2016 EEnginE project
@@ -19,7 +19,7 @@
  *
  */
 
-#include "rRenderer.hpp"
+#include "rRendererBase.hpp"
 #include "rWorld.hpp"
 #include "iInit.hpp"
 #include "uLog.hpp"
@@ -34,6 +34,16 @@
 namespace e_engine {
 namespace internal {
 
+struct AttachmentInfoWorker {
+   VkFormat format;
+   VkImageUsageFlags usage;
+   VkImageLayout layout;
+   VkImageTiling tiling;
+   VkImageAspectFlags aspect;
+   uint32_t attachmentID;
+   rRendererBase::Buffer_vk *buff;
+};
+
 /*!
  * \brief creteates the depth and stencil buffer
  *
@@ -41,70 +51,45 @@ namespace internal {
  *
  * \todo Stencil buffer implementation
  */
-int rRenderer::initDepthAndStencilBuffer( VkCommandBuffer _buf ) {
+int rRendererBase::initImageBuffers( VkCommandBuffer _buf ) {
    if ( !vDevice_vk ) {
       eLOG( "Device not created!" );
       return -1;
    }
 
-   static const VkFormat lDepthFormats[] = {
-         VK_FORMAT_D32_SFLOAT_S8_UINT,
-         VK_FORMAT_D24_UNORM_S8_UINT,
-         VK_FORMAT_D16_UNORM_S8_UINT,
-         VK_FORMAT_D32_SFLOAT,
-         VK_FORMAT_X8_D24_UNORM_PACK32,
-         VK_FORMAT_D16_UNORM,
-   };
-
-   VkFormat lDepthStencilFormat = VK_FORMAT_UNDEFINED;
-   VkImageTiling lTiling        = VK_IMAGE_TILING_MAX_ENUM;
-
-   for ( auto i : lDepthFormats ) {
-      if ( vInitPtr->formatSupportsFeature(
-                 i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_LINEAR ) ) {
-         lDepthStencilFormat = i;
-         lTiling             = VK_IMAGE_TILING_LINEAR;
-         break;
-      } else if ( vInitPtr->formatSupportsFeature( i,
-                                                   VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                                   VK_IMAGE_TILING_OPTIMAL ) ) {
-         lDepthStencilFormat = i;
-         lTiling             = VK_IMAGE_TILING_OPTIMAL;
-         break;
-      }
-   }
-
-   if ( lDepthStencilFormat == VK_FORMAT_UNDEFINED ) {
-      eLOG( "Unable to find depth format for the depth buffer" );
-      return 1;
-   }
-
-   vHasStencilBuffer = lDepthStencilFormat == VK_FORMAT_D32_SFLOAT_S8_UINT ||
-                       lDepthStencilFormat == VK_FORMAT_D24_UNORM_S8_UINT ||
-                       lDepthStencilFormat == VK_FORMAT_D16_UNORM_S8_UINT;
-
-   VkImageAspectFlags lAspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
-   lAspectFlags |= vHasStencilBuffer ? VK_IMAGE_ASPECT_STENCIL_BIT : 0;
-
    VkImageCreateInfo lImageCreate;
    VkMemoryAllocateInfo lMemoryAlloc;
    VkMemoryRequirements lRequirements;
    VkImageViewCreateInfo lImageViewCreate;
-   VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[vRenderPass_vk.depthAttachID];
-   VkClearValue *lClearValue            = &vRenderPass_vk.clearValues[vRenderPass_vk.depthAttachID];
+
+   auto lAttachmentInfosTemp = getAttachmentInfos();
+
+   std::vector<AttachmentInfoWorker> lAttachmentInfos;
+   for ( auto const &i : lAttachmentInfosTemp ) {
+      vBuffers.emplace_back();
+      lAttachmentInfos.push_back(
+            {i.format, i.usage, i.layout, i.tiling, i.aspect, i.attachmentID, &vBuffers.back()} );
+   }
+
+   uint32_t lNumAttachments = FIRST_FREE_ATTACHMENT_INDEX + lAttachmentInfosTemp.size();
+
+   vRenderPass_vk.attachments.resize( lNumAttachments );
+   vRenderPass_vk.attachmentViews.resize( lNumAttachments );
+   vRenderPass_vk.clearValues.resize( lNumAttachments );
+
 
    lImageCreate.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
    lImageCreate.pNext                 = nullptr;
    lImageCreate.flags                 = 0;
    lImageCreate.imageType             = VK_IMAGE_TYPE_2D;
-   lImageCreate.format                = lDepthStencilFormat;
+   lImageCreate.format                = VK_FORMAT_UNDEFINED; // set in loop
    lImageCreate.extent.width          = GlobConf.win.width;
    lImageCreate.extent.height         = GlobConf.win.height;
    lImageCreate.extent.depth          = 1;
    lImageCreate.mipLevels             = 1;
    lImageCreate.arrayLayers           = 1;
    lImageCreate.samples               = GlobConf.vk.samples;
-   lImageCreate.tiling                = lTiling;
+   lImageCreate.tiling                = VK_IMAGE_TILING_MAX_ENUM; // set in loop
    lImageCreate.usage                 = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
    lImageCreate.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
    lImageCreate.queueFamilyIndexCount = 0;
@@ -119,90 +104,109 @@ int rRenderer::initDepthAndStencilBuffer( VkCommandBuffer _buf ) {
    lImageViewCreate.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
    lImageViewCreate.pNext                           = nullptr;
    lImageViewCreate.flags                           = 0;
-   lImageViewCreate.image                           = nullptr; // set further down
+   lImageViewCreate.image                           = nullptr; // set in loop
    lImageViewCreate.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-   lImageViewCreate.format                          = lDepthStencilFormat;
+   lImageViewCreate.format                          = VK_FORMAT_UNDEFINED; // set in loop
    lImageViewCreate.components.r                    = VK_COMPONENT_SWIZZLE_R;
    lImageViewCreate.components.g                    = VK_COMPONENT_SWIZZLE_G;
    lImageViewCreate.components.b                    = VK_COMPONENT_SWIZZLE_B;
    lImageViewCreate.components.a                    = VK_COMPONENT_SWIZZLE_A;
-   lImageViewCreate.subresourceRange.aspectMask     = lAspectFlags;
+   lImageViewCreate.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM; // loop
    lImageViewCreate.subresourceRange.baseMipLevel   = 0;
    lImageViewCreate.subresourceRange.levelCount     = 1;
    lImageViewCreate.subresourceRange.baseArrayLayer = 0;
    lImageViewCreate.subresourceRange.layerCount     = 1;
 
-   lAttachment->flags          = 0;
-   lAttachment->format         = lDepthStencilFormat;
-   lAttachment->samples        = GlobConf.vk.samples;
-   lAttachment->loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-   lAttachment->storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-   lAttachment->stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-   lAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-   lAttachment->initialLayout  = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-   lAttachment->finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+   for ( auto &i : lAttachmentInfos ) {
+      VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[i.attachmentID];
+      VkClearValue *lClearValue            = &vRenderPass_vk.clearValues[i.attachmentID];
 
-   lClearValue->color = {{vClearColor.float32[0],
-                          vClearColor.float32[1],
-                          vClearColor.float32[2],
-                          vClearColor.float32[3]}};
-   lClearValue->depthStencil = {1.0f, 0};
+      lImageCreate.format = i.format;
+      lImageCreate.tiling = i.tiling;
+      lImageCreate.usage  = i.usage;
 
-   if ( vHasStencilBuffer ) {
-      lAttachment->stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-      lAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-   }
+      lImageViewCreate.format                      = i.format;
+      lImageViewCreate.subresourceRange.aspectMask = i.aspect;
 
-   auto lRes = vkCreateImage( vDevice_vk, &lImageCreate, nullptr, &vDepthStencilBuf_vk.img );
-   if ( lRes ) {
-      eLOG( "'vkCreateImage' returned ", uEnum2Str::toStr( lRes ) );
-      return 2;
-   }
+      lAttachment->flags          = 0;
+      lAttachment->format         = i.format;
+      lAttachment->samples        = GlobConf.vk.samples;
+      lAttachment->loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+      lAttachment->storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+      lAttachment->stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+      lAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+      lAttachment->initialLayout  = i.layout;
+      lAttachment->finalLayout    = i.layout;
 
-   vkGetImageMemoryRequirements( vDevice_vk, vDepthStencilBuf_vk.img, &lRequirements );
-   lMemoryAlloc.allocationSize = lRequirements.size;
-   lMemoryAlloc.memoryTypeIndex =
-         vInitPtr->getMemoryTypeIndexFromBitfield( lRequirements.memoryTypeBits );
+      lClearValue->color = {{vClearColor.float32[0],
+                             vClearColor.float32[1],
+                             vClearColor.float32[2],
+                             vClearColor.float32[3]}};
+      lClearValue->depthStencil = {1.0f, 0};
 
-   if ( lMemoryAlloc.memoryTypeIndex == UINT32_MAX ) {
-      eLOG( "No valid memory type found!" );
-      return 3;
-   }
+      if ( vHasStencilBuffer && i.usage == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ) {
+         lAttachment->stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+         lAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+      }
 
-   lRes = vkAllocateMemory( vDevice_vk, &lMemoryAlloc, nullptr, &vDepthStencilBuf_vk.mem );
-   if ( lRes ) {
-      eLOG( "'vkAllocateMemory' returned ", uEnum2Str::toStr( lRes ) );
-      return 4;
-   }
+      auto lRes = vkCreateImage( vDevice_vk, &lImageCreate, nullptr, &i.buff->img );
+      if ( lRes ) {
+         eLOG( "'vkCreateImage' returned ", uEnum2Str::toStr( lRes ) );
+         return 2;
+      }
 
-   lRes = vkBindImageMemory( vDevice_vk, vDepthStencilBuf_vk.img, vDepthStencilBuf_vk.mem, 0 );
-   if ( lRes ) {
-      eLOG( "'vkBindImageMemory' returned ", uEnum2Str::toStr( lRes ) );
-      return 5;
-   }
+      vkGetImageMemoryRequirements( vDevice_vk, i.buff->img, &lRequirements );
+      lMemoryAlloc.allocationSize = lRequirements.size;
+      lMemoryAlloc.memoryTypeIndex =
+            vInitPtr->getMemoryTypeIndexFromBitfield( lRequirements.memoryTypeBits );
 
-   lImageViewCreate.image = vDepthStencilBuf_vk.img;
-   lRes = vkCreateImageView( vDevice_vk, &lImageViewCreate, nullptr, &vDepthStencilBuf_vk.iv );
-   if ( lRes ) {
-      eLOG( "'vkCreateImageView' returned ", uEnum2Str::toStr( lRes ) );
-      return 6;
-   }
+      if ( lMemoryAlloc.memoryTypeIndex == UINT32_MAX ) {
+         eLOG( "No valid memory type found!" );
+         return 3;
+      }
+
+      lRes = vkAllocateMemory( vDevice_vk, &lMemoryAlloc, nullptr, &i.buff->mem );
+      if ( lRes ) {
+         eLOG( "'vkAllocateMemory' returned ", uEnum2Str::toStr( lRes ) );
+         return 4;
+      }
+
+      lRes = vkBindImageMemory( vDevice_vk, i.buff->img, i.buff->mem, 0 );
+      if ( lRes ) {
+         eLOG( "'vkBindImageMemory' returned ", uEnum2Str::toStr( lRes ) );
+         return 5;
+      }
+
+      lImageViewCreate.image = i.buff->img;
+      lRes = vkCreateImageView( vDevice_vk, &lImageViewCreate, nullptr, &i.buff->iv );
+      if ( lRes ) {
+         eLOG( "'vkCreateImageView' returned ", uEnum2Str::toStr( lRes ) );
+         return 6;
+      }
+
+      vRenderPass_vk.attachmentViews[i.attachmentID] = i.buff->iv;
 
 #if D_LOG_VULKAN
-   dLOG( "Creating Depth buffer [renderer ", vID, "]" );
-   dLOG( "  -- lHasStencil:     ", vHasStencilBuffer );
-   dLOG( "  -- imageType:       ", uEnum2Str::toStr( lImageCreate.imageType ) );
-   dLOG( "  -- fromat:          ", uEnum2Str::toStr( lImageCreate.format ) );
-   dLOG( "  -- tiling:          ", uEnum2Str::toStr( lImageCreate.tiling ) );
-   dLOG( "  -- memoryTypeIndex: ", lMemoryAlloc.memoryTypeIndex );
-   dLOG( "  -- extent:          ", lImageCreate.extent.width, "x", lImageCreate.extent.height );
+      dLOG( "Creating Image buffer [renderer ", vID, "]" );
+      dLOG( "  -- lHasStencil:     ", vHasStencilBuffer );
+      dLOG( "  -- imageType:       ", uEnum2Str::toStr( lImageCreate.imageType ) );
+      dLOG( "  -- usage:           ",
+            uEnum2Str::toStr( static_cast<VkImageUsageFlagBits>( lImageCreate.usage ) ) );
+      dLOG( "  -- fromat:          ", uEnum2Str::toStr( lImageCreate.format ) );
+      dLOG( "  -- tiling:          ", uEnum2Str::toStr( lImageCreate.tiling ) );
+      dLOG( "  -- memoryTypeIndex: ", lMemoryAlloc.memoryTypeIndex );
+      dLOG( "  -- extent:          ", lImageCreate.extent.width, "x", lImageCreate.extent.height );
+      dLOG( "  -- attachmentID:    ", i.attachmentID );
+      dLOG( "  -- image:           ", reinterpret_cast<uint64_t>( i.buff->img ) );
+      dLOG( "  -- image View:      ", reinterpret_cast<uint64_t>( i.buff->iv ) );
 #endif
 
-   vWorldPtr->cmdChangeImageLayout( _buf,
-                                    lImageViewCreate.image,
-                                    lImageViewCreate.subresourceRange,
-                                    VK_IMAGE_LAYOUT_UNDEFINED,
-                                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
+      vWorldPtr->cmdChangeImageLayout( _buf,
+                                       lImageViewCreate.image,
+                                       lImageViewCreate.subresourceRange,
+                                       VK_IMAGE_LAYOUT_UNDEFINED,
+                                       i.layout );
+   }
 
    return 0;
 }
@@ -214,7 +218,7 @@ int rRenderer::initDepthAndStencilBuffer( VkCommandBuffer _buf ) {
  * \brief recreates the vulkan renderpass
  * \returns 0 on success
  */
-int rRenderer::initRenderPass() {
+int rRendererBase::initRenderPass() {
    if ( !vDevice_vk )
       return 1;
 
@@ -263,26 +267,29 @@ int rRenderer::initRenderPass() {
          dLOG( "        - ", lTemp.attachment, "; ", uEnum2Str::toStr( lTemp.layout ) );
       }
       auto lTemp = i.pDepthStencilAttachment;
-      dLOG( "      - depthStencilAttachment: ",
-            lTemp->attachment,
-            "; ",
-            uEnum2Str::toStr( lTemp->layout ) );
+      if ( lTemp )
+         dLOG( "      - depthStencilAttachment: ",
+               lTemp->attachment,
+               "; ",
+               uEnum2Str::toStr( lTemp->layout ) );
       dLOG( "      - preserveAttachments:" );
       for ( uint32_t j = 0; j < i.preserveAttachmentCount; j++ ) {
          auto lTemp = i.pPreserveAttachments[j];
          dLOG( "       - ", lTemp );
       }
-      dLOG( "  -- subpass dependecies:" );
-      for ( auto const &i : vRenderPass_vk.dependecies ) {
-         dLOG( "    -- attachment ", lCounter++ );
-         dLOG( "      - srcSubpass:      ", i.srcSubpass );
-         dLOG( "      - dstSubpass:      ", i.dstSubpass );
-         dLOG( "      - srcStageMask:    ", i.srcStageMask );
-         dLOG( "      - dstStageMask:    ", i.dstStageMask );
-         dLOG( "      - srcAccessMask:   ", i.srcAccessMask );
-         dLOG( "      - dstAccessMask:   ", i.dstAccessMask );
-         dLOG( "      - dependencyFlags: ", i.dependencyFlags );
-      }
+   }
+
+   lCounter = 0;
+   dLOG( "  -- subpass dependecies:" );
+   for ( auto const &i : vRenderPass_vk.dependecies ) {
+      dLOG( "    -- dependecy ", lCounter++ );
+      dLOG( "      - srcSubpass:      ", i.srcSubpass );
+      dLOG( "      - dstSubpass:      ", i.dstSubpass );
+      dLOG( "      - srcStageMask:    ", i.srcStageMask );
+      dLOG( "      - dstStageMask:    ", i.dstStageMask );
+      dLOG( "      - srcAccessMask:   ", i.srcAccessMask );
+      dLOG( "      - dstAccessMask:   ", i.dstAccessMask );
+      dLOG( "      - dependencyFlags: ", i.dependencyFlags );
    }
 #endif
 
@@ -306,10 +313,13 @@ int rRenderer::initRenderPass() {
    return 0;
 }
 
-int rRenderer::initFramebuffers() {
-   auto lTempViews = vWorldPtr->getSwapchainImageViews();
+int rRendererBase::initFramebuffers() {
+   auto lTempViews   = vWorldPtr->getSwapchainImageViews();
+   uint32_t lCounter = 0;
+
    for ( auto i : lTempViews ) {
       vFramebuffers_vk.emplace_back();
+      vFramebuffers_vk.back().index = lCounter++;
       vFramebuffers_vk.back().img = i.img;
       vFramebuffers_vk.back().iv = i.iv;
    }
@@ -330,13 +340,11 @@ int rRenderer::initFramebuffers() {
    lInfo.height          = GlobConf.win.height;
    lInfo.layers          = 1;
 
-   vRenderPass_vk.attachmentViews[vRenderPass_vk.depthAttachID] = vDepthStencilBuf_vk.iv;
-
    dVkLOG( "Creating framebuffers: [renderer ", vID, "]" );
    dVkLOG( "  -- extent: ", lInfo.width, "x", lInfo.height );
 
    for ( auto &i : vFramebuffers_vk ) {
-      vRenderPass_vk.attachmentViews[vRenderPass_vk.frameAttachID] = i.iv;
+      vRenderPass_vk.attachmentViews[FRAMEBUFFER_ATTACHMENT_INDEX] = i.iv;
 
       auto lRes = vkCreateFramebuffer( vDevice_vk, &lInfo, nullptr, &i.fb );
       if ( lRes ) {

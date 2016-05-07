@@ -1,6 +1,6 @@
 /*!
- * \file rRenderer.cpp
- * \brief \b Classes: \a rRenderer
+ * \file rRendererBase.cpp
+ * \brief \b Classes: \a rRendererBase
  */
 /*
  * Copyright (C) 2016 EEnginE project
@@ -19,7 +19,7 @@
  *
  */
 
-#include "rRenderer.hpp"
+#include "rRendererBase.hpp"
 #include "rPipeline.hpp"
 #include "rWorld.hpp"
 #include "rObjectBase.hpp"
@@ -44,21 +44,13 @@
 namespace e_engine {
 namespace internal {
 
-uint64_t rRenderer::vRenderedFrames = 0;
+uint64_t rRendererBase::vRenderedFrames = 0;
 
-rRenderer::rRenderer( iInit *_init, rWorld *_root, std::wstring _id )
-    : vInitPtr( _init ), vWorldPtr( _root ), vID( _id ) {
+rRendererBase::rRendererBase( iInit *_init, rWorld *_root, std::wstring _id )
+    : vID( _id ), vInitPtr( _init ), vWorldPtr( _root ) {
    vDevice_vk = vInitPtr->getDevice();
 
-   vRenderPass_vk.attachments.resize( 2 );
-   vRenderPass_vk.attachmentViews.resize( 2 );
-   vRenderPass_vk.clearValues.resize( 2 );
-   vRenderPass_vk.frameAttachID = 0;
-   vRenderPass_vk.depthAttachID = 1;
-
-   vRenderThread = std::thread( &rRenderer::renderLoop, this );
-
-   defaultSetup();
+   vRenderThread = std::thread( &rRendererBase::renderLoop, this );
 
    vCmdRecordInfo.lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
    vCmdRecordInfo.lRPInfo.pNext                    = nullptr;
@@ -91,7 +83,7 @@ rRenderer::rRenderer( iInit *_init, rWorld *_root, std::wstring _id )
    vCmdRecordInfo.lInherit.pipelineStatistics   = 0;
 }
 
-rRenderer::~rRenderer() {
+rRendererBase::~rRendererBase() {
    vRunRenderThread = false;
    if ( vRunRenderLoop )
       stop();
@@ -103,20 +95,9 @@ rRenderer::~rRenderer() {
       vRenderThread.join();
 }
 
-int rRenderer::init() {
+int rRendererBase::init() {
    if ( vIsSetup )
       return -3;
-
-   VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[vRenderPass_vk.frameAttachID];
-   lAttachment->flags                   = 0;
-   lAttachment->format                  = vWorldPtr->getSwapchainFormat().format;
-   lAttachment->samples                 = GlobConf.vk.samples;
-   lAttachment->loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-   lAttachment->storeOp                 = VK_ATTACHMENT_STORE_OP_STORE;
-   lAttachment->stencilLoadOp           = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-   lAttachment->stencilStoreOp          = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-   lAttachment->initialLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-   lAttachment->finalLayout             = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
    uint32_t lQueueFamily;
    VkQueue lQueue       = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
@@ -130,8 +111,23 @@ int rRenderer::init() {
    if ( vWorldPtr->beginCommandBuffer( lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) )
       return -2;
 
-   if ( initDepthAndStencilBuffer( lBuf ) )
+   if ( initImageBuffers( lBuf ) )
       return 1;
+
+   // vRenderPass_vk.attachments resized in 'initImageBuffers'
+   VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[FRAMEBUFFER_ATTACHMENT_INDEX];
+   lAttachment->flags                   = 0;
+   lAttachment->format                  = vWorldPtr->getSwapchainFormat().format;
+   lAttachment->samples                 = GlobConf.vk.samples;
+   lAttachment->loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+   lAttachment->storeOp                 = VK_ATTACHMENT_STORE_OP_STORE;
+   lAttachment->stencilLoadOp           = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+   lAttachment->stencilStoreOp          = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+   lAttachment->initialLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+   lAttachment->finalLayout             = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+   if ( vRenderPass_vk.subpasses.empty() )
+      setupSubpasses();
 
    if ( initRenderPass() )
       return 2;
@@ -170,7 +166,7 @@ int rRenderer::init() {
    return 0;
 }
 
-void rRenderer::destroy() {
+void rRendererBase::destroy() {
    if ( vRunRenderLoop )
       stop();
    if ( !vIsSetup )
@@ -185,32 +181,71 @@ void rRenderer::destroy() {
    dVkLOG( "  -- destroying old renderpass [renderer ", vID, "]" );
    vkDestroyRenderPass( vDevice_vk, vRenderPass_vk.renderPass, nullptr );
 
-   dVkLOG( "  -- destroying old depth and stencil buffer [renderer ", vID, "]" );
-   vkDestroyImageView( vDevice_vk, vDepthStencilBuf_vk.iv, nullptr );
-   vkDestroyImage( vDevice_vk, vDepthStencilBuf_vk.img, nullptr );
-   vkFreeMemory( vDevice_vk, vDepthStencilBuf_vk.mem, nullptr );
+   dVkLOG( "  -- destroying old image buffer(s) [renderer ", vID, "]" );
+   for ( auto &i : vBuffers ) {
+      vkDestroyImageView( vDevice_vk, i.iv, nullptr );
+      vkDestroyImage( vDevice_vk, i.img, nullptr );
+      vkFreeMemory( vDevice_vk, i.mem, nullptr );
+   }
 
    vRenderPass_vk.renderPass = nullptr;
-   vDepthStencilBuf_vk.iv    = nullptr;
-   vDepthStencilBuf_vk.img   = nullptr;
-   vDepthStencilBuf_vk.mem   = nullptr;
 
    vFramebuffers_vk.clear();
+   vBuffers.clear();
    vIsSetup = false;
 }
 
-/*!
- * \brief Records the Vulkan command buffers, for a framebuffer
- * \note _toRender.size() MUST BE EQUAL TO _fb.secondary.size()
- * Elements in _toRender can be skipped by setting them to nullptr
- */
-void rRenderer::recordCmdBuffers( Framebuffer_vk &_fb, OBJECTS &_toRender ) {
-   if ( _toRender.size() != _fb.secondary.size() ) {
-      eLOG( "Internal error: _toRender.size() != _fb.secondary.size()" );
+void rRendererBase::getDepthFormat( VkFormat &_format,
+                                    VkImageTiling &_tiling,
+                                    VkImageAspectFlags &_aspect ) {
+   _format = VK_FORMAT_UNDEFINED;
+   _tiling = VK_IMAGE_TILING_MAX_ENUM;
+   _aspect = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;
+
+   if ( !vDevice_vk ) {
+      eLOG( "Device not created!" );
       return;
    }
 
-   VkClearValue *lClearValue = &vRenderPass_vk.clearValues[vRenderPass_vk.frameAttachID];
+   static const VkFormat lDepthFormats[] = {
+         VK_FORMAT_D32_SFLOAT_S8_UINT,
+         VK_FORMAT_D24_UNORM_S8_UINT,
+         VK_FORMAT_D16_UNORM_S8_UINT,
+         VK_FORMAT_D32_SFLOAT,
+         VK_FORMAT_X8_D24_UNORM_PACK32,
+         VK_FORMAT_D16_UNORM,
+   };
+
+   for ( auto i : lDepthFormats ) {
+      if ( vInitPtr->formatSupportsFeature(
+                 i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_LINEAR ) ) {
+         _format = i;
+         _tiling = VK_IMAGE_TILING_LINEAR;
+         break;
+      } else if ( vInitPtr->formatSupportsFeature( i,
+                                                   VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                                   VK_IMAGE_TILING_OPTIMAL ) ) {
+         _format = i;
+         _tiling = VK_IMAGE_TILING_OPTIMAL;
+         break;
+      }
+   }
+
+   if ( _format == VK_FORMAT_UNDEFINED ) {
+      eLOG( "Unable to find depth format for the depth buffer" );
+      return;
+   }
+
+   vHasStencilBuffer = _format == VK_FORMAT_D32_SFLOAT_S8_UINT ||
+                       _format == VK_FORMAT_D24_UNORM_S8_UINT ||
+                       _format == VK_FORMAT_D16_UNORM_S8_UINT;
+
+   _aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+   _aspect |= vHasStencilBuffer ? VK_IMAGE_ASPECT_STENCIL_BIT : 0;
+}
+
+void rRendererBase::recordCmdBuffersWrapper( Framebuffer_vk &_fb, RECORD_TARGET _toRender ) {
+   VkClearValue *lClearValue = &vRenderPass_vk.clearValues[FRAMEBUFFER_ATTACHMENT_INDEX];
    lClearValue->depthStencil = {1.0f, 0};
 
    lClearValue->color = {{vClearColor.float32[0],
@@ -248,46 +283,10 @@ void rRenderer::recordCmdBuffers( Framebuffer_vk &_fb, OBJECTS &_toRender ) {
    vCmdRecordInfo.lInherit.queryFlags           = 0;
    vCmdRecordInfo.lInherit.pipelineStatistics   = 0;
 
-   vWorldPtr->beginCommandBuffer( _fb.render );
-
-   vkCmdBeginRenderPass(
-         _fb.render, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
-
-   for ( uint32_t i = 0; i < _toRender.size(); i++ ) {
-      if ( _toRender[i].get() == nullptr )
-         continue;
-
-      auto *lPipe = _toRender[i]->getPipeline();
-      if ( !lPipe ) {
-         eLOG( "Object ", _toRender[i]->getName(), " has no pipeline!" );
-         continue;
-      }
-
-      vWorldPtr->beginCommandBuffer( _fb.secondary[i],
-                                     VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
-                                     &vCmdRecordInfo.lInherit );
-
-      if ( lPipe->getNumViewpors() > 0 )
-         vkCmdSetViewport( _fb.secondary[i], 0, 1, &vCmdRecordInfo.lViewPort );
-
-      if ( lPipe->getNumScissors() > 0 )
-         vkCmdSetScissor( _fb.secondary[i], 0, 1, &vCmdRecordInfo.lScissors );
-
-      _toRender[i]->record( _fb.secondary[i] );
-      vkEndCommandBuffer( _fb.secondary[i] );
-   }
-
-   vkCmdExecuteCommands( _fb.render, _fb.secondary.size(), _fb.secondary.data() );
-   vkCmdEndRenderPass( _fb.render );
-
-   auto lRes = vkEndCommandBuffer( _fb.render );
-   if ( lRes ) {
-      eLOG( "'vkEndCommandBuffer' returned ", uEnum2Str::toStr( lRes ) );
-      //! \todo Handle this somehow (practically this code must not execute)
-   }
+   recordCmdBuffers( _fb, _toRender );
 }
 
-void rRenderer::renderLoop() {
+void rRendererBase::renderLoop() {
    LOG.nameThread( L"ren_" + vID );
    iLOG( "Starting render thread" );
 
@@ -329,14 +328,8 @@ void rRenderer::renderLoop() {
       }
 
 
-      OBJECTS lRenderObjects;
-      for ( auto i : vObjects ) {
-         if ( i->canRecord() ) {
-            lRenderObjects.emplace_back( i );
-         }
-      }
-
-      initFrameCommandBuffers( lCommandPool, lRenderObjects.size() );
+      initCmdBuffers( lCommandPool, vFramebuffers_vk.size() );
+      initFrameCommandBuffers( lCommandPool );
 
       VkPipelineStageFlags lSubmitWaitFlags =
             VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
@@ -405,21 +398,9 @@ void rRenderer::renderLoop() {
          i->signalRenderReset();
       }
 
-      // Select objects with push constants -- we do not need to rerecord objects without them
-      OBJECTS lPuschConstObjects;
-      lPuschConstObjects.resize( lRenderObjects.size() );
-      for ( uint32_t i = 0; i < lRenderObjects.size(); i++ ) {
-         if ( lRenderObjects[i]->supportsPushConstants() ) {
-            lPuschConstObjects[i] = lRenderObjects[i];
-         } else {
-            lPuschConstObjects[i] = nullptr;
-         }
-      }
-
       // Record all command buffers
       for ( auto &i : vFramebuffers_vk )
-         recordCmdBuffers( i, lRenderObjects );
-
+         recordCmdBuffersWrapper( i, RECORD_ALL );
 
 
 
@@ -468,7 +449,7 @@ void rRenderer::renderLoop() {
          }
 
          // Rerecord command buffers to update push constants
-         recordCmdBuffers( vFramebuffers_vk[lNextImg], lPuschConstObjects );
+         recordCmdBuffersWrapper( vFramebuffers_vk[lNextImg], RECORD_PUSH_CONST_ONLY );
 
          // Set CMD buffers
          lRenderSubmit[0].pCommandBuffers = &vFramebuffers_vk[lNextImg].preRender;
@@ -515,8 +496,6 @@ void rRenderer::renderLoop() {
 
          vkResetFences( vDevice_vk, NUM_FENCES, lFences );
 
-         //          vkDeviceWaitIdle( vDevice_vk );
-
          vWorldPtr->signalRenderdFrame();
          vRenderedFrames++;
       }
@@ -539,6 +518,7 @@ void rRenderer::renderLoop() {
       for ( uint32_t i = 0; i < NUM_FENCES; i++ )
          vkDestroyFence( vDevice_vk, lFences[i], nullptr );
 
+      freeCmdBuffers( lCommandPool );
       freeFrameCommandBuffers( lCommandPool );
 
 
@@ -551,7 +531,7 @@ void rRenderer::renderLoop() {
    iLOG( "Stopping render thread" );
 }
 
-bool rRenderer::start() {
+bool rRendererBase::start() {
    if ( vRunRenderLoop ) {
       wLOG( "Render loop already running! [renderer ", vID, "]" );
       return false;
@@ -575,7 +555,7 @@ bool rRenderer::start() {
    return true;
 }
 
-bool rRenderer::stop() {
+bool rRendererBase::stop() {
    if ( !vRunRenderLoop ) {
       wLOG( "Render loop already stopped! [renderer ", vID, "]" );
       return false;
@@ -591,7 +571,7 @@ bool rRenderer::stop() {
    return true;
 }
 
-bool rRenderer::applyChanges() {
+bool rRendererBase::applyChanges() {
    dRLOG( "Applying changes to [renderer ", vID, "]" );
 
    {
@@ -609,7 +589,7 @@ bool rRenderer::applyChanges() {
 }
 
 
-void rRenderer::initFrameCommandBuffers( VkCommandPool _pool, uint32_t _numSecondary ) {
+void rRendererBase::initFrameCommandBuffers( VkCommandPool _pool ) {
    VkImageSubresourceRange lSubResRange = {};
    lSubResRange.aspectMask              = VK_IMAGE_ASPECT_COLOR_BIT;
    lSubResRange.baseMipLevel            = 0;
@@ -621,10 +601,6 @@ void rRenderer::initFrameCommandBuffers( VkCommandPool _pool, uint32_t _numSecon
       i.preRender  = vWorldPtr->createCommandBuffer( _pool );
       i.render     = vWorldPtr->createCommandBuffer( _pool );
       i.postRender = vWorldPtr->createCommandBuffer( _pool );
-
-      i.secondary.resize( _numSecondary );
-      for ( auto &j : i.secondary )
-         j = vWorldPtr->createCommandBuffer( _pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY );
 
       vWorldPtr->beginCommandBuffer( i.preRender );
       vWorldPtr->cmdChangeImageLayout( i.preRender,
@@ -648,11 +624,8 @@ void rRenderer::initFrameCommandBuffers( VkCommandPool _pool, uint32_t _numSecon
    }
 }
 
-void rRenderer::freeFrameCommandBuffers( VkCommandPool _pool ) {
+void rRendererBase::freeFrameCommandBuffers( VkCommandPool _pool ) {
    for ( auto &i : vFramebuffers_vk ) {
-      if ( i.secondary.size() > 0 )
-         vkFreeCommandBuffers( vDevice_vk, _pool, i.secondary.size(), i.secondary.data() );
-
       vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.preRender );
       vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.render );
       vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.postRender );
@@ -660,18 +633,17 @@ void rRenderer::freeFrameCommandBuffers( VkCommandPool _pool ) {
       i.preRender  = nullptr;
       i.render     = nullptr;
       i.postRender = nullptr;
-      i.secondary.clear();
    }
 }
 
 
 
-bool rRenderer::addObject( std::shared_ptr<rObjectBase> _obj ) {
+bool rRendererBase::addObject( std::shared_ptr<rObjectBase> _obj ) {
    vObjects.emplace_back( _obj );
    return true;
 }
 
-bool rRenderer::resetObjects() {
+bool rRendererBase::resetObjects() {
    std::lock_guard<std::mutex> lGuard( vMutexStartRecording );
    if ( vRunRenderLoop ) {
       wLOG( "Can not clear objects while render loop is running!" );
@@ -695,32 +667,29 @@ bool rRenderer::resetObjects() {
  *
  * \returns the created sbpass index (UINT32_MAX on error)
  */
-uint32_t rRenderer::addSubpass( VkPipelineBindPoint _bindPoint,
-                                uint32_t _deptStencil,
-                                std::vector<uint32_t> _color,
-                                std::vector<uint32_t> _input,
-                                std::vector<uint32_t> _preserve,
-                                std::vector<uint32_t> _resolve,
-                                std::unordered_map<uint32_t, VkImageLayout> _layoutMap ) {
+uint32_t rRendererBase::addSubpass( VkPipelineBindPoint _bindPoint,
+                                    uint32_t _deptStencil,
+                                    std::vector<uint32_t> _color,
+                                    std::vector<uint32_t> _input,
+                                    std::vector<uint32_t> _preserve,
+                                    std::vector<uint32_t> _resolve,
+                                    std::unordered_map<uint32_t, VkImageLayout> _layoutMap ) {
    vRenderPass_vk.data.emplace_back();
    auto *lData     = &vRenderPass_vk.data.back();
    lData->preserve = _preserve;
 
    for ( uint32_t i : _color ) {
       if ( i == UINT32_MAX )
-         i = vRenderPass_vk.frameAttachID;
+         i = FRAMEBUFFER_ATTACHMENT_INDEX;
 
       if ( i > vRenderPass_vk.attachments.size() ) {
          eLOG( "Invalid attachment ID ", i, "!" );
          return UINT32_MAX;
       }
 
-      VkImageLayout lLayout = vRenderPass_vk.attachments[i].initialLayout;
       VkAttachmentReference lTemp;
       lTemp.attachment = i;
-      lTemp.layout     = lLayout != VK_IMAGE_LAYOUT_UNDEFINED
-                           ? lLayout
-                           : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+      lTemp.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
       if ( _layoutMap.count( i ) > 0 )
          lTemp.layout = _layoutMap[i];
@@ -736,7 +705,7 @@ uint32_t rRenderer::addSubpass( VkPipelineBindPoint _bindPoint,
 
       VkAttachmentReference lTemp;
       lTemp.attachment = i;
-      lTemp.layout     = vRenderPass_vk.attachments[i].initialLayout;
+      lTemp.layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
       if ( _layoutMap.count( i ) > 0 )
          lTemp.layout = _layoutMap[i];
@@ -764,11 +733,8 @@ uint32_t rRenderer::addSubpass( VkPipelineBindPoint _bindPoint,
          return UINT32_MAX;
       }
 
-      VkImageLayout lLayout   = vRenderPass_vk.attachments[_deptStencil].initialLayout;
       lData->depth.attachment = _deptStencil;
-      lData->depth.layout     = lLayout != VK_IMAGE_LAYOUT_UNDEFINED
-                                  ? lLayout
-                                  : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+      lData->depth.layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
       if ( _layoutMap.count( _deptStencil ) > 0 )
          lData->depth.layout = _layoutMap[_deptStencil];
@@ -791,19 +757,9 @@ uint32_t rRenderer::addSubpass( VkPipelineBindPoint _bindPoint,
    return 0;
 }
 
-/*!
- * \brief Adds some stuff so that it works
- * \todo remove this hack!
- */
-void rRenderer::defaultSetup() {
-   addSubpass( VK_PIPELINE_BIND_POINT_GRAPHICS, vRenderPass_vk.depthAttachID );
-}
-
-uint32_t rRenderer::getDepthBufferAttachmentIndex() const { return vRenderPass_vk.depthAttachID; }
-uint32_t rRenderer::getFrameBufferAttachmentIndex() const { return vRenderPass_vk.frameAttachID; }
-uint64_t *rRenderer::getRenderedFramesPtr() { return &vRenderedFrames; }
-bool rRenderer::getIsRunning() const { return vRunRenderLoop; }
-bool rRenderer::getIsInit() const { return vIsSetup; }
-void rRenderer::setClearColor( VkClearColorValue _clearColor ) { vClearColor = _clearColor; }
+uint64_t *rRendererBase::getRenderedFramesPtr() { return &vRenderedFrames; }
+bool rRendererBase::getIsRunning() const { return vRunRenderLoop; }
+bool rRendererBase::getIsInit() const { return vIsSetup; }
+void rRendererBase::setClearColor( VkClearColorValue _clearColor ) { vClearColor = _clearColor; }
 }
 }

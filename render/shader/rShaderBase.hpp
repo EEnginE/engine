@@ -35,7 +35,7 @@ class iInit;
 class rWorld;
 
 namespace internal {
-class rRenderer;
+class rRendererBase;
 
 
 static const std::vector<std::vector<std::string>> gShaderInputVarNames = {
@@ -253,6 +253,6 @@ class rShaderBase {
    virtual std::vector<unsigned char> getRawData_frag() const = 0;
    virtual std::vector<unsigned char> getRawData_comp() const = 0;
 
-   friend class internal::rRenderer;
+   friend class internal::rRendererBase;
 };
 }

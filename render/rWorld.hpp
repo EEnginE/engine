@@ -27,8 +27,10 @@
 #include <condition_variable>
 #include <vulkan/vulkan.h>
 #include "rWorld_structs.hpp"
-#include "rRenderer.hpp"
+#include "rRendererBase.hpp"
 #include "uSignalSlot.hpp"
+
+#include <type_traits>
 
 namespace e_engine {
 
@@ -52,6 +54,9 @@ class rSceneBase;
  *
  * \warning An object of this class must be destroyed BEFORE the vulkan context is destroyed (= the
  *          iInit object is destroyed)!!!
+ *
+ * \note When creating rWorld objects (or inheritance) use the (template) wrapper class
+ * rWorldCreator
  */
 class RENDER_API rWorld {
  public:
@@ -91,10 +96,8 @@ class RENDER_API rWorld {
    ViewPort vViewPort;
    ClearColor vClearColor;
 
-   internal::rRenderer vRenderer1;
-   internal::rRenderer vRenderer2;
-   internal::rRenderer *vFrontRenderer = &vRenderer1;
-   internal::rRenderer *vBackRenderer  = &vRenderer2;
+   internal::rRendererBase *vFrontRenderer = nullptr;
+   internal::rRendererBase *vBackRenderer  = nullptr;
 
    VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
 
@@ -117,6 +120,8 @@ class RENDER_API rWorld {
    std::vector<SwapChainImg> getSwapchainImageViews();
    VkSurfaceFormatKHR getSwapchainFormat();
    inline void signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
+
+   virtual void setRendererPtr( internal::rRendererBase **_r1, internal::rRendererBase **_r2 ) = 0;
 
  public:
    rWorld() = delete;
@@ -165,6 +170,29 @@ class RENDER_API rWorld {
    VkDevice getDevice();
    iInit *getInitPtr();
 
-   friend class internal::rRenderer;
+   friend class internal::rRendererBase;
+};
+
+
+template <class RENDERER>
+class rWorldCreator : public rWorld {
+   static_assert( std::is_base_of<internal::rRendererBase, RENDERER>::value,
+                  "RENDERER must be derived from internal::rRendererBase" );
+
+ private:
+   RENDERER vR1;
+   RENDERER vR2;
+
+   void setRendererPtr( internal::rRendererBase **_r1, internal::rRendererBase **_r2 ) override {
+      *_r1 = &vR1;
+      *_r2 = &vR2;
+   }
+
+ public:
+   rWorldCreator() = delete;
+   rWorldCreator( iInit *_init )
+       : rWorld( _init ), vR1( _init, this, L"A" ), vR2( _init, this, L"B" ) {}
+
+   virtual ~rWorldCreator() { shutdown(); }
 };
 }

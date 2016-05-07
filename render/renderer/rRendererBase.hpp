@@ -1,6 +1,6 @@
 /*!
- * \file rRenderer.hpp
- * \brief \b Classes: \a rRenderer
+ * \file rRendererBase.hpp
+ * \brief \b Classes: \a rRendererBase
  */
 /*
  * Copyright (C) 2016 EEnginE project
@@ -44,7 +44,7 @@ namespace internal {
  *
  * \todo Multiple viewports scissors
  */
-class RENDER_API rRenderer {
+class RENDER_API rRendererBase {
  public:
    typedef std::unordered_map<uint32_t, VkImageLayout> AttachmentLayoutMap;
 
@@ -53,6 +53,15 @@ class RENDER_API rRenderer {
       VkImageView iv     = nullptr;
       VkDeviceMemory mem = nullptr;
    } Buffer_vk;
+
+   struct AttachmentInfo {
+      VkFormat format;
+      VkImageUsageFlags usage;
+      VkImageLayout layout;
+      VkImageTiling tiling;
+      VkImageAspectFlags aspect;
+      uint32_t attachmentID;
+   };
 
    typedef struct RenderPass_vk {
       struct SubPassData {
@@ -71,19 +80,15 @@ class RENDER_API rRenderer {
 
       std::vector<VkImageView> attachmentViews;
 
-      uint32_t frameAttachID;
-      uint32_t depthAttachID;
-
       VkRenderPass renderPass = nullptr;
    } RenderPass_vk;
 
    typedef struct Framebuffer_vk : Buffer_vk {
+      uint32_t index             = 0;
       VkFramebuffer fb           = nullptr;
       VkCommandBuffer preRender  = nullptr;
       VkCommandBuffer render     = nullptr;
       VkCommandBuffer postRender = nullptr;
-
-      std::vector<VkCommandBuffer> secondary;
    } Framebuffer_vk;
 
    typedef struct RecordInfo_vk {
@@ -95,21 +100,17 @@ class RENDER_API rRenderer {
 
    using OBJECTS = std::vector<std::shared_ptr<rObjectBase>>;
 
+   enum RECORD_TARGET { RECORD_ALL, RECORD_PUSH_CONST_ONLY };
+
  private:
    static uint64_t vRenderedFrames;
 
-   iInit *vInitPtr;
-   rWorld *vWorldPtr;
-
    std::wstring vID;
 
-   VkDevice vDevice_vk;
-   Buffer_vk vDepthStencilBuf_vk;
    RenderPass_vk vRenderPass_vk;
-   std::vector<Framebuffer_vk> vFramebuffers_vk;
 
-   RecordInfo_vk vCmdRecordInfo;
-   OBJECTS vObjects;
+   std::vector<Framebuffer_vk> vFramebuffers_vk;
+   std::vector<Buffer_vk> vBuffers;
 
    std::thread vRenderThread;
 
@@ -131,33 +132,34 @@ class RENDER_API rRenderer {
    bool vRunRenderThread   = true;
    bool vRunRenderLoop     = false;
 
-   int initDepthAndStencilBuffer( VkCommandBuffer _buf );
+   int initImageBuffers( VkCommandBuffer _buf );
    int initRenderPass();
    int initFramebuffers();
 
-   void initFrameCommandBuffers( VkCommandPool _pool, uint32_t _numSecondary );
+   void initFrameCommandBuffers( VkCommandPool _pool );
    void freeFrameCommandBuffers( VkCommandPool _pool );
 
-   void recordCmdBuffers( Framebuffer_vk &_fb, OBJECTS &_toRender );
+   void recordCmdBuffersWrapper( Framebuffer_vk &_fb, RECORD_TARGET _toRender );
 
    void renderLoop();
 
- public:
-   rRenderer() = delete;
-   rRenderer( iInit *_init, rWorld *_root, std::wstring _id );
-   rRenderer( const rRenderer &_obj ) = delete;
-   rRenderer( rRenderer && ) = delete;
-   rRenderer &operator=( const rRenderer & ) = delete;
-   rRenderer &operator=( rRenderer && ) = delete;
-   virtual ~rRenderer();
+ protected:
+   enum PREDEFINED_ATTACHMENT_INDEXES {
+      FRAMEBUFFER_ATTACHMENT_INDEX = 0,
+      FIRST_FREE_ATTACHMENT_INDEX
+   };
 
-   void defaultSetup();
-   bool addObject( std::shared_ptr<rObjectBase> _obj );
-   bool resetObjects();
+   iInit *vInitPtr;
+   rWorld *vWorldPtr;
 
-   uint32_t getDepthBufferAttachmentIndex() const;
-   uint32_t getFrameBufferAttachmentIndex() const;
+   VkDevice vDevice_vk;
 
+   RecordInfo_vk vCmdRecordInfo;
+
+   OBJECTS vObjects;
+
+   virtual std::vector<AttachmentInfo> getAttachmentInfos() = 0;
+   virtual void setupSubpasses() = 0;
    uint32_t addSubpass( VkPipelineBindPoint _bindPoint,
                         uint32_t _deptStencil           = UINT32_MAX,
                         std::vector<uint32_t> _color    = {UINT32_MAX},
@@ -165,6 +167,22 @@ class RENDER_API rRenderer {
                         std::vector<uint32_t> _preserve = {},
                         std::vector<uint32_t> _resolve  = {},
                         AttachmentLayoutMap _layoutMap = {} );
+
+   virtual void initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) = 0;
+   virtual void freeCmdBuffers( VkCommandPool _pool ) = 0;
+   virtual void recordCmdBuffers( Framebuffer_vk &_fb, RECORD_TARGET _toRender ) = 0;
+
+ public:
+   rRendererBase() = delete;
+   rRendererBase( iInit *_init, rWorld *_root, std::wstring _id );
+   rRendererBase( const rRendererBase &_obj ) = delete;
+   rRendererBase( rRendererBase && ) = delete;
+   rRendererBase &operator=( const rRendererBase & ) = delete;
+   rRendererBase &operator=( rRendererBase && ) = delete;
+   virtual ~rRendererBase();
+
+   bool addObject( std::shared_ptr<rObjectBase> _obj );
+   bool resetObjects();
 
    int init();
    void destroy();
@@ -177,6 +195,8 @@ class RENDER_API rRenderer {
    bool getIsInit() const;
 
    void setClearColor( VkClearColorValue _clearColor );
+
+   void getDepthFormat( VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect );
 
    uint64_t *getRenderedFramesPtr();
 };
