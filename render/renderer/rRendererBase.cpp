@@ -395,7 +395,7 @@ void rRendererBase::renderLoop() {
          }
 
          // Setup object for rendering (preparing uniforms)
-         i->signalRenderReset();
+         i->signalRenderReset( this );
       }
 
       // Record all command buffers

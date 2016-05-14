@@ -48,6 +48,8 @@ class rRendererBasic : public internal::rRendererBase {
  public:
    static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 0;
 
+   VkImageView getAttachmentView( ATTACHMENT_ROLE _role ) override;
+
    rRendererBasic() = delete;
    rRendererBasic( iInit *_init, rWorld *_root, std::wstring _id )
        : internal::rRendererBase( _init, _root, _id ) {}

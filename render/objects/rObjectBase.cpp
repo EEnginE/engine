@@ -39,7 +39,6 @@ bool rObjectBase::setPipeline( rPipeline *_pipe ) {
    }
 
    vPipeline = _pipe;
-   signalRenderReset();
    return true;
 }
 

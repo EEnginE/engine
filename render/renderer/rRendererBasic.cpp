@@ -67,7 +67,7 @@ void rRendererBasic::initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuff
          return;
       }
 
-      if ( i->canRecord() ) {
+      if ( i->isMesh() ) {
          vRenderObjects.emplace_back( i );
       }
    }

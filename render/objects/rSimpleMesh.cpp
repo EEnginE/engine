@@ -69,7 +69,7 @@ std::vector<rBuffer *> rSimpleMesh::setData_IMPL( VkCommandBuffer _buf,
    return {&vIndex, &vVertex};
 }
 
-void rSimpleMesh::signalRenderReset() {
+void rSimpleMesh::signalRenderReset( internal::rRendererBase * ) {
    if ( !vPipeline ) {
       eLOG( "Pipeline not setup!" );
       return;
