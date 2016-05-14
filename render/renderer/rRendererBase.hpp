@@ -101,13 +101,12 @@ class RENDER_API rRendererBase {
    using OBJECTS = std::vector<std::shared_ptr<rObjectBase>>;
 
    enum RECORD_TARGET { RECORD_ALL, RECORD_PUSH_CONST_ONLY };
+   enum ATTACHMENT_ROLE { DEPTH_STENCIL, DEFERRED_POSITION, DEFERRED_NORMAL, DEFERRED_ALBEDO };
 
  private:
    static uint64_t vRenderedFrames;
 
    std::wstring vID;
-
-   RenderPass_vk vRenderPass_vk;
 
    std::vector<Framebuffer_vk> vFramebuffers_vk;
    std::vector<Buffer_vk> vBuffers;
@@ -152,6 +151,8 @@ class RENDER_API rRendererBase {
    iInit *vInitPtr;
    rWorld *vWorldPtr;
 
+   RenderPass_vk vRenderPass_vk;
+
    VkDevice vDevice_vk;
 
    RecordInfo_vk vCmdRecordInfo;
@@ -180,6 +181,8 @@ class RENDER_API rRendererBase {
    rRendererBase &operator=( const rRendererBase & ) = delete;
    rRendererBase &operator=( rRendererBase && ) = delete;
    virtual ~rRendererBase();
+
+   virtual VkImageView getAttachmentView( ATTACHMENT_ROLE _role ) = 0;
 
    bool addObject( std::shared_ptr<rObjectBase> _obj );
    bool resetObjects();

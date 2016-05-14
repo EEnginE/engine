@@ -53,6 +53,13 @@ std::vector<rRendererBasic::AttachmentInfo> rRendererBasic::getAttachmentInfos()
    }};
 }
 
+VkImageView rRendererBasic::getAttachmentView( ATTACHMENT_ROLE _role ) {
+   switch ( _role ) {
+      case DEPTH_STENCIL: return vRenderPass_vk.attachmentViews[DEPTH_STENCIL_ATTACHMENT_INDEX];
+      default: return nullptr;
+   }
+}
+
 void rRendererBasic::initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) {
    for ( auto i : vObjects ) {
       if ( i.get() == nullptr ) {
