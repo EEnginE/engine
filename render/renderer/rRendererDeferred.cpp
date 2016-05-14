@@ -40,7 +40,7 @@ void rRendererDeferred::setupSubpasses() {
                );
 
    addSubpass( VK_PIPELINE_BIND_POINT_GRAPHICS,
-               DEPTH_STENCIL_ATTACHMENT_INDEX, // Depth / Stencil
+               UINT32_MAX,                     // Depth / Stencil
                {FRAMEBUFFER_ATTACHMENT_INDEX}, // Color Output
                {DEFERRED_POS_ATTACHMENT_INDEX, // Input
                 DEFERRED_NORMAL_ATTACHMENT_INDEX,
@@ -116,6 +116,9 @@ std::vector<rRendererDeferred::AttachmentInfo> rRendererDeferred::getAttachmentI
 VkImageView rRendererDeferred::getAttachmentView( ATTACHMENT_ROLE _role ) {
    switch ( _role ) {
       case DEPTH_STENCIL: return vRenderPass_vk.attachmentViews[DEPTH_STENCIL_ATTACHMENT_INDEX];
+      case DEFERRED_POSITION: return vRenderPass_vk.attachmentViews[DEFERRED_POS_ATTACHMENT_INDEX];
+      case DEFERRED_NORMAL: return vRenderPass_vk.attachmentViews[DEFERRED_NORMAL_ATTACHMENT_INDEX];
+      case DEFERRED_ALBEDO: return vRenderPass_vk.attachmentViews[DEFERRED_ALBEDO_ATTACHMENT_INDEX];
       default: return nullptr;
    }
 }
@@ -135,6 +138,8 @@ void rRendererDeferred::initBuffers() {
    std::vector<float> lDefBufferData     = {1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
    std::vector<uint32_t> lDefBufferIndex = {0, 1, 2, 2, 3, 0};
 
+   vWorldPtr->beginCommandBuffer( lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT );
+
    vDeferredDataBuffer.cmdInit( lDefBufferData, lBuf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT );
    vDeferredIndexBuffer.cmdInit( lDefBufferIndex, lBuf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );
 
@@ -148,6 +153,8 @@ void rRendererDeferred::initBuffers() {
    lInfo.pCommandBuffers      = &lBuf;
    lInfo.signalSemaphoreCount = 0;
    lInfo.pSignalSemaphores    = nullptr;
+
+   vkEndCommandBuffer( lBuf );
 
    {
       std::lock_guard<std::mutex> lGuard( vInitPtr->getQueueMutex( lQueue ) );
