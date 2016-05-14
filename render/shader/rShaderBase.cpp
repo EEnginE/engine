@@ -730,7 +730,7 @@ bool rShaderBase::updateDescriptorSet( UniformVar const &_var,
                                        uint32_t _elemet ) {
    VkDescriptorSet lDescSet = getDescriptorSet( _materialPtr );
    if ( lDescSet == nullptr ) {
-      eLOG( "Failed to aquire descriptor set" );
+      eLOG( "Failed to acquire descriptor set" );
       return false;
    }
 

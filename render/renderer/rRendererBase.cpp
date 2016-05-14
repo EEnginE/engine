@@ -20,13 +20,13 @@
  */
 
 #include "rRendererBase.hpp"
-#include "rPipeline.hpp"
-#include "rWorld.hpp"
-#include "rObjectBase.hpp"
 #include "iInit.hpp"
-#include "uLog.hpp"
-#include "uEnum2Str.hpp"
+#include "rObjectBase.hpp"
+#include "rPipeline.hpp"
 #include "rShaderBase.hpp"
+#include "rWorld.hpp"
+#include "uEnum2Str.hpp"
+#include "uLog.hpp"
 
 
 #if D_LOG_VULKAN
@@ -319,10 +319,10 @@ void rRendererBase::renderLoop() {
       uint32_t lQueueFamily = 0;
 
       VkSwapchainKHR lSwapchain_vk = vWorldPtr->getSwapchain();
-      VkQueue lQueue               = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
-      VkCommandPool lCommandPool   = vWorldPtr->getCommandPool( lQueueFamily );
-      VkSemaphore lSemPresent      = vWorldPtr->createSemaphore();
-      VkSemaphore lSemAcquireImg   = vWorldPtr->createSemaphore();
+      VkQueue lQueue             = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
+      VkCommandPool lCommandPool = vWorldPtr->getCommandPool( lQueueFamily );
+      VkSemaphore lSemPresent    = vWorldPtr->createSemaphore();
+      VkSemaphore lSemAcquireImg = vWorldPtr->createSemaphore();
       VkFence lFences[NUM_FENCES];
 
       for ( uint32_t i = 0; i < NUM_FENCES; i++ ) {
@@ -480,7 +480,7 @@ void rRendererBase::renderLoop() {
          }
 
          lPresentInfo.pImageIndices = &lNextImg;
-         lRes = vkQueuePresentKHR( lQueue, &lPresentInfo );
+         lRes                       = vkQueuePresentKHR( lQueue, &lPresentInfo );
          if ( lRes ) {
             eLOG( "'vkQueuePresentKHR' returned ", uEnum2Str::toStr( lRes ) );
             break;
