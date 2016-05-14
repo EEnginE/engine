@@ -767,6 +767,18 @@ bool rShaderBase::updateDescriptorSet( UniformVar const &_var,
       return false;
    }
 
+#if D_LOG_VULKAN
+   dLOG( "Updating descriptor set for shader ", getName() );
+   dLOG( "  -- descriptorType:          ", uEnum2Str::toStr( lWrite.descriptorType ) );
+   if ( lWrite.pImageInfo ) {
+      dLOG( "  -- pImageInfo->sampler:     ",
+            reinterpret_cast<uint64_t>( lWrite.pImageInfo->sampler ) );
+      dLOG( "  -- pImageInfo->imageView:   ",
+            reinterpret_cast<uint64_t>( lWrite.pImageInfo->imageView ) );
+      dLOG( "  -- pImageInfo->imageLayout: ", uEnum2Str::toStr( lWrite.pImageInfo->imageLayout ) );
+   }
+#endif
+
    vkUpdateDescriptorSets( vDevice_vk, 1, &lWrite, 0, nullptr );
    return true;
 }
