@@ -35,7 +35,6 @@ class rRendererBasic : public internal::rRendererBase {
     std::vector<FB_DATA> vFbData;
 
     OBJECTS vRenderObjects;
-    OBJECTS vPuschConstObjects;
 
  protected:
    void setupSubpasses() override;

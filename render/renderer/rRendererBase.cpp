@@ -759,6 +759,27 @@ uint32_t rRendererBase::addSubpass( VkPipelineBindPoint _bindPoint,
    return 0;
 }
 
+/*!
+ * \brief Adds a Vulkan subpass dependecy
+ */
+void rRendererBase::addSubpassDependecy( uint32_t _srcSubPass,
+                                         uint32_t _dstSubPass,
+                                         uint32_t _srcStageMask,
+                                         uint32_t _dstStageMask,
+                                         uint32_t _srcAccessMask,
+                                         uint32_t _dstAccessMask,
+                                         uint32_t _dependencyFlags ) {
+   vRenderPass_vk.dependecies.emplace_back();
+   auto *lAlias            = &vRenderPass_vk.dependecies.back();
+   lAlias->srcSubpass      = _srcSubPass;
+   lAlias->dstSubpass      = _dstSubPass;
+   lAlias->srcStageMask    = _srcStageMask;
+   lAlias->dstStageMask    = _dstStageMask;
+   lAlias->srcAccessMask   = _srcAccessMask;
+   lAlias->dstAccessMask   = _dstAccessMask;
+   lAlias->dependencyFlags = _dependencyFlags;
+}
+
 uint64_t *rRendererBase::getRenderedFramesPtr() { return &vRenderedFrames; }
 bool rRendererBase::getIsRunning() const { return vRunRenderLoop; }
 bool rRendererBase::getIsInit() const { return vIsSetup; }

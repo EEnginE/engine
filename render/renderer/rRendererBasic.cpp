@@ -87,7 +87,7 @@ void rRendererBasic::freeCmdBuffers( VkCommandPool _pool ) {
          vkFreeCommandBuffers( vDevice_vk, _pool, i.buffers.size(), i.buffers.data() );
    }
    vFbData.clear();
-   vPuschConstObjects.clear();
+   vRenderObjects.clear();
 }
 
 

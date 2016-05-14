@@ -161,14 +161,22 @@ class RENDER_API rRendererBase {
    OBJECTS vObjects;
 
    virtual std::vector<AttachmentInfo> getAttachmentInfos() = 0;
-   virtual void setupSubpasses() = 0;
+   virtual void setupSubpasses()                            = 0;
    uint32_t addSubpass( VkPipelineBindPoint _bindPoint,
                         uint32_t _deptStencil           = UINT32_MAX,
                         std::vector<uint32_t> _color    = {UINT32_MAX},
                         std::vector<uint32_t> _input    = {},
                         std::vector<uint32_t> _preserve = {},
                         std::vector<uint32_t> _resolve  = {},
-                        AttachmentLayoutMap _layoutMap = {} );
+                        AttachmentLayoutMap _layoutMap  = {} );
+
+   void addSubpassDependecy( uint32_t _srcSubPass,
+                             uint32_t _dstSubPass,
+                             uint32_t _srcStageMask    = 0,
+                             uint32_t _dstStageMask    = 0,
+                             uint32_t _srcAccessMask   = 0,
+                             uint32_t _dstAccessMask   = 0,
+                             uint32_t _dependencyFlags = 0 );
 
    virtual void initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) = 0;
    virtual void freeCmdBuffers( VkCommandPool _pool ) = 0;
@@ -178,7 +186,7 @@ class RENDER_API rRendererBase {
    rRendererBase() = delete;
    rRendererBase( iInit *_init, rWorld *_root, std::wstring _id );
    rRendererBase( const rRendererBase &_obj ) = delete;
-   rRendererBase( rRendererBase && ) = delete;
+   rRendererBase( rRendererBase && )          = delete;
    rRendererBase &operator=( const rRendererBase & ) = delete;
    rRendererBase &operator=( rRendererBase && ) = delete;
    virtual ~rRendererBase();
