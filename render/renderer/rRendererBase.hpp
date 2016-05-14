@@ -79,6 +79,7 @@ class RENDER_API rRendererBase {
       std::vector<VkSubpassDependency> dependecies;
 
       std::vector<VkImageView> attachmentViews;
+      std::vector<Buffer_vk *> attachmentBuffers; //!< Correctly indexed reference to vBuffers
 
       VkRenderPass renderPass = nullptr;
    } RenderPass_vk;

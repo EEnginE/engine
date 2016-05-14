@@ -20,10 +20,10 @@
  */
 
 #include "rRendererBase.hpp"
-#include "rWorld.hpp"
 #include "iInit.hpp"
-#include "uLog.hpp"
+#include "rWorld.hpp"
 #include "uEnum2Str.hpp"
+#include "uLog.hpp"
 
 #if D_LOG_VULKAN
 #define dVkLOG( ... ) dLOG( __VA_ARGS__ )
@@ -63,19 +63,36 @@ int rRendererBase::initImageBuffers( VkCommandBuffer _buf ) {
    VkImageViewCreateInfo lImageViewCreate;
 
    auto lAttachmentInfosTemp = getAttachmentInfos();
+   vBuffers.resize( lAttachmentInfosTemp.size() ); // No more changes in size after this call
 
    std::vector<AttachmentInfoWorker> lAttachmentInfos;
-   for ( auto const &i : lAttachmentInfosTemp ) {
-      vBuffers.emplace_back();
-      lAttachmentInfos.push_back(
-            {i.format, i.usage, i.layout, i.tiling, i.aspect, i.attachmentID, &vBuffers.back()} );
+   for ( uint32_t i = 0; i < lAttachmentInfosTemp.size(); i++ ) {
+      lAttachmentInfos.push_back( {
+            lAttachmentInfosTemp[i].format,
+            lAttachmentInfosTemp[i].usage,
+            lAttachmentInfosTemp[i].layout,
+            lAttachmentInfosTemp[i].tiling,
+            lAttachmentInfosTemp[i].aspect,
+            lAttachmentInfosTemp[i].attachmentID,
+            &vBuffers[i] // Legal because no more resize in vBuffers
+      } );
    }
 
    uint32_t lNumAttachments = FIRST_FREE_ATTACHMENT_INDEX + lAttachmentInfosTemp.size();
 
    vRenderPass_vk.attachments.resize( lNumAttachments );
    vRenderPass_vk.attachmentViews.resize( lNumAttachments );
+   vRenderPass_vk.attachmentBuffers.resize( lNumAttachments );
    vRenderPass_vk.clearValues.resize( lNumAttachments );
+
+   memset( vRenderPass_vk.attachmentViews.data(),
+           0,
+           vRenderPass_vk.attachmentViews.size() * sizeof( vRenderPass_vk.attachmentViews[0] ) );
+
+   memset( vRenderPass_vk.attachmentBuffers.data(),
+           0,
+           vRenderPass_vk.attachmentBuffers.size() *
+                 sizeof( vRenderPass_vk.attachmentBuffers[0] ) );
 
 
    lImageCreate.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -184,7 +201,8 @@ int rRendererBase::initImageBuffers( VkCommandBuffer _buf ) {
          return 6;
       }
 
-      vRenderPass_vk.attachmentViews[i.attachmentID] = i.buff->iv;
+      vRenderPass_vk.attachmentViews[i.attachmentID]   = i.buff->iv;
+      vRenderPass_vk.attachmentBuffers[i.attachmentID] = i.buff;
 
 #if D_LOG_VULKAN
       dLOG( "Creating Image buffer [renderer ", vID, "]" );
@@ -320,8 +338,8 @@ int rRendererBase::initFramebuffers() {
    for ( auto i : lTempViews ) {
       vFramebuffers_vk.emplace_back();
       vFramebuffers_vk.back().index = lCounter++;
-      vFramebuffers_vk.back().img = i.img;
-      vFramebuffers_vk.back().iv = i.iv;
+      vFramebuffers_vk.back().img   = i.img;
+      vFramebuffers_vk.back().iv    = i.iv;
    }
 
    if ( vRenderPass_vk.attachmentViews.size() != vRenderPass_vk.attachments.size() ) {

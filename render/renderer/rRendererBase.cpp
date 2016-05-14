@@ -192,6 +192,8 @@ void rRendererBase::destroy() {
 
    vFramebuffers_vk.clear();
    vBuffers.clear();
+   vRenderPass_vk.attachmentViews.clear();
+   vRenderPass_vk.attachmentBuffers.clear();
    vIsSetup = false;
 }
 
