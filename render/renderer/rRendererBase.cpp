@@ -676,8 +676,8 @@ uint32_t rRendererBase::addSubpass( VkPipelineBindPoint _bindPoint,
                                     std::vector<uint32_t> _preserve,
                                     std::vector<uint32_t> _resolve,
                                     std::unordered_map<uint32_t, VkImageLayout> _layoutMap ) {
-   vRenderPass_vk.data.emplace_back();
-   auto *lData     = &vRenderPass_vk.data.back();
+   vRenderPass_vk.data.emplace_back(std::make_unique<RenderPass_vk::SubPassData>());
+   auto &lData     = vRenderPass_vk.data.back();
    lData->preserve = _preserve;
 
    for ( uint32_t i : _color ) {

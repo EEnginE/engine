@@ -72,7 +72,7 @@ class RENDER_API rRendererBase {
          VkAttachmentReference depth = {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
       };
 
-      std::vector<SubPassData> data;
+      std::vector<std::unique_ptr<SubPassData>> data;
       std::vector<VkAttachmentDescription> attachments;
       std::vector<VkClearValue> clearValues;
       std::vector<VkSubpassDescription> subpasses;
