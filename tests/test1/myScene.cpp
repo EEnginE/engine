@@ -29,6 +29,9 @@ int myScene::init() {
    vPipeline.setDynamicViewports( 1 )->setDynamicScissors( 1 )->enableDepthTest()->enableCulling();
    vPipeline.setShader( &vShader );
 
+   vLightPipeline.setDynamicViewports( 1 )->setDynamicScissors( 1 ); //->enableDepthTest();
+   vLightPipeline.setShader( &vLightShader );
+
    beginInitObject();
 
    auto lNames = loadFile( vFilePath );
@@ -44,15 +47,20 @@ int myScene::init() {
 
    endInitObject();
 
-   //    vLight1.setPosition( rVec3f( 1, 1, -4 ) );
-   //    vLight2.setPosition( rVec3f( -1, -1, -4 ) );
-   //
-   //    vLight1.setColor( rVec3f( 1.0f, 0.2f, 0.2f ), rVec3f( 0.1f, 0.0f, 0.0f ) );
-   //    vLight2.setColor( rVec3f( 0.2f, 0.2f, 1.0f ), rVec3f( 0.0, 0.0f, 0.1f ) );
-   //    vLight3.setColor( rVec3f( 0.9f, 0.9f, 0.9f ), rVec3f( 0.05f, 0.05f, 0.05f ) );
-   //
-   //    vLight1.setAttenuation( 0.1f, 0.01f, 0.1f );
-   //    vLight2.setAttenuation( 0.1f, 0.02f, 0.2f );
+   vPointLights.emplace_back( std::make_shared<rPointLightF>( this, "L1" ) );
+//    vPointLights.emplace_back( std::make_shared<rPointLightF>( this, "L2" ) );
+//    vDirectionalLights.emplace_back(
+//          std::make_shared<rDirectionalLightF>( "L3", rVec3f( 0.5, -1, 0.5 ) ) );
+
+   vPointLights[0]->setPosition( rVec3f( 1, 1, -4 ) );
+//    vPointLights[1]->setPosition( rVec3f( -1, -1, -4 ) );
+
+   vPointLights[0]->setColor( rVec3f( 1.0f, 0.2f, 0.2f ), rVec3f( 0.1f, 0.0f, 0.0f ) );
+//    vPointLights[1]->setColor( rVec3f( 0.2f, 0.2f, 1.0f ), rVec3f( 0.0, 0.0f, 0.1f ) );
+//    vPointLights[2]->setColor( rVec3f( 0.9f, 0.9f, 0.9f ), rVec3f( 0.05f, 0.05f, 0.05f ) );
+
+   vPointLights[0]->setAttenuation( 0.1f, 0.01f, 0.1f );
+//    vPointLights[1]->setAttenuation( 0.1f, 0.02f, 0.2f );
 
 
    for ( auto &i : vObjects ) {
@@ -60,9 +68,15 @@ int myScene::init() {
       addObject( i );
    }
 
-   //    addObject( &vLight1 );
-   //    addObject( &vLight2 );
-   //    addObject( &vLight3 );
+   for ( auto &i : vPointLights ) {
+      i->setPipeline( &vLightPipeline );
+      addObject( i );
+   }
+
+//    for ( auto &i : vDirectionalLights ) {
+//       i->setPipeline( &vLightPipeline );
+//       addObject( i );
+//    }
 
    if ( !canRenderScene() ) {
       eLOG( "Cannot render scene!" );

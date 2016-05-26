@@ -63,11 +63,11 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
    rSimpleMesh &operator=( const rSimpleMesh & ) = delete;
    rSimpleMesh &operator=( rSimpleMesh && ) = default;
 
-   bool canRecord() override { return true; }
+   bool isMesh() override { return true; }
    bool supportsPushConstants() override { return vHasModelMatrix_PC; }
    void record( VkCommandBuffer _buf ) override;
    void updateUniforms() override;
-   void signalRenderReset() override;
+   void signalRenderReset( internal::rRendererBase * ) override;
 
    uint32_t getMatrix( rMat4f **_mat, rObjectBase::MATRIX_TYPES _type ) override;
    uint32_t getMatrix( rMat3f **_mat, rObjectBase::MATRIX_TYPES _type ) override;

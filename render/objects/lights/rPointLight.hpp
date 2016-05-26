@@ -21,13 +21,13 @@
 
 #include "defines.hpp"
 
-#include "rObjectBase.hpp"
+#include "rLightRenderBase.hpp"
 #include "rMatrixObjectBase.hpp"
 
 namespace e_engine {
 
 template <class T>
-class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
+class rPointLight : public internal::rLightRenderBase, public rMatrixObjectBase<T> {
    typedef rMatrixSceneBase<float> *SCENE;
 
  private:
@@ -35,26 +35,24 @@ class rPointLight : public rObjectBase, public rMatrixObjectBase<T> {
    rVec3<T> vLightColor;
    rVec3<T> vAttenuation;
 
-   bool canRecord() override { return false; }
-
  public:
    using rMatrixObjectBase<T>::getPosition;
 
    rPointLight( SCENE _scene, std::string _name )
-       : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
+       : rLightRenderBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor.fill( 0 );
       vIsLoaded_B = true;
    }
 
    rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient )
-       : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
+       : rLightRenderBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor   = _color;
       vAmbientColor = _ambient;
       vIsLoaded_B   = true;
    }
 
    rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient, rVec3<T> _att )
-       : rObjectBase( _name ), rMatrixObjectBase<T>( _scene ) {
+       : rLightRenderBase( _name ), rMatrixObjectBase<T>( _scene ) {
       vLightColor   = _color;
       vAmbientColor = _ambient;
       vAttenuation  = _att;
@@ -95,6 +93,8 @@ uint32_t rPointLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
 
    return UNSUPPORTED_TYPE;
 }
+
+typedef rPointLight<float> rPointLightF;
 }
 
 

@@ -22,31 +22,34 @@
 
 #include <engine.hpp>
 #include "cmdANDinit.hpp"
-#include "SPIRV_triangle1.hpp"
+#include "SPIRV_deferred1.hpp"
+#include "SPIRV_deferred2.hpp"
 
 using e_engine::rScene;
 using e_engine::rCameraHandler;
 using e_engine::rSimpleMesh;
-using e_engine::rPointLight;
-using e_engine::rDirectionalLight;
+using e_engine::rPointLightF;
+using e_engine::rDirectionalLightF;
 using e_engine::uSlot;
 using e_engine::iInit;
 using e_engine::iEventInfo;
 using e_engine::rWorld;
 using e_engine::rPipeline;
-using e_engine::SPIRV_triangle1;
+using e_engine::SPIRV_deferred1;
+using e_engine::SPIRV_deferred2;
 
 class myScene final : public rScene<float>, public rCameraHandler<float> {
    typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
 
  private:
    OBJECTS<rSimpleMesh> vObjects;
+   OBJECTS<rPointLightF> vPointLights;
+   OBJECTS<rDirectionalLightF> vDirectionalLights;
 
-//    rPointLight<float> vLight1;
-//    rPointLight<float> vLight2;
-//    rDirectionalLight<float> vLight3;
    rPipeline vPipeline;
-   SPIRV_triangle1 vShader;
+   rPipeline vLightPipeline;
+   SPIRV_deferred1 vShader;
+   SPIRV_deferred2 vLightShader;
 
    std::string vShader_str;
    std::string vNormalShader_str;
@@ -69,10 +72,8 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
    myScene( rWorld *_world, cmdANDinit &_cmd )
        : rScene( "MAIN SCENE", _world ),
          rCameraHandler( this, _world->getInitPtr() ),
-//          vLight1( this, "L1" ),
-//          vLight2( this, "L2" ),
-//          vLight3( "L3", e_engine::rVec3f( 0.5, -1, 0.5 ) ),
          vShader( _world ),
+         vLightShader( _world ),
          vShader_str( _cmd.getShader() ),
          vNormalShader_str( _cmd.getNormalShader() ),
          vFilePath( _cmd.getMesh() ),

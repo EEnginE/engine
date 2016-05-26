@@ -20,13 +20,14 @@
  */
 
 #include "defines.hpp"
-#include "uConfig.hpp"
+
+#include "rObjectBase.hpp"
+#include "rPipeline.hpp"
 #include "rRendererBasic.hpp"
 #include "rWorld.hpp"
-#include "rPipeline.hpp"
-#include "rObjectBase.hpp"
-#include "uLog.hpp"
+#include "uConfig.hpp"
 #include "uEnum2Str.hpp"
+#include "uLog.hpp"
 
 namespace e_engine {
 
@@ -53,6 +54,13 @@ std::vector<rRendererBasic::AttachmentInfo> rRendererBasic::getAttachmentInfos()
    }};
 }
 
+VkImageView rRendererBasic::getAttachmentView( ATTACHMENT_ROLE _role ) {
+   switch ( _role ) {
+      case DEPTH_STENCIL: return vRenderPass_vk.attachmentViews[DEPTH_STENCIL_ATTACHMENT_INDEX];
+      default: return nullptr;
+   }
+}
+
 void rRendererBasic::initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) {
    for ( auto i : vObjects ) {
       if ( i.get() == nullptr ) {
@@ -60,7 +68,7 @@ void rRendererBasic::initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuff
          return;
       }
 
-      if ( i->canRecord() ) {
+      if ( i->isMesh() ) {
          vRenderObjects.emplace_back( i );
       }
    }
@@ -80,7 +88,7 @@ void rRendererBasic::freeCmdBuffers( VkCommandPool _pool ) {
          vkFreeCommandBuffers( vDevice_vk, _pool, i.buffers.size(), i.buffers.data() );
    }
    vFbData.clear();
-   vPuschConstObjects.clear();
+   vRenderObjects.clear();
 }
 
 
@@ -131,3 +139,4 @@ void rRendererBasic::recordCmdBuffers( Framebuffer_vk &_fb, RECORD_TARGET _toRen
    }
 }
 }
+

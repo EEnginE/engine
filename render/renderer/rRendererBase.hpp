@@ -23,12 +23,12 @@
 
 #include "defines.hpp"
 
-#include <vector>
-#include <unordered_map>
-#include <thread>
-#include <mutex>
 #include <condition_variable>
 #include <memory>
+#include <mutex>
+#include <thread>
+#include <unordered_map>
+#include <vector>
 #include <vulkan.h>
 
 namespace e_engine {
@@ -72,13 +72,14 @@ class RENDER_API rRendererBase {
          VkAttachmentReference depth = {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
       };
 
-      std::vector<SubPassData> data;
+      std::vector<std::unique_ptr<SubPassData>> data;
       std::vector<VkAttachmentDescription> attachments;
       std::vector<VkClearValue> clearValues;
       std::vector<VkSubpassDescription> subpasses;
       std::vector<VkSubpassDependency> dependecies;
 
       std::vector<VkImageView> attachmentViews;
+      std::vector<Buffer_vk *> attachmentBuffers; //!< Correctly indexed reference to vBuffers
 
       VkRenderPass renderPass = nullptr;
    } RenderPass_vk;
@@ -101,13 +102,12 @@ class RENDER_API rRendererBase {
    using OBJECTS = std::vector<std::shared_ptr<rObjectBase>>;
 
    enum RECORD_TARGET { RECORD_ALL, RECORD_PUSH_CONST_ONLY };
+   enum ATTACHMENT_ROLE { DEPTH_STENCIL, DEFERRED_POSITION, DEFERRED_NORMAL, DEFERRED_ALBEDO };
 
  private:
    static uint64_t vRenderedFrames;
 
    std::wstring vID;
-
-   RenderPass_vk vRenderPass_vk;
 
    std::vector<Framebuffer_vk> vFramebuffers_vk;
    std::vector<Buffer_vk> vBuffers;
@@ -152,6 +152,8 @@ class RENDER_API rRendererBase {
    iInit *vInitPtr;
    rWorld *vWorldPtr;
 
+   RenderPass_vk vRenderPass_vk;
+
    VkDevice vDevice_vk;
 
    RecordInfo_vk vCmdRecordInfo;
@@ -159,14 +161,22 @@ class RENDER_API rRendererBase {
    OBJECTS vObjects;
 
    virtual std::vector<AttachmentInfo> getAttachmentInfos() = 0;
-   virtual void setupSubpasses() = 0;
+   virtual void setupSubpasses()                            = 0;
    uint32_t addSubpass( VkPipelineBindPoint _bindPoint,
                         uint32_t _deptStencil           = UINT32_MAX,
                         std::vector<uint32_t> _color    = {UINT32_MAX},
                         std::vector<uint32_t> _input    = {},
                         std::vector<uint32_t> _preserve = {},
                         std::vector<uint32_t> _resolve  = {},
-                        AttachmentLayoutMap _layoutMap = {} );
+                        AttachmentLayoutMap _layoutMap  = {} );
+
+   void addSubpassDependecy( uint32_t _srcSubPass,
+                             uint32_t _dstSubPass,
+                             uint32_t _srcStageMask    = 0,
+                             uint32_t _dstStageMask    = 0,
+                             uint32_t _srcAccessMask   = 0,
+                             uint32_t _dstAccessMask   = 0,
+                             uint32_t _dependencyFlags = 0 );
 
    virtual void initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) = 0;
    virtual void freeCmdBuffers( VkCommandPool _pool ) = 0;
@@ -176,10 +186,12 @@ class RENDER_API rRendererBase {
    rRendererBase() = delete;
    rRendererBase( iInit *_init, rWorld *_root, std::wstring _id );
    rRendererBase( const rRendererBase &_obj ) = delete;
-   rRendererBase( rRendererBase && ) = delete;
+   rRendererBase( rRendererBase && )          = delete;
    rRendererBase &operator=( const rRendererBase & ) = delete;
    rRendererBase &operator=( rRendererBase && ) = delete;
    virtual ~rRendererBase();
+
+   virtual VkImageView getAttachmentView( ATTACHMENT_ROLE _role ) = 0;
 
    bool addObject( std::shared_ptr<rObjectBase> _obj );
    bool resetObjects();

@@ -14,4 +14,8 @@
 
 ogltest_gen_binding_class( oglTestBind "${ENGINE_TEST_ROOT}/test1" )
 
-createSPIRV( triangle1 "${ENGINE_TEST_ROOT}/test1/data/shaders" "${ENGINE_TEST_ROOT}/test1/shaders" )
+set( SHADERS_TO_COMPILE_T1 triangle1 deferred1 deferred2 )
+
+foreach( I IN LISTS SHADERS_TO_COMPILE_T1 )
+   createSPIRV( ${I} "${ENGINE_TEST_ROOT}/test1/data/shaders" "${ENGINE_TEST_ROOT}/test1/shaders" )
+endforeach( I IN LISTS SHADERS_TO_COMPILE_T1 )

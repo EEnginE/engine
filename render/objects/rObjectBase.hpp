@@ -53,6 +53,10 @@ namespace e_engine {
 
 class rPipeline;
 
+namespace internal {
+class rRendererBase;
+}
+
 /*!
  * \brief Base class for creating objects
  *
@@ -157,10 +161,11 @@ class RENDER_API rObjectBase {
    bool finishData();
 
    virtual bool checkIsCompatible( rPipeline *_pipe ) = 0;
-   virtual bool canRecord() = 0;
+   virtual bool isMesh() = 0;
    virtual void updateUniforms() {}
    virtual void record( VkCommandBuffer ) {}
-   virtual void signalRenderReset() {}
+   virtual void recordLight( VkCommandBuffer, rBuffer &, rBuffer & ) {}
+   virtual void signalRenderReset( internal::rRendererBase * ) {}
    virtual bool supportsPushConstants() { return false; };
 
    rPipeline *getPipeline() { return vPipeline; }

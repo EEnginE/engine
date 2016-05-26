@@ -1,6 +1,6 @@
 /*!
- * \file rRendererBasic.hpp
- * \brief \b Classes: \a rRendererBasic
+ * \file rRendererDeferred.hpp
+ * \brief \b Classes: \a rRendererDeferred
  */
 /*
  * Copyright (C) 2016 EEnginE project
@@ -22,19 +22,30 @@
 #pragma once
 
 #include "defines.hpp"
+#include "rBuffer.hpp"
 #include "rRendererBase.hpp"
 
 namespace e_engine {
 
-class rRendererBasic : public internal::rRendererBase {
+class rRendererDeferred : public internal::rRendererBase {
    struct FB_DATA {
-      std::vector<VkCommandBuffer> buffers;
+      std::vector<VkCommandBuffer> objects;
+      std::vector<VkCommandBuffer> lights;
+
+      VkCommandBuffer layoutChange1;
+      VkCommandBuffer layoutChange2;
    };
 
  private:
-    std::vector<FB_DATA> vFbData;
+   std::vector<FB_DATA> vFbData;
 
-    OBJECTS vRenderObjects;
+   OBJECTS vRenderObjects;
+   OBJECTS vLightObjects;
+
+   rBuffer vDeferredDataBuffer;
+   rBuffer vDeferredIndexBuffer;
+
+   void initBuffers();
 
  protected:
    void setupSubpasses() override;
@@ -45,12 +56,19 @@ class rRendererBasic : public internal::rRendererBase {
    void freeCmdBuffers( VkCommandPool _pool ) override;
 
  public:
-   static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 0;
+   static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX   = FIRST_FREE_ATTACHMENT_INDEX + 0;
+   static const uint32_t DEFERRED_POS_ATTACHMENT_INDEX    = FIRST_FREE_ATTACHMENT_INDEX + 1;
+   static const uint32_t DEFERRED_NORMAL_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 2;
+   static const uint32_t DEFERRED_ALBEDO_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 3;
 
    VkImageView getAttachmentView( ATTACHMENT_ROLE _role ) override;
 
-   rRendererBasic() = delete;
-   rRendererBasic( iInit *_init, rWorld *_root, std::wstring _id )
-       : internal::rRendererBase( _init, _root, _id ) {}
+   rRendererDeferred() = delete;
+   rRendererDeferred( iInit *_init, rWorld *_root, std::wstring _id )
+       : internal::rRendererBase( _init, _root, _id ),
+         vDeferredDataBuffer( _root ),
+         vDeferredIndexBuffer( _root ) {
+      initBuffers();
+   }
 };
 }

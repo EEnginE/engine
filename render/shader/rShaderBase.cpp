@@ -730,7 +730,7 @@ bool rShaderBase::updateDescriptorSet( UniformVar const &_var,
                                        uint32_t _elemet ) {
    VkDescriptorSet lDescSet = getDescriptorSet( _materialPtr );
    if ( lDescSet == nullptr ) {
-      eLOG( "Failed to aquire descriptor set" );
+      eLOG( "Failed to acquire descriptor set" );
       return false;
    }
 
@@ -766,6 +766,18 @@ bool rShaderBase::updateDescriptorSet( UniformVar const &_var,
       eLOG( "DEVELOP: TODO IMPLEMENT!" );
       return false;
    }
+
+#if D_LOG_VULKAN
+   dLOG( "Updating descriptor set for shader ", getName() );
+   dLOG( "  -- descriptorType:          ", uEnum2Str::toStr( lWrite.descriptorType ) );
+   if ( lWrite.pImageInfo ) {
+      dLOG( "  -- pImageInfo->sampler:     ",
+            reinterpret_cast<uint64_t>( lWrite.pImageInfo->sampler ) );
+      dLOG( "  -- pImageInfo->imageView:   ",
+            reinterpret_cast<uint64_t>( lWrite.pImageInfo->imageView ) );
+      dLOG( "  -- pImageInfo->imageLayout: ", uEnum2Str::toStr( lWrite.pImageInfo->imageLayout ) );
+   }
+#endif
 
    vkUpdateDescriptorSets( vDevice_vk, 1, &lWrite, 0, nullptr );
    return true;

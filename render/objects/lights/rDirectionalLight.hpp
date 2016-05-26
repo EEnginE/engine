@@ -33,7 +33,7 @@ class rDirectionalLight : public rObjectBase {
    rVec3<T> vLightColor;
    rVec3<T> vLightDirection;
 
-   bool canRecord() override { return false; }
+   bool isMesh() override { return false; }
 
  public:
    rDirectionalLight( std::string _name ) : rObjectBase( _name ) { vLightColor.fill( 0 ); }
@@ -85,6 +85,8 @@ uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) 
 
    return UNSUPPORTED_TYPE;
 }
+
+typedef rDirectionalLight<float> rDirectionalLightF;
 }
 
 

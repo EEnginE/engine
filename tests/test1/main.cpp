@@ -48,7 +48,7 @@ int main( int argc, char *argv[] ) {
    iInit start;
 
    std::vector<std::string> layers = {
-      "VK_LAYER_LUNARG_core_validation",
+//       "VK_LAYER_LUNARG_core_validation",
       "VK_LAYER_LUNARG_device_limits",
       "VK_LAYER_LUNARG_draw_state",
       "VK_LAYER_LUNARG_image",
@@ -60,7 +60,7 @@ int main( int argc, char *argv[] ) {
       "VK_LAYER_GOOGLE_unique_objects",
 //      "VK_LAYER_VALVE_steam_overlay_32",
 //      "VK_LAYER_VALVE_steam_overlay_64",
-      "VK_LAYER_LUNARG_standard_validation"
+//       "VK_LAYER_LUNARG_standard_validation"
    };
 
 #if USE_LAYERS

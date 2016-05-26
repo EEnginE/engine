@@ -20,13 +20,13 @@
  */
 
 #include "rRendererBase.hpp"
-#include "rPipeline.hpp"
-#include "rWorld.hpp"
-#include "rObjectBase.hpp"
 #include "iInit.hpp"
-#include "uLog.hpp"
-#include "uEnum2Str.hpp"
+#include "rObjectBase.hpp"
+#include "rPipeline.hpp"
 #include "rShaderBase.hpp"
+#include "rWorld.hpp"
+#include "uEnum2Str.hpp"
+#include "uLog.hpp"
 
 
 #if D_LOG_VULKAN
@@ -192,6 +192,8 @@ void rRendererBase::destroy() {
 
    vFramebuffers_vk.clear();
    vBuffers.clear();
+   vRenderPass_vk.attachmentViews.clear();
+   vRenderPass_vk.attachmentBuffers.clear();
    vIsSetup = false;
 }
 
@@ -317,10 +319,10 @@ void rRendererBase::renderLoop() {
       uint32_t lQueueFamily = 0;
 
       VkSwapchainKHR lSwapchain_vk = vWorldPtr->getSwapchain();
-      VkQueue lQueue               = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
-      VkCommandPool lCommandPool   = vWorldPtr->getCommandPool( lQueueFamily );
-      VkSemaphore lSemPresent      = vWorldPtr->createSemaphore();
-      VkSemaphore lSemAcquireImg   = vWorldPtr->createSemaphore();
+      VkQueue lQueue             = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
+      VkCommandPool lCommandPool = vWorldPtr->getCommandPool( lQueueFamily );
+      VkSemaphore lSemPresent    = vWorldPtr->createSemaphore();
+      VkSemaphore lSemAcquireImg = vWorldPtr->createSemaphore();
       VkFence lFences[NUM_FENCES];
 
       for ( uint32_t i = 0; i < NUM_FENCES; i++ ) {
@@ -395,7 +397,7 @@ void rRendererBase::renderLoop() {
          }
 
          // Setup object for rendering (preparing uniforms)
-         i->signalRenderReset();
+         i->signalRenderReset( this );
       }
 
       // Record all command buffers
@@ -478,7 +480,7 @@ void rRendererBase::renderLoop() {
          }
 
          lPresentInfo.pImageIndices = &lNextImg;
-         lRes = vkQueuePresentKHR( lQueue, &lPresentInfo );
+         lRes                       = vkQueuePresentKHR( lQueue, &lPresentInfo );
          if ( lRes ) {
             eLOG( "'vkQueuePresentKHR' returned ", uEnum2Str::toStr( lRes ) );
             break;
@@ -502,7 +504,6 @@ void rRendererBase::renderLoop() {
       iLOG( "Render loop stopped" );
 
 
-
       //    _____ _
       //   /  __ \ |
       //   | /  \/ | ___  __ _ _ __  _   _ _ __
@@ -512,14 +513,17 @@ void rRendererBase::renderLoop() {
       //                                  | |
       //                                  |_|
 
-      vkDeviceWaitIdle( vDevice_vk );
-      vkDestroySemaphore( vDevice_vk, lSemPresent, nullptr );
-
-      for ( uint32_t i = 0; i < NUM_FENCES; i++ )
-         vkDestroyFence( vDevice_vk, lFences[i], nullptr );
+      auto lRes = vkDeviceWaitIdle( vDevice_vk );
+      if ( lRes ) {
+         eLOG( "'vkDeviceWaitIdle' returned ", uEnum2Str::toStr( lRes ) );
+      }
 
       freeCmdBuffers( lCommandPool );
       freeFrameCommandBuffers( lCommandPool );
+
+      vkDestroySemaphore( vDevice_vk, lSemPresent, nullptr );
+      for ( uint32_t i = 0; i < NUM_FENCES; i++ )
+         vkDestroyFence( vDevice_vk, lFences[i], nullptr );
 
 
       std::lock_guard<std::mutex> lGuard1( vMutexStopLogLoop );
@@ -674,8 +678,8 @@ uint32_t rRendererBase::addSubpass( VkPipelineBindPoint _bindPoint,
                                     std::vector<uint32_t> _preserve,
                                     std::vector<uint32_t> _resolve,
                                     std::unordered_map<uint32_t, VkImageLayout> _layoutMap ) {
-   vRenderPass_vk.data.emplace_back();
-   auto *lData     = &vRenderPass_vk.data.back();
+   vRenderPass_vk.data.emplace_back( std::make_unique<RenderPass_vk::SubPassData>() );
+   auto &lData     = vRenderPass_vk.data.back();
    lData->preserve = _preserve;
 
    for ( uint32_t i : _color ) {
@@ -755,6 +759,27 @@ uint32_t rRendererBase::addSubpass( VkPipelineBindPoint _bindPoint,
    vRenderPass_vk.subpasses.push_back( lDesc );
 
    return 0;
+}
+
+/*!
+ * \brief Adds a Vulkan subpass dependecy
+ */
+void rRendererBase::addSubpassDependecy( uint32_t _srcSubPass,
+                                         uint32_t _dstSubPass,
+                                         uint32_t _srcStageMask,
+                                         uint32_t _dstStageMask,
+                                         uint32_t _srcAccessMask,
+                                         uint32_t _dstAccessMask,
+                                         uint32_t _dependencyFlags ) {
+   vRenderPass_vk.dependecies.emplace_back();
+   auto *lAlias            = &vRenderPass_vk.dependecies.back();
+   lAlias->srcSubpass      = _srcSubPass;
+   lAlias->dstSubpass      = _dstSubPass;
+   lAlias->srcStageMask    = _srcStageMask;
+   lAlias->dstStageMask    = _dstStageMask;
+   lAlias->srcAccessMask   = _srcAccessMask;
+   lAlias->dstAccessMask   = _dstAccessMask;
+   lAlias->dependencyFlags = _dependencyFlags;
 }
 
 uint64_t *rRendererBase::getRenderedFramesPtr() { return &vRenderedFrames; }

@@ -26,10 +26,10 @@
 #define HANDLER_HPP
 
 using e_engine::rWorldCreator;
-using e_engine::rRendererBasic;
+using e_engine::rRendererDeferred;
 using e_engine::rFrameCounter;
 
-class myWorld final : public rWorldCreator<rRendererBasic>, public rFrameCounter {
+class myWorld final : public rWorldCreator<rRendererDeferred>, public rFrameCounter {
    typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;
 
  private:
@@ -49,7 +49,7 @@ class myWorld final : public rWorldCreator<rRendererBasic>, public rFrameCounter
 
  public:
    myWorld( cmdANDinit &_cmd, e_engine::iInit *_init )
-       : rWorldCreator<rRendererBasic>( _init ),
+       : rWorldCreator<rRendererDeferred>( _init ),
          rFrameCounter( this, true ),
          vScene( this, _cmd ),
          vInitPointer( _init ),
