@@ -28,7 +28,7 @@ bool uSHA_2::test( HASH_FUNCTION _type, const std::string &_message, const std::
    add( _message );
 
    std::vector<unsigned char> lRes1_V_uC = end();
-   char lBuffer_CSTR[3];
+   char                       lBuffer_CSTR[3];
 
    std::string lName_str, lRes1_str;
 
@@ -75,7 +75,7 @@ bool uSHA_2::test( HASH_FUNCTION _type, const std::string &_message, const std::
 
 bool uSHA_2::selftest() {
    std::string lResult_str;
-   bool lReturn_B = true;
+   bool        lReturn_B = true;
 
    iLOG( "========== BEGIN SHA 2 selftest ==========" );
 

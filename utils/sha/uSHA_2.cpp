@@ -133,7 +133,7 @@ std::vector<unsigned char> uSHA_2::quickHash( HASH_FUNCTION _type, std::string _
 }
 
 
-std::vector<unsigned char> uSHA_2::quickHash( HASH_FUNCTION _type,
+std::vector<unsigned char> uSHA_2::quickHash( HASH_FUNCTION              _type,
                                               std::vector<unsigned char> _binary ) {
    reset( _type );
    add( _binary );
@@ -318,8 +318,8 @@ std::string uSHA_2::get( bool _space ) {
       return "";
 
    std::string lString_str;
-   char lBuffer_CSTR[9];
-   uint16_t lEnd_suI = 8;
+   char        lBuffer_CSTR[9];
+   uint16_t    lEnd_suI = 8;
 
    switch ( vType ) {
       case SHA2_224: lEnd_suI = 7; FALLTHROUGH

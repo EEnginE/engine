@@ -18,10 +18,10 @@
  */
 
 #include "rObjectBase.hpp"
+#include "rPipeline.hpp"
+#include "iInit.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
-#include "iInit.hpp"
-#include "rPipeline.hpp"
 #include <regex>
 
 namespace e_engine {
@@ -110,11 +110,11 @@ bool rObjectBase::setData( VkCommandBuffer _buf, aiMesh const *_mesh ) {
    }
 
    std::vector<uint32_t> lIndex;
-   std::vector<float> lData;
+   std::vector<float>    lData;
 
    lIndex.resize( lIndexSize * _mesh->mNumFaces );
    for ( uint32_t i = 0; i < _mesh->mNumFaces; i++ )
-      for ( uint32_t j = 0; j < lIndexSize; j++ )
+      for ( uint32_t j              = 0; j < lIndexSize; j++ )
          lIndex[i * lIndexSize + j] = _mesh->mFaces[i].mIndices[j];
 
    switch ( getDataLayout() ) {

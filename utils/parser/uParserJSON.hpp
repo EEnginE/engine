@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "uParserJSON_data.hpp"
 #include "uParserHelper.hpp"
+#include "uParserJSON_data.hpp"
 
 namespace e_engine {
 
@@ -51,7 +51,7 @@ class UTILS_API uParserJSON final : public internal::uParserHelper {
 
    std::string toString( uJSON_data const &_data );
 
-   uJSON_data getData() { return vData; }
+   uJSON_data  getData() { return vData; }
    uJSON_data *getDataP() { return &vData; }
 
    void setWriteIndent( std::string _in );

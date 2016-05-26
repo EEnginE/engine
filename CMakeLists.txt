@@ -153,7 +153,7 @@ add_engine_test( test1 )
 add_engine_test( benchmarks )
 
 generate_engine_hpp( ${TEMPLATES_DIR}/engine.in.hpp ${PROJECT_SOURCE_DIR}/include/engine.hpp )
-generate_format_command( format 3.7.1 ${TEMPLATES_DIR}/cmake_format.cmake.in ${PROJECT_BINARY_DIR}/cmake_format.cmake )
+generate_format_command( format 3.8.0 ${TEMPLATES_DIR}/cmake_format.cmake.in ${PROJECT_BINARY_DIR}/cmake_format.cmake )
 generate_debug_defines()
 
 include_directories( ${ENGINE_INCLUDE_DIRECTORIES} ${PROJECT_SOURCE_DIR}/include ${ENGINE_INCL} )

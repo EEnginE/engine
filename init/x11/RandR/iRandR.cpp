@@ -231,7 +231,7 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
       for ( internal::_mode const &fMode : vMode_V_RandR ) {
          // Is mode supported and / or preferred ?
          bool lModeSupported_B = false;
-         bool lModePrefered_B = false;
+         bool lModePrefered_B  = false;
          for ( unsigned int j = 0; j < fOutput.modes.size(); ++j ) {
             if ( fOutput.modes[j] == fMode.id ) {
                lModeSupported_B = true;
@@ -345,8 +345,8 @@ void iRandR::getMostLeftRightTopBottomCRTC( unsigned int &_left,
 int iRandR::getIndexOfDisplay( iDisplays const &_disp ) {
    reload();
 
-   RRCrtc lCRTC_XRR  = None;
-   bool lOutputFound = false;
+   RRCrtc lCRTC_XRR    = None;
+   bool   lOutputFound = false;
 
    for ( internal::_output fOut : vOutput_V_RandR ) {
       if ( _disp.getOutput() == fOut.id ) {

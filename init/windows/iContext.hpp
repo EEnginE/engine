@@ -28,9 +28,9 @@
 #include "defines.hpp"
 
 #include "iEventInfo.hpp"
+#include "iInitSignals.hpp"
 #include "iKeyboard.hpp"
 #include "iRandR.hpp"
-#include "iInitSignals.hpp"
 
 #include <GL/glew.h>
 #include <GL/wglew.h>
@@ -43,19 +43,19 @@ namespace windows_win32 {
 class INIT_API iContext : public iKeyboard, public iRandR, public iInitSignals {
  private:
    PIXELFORMATDESCRIPTOR vPixelFormat_PFD;
-   HINSTANCE vInstance_win32;
-   WNDCLASSW vWindowClass_win32;
-   HWND vHWND_Window_win32;
-   RECT vWindowRect_win32;
-   HDC vHDC_win32;
-   HGLRC vOpenGLContext_WGL;
-   LPCWSTR vClassName_win32;
+   HINSTANCE             vInstance_win32;
+   WNDCLASSW             vWindowClass_win32;
+   HWND                  vHWND_Window_win32;
+   RECT                  vWindowRect_win32;
+   HDC                   vHDC_win32;
+   HGLRC                 vOpenGLContext_WGL;
+   LPCWSTR               vClassName_win32;
 
    static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
    static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
-   LRESULT CALLBACK actualWndProc( UINT _uMsg,
-                                   WPARAM _wParam,
-                                   LPARAM _lParam,
+   LRESULT CALLBACK actualWndProc( UINT       _uMsg,
+                                   WPARAM     _wParam,
+                                   LPARAM     _lParam,
                                    iEventInfo _tempInfo );
 
    unsigned vVertexArray_OGL;
@@ -95,9 +95,9 @@ class INIT_API iContext : public iKeyboard, public iRandR, public iInitSignals {
    int createContext();
 
    int fullScreen( ACTION _action, bool _allMonitors = false );
-   int enableVSync();
-   int disableVSync();
-   void destroyContext();
+   int         enableVSync();
+   int         disableVSync();
+   void        destroyContext();
    bool const &getHaveContext() const { return vHasContext_B; }
 
    bool makeContextCurrent();
@@ -108,7 +108,7 @@ class INIT_API iContext : public iKeyboard, public iRandR, public iInitSignals {
    bool setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE );
 
 
-   int setFullScreenMonitor( iDisplays & ) { return 0; }
+   int  setFullScreenMonitor( iDisplays & ) { return 0; }
    bool setDecoration( ACTION _action );
    int changeWindowConfig( unsigned int _width, unsigned int _height, int _posX, int _posY );
    bool fullScreenMultiMonitor() { return false; }

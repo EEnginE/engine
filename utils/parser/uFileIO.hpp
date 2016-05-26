@@ -29,14 +29,14 @@ namespace e_engine {
 class UTILS_API uFileIO final {
  public:
    typedef std::string::const_iterator C_ITERATOR;
-   typedef std::string::iterator ITERATOR;
+   typedef std::string::iterator       ITERATOR;
 
    typedef std::string TYPE;
 
  private:
    std::string vFilePath_str;
-   TYPE vData;
-   bool vFileRead_B;
+   TYPE        vData;
+   bool        vFileRead_B;
 
  public:
    uFileIO() : vFileRead_B( false ) {}
@@ -45,10 +45,10 @@ class UTILS_API uFileIO final {
    std::string getFilePath();
 
    C_ITERATOR begin() const { return vData.begin(); }
-   ITERATOR begin() { return vData.begin(); }
+   ITERATOR   begin() { return vData.begin(); }
 
    C_ITERATOR end() const { return vData.end(); }
-   ITERATOR end() { return vData.end(); }
+   ITERATOR   end() { return vData.end(); }
 
    bool isFileRead() { return vFileRead_B; }
 

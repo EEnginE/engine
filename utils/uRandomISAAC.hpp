@@ -42,7 +42,7 @@ class UTILS_API uRandomISAAC {
 
    void init( uint32_t _seed = 0 );
 
-   uint32_t get();
+   uint32_t        get();
    inline uint32_t get( uint32_t _min, uint32_t _max ) {
       return ( _max <= _min ) ? _min : ( get() % ( ( _max + 1 ) - _min ) + _min );
    }

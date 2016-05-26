@@ -23,11 +23,11 @@
 
 #include "defines.hpp"
 
-#include <fstream>
-#include <chrono>
-#include <thread>
 #include "uLog_resources.hpp"
 #include "uMacros.hpp"
+#include <chrono>
+#include <fstream>
+#include <thread>
 
 namespace e_engine {
 
@@ -103,8 +103,8 @@ class UTILS_API uLog final {
  private:
    std::vector<internal::uLogType> vLogTypes_V_eLT;
    std::map<std::thread::id, std::wstring> vThreads;
-   std::string vLogFileName_str;
-   std::string vLogFielFullPath_str;
+   std::string    vLogFileName_str;
+   std::string    vLogFielFullPath_str;
    std::wofstream vLogFileOutput_OS;
 
    std::mutex vLogMutex_BT;
@@ -136,7 +136,7 @@ class UTILS_API uLog final {
    ~uLog();
 
    uint16_t getMaxTypeStingLength() { return vMaxTypeStringLength_usI; }
-   bool getIsLogLoopRunning() { return vIsLogLoopRunning_B; }
+   bool     getIsLogLoopRunning() { return vIsLogLoopRunning_B; }
 
    void devInit();
 
@@ -155,11 +155,11 @@ class UTILS_API uLog final {
 
 
    template <class... ARGS>
-   inline void operator()( char _type,
-                           bool _onlyText,
-                           const wchar_t *_file,
-                           const int _line,
-                           const char *_function,
+   inline void operator()( char              _type,
+                           bool              _onlyText,
+                           const wchar_t *   _file,
+                           const int         _line,
+                           const char *      _function,
                            std::thread::id &&_thread,
                            ARGS... _data ) {
       addLogEntry( _type,
@@ -172,11 +172,11 @@ class UTILS_API uLog final {
    }
 
    template <class... ARGS>
-   inline void addLogEntry( char _type,
-                            bool _onlyText,
-                            const wchar_t *_file,
-                            const int _line,
-                            const char *_function,
+   inline void addLogEntry( char              _type,
+                            bool              _onlyText,
+                            const wchar_t *   _file,
+                            const int         _line,
+                            const char *      _function,
                             std::thread::id &&_thread,
                             ARGS... _data );
 
@@ -184,11 +184,11 @@ class UTILS_API uLog final {
 };
 
 template <class... ARGS>
-void uLog::addLogEntry( char _type,
-                        bool _onlyText,
-                        const wchar_t *_file,
-                        const int _line,
-                        const char *_function,
+void uLog::addLogEntry( char              _type,
+                        bool              _onlyText,
+                        const wchar_t *   _file,
+                        const int         _line,
+                        const char *      _function,
                         std::thread::id &&_thread,
                         ARGS... _data ) {
    uLogEntryRaw lTempEntry( _type,

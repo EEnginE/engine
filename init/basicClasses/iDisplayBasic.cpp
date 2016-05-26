@@ -88,7 +88,7 @@ void iDisplayBasic::getSelectedPosition( int &_posX, int &_posY ) const {
  */
 void iDisplayBasic::getCurrentResolution( unsigned int &_width,
                                           unsigned int &_height,
-                                          double &_rate ) const {
+                                          double &      _rate ) const {
    _width  = vCurrentWidth_uI;
    _height = vCurrentHeight_uI;
    _rate   = vCurrentRate_D;

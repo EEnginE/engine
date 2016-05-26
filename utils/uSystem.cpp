@@ -18,20 +18,20 @@
  * limitations under the License.
  */
 
-#include "uSystem.hpp"
-#include "uLog.hpp"
-#include "uConfig.hpp"
 #include "defines.hpp"
+#include "uSystem.hpp"
+#include "uConfig.hpp"
+#include "uLog.hpp"
 
 #if UNIX
-#include <unistd.h>
 #include <pwd.h>
+#include <unistd.h>
 #endif // UNIX
 
 #if WINDOWS
-#include <windows.h>
 #include <lmcons.h>
 #include <stdlib.h>
+#include <windows.h>
 
 #undef POINT
 #include <shlobj.h>
@@ -41,8 +41,8 @@
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include FILESYSTEM_INCLUDE
-#include <regex>
 #include <iostream>
+#include <regex>
 
 namespace e_engine {
 
@@ -50,8 +50,8 @@ uSystem SYSTEM;
 
 uSystem::uSystem() {
 #if UNIX
-   uid_t tempUserID  = geteuid();
-   struct passwd *pw = nullptr;
+   uid_t          tempUserID = geteuid();
+   struct passwd *pw         = nullptr;
 
    pw = getpwuid( tempUserID );
 
@@ -114,7 +114,7 @@ std::string uSystem::getMainConfigDirPath() {
    if ( vMainConfigDir.empty() ) {
 
       // Replace all bad characters with '-'
-      std::regex ex( "[^A-Za-z0-9.\\*]" );
+      std::regex  ex( "[^A-Za-z0-9.\\*]" );
       const char *fmt = "-";
       std::string out = std::regex_replace( GlobConf.config.appName, ex, fmt );
 
@@ -127,9 +127,9 @@ std::string uSystem::getMainConfigDirPath() {
       FILESYSTEM_NAMESPACE::path dir1( dir1_str );
       FILESYSTEM_NAMESPACE::path dir2( dir2_str );
       FILESYSTEM_NAMESPACE::path configDir( vUserHome + "/.config" );
-      bool dir1_exists, dir2_exists;
-      bool dir1_noDir, dir2_noDir = false;
-      bool dotConfigExists;
+      bool                       dir1_exists, dir2_exists;
+      bool                       dir1_noDir, dir2_noDir = false;
+      bool                       dotConfigExists;
 
       try {
          // Is there a $HOME/.NAME dir already?
@@ -299,7 +299,7 @@ std::string uSystem::getLogFilePath() {
 #if UNIX
          std::string temp = getMainConfigDirPath() + "/";
 #elif WINDOWS
-         std::string temp = getMainConfigDirPath() + "\\";
+         std::string                                          temp = getMainConfigDirPath() + "\\";
 #endif
 
          temp += GlobConf.config.logSubFolder;
@@ -351,7 +351,7 @@ std::string uSystem::getConfigFilePath() {
 #if UNIX
          std::string temp = getMainConfigDirPath() + "/";
 #elif WINDOWS
-         std::string temp = getMainConfigDirPath() + "\\";
+         std::string                                          temp = getMainConfigDirPath() + "\\";
 #endif
          temp += GlobConf.config.logSubFolder;
 

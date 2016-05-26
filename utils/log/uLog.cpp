@@ -19,8 +19,8 @@
  * limitations under the License.
  */
 
-#include "uLog.hpp"
 #include "defines.hpp"
+#include "uLog.hpp"
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 
@@ -32,8 +32,8 @@
 #include <sstream>
 
 #ifdef __linux__
-#include <unistd.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 #endif // __linux__
 
 namespace e_engine {
@@ -305,8 +305,8 @@ void uLog::logLoop() {
       return;
 
    vIsLogLoopRunning_B = true;
-   std::string lErrorType_STR;
-   unsigned int lLogTypeId_uI = 0;
+   std::string             lErrorType_STR;
+   unsigned int            lLogTypeId_uI = 0;
    std::list<uLogEntryRaw> lEntryWorkerList;
 
    do {

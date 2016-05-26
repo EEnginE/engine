@@ -20,10 +20,10 @@
  */
 
 #include "rShaderBase.hpp"
-#include "iInit.hpp"
 #include "rWorld.hpp"
-#include "uLog.hpp"
+#include "iInit.hpp"
 #include "uEnum2Str.hpp"
+#include "uLog.hpp"
 #include <algorithm>
 #include <string.h> // memcpy
 
@@ -136,7 +136,7 @@ uint32_t rShaderBase::createUniformBuffer( uint32_t _size ) {
    vBuffers.emplace_back();
    vMemory.emplace_back();
 
-   uint32_t lIndex;
+   uint32_t             lIndex;
    VkMemoryRequirements lMemReqs;
 
    VkBufferCreateInfo lBuffInfo    = {};
@@ -412,8 +412,8 @@ void rShaderBase::addLayoutBindings( VkShaderStageFlagBits _stage, ShaderInfo _i
       lAlias1->pTexelBufferView = nullptr;
 
       vUniformBufferDescs.back().stage = _stage;
-      vUniformBufferDescs.back().size = lSize;
-      vUniformBufferDescs.back().mem = vMemory[lIndex];
+      vUniformBufferDescs.back().size  = lSize;
+      vUniformBufferDescs.back().mem   = vMemory[lIndex];
 
       for ( auto &j : vUniformBufferDescs.back().vars )
          j.mem = vMemory[lIndex];
@@ -511,9 +511,9 @@ bool rShaderBase::init() {
          dVkLOG(
                "    -- Input location = ", i.location, " ", i.type, " ", i.name, " (", lSize, ")" );
 
-         vInputDescs.back().binding = 0;
+         vInputDescs.back().binding  = 0;
          vInputDescs.back().location = i.location;
-         vInputDescs.back().offset = vInputBindingDesc.stride;
+         vInputDescs.back().offset   = vInputBindingDesc.stride;
          vInputBindingDesc.stride += lSize;
       }
    }
@@ -613,7 +613,7 @@ bool rShaderBase::init() {
  */
 bool rShaderBase::updateUniform( UniformBuffer::Var const &_var, void const *_data ) {
    void *lData;
-   auto lRes = vkMapMemory( vDevice_vk, _var.mem, _var.offset, _var.size, 0, &lData );
+   auto  lRes = vkMapMemory( vDevice_vk, _var.mem, _var.offset, _var.size, 0, &lData );
    if ( lRes ) {
       eLOG( "'vkMapMemory' returned ", uEnum2Str::toStr( lRes ) );
       return false;
@@ -633,9 +633,9 @@ bool rShaderBase::updateUniform( UniformBuffer::Var const &_var, void const *_da
  *
  * _var MUST BE acquired from this object!
  */
-void rShaderBase::cmdUpdatePushConstant( VkCommandBuffer _buf,
+void rShaderBase::cmdUpdatePushConstant( VkCommandBuffer        _buf,
                                          PushConstantVar const &_var,
-                                         void const *_data ) {
+                                         void const *           _data ) {
    vkCmdPushConstants( _buf, vPipelineLayout_vk, _var.stage, _var.offset, _var.size, _data );
 }
 
@@ -648,9 +648,9 @@ void rShaderBase::cmdUpdatePushConstant( VkCommandBuffer _buf,
  * _materialPtr functions only as an ID. The material itself will not be accessed, so nullptr is a
  * valid value.
  */
-void rShaderBase::cmdBindDescriptorSets( VkCommandBuffer _buf,
+void rShaderBase::cmdBindDescriptorSets( VkCommandBuffer     _buf,
                                          VkPipelineBindPoint _bindPoint,
-                                         rMaterial const *_materialPtr ) {
+                                         rMaterial const *   _materialPtr ) {
    VkDescriptorSet lSet = getDescriptorSet( _materialPtr );
 
    if ( lSet == nullptr ) {
@@ -725,9 +725,9 @@ VkDescriptorSet rShaderBase::getDescriptorSet( rMaterial const *_materialPtr ) {
  * \returns false on error
  */
 bool rShaderBase::updateDescriptorSet( UniformVar const &_var,
-                                       void *_data,
-                                       rMaterial const *_materialPtr,
-                                       uint32_t _elemet ) {
+                                       void *            _data,
+                                       rMaterial const * _materialPtr,
+                                       uint32_t          _elemet ) {
    VkDescriptorSet lDescSet = getDescriptorSet( _materialPtr );
    if ( lDescSet == nullptr ) {
       eLOG( "Failed to acquire descriptor set" );

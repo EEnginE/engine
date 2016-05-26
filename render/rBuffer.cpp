@@ -20,12 +20,12 @@
  */
 
 #include "defines.hpp"
-#include <string.h> // memcpy
 #include "rBuffer.hpp"
-#include "iInit.hpp"
 #include "rWorld.hpp"
-#include "uLog.hpp"
+#include "iInit.hpp"
 #include "uEnum2Str.hpp"
+#include "uLog.hpp"
+#include <string.h> // memcpy
 
 namespace e_engine {
 
@@ -84,8 +84,8 @@ bool rBuffer::errorCleanup() {
  */
 template <class T>
 bool rBuffer::cmdInit( std::vector<T> const &_data,
-                       VkCommandBuffer _buff,
-                       VkBufferUsageFlags _flags ) {
+                       VkCommandBuffer       _buff,
+                       VkBufferUsageFlags    _flags ) {
    if ( vIsLoaded ) {
       eLOG( "Data already loaded!" );
       return false;
@@ -128,7 +128,7 @@ bool rBuffer::cmdInit( std::vector<T> const &_data,
    }
 
    lBuffInfo.usage = _flags | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-   lRes = vkCreateBuffer( vDevice_vk, &lBuffInfo, nullptr, &vBuffer_vk );
+   lRes            = vkCreateBuffer( vDevice_vk, &lBuffInfo, nullptr, &vBuffer_vk );
    if ( lRes ) {
       eLOG( "'vkCreateBuffer' returned ", uEnum2Str::toStr( lRes ) );
       return errorCleanup();
@@ -166,7 +166,7 @@ bool rBuffer::cmdInit( std::vector<T> const &_data,
 
    lAllocInfo.allocationSize  = lMemReqs_final.size;
    lAllocInfo.memoryTypeIndex = lIndex_final;
-   lRes = vkAllocateMemory( vDevice_vk, &lAllocInfo, nullptr, &vMem_vk );
+   lRes                       = vkAllocateMemory( vDevice_vk, &lAllocInfo, nullptr, &vMem_vk );
    if ( lRes ) {
       eLOG( "'vkAllocateMemory' returned ", uEnum2Str::toStr( lRes ) );
       return errorCleanup();

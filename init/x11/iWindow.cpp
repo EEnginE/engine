@@ -27,14 +27,14 @@
 
 #include "defines.hpp"
 
+#include <string.h> // memset
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
-#include <string.h> // memset
 
 #include "iWindow.hpp"
+#include "uEnum2Str.hpp"
 #include "uLog.hpp"
 #include "eCMDColor.hpp"
-#include "uEnum2Str.hpp"
 
 namespace e_engine {
 
@@ -84,7 +84,7 @@ internal::iXCBAtom::~iXCBAtom() {
  * \returns  2 -- Failed to init EWMH connection
  */
 int iWindow::createWindow() {
-   int lScreenNum;
+   int         lScreenNum;
    std::string lRandRVersionString_str;
 
    vConnection_XCB = xcb_connect( NULL, &lScreenNum );
@@ -156,7 +156,7 @@ int iWindow::createWindow() {
    vMotifWmHints_ATOM.genAtom( vConnection_XCB, "_MOTIF_WM_HINTS" );
 
    iXCBAtom lNetWmBypass( vConnection_XCB, "_NET_WM_BYPASS_COMPOSITOR" );
-   int lBypassValue = 1;
+   int      lBypassValue = 1;
 
    setWindowType( GlobConf.win.winType );
    setWmPropertyAtom( vWmProtocol_ATOM, vWmDeleteWindow_ATOM );
@@ -179,8 +179,8 @@ int iWindow::createWindow() {
       lRandRVersionString_str = "!!! NOT SUPPORTED !!!";
    }
 
-   std::wstring lC1_C         = eCMDColor::color( 'B', 'C' );
-   std::string lEngineGit_str = E_GIT_LAST_TAG_DIFF == 0
+   std::wstring lC1_C          = eCMDColor::color( 'B', 'C' );
+   std::string  lEngineGit_str = E_GIT_LAST_TAG_DIFF == 0
                                       ? " [RELEASE] "
                                       : ( " +" + std::to_string( E_GIT_LAST_TAG_DIFF ) + " " );
 
@@ -204,10 +204,10 @@ int iWindow::createWindow() {
    return 0;
 }
 
-void iWindow::setWmProperty( iXCBAtom &_property,
-                             xcb_atom_t _type,
-                             uint8_t _format,
-                             uint32_t _length,
+void iWindow::setWmProperty( iXCBAtom &  _property,
+                             xcb_atom_t  _type,
+                             uint8_t     _format,
+                             uint32_t    _length,
                              const void *_data ) {
    if ( !vWindowCreated_B )
       return;
@@ -316,7 +316,7 @@ struct MwmHints {
    uint32_t flags;
    uint32_t functions;
    uint32_t decorations;
-   int32_t input_mode;
+   int32_t  input_mode;
    uint32_t status;
 };
 const long unsigned int MWM_HINTS_DECORATIONS = ( 1L << 1 );
@@ -388,8 +388,8 @@ void iWindow::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTR
       return;
    }
 
-   iXCBAtom lAtomHelper1;
-   iXCBAtom lAtomHelper2;
+   iXCBAtom   lAtomHelper1;
+   iXCBAtom   lAtomHelper2;
    xcb_atom_t lAtom1_XCB = 0;
    xcb_atom_t lAtom2_XCB = 0;
 
@@ -761,7 +761,7 @@ VkSurfaceKHR iWindow::getVulkanSurface( VkInstance _instance ) {
    lInfo.window     = vWindow_XCB;
 
    VkSurfaceKHR lSurface;
-   auto lRes = vkCreateXcbSurfaceKHR( _instance, &lInfo, nullptr, &lSurface );
+   auto         lRes = vkCreateXcbSurfaceKHR( _instance, &lInfo, nullptr, &lSurface );
    if ( lRes ) {
       eLOG( "'vkCreateXcbSurfaceKHR' returned ", uEnum2Str::toStr( lRes ) );
       return nullptr;

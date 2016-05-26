@@ -45,9 +45,9 @@ bool uJSON_data::unique( bool _renoveDuplicates, bool _quiet, std::string _paten
                    lReturn;
       }
    } else if ( type == JSON_OBJECT ) {
-      std::vector<std::string> lIDs;
+      std::vector<std::string>  lIDs;
       std::vector<unsigned int> lErase;
-      unsigned int lDulicatesFound_uI = 0;
+      unsigned int              lDulicatesFound_uI = 0;
 
       for ( auto iter = value_obj.begin(); iter != value_obj.end(); ++iter ) {
          for ( auto const &lID : lIDs ) {

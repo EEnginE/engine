@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
+#include "defines.hpp"
 #include "uLog_resources.hpp"
 #include "uLog.hpp"
-#include "defines.hpp"
 #include <iomanip>
 #include <iostream>
 
@@ -73,7 +73,7 @@ void uLogEntryRaw::__DATA__::configure( e_engine::LOG_COLOR_TYPE _color,
                                         e_engine::LOG_PRINT_TYPE _file,
                                         e_engine::LOG_PRINT_TYPE _errorType,
                                         e_engine::LOG_PRINT_TYPE _thread,
-                                        int _columns ) {
+                                        int                      _columns ) {
    config.vColor_LCT     = _color;
    config.vTime_LPT      = _time;
    config.vFile_LPT      = _file;

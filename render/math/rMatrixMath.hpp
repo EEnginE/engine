@@ -76,7 +76,7 @@ class rMatrixMath {
    static void camera( const rVec3<T> &_position,
                        const rVec3<T> &_lookAt,
                        const rVec3<T> &_upVector,
-                       rMat4<T> &_out );
+                       rMat4<T> &      _out );
 };
 
 template <class T>
@@ -157,7 +157,7 @@ template <class T>
 void rMatrixMath::camera( const rVec3<T> &_position,
                           const rVec3<T> &_lookAt,
                           const rVec3<T> &_upVector,
-                          rMat4<T> &_out ) {
+                          rMat4<T> &      _out ) {
    rVec3<T> f = _lookAt - _position;
    f.normalize();
 

@@ -95,8 +95,8 @@ void iDisplays::autoSelectBest() {
  */
 double iDisplays::autoSelectBySize( unsigned int _width,
                                     unsigned int _height,
-                                    double _preferedRate,
-                                    double _maxDiff ) {
+                                    double       _preferedRate,
+                                    double       _maxDiff ) {
    double lMinDiffTo60Hz_D;
    double lMinDiffTo120Hz_D;
    double lMinDiffTo240Hz_D;
@@ -215,11 +215,11 @@ void iDisplays::enable() { vEnabled_B = true; }
  * \returns the display frequency closest to _rate
  * \returns -1 when there was no mode found for this resolution
  */
-double iDisplays::findNearestFreqTo( double _rate,
+double iDisplays::findNearestFreqTo( double       _rate,
                                      unsigned int _width,
                                      unsigned int _height,
-                                     DEVMODEW &_mode,
-                                     double &_diff ) const {
+                                     DEVMODEW &   _mode,
+                                     double &     _diff ) const {
    _diff          = 1000000;
    double lRate_D = -1;
    for ( DEVMODEW const &fMode : vModes_V_win32 ) {
@@ -379,7 +379,7 @@ bool iDisplays::select( unsigned int _width, unsigned int _height, double _rate 
  */
 int iDisplays::getMaxBitsPerPelFromResolutionAndFreq( unsigned int _width,
                                                       unsigned int _height,
-                                                      double _rate ) const {
+                                                      double       _rate ) const {
    if ( !isSizeSupported( _width, _height ) )
       return -1;
 

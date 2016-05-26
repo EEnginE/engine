@@ -22,10 +22,10 @@
 
 #include "rRendererDeferred.hpp"
 
-#include "iInit.hpp"
 #include "rObjectBase.hpp"
 #include "rPipeline.hpp"
 #include "rWorld.hpp"
+#include "iInit.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
 
@@ -62,8 +62,8 @@ void rRendererDeferred::setupSubpasses() {
 }
 
 std::vector<rRendererDeferred::AttachmentInfo> rRendererDeferred::getAttachmentInfos() {
-   VkFormat lDepthStencilFormat;
-   VkImageTiling lTiling;
+   VkFormat           lDepthStencilFormat;
+   VkImageTiling      lTiling;
    VkImageAspectFlags lAspectFlags;
 
    getDepthFormat( lDepthStencilFormat, lTiling, lAspectFlags );
@@ -129,13 +129,13 @@ VkImageView rRendererDeferred::getAttachmentView( ATTACHMENT_ROLE _role ) {
  * The buffers have 2 triangles, filling the entire normalized space (-1,-1) - (1,1)
  */
 void rRendererDeferred::initBuffers() {
-   uint32_t lQueueFamily;
-   VkQueue lQueue       = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
-   VkCommandPool lPool  = vWorldPtr->getCommandPool( lQueueFamily );
-   VkCommandBuffer lBuf = vWorldPtr->createCommandBuffer( lPool );
-   VkFence lFence       = vWorldPtr->createFence();
+   uint32_t        lQueueFamily;
+   VkQueue         lQueue = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
+   VkCommandPool   lPool  = vWorldPtr->getCommandPool( lQueueFamily );
+   VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer( lPool );
+   VkFence         lFence = vWorldPtr->createFence();
 
-   std::vector<float> lDefBufferData     = {1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
+   std::vector<float>    lDefBufferData  = {1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
    std::vector<uint32_t> lDefBufferIndex = {0, 1, 2, 2, 3, 0};
 
    vWorldPtr->beginCommandBuffer( lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT );

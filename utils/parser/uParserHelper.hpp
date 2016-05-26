@@ -30,7 +30,7 @@ namespace internal {
 class UTILS_API uParserHelper {
  protected:
    std::string vFilePath_str;
-   bool vIsParsed = false;
+   bool        vIsParsed = false;
 
    std::string::const_iterator vIter;
    std::string::const_iterator vEnd;
@@ -62,7 +62,7 @@ class UTILS_API uParserHelper {
 
    int operator()() { return parse(); }
 
-   bool getIsParsed() const;
+   bool        getIsParsed() const;
    std::string getFilePath() const;
    void setFile( std::string _file );
 };

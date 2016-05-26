@@ -36,12 +36,12 @@ bool iRandR::applyNewRandRSettings() {
       return false;
 
    std::vector<internal::_crtc> lTempAllCRTC_V_RandR;
-   int lMinWidth_I, lMinHeight_I;
-   int lMaxWidth_I, lMaxHeight_I;
+   int                          lMinWidth_I, lMinHeight_I;
+   int                          lMaxWidth_I, lMaxHeight_I;
 
    double lDPI_D;
-   int lNewWidth_I, lNewHeight_I;
-   int lCurrentWidth_I, lCurrentHeight_I;
+   int    lNewWidth_I, lNewHeight_I;
+   int    lCurrentWidth_I, lCurrentHeight_I;
 
    reload();
 
@@ -86,7 +86,7 @@ bool iRandR::applyNewRandRSettings() {
 
    for ( internal::_crtc const &fCRTC : lTempAllCRTC_V_RandR ) {
       internal::_mode lTempMode_RandR;
-      bool lModeFound_B = false;
+      bool            lModeFound_B = false;
 
       if ( fCRTC.mode == None ) {
          lModeFound_B           = true;
@@ -117,9 +117,9 @@ bool iRandR::applyNewRandRSettings() {
    }
 
    // Get current size
-   int lCountSizes_I;
-   SizeID lCurrentSizePossition_suI;
-   Rotation lUselessRotationInfo_XRR;
+   int            lCountSizes_I;
+   SizeID         lCurrentSizePossition_suI;
+   Rotation       lUselessRotationInfo_XRR;
    XRRScreenSize *sizes = XRRSizes( vDisplay_X11, 0, &lCountSizes_I );
    lCurrentSizePossition_suI =
          XRRConfigCurrentConfiguration( vConfig_XRR, &lUselessRotationInfo_XRR );

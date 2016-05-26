@@ -29,9 +29,9 @@
 
 #include <vulkan.h>
 
-#include "iWindowBasic.hpp"
-#include "iRandR.hpp"
 #include "iKeyboard.hpp"
+#include "iRandR.hpp"
+#include "iWindowBasic.hpp"
 
 
 namespace e_engine {
@@ -48,12 +48,12 @@ class iXCBAtom {
    iXCBAtom( xcb_connection_t *_connection, std::string _name );
    ~iXCBAtom();
 
-   iXCBAtom( iXCBAtom & ) = delete;
+   iXCBAtom( iXCBAtom & )  = delete;
    iXCBAtom( iXCBAtom && ) = default;
 
    bool genAtom( xcb_connection_t *_connection, std::string _name );
 
-   xcb_atom_t getAtom() const { return vAtomReply_XCB->atom; }
+   xcb_atom_t  getAtom() const { return vAtomReply_XCB->atom; }
    xcb_atom_t *getAtomRef() { return &vAtomReply_XCB->atom; }
 };
 }
@@ -69,10 +69,10 @@ class INIT_API iWindow : public iRandR, public iKeyboard, public iWindowBasic {
    using iXCBAtom = internal::iXCBAtom;
 
  private:
-   xcb_connection_t *vConnection_XCB;
-   xcb_window_t vWindow_XCB;
+   xcb_connection_t * vConnection_XCB;
+   xcb_window_t       vWindow_XCB;
    const xcb_setup_t *vSetup_XCB;
-   xcb_screen_t *vScreen_XCB;
+   xcb_screen_t *     vScreen_XCB;
 
    iXCBAtom vWmProtocol_ATOM;
    iXCBAtom vWmDeleteWindow_ATOM;
@@ -99,21 +99,21 @@ class INIT_API iWindow : public iRandR, public iKeyboard, public iWindowBasic {
 
    xcb_intern_atom_reply_t *getAtom( std::string _name );
 
-   void setWmProperty( iXCBAtom &_property,
-                       xcb_atom_t _type,
-                       uint8_t _format,
-                       uint32_t _length,
+   void setWmProperty( iXCBAtom &  _property,
+                       xcb_atom_t  _type,
+                       uint8_t     _format,
+                       uint32_t    _length,
                        const void *_data );
    void setWmPropertyAtom( iXCBAtom &_property, iXCBAtom &_data );
    void setWmPropertyString( iXCBAtom &_property, std::string _data );
 
 
    void sendX11Event( iXCBAtom &_atom,
-                      uint32_t _l0 = 0,
-                      uint32_t _l1 = 0,
-                      uint32_t _l2 = 0,
-                      uint32_t _l3 = 0,
-                      uint32_t _l4 = 0 );
+                      uint32_t  _l0 = 0,
+                      uint32_t  _l1 = 0,
+                      uint32_t  _l2 = 0,
+                      uint32_t  _l3 = 0,
+                      uint32_t  _l4 = 0 );
 
  protected:
    bool vWindowRecreate_B;
@@ -126,19 +126,19 @@ class INIT_API iWindow : public iRandR, public iKeyboard, public iWindowBasic {
 
    void getXCBVersion( int *_major, int *_minor );
    xcb_connection_t *getXCBConnection();
-   xcb_atom_t getWmProtocolAtom() const;
-   xcb_atom_t getWmDeleteWindowAtom() const;
+   xcb_atom_t        getWmProtocolAtom() const;
+   xcb_atom_t        getWmDeleteWindowAtom() const;
 
    virtual void destroyWindow();
 
    virtual void changeWindowConfig( unsigned int _width,
                                     unsigned int _height,
-                                    int _posX,
-                                    int _posY );
+                                    int          _posX,
+                                    int          _posY );
 
    virtual void setWindowType( WINDOW_TYPE _type );
    virtual void setWindowNames( std::string _windowName, std::string _iconName = "<NONE>" );
-   virtual void setAttribute( ACTION _action,
+   virtual void setAttribute( ACTION           _action,
                               WINDOW_ATTRIBUTE _type1,
                               WINDOW_ATTRIBUTE _type2 = NONE );
 

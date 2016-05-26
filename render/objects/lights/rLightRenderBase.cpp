@@ -28,7 +28,7 @@ namespace internal {
 
 void rLightRenderBase::recordLight( VkCommandBuffer _buf, rBuffer &_vertex, rBuffer &_index ) {
    VkDeviceSize lOffsets[] = {0};
-   VkBuffer lVertex        = _vertex.getBuffer();
+   VkBuffer     lVertex    = _vertex.getBuffer();
 
    vPipeline->getShader()->cmdBindDescriptorSets( _buf, VK_PIPELINE_BIND_POINT_GRAPHICS );
    vPipeline->cmdBindPipeline( _buf, VK_PIPELINE_BIND_POINT_GRAPHICS );

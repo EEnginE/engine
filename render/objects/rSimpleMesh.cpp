@@ -19,9 +19,9 @@
  */
 
 #include "rSimpleMesh.hpp"
+#include "rPipeline.hpp"
 #include "rWorld.hpp"
 #include "uLog.hpp"
-#include "rPipeline.hpp"
 
 namespace e_engine {
 
@@ -39,7 +39,7 @@ rSimpleMesh::rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name )
  */
 void rSimpleMesh::record( VkCommandBuffer _buf ) {
    VkDeviceSize lOffsets[] = {0};
-   VkBuffer lVertex        = vVertex.getBuffer();
+   VkBuffer     lVertex    = vVertex.getBuffer();
 
    vShader->cmdBindDescriptorSets( _buf, VK_PIPELINE_BIND_POINT_GRAPHICS );
    vPipeline->cmdBindPipeline( _buf, VK_PIPELINE_BIND_POINT_GRAPHICS );
@@ -58,9 +58,9 @@ void rSimpleMesh::record( VkCommandBuffer _buf ) {
  * \brief Inits the object (partialy)
  * \note This function SHOULD NOT be called directly! Use the functions in rScene instead!
  */
-std::vector<rBuffer *> rSimpleMesh::setData_IMPL( VkCommandBuffer _buf,
+std::vector<rBuffer *> rSimpleMesh::setData_IMPL( VkCommandBuffer              _buf,
                                                   const std::vector<uint32_t> &_index,
-                                                  const std::vector<float> &_data ) {
+                                                  const std::vector<float> &   _data ) {
    iLOG( "Initializing simple mesh object ", vName_str );
 
    vIndex.cmdInit( _index, _buf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT );

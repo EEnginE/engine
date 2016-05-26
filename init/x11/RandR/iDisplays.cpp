@@ -35,8 +35,8 @@ iDisplays::iDisplays( const iDisplays &&_e ) {
 }
 
 iDisplays &iDisplays::operator=( const iDisplays &&_e ) {
-   vModes_V_mode              = std::move( _e.vModes_V_mode );
-   vClones_V_XRR              = std::move( _e.vClones_V_XRR );
+   vModes_V_mode = std::move( _e.vModes_V_mode );
+   vClones_V_XRR = std::move( _e.vClones_V_XRR );
 
    vID_XRR        = _e.vID_XRR;
    vModeToUse_XRR = _e.vModeToUse_XRR;
@@ -112,11 +112,11 @@ void iDisplays::autoSelectBest() {
  *
  * \returns the display frequency closest to _rate
  */
-double iDisplays::findNearestFreqTo( double _rate,
+double iDisplays::findNearestFreqTo( double       _rate,
                                      unsigned int _width,
                                      unsigned int _height,
-                                     RRMode &_mode,
-                                     double &_diff ) const {
+                                     RRMode &     _mode,
+                                     double &     _diff ) const {
    _diff          = 1000000;
    double lRate_D = -1;
    for ( iDisplays::mode const &fMode : vModes_V_mode ) {
@@ -172,8 +172,8 @@ double iDisplays::findNearestFreqTo( double _rate,
  */
 double iDisplays::autoSelectBySize( unsigned int _width,
                                     unsigned int _height,
-                                    double _preferedRate,
-                                    double _maxDiff ) {
+                                    double       _preferedRate,
+                                    double       _maxDiff ) {
    double lMinDiffTo60Hz_D;
    double lMinDiffTo120Hz_D;
    double lMinDiffTo240Hz_D;

@@ -116,7 +116,7 @@ void _uConfig::__uLogData_Config::reset() {
    logFILE.Time      = LEFT_FULL;
    logFILE.File      = LEFT_FULL;
    logFILE.ErrorType = LEFT_FULL;
-   logFILE.Thread = LEFT_FULL;
+   logFILE.Thread    = LEFT_FULL;
    logFILE.logFileName.clear();
 }
 

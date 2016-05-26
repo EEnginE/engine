@@ -30,7 +30,7 @@ bool iRandR::reload( bool _overwriteLatest, bool _overwriteDefaults ) {
       return false;
 
    SizeID lTemoID_suI;
-   int lTempSizes_I;
+   int    lTempSizes_I;
 
    Rotation lTempRotate_XRR; // Exists only for XRRConfigCurrentConfiguration(...); to make it happy
 

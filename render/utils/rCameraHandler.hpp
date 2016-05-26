@@ -23,8 +23,8 @@
 
 #include "rMatrixSceneBase.hpp"
 #include "iInit.hpp"
-#include "uSignalSlot.hpp"
 #include "uLog.hpp"
+#include "uSignalSlot.hpp"
 
 namespace e_engine {
 
@@ -37,7 +37,7 @@ class rCameraHandler {
 
  private:
    rMatrixSceneBase<T> *vScene;
-   iInit *vInit;
+   iInit *              vInit;
 
    rVec3<T> vPosition;
    rVec3<T> vDirection;
@@ -127,7 +127,7 @@ void rCameraHandler<T>::key( iEventInfo const &_event ) {
    if ( !vCameraMovementEnabled || _event.eKey.state == E_RELEASED )
       return;
 
-   T lSpeed             = static_cast<T>( GlobConf.camera.movementSpeed );
+   T            lSpeed  = static_cast<T>( GlobConf.camera.movementSpeed );
    KEY_MOVEMENT _action = __LAST__;
 
    rVec3<T> lTempVector;

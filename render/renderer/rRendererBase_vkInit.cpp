@@ -20,8 +20,8 @@
  */
 
 #include "rRendererBase.hpp"
-#include "iInit.hpp"
 #include "rWorld.hpp"
+#include "iInit.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
 
@@ -35,12 +35,12 @@ namespace e_engine {
 namespace internal {
 
 struct AttachmentInfoWorker {
-   VkFormat format;
-   VkImageUsageFlags usage;
-   VkImageLayout layout;
-   VkImageTiling tiling;
-   VkImageAspectFlags aspect;
-   uint32_t attachmentID;
+   VkFormat                  format;
+   VkImageUsageFlags         usage;
+   VkImageLayout             layout;
+   VkImageTiling             tiling;
+   VkImageAspectFlags        aspect;
+   uint32_t                  attachmentID;
    rRendererBase::Buffer_vk *buff;
 };
 
@@ -57,9 +57,9 @@ int rRendererBase::initImageBuffers( VkCommandBuffer _buf ) {
       return -1;
    }
 
-   VkImageCreateInfo lImageCreate;
-   VkMemoryAllocateInfo lMemoryAlloc;
-   VkMemoryRequirements lRequirements;
+   VkImageCreateInfo     lImageCreate;
+   VkMemoryAllocateInfo  lMemoryAlloc;
+   VkMemoryRequirements  lRequirements;
    VkImageViewCreateInfo lImageViewCreate;
 
    auto lAttachmentInfosTemp = getAttachmentInfos();
@@ -136,7 +136,7 @@ int rRendererBase::initImageBuffers( VkCommandBuffer _buf ) {
 
    for ( auto &i : lAttachmentInfos ) {
       VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[i.attachmentID];
-      VkClearValue *lClearValue            = &vRenderPass_vk.clearValues[i.attachmentID];
+      VkClearValue *           lClearValue = &vRenderPass_vk.clearValues[i.attachmentID];
 
       lImageCreate.format = i.format;
       lImageCreate.tiling = i.tiling;
@@ -163,7 +163,7 @@ int rRendererBase::initImageBuffers( VkCommandBuffer _buf ) {
       if ( vHasStencilBuffer && i.usage == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ) {
          lAttachment->stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
          lAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-         lClearValue->depthStencil = {1.0f, 0};
+         lClearValue->depthStencil   = {1.0f, 0};
       }
 
       auto lRes = vkCreateImage( vDevice_vk, &lImageCreate, nullptr, &i.buff->img );
@@ -332,8 +332,8 @@ int rRendererBase::initRenderPass() {
 }
 
 int rRendererBase::initFramebuffers() {
-   auto lTempViews   = vWorldPtr->getSwapchainImageViews();
-   uint32_t lCounter = 0;
+   auto     lTempViews = vWorldPtr->getSwapchainImageViews();
+   uint32_t lCounter   = 0;
 
    for ( auto i : lTempViews ) {
       vFramebuffers_vk.emplace_back();

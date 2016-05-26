@@ -52,10 +52,10 @@ class INIT_API iKeyboard : public iKeyboardBasic {
     * \param _connection The connection to the X-Server
     * \return The key in wchar
     */
-   wchar_t processX11KeyInput( xcb_keycode_t _kEv,
+   wchar_t processX11KeyInput( xcb_keycode_t      _kEv,
                                short unsigned int _key_state,
-                               uint32_t _modMask,
-                               xcb_connection_t *_connection );
+                               uint32_t           _modMask,
+                               xcb_connection_t * _connection );
 
    inline unsigned short int getKeyState( wchar_t _key ) { return getKeyStateArray( _key ); }
 };

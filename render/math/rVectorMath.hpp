@@ -139,7 +139,7 @@ rVec3<T> rVectorMath::crossProduct( const rVec3<T> &_vec1, const rVec3<T> &_vec2
 template <class T>
 void rVectorMath::quaternionMultiplication( const rVec4<T> &_q1,
                                             const rVec4<T> &_q2,
-                                            rVec4<T> &_out ) {
+                                            rVec4<T> &      _out ) {
    _out.x = ( _q1.w * _q2.x ) + ( _q1.x * _q2.w ) + ( _q1.y * _q2.z ) - ( _q1.z * _q2.y );
    _out.y = ( _q1.w * _q2.y ) - ( _q1.x * _q2.z ) + ( _q1.y * _q2.w ) + ( _q1.z * _q2.x );
    _out.z = ( _q1.w * _q2.z ) + ( _q1.x * _q2.y ) - ( _q1.y * _q2.x ) + ( _q1.z * _q2.w );

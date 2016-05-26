@@ -61,8 +61,8 @@ bool iRandR::setDisplaySizes( iDisplays const &_disp ) {
 
    reload( false );
 
-   RRCrtc lSingleMatch_XRR = None;
-   RRCrtc lClonesMatch_XRR = None;
+   RRCrtc              lSingleMatch_XRR = None;
+   RRCrtc              lClonesMatch_XRR = None;
    std::vector<RRCrtc> lEmptyCRTC_V_XRR;
 
    // Check mode

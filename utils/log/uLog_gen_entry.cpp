@@ -19,13 +19,13 @@
  * limitations under the License.
  */
 
-#include "uLog.hpp"
 #include "defines.hpp"
+#include "uLog.hpp"
 
 #include "eCMDColor.hpp"
 
-#include <regex>
 #include <algorithm>
+#include <regex>
 
 
 namespace e_engine {
@@ -74,7 +74,8 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
          lTimeSize_uI  = lReducedTimeSize_cuI;
          lTimeNext_LPT = OFF;
          break;
-      case OFF: break; // Only because of -Wswitch
+      case OFF:
+         break; // Only because of -Wswitch
    }
 
    switch ( data->data.config.vFile_LPT ) {
@@ -90,7 +91,8 @@ void testLogSize( uLogEntryRaw *data, unsigned int _maxTypeStringLength ) {
          lFileSize_uI  = lReducedFileSize_cuI;
          lFileNext_LPT = OFF;
          break;
-      case OFF: break; // Only because of -Wswitch
+      case OFF:
+         break; // Only because of -Wswitch
    }
 
    unsigned int lThisSize = lTimeSize_uI + lFileSize_uI + lThreadSize_uI + _maxTypeStringLength +
@@ -168,7 +170,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
    // =============================================================================================
 
    if ( data.config.vFile_LPT != OFF ) {
-      std::wregex lReplace_EX( L"^(.+[/\\\\])*" );
+      std::wregex    lReplace_EX( L"^(.+[/\\\\])*" );
       const wchar_t *lReplaceChar = L"";
 
       std::wstring lFilename_STR =
@@ -249,7 +251,7 @@ void uLogEntryRaw::defaultEntryGenerator() {
    // ========= Prepare Variables
    // ================================================================================================
 
-   std::wregex lRmExcape_REGEX( L"\x1b\\[[0-9;]+m" );
+   std::wregex    lRmExcape_REGEX( L"\x1b\\[[0-9;]+m" );
    const wchar_t *lRegexReplace_CSTR = L"";
 
    std::wstring BR_OPEN  = L"[";

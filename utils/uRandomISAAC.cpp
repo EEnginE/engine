@@ -115,7 +115,7 @@ void uRandomISAAC::init( uint32_t _seed ) {
 }
 
 void uRandomISAAC::mixUp( uint32_t _seed[256] ) {
-   int i;
+   int      i;
    uint32_t a, b, c, d, e, f, g, h;
    aa = bb = cc = 0;
    a = b = c = d = e = f = g = h = 0x9e3779b9; // the golden ratio
@@ -191,7 +191,7 @@ uint32_t uRandomISAAC::get() {
    }
    aa       = mm[( step + 128 ) % 256] + aa;
    mm[step] = y = mm[( x >> 2 ) % 256] + aa + bb;
-   bb = mm[( y >> 10 ) % 256] + x;
+   bb           = mm[( y >> 10 ) % 256] + x;
 
    /* Note that bits 2..9 are chosen from x but 10..17 are chosen
       from y.  The only important thing here is that 2..9 and 10..17

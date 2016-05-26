@@ -21,8 +21,8 @@
 
 #include "defines.hpp"
 
-#include "rObjectBase.hpp"
 #include "rMatrixObjectBase.hpp"
+#include "rObjectBase.hpp"
 
 namespace e_engine {
 
@@ -40,7 +40,7 @@ class rDirectionalLight : public rObjectBase {
 
    rDirectionalLight( std::string _name, rVec3<T> _direction ) : rObjectBase( _name ) {
       vLightDirection = _direction;
-      vIsLoaded_B = true;
+      vIsLoaded_B     = true;
       vLightDirection.normalize();
    }
 

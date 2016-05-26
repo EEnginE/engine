@@ -26,9 +26,9 @@
 #include <vulkan/vulkan.h>
 
 #if UNIX_X11 || UNIX_WAYLAND
-#include "iWindowBasic.hpp"
-#include "iMouse.hpp"
 #include "iInitSignals.hpp"
+#include "iMouse.hpp"
+#include "iWindowBasic.hpp"
 #endif
 
 #if UNIX_X11
@@ -79,32 +79,32 @@ class INIT_API iInit : public windows_win32::iContext {
    SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
 
    typedef struct PhysicalDevice_vk {
-      VkPhysicalDevice device;
-      VkPhysicalDeviceProperties properties;
-      VkPhysicalDeviceFeatures features;
-      VkPhysicalDeviceMemoryProperties memoryProperties;
+      VkPhysicalDevice                     device;
+      VkPhysicalDeviceProperties           properties;
+      VkPhysicalDeviceFeatures             features;
+      VkPhysicalDeviceMemoryProperties     memoryProperties;
       std::vector<VkQueueFamilyProperties> queueFamilyProperties;
-      VkFormatProperties formats[VK_FORMAT_RANGE_SIZE];
+      VkFormatProperties                   formats[VK_FORMAT_RANGE_SIZE];
    } PhysicalDevice_vk;
 
    typedef struct Device_vk {
       PhysicalDevice_vk *pDevice = nullptr;
-      VkDevice device            = NULL;
+      VkDevice           device  = NULL;
    } Device_vk;
 
    typedef struct Queue_vk {
-      VkQueue queue;
-      float priority;
+      VkQueue      queue;
+      float        priority;
       VkQueueFlags flags;
-      u_int32_t familyIndex;
-      u_int32_t index;
-      bool surfaceSupport;
+      u_int32_t    familyIndex;
+      u_int32_t    index;
+      bool         surfaceSupport;
 
-      Queue_vk( float _priority,
+      Queue_vk( float        _priority,
                 VkQueueFlags _flags,
-                u_int32_t _familyIndex,
-                u_int32_t _index,
-                bool _surfaceSupport )
+                u_int32_t    _familyIndex,
+                u_int32_t    _index,
+                bool         _surfaceSupport )
           : priority( _priority ),
             flags( _flags ),
             familyIndex( _familyIndex ),
@@ -114,8 +114,8 @@ class INIT_API iInit : public windows_win32::iContext {
 
    typedef struct SurfaceInfo_vk {
       std::vector<VkSurfaceFormatKHR> formats;
-      std::vector<VkPresentModeKHR> presentModels;
-      VkSurfaceCapabilitiesKHR surfaceInfo;
+      std::vector<VkPresentModeKHR>   presentModels;
+      VkSurfaceCapabilitiesKHR        surfaceInfo;
    } SurfaceInfo_vk;
 
  private:
@@ -135,16 +135,16 @@ class INIT_API iInit : public windows_win32::iContext {
    std::vector<VkLayerProperties> vLayerProperties_vk;
    std::vector<VkLayerProperties> vDeviceLayerProperties_vk;
    std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
-   std::vector<Queue_vk> vQueues_vk;
+   std::vector<Queue_vk>          vQueues_vk;
 
    std::unordered_map<VkQueue, std::mutex> vQueueMutexMap;
    std::mutex vQueueAccessMutex;
 
    VkDebugReportCallbackCreateInfoEXT vDebugCreateInfo_vk;
 
-   VkDebugReportCallbackEXT vCallback = nullptr;
-   VkInstance vInstance_vk            = nullptr;
-   VkSurfaceKHR vSurface_vk           = nullptr;
+   VkDebugReportCallbackEXT vCallback    = nullptr;
+   VkInstance               vInstance_vk = nullptr;
+   VkSurfaceKHR             vSurface_vk  = nullptr;
 
    SurfaceInfo_vk vSurfaceInfo_vk;
 
@@ -160,16 +160,16 @@ class INIT_API iInit : public windows_win32::iContext {
    bool vIsVulkanSetup_B                 = false;
    bool vEnableVulkanDebug               = false;
    bool vEnableVSync                     = false;
-   int vCreateWindowReturn_I             = -1000;
+   int  vCreateWindowReturn_I            = -1000;
 
 #if WINDOWS
-   std::mutex vCreateWindowMutex_BT;
+   std::mutex              vCreateWindowMutex_BT;
    std::condition_variable vCreateWindowCondition_BT;
 
-   std::mutex vStartEventMutex_BT;
+   std::mutex              vStartEventMutex_BT;
    std::condition_variable vStartEventCondition_BT;
 
-   std::mutex vStopEventLoopMutex;
+   std::mutex              vStopEventLoopMutex;
    std::condition_variable vStopEventLoopCondition;
 
    bool vContinueWithEventLoop_B;
@@ -178,7 +178,7 @@ class INIT_API iInit : public windows_win32::iContext {
    PhysicalDevice_vk *chooseDevice();
 
    std::vector<VkExtensionProperties> getExtProprs( std::string _layerName );
-   std::vector<VkExtensionProperties> getDeviceExtProprs( std::string _layerName,
+   std::vector<VkExtensionProperties> getDeviceExtProprs( std::string      _layerName,
                                                           VkPhysicalDevice _dev );
    int loadExtensionList();
    int loadDeviceExtensionList( VkPhysicalDevice _dev );
@@ -223,7 +223,7 @@ class INIT_API iInit : public windows_win32::iContext {
    void disableVSync();
 
    iWindowBasic *getWindow();
-   void closeWindow();
+   void          closeWindow();
 
    uint32_t getQueueFamily( VkQueueFlags _flags );
 
@@ -238,18 +238,18 @@ class INIT_API iInit : public windows_win32::iContext {
    uint32_t getMemoryTypeIndexFromBitfield( uint32_t _bits, VkMemoryHeapFlags _flags = 0 );
 
    bool isFormatSupported( VkFormat _format );
-   bool formatSupportsFeature( VkFormat _format,
+   bool formatSupportsFeature( VkFormat                _format,
                                VkFormatFeatureFlagBits _flags,
-                               VkImageTiling _type );
+                               VkImageTiling           _type );
 
    void enableVulkanDebug() { vEnableVulkanDebug = true; }
-   void vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
+   void vulkanDebugHandler( VkDebugReportFlagsEXT      _flags,
                             VkDebugReportObjectTypeEXT _objType,
-                            uint64_t _obj,
-                            size_t _location,
-                            int32_t _msgCode,
-                            std::string _layerPrefix,
-                            std::string _msg );
+                            uint64_t                   _obj,
+                            size_t                     _location,
+                            int32_t                    _msgCode,
+                            std::string                _layerPrefix,
+                            std::string                _msg );
 
    VkSurfaceKHR getVulkanSurface();
 
@@ -268,7 +268,7 @@ namespace internal {
 class __iInit_Pointer {
  private:
    iInit *pointer;
-   bool is_set;
+   bool   is_set;
 
  public:
    __iInit_Pointer() {

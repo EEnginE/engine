@@ -22,8 +22,8 @@
 
 #include "defines.hpp"
 
-#include <X11/extensions/Xrandr.h>
 #include "iDisplayBasic.hpp"
+#include <X11/extensions/Xrandr.h>
 
 namespace e_engine {
 
@@ -51,7 +51,7 @@ class INIT_API iDisplays final : public iDisplayBasic {
 
    std::vector<mode> vModes_V_mode; //!< all possible modes
 
-   RROutput vID_XRR;
+   RROutput              vID_XRR;
    std::vector<RROutput> vClones_V_XRR;
 
    RRMode vModeToUse_XRR;
@@ -64,15 +64,15 @@ class INIT_API iDisplays final : public iDisplayBasic {
          RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate );
 
    std::vector<RROutput> getClones() const { return vClones_V_XRR; }
-   RRMode getMode() const { return vModeToUse_XRR; }
-   RROutput getOutput() const { return vID_XRR; }
-   bool getIsEnabled() const { return vEnabled_B; }
+   RRMode                getMode() const { return vModeToUse_XRR; }
+   RROutput              getOutput() const { return vID_XRR; }
+   bool                  getIsEnabled() const { return vEnabled_B; }
 
-   double findNearestFreqTo( double _rate,
+   double findNearestFreqTo( double       _rate,
                              unsigned int _width,
                              unsigned int _height,
-                             RRMode &_mode,
-                             double &_diff ) const;
+                             RRMode &     _mode,
+                             double &     _diff ) const;
 
  public:
    virtual ~iDisplays();
@@ -87,7 +87,7 @@ class INIT_API iDisplays final : public iDisplayBasic {
    iDisplays( const iDisplays &&_e );
 
    iDisplays &operator=( const iDisplays &_e ) = delete;
-   iDisplays &operator=( const iDisplays &&_e );
+   iDisplays &operator                         =( const iDisplays &&_e );
 
    void autoSelectBest();
 
@@ -101,8 +101,8 @@ class INIT_API iDisplays final : public iDisplayBasic {
 
    double autoSelectBySize( unsigned int _width,
                             unsigned int _height,
-                            double _preferedRate = 0,
-                            double _maxDiff = 1 );
+                            double       _preferedRate = 0,
+                            double       _maxDiff      = 1 );
    bool select( unsigned int _width, unsigned int _height, double _rate );
 
    void setNoClones() { vClones_V_XRR.clear(); }

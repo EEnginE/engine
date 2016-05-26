@@ -67,7 +67,7 @@ int uFileIO::read( bool _autoReload ) {
       return 5;
    }
 
-   int c;
+   int  c;
    auto lSize = FILESYSTEM_NAMESPACE::file_size( lFilePath_BFS );
 
    if ( lSize != static_cast<uintmax_t>( -1 ) ) {

@@ -150,7 +150,8 @@ wchar_t iKeyboard::processWindowsKeyInput( WPARAM _wparam, short unsigned int _k
       case VK_NUMPAD8: setKeyState( E_KEY_KP_8, _key_state ); return E_KEY_KP_8;
       case VK_NUMPAD9: setKeyState( E_KEY_KP_9, _key_state ); return E_KEY_KP_9;
 
-      default: return 0; // Return 0 to skip sending a signal
+      default:
+         return 0; // Return 0 to skip sending a signal
    }
 
 

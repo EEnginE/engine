@@ -20,10 +20,10 @@
 
 #pragma once
 
-#include <list>
-#include <vector>
-#include <mutex>
 #include "defines.hpp"
+#include <list>
+#include <mutex>
+#include <vector>
 
 namespace e_engine {
 
@@ -48,7 +48,7 @@ template <class __R>
 struct __uSlotReturnHelper {
    template <class __C, class... __A>
    static __uReturnStruct<__R> call( __R ( __C::*_CALL )( __A... _arg ),
-                                     __C *_obj,
+                                     __C *       _obj,
                                      __A &&... _arg ) {
       __uReturnStruct<__R> lRet;
       lRet.value = ( *_obj.*_CALL )( std::forward<__A>( _arg )... );
@@ -60,7 +60,7 @@ template <>
 struct __uSlotReturnHelper<void> {
    template <class __C, class... __A>
    static __uReturnStruct<void> call( void ( __C::*_CALL )( __A... _arg ),
-                                      __C *_obj,
+                                      __C *        _obj,
                                       __A &&... _arg ) {
       __uReturnStruct<void> lRet;
       ( *_obj.*_CALL )( std::forward<__A>( _arg )... );
@@ -251,7 +251,7 @@ class uSignal final {
    typedef internal::__uReturnStruct<__R> RETURN;
 
  private:
-   std::mutex vSignalMutex;
+   std::mutex        vSignalMutex;
    std::list<SLOT *> vSlots;
 
    std::vector<RETURN> vReturns;
@@ -269,7 +269,7 @@ class uSignal final {
    uSignal( const uSignal &&_e );
 
    uSignal &operator=( const uSignal &_e ) = delete;
-   uSignal &operator=( const uSignal &&_e );
+   uSignal &operator                       =( const uSignal &&_e );
 
    bool connect( SLOT *_slot );
    bool disconnect( SLOT *_slot );
@@ -483,7 +483,7 @@ class uSlot final : public internal::uSlotBase<__R, __A...> {
 
  private:
    __R ( __C::*CALL )( __A... _arg ); //!< This is the member function pointer
-   __C *classPointer; //!< This object pointer is needed to call the function pointer
+   __C *       classPointer; //!< This object pointer is needed to call the function pointer
 
    using internal::uSlotBase<__R, __A...>::vSlotMutex;
 

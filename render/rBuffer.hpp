@@ -22,8 +22,8 @@
 #pragma once
 
 #include "defines.hpp"
-#include <vulkan.h>
 #include <vector>
+#include <vulkan.h>
 
 
 namespace e_engine {
@@ -34,12 +34,12 @@ class rWorld;
 class rBuffer {
  private:
    VkDevice vDevice_vk;
-   iInit *vInitPtr;
+   iInit *  vInitPtr;
 
-   VkBuffer vTempBuffer_vk    = nullptr;
-   VkBuffer vBuffer_vk        = nullptr;
-   VkDeviceMemory vMemTemp_vk = nullptr;
-   VkDeviceMemory vMem_vk     = nullptr;
+   VkBuffer       vTempBuffer_vk = nullptr;
+   VkBuffer       vBuffer_vk     = nullptr;
+   VkDeviceMemory vMemTemp_vk    = nullptr;
+   VkDeviceMemory vMem_vk        = nullptr;
 
    bool vIsLoaded            = false;
    bool vSettingUpInProgress = false;
@@ -53,7 +53,7 @@ class rBuffer {
    rBuffer( iInit *_init );
    rBuffer( rWorld *_tempWorld );
    rBuffer( const rBuffer &_obj ) = delete;
-   rBuffer( rBuffer && ) = default;
+   rBuffer( rBuffer && )          = default;
    rBuffer &operator=( const rBuffer & ) = delete;
    rBuffer &operator=( rBuffer && ) = default;
    virtual ~rBuffer();

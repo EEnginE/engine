@@ -22,12 +22,12 @@
 
 #include "defines.hpp"
 
-#include <string>
+#include "rBuffer.hpp"
 #include "rMatrixObjectBase.hpp"
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
-#include "rBuffer.hpp"
 #include "rShaderBase.hpp"
+#include <string>
 
 namespace e_engine {
 
@@ -36,29 +36,29 @@ class RENDER_API rSimpleMesh final : public rMatrixObjectBase<float>, public rOb
    rBuffer vIndex;
    rBuffer vVertex;
 
-   rShaderBase *vShader        = nullptr;
+   rShaderBase *  vShader      = nullptr;
    UNIFORM_BUFFER vVertUniform = nullptr;
 
-   UNIFORM_VAR vMatrixMVPVar        = {};
-   UNIFORM_VAR vMatrixVPVar         = {};
+   UNIFORM_VAR   vMatrixMVPVar      = {};
+   UNIFORM_VAR   vMatrixVPVar       = {};
    PUSH_CONSTANT vMatrixModelVar_PC = {};
-   bool vHasMVPMatrix               = false;
-   bool vHasVPMatrix                = false;
-   bool vHasModelMatrix_PC          = false;
+   bool          vHasMVPMatrix      = false;
+   bool          vHasVPMatrix       = false;
+   bool          vHasModelMatrix_PC = false;
 
-   std::vector<rBuffer *> setData_IMPL( VkCommandBuffer _buf,
+   std::vector<rBuffer *> setData_IMPL( VkCommandBuffer              _buf,
                                         const std::vector<uint32_t> &_index,
-                                        const std::vector<float> &_data ) override;
+                                        const std::vector<float> &   _data ) override;
 
    VERTEX_DATA_LAYOUT getDataLayout() const override { return POS_NORM; }
-   MESH_TYPES getMeshType() const override { return MESH_3D; }
+   MESH_TYPES         getMeshType() const override { return MESH_3D; }
 
  public:
    rSimpleMesh( rMatrixSceneBase<float> *_scene, std::string _name );
 
    virtual ~rSimpleMesh() {}
 
-   rSimpleMesh() = delete;
+   rSimpleMesh()                 = delete;
    rSimpleMesh( rSimpleMesh && ) = default;
    rSimpleMesh &operator=( const rSimpleMesh & ) = delete;
    rSimpleMesh &operator=( rSimpleMesh && ) = default;

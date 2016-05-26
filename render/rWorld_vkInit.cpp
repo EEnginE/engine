@@ -23,9 +23,9 @@
 #include "uConfig.hpp"
 
 #include "rWorld.hpp"
+#include "iInit.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
-#include "iInit.hpp"
 
 #if D_LOG_VULKAN
 #define dVkLOG( ... ) dLOG( __VA_ARGS__ )
@@ -202,7 +202,7 @@ int rWorld::recreateSwapchainImages( VkCommandBuffer _buf ) {
       return 1;
 
    uint32_t lNum;
-   auto lRes = vkGetSwapchainImagesKHR( vDevice_vk, vSwapchain_vk, &lNum, nullptr );
+   auto     lRes = vkGetSwapchainImagesKHR( vDevice_vk, vSwapchain_vk, &lNum, nullptr );
    if ( lRes ) {
       eLOG( "'vkGetSwapchainImagesKHR' returned ", uEnum2Str::toStr( lRes ) );
       return 1;

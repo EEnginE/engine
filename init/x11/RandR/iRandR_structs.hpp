@@ -24,9 +24,9 @@
 #include "defines.hpp"
 
 #include <X11/extensions/Xrandr.h>
-#include <vector>
 #include <list>
 #include <string>
+#include <vector>
 
 namespace e_engine {
 namespace internal {
@@ -204,18 +204,18 @@ struct _output {
 struct _mode {
    RRMode id; //!< The unique \b mode id
 
-   unsigned int width;      //!< The width of the mode
-   unsigned int height;     //!< The height of the mode
-   unsigned long dotClock;  //!< The dotClock (more info: https://de.wikipedia.org/wiki/Pixeltakt)
-   unsigned int hSyncStart; //!< This data is needed for calculating \a refresh and \a syncFreq
-   unsigned int hSyncEnd;   //!< This data is needed for calculating \a refresh and \a syncFreq
-   unsigned int hTotal;     //!< This data is needed for calculating \a refresh and \a syncFreq
-   unsigned int hSkew;      //!< This data is needed for calculating \a refresh and \a syncFreq
-   unsigned int vSyncStart; //!< This data is needed for calculating \a refresh and \a syncFreq
-   unsigned int vSyncEnd;   //!< This data is needed for calculating \a refresh and \a syncFreq
-   unsigned int vTotal;     //!< This data is needed for calculating \a refresh and \a syncFreq
-   std::string name;        //!< The name of the mode
-   XRRModeFlags modeFlags;  //!< Some mode flags
+   unsigned int  width;      //!< The width of the mode
+   unsigned int  height;     //!< The height of the mode
+   unsigned long dotClock;   //!< The dotClock (more info: https://de.wikipedia.org/wiki/Pixeltakt)
+   unsigned int  hSyncStart; //!< This data is needed for calculating \a refresh and \a syncFreq
+   unsigned int  hSyncEnd;   //!< This data is needed for calculating \a refresh and \a syncFreq
+   unsigned int  hTotal;     //!< This data is needed for calculating \a refresh and \a syncFreq
+   unsigned int  hSkew;      //!< This data is needed for calculating \a refresh and \a syncFreq
+   unsigned int  vSyncStart; //!< This data is needed for calculating \a refresh and \a syncFreq
+   unsigned int  vSyncEnd;   //!< This data is needed for calculating \a refresh and \a syncFreq
+   unsigned int  vTotal;     //!< This data is needed for calculating \a refresh and \a syncFreq
+   std::string   name;       //!< The name of the mode
+   XRRModeFlags  modeFlags;  //!< Some mode flags
 
    double refresh;  //!< The refresh rate
    double syncFreq; //!< The sync frequnece
@@ -266,8 +266,8 @@ struct _mode {
 struct _config {
    RROutput primary; //!< The primary output
 
-   std::vector<XRRCrtcGamma *> gamma; //!< Holds gamma information for each CRTC
-   std::vector<_crtc> CRTCInfo;       //!< All important data to restore every CRTC
+   std::vector<XRRCrtcGamma *> gamma;    //!< Holds gamma information for each CRTC
+   std::vector<_crtc>          CRTCInfo; //!< All important data to restore every CRTC
 };
 }
 }

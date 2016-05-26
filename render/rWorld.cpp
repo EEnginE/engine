@@ -20,10 +20,10 @@
  */
 
 #include "rWorld.hpp"
-#include "uEnum2Str.hpp"
-#include "uLog.hpp"
 #include "rScene.hpp"
 #include "iInit.hpp"
+#include "uEnum2Str.hpp"
+#include "uLog.hpp"
 
 #if D_LOG_VULKAN
 #define dVkLOG( ... ) dLOG( __VA_ARGS__ )
@@ -88,11 +88,11 @@ int rWorld::init() {
 
    vSwapchainViews_vk.clear();
 
-   uint32_t lQueueFamily;
-   VkQueue lQueue       = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
-   VkCommandPool lPool  = getCommandPool( lQueueFamily );
-   VkCommandBuffer lBuf = createCommandBuffer( lPool );
-   VkFence lFence       = createFence();
+   uint32_t        lQueueFamily;
+   VkQueue         lQueue = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
+   VkCommandPool   lPool  = getCommandPool( lQueueFamily );
+   VkCommandBuffer lBuf   = createCommandBuffer( lPool );
+   VkFence         lFence = createFence();
 
    if ( !lBuf )
       return -1;
@@ -281,13 +281,13 @@ bool rWorld::renderScene( rSceneBase *_scene ) {
  *
  * \vkIntern
  */
-void rWorld::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
-                                   VkImage _img,
+void rWorld::cmdChangeImageLayout( VkCommandBuffer         _cmdBuffer,
+                                   VkImage                 _img,
                                    VkImageSubresourceRange _imgSubres,
-                                   VkImageLayout _src,
-                                   VkImageLayout _dst,
-                                   VkPipelineStageFlags _srcFlags,
-                                   VkPipelineStageFlags _dstFlags ) {
+                                   VkImageLayout           _src,
+                                   VkImageLayout           _dst,
+                                   VkPipelineStageFlags    _srcFlags,
+                                   VkPipelineStageFlags    _dstFlags ) {
    VkImageMemoryBarrier lBarriar;
    lBarriar.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
    lBarriar.pNext               = nullptr;
@@ -369,7 +369,7 @@ void rWorld::cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
  * \param __flags           command pool flags
  * \returns a command buffer (or nullptr)
  */
-VkCommandPool rWorld::getCommandPool( uint32_t _queueFamilyIndex,
+VkCommandPool rWorld::getCommandPool( uint32_t                 _queueFamilyIndex,
                                       VkCommandPoolCreateFlags _flags ) {
    PoolInfo lTemp;
    lTemp.tID     = std::this_thread::get_id();
@@ -384,7 +384,7 @@ VkCommandPool rWorld::getCommandPool( uint32_t _queueFamilyIndex,
    // Command pool does not exists
    dVkLOG( "Creating command pool for thread ", lTemp.tID, ", queue family ", lTemp.qfIndex );
 
-   VkCommandPool lPool;
+   VkCommandPool           lPool;
    VkCommandPoolCreateInfo lInfo;
    lInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
    lInfo.pNext            = nullptr;
@@ -411,7 +411,7 @@ VkCommandPool rWorld::getCommandPool( uint32_t _queueFamilyIndex,
  * \returns the command buffer or nullptr on error
  */
 VkCommandBuffer rWorld::createCommandBuffer( VkCommandPool _pool, VkCommandBufferLevel _level ) {
-   VkCommandBuffer lBuf;
+   VkCommandBuffer             lBuf;
    VkCommandBufferAllocateInfo lInfo;
    lInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
    lInfo.pNext              = nullptr;
@@ -438,8 +438,8 @@ VkCommandBuffer rWorld::createCommandBuffer( VkCommandPool _pool, VkCommandBuffe
  *
  * \returns the result of vkBeginCommandBuffer
  */
-VkResult rWorld::beginCommandBuffer( VkCommandBuffer _buf,
-                                     VkCommandBufferUsageFlags _flags,
+VkResult rWorld::beginCommandBuffer( VkCommandBuffer                 _buf,
+                                     VkCommandBufferUsageFlags       _flags,
                                      VkCommandBufferInheritanceInfo *_info ) {
    VkCommandBufferBeginInfo lBegin;
    lBegin.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -526,7 +526,7 @@ VkSemaphore rWorld::createSemaphore() {
 }
 
 
-VkSwapchainKHR rWorld::getSwapchain() { return vSwapchain_vk; }
+VkSwapchainKHR     rWorld::getSwapchain() { return vSwapchain_vk; }
 VkSurfaceFormatKHR rWorld::getSwapchainFormat() { return vSwapchainFormat; }
 
 std::vector<rWorld::SwapChainImg> rWorld::getSwapchainImageViews() {

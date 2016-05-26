@@ -97,9 +97,9 @@ int iContext::createContext() {
 
 
    HINSTANCE lInstance_TEMP_win32 = GetModuleHandle( NULL );
-   WNDCLASS lWindowClass_TEMP_win32;
-   RECT lWindowRect_TEMP_win32;
-   HWND lHWND_Window_TEMP_win32;
+   WNDCLASS  lWindowClass_TEMP_win32;
+   RECT      lWindowRect_TEMP_win32;
+   HWND      lHWND_Window_TEMP_win32;
 
 
    if ( !internal::CLASS_REGISTER.getC1() ) {
@@ -191,14 +191,14 @@ int iContext::createContext() {
    if ( !internal::CLASS_REGISTER.getC2() ) {
       vWindowClass_win32.style =
             CS_OWNDC | CS_HREDRAW | CS_VREDRAW; // We want a unique DC and redraw on window changes
-      vWindowClass_win32.lpfnWndProc   = &iContext::initialWndProc;
-      vWindowClass_win32.cbClsExtra    = 0; // We do not need this
-      vWindowClass_win32.cbWndExtra    = sizeof( iContext * );
-      vWindowClass_win32.hInstance     = vInstance_win32;
-      vWindowClass_win32.hIcon         = NULL; // We dont have a special icon
-      vWindowClass_win32.hCursor       = LoadCursor( NULL, IDC_ARROW ); // Take the default mouse cursor
-      vWindowClass_win32.hbrBackground = NULL;                          // We dont need a background
-      vWindowClass_win32.lpszMenuName  = NULL;                          // We dont want a menu
+      vWindowClass_win32.lpfnWndProc = &iContext::initialWndProc;
+      vWindowClass_win32.cbClsExtra  = 0; // We do not need this
+      vWindowClass_win32.cbWndExtra  = sizeof( iContext * );
+      vWindowClass_win32.hInstance   = vInstance_win32;
+      vWindowClass_win32.hIcon       = NULL;                      // We dont have a special icon
+      vWindowClass_win32.hCursor = LoadCursor( NULL, IDC_ARROW ); // Take the default mouse cursor
+      vWindowClass_win32.hbrBackground = NULL;                    // We dont need a background
+      vWindowClass_win32.lpszMenuName  = NULL;                    // We dont want a menu
       vWindowClass_win32.lpszClassName = vClassName_win32;
 
 

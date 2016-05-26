@@ -22,8 +22,8 @@
 
 #include "defines.hpp"
 
-#include "iRandR_structs.hpp"
 #include "iDisplays.hpp"
+#include "iRandR_structs.hpp"
 
 namespace e_engine {
 
@@ -62,10 +62,10 @@ class INIT_API iRandR {
 
    std::vector<internal::_crtc> vChangeCRTC_V_RandR;
 
-   Display *vDisplay_X11;  //!< The X11 display      -- set in init(...);
-   Window vRootWindow_X11; //!< The X11 root window  -- set in init(...);
+   Display *vDisplay_X11;    //!< The X11 display      -- set in init(...);
+   Window   vRootWindow_X11; //!< The X11 root window  -- set in init(...);
 
-   XRRScreenResources *vResources_XRR;
+   XRRScreenResources *    vResources_XRR;
    XRRScreenConfiguration *vConfig_XRR;
 
    unsigned int vScreenWidth_uI;

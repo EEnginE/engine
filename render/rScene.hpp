@@ -23,11 +23,11 @@
 
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
-#include <vector>
+#include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
-#include <mutex>
-#include <memory>
+#include <vector>
 #include <vulkan.h>
 
 #include <assimp/Importer.hpp>
@@ -40,9 +40,9 @@ class rWorld;
 class RENDER_API rSceneBase {
  public:
    struct MeshInfo {
-      uint32_t index;
+      uint32_t    index;
       std::string name;
-      MESH_TYPES type;
+      MESH_TYPES  type;
    };
 
    template <typename T>
@@ -58,18 +58,18 @@ class RENDER_API rSceneBase {
 
    std::string vName_str;
 
-   std::mutex vObjects_MUT;
+   std::mutex           vObjects_MUT;
    std::recursive_mutex vObjectsInit_MUT;
 
-   bool vInitializingObjects = false;
-   VkCommandPool vInitPool_vk;
+   bool            vInitializingObjects = false;
+   VkCommandPool   vInitPool_vk;
    VkCommandBuffer vInitBuff_vk;
-   VkQueue vInitQueue_vk;
+   VkQueue         vInitQueue_vk;
 
    BASE_OBJS vInitObjects;
 
    Assimp::Importer vImporter_assimp;
-   aiScene const *vScene_assimp = nullptr;
+   aiScene const *  vScene_assimp = nullptr;
 
 
  public:

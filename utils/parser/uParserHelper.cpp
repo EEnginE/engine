@@ -19,8 +19,8 @@
  */
 
 #include "uParserHelper.hpp"
-#include "uLog.hpp"
 #include "uFileIO.hpp"
+#include "uLog.hpp"
 
 namespace e_engine {
 namespace internal {
@@ -63,7 +63,7 @@ int uParserHelper::parse() {
       return 6;
 
    uFileIO lFile( vFilePath_str );
-   int lRet = lFile();
+   int     lRet = lFile();
    if ( lRet != 1 )
       return lRet;
 

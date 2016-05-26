@@ -200,7 +200,7 @@ void iRandR::printRandRStatus() {
       std::string lModeSize_str;
       // Unfortunately std::to_string doesn't support precision, so we must use sprintf if we want
       // to avoid the slow stringstreams
-      char lModeFreq_CSTR[15];
+      char        lModeFreq_CSTR[15];
       std::string lModeFreq_str;
 
       bool lIsFirstModePrinted_B = true;
@@ -209,10 +209,10 @@ void iRandR::printRandRStatus() {
       //   -- Modes
       //
       for ( internal::_mode const &fMode : vMode_V_RandR ) {
-         bool lFoundMode_B            = false;
-         bool lModePrefered_B         = false;
-         char lAtrib_C                = 'O';
-         char lColor_C                = 'W';
+         bool         lFoundMode_B    = false;
+         bool         lModePrefered_B = false;
+         char         lAtrib_C        = 'O';
+         char         lColor_C        = 'W';
          unsigned int lModeCounter_uI = 0; //!< Needed for preferred check
 
          // Check if the mode is supported by the output

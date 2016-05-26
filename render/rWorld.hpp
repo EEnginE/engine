@@ -22,13 +22,13 @@
 #pragma once
 
 #include "defines.hpp"
-#include <unordered_map>
-#include <mutex>
-#include <condition_variable>
-#include <vulkan/vulkan.h>
-#include "rWorld_structs.hpp"
 #include "rRendererBase.hpp"
+#include "rWorld_structs.hpp"
 #include "uSignalSlot.hpp"
+#include <condition_variable>
+#include <mutex>
+#include <unordered_map>
+#include <vulkan/vulkan.h>
 
 #include <type_traits>
 
@@ -64,14 +64,14 @@ class RENDER_API rWorld {
 
    struct ViewPort {
       bool vNeedUpdate_B;
-      int x;
-      int y;
-      int width;
-      int height;
+      int  x;
+      int  y;
+      int  width;
+      int  height;
    };
 
    struct ClearColor {
-      bool vNeedUpdate_B;
+      bool  vNeedUpdate_B;
       float r;
       float g;
       float b;
@@ -79,21 +79,21 @@ class RENDER_API rWorld {
    };
 
    struct SwapChainImg {
-      VkImage img;
+      VkImage     img;
       VkImageView iv;
    };
 
  private:
    iInit *vInitPtr;
 
-   VkDevice vDevice_vk;
-   VkSurfaceKHR vSurface_vk;
+   VkDevice       vDevice_vk;
+   VkSurfaceKHR   vSurface_vk;
    VkSwapchainKHR vSwapchain_vk = nullptr;
 
-   std::vector<VkImage> vSwapchainImages_vk;
+   std::vector<VkImage>     vSwapchainImages_vk;
    std::vector<VkImageView> vSwapchainViews_vk;
 
-   ViewPort vViewPort;
+   ViewPort   vViewPort;
    ClearColor vClearColor;
 
    internal::rRendererBase *vFrontRenderer = nullptr;
@@ -102,8 +102,8 @@ class RENDER_API rWorld {
    VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
 
    std::unordered_map<PoolInfo, VkCommandPool> vCmdPools_vk;
-   std::mutex vCommandPoolsMutex;
-   std::mutex vRenderAccessMutex;
+   std::mutex              vCommandPoolsMutex;
+   std::mutex              vRenderAccessMutex;
    std::condition_variable vRenderedFrameSignal;
 
    uSlot<void, rWorld, iEventInfo const &> vResizeSlot;
@@ -116,10 +116,10 @@ class RENDER_API rWorld {
 
    void handleResize( iEventInfo const & );
 
-   VkSwapchainKHR getSwapchain();
+   VkSwapchainKHR            getSwapchain();
    std::vector<SwapChainImg> getSwapchainImageViews();
-   VkSurfaceFormatKHR getSwapchainFormat();
-   inline void signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
+   VkSurfaceFormatKHR        getSwapchainFormat();
+   inline void               signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
 
    virtual void setRendererPtr( internal::rRendererBase **_r1, internal::rRendererBase **_r2 ) = 0;
 
@@ -128,7 +128,7 @@ class RENDER_API rWorld {
    rWorld( iInit *_init );
    virtual ~rWorld();
 
-   int init();
+   int  init();
    bool renderScene( rSceneBase *_scene );
    void shutdown();
 
@@ -141,24 +141,24 @@ class RENDER_API rWorld {
    VkCommandBuffer createCommandBuffer(
          VkCommandPool _pool, VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY );
 
-   VkResult beginCommandBuffer( VkCommandBuffer _buf,
-                                VkCommandBufferUsageFlags _flags      = 0,
-                                VkCommandBufferInheritanceInfo *_info = nullptr );
+   VkResult beginCommandBuffer( VkCommandBuffer                 _buf,
+                                VkCommandBufferUsageFlags       _flags = 0,
+                                VkCommandBufferInheritanceInfo *_info  = nullptr );
 
-   void cmdChangeImageLayout( VkCommandBuffer _cmdBuffer,
-                              VkImage _img,
+   void cmdChangeImageLayout( VkCommandBuffer         _cmdBuffer,
+                              VkImage                 _img,
                               VkImageSubresourceRange _imgSubres,
-                              VkImageLayout _src,
-                              VkImageLayout _dst,
-                              VkPipelineStageFlags _srcFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                              VkImageLayout           _src,
+                              VkImageLayout           _dst,
+                              VkPipelineStageFlags    _srcFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                               VkPipelineStageFlags _dstFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
 
    VkCommandPool getCommandPool(
-         uint32_t _queueFamilyIndex,
+         uint32_t                 _queueFamilyIndex,
          VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
 
    VkCommandPool getCommandPoolFlags(
-         VkQueueFlags _qFlags,
+         VkQueueFlags             _qFlags,
          VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
 
    VkFence createFence( VkFenceCreateFlags _flags = 0 );
@@ -167,8 +167,8 @@ class RENDER_API rWorld {
    void updateViewPort( int _x, int _y, int _width, int _height );
    void updateClearColor( float _r, float _g, float _b, float _a );
    uint64_t *getRenderedFramesPtr();
-   VkDevice getDevice();
-   iInit *getInitPtr();
+   VkDevice  getDevice();
+   iInit *   getInitPtr();
 
    friend class internal::rRendererBase;
 };

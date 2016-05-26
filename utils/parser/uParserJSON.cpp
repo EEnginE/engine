@@ -20,8 +20,8 @@
 
 #include "uParserJSON.hpp"
 
-#include "uLog.hpp"
 #include "uFileIO.hpp"
+#include "uLog.hpp"
 
 
 namespace {
@@ -262,11 +262,11 @@ void uParserJSON::prepareString( const std::string &_in, std::string &_out ) {
 
 
 void uParserJSON::writeValue( const uJSON_data &_data,
-                              std::string &_worker,
-                              std::string _level,
-                              bool _array ) {
+                              std::string &     _worker,
+                              std::string       _level,
+                              bool              _array ) {
    unsigned int i;
-   std::string lTemp_str;
+   std::string  lTemp_str;
 
    if ( !_array )
       _worker += _level + "\"" + _data.id + "\"" + ": ";

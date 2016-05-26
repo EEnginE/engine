@@ -57,27 +57,27 @@ class rWorld;
  */
 class rPipeline {
  private:
-   VkDevice vDevice_vk     = nullptr;
+   VkDevice   vDevice_vk   = nullptr;
    VkPipeline vPipeline_vk = nullptr;
 
    rShaderBase *vShader = nullptr;
 
-   VkPipelineVertexInputStateCreateInfo vVertex          = {};
+   VkPipelineVertexInputStateCreateInfo   vVertex        = {};
    VkPipelineInputAssemblyStateCreateInfo vAssembly      = {};
-   VkPipelineTessellationStateCreateInfo vTessellation   = {};
-   VkPipelineViewportStateCreateInfo vViewport           = {};
+   VkPipelineTessellationStateCreateInfo  vTessellation  = {};
+   VkPipelineViewportStateCreateInfo      vViewport      = {};
    VkPipelineRasterizationStateCreateInfo vRasterization = {};
-   VkPipelineMultisampleStateCreateInfo vMultisample     = {};
-   VkPipelineDepthStencilStateCreateInfo vDepthStencil   = {};
-   VkPipelineColorBlendStateCreateInfo vColorBlend       = {};
-   VkPipelineDynamicStateCreateInfo vDynamic             = {};
+   VkPipelineMultisampleStateCreateInfo   vMultisample   = {};
+   VkPipelineDepthStencilStateCreateInfo  vDepthStencil  = {};
+   VkPipelineColorBlendStateCreateInfo    vColorBlend    = {};
+   VkPipelineDynamicStateCreateInfo       vDynamic       = {};
 
    bool vIsCreated = false;
 
  public:
    rPipeline();
    rPipeline( const rPipeline &_obj ) = delete;
-   rPipeline( rPipeline && ) = delete;
+   rPipeline( rPipeline && )          = delete;
    rPipeline &operator=( const rPipeline & ) = delete;
    rPipeline &operator=( rPipeline && ) = delete;
 
@@ -94,8 +94,8 @@ class rPipeline {
    rPipeline *setDynamicViewports( uint32_t _val = 1 );
    rPipeline *setDynamicScissors( uint32_t _val = 1 );
    rPipeline *setPolygonMode( VkPolygonMode _val = VK_POLYGON_MODE_FILL );
-   rPipeline *enableCulling( VkFrontFace _front = VK_FRONT_FACE_COUNTER_CLOCKWISE,
-                             VkCullModeFlags _mode = VK_CULL_MODE_BACK_BIT );
+   rPipeline *enableCulling( VkFrontFace     _front = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+                             VkCullModeFlags _mode  = VK_CULL_MODE_BACK_BIT );
    rPipeline *disableCulling();
    rPipeline *enableDepthClamp();
    rPipeline *disableDepthClamp();
@@ -108,12 +108,12 @@ class rPipeline {
    rPipeline *enableStencilTest();
    rPipeline *disableStencilTest();
 
-   bool create( VkDevice _device,
-                VkRenderPass _renderPass,
-                uint32_t _subPass,
+   bool create( VkDevice        _device,
+                VkRenderPass    _renderPass,
+                uint32_t        _subPass,
                 VkPipelineCache _cache = VK_NULL_HANDLE );
 
-   bool destroy();
+   bool       destroy();
    VkPipeline getPipeline();
 
    bool cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bindPoint );

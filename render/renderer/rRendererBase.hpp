@@ -49,23 +49,23 @@ class RENDER_API rRendererBase {
    typedef std::unordered_map<uint32_t, VkImageLayout> AttachmentLayoutMap;
 
    typedef struct Buffer_vk {
-      VkImage img        = nullptr;
-      VkImageView iv     = nullptr;
+      VkImage        img = nullptr;
+      VkImageView    iv  = nullptr;
       VkDeviceMemory mem = nullptr;
    } Buffer_vk;
 
    struct AttachmentInfo {
-      VkFormat format;
-      VkImageUsageFlags usage;
-      VkImageLayout layout;
-      VkImageTiling tiling;
+      VkFormat           format;
+      VkImageUsageFlags  usage;
+      VkImageLayout      layout;
+      VkImageTiling      tiling;
       VkImageAspectFlags aspect;
-      uint32_t attachmentID;
+      uint32_t           attachmentID;
    };
 
    typedef struct RenderPass_vk {
       struct SubPassData {
-         std::vector<uint32_t> preserve;
+         std::vector<uint32_t>              preserve;
          std::vector<VkAttachmentReference> color;
          std::vector<VkAttachmentReference> input;
          std::vector<VkAttachmentReference> resolve;
@@ -73,10 +73,10 @@ class RENDER_API rRendererBase {
       };
 
       std::vector<std::unique_ptr<SubPassData>> data;
-      std::vector<VkAttachmentDescription> attachments;
-      std::vector<VkClearValue> clearValues;
-      std::vector<VkSubpassDescription> subpasses;
-      std::vector<VkSubpassDependency> dependecies;
+      std::vector<VkAttachmentDescription>      attachments;
+      std::vector<VkClearValue>                 clearValues;
+      std::vector<VkSubpassDescription>         subpasses;
+      std::vector<VkSubpassDependency>          dependecies;
 
       std::vector<VkImageView> attachmentViews;
       std::vector<Buffer_vk *> attachmentBuffers; //!< Correctly indexed reference to vBuffers
@@ -85,18 +85,18 @@ class RENDER_API rRendererBase {
    } RenderPass_vk;
 
    typedef struct Framebuffer_vk : Buffer_vk {
-      uint32_t index             = 0;
-      VkFramebuffer fb           = nullptr;
+      uint32_t        index      = 0;
+      VkFramebuffer   fb         = nullptr;
       VkCommandBuffer preRender  = nullptr;
       VkCommandBuffer render     = nullptr;
       VkCommandBuffer postRender = nullptr;
    } Framebuffer_vk;
 
    typedef struct RecordInfo_vk {
-      VkRenderPassBeginInfo lRPInfo           = {};
-      VkViewport lViewPort                    = {};
-      VkRect2D lScissors                      = {};
-      VkCommandBufferInheritanceInfo lInherit = {};
+      VkRenderPassBeginInfo          lRPInfo   = {};
+      VkViewport                     lViewPort = {};
+      VkRect2D                       lScissors = {};
+      VkCommandBufferInheritanceInfo lInherit  = {};
    } RecordInfo_vk;
 
    using OBJECTS = std::vector<std::shared_ptr<rObjectBase>>;
@@ -110,7 +110,7 @@ class RENDER_API rRendererBase {
    std::wstring vID;
 
    std::vector<Framebuffer_vk> vFramebuffers_vk;
-   std::vector<Buffer_vk> vBuffers;
+   std::vector<Buffer_vk>      vBuffers;
 
    std::thread vRenderThread;
 
@@ -149,7 +149,7 @@ class RENDER_API rRendererBase {
       FIRST_FREE_ATTACHMENT_INDEX
    };
 
-   iInit *vInitPtr;
+   iInit * vInitPtr;
    rWorld *vWorldPtr;
 
    RenderPass_vk vRenderPass_vk;
@@ -161,14 +161,14 @@ class RENDER_API rRendererBase {
    OBJECTS vObjects;
 
    virtual std::vector<AttachmentInfo> getAttachmentInfos() = 0;
-   virtual void setupSubpasses()                            = 0;
-   uint32_t addSubpass( VkPipelineBindPoint _bindPoint,
-                        uint32_t _deptStencil           = UINT32_MAX,
-                        std::vector<uint32_t> _color    = {UINT32_MAX},
-                        std::vector<uint32_t> _input    = {},
-                        std::vector<uint32_t> _preserve = {},
-                        std::vector<uint32_t> _resolve  = {},
-                        AttachmentLayoutMap _layoutMap  = {} );
+   virtual void                        setupSubpasses()     = 0;
+   uint32_t addSubpass( VkPipelineBindPoint   _bindPoint,
+                        uint32_t              _deptStencil = UINT32_MAX,
+                        std::vector<uint32_t> _color       = {UINT32_MAX},
+                        std::vector<uint32_t> _input       = {},
+                        std::vector<uint32_t> _preserve    = {},
+                        std::vector<uint32_t> _resolve     = {},
+                        AttachmentLayoutMap   _layoutMap   = {} );
 
    void addSubpassDependecy( uint32_t _srcSubPass,
                              uint32_t _dstSubPass,
@@ -196,7 +196,7 @@ class RENDER_API rRendererBase {
    bool addObject( std::shared_ptr<rObjectBase> _obj );
    bool resetObjects();
 
-   int init();
+   int  init();
    void destroy();
 
    bool applyChanges();

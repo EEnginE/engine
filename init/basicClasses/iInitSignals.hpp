@@ -23,8 +23,8 @@
 
 #include "defines.hpp"
 
-#include "uSignalSlot.hpp"
 #include "iEventInfo.hpp"
+#include "uSignalSlot.hpp"
 
 namespace e_engine {
 

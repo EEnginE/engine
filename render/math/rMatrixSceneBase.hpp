@@ -66,8 +66,7 @@ class rMatrixSceneBase {
 
 
 template <class T>
-rMatrixSceneBase<T>::rMatrixSceneBase( rWorld *_init )
-    : vWoldPtr( _init ) {
+rMatrixSceneBase<T>::rMatrixSceneBase( rWorld *_init ) : vWoldPtr( _init ) {
    vProjectionMatrix_MAT.toIdentityMatrix();
    vViewMatrix_MAT.toIdentityMatrix();
    vViewProjectionMatrix_MAT.toIdentityMatrix();

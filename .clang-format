@@ -9,12 +9,13 @@ PointerAlignment: Right
 Standard:         Cpp11
 UseTab:           Never
 
-AccessModifierOffset:        -2
-AlignAfterOpenBracket:       true
-AlignConsecutiveAssignments: true
-AlignEscapedNewlinesLeft:    false
-AlignOperands:               true
-AlignTrailingComments:       true
+AccessModifierOffset:         -2
+AlignAfterOpenBracket:        true
+AlignConsecutiveAssignments:  true
+AlignConsecutiveDeclarations: true
+AlignEscapedNewlinesLeft:     false
+AlignOperands:                true
+AlignTrailingComments:        true
 
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine:             true
@@ -23,7 +24,8 @@ AllowShortFunctionsOnASingleLine:          All
 AllowShortIfStatementsOnASingleLine:       false
 AllowShortLoopsOnASingleLine:              false
 
-AlwaysBreakAfterDefinitionReturnType: false
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType:           None
 AlwaysBreakBeforeMultilineStrings:    false
 AlwaysBreakTemplateDeclarations:      true
 
@@ -45,6 +47,20 @@ Cpp11BracedListStyle:                           true
 DerivePointerAlignment:           false
 ExperimentalAutoDetectBinPacking: false
 ForEachMacros: [ foreach, Q_FOREACH, BOOST_FOREACH ]
+
+IncludeCategories:
+ - Regex: 'defines'
+   Priority: -1
+ - Regex: 'r[A-Z][a-z]'
+   Priority: 2
+ - Regex: 'i[A-Z][a-z]'
+   Priority: 5
+ - Regex: 'u[A-Z][a-z]'
+   Priority: 10
+ - Regex: '.*'
+   Priority: 90
+ - Regex: 'vulkan'
+   Priority: 100
 
 IndentCaseLabels:                   true
 IndentWrappedFunctionNames:         false

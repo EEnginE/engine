@@ -90,10 +90,10 @@ namespace e_engine {
 struct UTILS_API uJSON_data {
    std::string id;
    std::string value_str;
-   double value_num;
-   int value_int;
-   bool value_bool;
-   VALUES value_obj;
+   double      value_num;
+   int         value_int;
+   bool        value_bool;
+   VALUES      value_obj;
 
    JSON_DATA_TYPE type;
 
@@ -116,17 +116,17 @@ struct UTILS_API uJSON_data {
 
 
    template <class... ARGS, class T, class D>
-   inline void _( uJSON_data *_first,
-                  JSON_DATA_TYPE _type,
-                  T *_pointer,
-                  D const &_setData,
+   inline void _( uJSON_data *    _first,
+                  JSON_DATA_TYPE  _type,
+                  T *             _pointer,
+                  D const &       _setData,
                   END_MARKER_TYPE _what,
                   ARGS... _args );
 
    template <class... ARGS>
-   inline void _( uJSON_data *_first,
-                  JSON_DATA_TYPE _type,
-                  bool *_exists,
+   inline void _( uJSON_data *    _first,
+                  JSON_DATA_TYPE  _type,
+                  bool *          _exists,
                   JSON_DATA_TYPE *_pointer,
                   END_MARKER_TYPE _what,
                   ARGS... _args );
@@ -183,10 +183,10 @@ void uJSON_data::_( uJSON_data *_first, unsigned int _id, ARGS... _args ) {
 }
 
 template <class... ARGS, class T, class D>
-void uJSON_data::_( uJSON_data *_first,
-                    JSON_DATA_TYPE _type,
-                    T *_pointer,
-                    D const &_setData,
+void uJSON_data::_( uJSON_data *    _first,
+                    JSON_DATA_TYPE  _type,
+                    T *             _pointer,
+                    D const &       _setData,
                     END_MARKER_TYPE _what,
                     ARGS... _args ) {
    if ( type == __JSON_NOT_SET__ || !_pointer ||
@@ -239,9 +239,9 @@ void uJSON_data::_( uJSON_data *_first,
 
 
 template <class... ARGS>
-void uJSON_data::_( uJSON_data *_first,
-                    JSON_DATA_TYPE _type,
-                    bool *_exists,
+void uJSON_data::_( uJSON_data *    _first,
+                    JSON_DATA_TYPE  _type,
+                    bool *          _exists,
                     JSON_DATA_TYPE *_pointer,
                     END_MARKER_TYPE _what,
                     ARGS... _args ) {

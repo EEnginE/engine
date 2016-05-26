@@ -45,9 +45,9 @@ class iRandR_win32;
 class INIT_API iDisplays : public iDisplayBasic {
  private:
    //! \brief internal structure for storing important mode information.
-   std::vector<DEVMODEW> vModes_V_win32;    //!< all possible modes
-   DEVMODEW vCurrentSettings_win32;         //!< The current display settings
-   DEVMODEW vSelectedDisplaySettings_win32; //!< The selected display settings
+   std::vector<DEVMODEW> vModes_V_win32;                 //!< all possible modes
+   DEVMODEW              vCurrentSettings_win32;         //!< The current display settings
+   DEVMODEW              vSelectedDisplaySettings_win32; //!< The selected display settings
 
    //! The Winapi display device (stores information about the display)
    DISPLAY_DEVICEW vDisplayDevice_win32;
@@ -58,11 +58,11 @@ class INIT_API iDisplays : public iDisplayBasic {
    //! \brief Add a new DEVMODEW to the internal mode list
    void addMode( DEVMODEW _mode ) { vModes_V_win32.push_back( _mode ); }
 
-   double findNearestFreqTo( double _rate,
+   double findNearestFreqTo( double       _rate,
                              unsigned int _width,
                              unsigned int _height,
-                             DEVMODEW &_mode,
-                             double &_diff ) const;
+                             DEVMODEW &   _mode,
+                             double &     _diff ) const;
 
    //! \brief Sets the current settings (DEVMODEW)
    void setCurrentSettings( DEVMODEW _current ) {
@@ -70,13 +70,13 @@ class INIT_API iDisplays : public iDisplayBasic {
    }
    //! \brief Set the display device (needed for the disply ID)
    void setDisplayDevice( DISPLAY_DEVICEW _device ) { vDisplayDevice_win32 = _device; }
-   DEVMODEW getSelectedDevmode() const;
+   DEVMODEW                               getSelectedDevmode() const;
    //! \brief Get the display device (needed for the disply ID)
    DISPLAY_DEVICEW getDisplayDevice() const { return vDisplayDevice_win32; }
 
    int getMaxBitsPerPelFromResolutionAndFreq( unsigned int _width,
                                               unsigned int _height,
-                                              double _rate ) const;
+                                              double       _rate ) const;
 
  public:
    virtual ~iDisplays() {}
@@ -93,8 +93,8 @@ class INIT_API iDisplays : public iDisplayBasic {
 
    double autoSelectBySize( unsigned int _width,
                             unsigned int _height,
-                            double _preferedRate = 0,
-                            double _maxDiff = 1 );
+                            double       _preferedRate = 0,
+                            double       _maxDiff      = 1 );
    bool select( unsigned int _width, unsigned int _height, double _rate );
 
    void setNoClones() {}

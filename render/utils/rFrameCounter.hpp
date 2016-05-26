@@ -33,8 +33,8 @@ class RENDER_API rFrameCounter {
 
    uint64_t *vRenderedFrames;
 
-   int vSleepDelay = 1000;
-   double vHelper  = vSleepDelay / 1000; // vSleepDelay in seconds
+   int    vSleepDelay = 1000;
+   double vHelper     = vSleepDelay / 1000; // vSleepDelay in seconds
 
    bool vFrameCounterEnabled = false;
 

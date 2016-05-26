@@ -19,8 +19,8 @@
  */
 
 #include "iRandR.hpp"
-#include "uLog.hpp"
 #include "uConfig.hpp"
+#include "uLog.hpp"
 #include <windows.h>
 
 namespace e_engine {
@@ -129,7 +129,7 @@ void iRandR::printRandRStatus() {
    for ( iDisplays const &d : vCurrentConfig_eD ) {
 
       unsigned int lWidth_uI, lHeight_uI;
-      double lRate_D;
+      double       lRate_D;
 
       d.getCurrentResolution( lWidth_uI, lHeight_uI, lRate_D );
 

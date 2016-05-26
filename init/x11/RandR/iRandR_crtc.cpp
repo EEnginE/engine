@@ -32,13 +32,13 @@ namespace unix_x11 {
  * \returns 1 when everything went fine
  */
 int iRandR::changeCRTC( internal::_crtc _changeToThis ) {
-   RRCrtc lCRTC_XRR    = _changeToThis.id;
-   bool lChangedCRTC_B = false;
+   RRCrtc lCRTC_XRR      = _changeToThis.id;
+   bool   lChangedCRTC_B = false;
 
    bool lCRTCInfoFound = false;
 
    XRRCrtcInfo *lTempCRTCInfo_XRR;
-   RROutput *lTempOutputs_XRR;
+   RROutput *   lTempOutputs_XRR;
 
    for ( int i = 0; i < vResources_XRR->ncrtc; ++i ) {
       if ( vResources_XRR->crtcs[i] == lCRTC_XRR ) {

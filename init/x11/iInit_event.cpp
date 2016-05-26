@@ -36,8 +36,8 @@ int iInit::eventLoop() {
    vEventLoopHasFinished_B = false;
 
    xcb_generic_event_t *lEvent_XCB;
-   xcb_connection_t *lConnection_XCB = vWindow.getXCBConnection();
-   uint32_t lAutoRepeatType          = XCB_AUTO_REPEAT_MODE_ON;
+   xcb_connection_t *   lConnection_XCB = vWindow.getXCBConnection();
+   uint32_t             lAutoRepeatType = XCB_AUTO_REPEAT_MODE_ON;
 
    unsigned int lKeyState_uI, lButtonState_uI;
 
@@ -69,8 +69,8 @@ int iInit::eventLoop() {
                tempInfo.type          = E_EVENT_RESIZE;
                tempInfo.eResize.width = GlobConf.win.width = lEvent->width;
                tempInfo.eResize.height = GlobConf.win.height = lEvent->height;
-               tempInfo.eResize.posX = GlobConf.win.posX;
-               tempInfo.eResize.posY = GlobConf.win.posY;
+               tempInfo.eResize.posX                         = GlobConf.win.posX;
+               tempInfo.eResize.posY                         = GlobConf.win.posY;
 
                vResize_SIG( tempInfo );
             }

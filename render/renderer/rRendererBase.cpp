@@ -20,11 +20,11 @@
  */
 
 #include "rRendererBase.hpp"
-#include "iInit.hpp"
 #include "rObjectBase.hpp"
 #include "rPipeline.hpp"
 #include "rShaderBase.hpp"
 #include "rWorld.hpp"
+#include "iInit.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
 
@@ -99,11 +99,11 @@ int rRendererBase::init() {
    if ( vIsSetup )
       return -3;
 
-   uint32_t lQueueFamily;
-   VkQueue lQueue       = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
-   VkCommandPool lPool  = vWorldPtr->getCommandPool( lQueueFamily );
-   VkCommandBuffer lBuf = vWorldPtr->createCommandBuffer( lPool );
-   VkFence lFence       = vWorldPtr->createFence();
+   uint32_t        lQueueFamily;
+   VkQueue         lQueue = vInitPtr->getQueue( VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily );
+   VkCommandPool   lPool  = vWorldPtr->getCommandPool( lQueueFamily );
+   VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer( lPool );
+   VkFence         lFence = vWorldPtr->createFence();
 
    if ( !lBuf )
       return -1;
@@ -197,8 +197,8 @@ void rRendererBase::destroy() {
    vIsSetup = false;
 }
 
-void rRendererBase::getDepthFormat( VkFormat &_format,
-                                    VkImageTiling &_tiling,
+void rRendererBase::getDepthFormat( VkFormat &          _format,
+                                    VkImageTiling &     _tiling,
                                     VkImageAspectFlags &_aspect ) {
    _format = VK_FORMAT_UNDEFINED;
    _tiling = VK_IMAGE_TILING_MAX_ENUM;
@@ -319,11 +319,11 @@ void rRendererBase::renderLoop() {
       uint32_t lQueueFamily = 0;
 
       VkSwapchainKHR lSwapchain_vk = vWorldPtr->getSwapchain();
-      VkQueue lQueue             = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
-      VkCommandPool lCommandPool = vWorldPtr->getCommandPool( lQueueFamily );
-      VkSemaphore lSemPresent    = vWorldPtr->createSemaphore();
-      VkSemaphore lSemAcquireImg = vWorldPtr->createSemaphore();
-      VkFence lFences[NUM_FENCES];
+      VkQueue        lQueue       = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
+      VkCommandPool  lCommandPool = vWorldPtr->getCommandPool( lQueueFamily );
+      VkSemaphore    lSemPresent  = vWorldPtr->createSemaphore();
+      VkSemaphore    lSemAcquireImg = vWorldPtr->createSemaphore();
+      VkFence        lFences[NUM_FENCES];
 
       for ( uint32_t i = 0; i < NUM_FENCES; i++ ) {
          lFences[i] = vWorldPtr->createFence();
@@ -373,7 +373,7 @@ void rRendererBase::renderLoop() {
 
       // Destroy old pipelines
       for ( auto &i : vObjects ) {
-         rPipeline *lPipe     = i->getPipeline();
+         rPipeline *  lPipe   = i->getPipeline();
          rShaderBase *lShader = i->getShader();
          if ( lPipe != nullptr ) {
             if ( lPipe->getIsCreated() ) {
@@ -549,7 +549,7 @@ bool rRendererBase::start() {
    dRLOG( "Sending start render loop to [renderer ", vID, "]" );
 
    std::unique_lock<std::mutex> lWait( vMutexFinishedRecording );
-   std::lock_guard<std::mutex> lGuard( vMutexStartLogLoop );
+   std::lock_guard<std::mutex>  lGuard( vMutexStartLogLoop );
 
    if ( !vFinishedRecording )
       vVarFinishedRecording.wait( lWait );
@@ -671,8 +671,8 @@ bool rRendererBase::resetObjects() {
  *
  * \returns the created sbpass index (UINT32_MAX on error)
  */
-uint32_t rRendererBase::addSubpass( VkPipelineBindPoint _bindPoint,
-                                    uint32_t _deptStencil,
+uint32_t rRendererBase::addSubpass( VkPipelineBindPoint   _bindPoint,
+                                    uint32_t              _deptStencil,
                                     std::vector<uint32_t> _color,
                                     std::vector<uint32_t> _input,
                                     std::vector<uint32_t> _preserve,
@@ -783,8 +783,8 @@ void rRendererBase::addSubpassDependecy( uint32_t _srcSubPass,
 }
 
 uint64_t *rRendererBase::getRenderedFramesPtr() { return &vRenderedFrames; }
-bool rRendererBase::getIsRunning() const { return vRunRenderLoop; }
-bool rRendererBase::getIsInit() const { return vIsSetup; }
+bool      rRendererBase::getIsRunning() const { return vRunRenderLoop; }
+bool      rRendererBase::getIsInit() const { return vIsSetup; }
 void rRendererBase::setClearColor( VkClearColorValue _clearColor ) { vClearColor = _clearColor; }
 }
 }

@@ -21,9 +21,9 @@
 
 #include "defines.hpp"
 
-#include <type_traits>
-#include <string>
 #include <stdint.h>
+#include <string>
+#include <type_traits>
 
 #define TOLERANCE 0.001
 
@@ -157,12 +157,12 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
    TYPE const &get( uint32_t _x, uint32_t _y ) const { return vDataMat[( _x * ROWS ) + _y]; }
 
    template <uint32_t I>
-   TYPE &get() {
+   TYPE &             get() {
       static_assert( I < ROWS * COLLUMNS, "Out of range" );
       return vDataMat[I];
    }
    template <uint32_t I>
-   TYPE const &get() const {
+   TYPE const &       get() const {
       static_assert( I < ROWS * COLLUMNS, "Out of range" );
       return vDataMat[I];
    }
@@ -205,7 +205,7 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
 
    template <uint32_t COLLUMNS_NEW>
    void multiply( const rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_matrix,
-                  rMatrix<TYPE, ROWS, COLLUMNS_NEW> *_targetMatrix );
+                  rMatrix<TYPE, ROWS, COLLUMNS_NEW> *          _targetMatrix );
 
    // Hardcoded multiply methods
    void multiply( const rMatrix<TYPE, 2, 2> &_matrix, rMatrix<TYPE, 2, 2> *_targetMatrix );
@@ -213,9 +213,9 @@ class rMatrix : public internal::rMatrixData<TYPE, ROWS, COLLUMNS> {
    void multiply( const rMatrix<TYPE, 4, 4> &_matrix, rMatrix<TYPE, 4, 4> *_targetMatrix );
 
    void add( const rMatrix<TYPE, ROWS, COLLUMNS> &_matrix,
-             rMatrix<TYPE, ROWS, COLLUMNS> *_targetMatrix );
+             rMatrix<TYPE, ROWS, COLLUMNS> *      _targetMatrix );
    void subtract( const rMatrix<TYPE, ROWS, COLLUMNS> &_matrix,
-                  rMatrix<TYPE, ROWS, COLLUMNS> *_targetMatrix );
+                  rMatrix<TYPE, ROWS, COLLUMNS> *      _targetMatrix );
 
    // Operators
 
@@ -269,13 +269,13 @@ rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE *_f ) {
       return;
 
    for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      vDataMat[i] = _f[i];
+      vDataMat[i]   = _f[i];
 }
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( const rMatrix<TYPE, ROWS, COLLUMNS> &_newMatrix ) {
    for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      vDataMat[i] = _newMatrix.vDataMat[i];
+      vDataMat[i]   = _newMatrix.vDataMat[i];
 }
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
@@ -298,17 +298,17 @@ rMatrix<TYPE, ROWS, COLLUMNS>::rMatrix( TYPE &&_a1, ARGS &&... _args ) {
 
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
-rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator=(
+rMatrix<TYPE, ROWS, COLLUMNS> &               rMatrix<TYPE, ROWS, COLLUMNS>::operator=(
       rMatrix<TYPE, ROWS, COLLUMNS> _newMatrix ) {
    for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      vDataMat[i] = _newMatrix.get( i );
+      vDataMat[i]   = _newMatrix.get( i );
    return *this;
 }
 
 
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
-rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator+=(
+rMatrix<TYPE, ROWS, COLLUMNS> &               rMatrix<TYPE, ROWS, COLLUMNS>::operator+=(
       const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    add( _rMatrix, this );
    return *this;
@@ -316,14 +316,14 @@ rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator+=(
 
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
-rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator-=(
+rMatrix<TYPE, ROWS, COLLUMNS> &               rMatrix<TYPE, ROWS, COLLUMNS>::operator-=(
       const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    subtract( _rMatrix, this );
    return *this;
 }
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
-rMatrix<TYPE, ROWS, COLLUMNS> &rMatrix<TYPE, ROWS, COLLUMNS>::operator*=(
+rMatrix<TYPE, ROWS, COLLUMNS> &               rMatrix<TYPE, ROWS, COLLUMNS>::operator*=(
       const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    multiply( _rMatrix, this );
    return *this;
@@ -358,7 +358,7 @@ rMatrix<TYPE, ROWS, COLLUMNS_NEW> operator*( rMatrix<TYPE, ROWS, COLLUMNS> _lMat
 
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
-rMatrix<TYPE, ROWS, COLLUMNS> operator*( TYPE _lScalar,
+rMatrix<TYPE, ROWS, COLLUMNS> operator*( TYPE                                 _lScalar,
                                          const rMatrix<TYPE, ROWS, COLLUMNS> &_rMatrix ) {
    rMatrix<TYPE, ROWS, COLLUMNS> lTarget = _rMatrix;
    lTarget *= _lScalar;
@@ -413,7 +413,7 @@ rMatrix<TYPE, ROWS, COLLUMNS>::toIdentityMatrix() {
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::fill( TYPE &&_f ) {
    for ( uint32_t i = 1; i < ROWS * COLLUMNS; ++i )
-      vDataMat[i] = _f;
+      vDataMat[i]   = _f;
 }
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
@@ -460,7 +460,7 @@ template <uint32_t COLLUMNS_NEW>
 void rMatrix<TYPE, ROWS, COLLUMNS>::multiply( const rMatrix<TYPE, COLLUMNS, COLLUMNS_NEW> &_matrix,
                                               rMatrix<TYPE, ROWS, COLLUMNS_NEW> *_targetMatrix ) {
    uint32_t currentIndex = 0;
-   TYPE currentSum = 0;
+   TYPE     currentSum   = 0;
    for ( uint32_t i = 0; i < COLLUMNS_NEW; ++i ) { // Second Matrix
       for ( uint32_t j = 0; j < ROWS; ++j ) {      // First Matrix
          for ( uint32_t k = 0; k < COLLUMNS;
@@ -555,7 +555,7 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::subtract( const rMatrix<TYPE, ROWS, COLLUMNS
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::set( TYPE *_matrix ) {
    for ( uint32_t i = 0; i < ( ROWS * COLLUMNS ); ++i )
-      vDataMat[i] = _matrix[i];
+      vDataMat[i]   = _matrix[i];
 }
 
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>

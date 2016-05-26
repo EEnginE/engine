@@ -18,10 +18,10 @@
  */
 
 #include "rScene.hpp"
-#include "uLog.hpp"
 #include "rWorld.hpp"
 #include "iInit.hpp"
 #include "uEnum2Str.hpp"
+#include "uLog.hpp"
 
 #include <assimp/postprocess.h>
 
@@ -106,7 +106,7 @@ std::vector<rSceneBase::MeshInfo> rSceneBase::loadFile( std::string _file ) {
    }
 
    std::vector<MeshInfo> lInfos;
-   MeshInfo lTempInfo;
+   MeshInfo              lTempInfo;
    for ( uint32_t i = 0; i < vScene_assimp->mNumMeshes; i++ ) {
       const char *lTemp = vScene_assimp->mMeshes[i]->mName.C_Str();
       lTempInfo.index   = lInfos.size();
@@ -190,7 +190,7 @@ bool rSceneBase::initObject( std::shared_ptr<rObjectBase> _obj, uint32_t _objInd
    }
 
    std::lock_guard<std::recursive_mutex> lGuard( vObjectsInit_MUT );
-   auto const *lMesh = getAiMesh( _objIndex );
+   auto const *                          lMesh = getAiMesh( _objIndex );
 
    if ( !lMesh )
       return false;

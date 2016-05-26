@@ -64,12 +64,12 @@ bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, flo
       return false;
 
 
-   int lSize_I = XRRGetCrtcGammaSize( vDisplay_X11, lTempCRTCId_XRR );
-   int lShift_I;
+   int           lSize_I = XRRGetCrtcGammaSize( vDisplay_X11, lTempCRTCId_XRR );
+   int           lShift_I;
    XRRCrtcGamma *lCRTCGamma_XRR;
-   float lGammaRed_F;
-   float lGammaGreen_F;
-   float lGammaBlue_F;
+   float         lGammaRed_F;
+   float         lGammaGreen_F;
+   float         lGammaBlue_F;
 
    if ( !lSize_I ) {
       eLOG( "RandR: Gamma size is 0 => Unable to set Gamma" );

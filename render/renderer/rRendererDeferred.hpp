@@ -48,7 +48,7 @@ class rRendererDeferred : public internal::rRendererBase {
    void initBuffers();
 
  protected:
-   void setupSubpasses() override;
+   void                        setupSubpasses() override;
    std::vector<AttachmentInfo> getAttachmentInfos() override;
    void recordCmdBuffers( Framebuffer_vk &_fb, RECORD_TARGET _toRender ) override;
 

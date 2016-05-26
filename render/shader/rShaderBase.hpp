@@ -22,10 +22,10 @@
 #pragma once
 
 #include "defines.hpp"
-#include <vulkan.h>
-#include <vector>
 #include <string>
 #include <unordered_map>
+#include <vector>
+#include <vulkan.h>
 
 #include "rMaterial.hpp"
 
@@ -78,24 +78,24 @@ class rShaderBase {
    typedef struct InOut {
       std::string type;
       std::string name;
-      uint32_t location;
-      uint32_t arraySize;
+      uint32_t    location;
+      uint32_t    arraySize;
 
       bool operator<( const InOut &rhs );
    } InOut;
 
    typedef struct Uniform {
       std::string name;
-      uint32_t binding;
+      uint32_t    binding;
 
       std::vector<InOut> vars;
    } Uniform;
 
    typedef struct ShaderInfo {
-      std::vector<InOut> input;
-      std::vector<InOut> output;
-      std::vector<InOut> uniforms;
-      std::vector<InOut> pushConstants;
+      std::vector<InOut>   input;
+      std::vector<InOut>   output;
+      std::vector<InOut>   uniforms;
+      std::vector<InOut>   pushConstants;
       std::vector<Uniform> uniformBlocks;
    } ShaderInfo;
 
@@ -103,18 +103,18 @@ class rShaderBase {
       struct Var {
          std::string name;
          std::string type;
-         uint32_t offset;
-         uint32_t size;
+         uint32_t    offset;
+         uint32_t    size;
 
-         UNIFORM_ROLE guessedRole = UNKONOWN;
+         UNIFORM_ROLE   guessedRole = UNKONOWN;
          VkDeviceMemory mem;
 
          bool operator==( const Var &rhs ) const { return mem == rhs.mem && offset == rhs.offset; }
       };
 
       VkShaderStageFlags stage;
-      uint32_t size;
-      VkDeviceMemory mem;
+      uint32_t           size;
+      VkDeviceMemory     mem;
 
       std::vector<Var> vars;
    };
@@ -124,8 +124,8 @@ class rShaderBase {
 
       std::string name;
       std::string type;
-      uint32_t offset;
-      uint32_t size;
+      uint32_t    offset;
+      uint32_t    size;
 
       UNIFORM_ROLE guessedRole = UNKONOWN;
    };
@@ -135,15 +135,15 @@ class rShaderBase {
 
       std::string name;
       std::string type;
-      uint32_t binding;
-      uint32_t arraySize;
+      uint32_t    binding;
+      uint32_t    arraySize;
 
       UNIFORM_ROLE guessedRole = UNKONOWN;
    };
 
  private:
    VkDevice vDevice_vk;
-   iInit *vInitPtr;
+   iInit *  vInitPtr;
 
    VkShaderModule vVertModule_vk = nullptr;
    VkShaderModule vTescModule_vk = nullptr;
@@ -152,23 +152,23 @@ class rShaderBase {
    VkShaderModule vFragModule_vk = nullptr;
    VkShaderModule vCompModule_vk = nullptr;
 
-   VkDescriptorSetLayout vDescLayout_vk = nullptr;
-   VkDescriptorPool vDescPool_vk        = nullptr;
-   VkPipelineLayout vPipelineLayout_vk  = nullptr;
+   VkDescriptorSetLayout vDescLayout_vk     = nullptr;
+   VkDescriptorPool      vDescPool_vk       = nullptr;
+   VkPipelineLayout      vPipelineLayout_vk = nullptr;
 
-   VkVertexInputBindingDescription vInputBindingDesc = {};
+   VkVertexInputBindingDescription                vInputBindingDesc = {};
    std::vector<VkVertexInputAttributeDescription> vInputDescs;
 
    std::vector<VkPipelineShaderStageCreateInfo> vShaderStageInfo;
-   std::vector<VkDescriptorSetLayoutBinding> vLayoutBindings;
-   std::vector<VkDescriptorPoolSize> vDescPoolSizes;
-   std::vector<VkWriteDescriptorSet> vWriteDescData;
-   std::vector<VkPushConstantRange> vPushConstants;
-   std::vector<VkBuffer> vBuffers;
-   std::vector<VkDeviceMemory> vMemory;
-   std::vector<UniformVar> vUniformDesc;
-   std::vector<UniformBuffer> vUniformBufferDescs;
-   std::vector<PushConstantVar> vPushConstantDescs;
+   std::vector<VkDescriptorSetLayoutBinding>    vLayoutBindings;
+   std::vector<VkDescriptorPoolSize>            vDescPoolSizes;
+   std::vector<VkWriteDescriptorSet>            vWriteDescData;
+   std::vector<VkPushConstantRange>             vPushConstants;
+   std::vector<VkBuffer>                        vBuffers;
+   std::vector<VkDeviceMemory>                  vMemory;
+   std::vector<UniformVar>                      vUniformDesc;
+   std::vector<UniformBuffer>                   vUniformBufferDescs;
+   std::vector<PushConstantVar>                 vPushConstantDescs;
 
    std::unordered_map<rMaterial const *, VkDescriptorSet> vDescSetMap;
 
@@ -197,13 +197,13 @@ class rShaderBase {
    rShaderBase( rWorld *_tempWorld );
    ~rShaderBase();
 
-   bool init();
-   bool isInitialized();
+   bool                                         init();
+   bool                                         isInitialized();
    std::vector<VkPipelineShaderStageCreateInfo> getShaderStageInfo();
    VkDescriptorSet getDescriptorSet( rMaterial const *_materialPtr = nullptr );
-   VkDescriptorSetLayout getDescriptorSetLayout();
-   VkPipelineLayout getPipelineLayout();
-   VkVertexInputBindingDescription getVertexInputBindingDescription();
+   VkDescriptorSetLayout                          getDescriptorSetLayout();
+   VkPipelineLayout                               getPipelineLayout();
+   VkVertexInputBindingDescription                getVertexInputBindingDescription();
    std::vector<VkVertexInputAttributeDescription> getVertexInputAttribureDescriptions();
 
    static bool getGLSLTypeInfo( std::string _name, uint32_t &_size, VkFormat &_format );
@@ -218,17 +218,17 @@ class rShaderBase {
    std::vector<UniformVar> getUniforms();
 
    bool updateDescriptorSet( UniformVar const &_var,
-                             void *_data,
-                             rMaterial const *_materialPtr = nullptr,
-                             uint32_t _elemet = 0 );
+                             void *            _data,
+                             rMaterial const * _materialPtr = nullptr,
+                             uint32_t          _elemet      = 0 );
 
-   void cmdUpdatePushConstant( VkCommandBuffer _buf,
+   void cmdUpdatePushConstant( VkCommandBuffer        _buf,
                                PushConstantVar const &_var,
-                               void const *_data );
+                               void const *           _data );
 
-   void cmdBindDescriptorSets( VkCommandBuffer _buf,
+   void cmdBindDescriptorSets( VkCommandBuffer     _buf,
                                VkPipelineBindPoint _bindPoint,
-                               rMaterial const *_materialPtr = nullptr );
+                               rMaterial const *   _materialPtr = nullptr );
 
    virtual std::string getName() = 0;
 

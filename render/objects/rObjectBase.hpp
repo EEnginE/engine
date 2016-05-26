@@ -21,13 +21,13 @@
 
 #include "defines.hpp"
 
-#include <string>
-#include <array>
-#include <vulkan.h>
-#include <assimp/scene.h>
-#include "rMatrixMath.hpp"
 #include "rBuffer.hpp"
+#include "rMatrixMath.hpp"
 #include "rShaderBase.hpp"
+#include <array>
+#include <assimp/scene.h>
+#include <string>
+#include <vulkan.h>
 
 namespace e_engine {
 
@@ -127,9 +127,9 @@ class RENDER_API rObjectBase {
  protected:
    std::string vName_str;
 
-   bool vPartialLoaded_B = false;
-   bool vIsLoaded_B      = false;
-   rPipeline *vPipeline  = nullptr;
+   bool       vPartialLoaded_B = false;
+   bool       vIsLoaded_B      = false;
+   rPipeline *vPipeline        = nullptr;
 
    virtual std::vector<rBuffer *> setData_IMPL( VkCommandBuffer,
                                                 std::vector<uint32_t> const &,
@@ -144,7 +144,7 @@ class RENDER_API rObjectBase {
    rObjectBase() = delete;
 
    virtual VERTEX_DATA_LAYOUT getDataLayout() const { return UNDEFINED; }
-   virtual MESH_TYPES getMeshType() const { return UNDEFINED_3D; }
+   virtual MESH_TYPES         getMeshType() const { return UNDEFINED_3D; }
 
    // Forbid copying
    rObjectBase( const rObjectBase & ) = delete;
@@ -161,17 +161,17 @@ class RENDER_API rObjectBase {
    bool finishData();
 
    virtual bool checkIsCompatible( rPipeline *_pipe ) = 0;
-   virtual bool isMesh() = 0;
+   virtual bool isMesh()                              = 0;
    virtual void updateUniforms() {}
    virtual void record( VkCommandBuffer ) {}
    virtual void recordLight( VkCommandBuffer, rBuffer &, rBuffer & ) {}
    virtual void signalRenderReset( internal::rRendererBase * ) {}
    virtual bool supportsPushConstants() { return false; };
 
-   rPipeline *getPipeline() { return vPipeline; }
+   rPipeline *  getPipeline() { return vPipeline; }
    rShaderBase *getShader();
-   bool getIsDataLoaded() const { return vIsLoaded_B; }
-   std::string getName() const { return vName_str; }
+   bool         getIsDataLoaded() const { return vIsLoaded_B; }
+   std::string  getName() const { return vName_str; }
    bool setPipeline( rPipeline *_pipe );
 
    virtual uint32_t getMatrix( rMat4f **_mat, MATRIX_TYPES _type );

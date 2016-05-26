@@ -26,9 +26,9 @@
  * limitations under the License.
  */
 
-#include <windows.h>
 #include "iContext.hpp"
 #include "uLog.hpp"
+#include <windows.h>
 
 namespace {
 
@@ -288,7 +288,7 @@ bool iContext::setAttribute( ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATT
 
    std::string lMode_STR;
    std::string lState1_str = "NOTHING", lState2_str = "NOTHING";
-   bool lState1Supported_B = false, lState2Supported_B = false;
+   bool        lState1Supported_B = false, lState2Supported_B = false;
 
    // clang-format off
    switch ( _type1 ) {

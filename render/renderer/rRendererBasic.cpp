@@ -38,8 +38,8 @@ void rRendererBasic::setupSubpasses() {
 }
 
 std::vector<rRendererBasic::AttachmentInfo> rRendererBasic::getAttachmentInfos() {
-   VkFormat lDepthStencilFormat;
-   VkImageTiling lTiling;
+   VkFormat           lDepthStencilFormat;
+   VkImageTiling      lTiling;
    VkImageAspectFlags lAspectFlags;
 
    getDepthFormat( lDepthStencilFormat, lTiling, lAspectFlags );
@@ -139,4 +139,3 @@ void rRendererBasic::recordCmdBuffers( Framebuffer_vk &_fb, RECORD_TARGET _toRen
    }
 }
 }
-

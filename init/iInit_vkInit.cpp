@@ -21,11 +21,11 @@
 #include "defines.hpp"
 
 #include "iInit.hpp"
-#include "uLog.hpp"
 #include "uEnum2Str.hpp"
+#include "uLog.hpp"
 
-#include <vulkan/vulkan.h>
 #include <string.h>
+#include <vulkan/vulkan.h>
 
 #if D_LOG_VULKAN_INIT
 #define dVkLOG( ... ) dLOG( __VA_ARGS__ )
@@ -40,8 +40,8 @@ namespace e_engine {
 
 std::vector<VkExtensionProperties> iInit::getExtProprs( std::string _layerName ) {
    std::vector<VkExtensionProperties> lPorps;
-   uint32_t lExtCount;
-   VkResult lResult;
+   uint32_t                           lExtCount;
+   VkResult                           lResult;
 
    const char *lNamePtr = _layerName.empty() ? nullptr : _layerName.c_str();
 
@@ -65,11 +65,11 @@ std::vector<VkExtensionProperties> iInit::getExtProprs( std::string _layerName )
    return lPorps;
 }
 
-std::vector<VkExtensionProperties> iInit::getDeviceExtProprs( std::string _layerName,
+std::vector<VkExtensionProperties> iInit::getDeviceExtProprs( std::string      _layerName,
                                                               VkPhysicalDevice _dev ) {
    std::vector<VkExtensionProperties> lPorps;
-   uint32_t lExtCount;
-   VkResult lResult;
+   uint32_t                           lExtCount;
+   VkResult                           lResult;
 
    const char *lNamePtr = _layerName.empty() ? nullptr : _layerName.c_str();
 
@@ -230,7 +230,7 @@ int iInit::initVulkan( std::vector<std::string> _layers ) {
       lDebugPTR = static_cast<void *>( &vDebugCreateInfo_vk );
 
    VkInstanceCreateInfo lCreateInfo_vk;
-   VkApplicationInfo lAppInfo_vk;
+   VkApplicationInfo    lAppInfo_vk;
 
    lAppInfo_vk.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
    lAppInfo_vk.pNext              = nullptr;
@@ -345,9 +345,9 @@ iInit::PhysicalDevice_vk *iInit::chooseDevice() {
    PhysicalDevice_vk *current = nullptr;
 
    for ( auto &i : vPhysicalDevices_vk ) {
-      unsigned int lNumQueues        = 0;
-      unsigned int lCurrentNumQueues = 0;
-      bool lSupportsGraphicsBit      = false;
+      unsigned int lNumQueues           = 0;
+      unsigned int lCurrentNumQueues    = 0;
+      bool         lSupportsGraphicsBit = false;
 
       if ( current == nullptr ) {
          current = &i;
@@ -401,7 +401,7 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
    }
 
    uint32_t lPorpCount;
-   auto lResult =
+   auto     lResult =
          vkEnumerateDeviceLayerProperties( vDevice_vk.pDevice->device, &lPorpCount, nullptr );
    if ( lResult ) {
       eLOG( "'vkEnumerateDeviceLayerProperties' returned ", uEnum2Str::toStr( lResult ) );
@@ -460,9 +460,9 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
    }
 
    std::vector<VkDeviceQueueCreateInfo> lQueueCreateInfo;
-   std::vector<std::vector<float>> lQueuePriorities;
-   float lPriority;
-   uint32_t lFIndex;
+   std::vector<std::vector<float>>      lQueuePriorities;
+   float                                lPriority;
+   uint32_t                             lFIndex;
 
    for ( auto const &i : vDevice_vk.pDevice->queueFamilyProperties ) {
       lQueuePriorities.emplace_back();
@@ -471,7 +471,7 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
       lFIndex = lQueueCreateInfo.size();
 
       VkBool32 lSupported;
-      auto lRes = vkGetPhysicalDeviceSurfaceSupportKHR(
+      auto     lRes = vkGetPhysicalDeviceSurfaceSupportKHR(
             vDevice_vk.pDevice->device, lFIndex, vSurface_vk, &lSupported );
 
       if ( lRes ) {
@@ -481,7 +481,7 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
 
       // Setting priorities (1.0, 0.5, 0.25, ...)
       for ( uint32_t j = 0; j < i.queueCount; j++ ) {
-         lPriority = 1.0f / static_cast<float>( j + 1 );
+         lPriority                  = 1.0f / static_cast<float>( j + 1 );
          lQueuePriorities.back()[j] = lPriority;
 
          // Also create the queue object (only setting priority, and indexes)
@@ -495,11 +495,11 @@ int iInit::createDevice( std::vector<std::string> _layers ) {
       }
 
       lQueueCreateInfo.emplace_back();
-      lQueueCreateInfo.back().sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-      lQueueCreateInfo.back().pNext = nullptr;
-      lQueueCreateInfo.back().flags = 0;
+      lQueueCreateInfo.back().sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+      lQueueCreateInfo.back().pNext            = nullptr;
+      lQueueCreateInfo.back().flags            = 0;
       lQueueCreateInfo.back().queueFamilyIndex = lQueueCreateInfo.size() - 1;
-      lQueueCreateInfo.back().queueCount = i.queueCount;
+      lQueueCreateInfo.back().queueCount       = i.queueCount;
       lQueueCreateInfo.back().pQueuePriorities = lQueuePriorities.back().data();
    }
 
@@ -548,7 +548,7 @@ int iInit::loadDeviceSurfaceInfo() {
    vSurfaceInfo_vk.presentModels.clear();
 
    uint32_t lNum;
-   auto lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(
+   auto     lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(
          vDevice_vk.pDevice->device, vSurface_vk, &lNum, nullptr );
    if ( lRes ) {
       eLOG( "'vkGetPhysicalDeviceSurfaceFormatsKHR' returned ", uEnum2Str::toStr( lRes ) );

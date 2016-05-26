@@ -22,13 +22,13 @@
 #include "defines.hpp"
 
 #include <csignal>
-#include <vulkan/vulkan.h>
 #include <string.h>
+#include <vulkan/vulkan.h>
 
 #include "iInit.hpp"
-#include "uSystem.hpp"
-#include "uLog.hpp"
 #include "uEnum2Str.hpp"
+#include "uLog.hpp"
+#include "uSystem.hpp"
 
 #if D_LOG_VULKAN_INIT
 #define dVkLOG( ... ) dLOG( __VA_ARGS__ )
@@ -48,7 +48,7 @@ __iInit_Pointer __iInit_Pointer_OBJ;
 }
 
 
-PFN_vkCreateDebugReportCallbackEXT f_vkCreateDebugReportCallbackEXT   = nullptr;
+PFN_vkCreateDebugReportCallbackEXT  f_vkCreateDebugReportCallbackEXT  = nullptr;
 PFN_vkDestroyDebugReportCallbackEXT f_vkDestroyDebugReportCallbackEXT = nullptr;
 
 void iInit::_setThisForHandluSignal() {
@@ -126,7 +126,7 @@ void iInit::vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
                                 std::string _layerPrefix,
                                 std::string _msg ) {
    std::string lTempStr;
-   char lLogStr;
+   char        lLogStr;
 
    if ( _flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT ) {
       lLogStr = 'D';
@@ -167,14 +167,14 @@ void iInit::vulkanDebugHandler( VkDebugReportFlagsEXT _flags,
         _msg );
 }
 
-VkBool32 vulkanDebugCallback( VkDebugReportFlagsEXT _flags,
+VkBool32 vulkanDebugCallback( VkDebugReportFlagsEXT      _flags,
                               VkDebugReportObjectTypeEXT _objType,
-                              uint64_t _obj,
-                              size_t _location,
-                              int32_t _msgCode,
-                              const char *_layerPrefix,
-                              const char *_msg,
-                              void *_usrData ) {
+                              uint64_t                   _obj,
+                              size_t                     _location,
+                              int32_t                    _msgCode,
+                              const char *               _layerPrefix,
+                              const char *               _msg,
+                              void *                     _usrData ) {
    if ( _usrData ) {
       reinterpret_cast<iInit *>( _usrData )
             ->vulkanDebugHandler( _flags, _objType, _obj, _location, _msgCode, _layerPrefix, _msg );
@@ -538,18 +538,18 @@ uint32_t iInit::getQueueFamily( VkQueueFlags _flags ) {
  */
 VkQueue iInit::getQueue( VkQueueFlags _flags, float _priority, uint32_t *_queueFamily ) {
    std::lock_guard<std::mutex> lGuard( vQueueAccessMutex );
-   float lMinDiff = 100.0f;
-   VkQueue lQueue = nullptr;
+   float                       lMinDiff = 100.0f;
+   VkQueue                     lQueue   = nullptr;
 
    for ( auto i : vQueues_vk ) {
       if ( !( i.flags & _flags ) )
          continue;
 
       auto lTemp = i.priority - _priority;
-      lTemp = lTemp < 0 ? -lTemp : lTemp; // Make positive
+      lTemp      = lTemp < 0 ? -lTemp : lTemp; // Make positive
       if ( lTemp < lMinDiff ) {
          lMinDiff = lTemp;
-         lQueue = i.queue;
+         lQueue   = i.queue;
          if ( _queueFamily )
             *_queueFamily = i.familyIndex;
       }
@@ -591,9 +591,9 @@ bool iInit::isFormatSupported( VkFormat _format ) {
  *
  * \vkIntern
  */
-bool iInit::formatSupportsFeature( VkFormat _format,
+bool iInit::formatSupportsFeature( VkFormat                _format,
                                    VkFormatFeatureFlagBits _flags,
-                                   VkImageTiling _type ) {
+                                   VkImageTiling           _type ) {
    if ( vDevice_vk.pDevice == nullptr )
       return false;
 

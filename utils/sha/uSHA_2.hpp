@@ -22,10 +22,10 @@
 
 #include "defines.hpp"
 
-#include <string>
 #include <array>
-#include <vector>
 #include <stdint.h>
+#include <string>
+#include <vector>
 
 namespace e_engine {
 
@@ -40,7 +40,7 @@ class UTILS_API uSHA_2 {
    HASH_FUNCTION vType;
 
    unsigned long int vBlockCounter_ulI; //!< Number of calculated blocks
-   unsigned int vBlockSize_uI;          //!< Block size in bytes
+   unsigned int      vBlockSize_uI;     //!< Block size in bytes
 
    bool vEnded_B; //!< Is the hash complete?
 
@@ -49,10 +49,10 @@ class UTILS_API uSHA_2 {
    uint32_t h_512[8];
    uint64_t h_1024[8];
 
-   std::array<unsigned char, 64> vBuffer512_A_uC;
+   std::array<unsigned char, 64>  vBuffer512_A_uC;
    std::array<unsigned char, 128> vBuffer1024_A_uC;
 
-   std::array<unsigned char, 64>::iterator vCurrentPos512_A_IT;
+   std::array<unsigned char, 64>::iterator  vCurrentPos512_A_IT;
    std::array<unsigned char, 128>::iterator vCurrentPos1024_A_IT;
 
    void init();
@@ -82,7 +82,7 @@ class UTILS_API uSHA_2 {
    std::vector<unsigned char> operator()( HASH_FUNCTION _type, std::string _message ) {
       return quickHash( _type, _message );
    }
-   std::vector<unsigned char> operator()( HASH_FUNCTION _type,
+   std::vector<unsigned char> operator()( HASH_FUNCTION              _type,
                                           std::vector<unsigned char> _binary ) {
       return quickHash( _type, _binary );
    }

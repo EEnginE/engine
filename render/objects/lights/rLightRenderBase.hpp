@@ -22,8 +22,8 @@
 #include "defines.hpp"
 
 #include "rObjectBase.hpp"
-#include <vulkan.h>
 #include <string>
+#include <vulkan.h>
 
 namespace e_engine {
 namespace internal {

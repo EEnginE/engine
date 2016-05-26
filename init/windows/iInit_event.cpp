@@ -21,8 +21,8 @@
 
 #include "iInit.hpp"
 #include "iWindow.hpp"
-#include <windows.h>
 #include "uLog.hpp"
+#include <windows.h>
 
 namespace e_engine {
 
@@ -117,8 +117,8 @@ namespace windows_win32 {
 LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    if ( _uMsg == WM_NCCREATE ) {
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
-      void *lCreateParam_win32           = lCreateStruct_win32->lpCreateParams;
-      iContext *this__                   = reinterpret_cast<iContext *>( lCreateParam_win32 );
+      void *         lCreateParam_win32  = lCreateStruct_win32->lpCreateParams;
+      iContext *     this__              = reinterpret_cast<iContext *>( lCreateParam_win32 );
 
       this__->vHWND_Window_win32 = _hwnd;
 
@@ -134,8 +134,8 @@ LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
 }
 
 LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
-   LONG_PTR lUserData_win32 = GetWindowLongPtrW( _hwnd, GWLP_USERDATA );
-   iContext *this__ = reinterpret_cast<iContext *>( lUserData_win32 );
+   LONG_PTR   lUserData_win32 = GetWindowLongPtrW( _hwnd, GWLP_USERDATA );
+   iContext * this__          = reinterpret_cast<iContext *>( lUserData_win32 );
    iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
 
    if ( !this__ || _hwnd != this__->vHWND_Window_win32 ) {
@@ -145,9 +145,9 @@ LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
 
-LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg,
-                                          WPARAM _wParam,
-                                          LPARAM _lParam,
+LRESULT CALLBACK iContext::actualWndProc( UINT       _uMsg,
+                                          WPARAM     _wParam,
+                                          LPARAM     _lParam,
                                           iEventInfo _tempInfo ) {
    unsigned int key_state = E_PRESSED;
 
@@ -285,7 +285,7 @@ LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg,
                                // others are excluded as they are already handled in WM_KEYDOWN
             _tempInfo.type       = E_EVENT_KEY;
             _tempInfo.eKey.state = E_PRESSED;
-            _tempInfo.eKey.key = _wParam;
+            _tempInfo.eKey.key   = _wParam;
             vKey_SIG.send( _tempInfo );
          }
          return 0;

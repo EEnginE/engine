@@ -29,9 +29,9 @@
 
 #include "defines.hpp"
 
-#include <X11/keysymdef.h>
 #include "iKeyboard.hpp"
 #include "uLog.hpp"
+#include <X11/keysymdef.h>
 
 namespace e_engine {
 
@@ -872,15 +872,15 @@ wchar_t iKeyboard::keysym2unicode( xcb_keysym_t keysym ) {
    return E_UNKNOWN;
 }
 
-wchar_t iKeyboard::processX11KeyInput( xcb_keycode_t _kEv,
+wchar_t iKeyboard::processX11KeyInput( xcb_keycode_t      _kEv,
                                        short unsigned int _key_state,
-                                       uint32_t _modMask,
-                                       xcb_connection_t *_connection ) {
+                                       uint32_t           _modMask,
+                                       xcb_connection_t * _connection ) {
    uint32_t shift = 0, numLock = 0, altGR = 0, control = 0; // alt = 0
 
    // Num-Lock? Shift?
-   auto lControlCookie = xcb_get_keyboard_control( _connection );
-   auto *lControl      = xcb_get_keyboard_control_reply( _connection, lControlCookie, NULL );
+   auto  lControlCookie = xcb_get_keyboard_control( _connection );
+   auto *lControl       = xcb_get_keyboard_control_reply( _connection, lControlCookie, NULL );
 
    if ( lControl == NULL ) {
       eLOG( "xcb_get_keyboard_control error" );
@@ -894,9 +894,9 @@ wchar_t iKeyboard::processX11KeyInput( xcb_keycode_t _kEv,
    // alt     = _modMask & XCB_MOD_MASK_1;
 
    // Get KeySym for the rest
-   auto lKBCookie      = xcb_get_keyboard_mapping( _connection, _kEv, 1 );
-   auto *lKB           = xcb_get_keyboard_mapping_reply( _connection, lKBCookie, NULL );
-   xcb_keysym_t *lKeys = xcb_get_keyboard_mapping_keysyms( lKB );
+   auto          lKBCookie = xcb_get_keyboard_mapping( _connection, _kEv, 1 );
+   auto *        lKB       = xcb_get_keyboard_mapping_reply( _connection, lKBCookie, NULL );
+   xcb_keysym_t *lKeys     = xcb_get_keyboard_mapping_keysyms( lKB );
 
    if ( lKeys == NULL ) {
       eLOG( "xcb_get_keyboard_mapping_keysyms failed!" );
