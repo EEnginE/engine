@@ -159,11 +159,11 @@ int rRendererBase::initImageBuffers( VkCommandBuffer _buf ) {
                              vClearColor.float32[1],
                              vClearColor.float32[2],
                              vClearColor.float32[3]}};
-      lClearValue->depthStencil = {1.0f, 0};
 
       if ( vHasStencilBuffer && i.usage == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ) {
          lAttachment->stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
          lAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+         lClearValue->depthStencil = {1.0f, 0};
       }
 
       auto lRes = vkCreateImage( vDevice_vk, &lImageCreate, nullptr, &i.buff->img );

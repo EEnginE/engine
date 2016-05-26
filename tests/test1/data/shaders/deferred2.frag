@@ -31,11 +31,5 @@ void main()
    vec4 lTempNormal = subpassLoad( uNormal );
    vec4 lTempColor  = subpassLoad( uColor );
 
-   if( lPos == vec4( 0.0f, 0.0f, 0.0f, 0.0f ) ) {
-      lPos = vec4( 1.0f, 0.0f, 0.0f, 1.0f );
-   } else {
-      lPos = vec4( lPos.xyz, 1.0f );
-   }
-
    outFragColor = lPos;
 }

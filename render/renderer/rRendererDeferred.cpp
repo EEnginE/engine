@@ -270,29 +270,9 @@ void rRendererDeferred::recordCmdBuffers( Framebuffer_vk &_fb, RECORD_TARGET _to
    lRange.baseArrayLayer          = 0;
    lRange.layerCount              = 1;
 
-   VkClearAttachment lClear[3];
-   lClear[0].aspectMask                  = VK_IMAGE_ASPECT_COLOR_BIT;
-   lClear[0].clearValue.color.float32[0] = 1.0f;
-   lClear[0].clearValue.color.float32[1] = 1.0f;
-   lClear[0].clearValue.color.float32[2] = 1.0f;
-   lClear[0].clearValue.color.float32[3] = 1.0f;
-   lClear[0].colorAttachment             = 0;
-
-   lClear[2] = lClear[1] = lClear[0];
-
-   lClear[1].colorAttachment = 1;
-   lClear[2].colorAttachment = 2;
-
-   VkClearRect lClearRect[1];
-   lClearRect[0].rect           = {{0, 0}, {GlobConf.win.width, GlobConf.win.height}};
-   lClearRect[0].baseArrayLayer = 0;
-   lClearRect[0].layerCount     = 1;
-
    auto *lBuffPos    = vRenderPass_vk.attachmentBuffers[DEFERRED_POS_ATTACHMENT_INDEX];
    auto *lBuffNormal = vRenderPass_vk.attachmentBuffers[DEFERRED_NORMAL_ATTACHMENT_INDEX];
    auto *lBuffAlbedo = vRenderPass_vk.attachmentBuffers[DEFERRED_ALBEDO_ATTACHMENT_INDEX];
-
-   // vkCmdClearAttachments( _fb.layoutChange1, 3, lClear, 1, lClearRect );
 
    vWorldPtr->cmdChangeImageLayout( vFbData[_fb.index].layoutChange1,
                                     lBuffPos->img,

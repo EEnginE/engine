@@ -504,7 +504,6 @@ void rRendererBase::renderLoop() {
       iLOG( "Render loop stopped" );
 
 
-
       //    _____ _
       //   /  __ \ |
       //   | /  \/ | ___  __ _ _ __  _   _ _ __
@@ -514,14 +513,17 @@ void rRendererBase::renderLoop() {
       //                                  | |
       //                                  |_|
 
-      vkDeviceWaitIdle( vDevice_vk );
-      vkDestroySemaphore( vDevice_vk, lSemPresent, nullptr );
-
-      for ( uint32_t i = 0; i < NUM_FENCES; i++ )
-         vkDestroyFence( vDevice_vk, lFences[i], nullptr );
+      auto lRes = vkDeviceWaitIdle( vDevice_vk );
+      if ( lRes ) {
+         eLOG( "'vkDeviceWaitIdle' returned ", uEnum2Str::toStr( lRes ) );
+      }
 
       freeCmdBuffers( lCommandPool );
       freeFrameCommandBuffers( lCommandPool );
+
+      vkDestroySemaphore( vDevice_vk, lSemPresent, nullptr );
+      for ( uint32_t i = 0; i < NUM_FENCES; i++ )
+         vkDestroyFence( vDevice_vk, lFences[i], nullptr );
 
 
       std::lock_guard<std::mutex> lGuard1( vMutexStopLogLoop );
@@ -676,7 +678,7 @@ uint32_t rRendererBase::addSubpass( VkPipelineBindPoint _bindPoint,
                                     std::vector<uint32_t> _preserve,
                                     std::vector<uint32_t> _resolve,
                                     std::unordered_map<uint32_t, VkImageLayout> _layoutMap ) {
-   vRenderPass_vk.data.emplace_back(std::make_unique<RenderPass_vk::SubPassData>());
+   vRenderPass_vk.data.emplace_back( std::make_unique<RenderPass_vk::SubPassData>() );
    auto &lData     = vRenderPass_vk.data.back();
    lData->preserve = _preserve;
 
