@@ -22,6 +22,8 @@
 #pragma once
 
 #include "defines.hpp"
+#include "rRenderLoop.hpp"
+#include "rRenderLoop.hpp"
 #include "rRendererBase.hpp"
 #include "rWorld_structs.hpp"
 #include "uSignalSlot.hpp"
@@ -34,7 +36,7 @@
 
 namespace e_engine {
 
-class iEventInfo;
+struct iEventInfo;
 class iInit;
 class rSceneBase;
 
@@ -96,8 +98,7 @@ class RENDER_API rWorld {
    ViewPort   vViewPort;
    ClearColor vClearColor;
 
-   internal::rRendererBase *vFrontRenderer = nullptr;
-   internal::rRendererBase *vBackRenderer  = nullptr;
+   rRenderLoop vRenderLoop;
 
    VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
 
@@ -121,15 +122,12 @@ class RENDER_API rWorld {
    VkSurfaceFormatKHR        getSwapchainFormat();
    inline void               signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
 
-   virtual void setRendererPtr( internal::rRendererBase **_r1, internal::rRendererBase **_r2 ) = 0;
-
  public:
    rWorld() = delete;
    rWorld( iInit *_init );
    virtual ~rWorld();
 
    int  init();
-   bool renderScene( rSceneBase *_scene );
    void shutdown();
 
    bool isSetup() { return vIsSetup; }
@@ -166,33 +164,14 @@ class RENDER_API rWorld {
 
    void updateViewPort( int _x, int _y, int _width, int _height );
    void updateClearColor( float _r, float _g, float _b, float _a );
-   uint64_t *getRenderedFramesPtr();
-   VkDevice  getDevice();
-   iInit *   getInitPtr();
+   uint64_t *   getRenderedFramesPtr();
+   VkDevice     getDevice();
+   iInit *      getInitPtr();
+   rRenderLoop *getRenderLoop();
 
+   uint32_t getNumFramebuffers() const;
+
+   friend class rRenderLoop;
    friend class internal::rRendererBase;
-};
-
-
-template <class RENDERER>
-class rWorldCreator : public rWorld {
-   static_assert( std::is_base_of<internal::rRendererBase, RENDERER>::value,
-                  "RENDERER must be derived from internal::rRendererBase" );
-
- private:
-   RENDERER vR1;
-   RENDERER vR2;
-
-   void setRendererPtr( internal::rRendererBase **_r1, internal::rRendererBase **_r2 ) override {
-      *_r1 = &vR1;
-      *_r2 = &vR2;
-   }
-
- public:
-   rWorldCreator() = delete;
-   rWorldCreator( iInit *_init )
-       : rWorld( _init ), vR1( _init, this, L"A" ), vR2( _init, this, L"B" ) {}
-
-   virtual ~rWorldCreator() { shutdown(); }
 };
 }

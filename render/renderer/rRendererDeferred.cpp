@@ -173,7 +173,7 @@ void rRendererDeferred::initBuffers() {
    vDeferredIndexBuffer.doneCopying();
 }
 
-void rRendererDeferred::initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) {
+void rRendererDeferred::initCmdBuffers( VkCommandPool _pool ) {
    for ( auto i : vObjects ) {
       if ( i.get() == nullptr ) {
          eLOG( "FATAL ERROR: nullptr in object list!" );
@@ -187,7 +187,7 @@ void rRendererDeferred::initCmdBuffers( VkCommandPool _pool, uint32_t _numFrameb
       }
    }
 
-   vFbData.resize( _numFramebuffers );
+   vFbData.resize( getNumFramebuffers() );
    for ( auto &i : vFbData ) {
       i.objects.resize( vRenderObjects.size() );
       i.lights.resize( vLightObjects.size() );

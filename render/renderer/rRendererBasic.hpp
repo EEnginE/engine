@@ -41,7 +41,7 @@ class rRendererBasic : public internal::rRendererBase {
    std::vector<AttachmentInfo> getAttachmentInfos() override;
    void recordCmdBuffers( Framebuffer_vk &_fb, RECORD_TARGET _toRender ) override;
 
-   void initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) override;
+   void initCmdBuffers( VkCommandPool _pool ) override;
    void freeCmdBuffers( VkCommandPool _pool ) override;
 
  public:

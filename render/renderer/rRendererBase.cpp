@@ -22,6 +22,7 @@
 #include "rRendererBase.hpp"
 #include "rObjectBase.hpp"
 #include "rPipeline.hpp"
+#include "rScene.hpp"
 #include "rShaderBase.hpp"
 #include "rWorld.hpp"
 #include "iInit.hpp"
@@ -44,13 +45,9 @@
 namespace e_engine {
 namespace internal {
 
-uint64_t rRendererBase::vRenderedFrames = 0;
-
 rRendererBase::rRendererBase( iInit *_init, rWorld *_root, std::wstring _id )
     : vID( _id ), vInitPtr( _init ), vWorldPtr( _root ) {
    vDevice_vk = vInitPtr->getDevice();
-
-   vRenderThread = std::thread( &rRendererBase::renderLoop, this );
 
    vCmdRecordInfo.lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
    vCmdRecordInfo.lRPInfo.pNext                    = nullptr;
@@ -83,19 +80,11 @@ rRendererBase::rRendererBase( iInit *_init, rWorld *_root, std::wstring _id )
    vCmdRecordInfo.lInherit.pipelineStatistics   = 0;
 }
 
-rRendererBase::~rRendererBase() {
-   vRunRenderThread = false;
-   if ( vRunRenderLoop )
-      stop();
-
-   vVarStartRecording.notify_all();
-   vVarStartLogLoop.notify_one();
-
-   if ( vRenderThread.joinable() )
-      vRenderThread.join();
-}
+rRendererBase::~rRendererBase() {}
 
 int rRendererBase::init() {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+
    if ( vIsSetup )
       return -3;
 
@@ -162,15 +151,19 @@ int rRendererBase::init() {
    vkDestroyFence( vDevice_vk, lFence, nullptr );
    vkFreeCommandBuffers( vDevice_vk, lPool, 1, &lBuf );
 
-   vIsSetup = true;
+   vIsSetup         = true;
+   vEnableRendering = true;
    return 0;
 }
 
 void rRendererBase::destroy() {
-   if ( vRunRenderLoop )
-      stop();
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+
    if ( !vIsSetup )
       return;
+
+   vEnableRendering = false;
+
    dVkLOG( "Destroying old render pass data [renderer ", vID, "]" );
 
    dVkLOG( "  -- destroying old framebuffers [renderer ", vID, "]" );
@@ -247,6 +240,8 @@ void rRendererBase::getDepthFormat( VkFormat &          _format,
 }
 
 void rRendererBase::recordCmdBuffersWrapper( Framebuffer_vk &_fb, RECORD_TARGET _toRender ) {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+
    VkClearValue *lClearValue = &vRenderPass_vk.clearValues[FRAMEBUFFER_ATTACHMENT_INDEX];
    lClearValue->depthStencil = {1.0f, 0};
 
@@ -288,312 +283,52 @@ void rRendererBase::recordCmdBuffersWrapper( Framebuffer_vk &_fb, RECORD_TARGET 
    recordCmdBuffers( _fb, _toRender );
 }
 
-void rRendererBase::renderLoop() {
-   LOG.nameThread( L"ren_" + vID );
-   iLOG( "Starting render thread" );
+void rRendererBase::updateRenderer() {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
 
-   while ( vRunRenderThread ) {
-      std::unique_lock<std::mutex> lWait1( vMutexStartRecording );
-      std::unique_lock<std::mutex> lWait2( vMutexStartLogLoop );
-
-      dRLOG( "Waiting for command buffer recording signal" );
-      vVarStartRecording.wait( lWait1 );
-
-      // Check for deconstructor
-      if ( !vRunRenderThread )
-         return;
-
-      //    _____      _ _
-      //   |_   _|    (_) |
-      //     | | _ __  _| |_
-      //     | || '_ \| | __|
-      //    _| || | | | | |_
-      //    \___/_| |_|_|\__|
-      //
-
-      const static uint32_t NUM_FENCES   = 3;
-      const static uint32_t FENCE_RENDER = 0;
-      const static uint32_t FENCE_IMG_1  = 1;
-      const static uint32_t FENCE_IMG_2  = 2;
-
-      uint32_t lQueueFamily = 0;
-
-      VkSwapchainKHR lSwapchain_vk = vWorldPtr->getSwapchain();
-      VkQueue        lQueue       = vInitPtr->getQueue( VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily );
-      VkCommandPool  lCommandPool = vWorldPtr->getCommandPool( lQueueFamily );
-      VkSemaphore    lSemPresent  = vWorldPtr->createSemaphore();
-      VkSemaphore    lSemAcquireImg = vWorldPtr->createSemaphore();
-      VkFence        lFences[NUM_FENCES];
-
-      for ( uint32_t i = 0; i < NUM_FENCES; i++ ) {
-         lFences[i] = vWorldPtr->createFence();
-      }
-
-
-      initCmdBuffers( lCommandPool, vFramebuffers_vk.size() );
-      initFrameCommandBuffers( lCommandPool );
-
-      VkPipelineStageFlags lSubmitWaitFlags =
-            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
-      VkSubmitInfo lRenderSubmit[3];
-      lRenderSubmit[0].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-      lRenderSubmit[0].pNext                = nullptr;
-      lRenderSubmit[0].waitSemaphoreCount   = 0;
-      lRenderSubmit[0].pWaitSemaphores      = nullptr;
-      lRenderSubmit[0].pWaitDstStageMask    = nullptr;
-      lRenderSubmit[0].commandBufferCount   = 1;
-      lRenderSubmit[0].pCommandBuffers      = nullptr; // set in render loop
-      lRenderSubmit[0].signalSemaphoreCount = 0;
-      lRenderSubmit[0].pSignalSemaphores    = nullptr;
-
-      lRenderSubmit[1] = lRenderSubmit[0];
-      lRenderSubmit[2] = lRenderSubmit[0];
-
-      lRenderSubmit[0].waitSemaphoreCount   = 1;
-      lRenderSubmit[0].pWaitSemaphores      = &lSemAcquireImg;
-      lRenderSubmit[0].pWaitDstStageMask    = &lSubmitWaitFlags;
-      lRenderSubmit[2].signalSemaphoreCount = 1;
-      lRenderSubmit[2].pSignalSemaphores    = &lSemPresent;
-
-      VkPresentInfoKHR lPresentInfo   = {};
-      lPresentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-      lPresentInfo.pNext              = nullptr;
-      lPresentInfo.waitSemaphoreCount = 1;
-      lPresentInfo.pWaitSemaphores    = &lSemPresent;
-      lPresentInfo.swapchainCount     = 1;
-      lPresentInfo.pSwapchains        = &lSwapchain_vk;
-      lPresentInfo.pImageIndices      = nullptr; // set in render loop
-      lPresentInfo.pResults           = nullptr;
-
-
-      // ======================
-      // Rocord command buffers
-      // ======================
-
-      // Destroy old pipelines
-      for ( auto &i : vObjects ) {
-         rPipeline *  lPipe   = i->getPipeline();
-         rShaderBase *lShader = i->getShader();
-         if ( lPipe != nullptr ) {
-            if ( lPipe->getIsCreated() ) {
-               lPipe->destroy();
-            }
-         }
-
-         // Clear reserved uniforms, part of making sure not to change one uniform more than once
-         if ( lShader != nullptr ) {
-            lShader->signalRenderReset();
+   // Destroy old pipelines
+   for ( auto &i : vObjects ) {
+      rPipeline *  lPipe   = i->getPipeline();
+      rShaderBase *lShader = i->getShader();
+      if ( lPipe != nullptr ) {
+         if ( lPipe->getIsCreated() ) {
+            lPipe->destroy();
          }
       }
 
-      // Create new pipelines
-      for ( auto &i : vObjects ) {
-         rPipeline *lPipe = i->getPipeline();
-         if ( lPipe != nullptr ) {
-            if ( !lPipe->getIsCreated() ) {
-               lPipe->create( vDevice_vk, vRenderPass_vk.renderPass, 0 );
-            }
-         }
-
-         // Setup object for rendering (preparing uniforms)
-         i->signalRenderReset( this );
+      // Clear reserved uniforms, part of making sure not to change one uniform more than once
+      if ( lShader != nullptr ) {
+         lShader->signalRenderReset();
       }
-
-      // Record all command buffers
-      for ( auto &i : vFramebuffers_vk )
-         recordCmdBuffersWrapper( i, RECORD_ALL );
-
-
-
-      // Notifying other thread to continue
-      {
-         std::lock_guard<std::mutex> lGuard( vMutexFinishedRecording );
-         vFinishedRecording = true;
-      }
-      vVarFinishedRecording.notify_all();
-
-      dRLOG( "Waiting for start render loop signal" );
-      vVarStartLogLoop.wait( lWait2 );
-
-      // Check for deconstructor
-      if ( !vRunRenderThread )
-         return;
-
-      //   ______               _             _
-      //   | ___ \             | |           | |
-      //   | |_/ /___ _ __   __| | ___ _ __  | |     ___   ___  _ __
-      //   |    // _ \ '_ \ / _` |/ _ \ '__| | |    / _ \ / _ \| '_ \
-      //   | |\ \  __/ | | | (_| |  __/ |    | |___| (_) | (_) | |_) |
-      //   \_| \_\___|_| |_|\__,_|\___|_|    \_____/\___/ \___/| .__/
-      //                                                       | |
-      //                                                       |_|
-
-      uint32_t lNextImg;
-
-      // Init Uniforms
-      for ( auto i : vObjects )
-         i->updateUniforms();
-
-      iLOG( "Starting the render loop" );
-      while ( vRunRenderLoop ) {
-         if ( !vIsSetup ) {
-            eLOG( "FATAL ERROR NOT SETUP" ); // Should never execute
-            break;
-         }
-
-         // Get present image (this command blocks)
-         auto lRes = vkAcquireNextImageKHR(
-               vDevice_vk, lSwapchain_vk, UINT64_MAX, lSemAcquireImg, VK_NULL_HANDLE, &lNextImg );
-         if ( lRes ) {
-            eLOG( "'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr( lRes ) );
-            break;
-         }
-
-         // Rerecord command buffers to update push constants
-         recordCmdBuffersWrapper( vFramebuffers_vk[lNextImg], RECORD_PUSH_CONST_ONLY );
-
-         // Set CMD buffers
-         lRenderSubmit[0].pCommandBuffers = &vFramebuffers_vk[lNextImg].preRender;
-         lRenderSubmit[1].pCommandBuffers = &vFramebuffers_vk[lNextImg].render;
-         lRenderSubmit[2].pCommandBuffers = &vFramebuffers_vk[lNextImg].postRender;
-
-         // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  -->  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[0], lFences[FENCE_IMG_1] );
-         if ( lRes ) {
-            eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
-            break;
-         }
-
-         // Render
-         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[1], lFences[FENCE_RENDER] );
-         if ( lRes ) {
-            eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
-            break;
-         }
-
-         // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  -->  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-         lRes = vkQueueSubmit( lQueue, 1, &lRenderSubmit[2], lFences[FENCE_IMG_2] );
-         if ( lRes ) {
-            eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
-            break;
-         }
-
-         lPresentInfo.pImageIndices = &lNextImg;
-         lRes                       = vkQueuePresentKHR( lQueue, &lPresentInfo );
-         if ( lRes ) {
-            eLOG( "'vkQueuePresentKHR' returned ", uEnum2Str::toStr( lRes ) );
-            break;
-         }
-
-         // Wait until rendering is done
-         vkWaitForFences( vDevice_vk, 1, &lFences[FENCE_RENDER], VK_TRUE, UINT64_MAX );
-
-         // Update Uniforms
-         for ( auto i : vObjects )
-            i->updateUniforms();
-
-         vkWaitForFences( vDevice_vk, 1, &lFences[FENCE_IMG_1], VK_TRUE, UINT64_MAX );
-         vkWaitForFences( vDevice_vk, 1, &lFences[FENCE_IMG_2], VK_TRUE, UINT64_MAX );
-
-         vkResetFences( vDevice_vk, NUM_FENCES, lFences );
-
-         vWorldPtr->signalRenderdFrame();
-         vRenderedFrames++;
-      }
-      iLOG( "Render loop stopped" );
-
-
-      //    _____ _
-      //   /  __ \ |
-      //   | /  \/ | ___  __ _ _ __  _   _ _ __
-      //   | |   | |/ _ \/ _` | '_ \| | | | '_ \
-      //   | \__/\ |  __/ (_| | | | | |_| | |_) |
-      //    \____/_|\___|\__,_|_| |_|\__,_| .__/
-      //                                  | |
-      //                                  |_|
-
-      auto lRes = vkDeviceWaitIdle( vDevice_vk );
-      if ( lRes ) {
-         eLOG( "'vkDeviceWaitIdle' returned ", uEnum2Str::toStr( lRes ) );
-      }
-
-      freeCmdBuffers( lCommandPool );
-      freeFrameCommandBuffers( lCommandPool );
-
-      vkDestroySemaphore( vDevice_vk, lSemPresent, nullptr );
-      for ( uint32_t i = 0; i < NUM_FENCES; i++ )
-         vkDestroyFence( vDevice_vk, lFences[i], nullptr );
-
-
-      std::lock_guard<std::mutex> lGuard1( vMutexStopLogLoop );
-      std::lock_guard<std::mutex> lGuard2( vMutexFinishedRecording );
-      vVarStopLogLoop.notify_all();
-      vFinishedRecording = false;
    }
 
-   iLOG( "Stopping render thread" );
+   // Create new pipelines
+   for ( auto &i : vObjects ) {
+      rPipeline *lPipe = i->getPipeline();
+      if ( lPipe != nullptr ) {
+         if ( !lPipe->getIsCreated() ) {
+            lPipe->create( vDevice_vk, vRenderPass_vk.renderPass, 0 );
+         }
+      }
+
+      // Setup object for rendering (preparing uniforms)
+      i->signalRenderReset( this );
+   }
+
+   // Record all command buffers
+   for ( auto &i : vFramebuffers_vk )
+      recordCmdBuffersWrapper( i, RECORD_ALL );
 }
 
-bool rRendererBase::start() {
-   if ( vRunRenderLoop ) {
-      wLOG( "Render loop already running! [renderer ", vID, "]" );
-      return false;
-   }
-
-   if ( !vIsSetup ) {
-      eLOG( "Can not start uninitialized renderer! [renderer ", vID, "]" );
-      return false;
-   }
-
-   dRLOG( "Sending start render loop to [renderer ", vID, "]" );
-
-   std::unique_lock<std::mutex> lWait( vMutexFinishedRecording );
-   std::lock_guard<std::mutex>  lGuard( vMutexStartLogLoop );
-
-   if ( !vFinishedRecording )
-      vVarFinishedRecording.wait( lWait );
-
-   vRunRenderLoop = true;
-   vVarStartLogLoop.notify_all();
-   return true;
-}
-
-bool rRendererBase::stop() {
-   if ( !vRunRenderLoop ) {
-      wLOG( "Render loop already stopped! [renderer ", vID, "]" );
-      return false;
-   }
-
-   dRLOG( "Sending stop render loop to [renderer ", vID, "]" );
-
-   vRunRenderLoop = false;
-
-   std::unique_lock<std::mutex> lWait( vMutexStopLogLoop );
-
-   vVarStopLogLoop.wait( lWait );
-   return true;
-}
-
-bool rRendererBase::applyChanges() {
-   dRLOG( "Applying changes to [renderer ", vID, "]" );
-
-   {
-      std::lock_guard<std::mutex> lGuard( vMutexStartRecording );
-      if ( vFinishedRecording ) {
-         wLOG( "Already recorded [renderer ", vID, "]" );
-         return false;
-      }
-   }
-
-   std::unique_lock<std::mutex> lWait( vMutexFinishedRecording );
-   vVarStartRecording.notify_one();
-   vVarFinishedRecording.wait( lWait );
-   return true;
+void rRendererBase::updateUniforms() {
+   for ( auto i : vObjects )
+      i->updateUniforms();
 }
 
 
 void rRendererBase::initFrameCommandBuffers( VkCommandPool _pool ) {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+
    VkImageSubresourceRange lSubResRange = {};
    lSubResRange.aspectMask              = VK_IMAGE_ASPECT_COLOR_BIT;
    lSubResRange.baseMipLevel            = 0;
@@ -629,6 +364,8 @@ void rRendererBase::initFrameCommandBuffers( VkCommandPool _pool ) {
 }
 
 void rRendererBase::freeFrameCommandBuffers( VkCommandPool _pool ) {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+
    for ( auto &i : vFramebuffers_vk ) {
       vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.preRender );
       vkFreeCommandBuffers( vDevice_vk, _pool, 1, &i.render );
@@ -640,19 +377,39 @@ void rRendererBase::freeFrameCommandBuffers( VkCommandPool _pool ) {
    }
 }
 
+void rRendererBase::initAllCmdBuffers( VkCommandPool _pool ) {
+   initFrameCommandBuffers( _pool );
+   initCmdBuffers( _pool );
+}
 
+void rRendererBase::freeAllCmdBuffers( VkCommandPool _pool ) {
+   freeCmdBuffers( _pool );
+   freeFrameCommandBuffers( _pool );
+}
 
+/*!
+ * \brief Adds all objects form a scene to the renderer
+ */
+bool rRendererBase::renderScene( rSceneBase *_scene ) {
+   for ( auto const &i : _scene->getObjects() ) {
+      addObject( i );
+   }
+   return true;
+}
+
+/*!
+ * \brief Adds object to be rendererd
+ * \param _obj Object to be rendererd
+ */
 bool rRendererBase::addObject( std::shared_ptr<rObjectBase> _obj ) {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+
    vObjects.emplace_back( _obj );
    return true;
 }
 
 bool rRendererBase::resetObjects() {
-   std::lock_guard<std::mutex> lGuard( vMutexStartRecording );
-   if ( vRunRenderLoop ) {
-      wLOG( "Can not clear objects while render loop is running!" );
-      return false;
-   }
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
 
    vObjects.clear();
    return true;
@@ -782,9 +539,39 @@ void rRendererBase::addSubpassDependecy( uint32_t _srcSubPass,
    lAlias->dependencyFlags = _dependencyFlags;
 }
 
-uint64_t *rRendererBase::getRenderedFramesPtr() { return &vRenderedFrames; }
-bool      rRendererBase::getIsRunning() const { return vRunRenderLoop; }
-bool      rRendererBase::getIsInit() const { return vIsSetup; }
+void rRendererBase::updatePushConstants( uint32_t _framebuffer ) {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+   recordCmdBuffersWrapper( vFramebuffers_vk[_framebuffer], RECORD_PUSH_CONST_ONLY );
+}
+
+/*!
+ * \brief Get pointers to command buffers
+ */
+rRendererBase::CommandBuffers rRendererBase::getCommandBuffers( uint32_t _framebuffer ) {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+   CommandBuffers                        lBuffers = {};
+
+   lBuffers.pre             = &vFramebuffers_vk[_framebuffer].preRender;
+   lBuffers.render          = &vFramebuffers_vk[_framebuffer].render;
+   lBuffers.post            = &vFramebuffers_vk[_framebuffer].postRender;
+   lBuffers.enableRendering = &vEnableRendering;
+
+   return lBuffers;
+}
+
+bool rRendererBase::getIsInit() const { return vIsSetup; }
 void rRendererBase::setClearColor( VkClearColorValue _clearColor ) { vClearColor = _clearColor; }
+
+/*!
+ * \brief Get the number of framebuffers
+ * \returns The number of framebuffers or UINT32_MAX if not init
+ */
+uint32_t rRendererBase::getNumFramebuffers() const {
+   if ( !vIsSetup )
+      return UINT32_MAX;
+
+   assert( vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size() );
+   return vWorldPtr->getNumFramebuffers();
+}
 }
 }

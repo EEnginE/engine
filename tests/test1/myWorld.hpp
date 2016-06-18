@@ -25,17 +25,18 @@
 #ifndef HANDLER_HPP
 #define HANDLER_HPP
 
-using e_engine::rWorldCreator;
+using e_engine::rWorld;
 using e_engine::rRendererDeferred;
 using e_engine::rFrameCounter;
 
-class myWorld final : public rWorldCreator<rRendererDeferred>, public rFrameCounter {
+class myWorld final : public rWorld, public rFrameCounter {
    typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;
 
  private:
    float vAlpha;
 
    std::vector<e_engine::OS_NAMESPACE::iDisplays> vDisp_RandR;
+   std::shared_ptr<rRendererDeferred> vRenderer;
 
    myScene vScene;
    e_engine::iInit *vInitPointer;
@@ -49,8 +50,9 @@ class myWorld final : public rWorldCreator<rRendererDeferred>, public rFrameCoun
 
  public:
    myWorld( cmdANDinit &_cmd, e_engine::iInit *_init )
-       : rWorldCreator<rRendererDeferred>( _init ),
+       : rWorld( _init ),
          rFrameCounter( this, true ),
+         vRenderer( std::make_shared<rRendererDeferred>( getInitPtr(), this, L"R1" ) ),
          vScene( this, _cmd ),
          vInitPointer( _init ),
          vNearZ( _cmd.getNearZ() ),

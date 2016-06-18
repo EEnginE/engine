@@ -35,13 +35,21 @@
 
 namespace e_engine {
 
-void rWorld::handleResize( iEventInfo const & ) { init(); }
+void rWorld::handleResize( iEventInfo const & ) {
+   bool lWasRunning = vRenderLoop.getIsRunning();
+
+   init(); // Will stop the render loop
+
+   if ( lWasRunning )
+      vRenderLoop.start();
+}
 
 /*!
  * \brief Constructor
  * \note The pointer _init must be valid over the lifetime of the object!
  */
-rWorld::rWorld( iInit *_init ) : vInitPtr( _init ), vResizeSlot( &rWorld::handleResize, this ) {
+rWorld::rWorld( iInit *_init )
+    : vInitPtr( _init ), vRenderLoop( _init, this ), vResizeSlot( &rWorld::handleResize, this ) {
    vDevice_vk  = vInitPtr->getDevice();
    vSurface_vk = vInitPtr->getVulkanSurface();
 
@@ -71,12 +79,11 @@ rWorld::~rWorld() { shutdown(); }
  * \note this function will be automatically called every time the window is resized
  */
 int rWorld::init() {
-   if ( !vFrontRenderer || !vBackRenderer )
-      setRendererPtr( &vFrontRenderer, &vBackRenderer );
-
    std::lock_guard<std::mutex> lGuard( vRenderAccessMutex );
-   vFrontRenderer->destroy();
-   vBackRenderer->destroy();
+   if ( vRenderLoop.getIsRunning() ) {
+      vRenderLoop.stop();
+   }
+   vRenderLoop.destroy();
 
    dVkLOG( "  -- destroying old swapchain image views" );
    for ( auto &i : vSwapchainViews_vk )
@@ -137,12 +144,7 @@ int rWorld::init() {
    vkDestroyFence( vDevice_vk, lFence, nullptr );
    vkFreeCommandBuffers( vDevice_vk, lPool, 1, &lBuf );
 
-#if !DEBUG_DISABLE_MULTIRENDER
-   vBackRenderer->init();
-#endif
-   vFrontRenderer->init();
-   vFrontRenderer->applyChanges();
-   vFrontRenderer->start();
+   vRenderLoop.init();
 
    if ( !vIsResizeSlotSetup )
       vInitPtr->addResizeSlot( &vResizeSlot );
@@ -159,15 +161,12 @@ void rWorld::shutdown() {
    if ( !vIsSetup )
       return;
 
-   if ( vFrontRenderer->getIsRunning() )
-      vFrontRenderer->stop();
+   if ( vRenderLoop.getIsRunning() )
+      vRenderLoop.stop();
 
-   if ( vBackRenderer->getIsRunning() )
-      vBackRenderer->stop();
 
    dVkLOG( "Vulkan cleanup [rWorld]:" );
-   vFrontRenderer->destroy();
-   vBackRenderer->destroy();
+   vRenderLoop.destroy();
 
    dVkLOG( "  -- Destroying command pools..." );
 
@@ -210,63 +209,6 @@ bool rWorld::waitForFrame( std::mutex &_mutex ) {
       return true;
 }
 
-
-/*!
- * \brief Renders all objects of a scene
- *
- * This function will apply the changes to the back rendere and then swap back and front rendere
- */
-bool rWorld::renderScene( rSceneBase *_scene ) {
-   if ( !vFrontRenderer || !vBackRenderer )
-      setRendererPtr( &vFrontRenderer, &vBackRenderer );
-
-   if ( !_scene )
-      return false;
-
-   auto lObjects = _scene->getObjects();
-
-   std::lock_guard<std::mutex> lGuard( vRenderAccessMutex );
-
-#if !DEBUG_DISABLE_MULTIRENDER
-   for ( auto &i : lObjects )
-      vBackRenderer->addObject( i );
-
-   //! \todo Add other stuff here
-
-   if ( !vBackRenderer->getIsInit() ) {
-      if ( vBackRenderer->init() ) {
-         eLOG( "Faield to init renderer!" );
-         return false;
-      }
-   }
-
-   vBackRenderer->applyChanges();
-   if ( vFrontRenderer->getIsRunning() )
-      vFrontRenderer->stop();
-   vBackRenderer->start();
-
-   vFrontRenderer->resetObjects();
-
-   auto lTemp     = vFrontRenderer;
-   vFrontRenderer = vBackRenderer;
-   vBackRenderer  = lTemp;
-#else
-   if ( vFrontRenderer->getIsRunning() )
-      vFrontRenderer->stop();
-
-   vFrontRenderer->destroy();
-   vFrontRenderer->resetObjects();
-   vFrontRenderer->init();
-
-   for ( auto &i : lObjects )
-      vFrontRenderer->addObject( i );
-
-   vFrontRenderer->applyChanges();
-   vFrontRenderer->start();
-#endif
-
-   return true;
-}
 
 /*!
  * \brief Changes a Vulkan image layout
@@ -553,23 +495,19 @@ void rWorld::updateViewPort( int _x, int _y, int _width, int _height ) {
  * \note This function will only take effect once the render loop is restarted!
  */
 void rWorld::updateClearColor( float _r, float _g, float _b, float _a ) {
-   if ( !vFrontRenderer || !vBackRenderer )
-      setRendererPtr( &vFrontRenderer, &vBackRenderer );
-
    VkClearColorValue lClear = {{_r, _g, _b, _a}};
-   vFrontRenderer->setClearColor( lClear );
-   vBackRenderer->setClearColor( lClear );
+   vRenderLoop.updateGlobalClearColor( lClear );
 }
 
 /*!
  * \returns A pointer to the integer counting the number of rendered frames
  */
-uint64_t *rWorld::getRenderedFramesPtr() {
-   if ( !vFrontRenderer || !vBackRenderer )
-      setRendererPtr( &vFrontRenderer, &vBackRenderer );
+uint64_t *rWorld::getRenderedFramesPtr() { return vRenderLoop.getRenderedFramesPtr(); }
 
-   return vFrontRenderer->getRenderedFramesPtr();
-}
+/*!
+ * \returns The nuber of framebuffers
+ */
+uint32_t rWorld::getNumFramebuffers() const { return vSwapchainImages_vk.size(); }
 
 /*!
  * \returns The used vulkan device handle
@@ -581,4 +519,9 @@ VkDevice rWorld::getDevice() { return vDevice_vk; }
  * \returns the internaly used iInit pointer
  */
 iInit *rWorld::getInitPtr() { return vInitPtr; }
+
+/*!
+ * \returns a reverence to the render loop
+ */
+rRenderLoop *rWorld::getRenderLoop() { return &vRenderLoop; }
 }

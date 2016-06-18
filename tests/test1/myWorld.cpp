@@ -102,7 +102,9 @@ int myWorld::initGL() {
    int lReturn = vScene.init();
    init();
    updateClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-   renderScene( &vScene );
+   vRenderer->renderScene( &vScene );
+   getRenderLoop()->addRenderer( vRenderer );
+   getRenderLoop()->start();
 
    vInitPointer->getWindow()->moveMouse( GlobConf.win.width / 2, GlobConf.win.height / 2 );
    // vInitPointer->hideMouseCursor();

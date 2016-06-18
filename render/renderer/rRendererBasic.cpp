@@ -61,7 +61,7 @@ VkImageView rRendererBasic::getAttachmentView( ATTACHMENT_ROLE _role ) {
    }
 }
 
-void rRendererBasic::initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) {
+void rRendererBasic::initCmdBuffers( VkCommandPool _pool ) {
    for ( auto i : vObjects ) {
       if ( i.get() == nullptr ) {
          eLOG( "FATAL ERROR: nullptr in object list!" );
@@ -73,7 +73,7 @@ void rRendererBasic::initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuff
       }
    }
 
-   vFbData.resize( _numFramebuffers );
+   vFbData.resize( getNumFramebuffers() );
    for ( auto &i : vFbData ) {
       i.buffers.resize( vRenderObjects.size() );
       for ( auto &j : i.buffers ) {

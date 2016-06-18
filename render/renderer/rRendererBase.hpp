@@ -36,6 +36,8 @@ namespace e_engine {
 class iInit;
 class rWorld;
 class rObjectBase;
+class rRenderLoop;
+class rSceneBase;
 
 namespace internal {
 
@@ -99,38 +101,31 @@ class RENDER_API rRendererBase {
       VkCommandBufferInheritanceInfo lInherit  = {};
    } RecordInfo_vk;
 
+   typedef struct CommandBuffers {
+      VkCommandBuffer *pre;
+      VkCommandBuffer *render;
+      VkCommandBuffer *post;
+      bool *           enableRendering;
+   } CommandBuffers;
+
    using OBJECTS = std::vector<std::shared_ptr<rObjectBase>>;
 
    enum RECORD_TARGET { RECORD_ALL, RECORD_PUSH_CONST_ONLY };
    enum ATTACHMENT_ROLE { DEPTH_STENCIL, DEFERRED_POSITION, DEFERRED_NORMAL, DEFERRED_ALBEDO };
 
  private:
-   static uint64_t vRenderedFrames;
-
    std::wstring vID;
 
    std::vector<Framebuffer_vk> vFramebuffers_vk;
    std::vector<Buffer_vk>      vBuffers;
 
-   std::thread vRenderThread;
-
-   std::mutex vMutexStartRecording;
-   std::mutex vMutexFinishedRecording;
-   std::mutex vMutexStartLogLoop;
-   std::mutex vMutexStopLogLoop;
-
-   std::condition_variable vVarStartRecording;
-   std::condition_variable vVarFinishedRecording;
-   std::condition_variable vVarStartLogLoop;
-   std::condition_variable vVarStopLogLoop;
+   std::recursive_mutex vMutexRecordData;
 
    VkClearColorValue vClearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
 
-   bool vHasStencilBuffer  = false;
-   bool vIsSetup           = false;
-   bool vFinishedRecording = false;
-   bool vRunRenderThread   = true;
-   bool vRunRenderLoop     = false;
+   bool vIsSetup          = false;
+   bool vHasStencilBuffer = false;
+   bool vEnableRendering  = false;
 
    int initImageBuffers( VkCommandBuffer _buf );
    int initRenderPass();
@@ -141,7 +136,13 @@ class RENDER_API rRendererBase {
 
    void recordCmdBuffersWrapper( Framebuffer_vk &_fb, RECORD_TARGET _toRender );
 
-   void renderLoop();
+   // Meant for the render loop
+   void initAllCmdBuffers( VkCommandPool _pool );
+   void freeAllCmdBuffers( VkCommandPool _pool );
+
+   void updateRenderer();
+   void updatePushConstants( uint32_t _framebuffer );
+   CommandBuffers getCommandBuffers( uint32_t _framebuffer );
 
  protected:
    enum PREDEFINED_ATTACHMENT_INDEXES {
@@ -178,7 +179,7 @@ class RENDER_API rRendererBase {
                              uint32_t _dstAccessMask   = 0,
                              uint32_t _dependencyFlags = 0 );
 
-   virtual void initCmdBuffers( VkCommandPool _pool, uint32_t _numFramebuffers ) = 0;
+   virtual void initCmdBuffers( VkCommandPool _pool ) = 0;
    virtual void freeCmdBuffers( VkCommandPool _pool ) = 0;
    virtual void recordCmdBuffers( Framebuffer_vk &_fb, RECORD_TARGET _toRender ) = 0;
 
@@ -193,24 +194,23 @@ class RENDER_API rRendererBase {
 
    virtual VkImageView getAttachmentView( ATTACHMENT_ROLE _role ) = 0;
 
+   bool renderScene( rSceneBase *_scene );
    bool addObject( std::shared_ptr<rObjectBase> _obj );
    bool resetObjects();
 
    int  init();
    void destroy();
 
-   bool applyChanges();
+   void updateUniforms();
 
-   bool start();
-   bool stop();
-   bool getIsRunning() const;
    bool getIsInit() const;
 
    void setClearColor( VkClearColorValue _clearColor );
 
    void getDepthFormat( VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect );
+   uint32_t getNumFramebuffers() const;
 
-   uint64_t *getRenderedFramesPtr();
+   friend class ::e_engine::rRenderLoop;
 };
 }
 }
