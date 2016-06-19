@@ -151,8 +151,11 @@ int rRendererBase::init() {
    vkDestroyFence( vDevice_vk, lFence, nullptr );
    vkFreeCommandBuffers( vDevice_vk, lPool, 1, &lBuf );
 
-   vIsSetup         = true;
-   vEnableRendering = true;
+   vIsSetup = true;
+
+   if ( !vUserDisabledRendering )
+      vEnableRendering = true;
+
    return 0;
 }
 
@@ -558,6 +561,41 @@ rRendererBase::CommandBuffers rRendererBase::getCommandBuffers( uint32_t _frameb
 
    return lBuffers;
 }
+
+/*!
+ * \brief Disables rendering for this renderer
+ *
+ * Also prevents init() from automatically enabling the renderer.
+ *
+ * \note This will not disable updating uniforms, recording buffers, etc. Only the render loop won't
+ * \note execute the command buffers
+ */
+void rRendererBase::disableRendering() {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+   vUserDisabledRendering = true;
+   vEnableRendering       = false;
+}
+
+/*!
+ * \brief Enables rendering for this renderer
+ * \returns false if the renderer is not setup
+ * \note After calling this function, init() will enable rendering automatically (default)
+ */
+bool rRendererBase::enableRendering() {
+   std::lock_guard<std::recursive_mutex> lGuard( vMutexRecordData );
+   vUserDisabledRendering = false;
+
+   if ( !vIsSetup )
+      return false;
+
+   vEnableRendering = true;
+   return true;
+}
+
+/*!
+ * \returns if rendering is enabled
+ */
+bool rRendererBase::getIsRenderingEnabled() const { return vEnableRendering; }
 
 bool rRendererBase::getIsInit() const { return vIsSetup; }
 void rRendererBase::setClearColor( VkClearColorValue _clearColor ) { vClearColor = _clearColor; }

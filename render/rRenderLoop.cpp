@@ -305,7 +305,7 @@ void rRenderLoop::rebuildCommandBuffersArray( CommandBuffers *_buffers, uint32_t
    _buffers->post.clear();
 
    for ( auto const &i : _buffers->pointers ) {
-      if ( !i[_framebuffer].enableRendering )
+      if ( !*i[_framebuffer].enableRendering )
          continue;
 
       _buffers->pre.emplace_back( *i[_framebuffer].pre );

@@ -123,9 +123,10 @@ class RENDER_API rRendererBase {
 
    VkClearColorValue vClearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
 
-   bool vIsSetup          = false;
-   bool vHasStencilBuffer = false;
-   bool vEnableRendering  = false;
+   bool vIsSetup               = false;
+   bool vHasStencilBuffer      = false;
+   bool vEnableRendering       = false;
+   bool vUserDisabledRendering = false; //!< User manually disabled rendering
 
    int initImageBuffers( VkCommandBuffer _buf );
    int initRenderPass();
@@ -200,6 +201,10 @@ class RENDER_API rRendererBase {
 
    int  init();
    void destroy();
+
+   void disableRendering();
+   bool enableRendering();
+   bool getIsRenderingEnabled() const;
 
    void updateUniforms();
 
