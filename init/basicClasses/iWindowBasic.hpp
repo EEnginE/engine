@@ -40,8 +40,8 @@ namespace e_engine {
 class iWindowBasic {
 
  public:
-  iWindowBasic()          = default;
-  virtual ~iWindowBasic() = default;
+  iWindowBasic() = default;
+  virtual ~iWindowBasic();
 
   virtual int  createWindow()  = 0;
   virtual void destroyWindow() = 0;

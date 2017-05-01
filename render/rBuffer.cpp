@@ -210,7 +210,7 @@ bool rBuffer::cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBuff
 
   vkCmdCopyBuffer(_buff, vTempBuffer_vk, vBuffer_vk, 1, &lRegion);
 
-  vSize                = _data.size();
+  vSize                = static_cast<uint32_t>(_data.size());
   vSettingUpInProgress = true;
   return true;
 }

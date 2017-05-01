@@ -60,7 +60,8 @@ internal::iXCBAtom::iXCBAtom(xcb_connection_t *_connection, std::string _name) {
 bool internal::iXCBAtom::genAtom(xcb_connection_t *_connection, std::string _name) {
   if (vAtomReply_XCB != nullptr) free(vAtomReply_XCB);
 
-  xcb_intern_atom_cookie_t lTempCookie = xcb_intern_atom(_connection, 0, _name.size(), _name.c_str());
+  xcb_intern_atom_cookie_t lTempCookie =
+      xcb_intern_atom(_connection, 0, static_cast<uint16_t>(_name.size()), _name.c_str());
 
   vAtomReply_XCB = xcb_intern_atom_reply(_connection, lTempCookie, nullptr);
   return true;
@@ -121,10 +122,10 @@ int iWindow::createWindow() {
                     XCB_COPY_FROM_PARENT,
                     vWindow_XCB,
                     vScreen_XCB->root,
-                    GlobConf.win.posX,
-                    GlobConf.win.posY,
-                    GlobConf.win.width,
-                    GlobConf.win.height,
+                    static_cast<int16_t>(GlobConf.win.posX),
+                    static_cast<int16_t>(GlobConf.win.posY),
+                    static_cast<uint16_t>(GlobConf.win.width),
+                    static_cast<uint16_t>(GlobConf.win.height),
                     0,
                     XCB_WINDOW_CLASS_INPUT_OUTPUT,
                     vScreen_XCB->root_visual,
@@ -204,7 +205,7 @@ void iWindow::setWmPropertyAtom(iXCBAtom &_property, iXCBAtom &_data) {
   setWmProperty(_property, XCB_ATOM_ATOM, 32, 1, _data.getAtomRef());
 }
 void iWindow::setWmPropertyString(iXCBAtom &_property, std::string _data) {
-  setWmProperty(_property, XCB_ATOM_STRING, 8, _data.length(), _data.c_str());
+  setWmProperty(_property, XCB_ATOM_STRING, 8, static_cast<uint32_t>(_data.length()), _data.c_str());
 }
 
 void iWindow::setWindowNames(std::string _windowName, std::string _iconName) {
@@ -454,9 +455,9 @@ void iWindow::fullScreenMultiMonitor() {
 void iWindow::setFullScreenMonitor(iDisplays &_disp) {
   if (!vWindowCreated_B) return;
 
-  int lDisp_I = getIndexOfDisplay(_disp);
+  uint32_t lDisp_I = static_cast<uint32_t>(getIndexOfDisplay(_disp));
 
-  if (lDisp_I < 0) {
+  if (lDisp_I > INT32_MAX) {
     wLOG(
         "No valid iDisplays [ setFullScreenMonitor(...) ] ==> Return "
         "iRandR::getIndexOfDisplay( _disp ) = ",
@@ -604,15 +605,15 @@ void iWindow::moveMouse(unsigned int _posX, unsigned int _posY) {
 
   if (!vWindowCreated_B) return;
 
-  xcb_warp_pointer(vConnection_XCB,         // Our connection to the X server
-                   XCB_NONE,                // Move it from this window (unknown)...
-                   vWindow_XCB,             // ...to the window
-                   0,                       // We dont...
-                   0,                       // ...have any...
-                   0,                       // ...information about...
-                   0,                       // ...the source window!
-                   static_cast<int>(_posX), // Posx in the window
-                   static_cast<int>(_posY)  // Posy in the window
+  xcb_warp_pointer(vConnection_XCB,             // Our connection to the X server
+                   XCB_NONE,                    // Move it from this window (unknown)...
+                   vWindow_XCB,                 // ...to the window
+                   0,                           // We dont...
+                   0,                           // ...have any...
+                   0,                           // ...information about...
+                   0,                           // ...the source window!
+                   static_cast<int16_t>(_posX), // Posx in the window
+                   static_cast<int16_t>(_posY)  // Posy in the window
                    );
 
   xcb_flush(vConnection_XCB);

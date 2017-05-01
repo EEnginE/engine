@@ -179,7 +179,7 @@ void uJSON_data::_(
 
     switch (_type) {
       case JSON_STRING: value_str = *static_cast<const std::string *>(lData); break;
-      case JSON_INT: value_int    = *static_cast<const int *>(lData);
+      case JSON_INT: value_int    = *static_cast<const int *>(lData); break;
       case JSON_NUMBER: value_num = *static_cast<const double *>(lData); break;
       case JSON_BOOL: value_bool  = *static_cast<const bool *>(lData); break;
       case JSON_ARRAY:

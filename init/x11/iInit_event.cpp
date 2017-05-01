@@ -73,7 +73,7 @@ int iInit::eventLoop() {
 
           vResize_SIG(tempInfo);
         }
-      }
+      } break;
 
       case XCB_RESIZE_REQUEST:
       case XCB_EXPOSE:
@@ -99,8 +99,8 @@ int iInit::eventLoop() {
         iEventInfo tempInfo(this);
         tempInfo.type         = E_EVENT_MOUSE;
         tempInfo.iMouse.state = static_cast<int>(lButtonState_uI);
-        tempInfo.iMouse.posX  = lEvent->event_x;
-        tempInfo.iMouse.posY  = lEvent->event_y;
+        tempInfo.iMouse.posX  = static_cast<uint32_t>(lEvent->event_x);
+        tempInfo.iMouse.posY  = static_cast<uint32_t>(lEvent->event_y);
 
         tempInfo.iMouse.button = E_MOUSE_LEFT;
 
@@ -132,8 +132,8 @@ int iInit::eventLoop() {
         tempInfo.iMouse.button = E_MOUSE_MOVE;
         tempInfo.type          = E_EVENT_MOUSE;
         tempInfo.iMouse.state  = E_PRESSED;
-        tempInfo.iMouse.posX = GlobConf.win.mousePosX = lEvent->event_x;
-        tempInfo.iMouse.posY = GlobConf.win.mousePosY = lEvent->event_y;
+        tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
+        tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
 
         GlobConf.win.mouseIsInWindow = true;
         vMouse_SIG(tempInfo);
@@ -146,8 +146,8 @@ int iInit::eventLoop() {
         tempInfo.iMouse.button = E_MOUSE_ENTER;
         tempInfo.type          = E_EVENT_MOUSE;
         tempInfo.iMouse.state  = E_PRESSED;
-        tempInfo.iMouse.posX = GlobConf.win.mousePosX = lEvent->event_x;
-        tempInfo.iMouse.posY = GlobConf.win.mousePosY = lEvent->event_y;
+        tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
+        tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
 
         GlobConf.win.mouseIsInWindow = true;
         vMouse_SIG(tempInfo);
@@ -160,8 +160,8 @@ int iInit::eventLoop() {
         tempInfo.iMouse.button = E_MOUSE_LEAVE;
         tempInfo.type          = E_EVENT_MOUSE;
         tempInfo.iMouse.state  = E_PRESSED;
-        tempInfo.iMouse.posX = GlobConf.win.mousePosX = lEvent->event_x;
-        tempInfo.iMouse.posY = GlobConf.win.mousePosY = lEvent->event_y;
+        tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
+        tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
 
         GlobConf.win.mouseIsInWindow = false;
         vMouse_SIG(tempInfo);

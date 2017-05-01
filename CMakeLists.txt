@@ -23,15 +23,13 @@ set( TEMPLATES_DIR      ${PROJECT_SOURCE_DIR}/cmake/templates )
 set( COMPILER_TESTS_DIR ${PROJECT_SOURCE_DIR}/cmake/tests )
 
 # Build options
-option( ENGINE_LINK_SHARED  "Link the project shared (1/ON) or static (0/OFF)" ON )
 option( DEBUG_LOG_ALL       "Enable all debug defines"                         OFF )
-
-option( STD_FILESYSTEM_IS_EXPERIMENTAL "Use the experimental filesystem instead of std IF ENGINE_USE_BOOST is false" ON )
 
 set( CMAKE_CXX_STANDARD          14 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 set( CMAKE_C_STANDARD            11 )
 set( CMAKE_C_STANDARD_REQUIRED   ON )
+set( WINDOWS_EXPORT_ALL_SYMBOLS  ON )
 
 if( NOT DEFINED GLSL_TO_SPIRV_COMPILER )
    set( GLSL_TO_SPIRV_COMPILER "glslangValidator" )
@@ -77,10 +75,12 @@ add_compiler( GNU MIN_VERSION "5.3"
               RELEASE  "-O3" )
 
 add_compiler( Clang
-              ALL      "-fvisibility=hidden -Weverything -ftemplate-backtrace-limit=0 -fcolor-diagnostics"
+              ALL      "-Weverything -ftemplate-backtrace-limit=0 -fcolor-diagnostics"
                        "-Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-float-equal"
                        "-Wno-gnu-anonymous-struct -Wno-nested-anon-types -Wno-exit-time-destructors"
                        "-Wno-global-constructors -Wno-switch-enum -Wno-reserved-id-macro"
+                       "-Wno-documentation-unknown-command -Wno-unused-macros -Wno-weak-vtables"
+                       "-Wno-double-promotion -Wno-undefined-func-template"
               DEBUG    "-Werror"
               SANITIZE "-fsanitize=${SANITIZERS}"
               RELEASE  "-O2" )
@@ -99,26 +99,6 @@ endif( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
 # Dependencies #
 ################
 
-if( ENGINE_LINK_SHARED )
-  message( STATUS "Linking shared. => Do not change CMAKE_FIND_LIBRARY_SUFFIXES (${CMAKE_FIND_LIBRARY_SUFFIXES})" )
-else( ENGINE_LINK_SHARED )
-  set( OLD_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES} )
-  set( CMAKE_FIND_LIBRARY_SUFFIXES .a .lib .so .dll ${CMAKE_FIND_LIBRARY_SUFFIXES} )
-  message( STATUS "Linking static. => Changed CMAKE_FIND_LIBRARY_SUFFIXES to ${CMAKE_FIND_LIBRARY_SUFFIXES}" )
-endif( ENGINE_LINK_SHARED )
-
-if( STD_FILESYSTEM_IS_EXPERIMENTAL )
-  set( CM_FILESYSTEM_NAMESPACE "std::experimental::filesystem" )
-  set( CM_FILESYSTEM_INCLUDE   "<experimental/filesystem>" )
-
-  if( CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL asd )
-    set( FS_LIBRARIES stdc++fs )
-  endif( CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL asd )
-else( STD_FILESYSTEM_IS_EXPERIMENTAL )
-  set( CM_FILESYSTEM_NAMESPACE "std::filesystem" )
-  set( CM_FILESYSTEM_INCLUDE   "<filesystem>" )
-endif( STD_FILESYSTEM_IS_EXPERIMENTAL )
-
 find_package(Threads REQUIRED)
 find_package(Vulkan  REQUIRED)
 find_package(assimp  REQUIRED)
@@ -135,7 +115,7 @@ if( CM_UNIX_X11 )
 endif( CM_UNIX_X11 )
 
 
-set( ENGINE_LINK ${VULKAN_LIBRARIES} ${X11_LIBRARIES} ${X11_Xrandr_LIB} ${XCB_LIBRARIES} ${ASSIMP_LIBRARIES} Threads::Threads ${FS_LIBRARIES})
+set( ENGINE_LINK ${VULKAN_LIBRARIES} ${X11_LIBRARIES} ${X11_Xrandr_LIB} ${XCB_LIBRARIES} ${ASSIMP_LIBRARIES} Threads::Threads stdc++fs)
 
 message( "" ) # Newline
 

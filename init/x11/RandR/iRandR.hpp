@@ -93,7 +93,7 @@ class iRandR {
   void printRandRStatus();
 #endif
 
-  bool setGamma(iDisplays const &_disp, float _r, float _g, float _b, float _brightness = 1);
+  bool setGamma(iDisplays const &_disp, double _r, double _g, double _b, double _brightness = 1);
 
   void getMostLeftRightTopBottomCRTC(unsigned int &_left,
                                      unsigned int &_right,

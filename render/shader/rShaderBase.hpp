@@ -195,7 +195,7 @@ class rShaderBase {
   rShaderBase() = delete;
   rShaderBase(iInit *_init);
   rShaderBase(rWorld *_tempWorld);
-  ~rShaderBase();
+  virtual ~rShaderBase();
 
   bool                                         init();
   bool                                         isInitialized();
@@ -254,3 +254,7 @@ class rShaderBase {
   friend class internal::rRendererBase;
 };
 }
+
+template std::vector<e_engine::rShaderBase::InOut>::~vector();
+template std::vector<e_engine::rShaderBase::Uniform>::~vector();
+template std::vector<e_engine::rShaderBase::ShaderInfo>::~vector(); // Clang needs this for some reason

@@ -31,8 +31,6 @@
 #define dVkLOG(...)
 #endif
 
-#define DEBUG_DISABLE_MULTIRENDER 0
-
 namespace e_engine {
 
 void rWorld::handleResize(iEventInfo const &) {
@@ -280,7 +278,7 @@ void rWorld::cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
  * pools are not thread safe ==> one command pool for every thread).
  *
  * \param _queueFamilyIndex The queue family index
- * \param __flags           command pool flags
+ * \param _flags            command pool flags
  * \returns a command buffer (or nullptr)
  */
 VkCommandPool rWorld::getCommandPool(uint32_t _queueFamilyIndex, VkCommandPoolCreateFlags _flags) {
@@ -371,7 +369,7 @@ VkResult rWorld::beginCommandBuffer(VkCommandBuffer                 _buf,
  * pools are not thread safe ==> one command pool for every thread).
  *
  * \param _qFlags Flags the queue family MUST support
- * \param __flags command pool flags
+ * \param _flags  command pool flags
  * \returns a command buffer (or nullptr)
  *
  * \note Wrapper for rWorld::getCommandPool
@@ -471,7 +469,7 @@ uint64_t *rWorld::getRenderedFramesPtr() { return vRenderLoop.getRenderedFramesP
 /*!
  * \returns The nuber of framebuffers
  */
-uint32_t rWorld::getNumFramebuffers() const { return vSwapchainImages_vk.size(); }
+uint32_t rWorld::getNumFramebuffers() const { return static_cast<uint32_t>(vSwapchainImages_vk.size()); }
 
 /*!
  * \returns The used vulkan device handle

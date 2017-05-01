@@ -33,8 +33,6 @@
 #define dVkLOG(...)
 #endif
 
-#define GET_VERSION(v) VK_VERSION_MAJOR(v), L'.', VK_VERSION_MINOR(v), L'.', VK_VERSION_PATCH(v)
-
 namespace e_engine {
 
 std::vector<VkExtensionProperties> iInit::getExtProprs(std::string _layerName) {
@@ -229,9 +227,9 @@ int iInit::initVulkan(std::vector<std::string> _layers) {
   lCreateInfo_vk.pNext                   = lDebugPTR;
   lCreateInfo_vk.flags                   = 0;
   lCreateInfo_vk.pApplicationInfo        = &lAppInfo_vk;
-  lCreateInfo_vk.enabledLayerCount       = vLayersToUse.size();
+  lCreateInfo_vk.enabledLayerCount       = static_cast<uint32_t>(vLayersToUse.size());
   lCreateInfo_vk.ppEnabledLayerNames     = lLayers;
-  lCreateInfo_vk.enabledExtensionCount   = vExtensionsToUse.size();
+  lCreateInfo_vk.enabledExtensionCount   = static_cast<uint32_t>(vExtensionsToUse.size());
   lCreateInfo_vk.ppEnabledExtensionNames = lExtensions;
 
   lResult = vkCreateInstance(&lCreateInfo_vk, nullptr, &vInstance_vk);
@@ -430,7 +428,7 @@ int iInit::createDevice(std::vector<std::string> _layers) {
     lQueuePriorities.emplace_back();
     lQueuePriorities.back().resize(i.queueCount);
 
-    lFIndex = lQueueCreateInfo.size();
+    lFIndex = static_cast<uint32_t>(lQueueCreateInfo.size());
 
     VkBool32 lSupported;
     auto     lRes = vkGetPhysicalDeviceSurfaceSupportKHR(vDevice_vk.pDevice->device, lFIndex, vSurface_vk, &lSupported);
@@ -459,7 +457,7 @@ int iInit::createDevice(std::vector<std::string> _layers) {
     lQueueCreateInfo.back().sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     lQueueCreateInfo.back().pNext            = nullptr;
     lQueueCreateInfo.back().flags            = 0;
-    lQueueCreateInfo.back().queueFamilyIndex = lQueueCreateInfo.size() - 1;
+    lQueueCreateInfo.back().queueFamilyIndex = static_cast<uint32_t>(lQueueCreateInfo.size() - 1);
     lQueueCreateInfo.back().queueCount       = i.queueCount;
     lQueueCreateInfo.back().pQueuePriorities = lQueuePriorities.back().data();
   }
@@ -468,11 +466,11 @@ int iInit::createDevice(std::vector<std::string> _layers) {
   lCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   lCreateInfo.pNext                   = nullptr;
   lCreateInfo.flags                   = 0;
-  lCreateInfo.queueCreateInfoCount    = lQueueCreateInfo.size();
+  lCreateInfo.queueCreateInfoCount    = static_cast<uint32_t>(lQueueCreateInfo.size());
   lCreateInfo.pQueueCreateInfos       = lQueueCreateInfo.data();
-  lCreateInfo.enabledLayerCount       = vDeviceLayersToUse.size();
+  lCreateInfo.enabledLayerCount       = static_cast<uint32_t>(vDeviceLayersToUse.size());
   lCreateInfo.ppEnabledLayerNames     = lLayers;
-  lCreateInfo.enabledExtensionCount   = vDeviceExtensionsToUse.size();
+  lCreateInfo.enabledExtensionCount   = static_cast<uint32_t>(vDeviceExtensionsToUse.size());
   lCreateInfo.ppEnabledExtensionNames = lExtensions;
   lCreateInfo.pEnabledFeatures        = &vDevice_vk.pDevice->features;
 

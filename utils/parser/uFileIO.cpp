@@ -20,7 +20,14 @@
 
 #include "uFileIO.hpp"
 #include "uLog.hpp"
-#include FILESYSTEM_INCLUDE
+
+#if __cplusplus <= 201402L
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#include <filesystem>
+namespace fs = std::filesystem;
+#endif
 
 namespace e_engine {
 
@@ -48,14 +55,14 @@ void uFileIO::setFilePath(std::string _file) { vFilePath_str = _file; }
 int uFileIO::read(bool _autoReload) {
   if (vFileRead_B == true && _autoReload == false) return 2;
 
-  FILESYSTEM_NAMESPACE::path lFilePath_BFS(vFilePath_str.c_str());
+  fs::path lFilePath_BFS(vFilePath_str.c_str());
 
-  if (!FILESYSTEM_NAMESPACE::exists(lFilePath_BFS)) {
+  if (!fs::exists(lFilePath_BFS)) {
     eLOG("File '", vFilePath_str, "' does not exists");
     return 3;
   }
 
-  if (!FILESYSTEM_NAMESPACE::is_regular_file(lFilePath_BFS)) {
+  if (!fs::is_regular_file(lFilePath_BFS)) {
     eLOG("'", vFilePath_str, "' is not a file!");
     return 4;
   }
@@ -67,7 +74,7 @@ int uFileIO::read(bool _autoReload) {
   }
 
   int  c;
-  auto lSize = FILESYSTEM_NAMESPACE::file_size(lFilePath_BFS);
+  auto lSize = fs::file_size(lFilePath_BFS);
 
   if (lSize != static_cast<uintmax_t>(-1)) {
     vData.resize(lSize);
@@ -109,22 +116,22 @@ int uFileIO::read(bool _autoReload) {
  * \returns 5 if the file is not writable
  */
 int uFileIO::write(const uFileIO::TYPE &_data, bool _overWrite) {
-  FILESYSTEM_NAMESPACE::path lFilePath_BFS(vFilePath_str.c_str());
+  fs::path lFilePath_BFS(vFilePath_str.c_str());
 
-  if (FILESYSTEM_NAMESPACE::exists(lFilePath_BFS)) {
+  if (fs::exists(lFilePath_BFS)) {
     if (!_overWrite) {
       eLOG("File '", vFilePath_str, "' already exists -- do not overwrite");
       return 2;
     }
 
-    if (!FILESYSTEM_NAMESPACE::is_regular_file(lFilePath_BFS)) {
+    if (!fs::is_regular_file(lFilePath_BFS)) {
       eLOG("'", vFilePath_str, "' is not a file! -- can not overwrite");
       return 3;
     }
 
     wLOG("File '", vFilePath_str, "' already exists -- overwrite");
 
-    if (!FILESYSTEM_NAMESPACE::remove(lFilePath_BFS)) {
+    if (!fs::remove(lFilePath_BFS)) {
       eLOG("Failed to remove '", vFilePath_str, "'");
       return 4;
     }

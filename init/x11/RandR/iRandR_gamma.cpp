@@ -43,7 +43,7 @@ namespace unix_x11 {
  * \note Most code is a simple copy and paste from the XRandR project
  *(http://www.x.org/wiki/Projects/XRandR/)
  */
-bool iRandR::setGamma(iDisplays const &_disp, float _r, float _g, float _b, float _brightness) {
+bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, double _brightness) {
   if (_r < 0 || _g < 0 || _b < 0 || _brightness < 0 || !isRandRSupported()) return false;
 
   reload();
@@ -65,9 +65,9 @@ bool iRandR::setGamma(iDisplays const &_disp, float _r, float _g, float _b, floa
   int           lSize_I = XRRGetCrtcGammaSize(vDisplay_X11, lTempCRTCId_XRR);
   int           lShift_I;
   XRRCrtcGamma *lCRTCGamma_XRR;
-  float         lGammaRed_F;
-  float         lGammaGreen_F;
-  float         lGammaBlue_F;
+  double        lGammaRed_F;
+  double        lGammaGreen_F;
+  double        lGammaBlue_F;
 
   if (!lSize_I) {
     eLOG("RandR: Gamma size is 0 => Unable to set Gamma");

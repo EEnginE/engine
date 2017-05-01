@@ -158,17 +158,17 @@ bool rPipeline::create(VkDevice _device, VkRenderPass _renderPass, uint32_t _sub
 
   vVertex.vertexBindingDescriptionCount   = 1;
   vVertex.pVertexBindingDescriptions      = &lVertexInfo1;
-  vVertex.vertexAttributeDescriptionCount = lVertexInfo2.size();
+  vVertex.vertexAttributeDescriptionCount = static_cast<uint32_t>(lVertexInfo2.size());
   vVertex.pVertexAttributeDescriptions    = lVertexInfo2.data();
 
-  vDynamic.dynamicStateCount = lDynStates.size();
+  vDynamic.dynamicStateCount = static_cast<uint32_t>(lDynStates.size());
   vDynamic.pDynamicStates    = lDynStates.data();
 
   VkGraphicsPipelineCreateInfo lInfo = {};
   lInfo.sType                        = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
   lInfo.pNext                        = nullptr;
   lInfo.flags                        = 0; //! \todo Handle this flags if needed (currently irrelevant)
-  lInfo.stageCount                   = lShaderCreateInfo.size();
+  lInfo.stageCount                   = static_cast<uint32_t>(lShaderCreateInfo.size());
   lInfo.pStages                      = lShaderCreateInfo.data();
   lInfo.pVertexInputState            = &vVertex;
   lInfo.pInputAssemblyState          = &vAssembly;

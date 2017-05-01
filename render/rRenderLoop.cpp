@@ -202,11 +202,11 @@ void rRenderLoop::renderLoop() {
       rebuildCommandBuffersArray(&lCmdBuffers, lNextImg);
 
       // Set CMD buffers
-      lRenderSubmit[0].commandBufferCount = lCmdBuffers.pre.size();
+      lRenderSubmit[0].commandBufferCount = static_cast<uint32_t>(lCmdBuffers.pre.size());
       lRenderSubmit[0].pCommandBuffers    = lCmdBuffers.pre.data();
-      lRenderSubmit[1].commandBufferCount = lCmdBuffers.render.size();
+      lRenderSubmit[1].commandBufferCount = static_cast<uint32_t>(lCmdBuffers.render.size());
       lRenderSubmit[1].pCommandBuffers    = lCmdBuffers.render.data();
-      lRenderSubmit[2].commandBufferCount = lCmdBuffers.post.size();
+      lRenderSubmit[2].commandBufferCount = static_cast<uint32_t>(lCmdBuffers.post.size());
       lRenderSubmit[2].pCommandBuffers    = lCmdBuffers.post.data();
 
       // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  -->  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL

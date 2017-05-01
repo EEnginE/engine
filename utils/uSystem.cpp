@@ -39,8 +39,14 @@
 #endif
 
 
-#define BOOST_FILESYSTEM_NO_DEPRECATED
-#include FILESYSTEM_INCLUDE
+#if __cplusplus <= 201402L
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#include <filesystem>
+namespace fs            = std::filesystem;
+#endif
+
 #include <iostream>
 #include <regex>
 
@@ -124,17 +130,17 @@ std::string uSystem::getMainConfigDirPath() {
     std::string dir2_str = vUserHome + "/.config/";
     dir2_str += out;
 
-    FILESYSTEM_NAMESPACE::path dir1(dir1_str);
-    FILESYSTEM_NAMESPACE::path dir2(dir2_str);
-    FILESYSTEM_NAMESPACE::path configDir(vUserHome + "/.config");
-    bool                       dir1_exists, dir2_exists;
-    bool                       dir1_noDir, dir2_noDir = false;
-    bool                       dotConfigExists;
+    fs::path dir1(dir1_str);
+    fs::path dir2(dir2_str);
+    fs::path configDir(vUserHome + "/.config");
+    bool     dir1_exists, dir2_exists;
+    bool     dir1_noDir, dir2_noDir = false;
+    bool     dotConfigExists;
 
     try {
       // Is there a $HOME/.NAME dir already?
-      if (FILESYSTEM_NAMESPACE::exists(dir1)) {
-        if (FILESYSTEM_NAMESPACE::is_directory(dir1)) {
+      if (fs::exists(dir1)) {
+        if (fs::is_directory(dir1)) {
           dir1_exists = true;
           dir1_noDir  = false;
         } else {
@@ -147,12 +153,12 @@ std::string uSystem::getMainConfigDirPath() {
       }
 
       // If the $HOME/.cnfig dir doesn't exist use the $HOME location
-      if (FILESYSTEM_NAMESPACE::exists(configDir)) {
-        if (FILESYSTEM_NAMESPACE::is_directory(configDir)) {
+      if (fs::exists(configDir)) {
+        if (fs::is_directory(configDir)) {
           dotConfigExists = true;
           // Is there a $HOME/.config/NAME dir already?
-          if (FILESYSTEM_NAMESPACE::exists(dir2)) {
-            if (FILESYSTEM_NAMESPACE::is_directory(dir2)) {
+          if (fs::exists(dir2)) {
+            if (fs::is_directory(dir2)) {
               dir2_exists = true;
               dir1_noDir  = false;
             } else {
@@ -206,73 +212,73 @@ std::string uSystem::getMainConfigDirPath() {
       if (GlobConf.config.unixPathType) {
         // There is no directory file $HOME/.config/NAME
         if (!dir2_noDir) {
-          FILESYSTEM_NAMESPACE::create_directory(dir2);
+          fs::create_directory(dir2);
           vMainConfigDir = dir2_str;
           return vMainConfigDir;
         } else if (!dir1_noDir) {
-          FILESYSTEM_NAMESPACE::create_directory(dir1);
+          fs::create_directory(dir1);
           vMainConfigDir = dir1_str;
           return vMainConfigDir;
           // Remove the file $HOME/.config/NAME and create the dir
         } else if (dotConfigExists) {
-          FILESYSTEM_NAMESPACE::remove(dir2);
-          FILESYSTEM_NAMESPACE::create_directory(dir2);
+          fs::remove(dir2);
+          fs::create_directory(dir2);
           vMainConfigDir = dir2_str;
           return vMainConfigDir;
         } else {
-          FILESYSTEM_NAMESPACE::remove(dir1);
-          FILESYSTEM_NAMESPACE::create_directory(dir1);
+          fs::remove(dir1);
+          fs::create_directory(dir1);
           vMainConfigDir = dir1_str;
           return vMainConfigDir;
         }
       } else {
         // There is no directory file $HOME/.NAME
         if (!dir1_noDir) {
-          FILESYSTEM_NAMESPACE::create_directory(dir1);
+          fs::create_directory(dir1);
           vMainConfigDir = dir1_str;
           return vMainConfigDir;
         } else if (!dir2_noDir && dotConfigExists) {
-          FILESYSTEM_NAMESPACE::create_directory(dir2);
+          fs::create_directory(dir2);
           vMainConfigDir = dir2_str;
           return vMainConfigDir;
           // Remove the file $HOME/.NAME and create the dir
         } else {
-          FILESYSTEM_NAMESPACE::remove(dir1);
-          FILESYSTEM_NAMESPACE::create_directory(dir1);
+          fs::remove(dir1);
+          fs::create_directory(dir1);
           vMainConfigDir = dir1_str;
           return vMainConfigDir;
         }
       }
-    } catch (const FILESYSTEM_NAMESPACE::filesystem_error &fsError) { eLOG(fsError.what()); }
+    } catch (const fs::filesystem_error &fsError) { eLOG(fsError.what()); }
 
 #elif WINDOWS
     vMainConfigDir = vUserHome + '\\' + out;
 
-    FILESYSTEM_NAMESPACE::path dir1(vMainConfigDir);
+    fs::path dir1(vMainConfigDir);
 
     try {
-      if (FILESYSTEM_NAMESPACE::exists(dir1)) {
-        if (!FILESYSTEM_NAMESPACE::is_directory(dir1)) {
-          FILESYSTEM_NAMESPACE::remove(dir1);
-          FILESYSTEM_NAMESPACE::create_directory(dir1);
+      if (fs::exists(dir1)) {
+        if (!fs::is_directory(dir1)) {
+          fs::remove(dir1);
+          fs::create_directory(dir1);
         }
       } else {
-        FILESYSTEM_NAMESPACE::create_directory(dir1);
+        fs::create_directory(dir1);
       }
 
-      if (!FILESYSTEM_NAMESPACE::exists(dir1)) {
+      if (!fs::exists(dir1)) {
         wLOG("Failed to create / select the main config dir ", vMainConfigDir);
         vMainConfigDir.clear();
         return "";
       }
 
-      if (!FILESYSTEM_NAMESPACE::is_directory(dir1)) {
+      if (!fs::is_directory(dir1)) {
         wLOG("Failed to create / select the main config dir ", vMainConfigDir);
         vMainConfigDir.clear();
         return "";
       }
 
-    } catch (const FILESYSTEM_NAMESPACE::filesystem_error &ex) { eLOG(ex.what()); }
+    } catch (const fs::filesystem_error &ex) { eLOG(ex.what()); }
 #endif
   }
   return vMainConfigDir;
@@ -299,30 +305,30 @@ std::string uSystem::getLogFilePath() {
 #if UNIX
       std::string temp = getMainConfigDirPath() + "/";
 #elif WINDOWS
-      std::string                                          temp = getMainConfigDirPath() + "\\";
+      std::string                        temp = getMainConfigDirPath() + "\\";
 #endif
 
       temp += GlobConf.config.logSubFolder;
 
-      FILESYSTEM_NAMESPACE::path logPath(temp);
+      fs::path logPath(temp);
 
       try {
-        if (FILESYSTEM_NAMESPACE::exists(logPath)) {
-          if (FILESYSTEM_NAMESPACE::is_directory(logPath)) {
+        if (fs::exists(logPath)) {
+          if (fs::is_directory(logPath)) {
             vLogFilePath = temp;
             return vLogFilePath;
           } else {
-            FILESYSTEM_NAMESPACE::remove(logPath);
-            FILESYSTEM_NAMESPACE::create_directory(logPath);
+            fs::remove(logPath);
+            fs::create_directory(logPath);
             vLogFilePath = temp;
             return vLogFilePath;
           }
         } else {
-          FILESYSTEM_NAMESPACE::create_directory(logPath);
+          fs::create_directory(logPath);
           vLogFilePath = temp;
           return vLogFilePath;
         }
-      } catch (const FILESYSTEM_NAMESPACE::filesystem_error &ex) {
+      } catch (const fs::filesystem_error &ex) {
         std::cerr << ex.what() << std::endl; // LOG wont work
       }
     }
@@ -351,29 +357,29 @@ std::string uSystem::getConfigFilePath() {
 #if UNIX
       std::string temp = getMainConfigDirPath() + "/";
 #elif WINDOWS
-      std::string                                          temp = getMainConfigDirPath() + "\\";
+      std::string                        temp = getMainConfigDirPath() + "\\";
 #endif
       temp += GlobConf.config.logSubFolder;
 
-      FILESYSTEM_NAMESPACE::path confPath(temp);
+      fs::path confPath(temp);
 
       try {
-        if (FILESYSTEM_NAMESPACE::exists(confPath)) {
-          if (FILESYSTEM_NAMESPACE::is_directory(confPath)) {
+        if (fs::exists(confPath)) {
+          if (fs::is_directory(confPath)) {
             vConfigFilePath = temp;
             return vConfigFilePath;
           } else {
-            FILESYSTEM_NAMESPACE::remove(confPath);
-            FILESYSTEM_NAMESPACE::create_directory(confPath);
+            fs::remove(confPath);
+            fs::create_directory(confPath);
             vConfigFilePath = temp;
             return vConfigFilePath;
           }
         } else {
-          FILESYSTEM_NAMESPACE::create_directory(confPath);
+          fs::create_directory(confPath);
           vConfigFilePath = temp;
           return vConfigFilePath;
         }
-      } catch (const FILESYSTEM_NAMESPACE::filesystem_error &ex) {
+      } catch (const fs::filesystem_error &ex) {
         eLOG(ex.what()); // LOG wont work
       }
     }

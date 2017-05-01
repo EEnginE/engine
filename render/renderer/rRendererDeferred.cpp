@@ -117,8 +117,9 @@ VkImageView rRendererDeferred::getAttachmentView(ATTACHMENT_ROLE _role) {
     case DEFERRED_POSITION: return vRenderPass_vk.attachmentViews[DEFERRED_POS_ATTACHMENT_INDEX];
     case DEFERRED_NORMAL: return vRenderPass_vk.attachmentViews[DEFERRED_NORMAL_ATTACHMENT_INDEX];
     case DEFERRED_ALBEDO: return vRenderPass_vk.attachmentViews[DEFERRED_ALBEDO_ATTACHMENT_INDEX];
-    default: return nullptr;
   }
+
+  return nullptr;
 }
 
 /*!
@@ -199,9 +200,11 @@ void rRendererDeferred::initCmdBuffers(VkCommandPool _pool) {
 
 void rRendererDeferred::freeCmdBuffers(VkCommandPool _pool) {
   for (auto &i : vFbData) {
-    if (i.objects.size() > 0) vkFreeCommandBuffers(vDevice_vk, _pool, i.objects.size(), i.objects.data());
+    if (i.objects.size() > 0)
+      vkFreeCommandBuffers(vDevice_vk, _pool, static_cast<uint32_t>(i.objects.size()), i.objects.data());
 
-    if (i.lights.size() > 0) vkFreeCommandBuffers(vDevice_vk, _pool, i.lights.size(), i.lights.data());
+    if (i.lights.size() > 0)
+      vkFreeCommandBuffers(vDevice_vk, _pool, static_cast<uint32_t>(i.lights.size()), i.lights.data());
 
     vkFreeCommandBuffers(vDevice_vk, _pool, 1, &i.layoutChange1);
     vkFreeCommandBuffers(vDevice_vk, _pool, 1, &i.layoutChange2);
@@ -243,7 +246,8 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
     vkEndCommandBuffer(vFbData[_fb.index].objects[i]);
   }
 
-  vkCmdExecuteCommands(_fb.render, vFbData[_fb.index].objects.size(), vFbData[_fb.index].objects.data());
+  vkCmdExecuteCommands(
+      _fb.render, static_cast<uint32_t>(vFbData[_fb.index].objects.size()), vFbData[_fb.index].objects.data());
 
   vWorldPtr->beginCommandBuffer(
       vFbData[_fb.index].layoutChange1, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
@@ -302,7 +306,8 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
     vkEndCommandBuffer(vFbData[_fb.index].lights[i]);
   }
 
-  vkCmdExecuteCommands(_fb.render, vFbData[_fb.index].lights.size(), vFbData[_fb.index].lights.data());
+  vkCmdExecuteCommands(
+      _fb.render, static_cast<uint32_t>(vFbData[_fb.index].lights.size()), vFbData[_fb.index].lights.data());
 
   vWorldPtr->beginCommandBuffer(
       vFbData[_fb.index].layoutChange2, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);

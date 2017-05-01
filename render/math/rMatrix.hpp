@@ -529,6 +529,9 @@ void rMatrix<TYPE, ROWS, COLLUMNS>::set(TYPE *_matrix) {
   for (uint32_t i = 0; i < (ROWS * COLLUMNS); ++i) vDataMat[i] = _matrix[i];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+
 template <class TYPE, uint32_t ROWS, uint32_t COLLUMNS>
 template <class... ARGS>
 void rMatrix<TYPE, ROWS, COLLUMNS>::setMat(ARGS &&... _args) {
@@ -565,6 +568,8 @@ template <uint32_t POS>
 inline void rMatrix<TYPE, ROWS, COLLUMNS>::setHelper(const TYPE &_arg) {
   vDataMat[((POS % ROWS) * COLLUMNS) + (POS / ROWS)] = _arg;
 }
+
+#pragma clang diagnostic pop
 
 
 //  ______     _       _   _

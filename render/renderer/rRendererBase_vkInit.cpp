@@ -78,7 +78,7 @@ int rRendererBase::initImageBuffers(VkCommandBuffer _buf) {
     });
   }
 
-  uint32_t lNumAttachments = FIRST_FREE_ATTACHMENT_INDEX + lAttachmentInfosTemp.size();
+  uint32_t lNumAttachments = FIRST_FREE_ATTACHMENT_INDEX + static_cast<uint32_t>(lAttachmentInfosTemp.size());
 
   vRenderPass_vk.attachments.resize(lNumAttachments);
   vRenderPass_vk.attachmentViews.resize(lNumAttachments);
@@ -301,11 +301,11 @@ int rRendererBase::initRenderPass() {
   lInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
   lInfo.pNext           = nullptr;
   lInfo.flags           = 0;
-  lInfo.attachmentCount = vRenderPass_vk.attachments.size();
+  lInfo.attachmentCount = static_cast<uint32_t>(vRenderPass_vk.attachments.size());
   lInfo.pAttachments    = vRenderPass_vk.attachments.data();
-  lInfo.subpassCount    = vRenderPass_vk.subpasses.size();
+  lInfo.subpassCount    = static_cast<uint32_t>(vRenderPass_vk.subpasses.size());
   lInfo.pSubpasses      = vRenderPass_vk.subpasses.data();
-  lInfo.dependencyCount = vRenderPass_vk.dependecies.size();
+  lInfo.dependencyCount = static_cast<uint32_t>(vRenderPass_vk.dependecies.size());
   lInfo.pDependencies   = vRenderPass_vk.dependecies.data();
 
   auto lRes = vkCreateRenderPass(vDevice_vk, &lInfo, nullptr, &vRenderPass_vk.renderPass);
@@ -338,7 +338,7 @@ int rRendererBase::initFramebuffers() {
   lInfo.pNext           = nullptr;
   lInfo.flags           = 0;
   lInfo.renderPass      = vRenderPass_vk.renderPass;
-  lInfo.attachmentCount = vRenderPass_vk.attachmentViews.size();
+  lInfo.attachmentCount = static_cast<uint32_t>(vRenderPass_vk.attachmentViews.size());
   lInfo.pAttachments    = vRenderPass_vk.attachmentViews.data();
   lInfo.width           = GlobConf.win.width;
   lInfo.height          = GlobConf.win.height;

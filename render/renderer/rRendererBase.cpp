@@ -243,7 +243,7 @@ void rRendererBase::recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _
   vCmdRecordInfo.lRPInfo.renderArea.extent.width  = GlobConf.win.width;
   vCmdRecordInfo.lRPInfo.renderArea.extent.height = GlobConf.win.height;
   vCmdRecordInfo.lRPInfo.renderArea.offset        = {0, 0};
-  vCmdRecordInfo.lRPInfo.clearValueCount          = vRenderPass_vk.clearValues.size();
+  vCmdRecordInfo.lRPInfo.clearValueCount          = static_cast<uint32_t>(vRenderPass_vk.clearValues.size());
   vCmdRecordInfo.lRPInfo.pClearValues             = vRenderPass_vk.clearValues.data();
 
   vCmdRecordInfo.lViewPort.x        = 0;
@@ -474,13 +474,13 @@ uint32_t rRendererBase::addSubpass(VkPipelineBindPoint   _bindPoint,
   VkSubpassDescription lDesc;
   lDesc.flags                   = 0;
   lDesc.pipelineBindPoint       = _bindPoint;
-  lDesc.inputAttachmentCount    = lData->input.size();
+  lDesc.inputAttachmentCount    = static_cast<uint32_t>(lData->input.size());
   lDesc.pInputAttachments       = lData->input.data();
-  lDesc.colorAttachmentCount    = lData->color.size();
+  lDesc.colorAttachmentCount    = static_cast<uint32_t>(lData->color.size());
   lDesc.pColorAttachments       = lData->color.data();
   lDesc.pResolveAttachments     = lData->resolve.data();
   lDesc.pDepthStencilAttachment = &lData->depth;
-  lDesc.preserveAttachmentCount = lData->preserve.size();
+  lDesc.preserveAttachmentCount = static_cast<uint32_t>(lData->preserve.size());
   lDesc.pPreserveAttachments    = lData->preserve.data();
 
   vRenderPass_vk.subpasses.push_back(lDesc);
@@ -573,7 +573,7 @@ void rRendererBase::setClearColor(VkClearColorValue _clearColor) { vClearColor =
 uint32_t rRendererBase::getNumFramebuffers() const {
   if (!vIsSetup) return UINT32_MAX;
 
-  assert(vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size());
+  // assert(vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size());
   return vWorldPtr->getNumFramebuffers();
 }
 }

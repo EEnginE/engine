@@ -78,7 +78,8 @@ void rRendererBasic::initCmdBuffers(VkCommandPool _pool) {
 
 void rRendererBasic::freeCmdBuffers(VkCommandPool _pool) {
   for (auto &i : vFbData) {
-    if (i.buffers.size() > 0) vkFreeCommandBuffers(vDevice_vk, _pool, i.buffers.size(), i.buffers.data());
+    if (i.buffers.size() > 0)
+      vkFreeCommandBuffers(vDevice_vk, _pool, static_cast<uint32_t>(i.buffers.size()), i.buffers.data());
   }
   vFbData.clear();
   vRenderObjects.clear();
@@ -116,7 +117,8 @@ void rRendererBasic::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRend
     vkEndCommandBuffer(vFbData[_fb.index].buffers[i]);
   }
 
-  vkCmdExecuteCommands(_fb.render, vFbData[_fb.index].buffers.size(), vFbData[_fb.index].buffers.data());
+  vkCmdExecuteCommands(
+      _fb.render, static_cast<uint32_t>(vFbData[_fb.index].buffers.size()), vFbData[_fb.index].buffers.data());
   vkCmdEndRenderPass(_fb.render);
 
   auto lRes = vkEndCommandBuffer(_fb.render);

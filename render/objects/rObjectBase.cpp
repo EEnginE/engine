@@ -88,8 +88,6 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiMesh const *_mesh) {
 
       eLOG("Polygon type currently not supported!");
       return false;
-
-      break;
     default: eLOG("This object type does not support mesh data!"); return false;
   }
 

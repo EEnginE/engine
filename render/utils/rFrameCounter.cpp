@@ -28,6 +28,7 @@ rFrameCounter::rFrameCounter(rWorld *_rWorld, bool _enable)
     : vWorld(_rWorld), vRenderedFrames(_rWorld->getRenderedFramesPtr()) {
 
   if (_enable) enableFrameCounter();
+  if (!vWorld) eLOG("Wrold is NULL");
 }
 
 /*!

@@ -22,14 +22,18 @@
 #include "defines.hpp"
 #include "uLog.hpp"
 
-#define BOOST_FILESYSTEM_NO_DEPRECATED
-
-#include <ctime>
-
-#include FILESYSTEM_INCLUDE
 #include <cstdio> // for fileno
+#include <ctime>
 #include <iostream>
 #include <sstream>
+
+#if __cplusplus <= 201402L
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#include <filesystem>
+namespace fs = std::filesystem;
+#endif
 
 #ifdef __linux__
 #include <sys/ioctl.h>
@@ -158,24 +162,24 @@ bool uLog::openLogFile(uint16_t i) {
   }
 
 
-  FILESYSTEM_NAMESPACE::path p(lThisLog_SS.str());
-  FILESYSTEM_NAMESPACE::path n(lNextLog_SS.str());
+  fs::path p(lThisLog_SS.str());
+  fs::path n(lNextLog_SS.str());
 
   try {
-    if (FILESYSTEM_NAMESPACE::exists(p)) {
-      if (FILESYSTEM_NAMESPACE::is_regular_file(p)) {
+    if (fs::exists(p)) {
+      if (fs::is_regular_file(p)) {
         if (i < GlobConf.config.maxNumOfLogFileBackshift) {
           i++;
           openLogFile(i);
           i--;
-          FILESYSTEM_NAMESPACE::rename(p, n);
+          fs::rename(p, n);
         } else {
-          FILESYSTEM_NAMESPACE::remove(p);
+          fs::remove(p);
           return true;
         }
       }
     }
-  } catch (const FILESYSTEM_NAMESPACE::filesystem_error &ex) {
+  } catch (const fs::filesystem_error &ex) {
     eLOG(ex.what());
     return false;
   } catch (...) {

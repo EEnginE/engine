@@ -48,8 +48,20 @@ __iInit_Pointer __iInit_Pointer_OBJ;
 }
 
 
+extern PFN_vkCreateDebugReportCallbackEXT  f_vkCreateDebugReportCallbackEXT;
+extern PFN_vkDestroyDebugReportCallbackEXT f_vkDestroyDebugReportCallbackEXT;
+
 PFN_vkCreateDebugReportCallbackEXT  f_vkCreateDebugReportCallbackEXT  = nullptr;
 PFN_vkDestroyDebugReportCallbackEXT f_vkDestroyDebugReportCallbackEXT = nullptr;
+
+VkBool32 vulkanDebugCallback(VkDebugReportFlagsEXT      _flags,
+                             VkDebugReportObjectTypeEXT _objType,
+                             uint64_t                   _obj,
+                             size_t                     _location,
+                             int32_t                    _msgCode,
+                             const char *               _layerPrefix,
+                             const char *               _msg,
+                             void *                     _usrData);
 
 void iInit::_setThisForHandluSignal() {
   if (!internal::__iInit_Pointer_OBJ.set(this)) {
@@ -126,6 +138,8 @@ void iInit::vulkanDebugHandler(VkDebugReportFlagsEXT _flags,
                                std::string _msg) {
   std::string lTempStr;
   char        lLogStr;
+
+  lLogStr = 'E';
 
   if (_flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
     lLogStr = 'D';

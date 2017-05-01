@@ -128,7 +128,7 @@ class rObjectBase {
                                               std::vector<uint32_t> const &,
                                               std::vector<float> const &) {
     return {};
-  };
+  }
 
   bool setupVertexData_PN(aiMesh const *_mesh, std::vector<float> &_out);
 
@@ -159,7 +159,7 @@ class rObjectBase {
   virtual void record(VkCommandBuffer) {}
   virtual void recordLight(VkCommandBuffer, rBuffer &, rBuffer &) {}
   virtual void signalRenderReset(internal::rRendererBase *) {}
-  virtual bool supportsPushConstants() { return false; };
+  virtual bool supportsPushConstants() { return false; }
 
   rPipeline *  getPipeline() { return vPipeline; }
   rShaderBase *getShader();

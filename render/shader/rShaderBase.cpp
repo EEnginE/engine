@@ -171,7 +171,7 @@ uint32_t rShaderBase::createUniformBuffer(uint32_t _size) {
     return UINT32_MAX;
   }
 
-  return vMemory.size() - 1;
+  return static_cast<uint32_t>(vMemory.size()) - 1;
 }
 
 VkDescriptorType rShaderBase::getDescriptorType(std::string _str) {
@@ -525,7 +525,7 @@ bool rShaderBase::init() {
   lSetInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
   lSetInfo.pNext        = nullptr;
   lSetInfo.flags        = 0;
-  lSetInfo.bindingCount = vLayoutBindings.size();
+  lSetInfo.bindingCount = static_cast<uint32_t>(vLayoutBindings.size());
   lSetInfo.pBindings    = vLayoutBindings.data();
 
   auto lRes = vkCreateDescriptorSetLayout(vDevice_vk, &lSetInfo, nullptr, &vDescLayout_vk);
@@ -540,7 +540,7 @@ bool rShaderBase::init() {
   lPipeInfo.flags                  = 0;
   lPipeInfo.setLayoutCount         = 1;
   lPipeInfo.pSetLayouts            = &vDescLayout_vk;
-  lPipeInfo.pushConstantRangeCount = vPushConstants.size();
+  lPipeInfo.pushConstantRangeCount = static_cast<uint32_t>(vPushConstants.size());
   lPipeInfo.pPushConstantRanges    = vPushConstants.data();
 
   lRes = vkCreatePipelineLayout(vDevice_vk, &lPipeInfo, nullptr, &vPipelineLayout_vk);
@@ -554,7 +554,7 @@ bool rShaderBase::init() {
   lDescPoolInfo.pNext         = nullptr;
   lDescPoolInfo.flags         = 0;
   lDescPoolInfo.maxSets       = NUM_MAX_DESCRIPTOR_SETS;
-  lDescPoolInfo.poolSizeCount = vDescPoolSizes.size();
+  lDescPoolInfo.poolSizeCount = static_cast<uint32_t>(vDescPoolSizes.size());
   lDescPoolInfo.pPoolSizes    = vDescPoolSizes.data();
 
   lRes = vkCreateDescriptorPool(vDevice_vk, &lDescPoolInfo, nullptr, &vDescPool_vk);
@@ -661,7 +661,7 @@ VkDescriptorSet rShaderBase::getDescriptorSet(rMaterial const *_materialPtr) {
   // Update uniform buffers descriptor set
   for (auto &i : vWriteDescData) i.dstSet = lDescSet;
 
-  vkUpdateDescriptorSets(vDevice_vk, vWriteDescData.size(), vWriteDescData.data(), 0, nullptr);
+  vkUpdateDescriptorSets(vDevice_vk, static_cast<uint32_t>(vWriteDescData.size()), vWriteDescData.data(), 0, nullptr);
 
   vDescSetMap[_materialPtr] = lDescSet;
 

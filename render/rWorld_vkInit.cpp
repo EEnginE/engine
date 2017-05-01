@@ -128,11 +128,11 @@ int rWorld::recreateSwapchain() {
     lExtentToUse = lSInfo.surfaceInfo.maxImageExtent;
 
   auto lUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-  if ((lSInfo.surfaceInfo.supportedUsageFlags & lUsageFlags) == 0) {
+  if ((lSInfo.surfaceInfo.supportedUsageFlags & static_cast<VkImageUsageFlags>(lUsageFlags)) == 0) {
     lUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
   }
 
-  if ((lSInfo.surfaceInfo.supportedUsageFlags & lUsageFlags) == 0) {
+  if ((lSInfo.surfaceInfo.supportedUsageFlags & static_cast<VkImageUsageFlags>(lUsageFlags)) == 0) {
     eLOG("Surface does not support requierd image usage flags");
     return 6;
   }
@@ -147,7 +147,7 @@ int rWorld::recreateSwapchain() {
   lCreateInfo.imageColorSpace       = vSwapchainFormat.colorSpace;
   lCreateInfo.imageExtent           = lExtentToUse;
   lCreateInfo.imageArrayLayers      = 1; //!< \todo stereo rendering
-  lCreateInfo.imageUsage            = lUsageFlags;
+  lCreateInfo.imageUsage            = static_cast<VkImageUsageFlags>(lUsageFlags);
   lCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
   lCreateInfo.queueFamilyIndexCount = 0;
   lCreateInfo.pQueueFamilyIndices   = nullptr;

@@ -102,7 +102,7 @@ std::vector<rSceneBase::MeshInfo> rSceneBase::loadFile(std::string _file) {
   MeshInfo              lTempInfo;
   for (uint32_t i = 0; i < vScene_assimp->mNumMeshes; i++) {
     const char *lTemp = vScene_assimp->mMeshes[i]->mName.C_Str();
-    lTempInfo.index   = lInfos.size();
+    lTempInfo.index   = static_cast<uint32_t>(lInfos.size());
     lTempInfo.name    = vScene_assimp->mMeshes[i]->mName.length > 0 ? lTemp : "";
 
     switch (vScene_assimp->mMeshes[i]->mPrimitiveTypes) {
