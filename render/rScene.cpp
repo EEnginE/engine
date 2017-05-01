@@ -18,10 +18,10 @@
  */
 
 #include "rScene.hpp"
-#include "rWorld.hpp"
-#include "iInit.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "iInit.hpp"
+#include "rWorld.hpp"
 
 #include <assimp/postprocess.h>
 
@@ -34,46 +34,40 @@ rSceneBase::~rSceneBase() {}
  * \brief Constructor
  * \note The pointer _world must be valid over the lifetime of the object!
  */
-rSceneBase::rSceneBase( std::string _name, rWorld *_world )
-    : vWorldPtr( _world ), vName_str( _name ) {}
+rSceneBase::rSceneBase(std::string _name, rWorld *_world) : vWorldPtr(_world), vName_str(_name) {}
 
 /*!
  * \brief Tests if it is safe to render the scene
  * \returns true when it is safe
  */
 bool rSceneBase::canRenderScene() {
-   bool lCanRender = true;
-   for ( auto const &d : vObjects ) {
-      int64_t lIsObjectReady;
+  bool lCanRender = true;
+  for (auto const &d : vObjects) {
+    int64_t lIsObjectReady;
 
-      if ( !d ) {
-         wLOG( "Invalid Object Pointer" );
-         lCanRender = false;
-         continue;
-      }
+    if (!d) {
+      wLOG("Invalid Object Pointer");
+      lCanRender = false;
+      continue;
+    }
 
-      lIsObjectReady = d->getIsDataLoaded();
+    lIsObjectReady = d->getIsDataLoaded();
 
-      if ( lIsObjectReady != true ) {
-         wLOG( "Object data for '",
-               d->getName(),
-               "' is not completely loaded --> Do not render scene '",
-               vName_str,
-               "'" );
-         lCanRender = false;
-         continue;
-      }
-   }
+    if (lIsObjectReady != true) {
+      wLOG("Object data for '", d->getName(), "' is not completely loaded --> Do not render scene '", vName_str, "'");
+      lCanRender = false;
+      continue;
+    }
+  }
 
-   //! \todo Add vulkan stuff
+  //! \todo Add vulkan stuff
 
-   if ( lCanRender )
-      iLOG( "Scene '", vName_str, "' with ", vObjects.size(), " objects ready for rendering" );
+  if (lCanRender) iLOG("Scene '", vName_str, "' with ", vObjects.size(), " objects ready for rendering");
 
-   return lCanRender;
+  return lCanRender;
 
-   wLOG( "No objects in scene" );
-   return false;
+  wLOG("No objects in scene");
+  return false;
 }
 
 /*!
@@ -81,67 +75,66 @@ bool rSceneBase::canRenderScene() {
  * \param _file The file to load
  * \returns A vector of mesh names
  */
-std::vector<rSceneBase::MeshInfo> rSceneBase::loadFile( std::string _file ) {
-   std::lock_guard<std::recursive_mutex> lGuard( vObjectsInit_MUT );
+std::vector<rSceneBase::MeshInfo> rSceneBase::loadFile(std::string _file) {
+  std::lock_guard<std::recursive_mutex> lGuard(vObjectsInit_MUT);
 
-   vImporter_assimp.FreeScene();
-   vScene_assimp = vImporter_assimp.ReadFile(
-         _file,
-         aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals |
-               aiProcess_JoinIdenticalVertices | aiProcess_SortByPType |
-               aiProcess_RemoveRedundantMaterials | aiProcess_GenUVCoords |
-               aiProcess_FindDegenerates | aiProcess_FindInvalidData |
-               aiProcess_FixInfacingNormals | aiProcess_ImproveCacheLocality );
+  vImporter_assimp.FreeScene();
+  vScene_assimp = vImporter_assimp.ReadFile(
+      _file,
+      aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals |
+          aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_RemoveRedundantMaterials |
+          aiProcess_GenUVCoords | aiProcess_FindDegenerates | aiProcess_FindInvalidData | aiProcess_FixInfacingNormals |
+          aiProcess_ImproveCacheLocality);
 
-   if ( !vScene_assimp ) {
-      eLOG( "Loading ", _file, " failed!" );
-      eLOG( vImporter_assimp.GetErrorString() );
-      return {};
-   }
+  if (!vScene_assimp) {
+    eLOG("Loading ", _file, " failed!");
+    eLOG(vImporter_assimp.GetErrorString());
+    return {};
+  }
 
 
-   if ( !vScene_assimp->HasMeshes() ) {
-      wLOG( "Imported file ", _file, " does not contain meshes!" );
-      return {};
-   }
+  if (!vScene_assimp->HasMeshes()) {
+    wLOG("Imported file ", _file, " does not contain meshes!");
+    return {};
+  }
 
-   std::vector<MeshInfo> lInfos;
-   MeshInfo              lTempInfo;
-   for ( uint32_t i = 0; i < vScene_assimp->mNumMeshes; i++ ) {
-      const char *lTemp = vScene_assimp->mMeshes[i]->mName.C_Str();
-      lTempInfo.index   = lInfos.size();
-      lTempInfo.name    = vScene_assimp->mMeshes[i]->mName.length > 0 ? lTemp : "";
+  std::vector<MeshInfo> lInfos;
+  MeshInfo              lTempInfo;
+  for (uint32_t i = 0; i < vScene_assimp->mNumMeshes; i++) {
+    const char *lTemp = vScene_assimp->mMeshes[i]->mName.C_Str();
+    lTempInfo.index   = lInfos.size();
+    lTempInfo.name    = vScene_assimp->mMeshes[i]->mName.length > 0 ? lTemp : "";
 
-      switch ( vScene_assimp->mMeshes[i]->mPrimitiveTypes ) {
-         case aiPrimitiveType_POINT: lTempInfo.type    = POINTS_3D; break;
-         case aiPrimitiveType_LINE: lTempInfo.type     = LINES_3D; break;
-         case aiPrimitiveType_TRIANGLE: lTempInfo.type = MESH_3D; break;
-         case aiPrimitiveType_POLYGON: lTempInfo.type  = POLYGON_3D; break;
-         default:
-            lTempInfo.type = UNDEFINED_3D;
-            wLOG( "Unknown primitive type ", vScene_assimp->mMeshes[i]->mPrimitiveTypes );
-      }
+    switch (vScene_assimp->mMeshes[i]->mPrimitiveTypes) {
+      case aiPrimitiveType_POINT: lTempInfo.type    = POINTS_3D; break;
+      case aiPrimitiveType_LINE: lTempInfo.type     = LINES_3D; break;
+      case aiPrimitiveType_TRIANGLE: lTempInfo.type = MESH_3D; break;
+      case aiPrimitiveType_POLYGON: lTempInfo.type  = POLYGON_3D; break;
+      default:
+        lTempInfo.type = UNDEFINED_3D;
+        wLOG("Unknown primitive type ", vScene_assimp->mMeshes[i]->mPrimitiveTypes);
+    }
 
-      lInfos.emplace_back( lTempInfo );
-   }
+    lInfos.emplace_back(lTempInfo);
+  }
 
-   return lInfos;
+  return lInfos;
 }
 
-aiMesh const *rSceneBase::getAiMesh( uint32_t _objIndex ) {
-   std::lock_guard<std::recursive_mutex> lGuard( vObjectsInit_MUT );
+aiMesh const *rSceneBase::getAiMesh(uint32_t _objIndex) {
+  std::lock_guard<std::recursive_mutex> lGuard(vObjectsInit_MUT);
 
-   if ( !vScene_assimp ) {
-      eLOG( "File not loaded" );
-      return nullptr;
-   }
+  if (!vScene_assimp) {
+    eLOG("File not loaded");
+    return nullptr;
+  }
 
-   if ( _objIndex >= vScene_assimp->mNumMeshes ) {
-      eLOG( "Invalid object index ", _objIndex );
-      return nullptr;
-   }
+  if (_objIndex >= vScene_assimp->mNumMeshes) {
+    eLOG("Invalid object index ", _objIndex);
+    return nullptr;
+  }
 
-   return vScene_assimp->mMeshes[_objIndex];
+  return vScene_assimp->mMeshes[_objIndex];
 }
 
 /*!
@@ -154,27 +147,26 @@ aiMesh const *rSceneBase::getAiMesh( uint32_t _objIndex ) {
  * \returns true on success
  */
 bool rSceneBase::beginInitObject() {
-   if ( vInitializingObjects ) {
-      eLOG( "beginInitObject already called on secene ", vName_str );
-      return false;
-   }
-   vObjectsInit_MUT.lock();
+  if (vInitializingObjects) {
+    eLOG("beginInitObject already called on secene ", vName_str);
+    return false;
+  }
+  vObjectsInit_MUT.lock();
 
-   uint32_t lQueueFamily;
+  uint32_t lQueueFamily;
 
-   vInitQueue_vk = vWorldPtr->getInitPtr()->getQueue( VK_QUEUE_TRANSFER_BIT, 0.25f, &lQueueFamily );
-   vInitPool_vk  = vWorldPtr->getCommandPool( lQueueFamily );
-   vInitBuff_vk  = vWorldPtr->createCommandBuffer( vInitPool_vk );
+  vInitQueue_vk = vWorldPtr->getInitPtr()->getQueue(VK_QUEUE_TRANSFER_BIT, 0.25f, &lQueueFamily);
+  vInitPool_vk  = vWorldPtr->getCommandPool(lQueueFamily);
+  vInitBuff_vk  = vWorldPtr->createCommandBuffer(vInitPool_vk);
 
-   if ( vWorldPtr->beginCommandBuffer( vInitBuff_vk,
-                                       VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT ) ) {
-      vkFreeCommandBuffers( vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk );
-      vObjectsInit_MUT.unlock();
-      return false;
-   }
+  if (vWorldPtr->beginCommandBuffer(vInitBuff_vk, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)) {
+    vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk);
+    vObjectsInit_MUT.unlock();
+    return false;
+  }
 
-   vInitializingObjects = true;
-   return true;
+  vInitializingObjects = true;
+  return true;
 }
 
 
@@ -183,21 +175,20 @@ bool rSceneBase::beginInitObject() {
  *
  * The object will NOT be fully initialized until endInitObject() is called
  */
-bool rSceneBase::initObject( std::shared_ptr<rObjectBase> _obj, uint32_t _objIndex ) {
-   if ( !vInitializingObjects ) {
-      eLOG( "beginInitObject was NOT called on scene ", vName_str );
-      return false;
-   }
+bool rSceneBase::initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objIndex) {
+  if (!vInitializingObjects) {
+    eLOG("beginInitObject was NOT called on scene ", vName_str);
+    return false;
+  }
 
-   std::lock_guard<std::recursive_mutex> lGuard( vObjectsInit_MUT );
-   auto const *                          lMesh = getAiMesh( _objIndex );
+  std::lock_guard<std::recursive_mutex> lGuard(vObjectsInit_MUT);
+  auto const *                          lMesh = getAiMesh(_objIndex);
 
-   if ( !lMesh )
-      return false;
+  if (!lMesh) return false;
 
-   _obj->setData( vInitBuff_vk, lMesh );
-   vInitObjects.emplace_back( _obj );
-   return true;
+  _obj->setData(vInitBuff_vk, lMesh);
+  vInitObjects.emplace_back(_obj);
+  return true;
 }
 
 /*!
@@ -206,55 +197,52 @@ bool rSceneBase::initObject( std::shared_ptr<rObjectBase> _obj, uint32_t _objInd
  * Submits internal vulkan command buffer
  */
 bool rSceneBase::endInitObject() {
-   if ( !vInitializingObjects ) {
-      eLOG( "beginInitObject was NOT called on secene ", vName_str );
-      return false;
-   }
+  if (!vInitializingObjects) {
+    eLOG("beginInitObject was NOT called on secene ", vName_str);
+    return false;
+  }
 
-   vkEndCommandBuffer( vInitBuff_vk );
+  vkEndCommandBuffer(vInitBuff_vk);
 
-   VkSubmitInfo lInfo         = {};
-   lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-   lInfo.pNext                = nullptr;
-   lInfo.waitSemaphoreCount   = 0;
-   lInfo.pWaitSemaphores      = nullptr;
-   lInfo.pWaitDstStageMask    = nullptr;
-   lInfo.commandBufferCount   = 1;
-   lInfo.pCommandBuffers      = &vInitBuff_vk;
-   lInfo.signalSemaphoreCount = 0;
-   lInfo.pSignalSemaphores    = nullptr;
+  VkSubmitInfo lInfo         = {};
+  lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  lInfo.pNext                = nullptr;
+  lInfo.waitSemaphoreCount   = 0;
+  lInfo.pWaitSemaphores      = nullptr;
+  lInfo.pWaitDstStageMask    = nullptr;
+  lInfo.commandBufferCount   = 1;
+  lInfo.pCommandBuffers      = &vInitBuff_vk;
+  lInfo.signalSemaphoreCount = 0;
+  lInfo.pSignalSemaphores    = nullptr;
 
-   auto lFence = vWorldPtr->createFence();
+  auto lFence = vWorldPtr->createFence();
 
-   VkResult lRes;
+  VkResult lRes;
 
-   {
-      std::lock_guard<std::mutex> lLock( vWorldPtr->getInitPtr()->getQueueMutex( vInitQueue_vk ) );
-      lRes = vkQueueSubmit( vInitQueue_vk, 1, &lInfo, lFence );
-   }
+  {
+    std::lock_guard<std::mutex> lLock(vWorldPtr->getInitPtr()->getQueueMutex(vInitQueue_vk));
+    lRes = vkQueueSubmit(vInitQueue_vk, 1, &lInfo, lFence);
+  }
 
-   if ( lRes ) {
-      eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
-      vInitObjects.clear();
-      vObjectsInit_MUT.unlock();
-      return false;
-   }
+  if (lRes) {
+    eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
+    vInitObjects.clear();
+    vObjectsInit_MUT.unlock();
+    return false;
+  }
 
-   lRes = vkWaitForFences( vWorldPtr->getDevice(), 1, &lFence, VK_TRUE, UINT64_MAX );
-   if ( lRes ) {
-      eLOG( "'vkQueueSubmit' returned ", uEnum2Str::toStr( lRes ) );
-   }
+  lRes = vkWaitForFences(vWorldPtr->getDevice(), 1, &lFence, VK_TRUE, UINT64_MAX);
+  if (lRes) { eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes)); }
 
-   for ( auto i : vInitObjects )
-      i->finishData();
+  for (auto i : vInitObjects) i->finishData();
 
-   vkDestroyFence( vWorldPtr->getDevice(), lFence, nullptr );
-   vkFreeCommandBuffers( vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk );
+  vkDestroyFence(vWorldPtr->getDevice(), lFence, nullptr);
+  vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk);
 
-   vInitObjects.clear();
-   vInitializingObjects = false;
-   vObjectsInit_MUT.unlock();
-   return true;
+  vInitObjects.clear();
+  vInitializingObjects = false;
+  vObjectsInit_MUT.unlock();
+  return true;
 }
 
 /*!
@@ -266,10 +254,10 @@ bool rSceneBase::endInitObject() {
  *
  * \returns The Index of the object
  */
-unsigned rSceneBase::addObject( std::shared_ptr<rObjectBase> _obj ) {
-   std::lock_guard<std::mutex> lLockObjects( vObjects_MUT );
+unsigned rSceneBase::addObject(std::shared_ptr<rObjectBase> _obj) {
+  std::lock_guard<std::mutex> lLockObjects(vObjects_MUT);
 
-   vObjects.emplace_back( _obj );
+  vObjects.emplace_back(_obj);
 
 #if 0
    int64_t lFlags;
@@ -279,10 +267,10 @@ unsigned rSceneBase::addObject( std::shared_ptr<rObjectBase> _obj ) {
       vLightSourcesIndex.emplace_back( vObjects.size() - 1 );
 #endif
 
-   return static_cast<unsigned>( vObjects.size() - 1 );
+  return static_cast<unsigned>(vObjects.size() - 1);
 }
 
 std::vector<std::shared_ptr<rObjectBase>> rSceneBase::getObjects() { return vObjects; }
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -18,8 +18,8 @@
  * limitations under the License.
  */
 
-#include "iRandR.hpp"
 #include "uLog.hpp"
+#include "iRandR.hpp"
 #include <strings.h>
 
 namespace e_engine {
@@ -43,133 +43,125 @@ namespace unix_x11 {
  * \note Most code is a simple copy and paste from the XRandR project
  *(http://www.x.org/wiki/Projects/XRandR/)
  */
-bool iRandR::setGamma( iDisplays const &_disp, float _r, float _g, float _b, float _brightness ) {
-   if ( _r < 0 || _g < 0 || _b < 0 || _brightness < 0 || !isRandRSupported() )
-      return false;
+bool iRandR::setGamma(iDisplays const &_disp, float _r, float _g, float _b, float _brightness) {
+  if (_r < 0 || _g < 0 || _b < 0 || _brightness < 0 || !isRandRSupported()) return false;
 
-   reload();
+  reload();
 
-   RRCrtc lTempCRTCId_XRR = None;
+  RRCrtc lTempCRTCId_XRR = None;
 
-   for ( internal::_output const &fOutout : vOutput_V_RandR ) {
-      if ( fOutout.connection == 0 ) {
-         if ( _disp.getOutput() == fOutout.id ) {
-            lTempCRTCId_XRR = fOutout.crtc;
-            break;
-         }
+  for (internal::_output const &fOutout : vOutput_V_RandR) {
+    if (fOutout.connection == 0) {
+      if (_disp.getOutput() == fOutout.id) {
+        lTempCRTCId_XRR = fOutout.crtc;
+        break;
       }
-   }
+    }
+  }
 
-   if ( lTempCRTCId_XRR == None )
-      return false;
+  if (lTempCRTCId_XRR == None) return false;
 
 
-   int           lSize_I = XRRGetCrtcGammaSize( vDisplay_X11, lTempCRTCId_XRR );
-   int           lShift_I;
-   XRRCrtcGamma *lCRTCGamma_XRR;
-   float         lGammaRed_F;
-   float         lGammaGreen_F;
-   float         lGammaBlue_F;
+  int           lSize_I = XRRGetCrtcGammaSize(vDisplay_X11, lTempCRTCId_XRR);
+  int           lShift_I;
+  XRRCrtcGamma *lCRTCGamma_XRR;
+  float         lGammaRed_F;
+  float         lGammaGreen_F;
+  float         lGammaBlue_F;
 
-   if ( !lSize_I ) {
-      eLOG( "RandR: Gamma size is 0 => Unable to set Gamma" );
-      return false;
-   }
+  if (!lSize_I) {
+    eLOG("RandR: Gamma size is 0 => Unable to set Gamma");
+    return false;
+  }
 
-   /*
-    * The gamma-correction lookup table managed through XRR[GS]etCrtcGamma
-    * is 2^n in size, where 'n' is the number of significant bits in
-    * the X Color.  Because an X Color is 16 bits, size cannot be larger
-    * than 2^16.
-    */
-   if ( lSize_I > 65536 ) {
-      eLOG( "RandR: Gamma correction table is impossibly large" );
-      return false;
-   }
+  /*
+   * The gamma-correction lookup table managed through XRR[GS]etCrtcGamma
+   * is 2^n in size, where 'n' is the number of significant bits in
+   * the X Color.  Because an X Color is 16 bits, size cannot be larger
+   * than 2^16.
+   */
+  if (lSize_I > 65536) {
+    eLOG("RandR: Gamma correction table is impossibly large");
+    return false;
+  }
 
-   /*
-    * The hardware color lookup table has a number of significant
-    * bits equal to ffs(size) - 1; compute all values so that
-    * they are in the range [0,size) then shift the values so
-    * that they occupy the MSBs of the 16-bit X Color.
-    */
-   lShift_I = 16 - ( ffs( lSize_I ) - 1 );
+  /*
+   * The hardware color lookup table has a number of significant
+   * bits equal to ffs(size) - 1; compute all values so that
+   * they are in the range [0,size) then shift the values so
+   * that they occupy the MSBs of the 16-bit X Color.
+   */
+  lShift_I = 16 - (ffs(lSize_I) - 1);
 
-   lCRTCGamma_XRR = XRRAllocGamma( lSize_I );
-   if ( !lCRTCGamma_XRR ) {
-      eLOG( "RandR: Gamma allocation failed" );
-      return false;
-   }
+  lCRTCGamma_XRR = XRRAllocGamma(lSize_I);
+  if (!lCRTCGamma_XRR) {
+    eLOG("RandR: Gamma allocation failed");
+    return false;
+  }
 
-   _r = ( _r == 0 ) ? 1 : _r;
-   _g = ( _g == 0 ) ? 1 : _g;
-   _b = ( _b == 0 ) ? 1 : _b;
+  _r = (std::abs(_r) < std::numeric_limits<double>::epsilon()) ? 1 : _r;
+  _g = (std::abs(_g) < std::numeric_limits<double>::epsilon()) ? 1 : _g;
+  _b = (std::abs(_b) < std::numeric_limits<double>::epsilon()) ? 1 : _b;
 
-   lGammaRed_F   = 1 / _r;
-   lGammaGreen_F = 1 / _g;
-   lGammaBlue_F  = 1 / _b;
+  lGammaRed_F   = 1 / _r;
+  lGammaGreen_F = 1 / _g;
+  lGammaBlue_F  = 1 / _b;
 
-   for ( int i = 0; i < lSize_I; ++i ) {
-      if ( lGammaRed_F == 1.0 && _brightness == 1.0 ) {
-         lCRTCGamma_XRR->red[i] = static_cast<unsigned short>( i );
-      } else {
-         lCRTCGamma_XRR->red[i] = static_cast<unsigned short>(
-               fmin( pow( static_cast<double>( i ) / static_cast<double>( lSize_I - 1 ),
-                          lGammaRed_F ) *
-                           _brightness,
-                     1.0 ) *
-               static_cast<double>( lSize_I - 1 ) );
-      }
+  for (int i = 0; i < lSize_I; ++i) {
+    if (std::abs(lGammaRed_F - 1.0) < std::numeric_limits<double>::epsilon() &&
+        std::abs(_brightness - 1.0) < std::numeric_limits<double>::epsilon()) {
+      lCRTCGamma_XRR->red[i] = static_cast<unsigned short>(i);
+    } else {
+      lCRTCGamma_XRR->red[i] = static_cast<unsigned short>(
+          fmin(pow(static_cast<double>(i) / static_cast<double>(lSize_I - 1), lGammaRed_F) * _brightness, 1.0) *
+          static_cast<double>(lSize_I - 1));
+    }
 
-      lCRTCGamma_XRR->red[i] <<= lShift_I;
+    lCRTCGamma_XRR->red[i] <<= lShift_I;
 
-      if ( lGammaGreen_F == 1.0 && _brightness == 1.0 ) {
-         lCRTCGamma_XRR->green[i] = static_cast<unsigned short>( i );
-      } else {
-         lCRTCGamma_XRR->green[i] = static_cast<unsigned short>(
-               fmin( pow( static_cast<double>( i ) / static_cast<double>( lSize_I - 1 ),
-                          lGammaGreen_F ) *
-                           _brightness,
-                     1.0 ) *
-               static_cast<double>( lSize_I - 1 ) );
-      }
+    if (std::abs(lGammaGreen_F - 1.0) < std::numeric_limits<double>::epsilon() &&
+        std::abs(_brightness - 1.0) < std::numeric_limits<double>::epsilon()) {
+      lCRTCGamma_XRR->green[i] = static_cast<unsigned short>(i);
+    } else {
+      lCRTCGamma_XRR->green[i] = static_cast<unsigned short>(
+          fmin(pow(static_cast<double>(i) / static_cast<double>(lSize_I - 1), lGammaGreen_F) * _brightness, 1.0) *
+          static_cast<double>(lSize_I - 1));
+    }
 
-      lCRTCGamma_XRR->green[i] <<= lShift_I;
+    lCRTCGamma_XRR->green[i] <<= lShift_I;
 
-      if ( lGammaBlue_F == 1.0 && _brightness == 1.0 ) {
-         lCRTCGamma_XRR->blue[i] = static_cast<unsigned short>( i );
-      } else {
-         lCRTCGamma_XRR->blue[i] = static_cast<unsigned short>(
-               fmin( pow( static_cast<double>( i ) / static_cast<double>( lSize_I - 1 ),
-                          lGammaBlue_F ) *
-                           _brightness,
-                     1.0 ) *
-               static_cast<double>( lSize_I - 1 ) );
-      }
+    if (std::abs(lGammaBlue_F - 1.0) < std::numeric_limits<double>::epsilon() &&
+        std::abs(_brightness - 1.0) < std::numeric_limits<double>::epsilon()) {
+      lCRTCGamma_XRR->blue[i] = static_cast<unsigned short>(i);
+    } else {
+      lCRTCGamma_XRR->blue[i] = static_cast<unsigned short>(
+          fmin(pow(static_cast<double>(i) / static_cast<double>(lSize_I - 1), lGammaBlue_F) * _brightness, 1.0) *
+          static_cast<double>(lSize_I - 1));
+    }
 
-      lCRTCGamma_XRR->blue[i] <<= lShift_I;
-   }
+    lCRTCGamma_XRR->blue[i] <<= lShift_I;
+  }
 
-   XRRSetCrtcGamma( vDisplay_X11, lTempCRTCId_XRR, lCRTCGamma_XRR );
+  XRRSetCrtcGamma(vDisplay_X11, lTempCRTCId_XRR, lCRTCGamma_XRR);
 
-   XRRFreeGamma( lCRTCGamma_XRR );
+  XRRFreeGamma(lCRTCGamma_XRR);
 
-   iLOG( "Successfully set Gamma to   R: ",
-         _r,
-         "  --  G: ",
-         _g,
-         "  --  B: ",
-         _b,
-         "  --  Brightness: ",
-         _brightness,
-         "  !!  ",
-         lTempCRTCId_XRR );
+  iLOG("Successfully set Gamma to   R: ",
+       _r,
+       "  --  G: ",
+       _g,
+       "  --  B: ",
+       _b,
+       "  --  Brightness: ",
+       _brightness,
+       "  !!  ",
+       lTempCRTCId_XRR);
 
-   return true;
+  return true;
 }
 
 } // unix_x11
 
 } // e_engine
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

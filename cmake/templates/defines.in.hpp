@@ -8,11 +8,6 @@
 
 @CM_DEFINES_DEBUG_DEFINES@
 
-// Include export files
-#include "utils_export.hpp"
-#include "init_export.hpp"
-#include "render_export.hpp"
-
 // clang-format off
 
 #define UNIX_X11     @CM_UNIX_X11@

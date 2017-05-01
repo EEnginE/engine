@@ -35,68 +35,68 @@ class iInit;
 
 class rRenderLoop {
  public:
-   typedef struct CommandBuffers {
-      std::vector<VkCommandBuffer> pre;
-      std::vector<VkCommandBuffer> render;
-      std::vector<VkCommandBuffer> post;
+  typedef struct CommandBuffers {
+    std::vector<VkCommandBuffer> pre;
+    std::vector<VkCommandBuffer> render;
+    std::vector<VkCommandBuffer> post;
 
-      std::vector<std::vector<internal::rRendererBase::CommandBuffers>> pointers;
-   } CommandBuffers;
+    std::vector<std::vector<internal::rRendererBase::CommandBuffers>> pointers;
+  } CommandBuffers;
 
 
  private:
-   static uint64_t vRenderedFrames;
+  static uint64_t vRenderedFrames;
 
-   rWorld *vWorldPtr;
-   iInit * vInitPtr;
+  rWorld *vWorldPtr;
+  iInit * vInitPtr;
 
-   VkDevice vDevice_vk;
+  VkDevice vDevice_vk;
 
-   std::vector<std::shared_ptr<internal::rRendererBase>> vRenderers;
+  std::vector<std::shared_ptr<internal::rRendererBase>> vRenderers;
 
-   bool vRunRenderLoop     = false;
-   bool vRunRenderThread   = true;
-   bool vFinishedRecording = false;
+  bool vRunRenderLoop     = false;
+  bool vRunRenderThread   = true;
+  bool vFinishedRecording = false;
 
-   std::thread vRenderThread;
+  std::thread vRenderThread;
 
-   std::mutex vMutexStartRecording;
-   std::mutex vMutexFinishedRecording;
-   std::mutex vMutexStartLogLoop;
-   std::mutex vMutexStopLogLoop;
+  std::mutex vMutexStartRecording;
+  std::mutex vMutexFinishedRecording;
+  std::mutex vMutexStartLogLoop;
+  std::mutex vMutexStopLogLoop;
 
-   std::recursive_mutex vLoopAccessMutex;
+  std::recursive_mutex vLoopAccessMutex;
 
-   std::condition_variable vVarStartRecording;
-   std::condition_variable vVarFinishedRecording;
-   std::condition_variable vVarStartLogLoop;
-   std::condition_variable vVarStopLogLoop;
+  std::condition_variable vVarStartRecording;
+  std::condition_variable vVarFinishedRecording;
+  std::condition_variable vVarStartLogLoop;
+  std::condition_variable vVarStopLogLoop;
 
-   void rebuildCommandBuffersArray( CommandBuffers *_buffers, uint32_t _framebuffer );
-   void renderLoop();
+  void rebuildCommandBuffersArray(CommandBuffers *_buffers, uint32_t _framebuffer);
+  void renderLoop();
 
  public:
-   rRenderLoop() = delete;
-   rRenderLoop( iInit *_init, rWorld *_root );
-   rRenderLoop( const rRenderLoop &_obj ) = delete;
-   rRenderLoop( rRenderLoop && )          = delete;
-   rRenderLoop &operator=( const rRenderLoop & ) = delete;
-   rRenderLoop &operator=( rRenderLoop && ) = delete;
-   virtual ~rRenderLoop();
+  rRenderLoop() = delete;
+  rRenderLoop(iInit *_init, rWorld *_root);
+  rRenderLoop(const rRenderLoop &_obj) = delete;
+  rRenderLoop(rRenderLoop &&)          = delete;
+  rRenderLoop &operator=(const rRenderLoop &) = delete;
+  rRenderLoop &operator=(rRenderLoop &&) = delete;
+  virtual ~rRenderLoop();
 
-   int  init();
-   void destroy();
+  int  init();
+  void destroy();
 
-   bool start();
-   bool stop();
-   bool getIsRunning() const;
+  bool start();
+  bool stop();
+  bool getIsRunning() const;
 
-   void addRenderer( std::shared_ptr<internal::rRendererBase> _renderer );
-   void removeRenderer( std::shared_ptr<internal::rRendererBase> _renderer );
-   void clearRenderers();
+  void addRenderer(std::shared_ptr<internal::rRendererBase> _renderer);
+  void removeRenderer(std::shared_ptr<internal::rRendererBase> _renderer);
+  void clearRenderers();
 
-   void updateGlobalClearColor( VkClearColorValue _clear );
+  void updateGlobalClearColor(VkClearColorValue _clear);
 
-   uint64_t *getRenderedFramesPtr();
+  uint64_t *getRenderedFramesPtr();
 };
 }

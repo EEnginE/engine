@@ -27,44 +27,44 @@
 namespace e_engine {
 namespace internal {
 
-class UTILS_API uParserHelper {
+class uParserHelper {
  protected:
-   std::string vFilePath_str;
-   bool        vIsParsed = false;
+  std::string vFilePath_str;
+  bool        vIsParsed = false;
 
-   std::string::const_iterator vIter;
-   std::string::const_iterator vEnd;
+  std::string::const_iterator vIter;
+  std::string::const_iterator vEnd;
 
-   unsigned int vCurrentLine = 1;
+  unsigned int vCurrentLine = 1;
 
-   bool continueWhitespace( bool _quiet = false );
-   bool expect( char _c, bool _continueWhitespace = true, bool _quiet = false );
-   bool expect( std::string _str, bool _continueWhitespace = true, bool _quiet = false );
-   bool getString( std::string &_str, bool _continueWhitespace = true, bool _quiet = false );
-   bool getNum( double &_num, bool _quiet = false );
-   bool getNum( float &_num, bool _quiet = false );
-   bool getNum( int &_num, bool _quiet = false );
-   bool getNum( unsigned int &_num, bool _quiet = false );
-   bool getNum( unsigned short &_num, bool _quiet = false );
+  bool continueWhitespace(bool _quiet = false);
+  bool expect(char _c, bool _continueWhitespace = true, bool _quiet = false);
+  bool expect(std::string _str, bool _continueWhitespace = true, bool _quiet = false);
+  bool getString(std::string &_str, bool _continueWhitespace = true, bool _quiet = false);
+  bool getNum(double &_num, bool _quiet = false);
+  bool getNum(float &_num, bool _quiet = false);
+  bool getNum(int &_num, bool _quiet = false);
+  bool getNum(unsigned int &_num, bool _quiet = false);
+  bool getNum(unsigned short &_num, bool _quiet = false);
 
-   bool eofError();
-   bool unexpectedCharError();
+  bool eofError();
+  bool unexpectedCharError();
 
-   virtual bool load_IMPL() = 0;
+  virtual bool load_IMPL() = 0;
 
  public:
-   virtual ~uParserHelper();
-   uParserHelper() {}
-   uParserHelper( std::string _file ) : vFilePath_str( _file ) {}
+  virtual ~uParserHelper();
+  uParserHelper() {}
+  uParserHelper(std::string _file) : vFilePath_str(_file) {}
 
-   int parse();
-   int parseString( std::string _data );
+  int parse();
+  int parseString(std::string _data);
 
-   int operator()() { return parse(); }
+  int operator()() { return parse(); }
 
-   bool        getIsParsed() const;
-   std::string getFilePath() const;
-   void setFile( std::string _file );
+  bool        getIsParsed() const;
+  std::string getFilePath() const;
+  void setFile(std::string _file);
 };
 }
 }

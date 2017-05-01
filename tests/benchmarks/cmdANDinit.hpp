@@ -18,42 +18,42 @@
 #define CMDANDINIT_H
 
 #include <engine.hpp>
-#include <vector>
 #include <string>
+#include <vector>
 
 class cmdANDinit {
  private:
-   std::vector<std::string> args;
-   std::string argv0;
+  std::vector<std::string> args;
+  std::string              argv0;
 
-   bool vCanUseColor;
+  bool vCanUseColor;
 
-   bool vDoFunction;
-   unsigned int vFunctionLoops;
+  bool         vDoFunction;
+  unsigned int vFunctionLoops;
 
-   bool vDoMutex;
-   unsigned int vMutexLoops;
+  bool         vDoMutex;
+  unsigned int vMutexLoops;
 
-   cmdANDinit() {}
+  cmdANDinit() {}
 
-   void postInit();
-   void preInit();
-   void usage();
+  void postInit();
+  void preInit();
+  void usage();
 
  public:
-   cmdANDinit( int argc, char *argv[], bool _color );
+  cmdANDinit(int argc, char *argv[], bool _color);
 
-   bool parseArgsAndInit();
+  bool parseArgsAndInit();
 
-   void getFunctionInf( unsigned int &_loops, bool &_doIt ) {
-      _loops = vFunctionLoops;
-      _doIt = vDoFunction;
-   }
-   void getMutexInf( unsigned int &_loops, bool &_doIt ) {
-      _loops = vMutexLoops;
-      _doIt = vDoMutex;
-   }
+  void getFunctionInf(unsigned int &_loops, bool &_doIt) {
+    _loops = vFunctionLoops;
+    _doIt  = vDoFunction;
+  }
+  void getMutexInf(unsigned int &_loops, bool &_doIt) {
+    _loops = vMutexLoops;
+    _doIt  = vDoMutex;
+  }
 };
 
 #endif // CMDANDINIT_H
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

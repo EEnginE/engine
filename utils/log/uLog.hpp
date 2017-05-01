@@ -23,8 +23,8 @@
 
 #include "defines.hpp"
 
-#include "uLog_resources.hpp"
 #include "uMacros.hpp"
+#include "uLog_resources.hpp"
 #include <chrono>
 #include <fstream>
 #include <thread>
@@ -96,140 +96,126 @@ namespace e_engine {
  *
  * \note Only the <b>single predefined</b> instance \c LOG of this class should be used!
  */
-class UTILS_API uLog final {
-   typedef uSignal<void, uLogEntryRaw &> _SIGNAL_;
-   typedef uSlot<void, uLog, uLogEntryRaw &> _SLOT_;
+class uLog final {
+  typedef uSignal<void, uLogEntryRaw &> _SIGNAL_;
+  typedef uSlot<void, uLog, uLogEntryRaw &> _SLOT_;
 
  private:
-   std::vector<internal::uLogType> vLogTypes_V_eLT;
-   std::map<std::thread::id, std::wstring> vThreads;
-   std::string    vLogFileName_str;
-   std::string    vLogFielFullPath_str;
-   std::wofstream vLogFileOutput_OS;
+  std::vector<internal::uLogType> vLogTypes_V_eLT;
+  std::map<std::thread::id, std::wstring> vThreads;
+  std::string    vLogFileName_str;
+  std::string    vLogFielFullPath_str;
+  std::wofstream vLogFileOutput_OS;
 
-   std::mutex vLogMutex_BT;
-   std::mutex vLogThreadSaveMutex_BT;
+  std::mutex vLogMutex_BT;
+  std::mutex vLogThreadSaveMutex_BT;
 
-   bool vLogLoopRun_B;
-   bool vIsLogLoopRunning_B;
+  bool vLogLoopRun_B;
+  bool vIsLogLoopRunning_B;
 
-   _SLOT_ vStdOut_eSLOT;
-   _SLOT_ vStdErr_eSLOT;
-   _SLOT_ vStdLog_eSLOT;
+  _SLOT_ vStdOut_eSLOT;
+  _SLOT_ vStdErr_eSLOT;
+  _SLOT_ vStdLog_eSLOT;
 
-   uint16_t vMaxTypeStringLength_usI; //!< The max string length of an \a Error \a type.
+  uint16_t vMaxTypeStringLength_usI; //!< The max string length of an \a Error \a type.
 
-   std::thread vLogLoopThread_THREAD;
+  std::thread vLogLoopThread_THREAD;
 
-   bool openLogFile( uint16_t i = 0 );
+  bool openLogFile(uint16_t i = 0);
 
-   void logLoop();
+  void logLoop();
 
-   void stdOutStandard( uLogEntryRaw &_e );
-   void stdErrStandard( uLogEntryRaw &_e );
-   void stdLogStandard( uLogEntryRaw &_e );
+  void stdOutStandard(uLogEntryRaw &_e);
+  void stdErrStandard(uLogEntryRaw &_e);
+  void stdLogStandard(uLogEntryRaw &_e);
 
-   std::list<uLogEntryRaw> vLogEntries;
+  std::list<uLogEntryRaw> vLogEntries;
 
  public:
-   uLog();
-   ~uLog();
+  uLog();
+  ~uLog();
 
-   uint16_t getMaxTypeStingLength() { return vMaxTypeStringLength_usI; }
-   bool     getIsLogLoopRunning() { return vIsLogLoopRunning_B; }
+  uint16_t getMaxTypeStingLength() { return vMaxTypeStringLength_usI; }
+  bool     getIsLogLoopRunning() { return vIsLogLoopRunning_B; }
 
-   void devInit();
+  void devInit();
 
-   void addType( char _type, std::wstring _name, char _color, bool _bold );
-   void nameThread( std::wstring _name );
-   std::wstring getThreadName( std::thread::id _id );
+  void addType(char _type, std::wstring _name, char _color, bool _bold);
+  void nameThread(std::wstring _name);
+  std::wstring getThreadName(std::thread::id _id);
 
-   template <class __C>
-   bool connectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot );
+  template <class __C>
+  bool connectSlotWith(char _type, uSlot<void, __C, uLogEntryRaw &> &_slot);
 
-   template <class __C>
-   bool disconnectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot );
+  template <class __C>
+  bool disconnectSlotWith(char _type, uSlot<void, __C, uLogEntryRaw &> &_slot);
 
-   bool startLogLoop();
-   bool stopLogLoop();
+  bool startLogLoop();
+  bool stopLogLoop();
 
 
-   template <class... ARGS>
-   inline void operator()( char              _type,
-                           bool              _onlyText,
-                           const wchar_t *   _file,
-                           const int         _line,
-                           const char *      _function,
-                           std::thread::id &&_thread,
-                           ARGS... _data ) {
-      addLogEntry( _type,
-                   _onlyText,
-                   _file,
-                   _line,
-                   _function,
-                   std::forward<std::thread::id>( _thread ),
-                   std::forward<ARGS>( _data )... );
-   }
+  template <class... ARGS>
+  inline void operator()(char              _type,
+                         bool              _onlyText,
+                         const wchar_t *   _file,
+                         const int         _line,
+                         const char *      _function,
+                         std::thread::id &&_thread,
+                         ARGS... _data) {
+    addLogEntry(
+        _type, _onlyText, _file, _line, _function, std::forward<std::thread::id>(_thread), std::forward<ARGS>(_data)...);
+  }
 
-   template <class... ARGS>
-   inline void addLogEntry( char              _type,
-                            bool              _onlyText,
-                            const wchar_t *   _file,
-                            const int         _line,
-                            const char *      _function,
-                            std::thread::id &&_thread,
-                            ARGS... _data );
+  template <class... ARGS>
+  inline void addLogEntry(char              _type,
+                          bool              _onlyText,
+                          const wchar_t *   _file,
+                          const int         _line,
+                          const char *      _function,
+                          std::thread::id &&_thread,
+                          ARGS... _data);
 
-   std::string getLogFileFullPath() { return vLogFielFullPath_str; }
+  std::string getLogFileFullPath() { return vLogFielFullPath_str; }
 };
 
 template <class... ARGS>
-void uLog::addLogEntry( char              _type,
-                        bool              _onlyText,
-                        const wchar_t *   _file,
-                        const int         _line,
-                        const char *      _function,
-                        std::thread::id &&_thread,
-                        ARGS... _data ) {
-   uLogEntryRaw lTempEntry( _type,
-                            _onlyText,
-                            _file,
-                            _line,
-                            _function,
-                            std::forward<std::thread::id>( _thread ),
-                            std::forward<ARGS>( _data )... );
+void uLog::addLogEntry(char              _type,
+                       bool              _onlyText,
+                       const wchar_t *   _file,
+                       const int         _line,
+                       const char *      _function,
+                       std::thread::id &&_thread,
+                       ARGS... _data) {
+  uLogEntryRaw lTempEntry(
+      _type, _onlyText, _file, _line, _function, std::forward<std::thread::id>(_thread), std::forward<ARGS>(_data)...);
 
-   std::lock_guard<std::mutex> lLock( vLogThreadSaveMutex_BT );
+  std::lock_guard<std::mutex> lLock(vLogThreadSaveMutex_BT);
 
-   vLogEntries.push_back( std::move( lTempEntry ) );
+  vLogEntries.push_back(std::move(lTempEntry));
 
-   if ( GlobConf.log.waitUntilLogEntryPrinted && vLogLoopRun_B ) {
-      while ( !vLogEntries.empty() ) {
-         auto lLogTypeId_uI = vLogEntries.front().getLogEntry( vLogTypes_V_eLT, vThreads );
-         vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->send( vLogEntries.front() );
-         vLogEntries.pop_front();
-      }
-   }
+  if (GlobConf.log.waitUntilLogEntryPrinted && vLogLoopRun_B) {
+    while (!vLogEntries.empty()) {
+      auto lLogTypeId_uI = vLogEntries.front().getLogEntry(vLogTypes_V_eLT, vThreads);
+      vLogTypes_V_eLT[lLogTypeId_uI].getSignal()->send(vLogEntries.front());
+      vLogEntries.pop_front();
+    }
+  }
 }
 
 template <class __C>
-bool uLog::connectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot ) {
-   for ( unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i ) {
-      if ( vLogTypes_V_eLT.at( i ).getType() == _type ) {
-         return _slot.connect( vLogTypes_V_eLT.at( i ).getSignal() );
-      }
-   }
-   return false;
+bool uLog::connectSlotWith(char _type, uSlot<void, __C, uLogEntryRaw &> &_slot) {
+  for (unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i) {
+    if (vLogTypes_V_eLT.at(i).getType() == _type) { return _slot.connect(vLogTypes_V_eLT.at(i).getSignal()); }
+  }
+  return false;
 }
 
 template <class __C>
-bool uLog::disconnectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_slot ) {
-   for ( unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i ) {
-      if ( vLogTypes_V_eLT.at( i ).getType() == _type ) {
-         return _slot.disconnect( vLogTypes_V_eLT.at( i ).getSignal() );
-      }
-   }
-   return false;
+bool uLog::disconnectSlotWith(char _type, uSlot<void, __C, uLogEntryRaw &> &_slot) {
+  for (unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i) {
+    if (vLogTypes_V_eLT.at(i).getType() == _type) { return _slot.disconnect(vLogTypes_V_eLT.at(i).getSignal()); }
+  }
+  return false;
 }
 
 /*!
@@ -257,18 +243,18 @@ bool uLog::disconnectSlotWith( char _type, uSlot<void, __C, uLogEntryRaw &> &_sl
  * This is the standard \c uLog object which should
  * be used for \b all Logging operations
  */
-extern UTILS_API uLog LOG;
+extern uLog LOG;
 
 
 namespace internal {
 template <>
 struct uLogConverter<std::thread::id> {
-   static void convert( std::wstring &_str, std::thread::id _t ) {
-      _str.append( std::forward<std::wstring>( LOG.getThreadName( _t ) ) );
-   }
+  static void convert(std::wstring &_str, std::thread::id _t) {
+    _str.append(std::forward<std::wstring>(LOG.getThreadName(_t)));
+  }
 };
 }
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

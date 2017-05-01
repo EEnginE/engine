@@ -29,65 +29,64 @@ namespace e_engine {
 template <class T>
 class rDirectionalLight : public rObjectBase {
  private:
-   rVec3<T> vAmbientColor;
-   rVec3<T> vLightColor;
-   rVec3<T> vLightDirection;
+  rVec3<T> vAmbientColor;
+  rVec3<T> vLightColor;
+  rVec3<T> vLightDirection;
 
-   bool isMesh() override { return false; }
+  bool isMesh() override { return false; }
 
  public:
-   rDirectionalLight( std::string _name ) : rObjectBase( _name ) { vLightColor.fill( 0 ); }
+  rDirectionalLight(std::string _name) : rObjectBase(_name) { vLightColor.fill(0); }
 
-   rDirectionalLight( std::string _name, rVec3<T> _direction ) : rObjectBase( _name ) {
-      vLightDirection = _direction;
-      vIsLoaded_B     = true;
-      vLightDirection.normalize();
-   }
+  rDirectionalLight(std::string _name, rVec3<T> _direction) : rObjectBase(_name) {
+    vLightDirection = _direction;
+    vIsLoaded_B     = true;
+    vLightDirection.normalize();
+  }
 
-   rDirectionalLight( std::string _name, rVec3<T> _direction, rVec3<T> _color, rVec3<T> _ambient )
-       : rObjectBase( _name ) {
-      vLightDirection = _direction;
-      vLightColor     = _color;
-      vAmbientColor   = _ambient;
-      vIsLoaded_B     = true;
+  rDirectionalLight(std::string _name, rVec3<T> _direction, rVec3<T> _color, rVec3<T> _ambient) : rObjectBase(_name) {
+    vLightDirection = _direction;
+    vLightColor     = _color;
+    vAmbientColor   = _ambient;
+    vIsLoaded_B     = true;
 
-      vLightDirection.normalize();
-   }
+    vLightDirection.normalize();
+  }
 
-   void setColor( rVec3<T> _color, rVec3<T> _ambient ) {
-      vLightColor   = _color;
-      vAmbientColor = _ambient;
-   }
+  void setColor(rVec3<T> _color, rVec3<T> _ambient) {
+    vLightColor   = _color;
+    vAmbientColor = _ambient;
+  }
 
-   void setDirection( rVec3<T> _direction ) {
-      vLightDirection = _direction;
-      vLightDirection.normalize();
-   }
-   rVec3<T> *getColor() { return &vLightColor; }
+  void setDirection(rVec3<T> _direction) {
+    vLightDirection = _direction;
+    vLightDirection.normalize();
+  }
+  rVec3<T> *getColor() { return &vLightColor; }
 
-   uint32_t getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) override;
-   bool checkIsCompatible( rPipeline * ) override { return true; }
+  uint32_t getVector(rVec3<T> **_vec, VECTOR_TYPES _type) override;
+  bool checkIsCompatible(rPipeline *) override { return true; }
 };
 
 
 template <class T>
-uint32_t rDirectionalLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
-   *_vec = nullptr;
+uint32_t rDirectionalLight<T>::getVector(rVec3<T> **_vec, VECTOR_TYPES _type) {
+  *_vec = nullptr;
 
-   switch ( _type ) {
-      case AMBIENT_COLOR: *_vec = &vAmbientColor; return ALL_OK;
-      case LIGHT_COLOR: *_vec   = &vLightColor; return ALL_OK;
-      case DIRECTION: *_vec     = &vLightDirection; return ALL_OK;
-      case POSITION:
-      case POSITION_MODEL_VIEW:
-      case ATTENUATION: return UNSUPPORTED_TYPE;
-   }
+  switch (_type) {
+    case AMBIENT_COLOR: *_vec = &vAmbientColor; return ALL_OK;
+    case LIGHT_COLOR: *_vec   = &vLightColor; return ALL_OK;
+    case DIRECTION: *_vec     = &vLightDirection; return ALL_OK;
+    case POSITION:
+    case POSITION_MODEL_VIEW:
+    case ATTENUATION: return UNSUPPORTED_TYPE;
+  }
 
-   return UNSUPPORTED_TYPE;
+  return UNSUPPORTED_TYPE;
 }
 
 typedef rDirectionalLight<float> rDirectionalLightF;
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

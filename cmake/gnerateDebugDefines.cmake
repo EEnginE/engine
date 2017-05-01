@@ -15,10 +15,10 @@
 function( generate_debug_defines )
    message( STATUS "Debug defines (Enable all: ${DEBUG_LOG_ALL} (change with -DDEBUG_LOG_ALL / single vars with -DLOG_...))" )
 
-   foreach( I IN LISTS ALL_UNASIGNED_CPP ALL_UNASIGNED_HPP )
+   foreach( I IN LISTS ${PROJECT_NAME}_ALL_UNASIGNED_CPP ${PROJECT_NAME}_ALL_UNASIGNED_HPP )
       file( STRINGS "${I}" TMP REGEX "^ *#if +D_LOG_[A-Z]+ *" )
       set( DEFINES_RAW ${DEFINES_RAW} ${TMP} )
-   endforeach( I IN LISTS ALL_UNASIGNED_CPP ALL_UNASIGNED_HPP )
+   endforeach( I IN LISTS ${PROJECT_NAME}_ALL_UNASIGNED_CPP ${PROJECT_NAME}_ALL_UNASIGNED_HPP )
 
    foreach( I IN LISTS DEFINES_RAW )
       set( FOUND OFF )

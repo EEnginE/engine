@@ -57,80 +57,77 @@ class rWorld;
  */
 class rPipeline {
  private:
-   VkDevice   vDevice_vk   = nullptr;
-   VkPipeline vPipeline_vk = nullptr;
+  VkDevice   vDevice_vk   = nullptr;
+  VkPipeline vPipeline_vk = nullptr;
 
-   rShaderBase *vShader = nullptr;
+  rShaderBase *vShader = nullptr;
 
-   VkPipelineVertexInputStateCreateInfo   vVertex        = {};
-   VkPipelineInputAssemblyStateCreateInfo vAssembly      = {};
-   VkPipelineTessellationStateCreateInfo  vTessellation  = {};
-   VkPipelineViewportStateCreateInfo      vViewport      = {};
-   VkPipelineRasterizationStateCreateInfo vRasterization = {};
-   VkPipelineMultisampleStateCreateInfo   vMultisample   = {};
-   VkPipelineDepthStencilStateCreateInfo  vDepthStencil  = {};
-   VkPipelineColorBlendStateCreateInfo    vColorBlend    = {};
-   VkPipelineDynamicStateCreateInfo       vDynamic       = {};
+  VkPipelineVertexInputStateCreateInfo   vVertex        = {};
+  VkPipelineInputAssemblyStateCreateInfo vAssembly      = {};
+  VkPipelineTessellationStateCreateInfo  vTessellation  = {};
+  VkPipelineViewportStateCreateInfo      vViewport      = {};
+  VkPipelineRasterizationStateCreateInfo vRasterization = {};
+  VkPipelineMultisampleStateCreateInfo   vMultisample   = {};
+  VkPipelineDepthStencilStateCreateInfo  vDepthStencil  = {};
+  VkPipelineColorBlendStateCreateInfo    vColorBlend    = {};
+  VkPipelineDynamicStateCreateInfo       vDynamic       = {};
 
-   bool vIsCreated = false;
+  bool vIsCreated = false;
 
  public:
-   rPipeline();
-   rPipeline( const rPipeline &_obj ) = delete;
-   rPipeline( rPipeline && )          = delete;
-   rPipeline &operator=( const rPipeline & ) = delete;
-   rPipeline &operator=( rPipeline && ) = delete;
+  rPipeline();
+  rPipeline(const rPipeline &_obj) = delete;
+  rPipeline(rPipeline &&)          = delete;
+  rPipeline &operator=(const rPipeline &) = delete;
+  rPipeline &operator=(rPipeline &&) = delete;
 
-   bool isReadyToCreate() const;
+  bool isReadyToCreate() const;
 
-   void setShader( rShaderBase *_shader );
-   rShaderBase *getShader() { return vShader; }
+  void setShader(rShaderBase *_shader);
+  rShaderBase *getShader() { return vShader; }
 
-   // Setter functions
+  // Setter functions
 
-   rPipeline *setTopology( VkPrimitiveTopology _val = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
-   rPipeline *enablePrimitiveRestart();
-   rPipeline *disablePrimitiveRestart();
-   rPipeline *setDynamicViewports( uint32_t _val = 1 );
-   rPipeline *setDynamicScissors( uint32_t _val = 1 );
-   rPipeline *setPolygonMode( VkPolygonMode _val = VK_POLYGON_MODE_FILL );
-   rPipeline *enableCulling( VkFrontFace     _front = VK_FRONT_FACE_COUNTER_CLOCKWISE,
-                             VkCullModeFlags _mode  = VK_CULL_MODE_BACK_BIT );
-   rPipeline *disableCulling();
-   rPipeline *enableDepthClamp();
-   rPipeline *disableDepthClamp();
-   rPipeline *enableDepthTest( VkCompareOp _op = VK_COMPARE_OP_LESS_OR_EQUAL );
-   rPipeline *disableDepthTest();
-   rPipeline *enableDepthBoundTest();
-   rPipeline *disableDepthBoundTest();
-   rPipeline *enableDepthBias();
-   rPipeline *disableDepthBias();
-   rPipeline *enableStencilTest();
-   rPipeline *disableStencilTest();
+  rPipeline *setTopology(VkPrimitiveTopology _val = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+  rPipeline *enablePrimitiveRestart();
+  rPipeline *disablePrimitiveRestart();
+  rPipeline *setDynamicViewports(uint32_t _val = 1);
+  rPipeline *setDynamicScissors(uint32_t _val = 1);
+  rPipeline *setPolygonMode(VkPolygonMode _val = VK_POLYGON_MODE_FILL);
+  rPipeline *enableCulling(VkFrontFace     _front = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+                           VkCullModeFlags _mode  = VK_CULL_MODE_BACK_BIT);
+  rPipeline *disableCulling();
+  rPipeline *enableDepthClamp();
+  rPipeline *disableDepthClamp();
+  rPipeline *enableDepthTest(VkCompareOp _op = VK_COMPARE_OP_LESS_OR_EQUAL);
+  rPipeline *disableDepthTest();
+  rPipeline *enableDepthBoundTest();
+  rPipeline *disableDepthBoundTest();
+  rPipeline *enableDepthBias();
+  rPipeline *disableDepthBias();
+  rPipeline *enableStencilTest();
+  rPipeline *disableStencilTest();
 
-   bool create( VkDevice        _device,
-                VkRenderPass    _renderPass,
-                uint32_t        _subPass,
-                VkPipelineCache _cache = VK_NULL_HANDLE );
+  bool create(VkDevice _device, VkRenderPass _renderPass, uint32_t _subPass, VkPipelineCache _cache = VK_NULL_HANDLE);
 
-   bool       destroy();
-   VkPipeline getPipeline();
+  bool       destroy();
+  VkPipeline getPipeline();
 
-   bool cmdBindPipeline( VkCommandBuffer _buf, VkPipelineBindPoint _bindPoint );
+  bool cmdBindPipeline(VkCommandBuffer _buf, VkPipelineBindPoint _bindPoint);
 
-   uint32_t getVertexBindPoint();
-   uint32_t getNumViewpors() { return vViewport.viewportCount; }
-   uint32_t getNumScissors() { return vViewport.scissorCount; }
+  uint32_t getVertexBindPoint();
+  uint32_t getNumViewpors() { return vViewport.viewportCount; }
+  uint32_t getNumScissors() { return vViewport.scissorCount; }
 
-   struct InputDesc {
-      uint32_t num;
-      uint32_t size;
-   };
+  struct InputDesc {
+    uint32_t num;
+    uint32_t size;
+  };
 
-   bool checkInputCompatible( std::vector<InputDesc> _inputs );
-   bool checkUniformCompatible( std::vector<rShaderBase::UNIFORM_ROLE> _uniforms );
-   bool getIsCreated() { return vIsCreated; }
+  bool checkInputCompatible(std::vector<InputDesc> _inputs);
+  bool checkUniformCompatible(std::vector<rShaderBase::UNIFORM_ROLE> _uniforms);
+  bool getIsCreated() { return vIsCreated; }
 
-   virtual ~rPipeline();
+  virtual ~rPipeline();
 };
 }

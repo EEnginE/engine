@@ -24,10 +24,9 @@
 namespace e_engine {
 
 iMouse::iMouse() {
-   for ( auto &elem : button_state )
-      elem = E_RELEASED;
+  for (auto &elem : button_state) elem = E_RELEASED;
 }
 
 iMouse::~iMouse() {}
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -37,48 +37,46 @@ class rWorld;
 template <class T>
 class rMatrixSceneBase {
  private:
-   rWorld *vWoldPtr;
+  rWorld *vWoldPtr;
 
-   rMat4<T> vProjectionMatrix_MAT;
-   rMat4<T> vViewMatrix_MAT;
-   rMat4<T> vViewProjectionMatrix_MAT;
-   rMat4<T> vVulkanClipSpace_MAT;
+  rMat4<T> vProjectionMatrix_MAT;
+  rMat4<T> vViewMatrix_MAT;
+  rMat4<T> vViewProjectionMatrix_MAT;
+  rMat4<T> vVulkanClipSpace_MAT;
 
-   std::recursive_mutex vMatrixAccess;
+  std::recursive_mutex vMatrixAccess;
 
  public:
-   rMatrixSceneBase() = delete;
-   rMatrixSceneBase( rWorld *_init );
+  rMatrixSceneBase() = delete;
+  rMatrixSceneBase(rWorld *_init);
 
-   inline void calculateProjectionPerspective( T _width, T _height, T _nearZ, T _farZ, T _fofy );
-   inline void calculateProjectionPerspective( T _aspectRatio, T _nearZ, T _farZ, T _fofy );
+  inline void calculateProjectionPerspective(T _width, T _height, T _nearZ, T _farZ, T _fofy);
+  inline void calculateProjectionPerspective(T _aspectRatio, T _nearZ, T _farZ, T _fofy);
 
-   inline void setCamera( const rVec3<T> &_position,
-                          const rVec3<T> &_lookAt,
-                          const rVec3<T> &_upVector );
+  inline void setCamera(const rVec3<T> &_position, const rVec3<T> &_lookAt, const rVec3<T> &_upVector);
 
-   inline rMat4<T> *getProjectionMatrix() { return &vProjectionMatrix_MAT; }
-   inline rMat4<T> *getViewMatrix() { return &vViewMatrix_MAT; }
-   inline rMat4<T> *getViewProjectionMatrix() { return &vViewProjectionMatrix_MAT; }
+  inline rMat4<T> *getProjectionMatrix() { return &vProjectionMatrix_MAT; }
+  inline rMat4<T> *getViewMatrix() { return &vViewMatrix_MAT; }
+  inline rMat4<T> *getViewProjectionMatrix() { return &vViewProjectionMatrix_MAT; }
 
-   rWorld *getWorldPtr() { return vWoldPtr; }
+  rWorld *getWorldPtr() { return vWoldPtr; }
 };
 
 
 template <class T>
-rMatrixSceneBase<T>::rMatrixSceneBase( rWorld *_init ) : vWoldPtr( _init ) {
-   vProjectionMatrix_MAT.toIdentityMatrix();
-   vViewMatrix_MAT.toIdentityMatrix();
-   vViewProjectionMatrix_MAT.toIdentityMatrix();
+rMatrixSceneBase<T>::rMatrixSceneBase(rWorld *_init) : vWoldPtr(_init) {
+  vProjectionMatrix_MAT.toIdentityMatrix();
+  vViewMatrix_MAT.toIdentityMatrix();
+  vViewProjectionMatrix_MAT.toIdentityMatrix();
 
-   // clang-format off
+  // clang-format off
    vVulkanClipSpace_MAT.setMat( 1.0,  0.0, 0.0, 0.0,
                                 0.0, -1.0, 0.0, 0.0,
                                 0.0,  0.0, 0.5, 0.0,
                                 0.0,  0.0, 0.5, 1.0 );
-   // clang-format on
+  // clang-format on
 
-   vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
+  vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -90,13 +88,10 @@ rMatrixSceneBase<T>::rMatrixSceneBase( rWorld *_init ) : vWoldPtr( _init ) {
  * \param[in] _fofy        The field of view angle
  */
 template <class T>
-void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio,
-                                                          T _nearZ,
-                                                          T _farZ,
-                                                          T _fofy ) {
-   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
-   rMatrixMath::perspective( _aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
+void rMatrixSceneBase<T>::calculateProjectionPerspective(T _aspectRatio, T _nearZ, T _farZ, T _fofy) {
+  std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
+  rMatrixMath::perspective(_aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT);
+  vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -109,11 +104,10 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective( T _aspectRatio,
  * \param[in] _fofy        The field of view angle
  */
 template <class T>
-void rMatrixSceneBase<T>::calculateProjectionPerspective(
-      T _width, T _height, T _nearZ, T _farZ, T _fofy ) {
-   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
-   rMatrixMath::perspective( _width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT );
-   vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
+void rMatrixSceneBase<T>::calculateProjectionPerspective(T _width, T _height, T _nearZ, T _farZ, T _fofy) {
+  std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
+  rMatrixMath::perspective(_width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT);
+  vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -124,14 +118,12 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective(
  * \param[in] _upVector The up direction of the camera ( mostly rVec3( 0, 1, 0 ) )
  */
 template <class T>
-void rMatrixSceneBase<T>::setCamera( const rVec3<T> &_position,
-                                     const rVec3<T> &_lookAt,
-                                     const rVec3<T> &_upVector ) {
-   std::lock_guard<std::recursive_mutex> lLock( vMatrixAccess );
-   rMatrixMath::camera( _position, _lookAt, _upVector, vViewMatrix_MAT );
-   vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
+void rMatrixSceneBase<T>::setCamera(const rVec3<T> &_position, const rVec3<T> &_lookAt, const rVec3<T> &_upVector) {
+  std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
+  rMatrixMath::camera(_position, _lookAt, _upVector, vViewMatrix_MAT);
+  vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

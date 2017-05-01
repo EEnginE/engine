@@ -37,68 +37,67 @@ namespace e_engine {
 
 class rWorld;
 
-class RENDER_API rSceneBase {
+class rSceneBase {
  public:
-   struct MeshInfo {
-      uint32_t    index;
-      std::string name;
-      MESH_TYPES  type;
-   };
+  struct MeshInfo {
+    uint32_t    index;
+    std::string name;
+    MESH_TYPES  type;
+  };
 
-   template <typename T>
-   using OBJECTS   = std::vector<std::shared_ptr<T>>;
-   using BASE_OBJS = OBJECTS<rObjectBase>;
+  template <typename T>
+  using OBJECTS   = std::vector<std::shared_ptr<T>>;
+  using BASE_OBJS = OBJECTS<rObjectBase>;
 
  private:
-   rWorld *vWorldPtr;
+  rWorld *vWorldPtr;
 
-   BASE_OBJS vObjects;
+  BASE_OBJS vObjects;
 
-   std::vector<size_t> vLightSourcesIndex;
+  std::vector<size_t> vLightSourcesIndex;
 
-   std::string vName_str;
+  std::string vName_str;
 
-   std::mutex           vObjects_MUT;
-   std::recursive_mutex vObjectsInit_MUT;
+  std::mutex           vObjects_MUT;
+  std::recursive_mutex vObjectsInit_MUT;
 
-   bool            vInitializingObjects = false;
-   VkCommandPool   vInitPool_vk;
-   VkCommandBuffer vInitBuff_vk;
-   VkQueue         vInitQueue_vk;
+  bool            vInitializingObjects = false;
+  VkCommandPool   vInitPool_vk;
+  VkCommandBuffer vInitBuff_vk;
+  VkQueue         vInitQueue_vk;
 
-   BASE_OBJS vInitObjects;
+  BASE_OBJS vInitObjects;
 
-   Assimp::Importer vImporter_assimp;
-   aiScene const *  vScene_assimp = nullptr;
+  Assimp::Importer vImporter_assimp;
+  aiScene const *  vScene_assimp = nullptr;
 
 
  public:
-   rSceneBase() = delete;
-   rSceneBase( std::string _name, rWorld *_world );
-   virtual ~rSceneBase();
+  rSceneBase() = delete;
+  rSceneBase(std::string _name, rWorld *_world);
+  virtual ~rSceneBase();
 
-   bool canRenderScene();
+  bool canRenderScene();
 
-   unsigned addObject( std::shared_ptr<rObjectBase> _obj );
-   BASE_OBJS getObjects();
+  unsigned addObject(std::shared_ptr<rObjectBase> _obj);
+  BASE_OBJS getObjects();
 
-   std::vector<MeshInfo> loadFile( std::string _file );
-   aiMesh const *getAiMesh( uint32_t _objIndex );
+  std::vector<MeshInfo> loadFile(std::string _file);
+  aiMesh const *getAiMesh(uint32_t _objIndex);
 
-   bool beginInitObject();
-   bool initObject( std::shared_ptr<rObjectBase> _obj, uint32_t _objIndex );
-   bool endInitObject();
+  bool beginInitObject();
+  bool initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objIndex);
+  bool endInitObject();
 
-   size_t getNumObjects() { return vObjects.size(); }
+  size_t getNumObjects() { return vObjects.size(); }
 };
 
 template <class T>
-class RENDER_API rScene : public rSceneBase, public rMatrixSceneBase<float> {
+class rScene : public rSceneBase, public rMatrixSceneBase<float> {
  public:
-   rScene( std::string _name, rWorld *_world )
-       : rSceneBase( _name, _world ), rMatrixSceneBase<float>( _world ) {}
+  rScene(std::string _name, rWorld *_world) : rSceneBase(_name, _world), rMatrixSceneBase<float>(_world) {}
 };
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -18,48 +18,48 @@
 #define CMDANDINIT_HPP
 
 #include <engine.hpp>
-#include <vector>
 #include <string>
+#include <vector>
 
 
 class cmdANDinit {
  private:
-   std::vector<std::string> args;
-   std::string argv0;
-   std::string dataRoot;
-   std::string meshToRender = "meshS.dae";
-   std::string vShader = "phong";
-   std::string vNormalShader = "normals";
+  std::vector<std::string> args;
+  std::string              argv0;
+  std::string              dataRoot;
+  std::string              meshToRender  = "meshS.dae";
+  std::string              vShader       = "phong";
+  std::string              vNormalShader = "normals";
 
-   e_engine::uJSON_data vData_JSON;
+  e_engine::uJSON_data vData_JSON;
 
-   bool vCanUseColor;
-   bool vRenderNormals = false;
+  bool vCanUseColor;
+  bool vRenderNormals = false;
 
-   float vNearZ = 0.1f;
-   float vFarZ = 100.0f;
+  float vNearZ = 0.1f;
+  float vFarZ  = 100.0f;
 
-   cmdANDinit() {}
+  cmdANDinit() {}
 
-   void postInit();
-   void preInit();
-   void usage();
+  void postInit();
+  void preInit();
+  void usage();
 
  public:
-   cmdANDinit( int argc, char *argv[] );
+  cmdANDinit(int argc, char *argv[]);
 
-   std::string getMesh() const { return dataRoot + "meshs/" + meshToRender; }
-   std::string getShader() const { return dataRoot + "shaders/" + vShader; }
-   std::string getNormalShader() const { return dataRoot + "shaders/" + vNormalShader; }
+  std::string getMesh() const { return dataRoot + "meshs/" + meshToRender; }
+  std::string getShader() const { return dataRoot + "shaders/" + vShader; }
+  std::string getNormalShader() const { return dataRoot + "shaders/" + vNormalShader; }
 
-   float getNearZ() const { return vNearZ; }
-   float getFarZ() const { return vFarZ; }
+  float getNearZ() const { return vNearZ; }
+  float getFarZ() const { return vFarZ; }
 
-   bool getRenderNormals() const { return vRenderNormals; }
+  bool getRenderNormals() const { return vRenderNormals; }
 
-   bool parseArgsAndInit();
+  bool parseArgsAndInit();
 };
 
 #endif // CMDANDINIT_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

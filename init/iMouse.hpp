@@ -25,40 +25,37 @@
 
 namespace e_engine {
 
-class INIT_API iMouse {
+class iMouse {
  private:
-   unsigned short int button_state[E_MOUSE_UNKNOWN];
+  unsigned short int button_state[E_MOUSE_UNKNOWN];
 
  protected:
-   /*!
-    * \brief Set a mouse button to a specific state
-    * \param _button   The mouse button ID
-    * \param _state The new mouse button state
-    */
-   void setMousebuttonState( E_BUTTON _button, unsigned short int _state ) {
-      if ( _button < 0 )
-         return;
+  /*!
+   * \brief Set a mouse button to a specific state
+   * \param _button   The mouse button ID
+   * \param _state The new mouse button state
+   */
+  void setMousebuttonState(E_BUTTON _button, unsigned short int _state) {
+    if (_button < 0) return;
 
-      button_state[static_cast<unsigned int>( _button )] = _state;
-   }
+    button_state[static_cast<unsigned int>(_button)] = _state;
+  }
 
  public:
-   iMouse();
-   virtual ~iMouse();
+  iMouse();
+  virtual ~iMouse();
 
-   /*!
-    * \brief Get the mouse button's state
-    * \param _button The mouse button to check
-    * \returns The mouse button state
-    */
-   unsigned short int getMousebuttonState( E_BUTTON _button ) {
-      if ( _button < 0 || _button > E_MOUSE_UNKNOWN ) {
-         return static_cast<unsigned short int>( E_UNKNOWN );
-      }
-      return button_state[static_cast<unsigned int>( _button )];
-   }
+  /*!
+   * \brief Get the mouse button's state
+   * \param _button The mouse button to check
+   * \returns The mouse button state
+   */
+  unsigned short int getMousebuttonState(E_BUTTON _button) {
+    if (_button < 0 || _button > E_MOUSE_UNKNOWN) { return static_cast<unsigned short int>(E_UNKNOWN); }
+    return button_state[static_cast<unsigned int>(_button)];
+  }
 };
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

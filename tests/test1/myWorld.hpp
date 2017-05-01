@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
-#include <engine.hpp>
 #include "cmdANDinit.hpp"
 #include "myScene.hpp"
+#include <engine.hpp>
 
 #ifndef HANDLER_HPP
 #define HANDLER_HPP
@@ -30,66 +30,64 @@ using e_engine::rRendererDeferred;
 using e_engine::rFrameCounter;
 
 class myWorld final : public rWorld, public rFrameCounter {
-   typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;
+  typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;
 
  private:
-   float vAlpha;
+  float vAlpha;
 
-   std::vector<e_engine::OS_NAMESPACE::iDisplays> vDisp_RandR;
-   std::shared_ptr<rRendererDeferred> vRenderer;
+  std::vector<e_engine::OS_NAMESPACE::iDisplays> vDisp_RandR;
+  std::shared_ptr<rRendererDeferred>             vRenderer;
 
-   myScene vScene;
-   e_engine::iInit *vInitPointer;
+  myScene          vScene;
+  e_engine::iInit *vInitPointer;
 
-   float vNearZ;
-   float vFarZ;
+  float vNearZ;
+  float vFarZ;
 
-   _SLOT_ slotWindowClose;
-   _SLOT_ slotResize;
-   _SLOT_ slotKey;
+  _SLOT_ slotWindowClose;
+  _SLOT_ slotResize;
+  _SLOT_ slotKey;
 
  public:
-   myWorld( cmdANDinit &_cmd, e_engine::iInit *_init )
-       : rWorld( _init ),
-         rFrameCounter( this, true ),
-         vRenderer( std::make_shared<rRendererDeferred>( getInitPtr(), this, L"R1" ) ),
-         vScene( this, _cmd ),
-         vInitPointer( _init ),
-         vNearZ( _cmd.getNearZ() ),
-         vFarZ( _cmd.getFarZ() ),
-         slotWindowClose( &myWorld::windowClose, this ),
-         slotResize( &myWorld::resize, this ),
-         slotKey( &myWorld::key, this ) {
+  myWorld(cmdANDinit &_cmd, e_engine::iInit *_init)
+      : rWorld(_init),
+        rFrameCounter(this, true),
+        vRenderer(std::make_shared<rRendererDeferred>(getInitPtr(), this, L"R1")),
+        vScene(this, _cmd),
+        vInitPointer(_init),
+        vNearZ(_cmd.getNearZ()),
+        vFarZ(_cmd.getFarZ()),
+        slotWindowClose(&myWorld::windowClose, this),
+        slotResize(&myWorld::resize, this),
+        slotKey(&myWorld::key, this) {
 
-      _init->addWindowCloseSlot( &slotWindowClose );
-      _init->addResizeSlot( &slotResize );
-      _init->addKeySlot( &slotKey );
+    _init->addWindowCloseSlot(&slotWindowClose);
+    _init->addResizeSlot(&slotResize);
+    _init->addKeySlot(&slotKey);
 
-      vAlpha = 1;
-   }
+    vAlpha = 1;
+  }
 
-   ~myWorld();
-   myWorld() = delete;
+  ~myWorld();
+  myWorld() = delete;
 
 
-   void windowClose( e_engine::iEventInfo const &info ) {
-      iLOG( "User closed window" );
-      info.iInitPointer->quitMainLoop();
-   }
-   void key( e_engine::iEventInfo const &info );
-   void resize( e_engine::iEventInfo const &info ) {
-      iLOG( "Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height );
-      updateViewPort( 0,
-                      0,
-                      static_cast<int>( e_engine::GlobConf.win.width ),
-                      static_cast<int>( e_engine::GlobConf.win.height ) );
-      vScene.calculateProjectionPerspective(
-            e_engine::GlobConf.win.width, e_engine::GlobConf.win.height, vNearZ, vFarZ, 35.0 );
-   }
+  void windowClose(e_engine::iEventInfo const &info) {
+    iLOG("User closed window");
+    info.iInitPointer->quitMainLoop();
+  }
+  void key(e_engine::iEventInfo const &info);
+  void resize(e_engine::iEventInfo const &info) {
+    iLOG("Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height);
+    updateViewPort(
+        0, 0, static_cast<int>(e_engine::GlobConf.win.width), static_cast<int>(e_engine::GlobConf.win.height));
+    vScene.calculateProjectionPerspective(
+        e_engine::GlobConf.win.width, e_engine::GlobConf.win.height, vNearZ, vFarZ, 35.0);
+  }
 
-   int initGL();
+  int initGL();
 };
 
 
 #endif // HANDLER_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

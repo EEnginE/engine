@@ -20,10 +20,10 @@
 #ifndef MY_SCENE_HPP
 #define MY_SCENE_HPP
 
-#include <engine.hpp>
-#include "cmdANDinit.hpp"
 #include "SPIRV_deferred1.hpp"
 #include "SPIRV_deferred2.hpp"
+#include "cmdANDinit.hpp"
+#include <engine.hpp>
 
 using e_engine::rScene;
 using e_engine::rCameraHandler;
@@ -39,57 +39,57 @@ using e_engine::SPIRV_deferred1;
 using e_engine::SPIRV_deferred2;
 
 class myScene final : public rScene<float>, public rCameraHandler<float> {
-   typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
+  typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
 
  private:
-   OBJECTS<rSimpleMesh> vObjects;
-   OBJECTS<rPointLightF> vPointLights;
-   OBJECTS<rDirectionalLightF> vDirectionalLights;
+  OBJECTS<rSimpleMesh>        vObjects;
+  OBJECTS<rPointLightF>       vPointLights;
+  OBJECTS<rDirectionalLightF> vDirectionalLights;
 
-   rPipeline vPipeline;
-   rPipeline vLightPipeline;
-   SPIRV_deferred1 vShader;
-   SPIRV_deferred2 vLightShader;
+  rPipeline       vPipeline;
+  rPipeline       vLightPipeline;
+  SPIRV_deferred1 vShader;
+  SPIRV_deferred2 vLightShader;
 
-   std::string vShader_str;
-   std::string vNormalShader_str;
+  std::string vShader_str;
+  std::string vNormalShader_str;
 
-   std::string vFilePath;
+  std::string vFilePath;
 
-   std::thread vMovementThread;
-   std::mutex vObjAccesMut;
+  std::thread vMovementThread;
+  std::mutex  vObjAccesMut;
 
-   _SLOT_ vKeySlot;
-   float vRotationAngle;
-   bool vRenderNormals;
+  _SLOT_ vKeySlot;
+  float  vRotationAngle;
+  bool   vRenderNormals;
 
-   void objectMoveLoop();
+  void objectMoveLoop();
 
  public:
-   myScene() = delete;
-   ~myScene();
+  myScene() = delete;
+  ~myScene();
 
-   myScene( rWorld *_world, cmdANDinit &_cmd )
-       : rScene( "MAIN SCENE", _world ),
-         rCameraHandler( this, _world->getInitPtr() ),
-         vShader( _world ),
-         vLightShader( _world ),
-         vShader_str( _cmd.getShader() ),
-         vNormalShader_str( _cmd.getNormalShader() ),
-         vFilePath( _cmd.getMesh() ),
-         vKeySlot( &myScene::keySlot, this ),
-         vRotationAngle( 0 ),
-         vRenderNormals( _cmd.getRenderNormals() ) {
-      _world->getInitPtr()->addKeySlot( &vKeySlot );
-   }
+  myScene(rWorld *_world, cmdANDinit &_cmd)
+      : rScene("MAIN SCENE", _world),
+        rCameraHandler(this, _world->getInitPtr()),
+        vShader(_world),
+        vLightShader(_world),
+        vShader_str(_cmd.getShader()),
+        vNormalShader_str(_cmd.getNormalShader()),
+        vFilePath(_cmd.getMesh()),
+        vKeySlot(&myScene::keySlot, this),
+        vRotationAngle(0),
+        vRenderNormals(_cmd.getRenderNormals()) {
+    _world->getInitPtr()->addKeySlot(&vKeySlot);
+  }
 
-   int init();
+  int init();
 
-   void keySlot( iEventInfo const &_inf );
+  void keySlot(iEventInfo const &_inf);
 
-   virtual void afterCameraUpdate();
+  virtual void afterCameraUpdate();
 };
 
 #endif
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

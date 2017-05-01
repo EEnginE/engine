@@ -25,38 +25,38 @@
 
 namespace e_engine {
 
-class UTILS_API uParserJSON final : public internal::uParserHelper {
+class uParserJSON final : public internal::uParserHelper {
  private:
-   std::string vWriteIndent_str;
+  std::string vWriteIndent_str;
 
-   uJSON_data vData;
+  uJSON_data vData;
 
-   void writeValue( uJSON_data const &_data, std::string &_worker, std::string _level, bool _array );
-   void prepareString( std::string const &_in, std::string &_out );
+  void writeValue(uJSON_data const &_data, std::string &_worker, std::string _level, bool _array);
+  void prepareString(std::string const &_in, std::string &_out);
 
-   bool parseObject( e_engine::uJSON_data &lCurrentObject );
-   bool parseArray( e_engine::uJSON_data &_currentObject );
-   bool parseValue( e_engine::uJSON_data &_currentObject, const std::string &_name );
+  bool parseObject(e_engine::uJSON_data &lCurrentObject);
+  bool parseArray(e_engine::uJSON_data &_currentObject);
+  bool parseValue(e_engine::uJSON_data &_currentObject, const std::string &_name);
 
-   bool load_IMPL();
+  bool load_IMPL();
 
  public:
-   virtual ~uParserJSON();
-   uParserJSON() : vWriteIndent_str( "   " ) {}
-   uParserJSON( std::string _file ) : uParserHelper( _file ), vWriteIndent_str( "   " ) {}
+  virtual ~uParserJSON();
+  uParserJSON() : vWriteIndent_str("   ") {}
+  uParserJSON(std::string _file) : uParserHelper(_file), vWriteIndent_str("   ") {}
 
-   void clear();
+  void clear();
 
-   int write( uJSON_data const &_data, bool _overwriteIfNeeded = false );
+  int write(uJSON_data const &_data, bool _overwriteIfNeeded = false);
 
-   std::string toString( uJSON_data const &_data );
+  std::string toString(uJSON_data const &_data);
 
-   uJSON_data  getData() { return vData; }
-   uJSON_data *getDataP() { return &vData; }
+  uJSON_data  getData() { return vData; }
+  uJSON_data *getDataP() { return &vData; }
 
-   void setWriteIndent( std::string _in );
+  void setWriteIndent(std::string _in);
 };
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

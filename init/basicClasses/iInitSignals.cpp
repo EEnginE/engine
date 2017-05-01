@@ -30,12 +30,12 @@ iInitSignals::~iInitSignals() {}
  * \brief Removes \c ALL slots from the \c ALL events
  */
 void iInitSignals::removeAllSlots() {
-   vWindowClose_SIG.disconnectAll();
-   vResize_SIG.disconnectAll();
-   vKey_SIG.disconnectAll();
-   vMouse_SIG.disconnectAll();
-   vFocus_SIG.disconnectAll();
+  vWindowClose_SIG.disconnectAll();
+  vResize_SIG.disconnectAll();
+  vKey_SIG.disconnectAll();
+  vMouse_SIG.disconnectAll();
+  vFocus_SIG.disconnectAll();
 }
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

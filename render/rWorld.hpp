@@ -22,11 +22,10 @@
 #pragma once
 
 #include "defines.hpp"
-#include "rRenderLoop.hpp"
+#include "uSignalSlot.hpp"
 #include "rRenderLoop.hpp"
 #include "rRendererBase.hpp"
 #include "rWorld_structs.hpp"
-#include "uSignalSlot.hpp"
 #include <condition_variable>
 #include <mutex>
 #include <unordered_map>
@@ -60,118 +59,116 @@ class rSceneBase;
  * \note When creating rWorld objects (or inheritance) use the (template) wrapper class
  * rWorldCreator
  */
-class RENDER_API rWorld {
+class rWorld {
  public:
-   typedef internal::CommandPoolInfo PoolInfo;
+  typedef internal::CommandPoolInfo PoolInfo;
 
-   struct ViewPort {
-      bool vNeedUpdate_B;
-      int  x;
-      int  y;
-      int  width;
-      int  height;
-   };
+  struct ViewPort {
+    bool vNeedUpdate_B;
+    int  x;
+    int  y;
+    int  width;
+    int  height;
+  };
 
-   struct ClearColor {
-      bool  vNeedUpdate_B;
-      float r;
-      float g;
-      float b;
-      float a;
-   };
+  struct ClearColor {
+    bool  vNeedUpdate_B;
+    float r;
+    float g;
+    float b;
+    float a;
+  };
 
-   struct SwapChainImg {
-      VkImage     img;
-      VkImageView iv;
-   };
+  struct SwapChainImg {
+    VkImage     img;
+    VkImageView iv;
+  };
 
  private:
-   iInit *vInitPtr;
+  iInit *vInitPtr;
 
-   VkDevice       vDevice_vk;
-   VkSurfaceKHR   vSurface_vk;
-   VkSwapchainKHR vSwapchain_vk = nullptr;
+  VkDevice       vDevice_vk;
+  VkSurfaceKHR   vSurface_vk;
+  VkSwapchainKHR vSwapchain_vk = nullptr;
 
-   std::vector<VkImage>     vSwapchainImages_vk;
-   std::vector<VkImageView> vSwapchainViews_vk;
+  std::vector<VkImage>     vSwapchainImages_vk;
+  std::vector<VkImageView> vSwapchainViews_vk;
 
-   ViewPort   vViewPort;
-   ClearColor vClearColor;
+  ViewPort   vViewPort;
+  ClearColor vClearColor;
 
-   rRenderLoop vRenderLoop;
+  rRenderLoop vRenderLoop;
 
-   VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
+  VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
 
-   std::unordered_map<PoolInfo, VkCommandPool> vCmdPools_vk;
-   std::mutex              vCommandPoolsMutex;
-   std::mutex              vRenderAccessMutex;
-   std::condition_variable vRenderedFrameSignal;
+  std::unordered_map<PoolInfo, VkCommandPool> vCmdPools_vk;
+  std::mutex              vCommandPoolsMutex;
+  std::mutex              vRenderAccessMutex;
+  std::condition_variable vRenderedFrameSignal;
 
-   uSlot<void, rWorld, iEventInfo const &> vResizeSlot;
+  uSlot<void, rWorld, iEventInfo const &> vResizeSlot;
 
-   bool vIsResizeSlotSetup = false;
-   bool vIsSetup           = false;
+  bool vIsResizeSlotSetup = false;
+  bool vIsSetup           = false;
 
-   int recreateSwapchain();
-   int recreateSwapchainImages( VkCommandBuffer _buf );
+  int recreateSwapchain();
+  int recreateSwapchainImages(VkCommandBuffer _buf);
 
-   void handleResize( iEventInfo const & );
+  void handleResize(iEventInfo const &);
 
-   VkSwapchainKHR            getSwapchain();
-   std::vector<SwapChainImg> getSwapchainImageViews();
-   VkSurfaceFormatKHR        getSwapchainFormat();
-   inline void               signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
+  VkSwapchainKHR            getSwapchain();
+  std::vector<SwapChainImg> getSwapchainImageViews();
+  VkSurfaceFormatKHR        getSwapchainFormat();
+  inline void               signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
 
  public:
-   rWorld() = delete;
-   rWorld( iInit *_init );
-   virtual ~rWorld();
+  rWorld() = delete;
+  rWorld(iInit *_init);
+  virtual ~rWorld();
 
-   int  init();
-   void shutdown();
+  int  init();
+  void shutdown();
 
-   bool isSetup() { return vIsSetup; }
-   bool waitForFrame( std::mutex &_mutex );
+  bool isSetup() { return vIsSetup; }
+  bool waitForFrame(std::mutex &_mutex);
 
 
-   // Begin Low level Vulkan section
+  // Begin Low level Vulkan section
 
-   VkCommandBuffer createCommandBuffer(
-         VkCommandPool _pool, VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY );
+  VkCommandBuffer createCommandBuffer(VkCommandPool        _pool,
+                                      VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-   VkResult beginCommandBuffer( VkCommandBuffer                 _buf,
-                                VkCommandBufferUsageFlags       _flags = 0,
-                                VkCommandBufferInheritanceInfo *_info  = nullptr );
+  VkResult beginCommandBuffer(VkCommandBuffer                 _buf,
+                              VkCommandBufferUsageFlags       _flags = 0,
+                              VkCommandBufferInheritanceInfo *_info  = nullptr);
 
-   void cmdChangeImageLayout( VkCommandBuffer         _cmdBuffer,
-                              VkImage                 _img,
-                              VkImageSubresourceRange _imgSubres,
-                              VkImageLayout           _src,
-                              VkImageLayout           _dst,
-                              VkPipelineStageFlags    _srcFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                              VkPipelineStageFlags _dstFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
+  void cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
+                            VkImage                 _img,
+                            VkImageSubresourceRange _imgSubres,
+                            VkImageLayout           _src,
+                            VkImageLayout           _dst,
+                            VkPipelineStageFlags    _srcFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                            VkPipelineStageFlags    _dstFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
 
-   VkCommandPool getCommandPool(
-         uint32_t                 _queueFamilyIndex,
-         VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
+  VkCommandPool getCommandPool(uint32_t                 _queueFamilyIndex,
+                               VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-   VkCommandPool getCommandPoolFlags(
-         VkQueueFlags             _qFlags,
-         VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
+  VkCommandPool getCommandPoolFlags(VkQueueFlags             _qFlags,
+                                    VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-   VkFence createFence( VkFenceCreateFlags _flags = 0 );
-   VkSemaphore createSemaphore();
+  VkFence createFence(VkFenceCreateFlags _flags = 0);
+  VkSemaphore createSemaphore();
 
-   void updateViewPort( int _x, int _y, int _width, int _height );
-   void updateClearColor( float _r, float _g, float _b, float _a );
-   uint64_t *   getRenderedFramesPtr();
-   VkDevice     getDevice();
-   iInit *      getInitPtr();
-   rRenderLoop *getRenderLoop();
+  void updateViewPort(int _x, int _y, int _width, int _height);
+  void updateClearColor(float _r, float _g, float _b, float _a);
+  uint64_t *   getRenderedFramesPtr();
+  VkDevice     getDevice();
+  iInit *      getInitPtr();
+  rRenderLoop *getRenderLoop();
 
-   uint32_t getNumFramebuffers() const;
+  uint32_t getNumFramebuffers() const;
 
-   friend class rRenderLoop;
-   friend class internal::rRendererBase;
+  friend class rRenderLoop;
+  friend class internal::rRendererBase;
 };
 }

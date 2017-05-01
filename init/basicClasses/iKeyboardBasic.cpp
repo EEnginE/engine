@@ -26,8 +26,7 @@ namespace e_engine {
 iKeyboardBasic::~iKeyboardBasic() {}
 
 iKeyboardBasic::iKeyboardBasic() {
-   for ( auto &elem : key_state )
-      elem = E_RELEASED;
+  for (auto &elem : key_state) elem = E_RELEASED;
 }
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

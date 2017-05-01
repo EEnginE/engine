@@ -37,27 +37,27 @@ namespace unix_x11 {
 /*!
  * \brief Stores information about the state of the keys
  */
-class INIT_API iKeyboard : public iKeyboardBasic {
+class iKeyboard : public iKeyboardBasic {
  private:
-   wchar_t keysym2unicode( xcb_keysym_t keysym );
+  wchar_t keysym2unicode(xcb_keysym_t keysym);
 
  public:
-   iKeyboard() {}
-   virtual ~iKeyboard();
+  iKeyboard() {}
+  virtual ~iKeyboard();
 
-   /*!
-    * \brief Convert a X11 keyevent to a key and set the state of it
-    * \param _kEv        The key event
-    * \param _key_state  The new state
-    * \param _connection The connection to the X-Server
-    * \return The key in wchar
-    */
-   wchar_t processX11KeyInput( xcb_keycode_t      _kEv,
-                               short unsigned int _key_state,
-                               uint32_t           _modMask,
-                               xcb_connection_t * _connection );
+  /*!
+   * \brief Convert a X11 keyevent to a key and set the state of it
+   * \param _kEv        The key event
+   * \param _key_state  The new state
+   * \param _connection The connection to the X-Server
+   * \return The key in wchar
+   */
+  wchar_t processX11KeyInput(xcb_keycode_t      _kEv,
+                             short unsigned int _key_state,
+                             uint32_t           _modMask,
+                             xcb_connection_t * _connection);
 
-   inline unsigned short int getKeyState( wchar_t _key ) { return getKeyStateArray( _key ); }
+  inline unsigned short int getKeyState(wchar_t _key) { return getKeyStateArray(_key); }
 };
 
 } // unix_x11
@@ -65,4 +65,4 @@ class INIT_API iKeyboard : public iKeyboardBasic {
 } // e_engine
 
 #endif // E_KEYSYM_TO_UNICODE_HPP
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

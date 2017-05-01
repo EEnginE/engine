@@ -26,20 +26,20 @@
 #define JSONTEST_HPP
 
 #include <engine.hpp>
-#include <vector>
 #include <string>
+#include <vector>
 
 
 class jsonTest {
  private:
-   // Private stuff goes here
+  // Private stuff goes here
 
  public:
-   jsonTest() {}
+  jsonTest() {}
 
-   const static std::string desc;
+  const static std::string desc;
 
-   void runTest( e_engine::uJSON_data &_data, std::string _dataRoot );
+  void runTest(e_engine::uJSON_data &_data, std::string _dataRoot);
 };
 
 #endif // JSONTEST_HPP

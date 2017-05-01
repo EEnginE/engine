@@ -37,45 +37,40 @@ namespace e_engine {
  * This class provides an interface to create a
  * connection to a wm and create a window.
  */
-class INIT_API iWindowBasic {
+class iWindowBasic {
 
  public:
-   iWindowBasic()          = default;
-   virtual ~iWindowBasic() = default;
+  iWindowBasic()          = default;
+  virtual ~iWindowBasic() = default;
 
-   virtual int  createWindow()  = 0;
-   virtual void destroyWindow() = 0;
+  virtual int  createWindow()  = 0;
+  virtual void destroyWindow() = 0;
 
-   virtual void changeWindowConfig( unsigned int _width,
-                                    unsigned int _height,
-                                    int          _posX,
-                                    int          _posY ) = 0;
+  virtual void changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY) = 0;
 
-   virtual void setWindowType( WINDOW_TYPE _type ) = 0;
-   virtual void setWindowNames( std::string _windowName, std::string _iconName = "<NONE>" ) = 0;
-   virtual void setAttribute( ACTION           _action,
-                              WINDOW_ATTRIBUTE _type1,
-                              WINDOW_ATTRIBUTE _type2 = NONE ) = 0;
+  virtual void setWindowType(WINDOW_TYPE _type) = 0;
+  virtual void setWindowNames(std::string _windowName, std::string _iconName = "<NONE>") = 0;
+  virtual void setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE) = 0;
 
-   virtual void fullScreen( ACTION _action, bool _allMonitors = false ) = 0;
-   virtual void maximize( ACTION _action )      = 0;
-   virtual void setDecoration( ACTION _action ) = 0;
+  virtual void fullScreen(ACTION _action, bool _allMonitors = false) = 0;
+  virtual void maximize(ACTION _action)      = 0;
+  virtual void setDecoration(ACTION _action) = 0;
 
-   virtual bool grabMouse()               = 0;
-   virtual void freeMouse()               = 0;
-   virtual bool getIsMouseGrabbed() const = 0;
+  virtual bool grabMouse()               = 0;
+  virtual void freeMouse()               = 0;
+  virtual bool getIsMouseGrabbed() const = 0;
 
-   virtual void moveMouse( unsigned int _posX, unsigned int _posY ) = 0;
+  virtual void moveMouse(unsigned int _posX, unsigned int _posY) = 0;
 
-   virtual void hideMouseCursor()          = 0;
-   virtual void showMouseCursor()          = 0;
-   virtual bool getIsCursorHidden() const  = 0;
-   virtual bool getIsWindowCreated() const = 0;
+  virtual void hideMouseCursor()          = 0;
+  virtual void showMouseCursor()          = 0;
+  virtual bool getIsCursorHidden() const  = 0;
+  virtual bool getIsWindowCreated() const = 0;
 
-   virtual VkSurfaceKHR getVulkanSurface( VkInstance _instance ) = 0;
+  virtual VkSurfaceKHR getVulkanSurface(VkInstance _instance) = 0;
 };
 
 } // e_engine
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -45,9 +45,8 @@
 #if defined E_COLOR_NO_TERMTEST || !UNIX
 #define __IOCTL_TERMTEST__
 #else
-#define __IOCTL_TERMTEST__                                                                         \
-   if ( isatty( fileno( stdout ) ) == 0 )                                                          \
-      return L"";
+#define __IOCTL_TERMTEST__ \
+  if (isatty(fileno(stdout)) == 0) return L"";
 #endif
 
 namespace e_engine {
@@ -119,45 +118,45 @@ namespace e_engine {
  *
  */
 struct eCMDColor {
-   static const uint16_t OFF        = 0;
-   static const uint16_t BOLD       = 1;
-   static const uint16_t UNDERSCORE = 4;
-   static const uint16_t BLINK      = 5;
-   static const uint16_t REVERSE    = 7;
-   static const uint16_t CONCEALED  = 8;
+  static const uint16_t OFF        = 0;
+  static const uint16_t BOLD       = 1;
+  static const uint16_t UNDERSCORE = 4;
+  static const uint16_t BLINK      = 5;
+  static const uint16_t REVERSE    = 7;
+  static const uint16_t CONCEALED  = 8;
 
-   static const uint16_t BLACK   = 30;
-   static const uint16_t RED     = 31;
-   static const uint16_t GREEN   = 32;
-   static const uint16_t YELLOW  = 33;
-   static const uint16_t BLUE    = 34;
-   static const uint16_t MAGENTA = 35;
-   static const uint16_t CYAN    = 36;
-   static const uint16_t WHITE   = 37;
+  static const uint16_t BLACK   = 30;
+  static const uint16_t RED     = 31;
+  static const uint16_t GREEN   = 32;
+  static const uint16_t YELLOW  = 33;
+  static const uint16_t BLUE    = 34;
+  static const uint16_t MAGENTA = 35;
+  static const uint16_t CYAN    = 36;
+  static const uint16_t WHITE   = 37;
 
-   static const std::wstring RESET;
+  static const std::wstring RESET;
 
-   static inline std::wstring reset();
+  static inline std::wstring reset();
 
-   static inline std::wstring color( uint16_t _a1 );
-   static inline std::wstring color( uint16_t _a1, uint16_t _a2 );
-   static inline std::wstring color( uint16_t _a1, uint16_t _a2, uint16_t _a3 );
+  static inline std::wstring color(uint16_t _a1);
+  static inline std::wstring color(uint16_t _a1, uint16_t _a2);
+  static inline std::wstring color(uint16_t _a1, uint16_t _a2, uint16_t _a3);
 
-   static inline std::wstring color( char _fg );
-   static inline std::wstring color( char _a, char _fg );
-   static inline std::wstring color( char _a, char _fg, char _bg );
+  static inline std::wstring color(char _fg);
+  static inline std::wstring color(char _a, char _fg);
+  static inline std::wstring color(char _a, char _fg, char _bg);
 
-   static inline uint16_t charToColorId( char _c );
-   static inline uint16_t charToAtributeId( char _c );
+  static inline uint16_t charToColorId(char _c);
+  static inline uint16_t charToAtributeId(char _c);
 };
 
 std::wstring eCMDColor::reset() {
 #ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
+  __IOCTL_TERMTEST__
 
-   return RESET;
+  return RESET;
 #else  // E_COLOR_DISABLED
-   return L"";
+  return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -167,14 +166,14 @@ std::wstring eCMDColor::reset() {
  * \param _a1 The attribute integer
  * \returns An escape sequence for the attribute
  */
-std::wstring eCMDColor::color( uint16_t _a1 ) {
+std::wstring eCMDColor::color(uint16_t _a1) {
 #ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
+  __IOCTL_TERMTEST__
 
-   std::wstring temp = L"\x1b[" + std::to_wstring( _a1 ) + L'm';
-   return temp;
+  std::wstring temp = L"\x1b[" + std::to_wstring(_a1) + L'm';
+  return temp;
 #else  // E_COLOR_DISABLED
-   return L"";
+  return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -184,14 +183,14 @@ std::wstring eCMDColor::color( uint16_t _a1 ) {
  * \param _a2 The FG color integer
  * \returns An escape sequence for the attribute and the FG color
  */
-std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2 ) {
+std::wstring eCMDColor::color(uint16_t _a1, uint16_t _a2) {
 #ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
+  __IOCTL_TERMTEST__
 
-   std::wstring temp = L"\x1b[" + std::to_wstring( _a1 ) + L';' + std::to_wstring( _a2 ) + L'm';
-   return temp;
+  std::wstring temp = L"\x1b[" + std::to_wstring(_a1) + L';' + std::to_wstring(_a2) + L'm';
+  return temp;
 #else  // E_COLOR_DISABLED
-   return L"";
+  return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -202,15 +201,15 @@ std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2 ) {
  * \param _a3 The BG color integer
  * \returns An escape sequence for the attribute the FG and BG color
  */
-std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2, uint16_t _a3 ) {
+std::wstring eCMDColor::color(uint16_t _a1, uint16_t _a2, uint16_t _a3) {
 #ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
+  __IOCTL_TERMTEST__
 
-   std::wstring temp = L"\x1b[" + std::to_wstring( _a1 ) + L';' + std::to_wstring( _a2 ) + L';' +
-                       std::to_wstring( _a3 ) + L'm';
-   return temp;
+  std::wstring temp =
+      L"\x1b[" + std::to_wstring(_a1) + L';' + std::to_wstring(_a2) + L';' + std::to_wstring(_a3) + L'm';
+  return temp;
 #else  // E_COLOR_DISABLED
-   return L"";
+  return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -220,13 +219,13 @@ std::wstring eCMDColor::color( uint16_t _a1, uint16_t _a2, uint16_t _a3 ) {
  * \param _fg The attribute character
  * \returns An escape sequence for the attribute
  */
-std::wstring eCMDColor::color( char _fg ) {
+std::wstring eCMDColor::color(char _fg) {
 #ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
+  __IOCTL_TERMTEST__
 
-   return color( charToColorId( _fg ) );
+  return color(charToColorId(_fg));
 #else  // E_COLOR_DISABLED
-   return L"";
+  return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -236,13 +235,13 @@ std::wstring eCMDColor::color( char _fg ) {
  * \param _fg The FG color character
  * \returns An escape sequence for the attribute and the FG color
  */
-std::wstring eCMDColor::color( char _a, char _fg ) {
+std::wstring eCMDColor::color(char _a, char _fg) {
 #ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
+  __IOCTL_TERMTEST__
 
-   return color( charToAtributeId( _a ), charToColorId( _fg ) );
+  return color(charToAtributeId(_a), charToColorId(_fg));
 #else  // E_COLOR_DISABLED
-   return L"";
+  return L"";
 #endif // E_COLOR_DISABLED
 }
 
@@ -253,42 +252,42 @@ std::wstring eCMDColor::color( char _a, char _fg ) {
  * \param _bg The BG color character
  * \returns An escape sequence for the attribute the FG and BG color
  */
-std::wstring eCMDColor::color( char _a, char _fg, char _bg ) {
+std::wstring eCMDColor::color(char _a, char _fg, char _bg) {
 #ifndef E_COLOR_DISABLED
-   __IOCTL_TERMTEST__
+  __IOCTL_TERMTEST__
 
-   return color( charToAtributeId( _a ), charToColorId( _fg ), charToColorId( _bg ) + 10 );
+  return color(charToAtributeId(_a), charToColorId(_fg), charToColorId(_bg) + 10);
 #else  // E_COLOR_DISABLED
-   return L"";
+  return L"";
 #endif // E_COLOR_DISABLED
 }
 
 
-uint16_t eCMDColor::charToAtributeId( char _c ) {
-   switch ( _c ) {
-      case 'O': return OFF;
-      case 'B': return BOLD;
-      case 'U': return UNDERSCORE;
-      case 'L': return BLINK;
-      case 'R': return REVERSE;
-      case 'C': return CONCEALED;
-      default: return OFF;
-   }
+uint16_t eCMDColor::charToAtributeId(char _c) {
+  switch (_c) {
+    case 'O': return OFF;
+    case 'B': return BOLD;
+    case 'U': return UNDERSCORE;
+    case 'L': return BLINK;
+    case 'R': return REVERSE;
+    case 'C': return CONCEALED;
+    default: return OFF;
+  }
 }
 
-uint16_t eCMDColor::charToColorId( char _c ) {
-   switch ( _c ) {
-      case 'S': return BLACK;
-      case 'R': return RED;
-      case 'G': return GREEN;
-      case 'Y': return YELLOW;
-      case 'B': return BLUE;
-      case 'M': return MAGENTA;
-      case 'C': return CYAN;
-      case 'W': return WHITE;
-      default: return WHITE;
-   }
+uint16_t eCMDColor::charToColorId(char _c) {
+  switch (_c) {
+    case 'S': return BLACK;
+    case 'R': return RED;
+    case 'G': return GREEN;
+    case 'Y': return YELLOW;
+    case 'B': return BLUE;
+    case 'M': return MAGENTA;
+    case 'C': return CYAN;
+    case 'W': return WHITE;
+    default: return WHITE;
+  }
 }
 }
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

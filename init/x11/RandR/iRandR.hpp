@@ -46,84 +46,81 @@ namespace unix_x11 {
  * \todo Add subpixel order support -- internal::_output::subpixel_order
  * \todo Add mode flags support -- internal::_mode::modeFlags
  */
-class INIT_API iRandR {
+class iRandR {
 
  private:
-   std::vector<internal::_crtc>
-         vCRTC_V_RandR; //!< all current CRTC ( Data saved in \c internal::_crtc )
-   std::vector<internal::_output>
-         vOutput_V_RandR; //!< all current possible outputs ( Data saved in \c internal::_output )
-   std::list<internal::_mode>
-         vMode_V_RandR; //!< all current available modes ( Data saved in \c internal::_mode )
+  std::vector<internal::_crtc> vCRTC_V_RandR; //!< all current CRTC ( Data saved in \c internal::_crtc )
+  std::vector<internal::_output>
+                             vOutput_V_RandR; //!< all current possible outputs ( Data saved in \c internal::_output )
+  std::list<internal::_mode> vMode_V_RandR;   //!< all current available modes ( Data saved in \c internal::_mode )
 
-   internal::_config vDefaultConfig_RandR; //!< the RandR config when init(); was called
-   internal::_config
-         vLatestConfig_RandR; //!< the RandR config before <b>applyNewSettings();</b> was called
+  internal::_config vDefaultConfig_RandR; //!< the RandR config when init(); was called
+  internal::_config vLatestConfig_RandR;  //!< the RandR config before <b>applyNewSettings();</b> was called
 
-   std::vector<internal::_crtc> vChangeCRTC_V_RandR;
+  std::vector<internal::_crtc> vChangeCRTC_V_RandR;
 
-   Display *vDisplay_X11;    //!< The X11 display      -- set in init(...);
-   Window   vRootWindow_X11; //!< The X11 root window  -- set in init(...);
+  Display *vDisplay_X11;    //!< The X11 display      -- set in init(...);
+  Window   vRootWindow_X11; //!< The X11 root window  -- set in init(...);
 
-   XRRScreenResources *    vResources_XRR;
-   XRRScreenConfiguration *vConfig_XRR;
+  XRRScreenResources *    vResources_XRR;
+  XRRScreenConfiguration *vConfig_XRR;
 
-   unsigned int vScreenWidth_uI;
-   unsigned int vScreenHeight_uI;
+  unsigned int vScreenWidth_uI;
+  unsigned int vScreenHeight_uI;
 
-   int vRandRVersionMajor_I;
-   int vRandRVersionMinor_I;
+  int vRandRVersionMajor_I;
+  int vRandRVersionMinor_I;
 
-   bool vIsRandRSupported_B;
-   bool vWasScreenChanged_B;
+  bool vIsRandRSupported_B;
+  bool vWasScreenChanged_B;
 
-   bool reload( bool _overwriteLatest = true, bool _overwriteDefaults = false );
-   bool restore( internal::_config _conf );
-   int changeCRTC( e_engine::internal::_crtc _changeToThis );
+  bool reload(bool _overwriteLatest = true, bool _overwriteDefaults = false);
+  bool restore(internal::_config _conf);
+  int changeCRTC(e_engine::internal::_crtc _changeToThis);
 
-   internal::_crtc isOutputPossible( RROutput _id, RRCrtc _crtc );
+  internal::_crtc isOutputPossible(RROutput _id, RRCrtc _crtc);
 
  protected:
-   void endRandR();
-   bool initRandR();
+  void endRandR();
+  bool initRandR();
 
 
  public:
-   iRandR();
-   virtual ~iRandR();
+  iRandR();
+  virtual ~iRandR();
 
 #if D_LOG_XRANDR
-   void printRandRStatus();
+  void printRandRStatus();
 #endif
 
-   bool setGamma( iDisplays const &_disp, float _r, float _g, float _b, float _brightness = 1 );
+  bool setGamma(iDisplays const &_disp, float _r, float _g, float _b, float _brightness = 1);
 
-   void getMostLeftRightTopBottomCRTC( unsigned int &_left,
-                                       unsigned int &_right,
-                                       unsigned int &_top,
-                                       unsigned int &_bottom );
-   int getIndexOfDisplay( iDisplays const &_disp );
+  void getMostLeftRightTopBottomCRTC(unsigned int &_left,
+                                     unsigned int &_right,
+                                     unsigned int &_top,
+                                     unsigned int &_bottom);
+  int getIndexOfDisplay(iDisplays const &_disp);
 
-   std::vector<iDisplays> getDisplayResolutions();
+  std::vector<iDisplays> getDisplayResolutions();
 
-   bool setDisplaySizes( iDisplays const &_disp );
-   bool setPrimary( iDisplays const &_disp );
+  bool setDisplaySizes(iDisplays const &_disp);
+  bool setPrimary(iDisplays const &_disp);
 
-   bool applyNewRandRSettings();
+  bool applyNewRandRSettings();
 
-   bool restoreScreenDefaults() { return restore( vDefaultConfig_RandR ); }
-   bool restoreScreenLatest() { return restore( vLatestConfig_RandR ); }
+  bool restoreScreenDefaults() { return restore(vDefaultConfig_RandR); }
+  bool restoreScreenLatest() { return restore(vLatestConfig_RandR); }
 
-   bool isRandRSupported() { return vIsRandRSupported_B; }
+  bool isRandRSupported() { return vIsRandRSupported_B; }
 
-   void getRandRVersion( int &_vMajor, int &_vMinor ) {
-      _vMajor = vRandRVersionMajor_I;
-      _vMinor = vRandRVersionMinor_I;
-   }
-   void getScreenResolution( unsigned int &_width, unsigned int &_height ) {
-      _width  = vScreenWidth_uI;
-      _height = vScreenHeight_uI;
-   }
+  void getRandRVersion(int &_vMajor, int &_vMinor) {
+    _vMajor = vRandRVersionMajor_I;
+    _vMinor = vRandRVersionMinor_I;
+  }
+  void getScreenResolution(unsigned int &_width, unsigned int &_height) {
+    _width  = vScreenWidth_uI;
+    _height = vScreenHeight_uI;
+  }
 };
 
 //    #########################
@@ -176,4 +173,4 @@ class INIT_API iRandR {
 } // e_engine
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

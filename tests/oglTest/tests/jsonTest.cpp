@@ -23,71 +23,72 @@
  */
 
 #include "jsonTest.hpp"
+#include <limits>
 
 using namespace std;
 using namespace e_engine;
 
 const string jsonTest::desc = "Tests the JSON parser";
 
-void jsonTest::runTest( uJSON_data &_data, string _dataRoot ) {
-   uParserJSON lParser( ( _dataRoot + "testJSON.json" ) );
+void jsonTest::runTest(uJSON_data &_data, string _dataRoot) {
+  uParserJSON lParser((_dataRoot + "testJSON.json"));
 
-   _data( "utils", "jsonParser", "contentOK", S_BOOL( false ) );
-   _data( "utils", "jsonParser", "works", S_BOOL( false ) );
-   _data( "utils", "jsonParser", "parses", S_BOOL( false ) );
+  _data("utils", "jsonParser", "contentOK", S_BOOL(false));
+  _data("utils", "jsonParser", "works", S_BOOL(false));
+  _data("utils", "jsonParser", "parses", S_BOOL(false));
 
-   if ( lParser.parse() != 1 ) {
-      eLOG( "Parsing error" );
-      return;
-   }
+  if (lParser.parse() != 1) {
+    eLOG("Parsing error");
+    return;
+  }
 
-   _data( "utils", "jsonParser", "parses", S_BOOL( true ) );
+  _data("utils", "jsonParser", "parses", S_BOOL(true));
 
-   bool b1 = true;
-   string str1;
-   double n[4];
+  bool   b1 = true;
+  string str1;
+  double n[4];
 
-   auto lData = lParser.getData();
+  auto lData = lParser.getData();
 
-   lData( "string", G_STR( str1, "" ) );
-   lData( "obj1", "bool", G_BOOL( b1, true ) );
-   lData( "obj1", "double", G_NUM( n[0], 0 ) );
-   lData( "obj1", "array", 0u, G_NUM( n[1], 0 ) );
-   lData( "obj1", "array", 1u, G_NUM( n[2], 0 ) );
-   lData( "obj1", "array", 2u, G_NUM( n[3], 0 ) );
+  lData("string", G_STR(str1, ""));
+  lData("obj1", "bool", G_BOOL(b1, true));
+  lData("obj1", "double", G_NUM(n[0], 0));
+  lData("obj1", "array", 0u, G_NUM(n[1], 0));
+  lData("obj1", "array", 1u, G_NUM(n[2], 0));
+  lData("obj1", "array", 2u, G_NUM(n[3], 0));
 
-   if ( str1 != " I am \\ a \"string\"" ) {
-      eLOG( "String parsing error" );
-      return;
-   }
+  if (str1 != " I am \\ a \"string\"") {
+    eLOG("String parsing error");
+    return;
+  }
 
-   if ( b1 != false ) {
-      eLOG( "bool parsing error" );
-      return;
-   }
+  if (b1 != false) {
+    eLOG("bool parsing error");
+    return;
+  }
 
-   if ( n[0] != -12.23123 ) {
-      eLOG( "Number parsing error" );
-      return;
-   }
+  if (std::abs(n[0] - -12.23123) > std::numeric_limits<double>::epsilon()) {
+    eLOG("Number parsing error");
+    return;
+  }
 
-   if ( n[1] != 1 ) {
-      eLOG( "Number / array parsing error" );
-      return;
-   }
+  if (std::abs(n[1] - 1) > std::numeric_limits<double>::epsilon()) {
+    eLOG("Number / array parsing error");
+    return;
+  }
 
-   if ( n[2] != 2 ) {
-      eLOG( "Number / array parsing error" );
-      return;
-   }
+  if (std::abs(n[2] - 2) > std::numeric_limits<double>::epsilon()) {
+    eLOG("Number / array parsing error");
+    return;
+  }
 
-   if ( n[3] != 42 ) {
-      eLOG( "Number / array parsing error" );
-      return;
-   }
+  if (std::abs(n[3] - 42) > std::numeric_limits<double>::epsilon()) {
+    eLOG("Number / array parsing error");
+    return;
+  }
 
-   _data( "utils", "jsonParser", "contentOK", S_BOOL( true ) );
-   _data( "utils", "jsonParser", "works", S_BOOL( true ) );
+  _data("utils", "jsonParser", "contentOK", S_BOOL(true));
+  _data("utils", "jsonParser", "works", S_BOOL(true));
 }
 
 /*

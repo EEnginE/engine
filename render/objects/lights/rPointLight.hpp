@@ -28,74 +28,73 @@ namespace e_engine {
 
 template <class T>
 class rPointLight : public internal::rLightRenderBase, public rMatrixObjectBase<T> {
-   typedef rMatrixSceneBase<float> *SCENE;
+  typedef rMatrixSceneBase<float> *SCENE;
 
  private:
-   rVec3<T> vAmbientColor;
-   rVec3<T> vLightColor;
-   rVec3<T> vAttenuation;
+  rVec3<T> vAmbientColor;
+  rVec3<T> vLightColor;
+  rVec3<T> vAttenuation;
 
  public:
-   using rMatrixObjectBase<T>::getPosition;
+  using rMatrixObjectBase<T>::getPosition;
 
-   rPointLight( SCENE _scene, std::string _name )
-       : rLightRenderBase( _name ), rMatrixObjectBase<T>( _scene ) {
-      vLightColor.fill( 0 );
-      vIsLoaded_B = true;
-   }
+  rPointLight(SCENE _scene, std::string _name) : rLightRenderBase(_name), rMatrixObjectBase<T>(_scene) {
+    vLightColor.fill(0);
+    vIsLoaded_B = true;
+  }
 
-   rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient )
-       : rLightRenderBase( _name ), rMatrixObjectBase<T>( _scene ) {
-      vLightColor   = _color;
-      vAmbientColor = _ambient;
-      vIsLoaded_B   = true;
-   }
+  rPointLight(SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient)
+      : rLightRenderBase(_name), rMatrixObjectBase<T>(_scene) {
+    vLightColor   = _color;
+    vAmbientColor = _ambient;
+    vIsLoaded_B   = true;
+  }
 
-   rPointLight( SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient, rVec3<T> _att )
-       : rLightRenderBase( _name ), rMatrixObjectBase<T>( _scene ) {
-      vLightColor   = _color;
-      vAmbientColor = _ambient;
-      vAttenuation  = _att;
-      vIsLoaded_B   = true;
-   }
+  rPointLight(SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient, rVec3<T> _att)
+      : rLightRenderBase(_name), rMatrixObjectBase<T>(_scene) {
+    vLightColor   = _color;
+    vAmbientColor = _ambient;
+    vAttenuation  = _att;
+    vIsLoaded_B   = true;
+  }
 
-   void setColor( rVec3<T> _color, rVec3<T> _ambient ) {
-      vLightColor   = _color;
-      vAmbientColor = _ambient;
-   }
-   void setAttenuation( rVec3<T> _att ) { vAttenuation = _att; }
-   void setAttenuation( T _const, T _linear, T _exp ) {
-      vAttenuation.x = _const;
-      vAttenuation.y = _linear;
-      vAttenuation.z = _exp;
-   }
-   rVec3<T> *getColor() { return &vLightColor; }
-   rVec3<T> *getAttenuation() { return &vAttenuation; }
+  void setColor(rVec3<T> _color, rVec3<T> _ambient) {
+    vLightColor   = _color;
+    vAmbientColor = _ambient;
+  }
+  void setAttenuation(rVec3<T> _att) { vAttenuation = _att; }
+  void setAttenuation(T _const, T _linear, T _exp) {
+    vAttenuation.x = _const;
+    vAttenuation.y = _linear;
+    vAttenuation.z = _exp;
+  }
+  rVec3<T> *getColor() { return &vLightColor; }
+  rVec3<T> *getAttenuation() { return &vAttenuation; }
 
-   uint32_t getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) override;
+  uint32_t getVector(rVec3<T> **_vec, VECTOR_TYPES _type) override;
 
-   bool checkIsCompatible( rPipeline * ) override { return true; }
+  bool checkIsCompatible(rPipeline *) override { return true; }
 };
 
 
 template <class T>
-uint32_t rPointLight<T>::getVector( rVec3<T> **_vec, VECTOR_TYPES _type ) {
-   *_vec = nullptr;
+uint32_t rPointLight<T>::getVector(rVec3<T> **_vec, VECTOR_TYPES _type) {
+  *_vec = nullptr;
 
-   switch ( _type ) {
-      case AMBIENT_COLOR: *_vec       = &vAmbientColor; return ALL_OK;
-      case LIGHT_COLOR: *_vec         = &vLightColor; return ALL_OK;
-      case POSITION_MODEL_VIEW: *_vec = this->getPositionModelView(); return ALL_OK;
-      case POSITION: *_vec            = this->getPosition(); return ALL_OK;
-      case ATTENUATION: *_vec         = &vAttenuation; return ALL_OK;
-      case DIRECTION: return UNSUPPORTED_TYPE;
-   }
+  switch (_type) {
+    case AMBIENT_COLOR: *_vec       = &vAmbientColor; return ALL_OK;
+    case LIGHT_COLOR: *_vec         = &vLightColor; return ALL_OK;
+    case POSITION_MODEL_VIEW: *_vec = this->getPositionModelView(); return ALL_OK;
+    case POSITION: *_vec            = this->getPosition(); return ALL_OK;
+    case ATTENUATION: *_vec         = &vAttenuation; return ALL_OK;
+    case DIRECTION: return UNSUPPORTED_TYPE;
+  }
 
-   return UNSUPPORTED_TYPE;
+  return UNSUPPORTED_TYPE;
 }
 
 typedef rPointLight<float> rPointLightF;
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

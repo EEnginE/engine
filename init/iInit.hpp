@@ -50,7 +50,7 @@
 
 namespace e_engine {
 
-typedef void ( *RENDER_FUNC )( iEventInfo info );
+typedef void (*RENDER_FUNC)(iEventInfo info);
 
 
 /*!
@@ -69,191 +69,184 @@ typedef void ( *RENDER_FUNC )( iEventInfo info );
  * \sa iContext uConfig e_iInit.cpp e_event.cpp
  */
 #if UNIX_X11 || UNIX_WAYLAND
-class INIT_API iInit : public iInitSignals, public iMouse {
+class iInit : public iInitSignals, public iMouse {
 #elif WINDOWS
-class INIT_API iInit : public windows_win32::iContext {
+class iInit : public windows_win32::iContext {
 #else
 #error "PLATFORM not supported"
 #endif
  public:
-   SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
+  SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
 
-   typedef struct PhysicalDevice_vk {
-      VkPhysicalDevice                     device;
-      VkPhysicalDeviceProperties           properties;
-      VkPhysicalDeviceFeatures             features;
-      VkPhysicalDeviceMemoryProperties     memoryProperties;
-      std::vector<VkQueueFamilyProperties> queueFamilyProperties;
-      VkFormatProperties                   formats[VK_FORMAT_RANGE_SIZE];
-   } PhysicalDevice_vk;
+  typedef struct PhysicalDevice_vk {
+    VkPhysicalDevice                     device;
+    VkPhysicalDeviceProperties           properties;
+    VkPhysicalDeviceFeatures             features;
+    VkPhysicalDeviceMemoryProperties     memoryProperties;
+    std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+    VkFormatProperties                   formats[VK_FORMAT_RANGE_SIZE];
+  } PhysicalDevice_vk;
 
-   typedef struct Device_vk {
-      PhysicalDevice_vk *pDevice = nullptr;
-      VkDevice           device  = NULL;
-   } Device_vk;
+  typedef struct Device_vk {
+    PhysicalDevice_vk *pDevice = nullptr;
+    VkDevice           device  = NULL;
+  } Device_vk;
 
-   typedef struct Queue_vk {
-      VkQueue      queue;
-      float        priority;
-      VkQueueFlags flags;
-      u_int32_t    familyIndex;
-      u_int32_t    index;
-      bool         surfaceSupport;
+  typedef struct Queue_vk {
+    VkQueue      queue;
+    float        priority;
+    VkQueueFlags flags;
+    u_int32_t    familyIndex;
+    u_int32_t    index;
+    bool         surfaceSupport;
 
-      Queue_vk( float        _priority,
-                VkQueueFlags _flags,
-                u_int32_t    _familyIndex,
-                u_int32_t    _index,
-                bool         _surfaceSupport )
-          : priority( _priority ),
-            flags( _flags ),
-            familyIndex( _familyIndex ),
-            index( _index ),
-            surfaceSupport( _surfaceSupport ) {}
-   } Queue_vk;
+    Queue_vk(float _priority, VkQueueFlags _flags, u_int32_t _familyIndex, u_int32_t _index, bool _surfaceSupport)
+        : priority(_priority),
+          flags(_flags),
+          familyIndex(_familyIndex),
+          index(_index),
+          surfaceSupport(_surfaceSupport) {}
+  } Queue_vk;
 
-   typedef struct SurfaceInfo_vk {
-      std::vector<VkSurfaceFormatKHR> formats;
-      std::vector<VkPresentModeKHR>   presentModels;
-      VkSurfaceCapabilitiesKHR        surfaceInfo;
-   } SurfaceInfo_vk;
+  typedef struct SurfaceInfo_vk {
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR>   presentModels;
+    VkSurfaceCapabilitiesKHR        surfaceInfo;
+  } SurfaceInfo_vk;
 
  private:
 #if UNIX_X11
-   unix_x11::iWindow vWindow;
+  unix_x11::iWindow vWindow;
 #elif UNIX_WAYLAND
-   unix_wayland::iWindow vWindow;
+  unix_wayland::iWindow vWindow;
 #endif
 
-   std::vector<std::string> vExtensionList;
-   std::vector<std::string> vDeviceExtensionList;
-   std::vector<std::string> vExtensionsToUse;
-   std::vector<std::string> vDeviceExtensionsToUse;
-   std::vector<std::string> vLayersToUse;
-   std::vector<std::string> vDeviceLayersToUse;
+  std::vector<std::string> vExtensionList;
+  std::vector<std::string> vDeviceExtensionList;
+  std::vector<std::string> vExtensionsToUse;
+  std::vector<std::string> vDeviceExtensionsToUse;
+  std::vector<std::string> vLayersToUse;
+  std::vector<std::string> vDeviceLayersToUse;
 
-   std::vector<VkLayerProperties> vLayerProperties_vk;
-   std::vector<VkLayerProperties> vDeviceLayerProperties_vk;
-   std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
-   std::vector<Queue_vk>          vQueues_vk;
+  std::vector<VkLayerProperties> vLayerProperties_vk;
+  std::vector<VkLayerProperties> vDeviceLayerProperties_vk;
+  std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
+  std::vector<Queue_vk>          vQueues_vk;
 
-   std::unordered_map<VkQueue, std::mutex> vQueueMutexMap;
-   std::mutex vQueueAccessMutex;
+  std::unordered_map<VkQueue, std::mutex> vQueueMutexMap;
+  std::mutex vQueueAccessMutex;
 
-   VkDebugReportCallbackCreateInfoEXT vDebugCreateInfo_vk;
+  VkDebugReportCallbackCreateInfoEXT vDebugCreateInfo_vk;
 
-   VkDebugReportCallbackEXT vCallback    = nullptr;
-   VkInstance               vInstance_vk = nullptr;
-   VkSurfaceKHR             vSurface_vk  = nullptr;
+  VkDebugReportCallbackEXT vCallback    = nullptr;
+  VkInstance               vInstance_vk = nullptr;
+  VkSurfaceKHR             vSurface_vk  = nullptr;
 
-   SurfaceInfo_vk vSurfaceInfo_vk;
+  SurfaceInfo_vk vSurfaceInfo_vk;
 
-   Device_vk vDevice_vk;
+  Device_vk vDevice_vk;
 
-   bool vMainLoopRunning_B      = false; //!< Should the main loop be running?
-   bool vEventLoopHasFinished_B = true;  //!< Has the event loop finished?
+  bool vMainLoopRunning_B      = false; //!< Should the main loop be running?
+  bool vEventLoopHasFinished_B = true;  //!< Has the event loop finished?
 
-   std::thread vEventLoop_BT; //!< The thread for the event loop
+  std::thread vEventLoop_BT; //!< The thread for the event loop
 
-   bool vWasMouseGrabbed_B               = false;
-   bool vAreRenderLoopSignalsConnected_B = false;
-   bool vIsVulkanSetup_B                 = false;
-   bool vEnableVulkanDebug               = false;
-   bool vEnableVSync                     = false;
-   int  vCreateWindowReturn_I            = -1000;
+  bool vWasMouseGrabbed_B               = false;
+  bool vAreRenderLoopSignalsConnected_B = false;
+  bool vIsVulkanSetup_B                 = false;
+  bool vEnableVulkanDebug               = false;
+  bool vEnableVSync                     = false;
+  int  vCreateWindowReturn_I            = -1000;
 
 #if WINDOWS
-   std::mutex              vCreateWindowMutex_BT;
-   std::condition_variable vCreateWindowCondition_BT;
+  std::mutex              vCreateWindowMutex_BT;
+  std::condition_variable vCreateWindowCondition_BT;
 
-   std::mutex              vStartEventMutex_BT;
-   std::condition_variable vStartEventCondition_BT;
+  std::mutex              vStartEventMutex_BT;
+  std::condition_variable vStartEventCondition_BT;
 
-   std::mutex              vStopEventLoopMutex;
-   std::condition_variable vStopEventLoopCondition;
+  std::mutex              vStopEventLoopMutex;
+  std::condition_variable vStopEventLoopCondition;
 
-   bool vContinueWithEventLoop_B;
+  bool vContinueWithEventLoop_B;
 #endif
 
-   PhysicalDevice_vk *chooseDevice();
+  PhysicalDevice_vk *chooseDevice();
 
-   std::vector<VkExtensionProperties> getExtProprs( std::string _layerName );
-   std::vector<VkExtensionProperties> getDeviceExtProprs( std::string      _layerName,
-                                                          VkPhysicalDevice _dev );
-   int loadExtensionList();
-   int loadDeviceExtensionList( VkPhysicalDevice _dev );
-   int loadDevices();
-   int loadDeviceSurfaceInfo();
-   int createDevice( std::vector<std::string> _layers );
-   int initVulkan( std::vector<std::string> _layers );
-   int initDebug();
+  std::vector<VkExtensionProperties> getExtProprs(std::string _layerName);
+  std::vector<VkExtensionProperties> getDeviceExtProprs(std::string _layerName, VkPhysicalDevice _dev);
+  int loadExtensionList();
+  int loadDeviceExtensionList(VkPhysicalDevice _dev);
+  int loadDevices();
+  int loadDeviceSurfaceInfo();
+  int createDevice(std::vector<std::string> _layers);
+  int initVulkan(std::vector<std::string> _layers);
+  int initDebug();
 
-   void destroyVulkan();
+  void destroyVulkan();
 
-   // Thread Functions --------------------------------------------------------- ###
-   int eventLoop(); //!< The event loop function ( In PLATFORM/e_event.cpp )
+  // Thread Functions --------------------------------------------------------- ###
+  int eventLoop(); //!< The event loop function ( In PLATFORM/e_event.cpp )
 
-   // Signal handling ---------------------------------------------------------- ###
-   static void handleSignal( int _signal ); //!< The signal handle function
-   void _setThisForHandluSignal();          //!< Unfortunately you cannot pass this with signal()
+  // Signal handling ---------------------------------------------------------- ###
+  static void handleSignal(int _signal); //!< The signal handle function
+  void _setThisForHandluSignal();        //!< Unfortunately you cannot pass this with signal()
 
-   // Standard callbacks NEW --------------------------------------------------- ###
+  // Standard callbacks NEW --------------------------------------------------- ###
 
-   void s_advancedGrabControl( iEventInfo const &_info );
+  void s_advancedGrabControl(iEventInfo const &_info);
 
-   SurfaceInfo_vk getSurfaceInfo();
+  SurfaceInfo_vk getSurfaceInfo();
 
-   virtual void makeEInitEventBasicAbstract() {}
+  virtual void makeEInitEventBasicAbstract() {}
 
  public:
-   iInit();
-   virtual ~iInit();
+  iInit();
+  virtual ~iInit();
 
-   int init( std::vector<std::string> _layers = {} );
-   int handleResize();
-   int shutdown();
-   int startMainLoop( bool _wait = true );
+  int init(std::vector<std::string> _layers = {});
+  int handleResize();
+  int shutdown();
+  int startMainLoop(bool _wait = true);
 
-   void quitMainLoop();
+  void quitMainLoop();
 
-   bool enableDefaultGrabControl();
-   bool disableDefaultGrabControl();
+  bool enableDefaultGrabControl();
+  bool disableDefaultGrabControl();
 
-   void enableVSync();
-   void disableVSync();
+  void enableVSync();
+  void disableVSync();
 
-   iWindowBasic *getWindow();
-   void          closeWindow();
+  iWindowBasic *getWindow();
+  void          closeWindow();
 
-   uint32_t getQueueFamily( VkQueueFlags _flags );
+  uint32_t getQueueFamily(VkQueueFlags _flags);
 
-   VkQueue getQueue( VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr );
-   std::mutex &getQueueMutex( VkQueue _queue );
+  VkQueue getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr);
+  std::mutex &getQueueMutex(VkQueue _queue);
 
-   VkDevice getDevice();
+  VkDevice getDevice();
 
-   bool isExtensionSupported( std::string _extension );
-   bool isDeviceExtensionSupported( std::string _extension );
+  bool isExtensionSupported(std::string _extension);
+  bool isDeviceExtensionSupported(std::string _extension);
 
-   uint32_t getMemoryTypeIndexFromBitfield( uint32_t _bits, VkMemoryHeapFlags _flags = 0 );
+  uint32_t getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags = 0);
 
-   bool isFormatSupported( VkFormat _format );
-   bool formatSupportsFeature( VkFormat                _format,
-                               VkFormatFeatureFlagBits _flags,
-                               VkImageTiling           _type );
+  bool isFormatSupported(VkFormat _format);
+  bool formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type);
 
-   void enableVulkanDebug() { vEnableVulkanDebug = true; }
-   void vulkanDebugHandler( VkDebugReportFlagsEXT      _flags,
-                            VkDebugReportObjectTypeEXT _objType,
-                            uint64_t                   _obj,
-                            size_t                     _location,
-                            int32_t                    _msgCode,
-                            std::string                _layerPrefix,
-                            std::string                _msg );
+  void enableVulkanDebug() { vEnableVulkanDebug = true; }
+  void vulkanDebugHandler(VkDebugReportFlagsEXT      _flags,
+                          VkDebugReportObjectTypeEXT _objType,
+                          uint64_t                   _obj,
+                          size_t                     _location,
+                          int32_t                    _msgCode,
+                          std::string                _layerPrefix,
+                          std::string                _msg);
 
-   VkSurfaceKHR getVulkanSurface();
+  VkSurfaceKHR getVulkanSurface();
 
-   friend class rWorld;
+  friend class rWorld;
 };
 
 namespace internal {
@@ -267,28 +260,26 @@ namespace internal {
  */
 class __iInit_Pointer {
  private:
-   iInit *pointer;
-   bool   is_set;
+  iInit *pointer;
+  bool   is_set;
 
  public:
-   __iInit_Pointer() {
-      pointer = 0;
-      is_set  = false;
-   }
-   ~__iInit_Pointer() { pointer = 0; }
-   bool set( iInit *_THIS ) {
-      if ( is_set == true ) {
-         return false;
-      }
-      pointer = _THIS;
-      is_set  = true;
-      return true;
-   }
-   iInit *get() { return pointer; }
+  __iInit_Pointer() {
+    pointer = 0;
+    is_set  = false;
+  }
+  ~__iInit_Pointer() { pointer = 0; }
+  bool set(iInit *_THIS) {
+    if (is_set == true) { return false; }
+    pointer = _THIS;
+    is_set  = true;
+    return true;
+  }
+  iInit *get() { return pointer; }
 };
 extern __iInit_Pointer __iInit_Pointer_OBJ;
 }
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

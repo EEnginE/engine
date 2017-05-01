@@ -25,48 +25,43 @@
 
 namespace e_engine {
 
-class INIT_API iKeyboardBasic {
+class iKeyboardBasic {
  private:
-   unsigned short int key_state[_E_KEY_LAST + 1];
+  unsigned short int key_state[_E_KEY_LAST + 1];
 
  protected:
-   /*!
-    * \brief Set a key to a specific state
-    * \param _key   The key ID
-    * \param _state The new key state
-    */
-   void setKeyState( wchar_t _key, unsigned short int _state ) {
+  /*!
+   * \brief Set a key to a specific state
+   * \param _key   The key ID
+   * \param _state The new key state
+   */
+  void setKeyState(wchar_t _key, unsigned short int _state) {
 #if !WINDOWS
-      if ( _key < 0 )
-         return;
+    if (_key < 0) return;
 #endif
 
-      key_state[static_cast<unsigned int>( _key )] = _state;
-   }
+    key_state[static_cast<unsigned int>(_key)] = _state;
+  }
 
-   /*!
-    * \brief Get the key state
-    * \param _key The key
-    * \returns The key state
-    */
-   unsigned short int getKeyStateArray( wchar_t _key ) {
+  /*!
+   * \brief Get the key state
+   * \param _key The key
+   * \returns The key state
+   */
+  unsigned short int getKeyStateArray(wchar_t _key) {
 #if !WINDOWS
-      if ( _key < 0 || _key > _E_KEY_LAST ) {
-         return static_cast<unsigned short int>( E_UNKNOWN );
-      }
+    if (_key < 0 || _key > _E_KEY_LAST) { return static_cast<unsigned short int>(E_UNKNOWN); }
 #else
-      if ( _key > _E_KEY_LAST ) {
-         return static_cast<unsigned short int>( E_UNKNOWN );
-      }
+    if (_key > _E_KEY_LAST) { return static_cast<unsigned short int>(E_UNKNOWN); }
 #endif
-      return key_state[static_cast<unsigned int>( _key )];
-   }
+    return key_state[static_cast<unsigned int>(_key)];
+  }
 
  public:
-   iKeyboardBasic();
-   virtual ~iKeyboardBasic();
+  iKeyboardBasic();
+  virtual ~iKeyboardBasic();
 };
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

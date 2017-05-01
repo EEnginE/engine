@@ -18,34 +18,34 @@
 #define CMDANDINIT_HPP
 
 #include <engine.hpp>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "testStarter.hpp"
 
 class cmdANDinit {
  private:
-   std::vector<std::string> args;
-   std::string argv0;
-   std::string dataRoot;
+  std::vector<std::string> args;
+  std::string              argv0;
+  std::string              dataRoot;
 
-   std::vector<std::string> outputFiles;
+  std::vector<std::string> outputFiles;
 
-   bool vCanUseColor;
+  bool vCanUseColor;
 
-   cmdANDinit() {}
+  cmdANDinit() {}
 
-   void usage();
+  void usage();
 
  public:
-   cmdANDinit( int argc, char *argv[], testStarter &_starter, bool &_errors );
+  cmdANDinit(int argc, char *argv[], testStarter &_starter, bool &_errors);
 
-   std::string getDataRoot() const { return dataRoot; }
+  std::string getDataRoot() const { return dataRoot; }
 
-   bool parseArgsAndInit( testStarter &_starter );
-   void generate( e_engine::uJSON_data &_data );
+  bool parseArgsAndInit(testStarter &_starter);
+  void generate(e_engine::uJSON_data &_data);
 };
 
 #endif // CMDANDINIT_HPP
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -33,39 +33,39 @@ class rWorld;
 
 class rBuffer {
  private:
-   VkDevice vDevice_vk;
-   iInit *  vInitPtr;
+  VkDevice vDevice_vk;
+  iInit *  vInitPtr;
 
-   VkBuffer       vTempBuffer_vk = nullptr;
-   VkBuffer       vBuffer_vk     = nullptr;
-   VkDeviceMemory vMemTemp_vk    = nullptr;
-   VkDeviceMemory vMem_vk        = nullptr;
+  VkBuffer       vTempBuffer_vk = nullptr;
+  VkBuffer       vBuffer_vk     = nullptr;
+  VkDeviceMemory vMemTemp_vk    = nullptr;
+  VkDeviceMemory vMem_vk        = nullptr;
 
-   bool vIsLoaded            = false;
-   bool vSettingUpInProgress = false;
+  bool vIsLoaded            = false;
+  bool vSettingUpInProgress = false;
 
-   uint32_t vSize = 0;
+  uint32_t vSize = 0;
 
-   bool errorCleanup();
+  bool errorCleanup();
 
  public:
-   rBuffer() = delete;
-   rBuffer( iInit *_init );
-   rBuffer( rWorld *_tempWorld );
-   rBuffer( const rBuffer &_obj ) = delete;
-   rBuffer( rBuffer && )          = default;
-   rBuffer &operator=( const rBuffer & ) = delete;
-   rBuffer &operator=( rBuffer && ) = default;
-   virtual ~rBuffer();
+  rBuffer() = delete;
+  rBuffer(iInit *_init);
+  rBuffer(rWorld *_tempWorld);
+  rBuffer(const rBuffer &_obj) = delete;
+  rBuffer(rBuffer &&)          = default;
+  rBuffer &operator=(const rBuffer &) = delete;
+  rBuffer &operator=(rBuffer &&) = default;
+  virtual ~rBuffer();
 
-   template <class T>
-   bool cmdInit( std::vector<T> const &_data, VkCommandBuffer _buff, VkBufferUsageFlags _flags );
+  template <class T>
+  bool cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBufferUsageFlags _flags);
 
-   bool doneCopying();
-   bool destroy();
-   bool getIsSetup() const { return vIsLoaded; }
+  bool doneCopying();
+  bool destroy();
+  bool getIsSetup() const { return vIsLoaded; }
 
-   VkBuffer getBuffer();
-   uint32_t getSize() { return vSize; }
+  VkBuffer getBuffer();
+  uint32_t getSize() { return vSize; }
 };
 }

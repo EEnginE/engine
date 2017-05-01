@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+#include "BenchClass.hpp"
+#include "cmdANDinit.hpp"
+#include <engine.hpp>
 #include <string>
 #include <vector>
-#include <engine.hpp>
-#include "cmdANDinit.hpp"
-#include "BenchClass.hpp"
 
 using namespace e_engine;
 using namespace std;
@@ -26,19 +26,19 @@ using namespace std;
 #define COLOR true
 
 
-int main( int argc, char *argv[] ) {
-   LOG.nameThread( L"MAIN" );
-   cmdANDinit initStuff( argc, argv, COLOR );
+int main(int argc, char *argv[]) {
+  LOG.nameThread(L"MAIN");
+  cmdANDinit initStuff(argc, argv, COLOR);
 
-   if ( !initStuff.parseArgsAndInit() ) {
-      // help called or to less arguments
-      return 1;
-   }
+  if (!initStuff.parseArgsAndInit()) {
+    // help called or to less arguments
+    return 1;
+  }
 
-   BenchClass benchs( &initStuff );
+  BenchClass benchs(&initStuff);
 
-   LOG.stopLogLoop();
+  LOG.stopLogLoop();
 
-   return 0;
+  return 0;
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

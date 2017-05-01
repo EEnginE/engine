@@ -41,20 +41,20 @@ namespace unix_x11 {
 namespace internal {
 class iXCBAtom {
  private:
-   xcb_intern_atom_reply_t *vAtomReply_XCB = nullptr;
+  xcb_intern_atom_reply_t *vAtomReply_XCB = nullptr;
 
  public:
-   iXCBAtom() = default;
-   iXCBAtom( xcb_connection_t *_connection, std::string _name );
-   ~iXCBAtom();
+  iXCBAtom() = default;
+  iXCBAtom(xcb_connection_t *_connection, std::string _name);
+  ~iXCBAtom();
 
-   iXCBAtom( iXCBAtom & )  = delete;
-   iXCBAtom( iXCBAtom && ) = default;
+  iXCBAtom(iXCBAtom &)  = delete;
+  iXCBAtom(iXCBAtom &&) = default;
 
-   bool genAtom( xcb_connection_t *_connection, std::string _name );
+  bool genAtom(xcb_connection_t *_connection, std::string _name);
 
-   xcb_atom_t  getAtom() const { return vAtomReply_XCB->atom; }
-   xcb_atom_t *getAtomRef() { return &vAtomReply_XCB->atom; }
+  xcb_atom_t  getAtom() const { return vAtomReply_XCB->atom; }
+  xcb_atom_t *getAtomRef() { return &vAtomReply_XCB->atom; }
 };
 }
 
@@ -65,101 +65,88 @@ class iXCBAtom {
  * This class creates the connection to the X-Server and
  * opens a window via xcb
  */
-class INIT_API iWindow : public iRandR, public iKeyboard, public iWindowBasic {
-   using iXCBAtom = internal::iXCBAtom;
+class iWindow : public iRandR, public iKeyboard, public iWindowBasic {
+  using iXCBAtom = internal::iXCBAtom;
 
  private:
-   xcb_connection_t * vConnection_XCB;
-   xcb_window_t       vWindow_XCB;
-   const xcb_setup_t *vSetup_XCB;
-   xcb_screen_t *     vScreen_XCB;
+  xcb_connection_t * vConnection_XCB;
+  xcb_window_t       vWindow_XCB;
+  const xcb_setup_t *vSetup_XCB;
+  xcb_screen_t *     vScreen_XCB;
 
-   iXCBAtom vWmProtocol_ATOM;
-   iXCBAtom vWmDeleteWindow_ATOM;
-   iXCBAtom vNetWmState_ATOM;
-   iXCBAtom vNetWmWindowType_ATOM;
-   iXCBAtom vNetWmName_ATOM;
-   iXCBAtom vNetWmIconName_ATOM;
-   iXCBAtom vWmName_ATOM;
-   iXCBAtom vWmIconName_ATOM;
-   iXCBAtom vMotifWmHints_ATOM;
-
-
-   bool vWindowHasBorder_B;
-
-   bool vWindowCreated_B;
-
-   bool vIsMouseGrabbed_B;
-   bool vIsCursorHidden_B;
-
-   //! \todo create a function for setting an icon
-
-   // bool createIconPixmap();  //! Does NOT work until now
-   // void pixmaps2(unsigned int Width, unsigned int Height, const Uint8* Pixels);
-
-   xcb_intern_atom_reply_t *getAtom( std::string _name );
-
-   void setWmProperty( iXCBAtom &  _property,
-                       xcb_atom_t  _type,
-                       uint8_t     _format,
-                       uint32_t    _length,
-                       const void *_data );
-   void setWmPropertyAtom( iXCBAtom &_property, iXCBAtom &_data );
-   void setWmPropertyString( iXCBAtom &_property, std::string _data );
+  iXCBAtom vWmProtocol_ATOM;
+  iXCBAtom vWmDeleteWindow_ATOM;
+  iXCBAtom vNetWmState_ATOM;
+  iXCBAtom vNetWmWindowType_ATOM;
+  iXCBAtom vNetWmName_ATOM;
+  iXCBAtom vNetWmIconName_ATOM;
+  iXCBAtom vWmName_ATOM;
+  iXCBAtom vWmIconName_ATOM;
+  iXCBAtom vMotifWmHints_ATOM;
 
 
-   void sendX11Event( iXCBAtom &_atom,
-                      uint32_t  _l0 = 0,
-                      uint32_t  _l1 = 0,
-                      uint32_t  _l2 = 0,
-                      uint32_t  _l3 = 0,
-                      uint32_t  _l4 = 0 );
+  bool vWindowHasBorder_B;
+
+  bool vWindowCreated_B;
+
+  bool vIsMouseGrabbed_B;
+  bool vIsCursorHidden_B;
+
+  //! \todo create a function for setting an icon
+
+  // bool createIconPixmap();  //! Does NOT work until now
+  // void pixmaps2(unsigned int Width, unsigned int Height, const Uint8* Pixels);
+
+  xcb_intern_atom_reply_t *getAtom(std::string _name);
+
+  void setWmProperty(iXCBAtom &_property, xcb_atom_t _type, uint8_t _format, uint32_t _length, const void *_data);
+  void setWmPropertyAtom(iXCBAtom &_property, iXCBAtom &_data);
+  void setWmPropertyString(iXCBAtom &_property, std::string _data);
+
+
+  void sendX11Event(
+      iXCBAtom &_atom, uint32_t _l0 = 0, uint32_t _l1 = 0, uint32_t _l2 = 0, uint32_t _l3 = 0, uint32_t _l4 = 0);
 
  protected:
-   bool vWindowRecreate_B;
+  bool vWindowRecreate_B;
 
  public:
-   iWindow();
-   virtual ~iWindow();
+  iWindow();
+  virtual ~iWindow();
 
-   virtual int createWindow();
+  virtual int createWindow();
 
-   void getXCBVersion( int *_major, int *_minor );
-   xcb_connection_t *getXCBConnection();
-   xcb_atom_t        getWmProtocolAtom() const;
-   xcb_atom_t        getWmDeleteWindowAtom() const;
+  void getXCBVersion(int *_major, int *_minor);
+  xcb_connection_t *getXCBConnection();
+  xcb_atom_t        getWmProtocolAtom() const;
+  xcb_atom_t        getWmDeleteWindowAtom() const;
 
-   virtual void destroyWindow();
+  virtual void destroyWindow();
 
-   virtual void changeWindowConfig( unsigned int _width,
-                                    unsigned int _height,
-                                    int          _posX,
-                                    int          _posY );
+  virtual void changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY);
 
-   virtual void setWindowType( WINDOW_TYPE _type );
-   virtual void setWindowNames( std::string _windowName, std::string _iconName = "<NONE>" );
-   virtual void setAttribute( ACTION           _action,
-                              WINDOW_ATTRIBUTE _type1,
-                              WINDOW_ATTRIBUTE _type2 = NONE );
+  virtual void setWindowType(WINDOW_TYPE _type);
+  virtual void setWindowNames(std::string _windowName, std::string _iconName = "<NONE>");
+  virtual void setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE);
 
-   virtual void fullScreen( ACTION _action, bool _allMonitors = false );
-   void fullScreenMultiMonitor();
-   void setFullScreenMonitor( iDisplays &_disp );
-   virtual void maximize( ACTION _action );
-   virtual void setDecoration( ACTION _action );
+  virtual void fullScreen(ACTION _action, bool _allMonitors = false);
+  void fullScreenMultiMonitor();
+  void setFullScreenMonitor(iDisplays &_disp);
+  virtual void maximize(ACTION _action);
+  virtual void setDecoration(ACTION _action);
 
-   virtual bool grabMouse();
-   virtual void freeMouse();
-   virtual bool getIsMouseGrabbed() const;
+  virtual bool grabMouse();
+  virtual void freeMouse();
+  virtual bool getIsMouseGrabbed() const;
 
-   virtual void moveMouse( unsigned int _posX, unsigned int _posY );
+  virtual void moveMouse(unsigned int _posX, unsigned int _posY);
 
-   virtual void hideMouseCursor();
-   virtual void showMouseCursor();
-   virtual bool getIsCursorHidden() const;
-   virtual bool getIsWindowCreated() const;
+  virtual void hideMouseCursor();
+  virtual void showMouseCursor();
+  virtual bool getIsCursorHidden() const;
+  virtual bool getIsWindowCreated() const;
 
-   virtual VkSurfaceKHR getVulkanSurface( VkInstance _instance );
+  virtual VkSurfaceKHR getVulkanSurface(VkInstance _instance);
 };
 
 
@@ -168,4 +155,4 @@ class INIT_API iWindow : public iRandR, public iKeyboard, public iWindowBasic {
 } // e_engine
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

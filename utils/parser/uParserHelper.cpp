@@ -47,7 +47,7 @@ std::string uParserHelper::getFilePath() const { return vFilePath_str; }
  *
  * \note This will NOT parse the file! You have to manually parse it with parse()
  */
-void uParserHelper::setFile( std::string _file ) { vFilePath_str = _file; }
+void uParserHelper::setFile(std::string _file) { vFilePath_str = _file; }
 
 /*!
  * \brief loads the content of the JSON file
@@ -59,383 +59,344 @@ void uParserHelper::setFile( std::string _file ) { vFilePath_str = _file; }
  * \returns 6 if already parsed
  */
 int uParserHelper::parse() {
-   if ( vIsParsed )
-      return 6;
+  if (vIsParsed) return 6;
 
-   uFileIO lFile( vFilePath_str );
-   int     lRet = lFile();
-   if ( lRet != 1 )
-      return lRet;
+  uFileIO lFile(vFilePath_str);
+  int     lRet = lFile();
+  if (lRet != 1) return lRet;
 
-   vIter = lFile.begin();
-   vEnd  = lFile.end();
+  vIter = lFile.begin();
+  vEnd  = lFile.end();
 
-   if ( !load_IMPL() ) {
-      eLOG( "Failed parsing '", vFilePath_str, "'" );
-      return 2;
-   }
+  if (!load_IMPL()) {
+    eLOG("Failed parsing '", vFilePath_str, "'");
+    return 2;
+  }
 
-   vIsParsed = true;
+  vIsParsed = true;
 
-   return 1;
+  return 1;
 }
 
-int uParserHelper::parseString( std::string _data ) {
-   if ( vIsParsed )
-      return 6;
+int uParserHelper::parseString(std::string _data) {
+  if (vIsParsed) return 6;
 
-   vIter = _data.begin();
-   vEnd  = _data.end();
+  vIter = _data.begin();
+  vEnd  = _data.end();
 
-   if ( !load_IMPL() ) {
-      eLOG( "Failed parsing '", vFilePath_str, "'" );
-      return 2;
-   }
+  if (!load_IMPL()) {
+    eLOG("Failed parsing '", vFilePath_str, "'");
+    return 2;
+  }
 
-   vIsParsed = true;
+  vIsParsed = true;
 
-   return 1;
+  return 1;
 }
 
 
 
-bool uParserHelper::continueWhitespace( bool _quiet ) {
-   while ( vIter != vEnd ) {
-      switch ( *vIter ) {
-         case '\n': ++vCurrentLine; FALLTHROUGH
-         case '\t':
-         case ' ': ++vIter; break;
-         default: return true;
+bool uParserHelper::continueWhitespace(bool _quiet) {
+  while (vIter != vEnd) {
+    switch (*vIter) {
+      case '\n': ++vCurrentLine; FALLTHROUGH
+      case '\t':
+      case ' ': ++vIter; break;
+      default: return true;
+    }
+  }
+
+  // End of file
+  if (!_quiet) eofError();
+
+  return false;
+}
+
+bool uParserHelper::expect(char _c, bool _continueWhitespace, bool _quiet) {
+  if (!continueWhitespace()) return false;
+
+  if (*vIter != _c) {
+    if (!_quiet) {
+      eLOG("Expected '", _c, "' at line ", vCurrentLine, ", instead got a '", *vIter, "' [", vFilePath_str, "]");
+    }
+    return false;
+  }
+
+  if (_c == '\n') vCurrentLine++;
+
+  ++vIter;
+
+  if (_continueWhitespace) return continueWhitespace(_quiet);
+
+  return true;
+}
+
+bool uParserHelper::expect(std::string _str, bool _continueWhitespace, bool _quiet) {
+  if (!continueWhitespace()) return false;
+
+  for (char c : _str) {
+    if (*vIter != c) {
+      if (!_quiet) {
+        eLOG("Expected '", _str, "' at line ", vCurrentLine, ", but got a '", *vIter, "' [", vFilePath_str, "]");
       }
-   }
+      return false;
+    }
 
-   // End of file
-   if ( !_quiet )
-      eofError();
+    if (c == '\n') vCurrentLine++;
 
-   return false;
+    ++vIter;
+  }
+
+  if (_continueWhitespace) return continueWhitespace(_quiet);
+
+  return true;
 }
 
-bool uParserHelper::expect( char _c, bool _continueWhitespace, bool _quiet ) {
-   if ( !continueWhitespace() )
-      return false;
+bool uParserHelper::getString(std::string &_str, bool _continueWhitespace, bool _quiet) {
+  if (!expect('"', false, _quiet)) return false;
 
-   if ( *vIter != _c ) {
-      if ( !_quiet ) {
-         eLOG( "Expected '",
-               _c,
-               "' at line ",
-               vCurrentLine,
-               ", instead got a '",
-               *vIter,
-               "' [",
-               vFilePath_str,
-               "]" );
-      }
-      return false;
-   }
+  _str.clear();
 
-   if ( _c == '\n' )
-      vCurrentLine++;
+  while (vIter != vEnd) {
+    switch (*vIter) {
+      case '\\':
+        ++vIter;
 
-   ++vIter;
+        if (vIter == vEnd) return eofError();
 
-   if ( _continueWhitespace )
-      return continueWhitespace( _quiet );
-
-   return true;
-}
-
-bool uParserHelper::expect( std::string _str, bool _continueWhitespace, bool _quiet ) {
-   if ( !continueWhitespace() )
-      return false;
-
-   for ( char c : _str ) {
-      if ( *vIter != c ) {
-         if ( !_quiet ) {
-            eLOG( "Expected '",
-                  _str,
-                  "' at line ",
-                  vCurrentLine,
-                  ", but got a '",
-                  *vIter,
-                  "' [",
-                  vFilePath_str,
-                  "]" );
-         }
-         return false;
-      }
-
-      if ( c == '\n' )
-         vCurrentLine++;
-
-      ++vIter;
-   }
-
-   if ( _continueWhitespace )
-      return continueWhitespace( _quiet );
-
-   return true;
-}
-
-bool uParserHelper::getString( std::string &_str, bool _continueWhitespace, bool _quiet ) {
-   if ( !expect( '"', false, _quiet ) )
-      return false;
-
-   _str.clear();
-
-   while ( vIter != vEnd ) {
-      switch ( *vIter ) {
-         case '\\':
-            ++vIter;
-
-            if ( vIter == vEnd )
-               return eofError();
-
-            switch ( *vIter ) {
-               case '\\':
-                  _str += '\\';
-                  ++vIter;
-                  break;
-               case '"':
-                  _str += '"';
-                  ++vIter;
-                  break;
-               default: return unexpectedCharError();
-            }
-            break;
-         case '"':
-            ++vIter;
-
-            if ( _continueWhitespace )
-               return continueWhitespace();
-
-            return true;
-
-         case '\n': ++vCurrentLine; FALLTHROUGH
-         default: _str += *vIter; ++vIter;
-      }
-   }
-
-   return eofError();
-}
-
-bool uParserHelper::getNum( double &_num, bool _quiet ) {
-   if ( !continueWhitespace() )
-      return false;
-
-   // Static because clear wont change the capacity
-   static std::string lNum;
-   lNum.clear();
-
-   while ( vIter != vEnd ) {
-      switch ( *vIter ) {
-         case '-':
-         case '.':
-         case 'e':
-         case 'E':
-         case '0':
-         case '1':
-         case '2':
-         case '3':
-         case '4':
-         case '5':
-         case '6':
-         case '7':
-         case '8':
-         case '9':
-            lNum += *vIter;
+        switch (*vIter) {
+          case '\\':
+            _str += '\\';
             ++vIter;
             break;
-
-         default:
-            if ( lNum.empty() ) {
-               if ( !_quiet )
-                  return unexpectedCharError();
-               return false;
-            }
-
-            _num = std::stod( lNum );
-            return true;
-      }
-   }
-
-   return eofError();
-}
-
-bool uParserHelper::getNum( float &_num, bool _quiet ) {
-   if ( !continueWhitespace() )
-      return false;
-
-   // Static because clear wont change the capacity
-   static std::string lNum;
-   lNum.clear();
-
-   while ( vIter != vEnd ) {
-      switch ( *vIter ) {
-         case '-':
-         case '.':
-         case 'e':
-         case 'E':
-         case '0':
-         case '1':
-         case '2':
-         case '3':
-         case '4':
-         case '5':
-         case '6':
-         case '7':
-         case '8':
-         case '9':
-            lNum += *vIter;
+          case '"':
+            _str += '"';
             ++vIter;
             break;
+          default: return unexpectedCharError();
+        }
+        break;
+      case '"':
+        ++vIter;
 
-         default:
-            if ( lNum.empty() ) {
-               if ( !_quiet )
-                  return unexpectedCharError();
-               return false;
-            }
+        if (_continueWhitespace) return continueWhitespace();
 
-            _num = static_cast<float>( std::stof( lNum ) );
-            return true;
-      }
-   }
+        return true;
 
-   return eofError();
+      case '\n': ++vCurrentLine; FALLTHROUGH
+      default: _str += *vIter; ++vIter;
+    }
+  }
+
+  return eofError();
 }
 
-bool uParserHelper::getNum( int &_num, bool _quiet ) {
-   if ( !continueWhitespace() )
-      return false;
+bool uParserHelper::getNum(double &_num, bool _quiet) {
+  if (!continueWhitespace()) return false;
 
-   // Static because clear wont change the capacity
-   static std::string lNum;
-   lNum.clear();
+  // Static because clear wont change the capacity
+  static std::string lNum;
+  lNum.clear();
 
-   while ( vIter != vEnd ) {
-      switch ( *vIter ) {
-         case '-':
-         case '0':
-         case '1':
-         case '2':
-         case '3':
-         case '4':
-         case '5':
-         case '6':
-         case '7':
-         case '8':
-         case '9':
-            lNum += *vIter;
-            ++vIter;
-            break;
+  while (vIter != vEnd) {
+    switch (*vIter) {
+      case '-':
+      case '.':
+      case 'e':
+      case 'E':
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        lNum += *vIter;
+        ++vIter;
+        break;
 
-         default:
-            if ( lNum.empty() ) {
-               if ( !_quiet )
-                  return unexpectedCharError();
-               return false;
-            }
+      default:
+        if (lNum.empty()) {
+          if (!_quiet) return unexpectedCharError();
+          return false;
+        }
 
-            _num = std::stoi( lNum );
-            return true;
-      }
-   }
+        _num = std::stod(lNum);
+        return true;
+    }
+  }
 
-   return eofError();
+  return eofError();
+}
+
+bool uParserHelper::getNum(float &_num, bool _quiet) {
+  if (!continueWhitespace()) return false;
+
+  // Static because clear wont change the capacity
+  static std::string lNum;
+  lNum.clear();
+
+  while (vIter != vEnd) {
+    switch (*vIter) {
+      case '-':
+      case '.':
+      case 'e':
+      case 'E':
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        lNum += *vIter;
+        ++vIter;
+        break;
+
+      default:
+        if (lNum.empty()) {
+          if (!_quiet) return unexpectedCharError();
+          return false;
+        }
+
+        _num = static_cast<float>(std::stof(lNum));
+        return true;
+    }
+  }
+
+  return eofError();
+}
+
+bool uParserHelper::getNum(int &_num, bool _quiet) {
+  if (!continueWhitespace()) return false;
+
+  // Static because clear wont change the capacity
+  static std::string lNum;
+  lNum.clear();
+
+  while (vIter != vEnd) {
+    switch (*vIter) {
+      case '-':
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        lNum += *vIter;
+        ++vIter;
+        break;
+
+      default:
+        if (lNum.empty()) {
+          if (!_quiet) return unexpectedCharError();
+          return false;
+        }
+
+        _num = std::stoi(lNum);
+        return true;
+    }
+  }
+
+  return eofError();
 }
 
 
-bool uParserHelper::getNum( unsigned int &_num, bool _quiet ) {
-   if ( !continueWhitespace() )
-      return false;
+bool uParserHelper::getNum(unsigned int &_num, bool _quiet) {
+  if (!continueWhitespace()) return false;
 
-   // Static because clear wont change the capacity
-   static std::string lNum;
-   lNum.clear();
+  // Static because clear wont change the capacity
+  static std::string lNum;
+  lNum.clear();
 
-   while ( vIter != vEnd ) {
-      switch ( *vIter ) {
-         case '0':
-         case '1':
-         case '2':
-         case '3':
-         case '4':
-         case '5':
-         case '6':
-         case '7':
-         case '8':
-         case '9':
-            lNum += *vIter;
-            ++vIter;
-            break;
+  while (vIter != vEnd) {
+    switch (*vIter) {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        lNum += *vIter;
+        ++vIter;
+        break;
 
-         default:
-            if ( lNum.empty() ) {
-               if ( !_quiet )
-                  return unexpectedCharError();
-               return false;
-            }
+      default:
+        if (lNum.empty()) {
+          if (!_quiet) return unexpectedCharError();
+          return false;
+        }
 
-            _num = static_cast<unsigned>( std::stod( lNum ) );
-            return true;
-      }
-   }
+        _num = static_cast<unsigned>(std::stod(lNum));
+        return true;
+    }
+  }
 
-   return eofError();
+  return eofError();
 }
 
-bool uParserHelper::getNum( unsigned short &_num, bool _quiet ) {
-   if ( !continueWhitespace() )
-      return false;
+bool uParserHelper::getNum(unsigned short &_num, bool _quiet) {
+  if (!continueWhitespace()) return false;
 
-   // Static because clear wont change the capacity
-   static std::string lNum;
-   lNum.clear();
+  // Static because clear wont change the capacity
+  static std::string lNum;
+  lNum.clear();
 
-   while ( vIter != vEnd ) {
-      switch ( *vIter ) {
-         case '0':
-         case '1':
-         case '2':
-         case '3':
-         case '4':
-         case '5':
-         case '6':
-         case '7':
-         case '8':
-         case '9':
-            lNum += *vIter;
-            ++vIter;
-            break;
+  while (vIter != vEnd) {
+    switch (*vIter) {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        lNum += *vIter;
+        ++vIter;
+        break;
 
-         default:
-            if ( lNum.empty() ) {
-               if ( !_quiet )
-                  return unexpectedCharError();
-               return false;
-            }
+      default:
+        if (lNum.empty()) {
+          if (!_quiet) return unexpectedCharError();
+          return false;
+        }
 
-            _num = static_cast<unsigned short>( std::stod( lNum ) );
-            return true;
-      }
-   }
+        _num = static_cast<unsigned short>(std::stod(lNum));
+        return true;
+    }
+  }
 
-   return eofError();
+  return eofError();
 }
 
 
 
 
 bool uParserHelper::eofError() {
-   eLOG( "Unexpected end of file! Line: ", vCurrentLine, " [", vFilePath_str, "]" );
-   return false;
+  eLOG("Unexpected end of file! Line: ", vCurrentLine, " [", vFilePath_str, "]");
+  return false;
 }
 
 bool uParserHelper::unexpectedCharError() {
-   eLOG( "Unexpected char '", *vIter, "' at line ", vCurrentLine, " [", vFilePath_str, "]" );
-   return false;
+  eLOG("Unexpected char '", *vIter, "' at line ", vCurrentLine, " [", vFilePath_str, "]");
+  return false;
 }
 }
 }

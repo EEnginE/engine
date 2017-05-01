@@ -19,56 +19,57 @@
 
 using namespace e_engine;
 
-int main( int argc, char *argv[] ) {
-   LOG.nameThread( L"MAIN" );
-   testStarter tests;
-   bool errors;
+int main(int argc, char *argv[]) {
+  LOG.nameThread(L"MAIN");
+  testStarter tests;
+  bool        errors;
 
-   cmdANDinit parseCMD( argc, argv, tests, errors );
+  cmdANDinit parseCMD(argc, argv, tests, errors);
 
-   if ( errors ) {
-      LOG.devInit();
-      LOG.startLogLoop();
-      LOG.stopLogLoop();
-      return 0;
-   }
+  if (errors) {
+    LOG.devInit();
+    LOG.startLogLoop();
+    LOG.stopLogLoop();
+    return 0;
+  }
 
-   iInit init;
+  iInit init;
 
-   uJSON_data data;
+  uJSON_data data;
 
-   if ( init.init() == 1 ) {
-      data( "oglTest", "init", "canCreateWindow", S_BOOL( true ) );
-   } else {
-      eLOG( "Failed to create a window" );
-      data( "oglTest", "init", "canCreateWindow", S_BOOL( false ) );
-   }
+  if (init.init() == 1) {
+    data("oglTest", "init", "canCreateWindow", S_BOOL(true));
+  } else {
+    eLOG("Failed to create a window");
+    data("oglTest", "init", "canCreateWindow", S_BOOL(false));
+  }
 
-   data( "oglTest",
-         "init",
-         "version",
-         "major",
-         S_NUM( 1 ),
-         "oglTest",
-         "init",
-         "version",
-         "minor",
-         S_NUM( 0 ) ); //! \todo replace with vulkan versions
+  data("oglTest",
+       "init",
+       "version",
+       "major",
+       S_NUM(1),
+       "oglTest",
+       "init",
+       "version",
+       "minor",
+       S_NUM(0)); //! \todo replace with vulkan versions
 
-   tests.run( data, parseCMD.getDataRoot() );
+  tests.run(data, parseCMD.getDataRoot());
 
-   parseCMD.generate( data );
+  parseCMD.generate(data);
 
-   iLOG( "" );
-   iLOG( "Tipp: You can use the output of 'oglTestBindings.sh' to 'parse' all data this program "
-         "produced into GlobConf" );
-   iLOG( "" );
+  iLOG("");
+  iLOG(
+      "Tipp: You can use the output of 'oglTestBindings.sh' to 'parse' all data this program "
+      "produced into GlobConf");
+  iLOG("");
 
-   B_SLEEP( milliseconds, 100 ); /// \todo Fix this segfault hack
+  B_SLEEP(milliseconds, 100); /// \todo Fix this segfault hack
 
-   init.shutdown();
+  init.shutdown();
 
-   return 0;
+  return 0;
 }
 
 
@@ -79,4 +80,4 @@ int main( int argc, char *argv[] ) {
  */
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

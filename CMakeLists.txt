@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 
-project(engine)
+project(EEnginE)
 
 message( STATUS "Using CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}\n" )
 
@@ -28,6 +28,11 @@ option( DEBUG_LOG_ALL       "Enable all debug defines"                         O
 
 option( STD_FILESYSTEM_IS_EXPERIMENTAL "Use the experimental filesystem instead of std IF ENGINE_USE_BOOST is false" ON )
 
+set( CMAKE_CXX_STANDARD          14 )
+set( CMAKE_CXX_STANDARD_REQUIRED ON )
+set( CMAKE_C_STANDARD            11 )
+set( CMAKE_C_STANDARD_REQUIRED   ON )
+
 if( NOT DEFINED GLSL_TO_SPIRV_COMPILER )
    set( GLSL_TO_SPIRV_COMPILER "glslangValidator" )
 endif( NOT DEFINED GLSL_TO_SPIRV_COMPILER )
@@ -40,22 +45,13 @@ endif( NOT EXISTS "${PROJECT_SOURCE_DIR}/include" )
 # Add the uninstall target #
 ############################
 
+include( cmake/cmakeBuildTools/cmakeBuildTools.cmake )
+
 configure_file("${TEMPLATES_DIR}/cmake_uninstall.cmake.in"
                "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
                IMMEDIATE @ONLY)
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-
-##############
-# Submodules #
-##############
-
-# assimp
-set( ASSIMP_BUILD_ASSIMP_TOOLS OFF )
-set( ASSIMP_BUILD_SAMPLES      OFF )
-set( ASSIMP_BUILD_TESTS        OFF )
-
-add_subdirectory( ${PROJECT_SOURCE_DIR}/dependencies/assimp )
 
 ###################################################
 # Load all modules in ${PROJECT_SOURCE_DIR}/cmake #
@@ -67,72 +63,79 @@ foreach( I IN LISTS MODULE_LIST )
    include( ${I} )
 endforeach( I IN LISTS MODULE_LIST )
 
-add_platform( WIN32 windows )
-add_platform( UNIX  x11 mir wayland )
+add_platform( OS WIN32 TARGET windows )
+add_platform( OS UNIX  TARGET x11 mir wayland )
 check_platform()
 
 run_git()
 gen_log_macros( "${TEMPLATES_DIR}/uMacros.in.hpp" "${PROJECT_SOURCE_DIR}/utils/log/uMacros.hpp" "i" "w" "e" "d" )
 
 add_compiler( GNU MIN_VERSION "5.3"
-               ALL      "-Wall -Wextra -Wno-comment -std=c++14"
-            #   DEBUG    "-Werror"
-               SANITIZE "-fsanitize=${SANITIZERS}"
-               RELEASE  "-O3" )
+              ALL      "-Wall -Wextra -Wno-comment -Wfloat-equal -Wshadow -Wno-unknown-pragmas -fdiagnostics-color=always"
+              DEBUG    "-O0 -Werror"
+              SANITIZE "-fsanitize=${SANITIZERS}"
+              RELEASE  "-O3" )
 
 add_compiler( Clang
-               ALL      "-fvisibility=hidden -std=c++14 -Weverything -ftemplate-backtrace-limit=0"
-                        "-Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-float-equal"
-                        "-Wno-gnu-anonymous-struct -Wno-nested-anon-types -Wno-exit-time-destructors"
-                        "-Wno-global-constructors -Wno-switch-enum -Wno-reserved-id-macro"
-            #   DEBUG    "-Werror"
-               SANITIZE "-fsanitize=${SANITIZERS}"
-               RELEASE  "-O2" )
+              ALL      "-fvisibility=hidden -Weverything -ftemplate-backtrace-limit=0 -fcolor-diagnostics"
+                       "-Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-float-equal"
+                       "-Wno-gnu-anonymous-struct -Wno-nested-anon-types -Wno-exit-time-destructors"
+                       "-Wno-global-constructors -Wno-switch-enum -Wno-reserved-id-macro"
+              DEBUG    "-Werror"
+              SANITIZE "-fsanitize=${SANITIZERS}"
+              RELEASE  "-O2" )
 
 add_compiler( MSVC
-               DEBUG   "/Od"
-               RELEASE "/O2" )
+              DEBUG   "/Od"
+              RELEASE "/O2" )
+
+set( DEBUG_LOGGING 0 )
+
+if( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
+   set( DEBUG_LOGGING 1 )
+endif( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
 
 ################
 # Dependencies #
 ################
 
 if( ENGINE_LINK_SHARED )
-   message( STATUS "Linking shared. => Do not change CMAKE_FIND_LIBRARY_SUFFIXES (${CMAKE_FIND_LIBRARY_SUFFIXES})" )
+  message( STATUS "Linking shared. => Do not change CMAKE_FIND_LIBRARY_SUFFIXES (${CMAKE_FIND_LIBRARY_SUFFIXES})" )
 else( ENGINE_LINK_SHARED )
-   set( OLD_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES} )
-   set( CMAKE_FIND_LIBRARY_SUFFIXES .a .lib .so .dll ${CMAKE_FIND_LIBRARY_SUFFIXES} )
-   message( STATUS "Linking static. => Changed CMAKE_FIND_LIBRARY_SUFFIXES to ${CMAKE_FIND_LIBRARY_SUFFIXES}" )
+  set( OLD_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES} )
+  set( CMAKE_FIND_LIBRARY_SUFFIXES .a .lib .so .dll ${CMAKE_FIND_LIBRARY_SUFFIXES} )
+  message( STATUS "Linking static. => Changed CMAKE_FIND_LIBRARY_SUFFIXES to ${CMAKE_FIND_LIBRARY_SUFFIXES}" )
 endif( ENGINE_LINK_SHARED )
 
 if( STD_FILESYSTEM_IS_EXPERIMENTAL )
-   set( CM_FILESYSTEM_NAMESPACE "std::experimental::filesystem" )
-   set( CM_FILESYSTEM_INCLUDE   "<experimental/filesystem>" )
+  set( CM_FILESYSTEM_NAMESPACE "std::experimental::filesystem" )
+  set( CM_FILESYSTEM_INCLUDE   "<experimental/filesystem>" )
 
-   if( CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL asd )
-      set( FS_LIBRARIES stdc++fs )
-   endif( CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL asd )
+  if( CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL asd )
+    set( FS_LIBRARIES stdc++fs )
+  endif( CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL asd )
 else( STD_FILESYSTEM_IS_EXPERIMENTAL )
-   set( CM_FILESYSTEM_NAMESPACE "std::filesystem" )
-   set( CM_FILESYSTEM_INCLUDE   "<filesystem>" )
+  set( CM_FILESYSTEM_NAMESPACE "std::filesystem" )
+  set( CM_FILESYSTEM_INCLUDE   "<filesystem>" )
 endif( STD_FILESYSTEM_IS_EXPERIMENTAL )
 
 find_package(Threads REQUIRED)
 find_package(Vulkan  REQUIRED)
+find_package(assimp  REQUIRED)
 
 if( CM_UNIX_X11 )
-   find_package(X11 REQUIRED)
+  find_package(X11 REQUIRED)
+  find_package(XCB REQUIRED)
 
-   if( X11_Xrandr_FOUND )
-      message( STATUS "Found Xrandr" )
-   else( X11_Xrandr_FOUND )
-      message( SEND_ERROR "Xrandr NOT FOUND!" )
-   endif( X11_Xrandr_FOUND )
+  if( X11_Xrandr_FOUND )
+    message( STATUS "Found Xrandr" )
+  else( X11_Xrandr_FOUND )
+    message( SEND_ERROR "Xrandr NOT FOUND!" )
+  endif( X11_Xrandr_FOUND )
 endif( CM_UNIX_X11 )
 
 
-set( ENGINE_LINK ${VULKAN_LIBRARIES}   ${X11_LIBRARIES}    ${X11_Xrandr_LIB} ${CMAKE_THREAD_LIBS_INIT} ${FS_LIBRARIES} assimp )
-set( ENGINE_INCL ${VULKAN_INCLUDE_DIR} ${X11_INCLUDE_DIRS} ${X11_Xrandr_INCLUDE_PATH} ${PROJECT_SOURCE_DIR}/dependencies/assimp/include )
+set( ENGINE_LINK ${VULKAN_LIBRARIES} ${X11_LIBRARIES} ${X11_Xrandr_LIB} ${XCB_LIBRARIES} ${ASSIMP_LIBRARIES} Threads::Threads ${FS_LIBRARIES})
 
 message( "" ) # Newline
 
@@ -144,62 +147,128 @@ message( "" ) # Newline
 file( WRITE "${PROJECT_SOURCE_DIR}/utils/uEnum2Str.hpp" "" )
 file( WRITE "${PROJECT_SOURCE_DIR}/utils/uEnum2Str.cpp" "" )
 
-add_engine_lib( utils )
-add_engine_lib( init   utils )
-add_engine_lib( render utils init )
+new_project_library(
+  PATH         "${PROJECT_SOURCE_DIR}/utils"
+  NAME         "utils"
+  TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
+  DEPENDENCIES
+)
 
-add_engine_test( oglTest )
-add_engine_test( test1 )
-add_engine_test( benchmarks )
+new_project_library(
+  PATH         "${PROJECT_SOURCE_DIR}/init"
+  NAME         "init"
+  TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
+  DEPENDENCIES utils_shared
+)
 
-generate_engine_hpp( ${TEMPLATES_DIR}/engine.in.hpp ${PROJECT_SOURCE_DIR}/include/engine.hpp )
-generate_format_command( format 3.8.0 ${TEMPLATES_DIR}/cmake_format.cmake.in ${PROJECT_BINARY_DIR}/cmake_format.cmake )
+new_project_library(
+  PATH         "${PROJECT_SOURCE_DIR}/render"
+  NAME         "render"
+  TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
+  DEPENDENCIES utils_shared init_shared
+)
+
+generate_engine_hpp( "${TEMPLATES_DIR}/engine.in.hpp" "${PROJECT_SOURCE_DIR}/include/engine.hpp" )
+
+new_project_executable(
+  PATH         "${PROJECT_SOURCE_DIR}/tests/oglTest"
+  NAME         "oglTest"
+  TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
+  DEPENDENCIES utils_shared init_shared render_shared
+)
+
+new_project_executable(
+  PATH         "${PROJECT_SOURCE_DIR}/tests/test1"
+  NAME         "test1"
+  TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
+  DEPENDENCIES utils_shared init_shared render_shared
+)
+
+new_project_executable(
+  PATH         "${PROJECT_SOURCE_DIR}/tests/benchmarks"
+  NAME         "benchmarks"
+  TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
+  DEPENDENCIES utils_shared init_shared render_shared
+)
+
+generate_format_command( format 4.0.0 )
 generate_debug_defines()
 
-include_directories( ${ENGINE_INCLUDE_DIRECTORIES} ${PROJECT_SOURCE_DIR}/include ${ENGINE_INCL} )
+include_directories(
+  ${${PROJECT_NAME}_LIB_INCLUDE_DIRECTORIES}
+  ${${PROJECT_NAME}_EXE_INCLUDE_DIRECTORIES}
+  ${PROJECT_SOURCE_DIR}/include
+)
+
+include_directories(
+  SYSTEM
+    ${VULKAN_INCLUDE_DIR}
+    ${X11_INCLUDE_DIRS}
+    ${X11_Xrandr_INCLUDE_PATH}
+    ${XCB_INCLUDE_DIRS}
+    ${ASSIMP_INCLUDE_DIRS}
+)
 
 configure_file( "${TEMPLATES_DIR}/defines.in.hpp"      "${PROJECT_SOURCE_DIR}/include/defines.hpp" )
 configure_file( "${TEMPLATES_DIR}/Doxyfile.in"         "${PROJECT_SOURCE_DIR}/Doxyfile" )
 configure_file( "${TEMPLATES_DIR}/FindEngine.cmake.in" "${PROJECT_SOURCE_DIR}/include/FindEngine.cmake" @ONLY )
 
 enum2str_generate(
-   PATH "${PROJECT_SOURCE_DIR}/utils"
-   CLASS_NAME "uEnum2Str"
-   NAMESPACE "e_engine"
-   FUNC_NAME "toStr"
-   INCLUDES "defines.hpp" "vulkan/vulkan.h" "rObjectBase.hpp" "rShaderBase.hpp"
-   ENUMS
-      # EEnginE
-      "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
-      "rObjectBase::MATRIX_TYPES" "rObjectBase::VECTOR_TYPES" "rObjectBase::LIGHT_MODEL_T"
-      "rObjectBase::ERROR_FLAGS" "rObjectBase::VERTEX_DATA_LAYOUT" "rShaderBase::UNIFORM_ROLE"
-      "internal::SHADER_INPUT_NAME_INDEX"
-      # Vulkan
-      "VkPipelineCacheHeaderVersion"
-      "VkResult" "VkStructureType" "VkSystemAllocationScope" "VkInternalAllocationType"
-      "VkFormat" "VkImageType" "VkImageTiling" "VkPhysicalDeviceType" "VkQueryType"
-      "VkSharingMode" "VkImageLayout" "VkImageViewType" "VkComponentSwizzle" "VkVertexInputRate"
-      "VkPrimitiveTopology" "VkPolygonMode" "VkFrontFace" "VkCompareOp" "VkStencilOp"
-      "VkLogicOp" "VkBlendFactor" "VkBlendOp" "VkDynamicState" "VkFilter" "VkSamplerMipmapMode"
-      "VkSamplerAddressMode" "VkBorderColor" "VkDescriptorType" "VkAttachmentLoadOp"
-      "VkAttachmentStoreOp" "VkPipelineBindPoint" "VkCommandBufferLevel" "VkIndexType"
-      "VkSubpassContents" "VkFormatFeatureFlagBits" "VkImageUsageFlagBits" "VkImageCreateFlagBits"
-      "VkSampleCountFlagBits" "VkQueueFlagBits" "VkMemoryPropertyFlagBits" "VkMemoryHeapFlagBits"
-      "VkPipelineStageFlagBits" "VkImageAspectFlagBits" "VkSparseImageFormatFlagBits"
-      "VkSparseMemoryBindFlagBits" "VkFenceCreateFlagBits" "VkQueryPipelineStatisticFlagBits"
-      "VkQueryResultFlagBits" "VkBufferCreateFlagBits" "VkBufferUsageFlagBits" "VkPipelineCreateFlagBits"
-      "VkShaderStageFlagBits" "VkCullModeFlagBits" "VkColorComponentFlagBits" "VkDescriptorPoolCreateFlagBits"
-      "VkAttachmentDescriptionFlagBits" "VkAccessFlagBits" "VkDependencyFlagBits"
-      "VkCommandPoolCreateFlagBits" "VkCommandPoolResetFlagBits" "VkCommandBufferUsageFlagBits"
-      "VkQueryControlFlagBits" "VkCommandBufferResetFlagBits" "VkStencilFaceFlagBits"
-      # Vulkan Surface
-      "VkColorSpaceKHR" "VkPresentModeKHR" "VkSurfaceTransformFlagBitsKHR" "VkCompositeAlphaFlagBitsKHR"
-      "VkDisplayPlaneAlphaFlagBitsKHR"
-      # Vulkan etc
-      "VkDebugReportObjectTypeEXT" "VkDebugReportErrorEXT" "VkDebugReportFlagBitsEXT"
+  PATH "${PROJECT_SOURCE_DIR}/utils"
+  CLASS_NAME "uEnum2Str"
+  NAMESPACE  "e_engine"
+  FUNC_NAME  "toStr"
+  INDENT_STR "  "
+  INCLUDES   "defines.hpp" "vulkan/vulkan.h" "rObjectBase.hpp" "rShaderBase.hpp"
+  ENUMS
+    # EEnginE
+    "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
+    "rObjectBase::MATRIX_TYPES" "rObjectBase::VECTOR_TYPES" "rObjectBase::LIGHT_MODEL_T"
+    "rObjectBase::ERROR_FLAGS" "rObjectBase::VERTEX_DATA_LAYOUT" "rShaderBase::UNIFORM_ROLE"
+    "internal::SHADER_INPUT_NAME_INDEX"
+    # Vulkan
+    "VkPipelineCacheHeaderVersion"
+    "VkResult" "VkStructureType" "VkSystemAllocationScope" "VkInternalAllocationType"
+    "VkFormat" "VkImageType" "VkImageTiling" "VkPhysicalDeviceType" "VkQueryType"
+    "VkSharingMode" "VkImageLayout" "VkImageViewType" "VkComponentSwizzle" "VkVertexInputRate"
+    "VkPrimitiveTopology" "VkPolygonMode" "VkFrontFace" "VkCompareOp" "VkStencilOp"
+    "VkLogicOp" "VkBlendFactor" "VkBlendOp" "VkDynamicState" "VkFilter" "VkSamplerMipmapMode"
+    "VkSamplerAddressMode" "VkBorderColor" "VkDescriptorType" "VkAttachmentLoadOp"
+    "VkAttachmentStoreOp" "VkPipelineBindPoint" "VkCommandBufferLevel" "VkIndexType"
+    "VkSubpassContents" "VkFormatFeatureFlagBits" "VkImageUsageFlagBits" "VkImageCreateFlagBits"
+    "VkSampleCountFlagBits" "VkQueueFlagBits" "VkMemoryPropertyFlagBits" "VkMemoryHeapFlagBits"
+    "VkPipelineStageFlagBits" "VkImageAspectFlagBits" "VkSparseImageFormatFlagBits"
+    "VkSparseMemoryBindFlagBits" "VkFenceCreateFlagBits" "VkQueryPipelineStatisticFlagBits"
+    "VkQueryResultFlagBits" "VkBufferCreateFlagBits" "VkBufferUsageFlagBits"
+    "VkPipelineCreateFlagBits" "VkShaderStageFlagBits" "VkCullModeFlagBits"
+    "VkColorComponentFlagBits" "VkDescriptorPoolCreateFlagBits" "VkAttachmentDescriptionFlagBits"
+    "VkSubpassDescriptionFlagBits" "VkAccessFlagBits"  "VkDependencyFlagBits"
+    "VkCommandPoolCreateFlagBits" "VkCommandPoolResetFlagBits" "VkCommandBufferUsageFlagBits"
+    "VkQueryControlFlagBits" "VkCommandBufferResetFlagBits" "VkStencilFaceFlagBits"
+    # Vulkan Surface
+    "VkColorSpaceKHR" "VkPresentModeKHR" "VkSurfaceTransformFlagBitsKHR"
+    "VkCompositeAlphaFlagBitsKHR" "VkDisplayPlaneAlphaFlagBitsKHR"
+    "VkSwapchainCreateFlagBitsKHR"
+    # Vulkan etc
+    "VkDescriptorUpdateTemplateTypeKHR"
+    "VkDebugReportObjectTypeEXT" "VkDebugReportErrorEXT" "VkDebugReportFlagBitsEXT"
 
-   BLACKLIST "VK_SAMPLER_ADDRESS_MODE_RANGE_SIZE" "VK_PIPELINE_CACHE_HEADER_VERSION_RANGE_SIZE"
-   USE_CONSTEXPR OFF
+    # AMD
+    "VkRasterizationOrderAMD"
+    # Nvidia
+    "VkExternalMemoryHandleTypeFlagBitsNV" "VkExternalMemoryFeatureFlagBitsNV"
+    "VkIndirectCommandsTokenTypeNVX" "VkObjectEntryTypeNVX"
+    "VkIndirectCommandsLayoutUsageFlagBitsNVX" "VkObjectEntryUsageFlagBitsNVX"
+    "VkViewportCoordinateSwizzleNV"
+    # KHX
+    "VkPeerMemoryFeatureFlagBitsKHX" "VkMemoryAllocateFlagBitsKHX"
+    "VkDeviceGroupPresentModeFlagBitsKHX" "VkValidationCheckEXT"
+    "VkExternalMemoryHandleTypeFlagBitsKHX" "VkExternalMemoryFeatureFlagBitsKHX"
+    "VkExternalSemaphoreHandleTypeFlagBitsKHX" "VkExternalSemaphoreFeatureFlagBitsKHX"
+    "VkSurfaceCounterFlagBitsEXT" "VkDisplayPowerStateEXT" "VkDeviceEventTypeEXT"
+    "VkDisplayEventTypeEXT" "VkDiscardRectangleModeEXT"
+
+  BLACKLIST "VK_SAMPLER_ADDRESS_MODE_RANGE_SIZE" "VK_PIPELINE_CACHE_HEADER_VERSION_RANGE_SIZE"
 )
 
 set(DEPENDENCES "${PROJECT_SOURCE_DIR}/include/FindEngine.cmake" )
@@ -210,9 +279,9 @@ install( FILES ${OTHER_INC}   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/engine
 
 
 # Add all libs and tests directories
-foreach( I IN LISTS ENGINE_SUBDIRECTORIES )
-   add_subdirectory( ${I} )
-endforeach( I IN LISTS ENGINE_SUBDIRECTORIES )
+foreach( I IN LISTS EEnginE_SUBDIR_LIST )
+  add_subdirectory( "${I}" )
+endforeach( I IN LISTS EEnginE_SUBDIR_LIST )
 
 # Not clearing CM_OGLTEST_BINDINGS_LIST results in cache error
 set( CM_OGLTEST_BINDINGS_LIST "" CACHE STRING "List of all ogl test bindings" FORCE )

@@ -14,14 +14,14 @@
 
 function( generate_engine_hpp FILE_IN FILE_OUT )
    foreach( I IN LISTS PLATFORM_LIST )
-      if( DEFINED SRC_${I}_HPP )
-         if( ${DISPLAY_SERVER} STREQUAL ${I} )
-            list( APPEND INCLUDES_RAW ${ALL_SRC_${I}_HPP} )
-         endif( ${DISPLAY_SERVER} STREQUAL ${I} )
-      endif( DEFINED SRC_${I}_HPP )
+      if( DEFINED ${PROJECT_NAME}_ALL_SRC_${I}_HPP )
+         if( ${I} IN_LIST ${PLATFORM_TARGET} )
+            list( APPEND INCLUDES_RAW ${${PROJECT_NAME}_ALL_SRC_${I}_HPP} )
+         endif( ${I} IN_LIST ${PLATFORM_TARGET} )
+      endif( DEFINED ${PROJECT_NAME}_ALL_SRC_${I}_HPP )
    endforeach( I IN LISTS PLATFORM_LIST )
 
-   list( APPEND INCLUDES_RAW ${ALL_SRC_ALL_HPP} )
+   list( APPEND INCLUDES_RAW ${${PROJECT_NAME}_ALL_SRC_ALL_HPP} )
 
    foreach( I IN LISTS INCLUDES_RAW )
       string( REGEX REPLACE "^[^/]*/" "" FILE_NAME "${I}" )

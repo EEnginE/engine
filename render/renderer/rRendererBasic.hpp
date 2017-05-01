@@ -27,30 +27,29 @@
 namespace e_engine {
 
 class rRendererBasic : public internal::rRendererBase {
-   struct FB_DATA {
-      std::vector<VkCommandBuffer> buffers;
-   };
+  struct FB_DATA {
+    std::vector<VkCommandBuffer> buffers;
+  };
 
  private:
-   std::vector<FB_DATA> vFbData;
+  std::vector<FB_DATA> vFbData;
 
-   OBJECTS vRenderObjects;
+  OBJECTS vRenderObjects;
 
  protected:
-   void                        setupSubpasses() override;
-   std::vector<AttachmentInfo> getAttachmentInfos() override;
-   void recordCmdBuffers( Framebuffer_vk &_fb, RECORD_TARGET _toRender ) override;
+  void                        setupSubpasses() override;
+  std::vector<AttachmentInfo> getAttachmentInfos() override;
+  void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) override;
 
-   void initCmdBuffers( VkCommandPool _pool ) override;
-   void freeCmdBuffers( VkCommandPool _pool ) override;
+  void initCmdBuffers(VkCommandPool _pool) override;
+  void freeCmdBuffers(VkCommandPool _pool) override;
 
  public:
-   static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 0;
+  static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 0;
 
-   VkImageView getAttachmentView( ATTACHMENT_ROLE _role ) override;
+  VkImageView getAttachmentView(ATTACHMENT_ROLE _role) override;
 
-   rRendererBasic() = delete;
-   rRendererBasic( iInit *_init, rWorld *_root, std::wstring _id )
-       : internal::rRendererBase( _init, _root, _id ) {}
+  rRendererBasic() = delete;
+  rRendererBasic(iInit *_init, rWorld *_root, std::wstring _id) : internal::rRendererBase(_init, _root, _id) {}
 };
 }

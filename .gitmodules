@@ -1,6 +1,6 @@
 [submodule "tests/test1/data/meshs"]
 	path = tests/test1/data/meshs
 	url = git://github.com/EEnginE/engineTestObjects.git
-[submodule "dependencies/assimp"]
-	path = dependencies/assimp
-	url = git://github.com/assimp/assimp.git
+[submodule "cmake/cmakeBuildTools"]
+	path = cmake/cmakeBuildTools
+	url = https://github.com/mensinda/cmakeBuildTools

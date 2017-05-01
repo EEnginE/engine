@@ -33,41 +33,41 @@ namespace e_engine {
  * running the programm and the operating system.
  *
  */
-class UTILS_API uSystem {
+class uSystem {
  private:
-   std::string vUserName;  //!< The user name var
-   std::string vUserLogin; //!< The user login name var
-   std::string vUserHome;  //!< The user home dir var
+  std::string vUserName;  //!< The user name var
+  std::string vUserLogin; //!< The user login name var
+  std::string vUserHome;  //!< The user home dir var
 
-   std::string vMainConfigDir;
-   std::string vLogFilePath;
-   std::string vConfigFilePath;
+  std::string vMainConfigDir;
+  std::string vLogFilePath;
+  std::string vConfigFilePath;
 
  public:
-   uSystem();
+  uSystem();
 
-   /*!
-    * \brief Get the user name
-    * \returns User name
-    */
-   std::string getUserName() { return vUserName; }
+  /*!
+   * \brief Get the user name
+   * \returns User name
+   */
+  std::string getUserName() { return vUserName; }
 
-   /*!
-    * \brief Get the user login name
-    * \returns User login name
-    */
-   std::string getUserLogin() { return vUserLogin; }
+  /*!
+   * \brief Get the user login name
+   * \returns User login name
+   */
+  std::string getUserLogin() { return vUserLogin; }
 
-   /*!
-    * \brief Get the user home dir
-    * \returns User home dir
-    */
-   std::string getUserHomeDirectory() { return vUserHome; }
+  /*!
+   * \brief Get the user home dir
+   * \returns User home dir
+   */
+  std::string getUserHomeDirectory() { return vUserHome; }
 
 
-   std::string getMainConfigDirPath();
-   std::string getLogFilePath();
-   std::string getConfigFilePath();
+  std::string getMainConfigDirPath();
+  std::string getLogFilePath();
+  std::string getConfigFilePath();
 };
 
 /*!
@@ -75,5 +75,5 @@ class UTILS_API uSystem {
  *
  * The standard \c uSystem object
  */
-extern UTILS_API uSystem SYSTEM;
+extern uSystem SYSTEM;
 }

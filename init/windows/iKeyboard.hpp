@@ -29,22 +29,22 @@ namespace e_engine {
 
 namespace windows_win32 {
 
-class INIT_API iKeyboard : public iKeyboardBasic {
+class iKeyboard : public iKeyboardBasic {
 
  protected:
-   /*!
-       * \brief Convert a Windows keyevent to a key and set the state of it
-       * \param _wparam    The key to process
-       * \param _key_state The new state
-       * \return The key in wchar
-       */
-   wchar_t processWindowsKeyInput( WPARAM _wparam, short unsigned int _key_state );
+  /*!
+      * \brief Convert a Windows keyevent to a key and set the state of it
+      * \param _wparam    The key to process
+      * \param _key_state The new state
+      * \return The key in wchar
+      */
+  wchar_t processWindowsKeyInput(WPARAM _wparam, short unsigned int _key_state);
 
  public:
-   iKeyboard() {}
-   virtual ~iKeyboard() {}
+  iKeyboard() {}
+  virtual ~iKeyboard() {}
 
-   unsigned short int getKeyState( wchar_t _key );
+  unsigned short int getKeyState(wchar_t _key);
 };
 
 } // windows_win32
@@ -52,4 +52,4 @@ class INIT_API iKeyboard : public iKeyboardBasic {
 } // e_engine
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

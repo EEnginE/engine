@@ -43,114 +43,114 @@ _uConfig::__uConfig_Camera::__uConfig_Camera() { reset(); }
 
 
 void _uConfig::__uConfig_Vulkan::reset() {
-   samples               = VK_SAMPLE_COUNT_1_BIT;
-   preferedSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
-   enableVSync           = false;
+  samples               = VK_SAMPLE_COUNT_1_BIT;
+  preferedSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
+  enableVSync           = false;
 }
 
 
 void _uConfig::__uConfig_Versions::reset() {}
 
 void _uConfig::__uConfig_Window::reset() {
-   width     = 800;
-   height    = 600;
-   minWidth  = 50;
-   minHeight = 50;
-   posX      = 0;
-   posY      = 0;
+  width     = 800;
+  height    = 600;
+  minWidth  = 50;
+  minHeight = 50;
+  posX      = 0;
+  posY      = 0;
 
-   mousePosX = 0;
-   mousePosY = 0;
+  mousePosX = 0;
+  mousePosY = 0;
 
-   mouseIsInWindow = false;
-   windowHasFocus  = true;
+  mouseIsInWindow = false;
+  windowHasFocus  = true;
 
-   fullscreen       = false;
-   VSync            = true;
-   windowDecoration = true;
+  fullscreen       = false;
+  VSync            = true;
+  windowDecoration = true;
 
-   winType = NORMAL;
+  winType = NORMAL;
 
-   windowName     = "E Engine Window";
-   xlibWindowName = "E Engine Window";
-   iconName       = "E Engine Window";
+  windowName     = "E Engine Window";
+  xlibWindowName = "E Engine Window";
+  iconName       = "E Engine Window";
 
-   restoreOldScreenRes = true;
-   // iconPath.clear();
+  restoreOldScreenRes = true;
+  // iconPath.clear();
 }
 
 void _uConfig::__uLogData_Config::reset() {
-   standardTimeColor = 'M';
+  standardTimeColor = 'M';
 
-   maxFilenameSize     = 20;
-   maxFunctionNameSize = 20;
+  maxFilenameSize     = 20;
+  maxFunctionNameSize = 20;
 
-   threadNameWidth = 6;
+  threadNameWidth = 6;
 
-   standardShowTime = true;
-   standardShowFile = true;
-   standardShowLine = true;
+  standardShowTime = true;
+  standardShowFile = true;
+  standardShowLine = true;
 
-   standardWarningsToStdErr = false;
+  standardWarningsToStdErr = false;
 
-   logDefaultInit = true;
+  logDefaultInit = true;
 
-   useHistory = true;
+  useHistory = true;
 
-   waitUntilLogEntryPrinted = false;
+  waitUntilLogEntryPrinted = false;
 
-   width = -1;
+  width = -1;
 
-   logOUT.colors    = DISABLED;
-   logOUT.Time      = LEFT_REDUCED;
-   logOUT.File      = RIGHT_REDUCED;
-   logOUT.ErrorType = LEFT_FULL;
-   logOUT.Thread    = RIGHT_FULL;
+  logOUT.colors    = DISABLED;
+  logOUT.Time      = LEFT_REDUCED;
+  logOUT.File      = RIGHT_REDUCED;
+  logOUT.ErrorType = LEFT_FULL;
+  logOUT.Thread    = RIGHT_FULL;
 
-   logERR.colors    = REDUCED;
-   logERR.Time      = LEFT_REDUCED;
-   logERR.File      = RIGHT_REDUCED;
-   logERR.ErrorType = LEFT_FULL;
-   logERR.Thread    = RIGHT_FULL;
+  logERR.colors    = REDUCED;
+  logERR.Time      = LEFT_REDUCED;
+  logERR.File      = RIGHT_REDUCED;
+  logERR.ErrorType = LEFT_FULL;
+  logERR.Thread    = RIGHT_FULL;
 
-   logFILE.Time      = LEFT_FULL;
-   logFILE.File      = LEFT_FULL;
-   logFILE.ErrorType = LEFT_FULL;
-   logFILE.Thread    = LEFT_FULL;
-   logFILE.logFileName.clear();
+  logFILE.Time      = LEFT_FULL;
+  logFILE.File      = LEFT_FULL;
+  logFILE.ErrorType = LEFT_FULL;
+  logFILE.Thread    = LEFT_FULL;
+  logFILE.logFileName.clear();
 }
 
 
 void _uConfig::__uConfig_Config::reset() {
-   appName = "e-engine";
-   configSubFolder.clear();
-   logSubFolder = "log";
+  appName = "e-engine";
+  configSubFolder.clear();
+  logSubFolder = "log";
 
-   useTimeAtCMD = false;
-   useTimeAtLog = true;
+  useTimeAtCMD = false;
+  useTimeAtLog = true;
 
-   useCMDColor = true;
+  useCMDColor = true;
 
-   unixPathType = true;
+  unixPathType = true;
 
-   maxNumOfLogFileBackshift = 10;
+  maxNumOfLogFileBackshift = 10;
 }
 
 void _uConfig::__uConfig_Camera::reset() {
-   movementSpeed    = 0.2;
-   mouseSensitivity = 0.001;
-   angleHorizontal  = M_PI;
-   angleVertical    = 0;
+  movementSpeed    = 0.2;
+  mouseSensitivity = 0.001;
+  angleHorizontal  = M_PI;
+  angleVertical    = 0;
 }
 
 
 
 _uConfig::_uConfig() {
-   handleSIGINT                  = true;
-   handleSIGTERM                 = true;
-   timeoutForMainLoopThread_mSec = 1000; // 1 second
+  handleSIGINT                  = true;
+  handleSIGTERM                 = true;
+  timeoutForMainLoopThread_mSec = 1000; // 1 second
 }
 
 _uConfig GlobConf;
 }
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

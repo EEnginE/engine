@@ -36,187 +36,167 @@ uParserJSON::~uParserJSON() {}
  * \brief Clears the memory
  */
 void uParserJSON::clear() {
-   vIsParsed = false;
-   vData.value_str.clear();
-   vData.id.clear();
-   vData.value_obj.clear();
-   vData.value_obj.clear();
-   vData.type   = __JSON_NOT_SET__;
-   vCurrentLine = 0;
+  vIsParsed = false;
+  vData.value_str.clear();
+  vData.id.clear();
+  vData.value_obj.clear();
+  vData.value_obj.clear();
+  vData.type   = __JSON_NOT_SET__;
+  vCurrentLine = 0;
 }
 
-bool uParserJSON::parseValue( e_engine::uJSON_data &_currentObject, const std::string &_name ) {
-   switch ( *vIter ) {
+bool uParserJSON::parseValue(e_engine::uJSON_data &_currentObject, const std::string &_name) {
+  switch (*vIter) {
 
-      // String
-      case '"':
-         _currentObject.value_obj.emplace_back( _name, JSON_STRING );
-         if ( !getString( _currentObject.value_obj.back().value_str ) )
-            return false;
+    // String
+    case '"':
+      _currentObject.value_obj.emplace_back(_name, JSON_STRING);
+      if (!getString(_currentObject.value_obj.back().value_str)) return false;
 
-         break;
+      break;
 
-      // true
-      case 't':
-         ++vIter;
-         if ( !expect( "rue" ) )
-            return false;
+    // true
+    case 't':
+      ++vIter;
+      if (!expect("rue")) return false;
 
-         _currentObject.value_obj.emplace_back( _name, JSON_BOOL );
-         _currentObject.value_obj.back().value_bool = true;
-         break;
+      _currentObject.value_obj.emplace_back(_name, JSON_BOOL);
+      _currentObject.value_obj.back().value_bool = true;
+      break;
 
-      // false
-      case 'f':
-         ++vIter;
-         if ( !expect( "alse" ) )
-            return false;
+    // false
+    case 'f':
+      ++vIter;
+      if (!expect("alse")) return false;
 
-         _currentObject.value_obj.emplace_back( _name, JSON_BOOL );
-         _currentObject.value_obj.back().value_bool = false;
-         break;
+      _currentObject.value_obj.emplace_back(_name, JSON_BOOL);
+      _currentObject.value_obj.back().value_bool = false;
+      break;
 
-      // Nil
-      case 'n':
-         ++vIter;
-         if ( !expect( "il", true, true ) )
-            if ( !expect( "ull" ) )
-               return false;
+    // Nil
+    case 'n':
+      ++vIter;
+      if (!expect("il", true, true))
+        if (!expect("ull")) return false;
 
-         _currentObject.value_obj.emplace_back( _name, JSON_NULL );
-         break;
+      _currentObject.value_obj.emplace_back(_name, JSON_NULL);
+      break;
 
-      case '{':
-         ++vIter;
-         _currentObject.value_obj.emplace_back( _name, JSON_OBJECT );
-         if ( !parseObject( _currentObject.value_obj.back() ) )
-            return false;
+    case '{':
+      ++vIter;
+      _currentObject.value_obj.emplace_back(_name, JSON_OBJECT);
+      if (!parseObject(_currentObject.value_obj.back())) return false;
 
-         break;
-      case '[':
-         ++vIter;
-         _currentObject.value_obj.emplace_back( _name, JSON_ARRAY );
-         if ( !parseArray( _currentObject.value_obj.back() ) )
-            return false;
+      break;
+    case '[':
+      ++vIter;
+      _currentObject.value_obj.emplace_back(_name, JSON_ARRAY);
+      if (!parseArray(_currentObject.value_obj.back())) return false;
 
-         break;
+      break;
 
-      // Number
-      default: {
-         _currentObject.value_obj.emplace_back( _name, JSON_NUMBER );
-         auto lTempIter = vIter;
-         if ( getNum( _currentObject.value_obj.back().value_int, true ) ) {
-            _currentObject.value_obj.back().type = JSON_INT;
-            _currentObject.value_obj.back().value_num =
-                  static_cast<double>( _currentObject.value_obj.back().value_int );
-            break;
-         }
-
-         vIter = lTempIter;
-         if ( !getNum( _currentObject.value_obj.back().value_num ) )
-            return false;
-
-         break;
+    // Number
+    default: {
+      _currentObject.value_obj.emplace_back(_name, JSON_NUMBER);
+      auto lTempIter = vIter;
+      if (getNum(_currentObject.value_obj.back().value_int, true)) {
+        _currentObject.value_obj.back().type      = JSON_INT;
+        _currentObject.value_obj.back().value_num = static_cast<double>(_currentObject.value_obj.back().value_int);
+        break;
       }
-   }
-   return true;
+
+      vIter = lTempIter;
+      if (!getNum(_currentObject.value_obj.back().value_num)) return false;
+
+      break;
+    }
+  }
+  return true;
 }
 
-bool uParserJSON::parseArray( uJSON_data &_currentObject ) {
-   if ( !continueWhitespace() )
-      return false;
+bool uParserJSON::parseArray(uJSON_data &_currentObject) {
+  if (!continueWhitespace()) return false;
 
-   // Empty array
-   if ( *vIter == ']' ) {
-      vIter++;
-      return true;
-   }
+  // Empty array
+  if (*vIter == ']') {
+    vIter++;
+    return true;
+  }
 
-   if ( !parseValue( _currentObject, "" ) )
-      return false;
+  if (!parseValue(_currentObject, "")) return false;
 
-   while ( expect( ',', true, true ) )
-      if ( !parseValue( _currentObject, "" ) )
-         return false;
+  while (expect(',', true, true))
+    if (!parseValue(_currentObject, "")) return false;
 
-   return expect( ']' );
+  return expect(']');
 }
 
 
-bool uParserJSON::parseObject( uJSON_data &lCurrentObject ) {
-   if ( !continueWhitespace() )
-      return false;
+bool uParserJSON::parseObject(uJSON_data &lCurrentObject) {
+  if (!continueWhitespace()) return false;
 
-   // Empty object
-   if ( *vIter == '}' ) {
-      vIter++;
-      return true;
-   }
+  // Empty object
+  if (*vIter == '}') {
+    vIter++;
+    return true;
+  }
 
-   std::string lName;
+  std::string lName;
 
-   while ( true ) {
-      lName.clear();
+  while (true) {
+    lName.clear();
 
-      if ( !getString( lName ) )
-         return false;
+    if (!getString(lName)) return false;
 
-      if ( !expect( ':' ) )
-         return false;
+    if (!expect(':')) return false;
 
-      parseValue( lCurrentObject, lName );
+    parseValue(lCurrentObject, lName);
 
-      if ( expect( ',', true, true ) )
-         continue;
+    if (expect(',', true, true)) continue;
 
-      if ( expect( '}', false ) )
-         break;
+    if (expect('}', false)) break;
 
-      return unexpectedCharError();
-   }
+    return unexpectedCharError();
+  }
 
-   return true;
+  return true;
 }
 
 
 
 bool uParserJSON::load_IMPL() {
-   if ( !expect( '{' ) )
-      return false;
+  if (!expect('{')) return false;
 
-   vData.type = JSON_OBJECT;
-   if ( !parseObject( vData ) )
-      return false;
+  vData.type = JSON_OBJECT;
+  if (!parseObject(vData)) return false;
 
-   while ( vIter != vEnd ) {
-      switch ( *vIter ) {
-         case '\n': vCurrentLine++; FALLTHROUGH;
-         case '\t':
-         case ' ': ++vIter; break;
-         default: return unexpectedCharError();
-      }
-   }
+  while (vIter != vEnd) {
+    switch (*vIter) {
+      case '\n': vCurrentLine++; FALLTHROUGH;
+      case '\t':
+      case ' ': ++vIter; break;
+      default: return unexpectedCharError();
+    }
+  }
 
-   return true;
+  return true;
 }
 
-void uParserJSON::setWriteIndent( std::string _in ) { vWriteIndent_str = _in; }
+void uParserJSON::setWriteIndent(std::string _in) { vWriteIndent_str = _in; }
 
-std::string uParserJSON::toString( uJSON_data const &_data ) {
-   if ( _data.type != JSON_OBJECT )
-      return "";
+std::string uParserJSON::toString(uJSON_data const &_data) {
+  if (_data.type != JSON_OBJECT) return "";
 
-   std::string lOutput = "{\n";
-   for ( unsigned int i = 0; i < _data.value_obj.size(); ++i ) {
-      writeValue( _data.value_obj[i], lOutput, vWriteIndent_str, false );
-      if ( i != ( _data.value_obj.size() - 1 ) )
-         lOutput += ",";
+  std::string lOutput = "{\n";
+  for (unsigned int i = 0; i < _data.value_obj.size(); ++i) {
+    writeValue(_data.value_obj[i], lOutput, vWriteIndent_str, false);
+    if (i != (_data.value_obj.size() - 1)) lOutput += ",";
 
-      lOutput += "\n";
-   }
-   lOutput += "}\n";
+    lOutput += "\n";
+  }
+  lOutput += "}\n";
 
-   return lOutput;
+  return lOutput;
 }
 
 
@@ -233,86 +213,76 @@ std::string uParserJSON::toString( uJSON_data const &_data ) {
  * \returns 5  if the file is not writable
  * \returns -2 if _data has not the type JSON_OBJECT
  */
-int uParserJSON::write( const uJSON_data &_data, bool _overwriteIfNeeded ) {
-   if ( _data.type != JSON_OBJECT )
-      return -2;
+int uParserJSON::write(const uJSON_data &_data, bool _overwriteIfNeeded) {
+  if (_data.type != JSON_OBJECT) return -2;
 
-   std::string lOutput = "{\n";
-   for ( unsigned int i = 0; i < _data.value_obj.size(); ++i ) {
-      writeValue( _data.value_obj[i], lOutput, vWriteIndent_str, false );
-      if ( i != ( _data.value_obj.size() - 1 ) )
-         lOutput += ",";
+  std::string lOutput = "{\n";
+  for (unsigned int i = 0; i < _data.value_obj.size(); ++i) {
+    writeValue(_data.value_obj[i], lOutput, vWriteIndent_str, false);
+    if (i != (_data.value_obj.size() - 1)) lOutput += ",";
 
-      lOutput += "\n";
-   }
-   lOutput += "}\n";
+    lOutput += "\n";
+  }
+  lOutput += "}\n";
 
-   uFileIO lFile( vFilePath_str );
-   return lFile.write( lOutput, _overwriteIfNeeded );
+  uFileIO lFile(vFilePath_str);
+  return lFile.write(lOutput, _overwriteIfNeeded);
 }
 
-void uParserJSON::prepareString( const std::string &_in, std::string &_out ) {
-   for ( char ch : _in ) {
-      if ( ch == '"' || ch == '\\' )
-         _out.append( 1, '\\' );
+void uParserJSON::prepareString(const std::string &_in, std::string &_out) {
+  for (char ch : _in) {
+    if (ch == '"' || ch == '\\') _out.append(1, '\\');
 
-      _out.append( 1, ch );
-   }
+    _out.append(1, ch);
+  }
 }
 
 
-void uParserJSON::writeValue( const uJSON_data &_data,
-                              std::string &     _worker,
-                              std::string       _level,
-                              bool              _array ) {
-   unsigned int i;
-   std::string  lTemp_str;
+void uParserJSON::writeValue(const uJSON_data &_data, std::string &_worker, std::string _level, bool _array) {
+  unsigned int i;
+  std::string  lTemp_str;
 
-   if ( !_array )
-      _worker += _level + "\"" + _data.id + "\"" + ": ";
-   else
-      _worker += _level;
+  if (!_array)
+    _worker += _level + "\"" + _data.id + "\"" + ": ";
+  else
+    _worker += _level;
 
-   switch ( _data.type ) {
-      case JSON_STRING:
-         prepareString( _data.value_str, lTemp_str );
-         _worker += "\"" + lTemp_str + "\"";
-         break;
-      case JSON_NUMBER: _worker += std::to_string( _data.value_num ); break;
-      case JSON_INT: _worker += std::to_string( _data.value_int ); break;
-      case JSON_BOOL: _worker += ( _data.value_bool ? "true" : "false" ); break;
-      case JSON_NULL: _worker += "null"; break;
-      case JSON_ARRAY:
-         _worker += "[\n";
-         for ( i = 0; i < _data.value_obj.size(); ++i ) {
-            writeValue( _data.value_obj[i], _worker, _level + vWriteIndent_str, true );
-            if ( i != ( _data.value_obj.size() - 1 ) )
-               _worker += ",";
+  switch (_data.type) {
+    case JSON_STRING:
+      prepareString(_data.value_str, lTemp_str);
+      _worker += "\"" + lTemp_str + "\"";
+      break;
+    case JSON_NUMBER: _worker += std::to_string(_data.value_num); break;
+    case JSON_INT: _worker += std::to_string(_data.value_int); break;
+    case JSON_BOOL: _worker += (_data.value_bool ? "true" : "false"); break;
+    case JSON_NULL: _worker += "null"; break;
+    case JSON_ARRAY:
+      _worker += "[\n";
+      for (i = 0; i < _data.value_obj.size(); ++i) {
+        writeValue(_data.value_obj[i], _worker, _level + vWriteIndent_str, true);
+        if (i != (_data.value_obj.size() - 1)) _worker += ",";
 
-            _worker += "\n";
-         }
-         _worker += _level + "]";
-         break;
-      case JSON_OBJECT:
-         _worker += "{\n";
-         for ( i = 0; i < _data.value_obj.size(); ++i ) {
-            writeValue( _data.value_obj[i], _worker, _level + vWriteIndent_str, false );
-            if ( i != ( _data.value_obj.size() - 1 ) )
-               _worker += ",";
+        _worker += "\n";
+      }
+      _worker += _level + "]";
+      break;
+    case JSON_OBJECT:
+      _worker += "{\n";
+      for (i = 0; i < _data.value_obj.size(); ++i) {
+        writeValue(_data.value_obj[i], _worker, _level + vWriteIndent_str, false);
+        if (i != (_data.value_obj.size() - 1)) _worker += ",";
 
-            _worker += "\n";
-         }
-         _worker += _level + "}";
-         break;
-      case __JSON_FAIL__:
-      case __JSON_NOT_SET__:
-         wLOG( "Incomplete JSON data structure. Skipp unknown parts.  ( File: '",
-               vFilePath_str,
-               "' )" );
-         break;
-   }
+        _worker += "\n";
+      }
+      _worker += _level + "}";
+      break;
+    case __JSON_FAIL__:
+    case __JSON_NOT_SET__:
+      wLOG("Incomplete JSON data structure. Skipp unknown parts.  ( File: '", vFilePath_str, "' )");
+      break;
+  }
 }
 }
 
 
-// kate: indent-mode cstyle; indent-width 3; replace-tabs on; line-numbers on;
+// kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;
