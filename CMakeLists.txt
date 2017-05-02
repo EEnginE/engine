@@ -25,11 +25,11 @@ set( COMPILER_TESTS_DIR ${PROJECT_SOURCE_DIR}/cmake/tests )
 # Build options
 option( DEBUG_LOG_ALL       "Enable all debug defines"                         OFF )
 
-set( CMAKE_CXX_STANDARD          14 )
-set( CMAKE_CXX_STANDARD_REQUIRED ON )
-set( CMAKE_C_STANDARD            11 )
-set( CMAKE_C_STANDARD_REQUIRED   ON )
-set( WINDOWS_EXPORT_ALL_SYMBOLS  ON )
+set( CMAKE_CXX_STANDARD               14 )
+set( CMAKE_CXX_STANDARD_REQUIRED      ON )
+set( CMAKE_C_STANDARD                 11 )
+set( CMAKE_C_STANDARD_REQUIRED        ON )
+set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
 
 if( NOT DEFINED GLSL_TO_SPIRV_COMPILER )
    set( GLSL_TO_SPIRV_COMPILER "glslangValidator" )
@@ -102,6 +102,7 @@ endif( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
 find_package(Threads REQUIRED)
 find_package(Vulkan  REQUIRED)
 find_package(assimp  REQUIRED)
+find_package(glm     REQUIRED)
 
 if( CM_UNIX_X11 )
   find_package(X11 REQUIRED)
@@ -145,7 +146,7 @@ new_project_library(
   PATH         "${PROJECT_SOURCE_DIR}/render"
   NAME         "render"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
-  DEPENDENCIES utils_shared init_shared
+  DEPENDENCIES utils_shared init_shared glm
 )
 
 generate_engine_hpp( "${TEMPLATES_DIR}/engine.in.hpp" "${PROJECT_SOURCE_DIR}/include/engine.hpp" )
@@ -154,21 +155,21 @@ new_project_executable(
   PATH         "${PROJECT_SOURCE_DIR}/tests/oglTest"
   NAME         "oglTest"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
-  DEPENDENCIES utils_shared init_shared render_shared
+  DEPENDENCIES utils_shared init_shared render_shared glm
 )
 
 new_project_executable(
   PATH         "${PROJECT_SOURCE_DIR}/tests/test1"
   NAME         "test1"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
-  DEPENDENCIES utils_shared init_shared render_shared
+  DEPENDENCIES utils_shared init_shared render_shared glm
 )
 
 new_project_executable(
   PATH         "${PROJECT_SOURCE_DIR}/tests/benchmarks"
   NAME         "benchmarks"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
-  DEPENDENCIES utils_shared init_shared render_shared
+  DEPENDENCIES utils_shared init_shared render_shared glm
 )
 
 generate_format_command( format 4.0.0 )

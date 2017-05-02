@@ -28,7 +28,7 @@
 
 namespace e_engine {
 
-template <class T>
+template <class T, glm::precision P = glm::precision::highp>
 class rCameraHandler {
   typedef iInit::SLOT_C<rCameraHandler> SLOT;
 
@@ -39,9 +39,9 @@ class rCameraHandler {
   rMatrixSceneBase<T> *vScene;
   iInit *              vInit;
 
-  rVec3<T> vPosition;
-  rVec3<T> vDirection;
-  rVec3<T> vUp;
+  glm::tvec3<T, P> vPosition;
+  glm::tvec3<T, P> vDirection;
+  glm::tvec3<T, P> vUp;
 
   bool vCameraMovementEnabled;
 
@@ -59,7 +59,7 @@ class rCameraHandler {
 
  public:
   virtual ~rCameraHandler() {}
-  rCameraHandler(rMatrixSceneBase<T> *_scene, iInit *_init)
+  rCameraHandler(rMatrixSceneBase<T, P> *_scene, iInit *_init)
       : vScene(_scene),
         vInit(_init),
 
@@ -105,29 +105,29 @@ class rCameraHandler {
   virtual void afterCameraUpdate() = 0;
 };
 
-template <class T>
-void rCameraHandler<T>::setCameraKey(KEY_MOVEMENT _key, wchar_t _what) {
+template <class T, glm::precision P>
+void rCameraHandler<T, P>::setCameraKey(KEY_MOVEMENT _key, wchar_t _what) {
   if (_key >= __LAST__ || _key < 0) return;
 
   keys[_key] = _what;
 }
 
-template <class T>
-void rCameraHandler<T>::updateCamera() {
+template <class T, glm::precision P>
+void rCameraHandler<T, P>::updateCamera() {
   if (vCameraMovementEnabled) vScene->setCamera(vPosition, vPosition + vDirection, vUp);
 
   afterCameraUpdate();
 }
 
 
-template <class T>
-void rCameraHandler<T>::key(iEventInfo const &_event) {
+template <class T, glm::precision P>
+void rCameraHandler<T, P>::key(iEventInfo const &_event) {
   if (!vCameraMovementEnabled || _event.eKey.state == E_RELEASED) return;
 
   T            lSpeed  = static_cast<T>(GlobConf.camera.movementSpeed);
   KEY_MOVEMENT _action = __LAST__;
 
-  rVec3<T> lTempVector;
+  glm::tvec3<T, P> lTempVector;
 
   for (uint8_t i = 0; i < __LAST__; ++i) {
     if (_event.eKey.key == keys[i]) {
@@ -145,8 +145,8 @@ void rCameraHandler<T>::key(iEventInfo const &_event) {
 
     case LEFT: lSpeed *= -1; FALLTHROUGH
     case RIGHT:
-      lTempVector = rVectorMath::crossProduct(vDirection, vUp);
-      lTempVector.normalize();
+      lTempVector = glm::cross(vDirection, vUp);
+      lTempVector = glm::normalize(lTempVector);
       lTempVector *= lSpeed;
       vPosition += lTempVector;
       break;
@@ -164,13 +164,13 @@ void rCameraHandler<T>::key(iEventInfo const &_event) {
 }
 
 
-template <class T>
-void rCameraHandler<T>::updateDirectionAndUp() {
+template <class T, glm::precision P>
+void rCameraHandler<T, P>::updateDirectionAndUp() {
   vDirection.x = static_cast<T>(cos(GlobConf.camera.angleVertical) * sin(GlobConf.camera.angleHorizontal));
   vDirection.y = static_cast<T>(sin(GlobConf.camera.angleVertical));
   vDirection.z = static_cast<T>(cos(GlobConf.camera.angleVertical) * cos(GlobConf.camera.angleHorizontal));
 
-  rVec3<T> lTempRight;
+  glm::tvec3<T, P> lTempRight;
   lTempRight.y = 0;
 
 #ifdef M_PIl
@@ -183,12 +183,12 @@ void rCameraHandler<T>::updateDirectionAndUp() {
 #error "M_PI is not defined!"
 #endif
 
-  vUp = rVectorMath::crossProduct(lTempRight, vDirection);
+  vUp = glm::cross(lTempRight, vDirection);
 }
 
 
-template <class T>
-void rCameraHandler<T>::mouse(iEventInfo const &_event) {
+template <class T, glm::precision P>
+void rCameraHandler<T, P>::mouse(iEventInfo const &_event) {
   int lDifX = static_cast<int>((GlobConf.win.width / 2) - _event.iMouse.posX);
   int lDifY = static_cast<int>((GlobConf.win.height / 2) - _event.iMouse.posY);
   if ((lDifX == 0 && lDifY == 0) || !vCameraMovementEnabled) return;
@@ -202,8 +202,8 @@ void rCameraHandler<T>::mouse(iEventInfo const &_event) {
   updateCamera();
 }
 
-template <class T>
-void rCameraHandler<T>::printCameraPosition() {
+template <class T, glm::precision P>
+void rCameraHandler<T, P>::printCameraPosition() {
   iLOG(L"Camera position:  X = ", vPosition.x, L"; Y = ", vPosition.y, "; Z = ", vPosition.z);
 }
 }

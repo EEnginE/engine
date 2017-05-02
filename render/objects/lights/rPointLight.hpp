@@ -26,31 +26,31 @@
 
 namespace e_engine {
 
-template <class T>
+template <class T, glm::precision P = glm::precision::highp>
 class rPointLight : public internal::rLightRenderBase, public rMatrixObjectBase<T> {
   typedef rMatrixSceneBase<float> *SCENE;
 
  private:
-  rVec3<T> vAmbientColor;
-  rVec3<T> vLightColor;
-  rVec3<T> vAttenuation;
+  glm::tvec3<T, P> vAmbientColor;
+  glm::tvec3<T, P> vLightColor;
+  glm::tvec3<T, P> vAttenuation;
 
  public:
   using rMatrixObjectBase<T>::getPosition;
 
   rPointLight(SCENE _scene, std::string _name) : rLightRenderBase(_name), rMatrixObjectBase<T>(_scene) {
-    vLightColor.fill(0);
+    vLightColor = glm::tvec3<T, P>(0, 0, 0);
     vIsLoaded_B = true;
   }
 
-  rPointLight(SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient)
+  rPointLight(SCENE _scene, std::string _name, glm::tvec3<T, P> _color, glm::tvec3<T, P> _ambient)
       : rLightRenderBase(_name), rMatrixObjectBase<T>(_scene) {
     vLightColor   = _color;
     vAmbientColor = _ambient;
     vIsLoaded_B   = true;
   }
 
-  rPointLight(SCENE _scene, std::string _name, rVec3<T> _color, rVec3<T> _ambient, rVec3<T> _att)
+  rPointLight(SCENE _scene, std::string _name, glm::tvec3<T, P> _color, glm::tvec3<T, P> _ambient, glm::tvec3<T, P> _att)
       : rLightRenderBase(_name), rMatrixObjectBase<T>(_scene) {
     vLightColor   = _color;
     vAmbientColor = _ambient;
@@ -58,27 +58,27 @@ class rPointLight : public internal::rLightRenderBase, public rMatrixObjectBase<
     vIsLoaded_B   = true;
   }
 
-  void setColor(rVec3<T> _color, rVec3<T> _ambient) {
+  void setColor(glm::tvec3<T, P> _color, glm::tvec3<T, P> _ambient) {
     vLightColor   = _color;
     vAmbientColor = _ambient;
   }
-  void setAttenuation(rVec3<T> _att) { vAttenuation = _att; }
+  void setAttenuation(glm::tvec3<T, P> _att) { vAttenuation = _att; }
   void setAttenuation(T _const, T _linear, T _exp) {
     vAttenuation.x = _const;
     vAttenuation.y = _linear;
     vAttenuation.z = _exp;
   }
-  rVec3<T> *getColor() { return &vLightColor; }
-  rVec3<T> *getAttenuation() { return &vAttenuation; }
+  glm::tvec3<T, P> *getColor() { return &vLightColor; }
+  glm::tvec3<T, P> *getAttenuation() { return &vAttenuation; }
 
-  uint32_t getVector(rVec3<T> **_vec, VECTOR_TYPES _type) override;
+  uint32_t getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPES _type) override;
 
   bool checkIsCompatible(rPipeline *) override { return true; }
 };
 
 
-template <class T>
-uint32_t rPointLight<T>::getVector(rVec3<T> **_vec, VECTOR_TYPES _type) {
+template <class T, glm::precision P>
+uint32_t rPointLight<T, P>::getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPES _type) {
   *_vec = nullptr;
 
   switch (_type) {

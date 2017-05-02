@@ -26,25 +26,26 @@
 
 namespace e_engine {
 
-template <class T>
+template <class T, glm::precision P = glm::precision::highp>
 class rDirectionalLight : public rObjectBase {
  private:
-  rVec3<T> vAmbientColor;
-  rVec3<T> vLightColor;
-  rVec3<T> vLightDirection;
+  glm::tvec3<T, P> vAmbientColor;
+  glm::tvec3<T, P> vLightColor;
+  glm::tvec3<T, P> vLightDirection;
 
   bool isMesh() override { return false; }
 
  public:
   rDirectionalLight(std::string _name) : rObjectBase(_name) { vLightColor.fill(0); }
 
-  rDirectionalLight(std::string _name, rVec3<T> _direction) : rObjectBase(_name) {
+  rDirectionalLight(std::string _name, glm::tvec3<T, P> _direction) : rObjectBase(_name) {
     vLightDirection = _direction;
     vIsLoaded_B     = true;
     vLightDirection.normalize();
   }
 
-  rDirectionalLight(std::string _name, rVec3<T> _direction, rVec3<T> _color, rVec3<T> _ambient) : rObjectBase(_name) {
+  rDirectionalLight(std::string _name, glm::tvec3<T, P> _direction, glm::tvec3<T, P> _color, glm::tvec3<T, P> _ambient)
+      : rObjectBase(_name) {
     vLightDirection = _direction;
     vLightColor     = _color;
     vAmbientColor   = _ambient;
@@ -53,24 +54,24 @@ class rDirectionalLight : public rObjectBase {
     vLightDirection.normalize();
   }
 
-  void setColor(rVec3<T> _color, rVec3<T> _ambient) {
+  void setColor(glm::tvec3<T, P> _color, glm::tvec3<T, P> _ambient) {
     vLightColor   = _color;
     vAmbientColor = _ambient;
   }
 
-  void setDirection(rVec3<T> _direction) {
+  void setDirection(glm::tvec3<T, P> _direction) {
     vLightDirection = _direction;
     vLightDirection.normalize();
   }
-  rVec3<T> *getColor() { return &vLightColor; }
+  glm::tvec3<T, P> *getColor() { return &vLightColor; }
 
-  uint32_t getVector(rVec3<T> **_vec, VECTOR_TYPES _type) override;
+  uint32_t getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPES _type) override;
   bool checkIsCompatible(rPipeline *) override { return true; }
 };
 
 
-template <class T>
-uint32_t rDirectionalLight<T>::getVector(rVec3<T> **_vec, VECTOR_TYPES _type) {
+template <class T, glm::precision P>
+uint32_t rDirectionalLight<T, P>::getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPES _type) {
   *_vec = nullptr;
 
   switch (_type) {

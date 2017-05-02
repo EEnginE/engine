@@ -22,10 +22,13 @@
 #include "defines.hpp"
 
 #include "rBuffer.hpp"
-#include "rMatrixMath.hpp"
 #include "rShaderBase.hpp"
 #include <array>
 #include <assimp/scene.h>
+#include <glm/mat3x3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <string>
 #include <vulkan.h>
 
@@ -167,17 +170,17 @@ class rObjectBase {
   std::string  getName() const { return vName_str; }
   bool setPipeline(rPipeline *_pipe);
 
-  virtual uint32_t getMatrix(rMat4f **_mat, MATRIX_TYPES _type);
-  virtual uint32_t getMatrix(rMat4d **_mat, MATRIX_TYPES _type);
+  virtual uint32_t getMatrix(glm::mat4 **_mat, MATRIX_TYPES _type);
+  virtual uint32_t getMatrix(glm::dmat4 **_mat, MATRIX_TYPES _type);
 
-  virtual uint32_t getMatrix(rMat3f **_mat, MATRIX_TYPES _type);
-  virtual uint32_t getMatrix(rMat3d **_mat, MATRIX_TYPES _type);
+  virtual uint32_t getMatrix(glm::mat3 **_mat, MATRIX_TYPES _type);
+  virtual uint32_t getMatrix(glm::dmat3 **_mat, MATRIX_TYPES _type);
 
-  virtual uint32_t getVector(rVec4f **_vec, VECTOR_TYPES _type);
-  virtual uint32_t getVector(rVec4d **_vec, VECTOR_TYPES _type);
+  virtual uint32_t getVector(glm::vec4 **_vec, VECTOR_TYPES _type);
+  virtual uint32_t getVector(glm::dvec4 **_vec, VECTOR_TYPES _type);
 
-  virtual uint32_t getVector(rVec3f **_vec, VECTOR_TYPES _type);
-  virtual uint32_t getVector(rVec3d **_vec, VECTOR_TYPES _type);
+  virtual uint32_t getVector(glm::vec3 **_vec, VECTOR_TYPES _type);
+  virtual uint32_t getVector(glm::dvec3 **_vec, VECTOR_TYPES _type);
 };
 
 

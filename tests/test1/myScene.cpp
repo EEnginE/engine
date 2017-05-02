@@ -16,6 +16,7 @@
 
 #include "myScene.hpp"
 
+using namespace glm;
 using namespace e_engine;
 
 myScene::~myScene() {
@@ -40,7 +41,7 @@ int myScene::init() {
     vObjects.emplace_back(std::make_shared<rSimpleMesh>(this, i.name));
 
     initObject(vObjects.back(), i.index);
-    vObjects.back()->setPosition(rVec3f(0, 0, -5));
+    vObjects.back()->setPosition(vec3(0, 0, -5));
   }
 
   endInitObject();
@@ -48,14 +49,14 @@ int myScene::init() {
   vPointLights.emplace_back(std::make_shared<rPointLightF>(this, "L1"));
   //    vPointLights.emplace_back( std::make_shared<rPointLightF>( this, "L2" ) );
   //    vDirectionalLights.emplace_back(
-  //          std::make_shared<rDirectionalLightF>( "L3", rVec3f( 0.5, -1, 0.5 ) ) );
+  //          std::make_shared<rDirectionalLightF>( "L3", vec3( 0.5, -1, 0.5 ) ) );
 
-  vPointLights[0]->setPosition(rVec3f(1, 1, -4));
-  //    vPointLights[1]->setPosition( rVec3f( -1, -1, -4 ) );
+  vPointLights[0]->setPosition(vec3(1, 1, -4));
+  //    vPointLights[1]->setPosition( vec3( -1, -1, -4 ) );
 
-  vPointLights[0]->setColor(rVec3f(1.0f, 0.2f, 0.2f), rVec3f(0.1f, 0.0f, 0.0f));
-  //    vPointLights[1]->setColor( rVec3f( 0.2f, 0.2f, 1.0f ), rVec3f( 0.0, 0.0f, 0.1f ) );
-  //    vPointLights[2]->setColor( rVec3f( 0.9f, 0.9f, 0.9f ), rVec3f( 0.05f, 0.05f, 0.05f ) );
+  vPointLights[0]->setColor(vec3(1.0f, 0.2f, 0.2f), vec3(0.1f, 0.0f, 0.0f));
+  //    vPointLights[1]->setColor( vec3( 0.2f, 0.2f, 1.0f ), vec3( 0.0, 0.0f, 0.1f ) );
+  //    vPointLights[2]->setColor( vec3( 0.9f, 0.9f, 0.9f ), vec3( 0.05f, 0.05f, 0.05f ) );
 
   vPointLights[0]->setAttenuation(0.1f, 0.01f, 0.1f);
   //    vPointLights[1]->setAttenuation( 0.1f, 0.02f, 0.2f );
@@ -92,7 +93,7 @@ void myScene::objectMoveLoop() {
   std::chrono::system_clock::time_point lNow;
   std::chrono::milliseconds             lDuration;
 
-  rVec3f lAxis(0.0, 1.0, 0.0);
+  vec3 lAxis(0.0, 1.0, 0.0);
 
   getWorldPtr()->waitForFrame(lWaitMutex);
 
@@ -116,11 +117,11 @@ void myScene::keySlot(const iEventInfo &_inf) {
     switch (_inf.eKey.key) {
       case L'z':
         vRotationAngle += 0.25;
-        i->setRotation(rVec3f(0, 1, 0), vRotationAngle);
+        i->setRotation(vec3(0, 1, 0), vRotationAngle);
         break;
       case L't':
         vRotationAngle -= 0.25;
-        i->setRotation(rVec3f(0, 1, 0), vRotationAngle);
+        i->setRotation(vec3(0, 1, 0), vRotationAngle);
         break;
     }
   }

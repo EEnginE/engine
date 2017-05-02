@@ -21,8 +21,9 @@
 #pragma once
 
 #include "defines.hpp"
-
 #include "rMatrixSceneBase.hpp"
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtx/transform.hpp>
 #include <mutex>
 
 namespace e_engine {
@@ -32,26 +33,26 @@ namespace e_engine {
  *
  *
  */
-template <class T>
+template <class T, glm::precision P = glm::precision::highp>
 class rMatrixObjectBase {
  private:
-  rMat4<T> vScaleMatrix_MAT;
-  rMat4<T> vRotationMatrix_MAT;
-  rMat4<T> vTranslationMatrix_MAT;
+  glm::tmat4x4<T, P> vScaleMatrix_MAT;
+  glm::tmat4x4<T, P> vRotationMatrix_MAT;
+  glm::tmat4x4<T, P> vTranslationMatrix_MAT;
 
-  rMat4<T> *vViewProjectionMatrix_MAT;
-  rMat4<T> *vViewMatrix_MAT;
-  rMat4<T> *vProjectionMatrix_MAT;
+  glm::tmat4x4<T, P> *vViewProjectionMatrix_MAT;
+  glm::tmat4x4<T, P> *vViewMatrix_MAT;
+  glm::tmat4x4<T, P> *vProjectionMatrix_MAT;
 
-  rMat4<T> vModelMatrix_MAT;
-  rMat4<T> vModelViewMatrix_MAT;
-  rMat4<T> vModelViewProjectionMatrix_MAT;
+  glm::tmat4x4<T, P> vModelMatrix_MAT;
+  glm::tmat4x4<T, P> vModelViewMatrix_MAT;
+  glm::tmat4x4<T, P> vModelViewProjectionMatrix_MAT;
 
-  rMat3<T> vNormalMatrix;
+  glm::tmat3x3<T, P> vNormalMatrix;
 
-  rVec3<T> vPosition;
-  rVec3<T> vPositionModelView;
-  rVec3<T> vScale;
+  glm::tvec3<T, P> vPosition;
+  glm::tvec3<T, P> vPositionModelView;
+  glm::tvec3<T, P> vScale;
 
   rMatrixObjectBase();
 
@@ -61,43 +62,44 @@ class rMatrixObjectBase {
  public:
   rMatrixObjectBase(rMatrixSceneBase<T> *_scene);
 
-  inline void setPosition(const rVec3<T> &_pos);
-  inline void getPosition(rVec3<T> &_pos);
-  inline rVec3<T> *getPosition() { return &vPosition; }
-  inline rVec3<T> *getPositionModelView() { return &vPositionModelView; }
-  inline void addPositionDelta(const rVec3<T> &_pos);
+  inline void setPosition(const glm::tvec3<T, P> &_pos);
+  inline void getPosition(glm::tvec3<T, P> &_pos);
+  inline glm::tvec3<T, P> *getPosition() { return &vPosition; }
+  inline void addPositionDelta(const glm::tvec3<T, P> &_pos);
 
-  inline void setRotation(const rVec3<T> &_axis, T _angle);
+  inline glm::tvec3<T, P> *getPositionModelView() { return &vPositionModelView; }
+
+  inline void setRotation(const glm::tvec3<T, P> &_axis, T _angle);
 
   inline void setScale(T _scale);
-  inline void setScale(const rVec3<T> &_scale);
-  inline rVec3<T> *getScale() { return &vScale; }
-  inline void addScaleDelta(const rVec3<T> &_scale);
+  inline void setScale(const glm::tvec3<T, P> &_scale);
+  inline glm::tvec3<T, P> *getScale() { return &vScale; }
+  inline void addScaleDelta(const glm::tvec3<T, P> &_scale);
 
 
-  inline rMat4<T> *getScaleMatrix() { return &vScaleMatrix_MAT; }
-  inline rMat4<T> *getRotationMatrix() { return &vRotationMatrix_MAT; }
-  inline rMat4<T> *getTranslationMatrix() { return &vTranslationMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getScaleMatrix() { return &vScaleMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getRotationMatrix() { return &vRotationMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getTranslationMatrix() { return &vTranslationMatrix_MAT; }
 
-  inline rMat4<T> *getModelMatrix() { return &vModelMatrix_MAT; }
-  inline rMat4<T> *getModelViewMatrix() { return &vModelViewMatrix_MAT; }
-  inline rMat4<T> *getViewMatrix() { return vViewMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getModelMatrix() { return &vModelMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getModelViewMatrix() { return &vModelViewMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getViewMatrix() { return vViewMatrix_MAT; }
 
-  inline rMat4<T> *getProjectionMatrix() { return vProjectionMatrix_MAT; }
-  inline rMat4<T> *getViewProjectionMatrix() { return vViewProjectionMatrix_MAT; }
-  inline rMat4<T> *getModelViewProjectionMatrix() { return &vModelViewProjectionMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getProjectionMatrix() { return vProjectionMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getViewProjectionMatrix() { return vViewProjectionMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getModelViewProjectionMatrix() { return &vModelViewProjectionMatrix_MAT; }
 
-  inline rMat3<T> *getNormalMatrix() { return &vNormalMatrix; }
+  inline glm::tmat3x3<T, P> *getNormalMatrix() { return &vNormalMatrix; }
 
   inline void updateFinalMatrix();
 };
 
-template <class T>
-rMatrixObjectBase<T>::rMatrixObjectBase(rMatrixSceneBase<T> *_scene) {
-  vScaleMatrix_MAT.toIdentityMatrix();
-  vRotationMatrix_MAT.toIdentityMatrix();
-  vTranslationMatrix_MAT.toIdentityMatrix();
-  vModelViewMatrix_MAT.toIdentityMatrix();
+template <class T, glm::precision P>
+rMatrixObjectBase<T, P>::rMatrixObjectBase(rMatrixSceneBase<T> *_scene) {
+  vScaleMatrix_MAT       = glm::tmat4x4<T, P>();
+  vRotationMatrix_MAT    = glm::tmat4x4<T, P>();
+  vTranslationMatrix_MAT = glm::tmat4x4<T, P>();
+  vModelViewMatrix_MAT   = glm::tmat4x4<T, P>();
 
   vViewProjectionMatrix_MAT = _scene->getViewProjectionMatrix();
   vViewMatrix_MAT           = _scene->getViewMatrix();
@@ -108,87 +110,70 @@ rMatrixObjectBase<T>::rMatrixObjectBase(rMatrixSceneBase<T> *_scene) {
   if (vViewProjectionMatrix_MAT)
     vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
   else
-    vModelViewProjectionMatrix_MAT.toIdentityMatrix();
+    vModelViewProjectionMatrix_MAT = glm::tmat4x4<T, P>();
 }
 
-template <class T>
-void rMatrixObjectBase<T>::setScale(T _scale) {
+template <class T, glm::precision P>
+void rMatrixObjectBase<T, P>::setScale(T _scale) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-  vScale.fill(_scale);
-
-  vScaleMatrix_MAT.setMat(_scale, 0, 0, 0, 0, _scale, 0, 0, 0, 0, _scale, 0, 0, 0, 0, 1);
-
+  vScale           = glm::tvec3<T, P>(_scale, _scale, _scale);
+  vScaleMatrix_MAT = glm::scale(vScale);
   updateFinalMatrix();
 }
 
-template <class T>
-void rMatrixObjectBase<T>::setScale(const rVec3<T> &_scale) {
+template <class T, glm::precision P>
+void rMatrixObjectBase<T, P>::setScale(const glm::tvec3<T, P> &_scale) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-  vScale = _scale;
-
-  vScaleMatrix_MAT.setMat(_scale.x, 0, 0, 0, 0, _scale.y, 0, 0, 0, 0, _scale.z, 0, 0, 0, 0, 1);
-
+  vScale           = _scale;
+  vScaleMatrix_MAT = glm::scale(vScale);
   updateFinalMatrix();
 }
 
 
-template <class T>
-void rMatrixObjectBase<T>::addScaleDelta(const rVec3<T> &_scale) {
+template <class T, glm::precision P>
+void rMatrixObjectBase<T, P>::addScaleDelta(const glm::tvec3<T, P> &_scale) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vScale += _scale;
-
-  vScaleMatrix_MAT.setMat(vScale.x, 0, 0, 0, 0, vScale.y, 0, 0, 0, 0, vScale.z, 0, 0, 0, 0, 1);
-
+  vScaleMatrix_MAT = glm::scale(vScale);
   updateFinalMatrix();
 }
 
-template <class T>
-void rMatrixObjectBase<T>::setRotation(const rVec3<T> &_axis, T _angle) {
+template <class T, glm::precision P>
+void rMatrixObjectBase<T, P>::setRotation(const glm::tvec3<T, P> &_axis, T _angle) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-  rMatrixMath::rotate(_axis, _angle, vRotationMatrix_MAT);
-
+  vRotationMatrix_MAT = glm::rotate(_angle, _axis);
   updateFinalMatrix();
 }
 
 
-template <class T>
-void rMatrixObjectBase<T>::setPosition(const rVec3<T> &_pos) {
+template <class T, glm::precision P>
+void rMatrixObjectBase<T, P>::setPosition(const glm::tvec3<T, P> &_pos) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-  vPosition = _pos;
-
-  vTranslationMatrix_MAT.setMat(1, 0, 0, _pos.x, 0, 1, 0, _pos.y, 0, 0, 1, _pos.z, 0, 0, 0, 1);
-
+  vPosition              = _pos;
+  vTranslationMatrix_MAT = glm::translate(vPosition);
   updateFinalMatrix();
 }
 
 
-template <class T>
-void rMatrixObjectBase<T>::addPositionDelta(const rVec3<T> &_pos) {
+template <class T, glm::precision P>
+void rMatrixObjectBase<T, P>::addPositionDelta(const glm::tvec3<T, P> &_pos) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vPosition += _pos;
-
-  vTranslationMatrix_MAT.setMat(1, 0, 0, vPosition.x, 0, 1, 0, vPosition.y, 0, 0, 1, vPosition.z, 0, 0, 0, 1);
-
+  vTranslationMatrix_MAT = glm::translate(vPosition);
   updateFinalMatrix();
 }
 
 
-template <class T>
-void rMatrixObjectBase<T>::updateFinalMatrix() {
+template <class T, glm::precision P>
+void rMatrixObjectBase<T, P>::updateFinalMatrix() {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
   if (vViewProjectionMatrix_MAT) vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
+  if (vViewMatrix_MAT) vModelViewMatrix_MAT                     = *vViewMatrix_MAT * vModelMatrix_MAT;
 
-  if (vViewMatrix_MAT) {
-    vModelViewMatrix_MAT = *vViewMatrix_MAT * vModelMatrix_MAT;
-
-    rVec4<T> lTemp(0, 0, 0, 1);
-    lTemp = vModelViewMatrix_MAT * lTemp;
-    lTemp.downscale(&vPositionModelView);
-  }
-
-  rMatrixMath::getNormalMatrix(vModelViewMatrix_MAT, vNormalMatrix);
+  vPositionModelView = vModelViewMatrix_MAT * glm::tvec4<T, P>(0, 0, 0, 1);
+  vNormalMatrix      = glm::inverseTranspose(glm::tmat3x3<T, P>(vModelViewMatrix_MAT));
 }
 }
 

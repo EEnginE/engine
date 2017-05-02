@@ -22,8 +22,10 @@
 #include "uLog.hpp"
 #include "rPipeline.hpp"
 #include "rWorld.hpp"
+#include <glm/gtc/type_ptr.hpp>
 
-namespace e_engine {
+using namespace e_engine;
+using namespace glm;
 
 rSimpleMesh::rSimpleMesh(rMatrixSceneBase<float> *_scene, std::string _name)
     : rMatrixObjectBase(_scene),
@@ -46,7 +48,7 @@ void rSimpleMesh::record(VkCommandBuffer _buf) {
 
   if (vHasModelMatrix_PC) {
     std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-    vShader->cmdUpdatePushConstant(_buf, vMatrixModelVar_PC, getModelMatrix()->getMatrix());
+    vShader->cmdUpdatePushConstant(_buf, vMatrixModelVar_PC, value_ptr(*getModelMatrix()));
   }
 
   vkCmdBindVertexBuffers(_buf, vPipeline->getVertexBindPoint(), 1, &lVertex, &lOffsets[0]);
@@ -117,12 +119,12 @@ void rSimpleMesh::updateUniforms() {
 
   if (vHasMVPMatrix) {
     std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-    vShader->updateUniform(vMatrixMVPVar, getModelViewProjectionMatrix()->getMatrix());
+    vShader->updateUniform(vMatrixMVPVar, value_ptr(*getModelViewProjectionMatrix()));
   }
 
   if (vHasVPMatrix) {
     std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-    vShader->updateUniform(vMatrixVPVar, getViewProjectionMatrix()->getMatrix());
+    vShader->updateUniform(vMatrixVPVar, value_ptr(*getViewProjectionMatrix()));
   }
 }
 
@@ -130,7 +132,7 @@ bool rSimpleMesh::checkIsCompatible(rPipeline *_pipe) {
   return _pipe->checkInputCompatible({{3, sizeof(float)}, {3, sizeof(float)}});
 }
 
-uint32_t rSimpleMesh::getMatrix(rMat4f **_mat, rObjectBase::MATRIX_TYPES _type) {
+uint32_t rSimpleMesh::getMatrix(mat4 **_mat, rObjectBase::MATRIX_TYPES _type) {
   switch (_type) {
     case SCALE: *_mat                 = getScaleMatrix(); return 0;
     case ROTATION: *_mat              = getRotationMatrix(); return 0;
@@ -147,12 +149,11 @@ uint32_t rSimpleMesh::getMatrix(rMat4f **_mat, rObjectBase::MATRIX_TYPES _type) 
   return INDEX_OUT_OF_RANGE;
 }
 
-uint32_t rSimpleMesh::getMatrix(rMat3f **_mat, rObjectBase::MATRIX_TYPES _type) {
+uint32_t rSimpleMesh::getMatrix(mat3 **_mat, rObjectBase::MATRIX_TYPES _type) {
   switch (_type) {
     case NORMAL_MATRIX: *_mat = getNormalMatrix(); return 0;
     default: return INDEX_OUT_OF_RANGE;
   }
-}
 }
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

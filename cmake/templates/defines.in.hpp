@@ -49,6 +49,10 @@
 
 #define E_DEBUG_LOGGING     @DEBUG_LOGGING@
 
+// GLM defines
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_CXX14
 
 
 #define WIDEN2(x) L##x

@@ -22,7 +22,8 @@
 
 #include "defines.hpp"
 
-#include "rMatrixMath.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
 #include <mutex>
 
 namespace e_engine {
@@ -34,15 +35,14 @@ class rWorld;
  *
  *
  */
-template <class T>
+template <class T, glm::precision P = glm::precision::highp>
 class rMatrixSceneBase {
  private:
   rWorld *vWoldPtr;
 
-  rMat4<T> vProjectionMatrix_MAT;
-  rMat4<T> vViewMatrix_MAT;
-  rMat4<T> vViewProjectionMatrix_MAT;
-  rMat4<T> vVulkanClipSpace_MAT;
+  glm::tmat4x4<T, P> vProjectionMatrix_MAT;
+  glm::tmat4x4<T, P> vViewMatrix_MAT;
+  glm::tmat4x4<T, P> vViewProjectionMatrix_MAT;
 
   std::recursive_mutex vMatrixAccess;
 
@@ -53,30 +53,24 @@ class rMatrixSceneBase {
   inline void calculateProjectionPerspective(T _width, T _height, T _nearZ, T _farZ, T _fofy);
   inline void calculateProjectionPerspective(T _aspectRatio, T _nearZ, T _farZ, T _fofy);
 
-  inline void setCamera(const rVec3<T> &_position, const rVec3<T> &_lookAt, const rVec3<T> &_upVector);
+  inline void setCamera(const glm::tvec3<T, P> &_position,
+                        const glm::tvec3<T, P> &_lookAt,
+                        const glm::tvec3<T, P> &_upVector);
 
-  inline rMat4<T> *getProjectionMatrix() { return &vProjectionMatrix_MAT; }
-  inline rMat4<T> *getViewMatrix() { return &vViewMatrix_MAT; }
-  inline rMat4<T> *getViewProjectionMatrix() { return &vViewProjectionMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getProjectionMatrix() { return &vProjectionMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getViewMatrix() { return &vViewMatrix_MAT; }
+  inline glm::tmat4x4<T, P> *getViewProjectionMatrix() { return &vViewProjectionMatrix_MAT; }
 
   rWorld *getWorldPtr() { return vWoldPtr; }
 };
 
 
-template <class T>
-rMatrixSceneBase<T>::rMatrixSceneBase(rWorld *_init) : vWoldPtr(_init) {
-  vProjectionMatrix_MAT.toIdentityMatrix();
-  vViewMatrix_MAT.toIdentityMatrix();
-  vViewProjectionMatrix_MAT.toIdentityMatrix();
-
-  // clang-format off
-   vVulkanClipSpace_MAT.setMat( 1.0,  0.0, 0.0, 0.0,
-                                0.0, -1.0, 0.0, 0.0,
-                                0.0,  0.0, 0.5, 0.0,
-                                0.0,  0.0, 0.5, 1.0 );
-  // clang-format on
-
-  vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
+template <class T, glm::precision P>
+rMatrixSceneBase<T, P>::rMatrixSceneBase(rWorld *_init) : vWoldPtr(_init) {
+  glm::mat4 test;
+  vProjectionMatrix_MAT     = glm::tmat4x4<T, P>(1);
+  vViewMatrix_MAT           = glm::tmat4x4<T, P>(1);
+  vViewProjectionMatrix_MAT = glm::tmat4x4<T, P>(1);
 }
 
 /*!
@@ -87,11 +81,11 @@ rMatrixSceneBase<T>::rMatrixSceneBase(rWorld *_init) : vWoldPtr(_init) {
  * \param[in] _farZ        The far clipping plane
  * \param[in] _fofy        The field of view angle
  */
-template <class T>
-void rMatrixSceneBase<T>::calculateProjectionPerspective(T _aspectRatio, T _nearZ, T _farZ, T _fofy) {
+template <class T, glm::precision P>
+void rMatrixSceneBase<T, P>::calculateProjectionPerspective(T _aspectRatio, T _nearZ, T _farZ, T _fofy) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-  rMatrixMath::perspective(_aspectRatio, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT);
-  vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
+  vProjectionMatrix_MAT     = glm::perspective(_fofy, _aspectRatio, _nearZ, _farZ);
+  vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -103,11 +97,11 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective(T _aspectRatio, T _near
  * \param[in] _farZ        The far clipping plane
  * \param[in] _fofy        The field of view angle
  */
-template <class T>
-void rMatrixSceneBase<T>::calculateProjectionPerspective(T _width, T _height, T _nearZ, T _farZ, T _fofy) {
+template <class T, glm::precision P>
+void rMatrixSceneBase<T, P>::calculateProjectionPerspective(T _width, T _height, T _nearZ, T _farZ, T _fofy) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-  rMatrixMath::perspective(_width / _height, _nearZ, _farZ, _fofy, vProjectionMatrix_MAT);
-  vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
+  vProjectionMatrix_MAT     = glm::perspective(_fofy, _width / _height, _nearZ, _farZ);
+  vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 
 /*!
@@ -117,11 +111,13 @@ void rMatrixSceneBase<T>::calculateProjectionPerspective(T _width, T _height, T 
  * \param[in] _lookAt   The direction of the camera
  * \param[in] _upVector The up direction of the camera ( mostly rVec3( 0, 1, 0 ) )
  */
-template <class T>
-void rMatrixSceneBase<T>::setCamera(const rVec3<T> &_position, const rVec3<T> &_lookAt, const rVec3<T> &_upVector) {
+template <class T, glm::precision P>
+void rMatrixSceneBase<T, P>::setCamera(const glm::tvec3<T, P> &_position,
+                                       const glm::tvec3<T, P> &_lookAt,
+                                       const glm::tvec3<T, P> &_upVector) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-  rMatrixMath::camera(_position, _lookAt, _upVector, vViewMatrix_MAT);
-  vViewProjectionMatrix_MAT = vVulkanClipSpace_MAT * vProjectionMatrix_MAT * vViewMatrix_MAT;
+  vViewMatrix_MAT           = glm::lookAt(_position, _lookAt, _upVector);
+  vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
 }
 

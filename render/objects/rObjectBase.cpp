@@ -24,7 +24,8 @@
 #include "rPipeline.hpp"
 #include <regex>
 
-namespace e_engine {
+using namespace e_engine;
+using namespace glm;
 
 /*!
  * \brief Destructor
@@ -160,15 +161,6 @@ rShaderBase *rObjectBase::getShader() {
   return vPipeline->getShader();
 }
 
-#if COMPILER_CLANG
-#pragma clang diagnostic push // This warning is irrelevant here
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#endif
-
-#if COMPILER_GCC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
 
 /*!
  * \brief Get the _type Matrix
@@ -177,7 +169,21 @@ rShaderBase *rObjectBase::getShader() {
  * \param[in]  _type The Matrix type
  * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getMatrix(rMat4d **_mat, rObjectBase::MATRIX_TYPES _type) {
+uint32_t rObjectBase::getMatrix(mat4 **_mat, rObjectBase::MATRIX_TYPES _type) {
+  (void)_type;
+  *_mat = nullptr;
+  return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
+}
+
+/*!
+ * \brief Get the _type Matrix
+ *
+ * \param[out] _mat  The Matrix pointer
+ * \param[in]  _type The Matrix type
+ * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
+ */
+uint32_t rObjectBase::getMatrix(dmat4 **_mat, rObjectBase::MATRIX_TYPES _type) {
+  (void)_type;
   *_mat = nullptr;
   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
@@ -189,7 +195,8 @@ uint32_t rObjectBase::getMatrix(rMat4d **_mat, rObjectBase::MATRIX_TYPES _type) 
  * \param[in]  _type The Matrix type
  * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getMatrix(rMat4f **_mat, rObjectBase::MATRIX_TYPES _type) {
+uint32_t rObjectBase::getMatrix(mat3 **_mat, rObjectBase::MATRIX_TYPES _type) {
+  (void)_type;
   *_mat = nullptr;
   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
@@ -201,19 +208,8 @@ uint32_t rObjectBase::getMatrix(rMat4f **_mat, rObjectBase::MATRIX_TYPES _type) 
  * \param[in]  _type The Matrix type
  * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getMatrix(rMat3d **_mat, rObjectBase::MATRIX_TYPES _type) {
-  *_mat = nullptr;
-  return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
-}
-
-/*!
- * \brief Get the _type Matrix
- *
- * \param[out] _mat The Matrix pointer
- * \param[in]  _type The Matrix type
- * \returns 0 if the requested Matrix exists and ERROR_FLAGS flags if not
- */
-uint32_t rObjectBase::getMatrix(rMat3f **_mat, rObjectBase::MATRIX_TYPES _type) {
+uint32_t rObjectBase::getMatrix(dmat3 **_mat, rObjectBase::MATRIX_TYPES _type) {
+  (void)_type;
   *_mat = nullptr;
   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
@@ -227,7 +223,8 @@ uint32_t rObjectBase::getMatrix(rMat3f **_mat, rObjectBase::MATRIX_TYPES _type) 
  * \param[in]  _type The Vector type
  * \returns 0 if the requested Vector exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getVector(rVec4d **_vec, rObjectBase::VECTOR_TYPES _type) {
+uint32_t rObjectBase::getVector(vec4 **_vec, rObjectBase::VECTOR_TYPES _type) {
+  (void)_type;
   *_vec = nullptr;
   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
@@ -239,7 +236,8 @@ uint32_t rObjectBase::getVector(rVec4d **_vec, rObjectBase::VECTOR_TYPES _type) 
  * \param[in]  _type The Vector type
  * \returns 0 if the requested Vector exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getVector(rVec4f **_vec, rObjectBase::VECTOR_TYPES _type) {
+uint32_t rObjectBase::getVector(dvec4 **_vec, rObjectBase::VECTOR_TYPES _type) {
+  (void)_type;
   *_vec = nullptr;
   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
@@ -252,7 +250,8 @@ uint32_t rObjectBase::getVector(rVec4f **_vec, rObjectBase::VECTOR_TYPES _type) 
  * \param[in]  _type The Vector type
  * \returns 0 if the requested Vector exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getVector(rVec3d **_vec, rObjectBase::VECTOR_TYPES _type) {
+uint32_t rObjectBase::getVector(vec3 **_vec, rObjectBase::VECTOR_TYPES _type) {
+  (void)_type;
   *_vec = nullptr;
   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
@@ -264,21 +263,10 @@ uint32_t rObjectBase::getVector(rVec3d **_vec, rObjectBase::VECTOR_TYPES _type) 
  * \param[in]  _type The Vector type
  * \returns 0 if the requested Vector exists and ERROR_FLAGS flags if not
  */
-uint32_t rObjectBase::getVector(rVec3f **_vec, rObjectBase::VECTOR_TYPES _type) {
+uint32_t rObjectBase::getVector(dvec3 **_vec, rObjectBase::VECTOR_TYPES _type) {
+  (void)_type;
   *_vec = nullptr;
   return FUNCTION_NOT_VALID_FOR_THIS_OBJECT;
 }
-
-#if COMPILER_CLANG
-#pragma clang diagnostic pop
-#endif
-
-#if COMPILER_GCC
-#pragma GCC diagnostic pop
-#endif
-
-
-
-} // e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

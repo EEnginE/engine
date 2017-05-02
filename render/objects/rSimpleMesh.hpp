@@ -69,8 +69,8 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
   void updateUniforms() override;
   void signalRenderReset(internal::rRendererBase *) override;
 
-  uint32_t getMatrix(rMat4f **_mat, rObjectBase::MATRIX_TYPES _type) override;
-  uint32_t getMatrix(rMat3f **_mat, rObjectBase::MATRIX_TYPES _type) override;
+  uint32_t getMatrix(glm::mat4 **_mat, rObjectBase::MATRIX_TYPES _type) override;
+  uint32_t getMatrix(glm::mat3 **_mat, rObjectBase::MATRIX_TYPES _type) override;
   bool checkIsCompatible(rPipeline *_pipe) override;
 };
 }
