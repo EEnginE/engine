@@ -59,11 +59,13 @@ void uParserHelper::setFile(std::string _file) { vFilePath_str = _file; }
  * \returns 6 if already parsed
  */
 int uParserHelper::parse() {
-  if (vIsParsed) return 6;
+  if (vIsParsed)
+    return 6;
 
   uFileIO lFile(vFilePath_str);
   int     lRet = lFile();
-  if (lRet != 1) return lRet;
+  if (lRet != 1)
+    return lRet;
 
   vIter = lFile.begin();
   vEnd  = lFile.end();
@@ -79,7 +81,8 @@ int uParserHelper::parse() {
 }
 
 int uParserHelper::parseString(std::string _data) {
-  if (vIsParsed) return 6;
+  if (vIsParsed)
+    return 6;
 
   vIter = _data.begin();
   vEnd  = _data.end();
@@ -107,13 +110,15 @@ bool uParserHelper::continueWhitespace(bool _quiet) {
   }
 
   // End of file
-  if (!_quiet) eofError();
+  if (!_quiet)
+    eofError();
 
   return false;
 }
 
 bool uParserHelper::expect(char _c, bool _continueWhitespace, bool _quiet) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   if (*vIter != _c) {
     if (!_quiet) {
@@ -122,17 +127,20 @@ bool uParserHelper::expect(char _c, bool _continueWhitespace, bool _quiet) {
     return false;
   }
 
-  if (_c == '\n') vCurrentLine++;
+  if (_c == '\n')
+    vCurrentLine++;
 
   ++vIter;
 
-  if (_continueWhitespace) return continueWhitespace(_quiet);
+  if (_continueWhitespace)
+    return continueWhitespace(_quiet);
 
   return true;
 }
 
 bool uParserHelper::expect(std::string _str, bool _continueWhitespace, bool _quiet) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   for (char c : _str) {
     if (*vIter != c) {
@@ -142,18 +150,21 @@ bool uParserHelper::expect(std::string _str, bool _continueWhitespace, bool _qui
       return false;
     }
 
-    if (c == '\n') vCurrentLine++;
+    if (c == '\n')
+      vCurrentLine++;
 
     ++vIter;
   }
 
-  if (_continueWhitespace) return continueWhitespace(_quiet);
+  if (_continueWhitespace)
+    return continueWhitespace(_quiet);
 
   return true;
 }
 
 bool uParserHelper::getString(std::string &_str, bool _continueWhitespace, bool _quiet) {
-  if (!expect('"', false, _quiet)) return false;
+  if (!expect('"', false, _quiet))
+    return false;
 
   _str.clear();
 
@@ -162,7 +173,8 @@ bool uParserHelper::getString(std::string &_str, bool _continueWhitespace, bool 
       case '\\':
         ++vIter;
 
-        if (vIter == vEnd) return eofError();
+        if (vIter == vEnd)
+          return eofError();
 
         switch (*vIter) {
           case '\\':
@@ -179,7 +191,8 @@ bool uParserHelper::getString(std::string &_str, bool _continueWhitespace, bool 
       case '"':
         ++vIter;
 
-        if (_continueWhitespace) return continueWhitespace();
+        if (_continueWhitespace)
+          return continueWhitespace();
 
         return true;
 
@@ -192,7 +205,8 @@ bool uParserHelper::getString(std::string &_str, bool _continueWhitespace, bool 
 }
 
 bool uParserHelper::getNum(double &_num, bool _quiet) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   // Static because clear wont change the capacity
   static std::string lNum;
@@ -220,7 +234,8 @@ bool uParserHelper::getNum(double &_num, bool _quiet) {
 
       default:
         if (lNum.empty()) {
-          if (!_quiet) return unexpectedCharError();
+          if (!_quiet)
+            return unexpectedCharError();
           return false;
         }
 
@@ -233,7 +248,8 @@ bool uParserHelper::getNum(double &_num, bool _quiet) {
 }
 
 bool uParserHelper::getNum(float &_num, bool _quiet) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   // Static because clear wont change the capacity
   static std::string lNum;
@@ -261,7 +277,8 @@ bool uParserHelper::getNum(float &_num, bool _quiet) {
 
       default:
         if (lNum.empty()) {
-          if (!_quiet) return unexpectedCharError();
+          if (!_quiet)
+            return unexpectedCharError();
           return false;
         }
 
@@ -274,7 +291,8 @@ bool uParserHelper::getNum(float &_num, bool _quiet) {
 }
 
 bool uParserHelper::getNum(int &_num, bool _quiet) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   // Static because clear wont change the capacity
   static std::string lNum;
@@ -299,7 +317,8 @@ bool uParserHelper::getNum(int &_num, bool _quiet) {
 
       default:
         if (lNum.empty()) {
-          if (!_quiet) return unexpectedCharError();
+          if (!_quiet)
+            return unexpectedCharError();
           return false;
         }
 
@@ -313,7 +332,8 @@ bool uParserHelper::getNum(int &_num, bool _quiet) {
 
 
 bool uParserHelper::getNum(unsigned int &_num, bool _quiet) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   // Static because clear wont change the capacity
   static std::string lNum;
@@ -337,7 +357,8 @@ bool uParserHelper::getNum(unsigned int &_num, bool _quiet) {
 
       default:
         if (lNum.empty()) {
-          if (!_quiet) return unexpectedCharError();
+          if (!_quiet)
+            return unexpectedCharError();
           return false;
         }
 
@@ -350,7 +371,8 @@ bool uParserHelper::getNum(unsigned int &_num, bool _quiet) {
 }
 
 bool uParserHelper::getNum(unsigned short &_num, bool _quiet) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   // Static because clear wont change the capacity
   static std::string lNum;
@@ -374,7 +396,8 @@ bool uParserHelper::getNum(unsigned short &_num, bool _quiet) {
 
       default:
         if (lNum.empty()) {
-          if (!_quiet) return unexpectedCharError();
+          if (!_quiet)
+            return unexpectedCharError();
           return false;
         }
 

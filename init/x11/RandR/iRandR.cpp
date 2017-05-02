@@ -65,7 +65,9 @@ iRandR::~iRandR() { endRandR(); }
  * but it is NOT recommended
  */
 bool iRandR::initRandR() {
-  if (vIsRandRSupported_B) { return false; }
+  if (vIsRandRSupported_B) {
+    return false;
+  }
 
   int lTempVersion_I;
 
@@ -102,20 +104,24 @@ bool iRandR::initRandR() {
  * the RandR support.
  */
 void iRandR::endRandR() {
-  if (!vIsRandRSupported_B) return;
+  if (!vIsRandRSupported_B)
+    return;
 
   XCloseDisplay(vDisplay_X11);
 
-  if (GlobConf.win.restoreOldScreenRes && vWasScreenChanged_B) restore(vDefaultConfig_RandR);
+  if (GlobConf.win.restoreOldScreenRes && vWasScreenChanged_B)
+    restore(vDefaultConfig_RandR);
 
 
-  for (auto &elem : vDefaultConfig_RandR.gamma) XRRFreeGamma(elem);
+  for (auto &elem : vDefaultConfig_RandR.gamma)
+    XRRFreeGamma(elem);
 
   vDefaultConfig_RandR.gamma.clear();
   vDefaultConfig_RandR.CRTCInfo.clear();
 
 
-  for (auto &elem : vLatestConfig_RandR.gamma) XRRFreeGamma(elem);
+  for (auto &elem : vLatestConfig_RandR.gamma)
+    XRRFreeGamma(elem);
 
 
   vLatestConfig_RandR.gamma.clear();
@@ -132,12 +138,14 @@ void iRandR::endRandR() {
 }
 
 bool iRandR::restore(internal::_config _conf) {
-  if (!isRandRSupported()) return false;
+  if (!isRandRSupported())
+    return false;
 
   vChangeCRTC_V_RandR.clear();
   vChangeCRTC_V_RandR = _conf.CRTCInfo;
 
-  if (!applyNewRandRSettings()) return false;
+  if (!applyNewRandRSettings())
+    return false;
 
   // Who is primary?
   XRRSetOutputPrimary(vDisplay_X11, vRootWindow_X11, _conf.primary);
@@ -150,7 +158,9 @@ bool iRandR::restore(internal::_config _conf) {
   }
 
   for (unsigned int i = 0; i < _conf.CRTCInfo.size(); ++i) {
-    for (auto &elem : _conf.gamma) { XRRSetCrtcGamma(vDisplay_X11, vCRTC_V_RandR[i].id, elem); }
+    for (auto &elem : _conf.gamma) {
+      XRRSetCrtcGamma(vDisplay_X11, vCRTC_V_RandR[i].id, elem);
+    }
   }
 
   return true;
@@ -175,13 +185,15 @@ bool iRandR::restore(internal::_config _conf) {
  */
 std::vector<iDisplays> iRandR::getDisplayResolutions() {
   std::vector<iDisplays> lTempSizes_eWS;
-  if (!isRandRSupported()) return lTempSizes_eWS;
+  if (!isRandRSupported())
+    return lTempSizes_eWS;
   reload(false);
 
   vMode_V_RandR.sort();
 
   for (internal::_output const &fOutput : vOutput_V_RandR) {
-    if (fOutput.connection != 0) continue;
+    if (fOutput.connection != 0)
+      continue;
 
     lTempSizes_eWS.emplace_back(fOutput.name, fOutput.id, (fOutput.crtc != None) ? true : false);
 
@@ -204,7 +216,8 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
 
           // Clones
           for (RROutput const &fClone : fCRTC.outputs) {
-            if (fClone != fOutput.id) lTempSizes_eWS.back().addClone(fClone);
+            if (fClone != fOutput.id)
+              lTempSizes_eWS.back().addClone(fClone);
           }
 
           break;
@@ -219,12 +232,15 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
       for (unsigned int j = 0; j < fOutput.modes.size(); ++j) {
         if (fOutput.modes[j] == fMode.id) {
           lModeSupported_B = true;
-          if (j == static_cast<unsigned>(fOutput.npreferred) - 1) { lModePrefered_B = true; }
+          if (j == static_cast<unsigned>(fOutput.npreferred) - 1) {
+            lModePrefered_B = true;
+          }
           break;
         }
       }
 
-      if (!lModeSupported_B) continue;
+      if (!lModeSupported_B)
+        continue;
 
       lTempSizes_eWS.back().addMode(fMode.id, lModePrefered_B, fMode.width, fMode.height, fMode.refresh);
     }
@@ -253,7 +269,8 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
  *have no effect to this.
  */
 bool iRandR::setPrimary(iDisplays const &_disp) {
-  if (!isRandRSupported()) return false;
+  if (!isRandRSupported())
+    return false;
   XRRSetOutputPrimary(vDisplay_X11, vRootWindow_X11, _disp.getOutput());
   return true;
 }
@@ -336,14 +353,17 @@ int iRandR::getIndexOfDisplay(iDisplays const &_disp) {
   }
 
   // Invalid iRandRDisplay. (Should never happen)
-  if (!lOutputFound) return -2;
+  if (!lOutputFound)
+    return -2;
 
   // The output is not connected or disabled
-  if (lCRTC_XRR == None) return -1;
+  if (lCRTC_XRR == None)
+    return -1;
 
 
   for (unsigned int i = 0; i < vCRTC_V_RandR.size(); ++i) {
-    if (vCRTC_V_RandR[i].id == lCRTC_XRR) return static_cast<int>(i); // The index
+    if (vCRTC_V_RandR[i].id == lCRTC_XRR)
+      return static_cast<int>(i); // The index
   }
 
   // Well... this should be impossible, because we have a reload() at top of this function!

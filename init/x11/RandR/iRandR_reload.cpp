@@ -26,7 +26,8 @@ namespace unix_x11 {
 
 
 bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
-  if (!vIsRandRSupported_B) return false;
+  if (!vIsRandRSupported_B)
+    return false;
 
   SizeID lTemoID_suI;
   int    lTempSizes_I;
@@ -47,7 +48,8 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
   if (_overwriteLatest) {
     vLatestConfig_RandR.primary = XRRGetOutputPrimary(vDisplay_X11, vRootWindow_X11);
 
-    for (auto &elem : vLatestConfig_RandR.gamma) XRRFreeGamma(elem);
+    for (auto &elem : vLatestConfig_RandR.gamma)
+      XRRFreeGamma(elem);
 
     vLatestConfig_RandR.gamma.clear();
 
@@ -59,7 +61,8 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
   if (_overwriteDefaults) {
     vDefaultConfig_RandR.primary = XRRGetOutputPrimary(vDisplay_X11, vRootWindow_X11);
 
-    for (auto &elem : vDefaultConfig_RandR.gamma) XRRFreeGamma(elem);
+    for (auto &elem : vDefaultConfig_RandR.gamma)
+      XRRFreeGamma(elem);
 
     vDefaultConfig_RandR.gamma.clear();
 
@@ -161,9 +164,11 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
     /* v refresh frequency in Hz */
     unsigned int lVTotalTemp = lTempMode_RandR.vTotal;
 
-    if (lTempMode_RandR.modeFlags & RR_DoubleScan) lVTotalTemp *= 2;
+    if (lTempMode_RandR.modeFlags & RR_DoubleScan)
+      lVTotalTemp *= 2;
 
-    if (lTempMode_RandR.modeFlags & RR_Interlace) lVTotalTemp /= 2;
+    if (lTempMode_RandR.modeFlags & RR_Interlace)
+      lVTotalTemp /= 2;
 
     if (lTempMode_RandR.hTotal && lVTotalTemp)
       lTempMode_RandR.refresh = (static_cast<double>(lTempMode_RandR.dotClock) /
@@ -184,7 +189,8 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
 
   vLatestConfig_RandR.CRTCInfo = vCRTC_V_RandR;
 
-  if (_overwriteLatest) vDefaultConfig_RandR.CRTCInfo = vCRTC_V_RandR;
+  if (_overwriteLatest)
+    vDefaultConfig_RandR.CRTCInfo = vCRTC_V_RandR;
 
   vMode_V_RandR.sort();
 

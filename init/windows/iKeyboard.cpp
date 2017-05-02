@@ -25,7 +25,8 @@ namespace e_engine {
 namespace windows_win32 {
 
 short unsigned int iKeyboard::getKeyState(wchar_t _key) {
-  if (_key >= E_KEY_BACKSPACE && _key <= E_KEY_KP_NUM_LOCK) return getKeyStateArray(_key);
+  if (_key >= E_KEY_BACKSPACE && _key <= E_KEY_KP_NUM_LOCK)
+    return getKeyStateArray(_key);
 
   // If the Key is pressed, GetKeyState will return -1
   return (GetKeyState(VkKeyScan(_key)) >> 16 == -1 || GetKeyState(VkKeyScan(_key)) >> 16 == 1) ? E_PRESSED : E_RELEASED;

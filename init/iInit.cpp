@@ -101,7 +101,8 @@ void iInit::s_advancedGrabControl(iEventInfo const &_info) {
 
       for (unsigned short int i = 0; i < 25; ++i) {
         iLOG("Try Grab ", i + 1, " of 25");
-        if (vWindow.grabMouse()) break; // Grab success
+        if (vWindow.grabMouse())
+          break; // Grab success
         B_SLEEP(milliseconds, 100);
       }
     }
@@ -194,7 +195,8 @@ int iInit::initDebug() {
   f_vkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(
       vkGetInstanceProcAddr(vInstance_vk, "vkDestroyDebugReportCallbackEXT"));
 
-  if (!f_vkCreateDebugReportCallbackEXT) return 2;
+  if (!f_vkCreateDebugReportCallbackEXT)
+    return 2;
 
   auto lRes = f_vkCreateDebugReportCallbackEXT(vInstance_vk, &vDebugCreateInfo_vk, nullptr, &vCallback);
   if (lRes) {
@@ -236,7 +238,8 @@ int iInit::init(std::vector<std::string> _layers) {
 #endif
   }
 
-  if (GlobConf.log.logDefaultInit) LOG.devInit();
+  if (GlobConf.log.logDefaultInit)
+    LOG.devInit();
 
   LOG.startLogLoop();
 
@@ -248,23 +251,31 @@ int iInit::init(std::vector<std::string> _layers) {
   vDebugCreateInfo_vk.pfnCallback = &vulkanDebugCallback;
   vDebugCreateInfo_vk.pUserData   = reinterpret_cast<void *>(this);
 
-  if (initVulkan(_layers)) return 1;
+  if (initVulkan(_layers))
+    return 1;
 
-  if (vEnableVulkanDebug) initDebug();
+  if (vEnableVulkanDebug)
+    initDebug();
 
   vCreateWindowReturn_I = vWindow.createWindow();
-  if (vCreateWindowReturn_I != 0) { return vCreateWindowReturn_I; }
+  if (vCreateWindowReturn_I != 0) {
+    return vCreateWindowReturn_I;
+  }
 
   vSurface_vk = vWindow.getVulkanSurface(vInstance_vk);
-  if (!vSurface_vk) return 2;
+  if (!vSurface_vk)
+    return 2;
 
-  if (loadDevices()) return 3;
+  if (loadDevices())
+    return 3;
 
   vDevice_vk.pDevice = chooseDevice();
 
-  if (createDevice(_layers)) return 4;
+  if (createDevice(_layers))
+    return 4;
 
-  if (loadDeviceSurfaceInfo()) return 5;
+  if (loadDeviceSurfaceInfo())
+    return 5;
 
 
 #if WINDOWS
@@ -272,7 +283,8 @@ int iInit::init(std::vector<std::string> _layers) {
   std::unique_lock<std::mutex> lLock_BT(vCreateWindowMutex_BT);
   vEventLoop_BT = std::thread(&iInit::eventLoop, this);
 
-  while (vCreateWindowReturn_I == -1000) vCreateWindowCondition_BT.wait(lLock_BT);
+  while (vCreateWindowReturn_I == -1000)
+    vCreateWindowCondition_BT.wait(lLock_BT);
 
 #endif
 
@@ -287,33 +299,40 @@ int iInit::handleResize() {
     return -1;
   }
 
-  if (!vSurface_vk) return 1;
+  if (!vSurface_vk)
+    return 1;
 
-  if (loadDeviceSurfaceInfo()) return 2;
+  if (loadDeviceSurfaceInfo())
+    return 2;
 
   return 0;
 }
 
 void iInit::destroyVulkan() {
-  if (!vIsVulkanSetup_B) return;
+  if (!vIsVulkanSetup_B)
+    return;
 
   dVkLOG("Vulkan cleanup [iInit]:");
 
-  if (vDevice_vk.device) vkDeviceWaitIdle(vDevice_vk.device);
+  if (vDevice_vk.device)
+    vkDeviceWaitIdle(vDevice_vk.device);
 
   dVkLOG("  -- destroying surface");
-  if (vSurface_vk) vkDestroySurfaceKHR(vInstance_vk, vSurface_vk, nullptr);
+  if (vSurface_vk)
+    vkDestroySurfaceKHR(vInstance_vk, vSurface_vk, nullptr);
 
 
   dVkLOG("  -- destroying device");
-  if (vDevice_vk.device) vkDestroyDevice(vDevice_vk.device, nullptr);
+  if (vDevice_vk.device)
+    vkDestroyDevice(vDevice_vk.device, nullptr);
 
   dVkLOG("  -- destroying debug callback");
   if (vCallback && f_vkDestroyDebugReportCallbackEXT)
     f_vkDestroyDebugReportCallbackEXT(vInstance_vk, vCallback, nullptr);
 
   dVkLOG("  -- destroying vulkan instance");
-  if (vInstance_vk) vkDestroyInstance(vInstance_vk, nullptr);
+  if (vInstance_vk)
+    vkDestroyInstance(vInstance_vk, nullptr);
 
   vDevice_vk.device  = nullptr;
   vDevice_vk.pDevice = nullptr;
@@ -417,10 +436,12 @@ int iInit::startMainLoop(bool _wait) {
 #if WINDOWS
     {
       std::unique_lock<std::mutex> lLockEvent_BT(vStopEventLoopMutex);
-      while (!vEventLoopHasFinished_B) vStopEventLoopCondition.wait(lLockEvent_BT);
+      while (!vEventLoopHasFinished_B)
+        vStopEventLoopCondition.wait(lLockEvent_BT);
     }
 #else
-    if (vEventLoop_BT.joinable()) vEventLoop_BT.join();
+    if (vEventLoop_BT.joinable())
+      vEventLoop_BT.join();
 #endif
   }
 
@@ -433,11 +454,15 @@ void iInit::quitMainLoop() { vMainLoopRunning_B = false; }
  * \brief Quit the main loop and close the window
  */
 void iInit::closeWindow() {
-  if (vIsVulkanSetup_B || !vWindow.getIsWindowCreated()) return;
+  if (vIsVulkanSetup_B || !vWindow.getIsWindowCreated())
+    return;
 
-  if (vMainLoopRunning_B) { quitMainLoop(); }
+  if (vMainLoopRunning_B) {
+    quitMainLoop();
+  }
 
-  if (vEventLoop_BT.joinable()) vEventLoop_BT.join();
+  if (vEventLoop_BT.joinable())
+    vEventLoop_BT.join();
 
   vWindow.destroyWindow();
 
@@ -450,7 +475,8 @@ void iInit::closeWindow() {
     vStartEventCondition_BT.notify_one();
   }
 
-  if (vEventLoop_BT.joinable() && _waitUntilClosed) vEventLoop_BT.join();
+  if (vEventLoop_BT.joinable() && _waitUntilClosed)
+    vEventLoop_BT.join();
 
   iLOG("Done close window");
 
@@ -464,14 +490,18 @@ iWindowBasic *iInit::getWindow() { return static_cast<iWindowBasic *>(&vWindow);
 
 bool iInit::isExtensionSupported(std::string _extension) {
   for (auto const &i : vExtensionList) {
-    if (i == _extension) { return true; }
+    if (i == _extension) {
+      return true;
+    }
   }
   return false;
 }
 
 bool iInit::isDeviceExtensionSupported(std::string _extension) {
   for (auto const &i : vDeviceExtensionList) {
-    if (i == _extension) { return true; }
+    if (i == _extension) {
+      return true;
+    }
   }
   return false;
 }
@@ -484,11 +514,13 @@ bool iInit::isDeviceExtensionSupported(std::string _extension) {
  * \vkIntern
  */
 uint32_t iInit::getQueueFamily(VkQueueFlags _flags) {
-  if (vDevice_vk.pDevice == nullptr) return UINT32_MAX;
+  if (vDevice_vk.pDevice == nullptr)
+    return UINT32_MAX;
 
   uint32_t lCounter = 0;
   for (auto const &i : vDevice_vk.pDevice->queueFamilyProperties) {
-    if (i.queueFlags & _flags) return lCounter;
+    if (i.queueFlags & _flags)
+      return lCounter;
 
     lCounter++;
   }
@@ -513,14 +545,16 @@ VkQueue iInit::getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFa
   VkQueue                     lQueue   = nullptr;
 
   for (auto i : vQueues_vk) {
-    if (!(i.flags & _flags)) continue;
+    if (!(i.flags & _flags))
+      continue;
 
     auto lTemp = i.priority - _priority;
     lTemp      = lTemp < 0 ? -lTemp : lTemp; // Make positive
     if (lTemp < lMinDiff) {
-      lMinDiff                        = lTemp;
-      lQueue                          = i.queue;
-      if (_queueFamily) *_queueFamily = i.familyIndex;
+      lMinDiff = lTemp;
+      lQueue   = i.queue;
+      if (_queueFamily)
+        *_queueFamily = i.familyIndex;
     }
   }
 
@@ -539,7 +573,8 @@ std::mutex &iInit::getQueueMutex(VkQueue _queue) {
  * \vkIntern
  */
 bool iInit::isFormatSupported(VkFormat _format) {
-  if (vDevice_vk.pDevice == nullptr) return false;
+  if (vDevice_vk.pDevice == nullptr)
+    return false;
 
   return vDevice_vk.pDevice->formats[_format].linearTilingFeatures != 0 ||
          vDevice_vk.pDevice->formats[_format].optimalTilingFeatures != 0 ||
@@ -560,7 +595,8 @@ bool iInit::isFormatSupported(VkFormat _format) {
  * \vkIntern
  */
 bool iInit::formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type) {
-  if (vDevice_vk.pDevice == nullptr) return false;
+  if (vDevice_vk.pDevice == nullptr)
+    return false;
 
   switch (_type) {
     case VK_IMAGE_TILING_LINEAR: return (vDevice_vk.pDevice->formats[_format].linearTilingFeatures & _flags) != 0;
@@ -581,7 +617,9 @@ uint32_t iInit::getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags
   for (uint16_t i = 0; i < vDevice_vk.pDevice->memoryProperties.memoryTypeCount; i++) {
     if ((_bits & 1)) {
       // Finds best match because of memory type ordering
-      if (_flags == (vDevice_vk.pDevice->memoryProperties.memoryTypes[i].propertyFlags & _flags)) { return i; }
+      if (_flags == (vDevice_vk.pDevice->memoryProperties.memoryTypes[i].propertyFlags & _flags)) {
+        return i;
+      }
     }
     _bits >>= 1;
   }

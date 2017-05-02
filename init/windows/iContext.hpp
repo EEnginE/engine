@@ -83,7 +83,8 @@ class iContext : public iKeyboard, public iRandR, public iInitSignals {
  public:
   iContext();
   virtual ~iContext() {
-    if (vHasContext_B) destroyContext();
+    if (vHasContext_B)
+      destroyContext();
   }
 
   inline void swapBuffers() { SwapBuffers(vHDC_win32); }

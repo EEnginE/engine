@@ -29,7 +29,8 @@ internal::_crtc iRandR::isOutputPossible(RROutput _id, RRCrtc _crtc) {
   internal::_crtc lTempCRTC_RandR;
   lTempCRTC_RandR.id = None;
   for (internal::_crtc const &fCRTC : vCRTC_V_RandR) {
-    if (fCRTC.id != _crtc) continue;
+    if (fCRTC.id != _crtc)
+      continue;
 
     for (RROutput const &fOut : fCRTC.possibleOutputs) {
       if (fOut == _id) {
@@ -55,7 +56,8 @@ internal::_crtc iRandR::isOutputPossible(RROutput _id, RRCrtc _crtc) {
  *applyNewSettings().
  */
 bool iRandR::setDisplaySizes(iDisplays const &_disp) {
-  if (!isRandRSupported()) return false;
+  if (!isRandRSupported())
+    return false;
 
   reload(false);
 
@@ -67,7 +69,8 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
   bool lModeSupported_B = false;
   if (_disp.getMode() != None) {
     for (internal::_output const &fOutput : vOutput_V_RandR) {
-      if (_disp.getOutput() != fOutput.id) continue;
+      if (_disp.getOutput() != fOutput.id)
+        continue;
 
       for (RRMode const &fMode : fOutput.modes) {
         if (fMode == _disp.getMode()) {
@@ -110,7 +113,8 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
           break;
         }
       }
-      if (lClonesMatch_XRR != None) break;
+      if (lClonesMatch_XRR != None)
+        break;
     }
   }
 
@@ -150,7 +154,9 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
 
     // Copy all but the output we want to disable
     for (RROutput const &fRROut : lTempCRTC_RandR.outputs) {
-      if (_disp.getOutput() != fRROut) { lTempOutputs_V_XRR.push_back(fRROut); }
+      if (_disp.getOutput() != fRROut) {
+        lTempOutputs_V_XRR.push_back(fRROut);
+      }
     }
 
     // We removed only the output we wanted to remove
@@ -169,7 +175,8 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
       // Test if it is possible to set output
       for (RRCrtc const &fRRCrtc : lEmptyCRTC_V_XRR) {
         lTempCRTC_RandR = isOutputPossible(_disp.getOutput(), fRRCrtc);
-        if (lTempCRTC_RandR.id != None) break;
+        if (lTempCRTC_RandR.id != None)
+          break;
       }
 
       if (lTempCRTC_RandR.id != None) {

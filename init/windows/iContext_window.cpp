@@ -38,14 +38,16 @@ namespace {
 template <class T>
 inline std::string StringLeft(T _val, unsigned int _size, char _fill) {
   std::string lResult_STR = _val;
-  if (_size > lResult_STR.size()) lResult_STR.append((_size - lResult_STR.size()), _fill);
+  if (_size > lResult_STR.size())
+    lResult_STR.append((_size - lResult_STR.size()), _fill);
   return lResult_STR;
 }
 
 template <class T>
 inline std::string numToSizeStringLeft(T _val, unsigned int _size, char _fill) {
   std::string lResult_STR = std::to_string(_val);
-  if (_size > lResult_STR.size()) lResult_STR.append((_size - lResult_STR.size()), _fill);
+  if (_size > lResult_STR.size())
+    lResult_STR.append((_size - lResult_STR.size()), _fill);
   return lResult_STR;
 }
 }
@@ -70,7 +72,8 @@ LRESULT CALLBACK __WndProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lPara
  * \returns 8  if there was no good pixel format descriptor
  */
 int iContext::createContext() {
-  if (vHasContext_B) return 2;
+  if (vHasContext_B)
+    return 2;
 
   vHWND_Window_win32 = 0;
   vHDC_win32         = 0;

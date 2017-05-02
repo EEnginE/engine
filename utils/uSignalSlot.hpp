@@ -138,7 +138,8 @@ template <class __R, class... __A>
 bool uSlotBase<__R, __A...>::isConnectedP(SIGNAL const *_sig) {
   // Asume that mutex is locked
   for (auto *s : vSignals)
-    if (_sig == s) return true;
+    if (_sig == s)
+      return true;
 
   return false;
 }
@@ -160,7 +161,8 @@ template <class __R, class... __A>
 bool uSlotBase<__R, __A...>::connect(SIGNAL *_sig) {
   std::lock_guard<std::mutex> lLock(vSlotMutex);
 
-  if (isConnectedP(_sig)) return false;
+  if (isConnectedP(_sig))
+    return false;
 
   vSignals.emplace_back(_sig);
   _sig->addSlot(this);
@@ -180,7 +182,8 @@ template <class __R, class... __A>
 bool uSlotBase<__R, __A...>::disconnect(SIGNAL *_sig) {
   std::lock_guard<std::mutex> lLock(vSlotMutex);
 
-  if (!isConnectedP(_sig)) return false;
+  if (!isConnectedP(_sig))
+    return false;
 
   typename std::list<SIGNAL *>::iterator lIT = vSignals.begin();
   while (lIT != vSignals.end()) {
@@ -210,7 +213,8 @@ template <class __R, class... __A>
 void uSlotBase<__R, __A...>::disconnectAll() {
   std::lock_guard<std::mutex> lLock(vSlotMutex);
 
-  for (auto *s : vSignals) s->rmSlot(this);
+  for (auto *s : vSignals)
+    s->rmSlot(this);
 
   vSignals.clear();
 }
@@ -319,7 +323,8 @@ template <class __R, class... __A>
 bool uSignal<__R, __A...>::isConnectedP(SLOT const *_slot) {
   // Asume that mutex is locked
   for (auto *s : vSlots)
-    if (_slot == s) return true;
+    if (_slot == s)
+      return true;
 
   return false;
 }
@@ -341,7 +346,8 @@ template <class __R, class... __A>
 bool uSignal<__R, __A...>::connect(SLOT *_slot) {
   std::lock_guard<std::mutex> lLock(vSignalMutex);
 
-  if (isConnectedP(_slot)) return false;
+  if (isConnectedP(_slot))
+    return false;
 
   vSlots.emplace_back(_slot);
   _slot->addSignal(this);
@@ -362,7 +368,8 @@ template <class __R, class... __A>
 bool uSignal<__R, __A...>::disconnect(SLOT *_slot) {
   std::lock_guard<std::mutex> lLock(vSignalMutex);
 
-  if (!isConnectedP(_slot)) return false;
+  if (!isConnectedP(_slot))
+    return false;
 
   typename std::list<SLOT *>::iterator lIT = vSlots.begin();
   while (lIT != vSlots.end()) {
@@ -393,7 +400,8 @@ template <class __R, class... __A>
 void uSignal<__R, __A...>::disconnectAll() {
   std::lock_guard<std::mutex> lLock(vSignalMutex);
 
-  for (auto *s : vSlots) s->rmSignal(this);
+  for (auto *s : vSlots)
+    s->rmSignal(this);
 
   vSlots.clear();
   vReturns.resize(0);

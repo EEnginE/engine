@@ -112,7 +112,8 @@ rPipeline::rPipeline() {
 }
 
 rPipeline::~rPipeline() {
-  if (vPipeline_vk) vkDestroyPipeline(vDevice_vk, vPipeline_vk, nullptr);
+  if (vPipeline_vk)
+    vkDestroyPipeline(vDevice_vk, vPipeline_vk, nullptr);
 }
 
 
@@ -136,13 +137,17 @@ bool rPipeline::create(VkDevice _device, VkRenderPass _renderPass, uint32_t _sub
 
   std::vector<VkDynamicState> lDynStates;
 
-  if (vViewport.viewportCount > 0) lDynStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
+  if (vViewport.viewportCount > 0)
+    lDynStates.emplace_back(VK_DYNAMIC_STATE_VIEWPORT);
 
-  if (vViewport.scissorCount > 0) lDynStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
+  if (vViewport.scissorCount > 0)
+    lDynStates.emplace_back(VK_DYNAMIC_STATE_SCISSOR);
 
-  if (vDepthStencil.depthBoundsTestEnable == VK_TRUE) lDynStates.emplace_back(VK_DYNAMIC_STATE_DEPTH_BOUNDS);
+  if (vDepthStencil.depthBoundsTestEnable == VK_TRUE)
+    lDynStates.emplace_back(VK_DYNAMIC_STATE_DEPTH_BOUNDS);
 
-  if (vRasterization.depthBiasEnable == VK_TRUE) lDynStates.emplace_back(VK_DYNAMIC_STATE_DEPTH_BIAS);
+  if (vRasterization.depthBiasEnable == VK_TRUE)
+    lDynStates.emplace_back(VK_DYNAMIC_STATE_DEPTH_BIAS);
 
   if (vDepthStencil.stencilTestEnable == VK_TRUE) {
     lDynStates.emplace_back(VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK);
@@ -207,7 +212,8 @@ bool rPipeline::destroy() {
     return false;
   }
 
-  if (vPipeline_vk) vkDestroyPipeline(vDevice_vk, vPipeline_vk, nullptr);
+  if (vPipeline_vk)
+    vkDestroyPipeline(vDevice_vk, vPipeline_vk, nullptr);
 
   vPipeline_vk = nullptr;
   vIsCreated   = false;
@@ -220,7 +226,8 @@ bool rPipeline::destroy() {
  * \brief Checks if the pipeline is ready to be created
  */
 bool rPipeline::isReadyToCreate() const {
-  if (vShader == nullptr) return false;
+  if (vShader == nullptr)
+    return false;
 
   return true;
 }
@@ -239,15 +246,18 @@ bool rPipeline::checkInputCompatible(std::vector<InputDesc> _inputs) {
   auto lVertexInfo1 = vShader->getVertexInputBindingDescription();
   auto lVertexInfo2 = vShader->getVertexInputAttribureDescriptions();
 
-  if (_inputs.size() != lVertexInfo2.size()) return false;
+  if (_inputs.size() != lVertexInfo2.size())
+    return false;
 
   for (uint32_t i = 0; i < _inputs.size(); i++) {
-    if (lVertexInfo2[i].offset != lSum) return false;
+    if (lVertexInfo2[i].offset != lSum)
+      return false;
 
     lSum += _inputs[i].num * _inputs[i].size;
   }
 
-  if (lVertexInfo1.stride != lSum) return false;
+  if (lVertexInfo1.stride != lSum)
+    return false;
 
   return true;
 }
@@ -270,7 +280,8 @@ bool rPipeline::checkUniformCompatible(std::vector<rShaderBase::UNIFORM_ROLE> _u
       }
     }
 
-    if (!lFound) return false;
+    if (!lFound)
+      return false;
   }
 
   return true;
@@ -319,7 +330,8 @@ VkPipeline rPipeline::getPipeline() {
  */
 void rPipeline::setShader(rShaderBase *_shader) {
   vShader = _shader;
-  if (!vShader->isInitialized()) vShader->init();
+  if (!vShader->isInitialized())
+    vShader->init();
 }
 
 

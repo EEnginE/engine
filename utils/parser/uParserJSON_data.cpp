@@ -98,7 +98,8 @@ bool uJSON_data::unique(bool _renoveDuplicates, bool _quiet, std::string _patent
                  "\n  - Pos:   ",
                  lOffset_uI);
           }
-          if (_renoveDuplicates) lErase.push_back(lOffset_uI - lDulicatesFound_uI);
+          if (_renoveDuplicates)
+            lErase.push_back(lOffset_uI - lDulicatesFound_uI);
           ++lDulicatesFound_uI;
           break;
         }
@@ -109,7 +110,8 @@ bool uJSON_data::unique(bool _renoveDuplicates, bool _quiet, std::string _patent
       lReturn = iter->unique(_renoveDuplicates, _quiet, _patent_IDs + (id.empty() ? "" : (id + "."))) && lReturn;
     }
 
-    for (auto it : lErase) value_obj.erase(value_obj.begin() + it);
+    for (auto it : lErase)
+      value_obj.erase(value_obj.begin() + it);
   }
   return lReturn;
 }
@@ -138,7 +140,9 @@ void uJSON_data::merge(uJSON_data &_toMerge, bool _overWrite) {
         }
       }
 
-      if (!lFoundConflict_B) { value_obj.push_back(toM); }
+      if (!lFoundConflict_B) {
+        value_obj.push_back(toM);
+      }
     }
     return;
   }

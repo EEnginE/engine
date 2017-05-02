@@ -846,7 +846,8 @@ wchar_t iKeyboard::keysym2unicode(xcb_keysym_t keysym) {
     return static_cast<wchar_t>(keysym);
 
   /* also check for directly encoded 24-bit UCS characters */
-  if ((keysym & 0xff000000) == 0x01000000) return static_cast<wchar_t>(keysym) & 0x00ffffff;
+  if ((keysym & 0xff000000) == 0x01000000)
+    return static_cast<wchar_t>(keysym) & 0x00ffffff;
 
   /* binary search in table */
   while (max >= min) {
@@ -919,13 +920,16 @@ wchar_t iKeyboard::processX11KeyInput(xcb_keycode_t      _kEv,
   xcb_keysym_t key = lKeys[0];
 
   if (shift)
-    if (lKeys[1] != 0) key = lKeys[1];
+    if (lKeys[1] != 0)
+      key = lKeys[1];
 
   if (control)
-    if (lKeys[2] != 0) key = lKeys[2];
+    if (lKeys[2] != 0)
+      key = lKeys[2];
 
   if (altGR)
-    if (lKeys[4] != 0) key = lKeys[4];
+    if (lKeys[4] != 0)
+      key = lKeys[4];
 
   // printable keys
   if ((key >= 32 && key <= 126) || (key >= 160 && key <= 255)) {

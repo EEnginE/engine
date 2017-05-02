@@ -52,7 +52,8 @@ BenchClass::BenchClass(cmdANDinit *_cmd)
     doFunction();
   }
 
-  if (lDoMutexBench) doMutex();
+  if (lDoMutexBench)
+    doMutex();
 }
 
 void BenchClass::doFunction() {
@@ -67,55 +68,79 @@ void BenchClass::doFunction() {
   // Normal:
 
   START(signalSlot);
-  for (unsigned int i        = 0; i < vLoopsToDo; ++i) { vTheSignal(a, b); }
-  uint64_t          lSigSlot = STOP(signalSlot);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    vTheSignal(a, b);
+  }
+  uint64_t lSigSlot = STOP(signalSlot);
 
   START(functionPointer);
-  for (unsigned int i     = 0; i < vLoopsToDo; ++i) { (*this.*vFunctionPointer)(a, b); }
-  uint64_t          lFunc = STOP(functionPointer);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    (*this.*vFunctionPointer)(a, b);
+  }
+  uint64_t lFunc = STOP(functionPointer);
 
   START(cFunctionPointer);
-  for (unsigned int i      = 0; i < vLoopsToDo; ++i) { vCFunctionPointer(a, b); }
-  uint64_t          lCFunc = STOP(cFunctionPointer);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    vCFunctionPointer(a, b);
+  }
+  uint64_t lCFunc = STOP(cFunctionPointer);
 
   START(normal);
-  for (unsigned int i       = 0; i < vLoopsToDo; ++i) { funcToCall(a, b); }
-  uint64_t          lNormal = STOP(normal);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    funcToCall(a, b);
+  }
+  uint64_t lNormal = STOP(normal);
 
   START(virt);
-  for (unsigned int i     = 0; i < vLoopsToDo; ++i) { funcToCallVirtual(a, b); }
-  uint64_t          lVirt = STOP(virt);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    funcToCallVirtual(a, b);
+  }
+  uint64_t lVirt = STOP(virt);
 
   START(stdFunc);
-  for (unsigned int i        = 0; i < vLoopsToDo; ++i) { vStdFunc(a, b); }
-  uint64_t          lStdFunc = STOP(stdFunc);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    vStdFunc(a, b);
+  }
+  uint64_t lStdFunc = STOP(stdFunc);
 
 
   // Inline:
 
   START(signalSlotInline);
-  for (unsigned int i          = 0; i < vLoopsToDo; ++i) { vTheSignalInline(a, b); }
-  uint64_t          lSigSlotIn = STOP(signalSlotInline);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    vTheSignalInline(a, b);
+  }
+  uint64_t lSigSlotIn = STOP(signalSlotInline);
 
   START(functionPointerInline);
-  for (unsigned int i       = 0; i < vLoopsToDo; ++i) { (*this.*vFunctionPointerInline)(a, b); }
-  uint64_t          lFuncIn = STOP(functionPointerInline);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    (*this.*vFunctionPointerInline)(a, b);
+  }
+  uint64_t lFuncIn = STOP(functionPointerInline);
 
   START(cFfunctionPointerInline);
-  for (unsigned int i        = 0; i < vLoopsToDo; ++i) { vCFunctionPointerInline(a, b); }
-  uint64_t          lCFuncIn = STOP(cFfunctionPointerInline);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    vCFunctionPointerInline(a, b);
+  }
+  uint64_t lCFuncIn = STOP(cFfunctionPointerInline);
 
   START(normalInline);
-  for (unsigned int i         = 0; i < vLoopsToDo; ++i) { funcToCallInline(a, b); }
-  uint64_t          lNormalIn = STOP(normalInline);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    funcToCallInline(a, b);
+  }
+  uint64_t lNormalIn = STOP(normalInline);
 
   START(normalInlineVirt);
-  for (unsigned int i             = 0; i < vLoopsToDo; ++i) { funcToCallInlineVirtual(a, b); }
-  uint64_t          lNormalVirtIn = STOP(normalInlineVirt);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    funcToCallInlineVirtual(a, b);
+  }
+  uint64_t lNormalVirtIn = STOP(normalInlineVirt);
 
   START(stdFuncInline);
-  for (unsigned int i          = 0; i < vLoopsToDo; ++i) { vStdFuncInline(a, b); }
-  uint64_t          lStdFuncIn = STOP(stdFuncInline);
+  for (unsigned int i = 0; i < vLoopsToDo; ++i) {
+    vStdFuncInline(a, b);
+  }
+  uint64_t lStdFuncIn = STOP(stdFuncInline);
 
   iLOG("  - Time: microseconds");
 
@@ -202,20 +227,26 @@ void BenchClass::doFunction() {
 
 
 double BenchClass::funcNormal(int a, double b) {
-  for (int i = 0; i < 100; ++i) { b *= i + a; }
+  for (int i = 0; i < 100; ++i) {
+    b *= i + a;
+  }
   return b;
 }
 
 double BenchClass::funcMutex(int a, double b) {
   bMutex.lock();
-  for (int i = 0; i < 100; ++i) { b *= i + a; }
+  for (int i = 0; i < 100; ++i) {
+    b *= i + a;
+  }
   bMutex.unlock();
   return b;
 }
 
 double BenchClass::funcLockGuard(int a, double b) {
   std::lock_guard<std::mutex> guard1(bMutex);
-  for (int i = 0; i < 100; ++i) { b *= i + a; }
+  for (int i = 0; i < 100; ++i) {
+    b *= i + a;
+  }
   return b;
 }
 
@@ -229,16 +260,22 @@ void BenchClass::doMutex() {
   iLOG("  - Args:  ", a, ", ", b);
 
   START(normal);
-  for (unsigned int i = 0; i < vLoopsToDoMutex; ++i) { b = funcNormal(a, b); }
-  uint64_t          lNormal = STOP(normal);
+  for (unsigned int i = 0; i < vLoopsToDoMutex; ++i) {
+    b = funcNormal(a, b);
+  }
+  uint64_t lNormal = STOP(normal);
 
   START(mutex);
-  for (unsigned int i = 0; i < vLoopsToDoMutex; ++i) { b = funcMutex(a, b); }
-  uint64_t          lMutex = STOP(mutex);
+  for (unsigned int i = 0; i < vLoopsToDoMutex; ++i) {
+    b = funcMutex(a, b);
+  }
+  uint64_t lMutex = STOP(mutex);
 
   START(lockGuard);
-  for (unsigned int i = 0; i < vLoopsToDoMutex; ++i) { b = funcLockGuard(a, b); }
-  uint64_t          lLockGuard = STOP(lockGuard);
+  for (unsigned int i = 0; i < vLoopsToDoMutex; ++i) {
+    b = funcLockGuard(a, b);
+  }
+  uint64_t lLockGuard = STOP(lockGuard);
 
   iLOG("  - Time: microseconds");
 

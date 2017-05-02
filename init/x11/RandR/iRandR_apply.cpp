@@ -32,7 +32,8 @@ namespace unix_x11 {
  * \returns false when there was an error
  */
 bool iRandR::applyNewRandRSettings() {
-  if (!isRandRSupported()) return false;
+  if (!isRandRSupported())
+    return false;
 
   std::vector<internal::_crtc> lTempAllCRTC_V_RandR;
   int                          lMinWidth_I, lMinHeight_I;
@@ -54,7 +55,8 @@ bool iRandR::applyNewRandRSettings() {
         break;
       }
     }
-    if (lAppend_B) lTempAllCRTC_V_RandR.push_back(fCRTC);
+    if (lAppend_B)
+      lTempAllCRTC_V_RandR.push_back(fCRTC);
   }
 
   // We now work with lTempAllCRTC_V_RandR only
@@ -69,10 +71,12 @@ bool iRandR::applyNewRandRSettings() {
         break;
       }
     }
-    if (!lFound_B) lTempAllCRTC_V_RandR.push_back(fCRTC1);
+    if (!lFound_B)
+      lTempAllCRTC_V_RandR.push_back(fCRTC1);
   }
 
-  if (lTempAllCRTC_V_RandR.empty()) return false;
+  if (lTempAllCRTC_V_RandR.empty())
+    return false;
 
   XRRGetScreenSizeRange(vDisplay_X11, vRootWindow_X11, &lMinWidth_I, &lMinHeight_I, &lMaxWidth_I, &lMaxHeight_I);
 
@@ -155,7 +159,8 @@ bool iRandR::applyNewRandRSettings() {
         static_cast<int>((25.4 * ((lNewHeight_I > lCurrentHeight_I) ? lNewHeight_I : lCurrentHeight_I)) / lDPI_D));
   }
 
-  for (internal::_crtc const &fCRTC : lTempAllCRTC_V_RandR) changeCRTC(fCRTC);
+  for (internal::_crtc const &fCRTC : lTempAllCRTC_V_RandR)
+    changeCRTC(fCRTC);
 
   if ((lNewWidth_I >= lMinWidth_I && lNewWidth_I <= lMaxWidth_I && lNewHeight_I >= lMinHeight_I &&
        lNewHeight_I <= lMaxHeight_I) &&

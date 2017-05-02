@@ -58,7 +58,8 @@ uSHA_2::uSHA_2(HASH_FUNCTION _type) {
  * \returns false if the hash is already calculated or true if all went fine
  */
 bool uSHA_2::add(std::string const &_message) {
-  if (vEnded_B) return false;
+  if (vEnded_B)
+    return false;
 
   if (vType == SHA2_224 || vType == SHA2_256) {
     for (char const &c : _message) {
@@ -94,7 +95,8 @@ bool uSHA_2::add(std::string const &_message) {
  * \returns false if the hash is already calculated or true if all went fine
  */
 bool uSHA_2::add(std::vector<unsigned char> const &_binary) {
-  if (vEnded_B) return false;
+  if (vEnded_B)
+    return false;
 
   if (vType == SHA2_224 || vType == SHA2_256) {
     for (unsigned char const &c : _binary) {
@@ -193,7 +195,9 @@ void uSHA_2::init() {
  * If _type is NOT a SHA2 hash function, the last SHA function will be used
  */
 void uSHA_2::reset(HASH_FUNCTION _type) {
-  if (_type == SHA2_224 || _type == SHA2_256 || _type == SHA2_384 || _type == SHA2_512) { vType = _type; }
+  if (_type == SHA2_224 || _type == SHA2_256 || _type == SHA2_384 || _type == SHA2_512) {
+    vType = _type;
+  }
   vBlockCounter_ulI = 0;
 
   vEnded_B = false;
@@ -240,7 +244,8 @@ void int64ToString(std::vector<unsigned char> &_str, uint64_t const &_num, uint3
  * \returns The Hash or an empty string when already ended.
  */
 std::vector<unsigned char> uSHA_2::end() {
-  if (vEnded_B) return std::vector<unsigned char>();
+  if (vEnded_B)
+    return std::vector<unsigned char>();
 
   std::vector<unsigned char> lRsult_V_uC;
 
@@ -308,7 +313,8 @@ std::vector<unsigned char> uSHA_2::end() {
  * \returns The hash as a string or an empty string when not already terminated
  */
 std::string uSHA_2::get(bool _space) {
-  if (!vEnded_B) return "";
+  if (!vEnded_B)
+    return "";
 
   std::string lString_str;
   char        lBuffer_CSTR[9];
@@ -326,7 +332,8 @@ std::string uSHA_2::get(bool _space) {
 
         lString_str += lBuffer_CSTR;
 
-        if (_space && i != (lEnd_suI - 1)) lString_str += ' ';
+        if (_space && i != (lEnd_suI - 1))
+          lString_str += ' ';
       }
       break;
 
@@ -343,7 +350,8 @@ std::string uSHA_2::get(bool _space) {
 #endif
         lString_str += lBuffer_CSTR;
 
-        if (_space) lString_str += ' ';
+        if (_space)
+          lString_str += ' ';
 
 #ifdef _MSC_VER
         _snprintf(lBuffer_CSTR, 9, "%08x", v2);
@@ -352,7 +360,8 @@ std::string uSHA_2::get(bool _space) {
 #endif
         lString_str += lBuffer_CSTR;
 
-        if (_space && i != (lEnd_suI - 1)) lString_str += ' ';
+        if (_space && i != (lEnd_suI - 1))
+          lString_str += ' ';
       }
       break;
   }

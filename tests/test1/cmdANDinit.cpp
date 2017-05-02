@@ -31,7 +31,9 @@ cmdANDinit::cmdANDinit(int argc, char *argv[]) {
   dataRoot = INSTALL_PREFIX + string("/share/engineTests/test1/data/");
 #endif
 
-  for (auto i = 1; i < argc; ++i) { args.push_back(argv[i]); }
+  for (auto i = 1; i < argc; ++i) {
+    args.push_back(argv[i]);
+  }
 
   GlobConf.vk.enableVSync = true;
 

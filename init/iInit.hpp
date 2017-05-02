@@ -270,7 +270,9 @@ class __iInit_Pointer {
   }
   ~__iInit_Pointer() { pointer = 0; }
   bool set(iInit *_THIS) {
-    if (is_set == true) { return false; }
+    if (is_set == true) {
+      return false;
+    }
     pointer = _THIS;
     is_set  = true;
     return true;

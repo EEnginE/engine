@@ -35,7 +35,8 @@ namespace {
 template <class T>
 inline std::string numToSizeStringLeft(T _val, unsigned int _size, char _fill) {
   std::string lResult_STR = std::to_string(_val);
-  if (_size > lResult_STR.size()) lResult_STR.append((_size - lResult_STR.size()), _fill);
+  if (_size > lResult_STR.size())
+    lResult_STR.append((_size - lResult_STR.size()), _fill);
   return lResult_STR;
 }
 }
@@ -74,7 +75,8 @@ iContext::iContext() {
  * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
  */
 int iContext::enableVSync() {
-  if (!vHasContext_B) return 0;
+  if (!vHasContext_B)
+    return 0;
 
   if (wglewIsSupported("WGL_EXT_swap_control")) {
     if (wglSwapIntervalEXT(1) != TRUE) {
@@ -119,7 +121,8 @@ int iContext::enableVSync() {
  * \returns 5 wglewIsSupported (main VSync function) returned something unknown (!= 0)
  */
 int iContext::disableVSync() {
-  if (!vHasContext_B) return 0;
+  if (!vHasContext_B)
+    return 0;
 
   if (wglewIsSupported("WGL_EXT_swap_control")) {
     if (wglSwapIntervalEXT(0) != TRUE) {
@@ -156,7 +159,8 @@ int iContext::disableVSync() {
 
 
 void iContext::destroyContext() {
-  if (!vHasContext_B) return;
+  if (!vHasContext_B)
+    return;
 
   iLOG("Destroying everything");
 
@@ -197,7 +201,8 @@ bool iContext::makeContextCurrent() {
     return false;
   }
   bool lReturnVal_B = wglMakeCurrent(vHDC_win32, vOpenGLContext_WGL) == TRUE ? true : false;
-  if (lReturnVal_B) vAThreadOwnsTheOpenGLContext_B = true;
+  if (lReturnVal_B)
+    vAThreadOwnsTheOpenGLContext_B = true;
 
   return lReturnVal_B;
 }
@@ -214,8 +219,9 @@ bool iContext::makeNOContextCurrent() {
         "iInit::init() before you run this!");
     return false;
   }
-  bool lReturnVal_B                                = wglMakeCurrent(NULL, NULL) == TRUE ? true : false;
-  if (lReturnVal_B) vAThreadOwnsTheOpenGLContext_B = false;
+  bool lReturnVal_B = wglMakeCurrent(NULL, NULL) == TRUE ? true : false;
+  if (lReturnVal_B)
+    vAThreadOwnsTheOpenGLContext_B = false;
 
   return lReturnVal_B;
 }
@@ -258,7 +264,8 @@ int iContext::changeWindowConfig(unsigned int _width, unsigned int _height, int 
  * \returns the return falue of SetWindowPos
  */
 bool iContext::setWindowState(UINT _flags, HWND _pos) {
-  if (_pos == (HWND)1000) _flags |= SWP_NOZORDER;
+  if (_pos == (HWND)1000)
+    _flags |= SWP_NOZORDER;
 
   return SetWindowPos(vHWND_Window_win32, _pos, 0, 0, 10, 10, _flags | SWP_NOSIZE | SWP_NOMOVE);
 }
@@ -278,7 +285,8 @@ bool iContext::setWindowState(UINT _flags, HWND _pos) {
  * \sa e_engine::ACTION, e_engine::WINDOW_ATTRIBUTE
  */
 bool iContext::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2) {
-  if (!vHasGLEW_B) return false;
+  if (!vHasGLEW_B)
+    return false;
 
   if (_type1 == _type2) {
     eLOG(
@@ -362,7 +370,8 @@ bool iContext::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTR
         ShowWindow(vHWND_Window_win32, SW_SHOW);
         SetForegroundWindow(vHWND_Window_win32);
         SetFocus(vHWND_Window_win32);
-        if (lState1_str != "DEMANDS_ATTENTION") lState1_str = "FOCUSED";
+        if (lState1_str != "DEMANDS_ATTENTION")
+          lState1_str = "FOCUSED";
         break;
       case MAXIMIZED_VERT:
         GetWindowRect(lDesktopHWND_win32, &lDesktopRect_win32);
@@ -410,7 +419,8 @@ bool iContext::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTR
         ShowWindow(vHWND_Window_win32, SW_SHOW);
         SetForegroundWindow(vHWND_Window_win32);
         SetFocus(vHWND_Window_win32);
-        if (lState2_str != "DEMANDS_ATTENTION") lState2_str = "FOCUSED";
+        if (lState2_str != "DEMANDS_ATTENTION")
+          lState2_str = "FOCUSED";
         break;
       case MAXIMIZED_VERT:
         GetWindowRect(lDesktopHWND_win32, &lDesktopRect_win32);
@@ -584,7 +594,9 @@ bool iContext::hideMouseCursor() {
   }
 
   int showValue = ShowCursor(false);
-  while (showValue > -1) { showValue = ShowCursor(false); }
+  while (showValue > -1) {
+    showValue = ShowCursor(false);
+  }
 
   vIsCursorHidden_B = true;
   iLOG("Cursor hidden");
@@ -602,7 +614,9 @@ bool iContext::showMouseCursor() {
   }
 
   int showValue = ShowCursor(true);
-  while (showValue < 0) { showValue = ShowCursor(true); }
+  while (showValue < 0) {
+    showValue = ShowCursor(true);
+  }
 
   vIsCursorHidden_B = false;
   iLOG("Cursor visible");

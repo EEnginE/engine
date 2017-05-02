@@ -51,13 +51,15 @@ class BenchClass : public BenchBaseVirtual {
 
   double funcToCall(int _a, double _b);
   inline double funcToCallInline(int _a, double _b) {
-    for (auto i = 0; i < 100; ++i) ++_a;
+    for (auto i = 0; i < 100; ++i)
+      ++_a;
     return _b * _a;
   }
 
   virtual double funcToCallVirtual(int _a, double _b);
   virtual double funcToCallInlineVirtual(int _a, double _b) {
-    for (auto i = 0; i < 100; ++i) ++_a;
+    for (auto i = 0; i < 100; ++i)
+      ++_a;
     return _b * _a;
   }
 
@@ -80,7 +82,8 @@ class BenchClass : public BenchBaseVirtual {
 
 double cFuncToCall(int _a, double _b);
 inline double cFuncToCallInline(int _a, double _b) {
-  for (auto i = 0; i < 100; ++i) ++_a;
+  for (auto i = 0; i < 100; ++i)
+    ++_a;
   return _b * _a;
 }
 

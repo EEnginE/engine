@@ -29,7 +29,8 @@ namespace e_engine {
 
 int iInit::eventLoop() {
   //! \todo Move this in windows_win32
-  if (!vEventLoopHasFinished_B) return -1;
+  if (!vEventLoopHasFinished_B)
+    return -1;
 
   LOG.nameThread(L"EVENT");
 
@@ -61,7 +62,8 @@ int iInit::eventLoop() {
     }
     dLOG("Event thread continue");
 
-    if (!getHaveContext()) break;
+    if (!getHaveContext())
+      break;
 
     vEventLoopHasFinished_B = false;
     iLOG("Event loop started");
@@ -72,7 +74,8 @@ int iInit::eventLoop() {
       if (vEventLoopPaused_B) {
         std::unique_lock<std::mutex> lLock_BT(vEventLoopMutex_BT);
         vEventLoopISPaused_B = true;
-        while (vEventLoopPaused_B) vEventLoopWait_BT.wait(lLock_BT);
+        while (vEventLoopPaused_B)
+          vEventLoopWait_BT.wait(lLock_BT);
         vEventLoopISPaused_B = false;
       }
 
@@ -134,7 +137,9 @@ LRESULT CALLBACK iContext::staticWndProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam,
   iContext * this__          = reinterpret_cast<iContext *>(lUserData_win32);
   iEventInfo _tempInfo(e_engine::internal::__iInit_Pointer_OBJ.get());
 
-  if (!this__ || _hwnd != this__->vHWND_Window_win32) { eLOG("Bad Windows callback error"); }
+  if (!this__ || _hwnd != this__->vHWND_Window_win32) {
+    eLOG("Bad Windows callback error");
+  }
 
   return this__->actualWndProc(_uMsg, _wParam, _lParam, _tempInfo);
 }
@@ -275,7 +280,9 @@ LRESULT CALLBACK iContext::actualWndProc(UINT _uMsg, WPARAM _wParam, LPARAM _lPa
       }
       return 0;
     case WM_UNICHAR: // Gives other programs the information that Unicode is supported by this
-      if (_wParam == UNICODE_NOCHAR) { return TRUE; }
+      if (_wParam == UNICODE_NOCHAR) {
+        return TRUE;
+      }
       return FALSE;
     case WM_KEYUP: key_state = E_RELEASED;
     case WM_KEYDOWN:

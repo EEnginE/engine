@@ -85,7 +85,8 @@ rRendererBase::~rRendererBase() {}
 int rRendererBase::init() {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
-  if (vIsSetup) return -3;
+  if (vIsSetup)
+    return -3;
 
   uint32_t        lQueueFamily;
   VkQueue         lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
@@ -93,11 +94,14 @@ int rRendererBase::init() {
   VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer(lPool);
   VkFence         lFence = vWorldPtr->createFence();
 
-  if (!lBuf) return -1;
+  if (!lBuf)
+    return -1;
 
-  if (vWorldPtr->beginCommandBuffer(lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)) return -2;
+  if (vWorldPtr->beginCommandBuffer(lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
+    return -2;
 
-  if (initImageBuffers(lBuf)) return 1;
+  if (initImageBuffers(lBuf))
+    return 1;
 
   // vRenderPass_vk.attachments resized in 'initImageBuffers'
   VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[FRAMEBUFFER_ATTACHMENT_INDEX];
@@ -111,11 +115,14 @@ int rRendererBase::init() {
   lAttachment->initialLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
   lAttachment->finalLayout             = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-  if (vRenderPass_vk.subpasses.empty()) setupSubpasses();
+  if (vRenderPass_vk.subpasses.empty())
+    setupSubpasses();
 
-  if (initRenderPass()) return 2;
+  if (initRenderPass())
+    return 2;
 
-  if (initFramebuffers()) return 3;
+  if (initFramebuffers())
+    return 3;
 
   vkEndCommandBuffer(lBuf);
 
@@ -146,7 +153,8 @@ int rRendererBase::init() {
 
   vIsSetup = true;
 
-  if (!vUserDisabledRendering) vEnableRendering = true;
+  if (!vUserDisabledRendering)
+    vEnableRendering = true;
 
   return 0;
 }
@@ -154,7 +162,8 @@ int rRendererBase::init() {
 void rRendererBase::destroy() {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
-  if (!vIsSetup) return;
+  if (!vIsSetup)
+    return;
 
   vEnableRendering = false;
 
@@ -162,7 +171,8 @@ void rRendererBase::destroy() {
 
   dVkLOG("  -- destroying old framebuffers [renderer ", vID, "]");
   for (auto &i : vFramebuffers_vk)
-    if (i.fb) vkDestroyFramebuffer(vDevice_vk, i.fb, nullptr);
+    if (i.fb)
+      vkDestroyFramebuffer(vDevice_vk, i.fb, nullptr);
 
   dVkLOG("  -- destroying old renderpass [renderer ", vID, "]");
   vkDestroyRenderPass(vDevice_vk, vRenderPass_vk.renderPass, nullptr);
@@ -277,18 +287,24 @@ void rRendererBase::updateRenderer() {
     rPipeline *  lPipe   = i->getPipeline();
     rShaderBase *lShader = i->getShader();
     if (lPipe != nullptr) {
-      if (lPipe->getIsCreated()) { lPipe->destroy(); }
+      if (lPipe->getIsCreated()) {
+        lPipe->destroy();
+      }
     }
 
     // Clear reserved uniforms, part of making sure not to change one uniform more than once
-    if (lShader != nullptr) { lShader->signalRenderReset(); }
+    if (lShader != nullptr) {
+      lShader->signalRenderReset();
+    }
   }
 
   // Create new pipelines
   for (auto &i : vObjects) {
     rPipeline *lPipe = i->getPipeline();
     if (lPipe != nullptr) {
-      if (!lPipe->getIsCreated()) { lPipe->create(vDevice_vk, vRenderPass_vk.renderPass, 0); }
+      if (!lPipe->getIsCreated()) {
+        lPipe->create(vDevice_vk, vRenderPass_vk.renderPass, 0);
+      }
     }
 
     // Setup object for rendering (preparing uniforms)
@@ -296,11 +312,13 @@ void rRendererBase::updateRenderer() {
   }
 
   // Record all command buffers
-  for (auto &i : vFramebuffers_vk) recordCmdBuffersWrapper(i, RECORD_ALL);
+  for (auto &i : vFramebuffers_vk)
+    recordCmdBuffersWrapper(i, RECORD_ALL);
 }
 
 void rRendererBase::updateUniforms() {
-  for (auto i : vObjects) i->updateUniforms();
+  for (auto i : vObjects)
+    i->updateUniforms();
 }
 
 
@@ -369,7 +387,9 @@ void rRendererBase::freeAllCmdBuffers(VkCommandPool _pool) {
  * \brief Adds all objects form a scene to the renderer
  */
 bool rRendererBase::renderScene(rSceneBase *_scene) {
-  for (auto const &i : _scene->getObjects()) { addObject(i); }
+  for (auto const &i : _scene->getObjects()) {
+    addObject(i);
+  }
   return true;
 }
 
@@ -416,7 +436,8 @@ uint32_t rRendererBase::addSubpass(VkPipelineBindPoint   _bindPoint,
   lData->preserve = _preserve;
 
   for (uint32_t i : _color) {
-    if (i == UINT32_MAX) i = FRAMEBUFFER_ATTACHMENT_INDEX;
+    if (i == UINT32_MAX)
+      i = FRAMEBUFFER_ATTACHMENT_INDEX;
 
     if (i > vRenderPass_vk.attachments.size()) {
       eLOG("Invalid attachment ID ", i, "!");
@@ -427,7 +448,8 @@ uint32_t rRendererBase::addSubpass(VkPipelineBindPoint   _bindPoint,
     lTemp.attachment = i;
     lTemp.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    if (_layoutMap.count(i) > 0) lTemp.layout = _layoutMap[i];
+    if (_layoutMap.count(i) > 0)
+      lTemp.layout = _layoutMap[i];
 
     lData->color.emplace_back(lTemp);
   }
@@ -442,13 +464,16 @@ uint32_t rRendererBase::addSubpass(VkPipelineBindPoint   _bindPoint,
     lTemp.attachment = i;
     lTemp.layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-    if (_layoutMap.count(i) > 0) lTemp.layout = _layoutMap[i];
+    if (_layoutMap.count(i) > 0)
+      lTemp.layout = _layoutMap[i];
 
     lData->input.emplace_back(lTemp);
   }
 
   lData->resolve.resize(lData->color.size());
-  for (auto &i : lData->resolve) { i = {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED}; }
+  for (auto &i : lData->resolve) {
+    i = {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
+  }
 
   for (auto i : _resolve) {
     if (i > lData->color.size()) {
@@ -468,7 +493,8 @@ uint32_t rRendererBase::addSubpass(VkPipelineBindPoint   _bindPoint,
     lData->depth.attachment = _deptStencil;
     lData->depth.layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    if (_layoutMap.count(_deptStencil) > 0) lData->depth.layout = _layoutMap[_deptStencil];
+    if (_layoutMap.count(_deptStencil) > 0)
+      lData->depth.layout = _layoutMap[_deptStencil];
   }
 
   VkSubpassDescription lDesc;
@@ -552,7 +578,8 @@ bool rRendererBase::enableRendering() {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
   vUserDisabledRendering = false;
 
-  if (!vIsSetup) return false;
+  if (!vIsSetup)
+    return false;
 
   vEnableRendering = true;
   return true;
@@ -571,7 +598,8 @@ void rRendererBase::setClearColor(VkClearColorValue _clearColor) { vClearColor =
  * \returns The number of framebuffers or UINT32_MAX if not init
  */
 uint32_t rRendererBase::getNumFramebuffers() const {
-  if (!vIsSetup) return UINT32_MAX;
+  if (!vIsSetup)
+    return UINT32_MAX;
 
   // assert(vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size());
   return vWorldPtr->getNumFramebuffers();

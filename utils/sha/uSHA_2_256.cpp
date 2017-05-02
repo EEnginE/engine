@@ -83,7 +83,9 @@ void uSHA_2::block(std::array<unsigned char, 64> const &_data) {
   }
 
 
-  for (; t < 64; ++t) { word[t] = S1(word[t - 2]) + word[t - 7] + S0(word[t - 15]) + word[t - 16]; }
+  for (; t < 64; ++t) {
+    word[t] = S1(word[t - 2]) + word[t - 7] + S0(word[t - 15]) + word[t - 16];
+  }
 
   a = h_512[0];
   b = h_512[1];
@@ -174,7 +176,8 @@ void uSHA_2::padd512() {
 
   // Add the remaining bytes
   temp = v1;
-  if ((v1 += lElementsInBuffer_uI) < temp) ++v2;
+  if ((v1 += lElementsInBuffer_uI) < temp)
+    ++v2;
 
   // All the bytes * 8 = number of bits in the message
   temp = v1;

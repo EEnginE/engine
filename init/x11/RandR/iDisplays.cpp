@@ -189,15 +189,18 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
   bool lFoundOneSizeMatch      = false;
   bool lFindPreferedRateFailed = false;
 
-  if (_preferedRate < 0) _preferedRate *= -1;
+  if (_preferedRate < 0)
+    _preferedRate *= -1;
 
-  if (_maxDiff < 0) _maxDiff *= -1;
+  if (_maxDiff < 0)
+    _maxDiff *= -1;
 
   if (std::abs(_preferedRate) > std::numeric_limits<double>::epsilon()) {
     lRatePref_D = findNearestFreqTo(_preferedRate, _width, _height, lPref_XRR, lMinDiffToPref_D);
 
     // No mode for this size
-    if (lRatePref_D < 0) return 0;
+    if (lRatePref_D < 0)
+      return 0;
 
     if (lMinDiffToPref_D > _maxDiff) {
       lFindPreferedRateFailed = true;
@@ -217,7 +220,8 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
     }
   }
 
-  if (!lFoundOneSizeMatch) return false;
+  if (!lFoundOneSizeMatch)
+    return false;
 
   vCurrentWidth_uI  = _width;
   vCurrentHeight_uI = _height;
@@ -228,7 +232,8 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
   lRate480Hz_D = findNearestFreqTo(480, _width, _height, l480Hz_XRR, lMinDiffTo480Hz_D);
 
   // No mode for this size
-  if (lRate60Hz_D < 0 || lRate120Hz_D < 0 || lRate240Hz_D < 0 || lRate480Hz_D < 0) return 0;
+  if (lRate60Hz_D < 0 || lRate120Hz_D < 0 || lRate240Hz_D < 0 || lRate480Hz_D < 0)
+    return 0;
 
   if (std::abs(lMinDiffTo60Hz_D) < std::numeric_limits<double>::epsilon() ||
       (lMinDiffTo60Hz_D < lMinDiffTo120Hz_D && lMinDiffTo60Hz_D < lMinDiffTo240Hz_D &&
@@ -277,7 +282,8 @@ void iDisplays::disable() {
  */
 void iDisplays::enable() {
   vEnabled_B = true;
-  if (vModeToUse_XRR == None) autoSelectBest();
+  if (vModeToUse_XRR == None)
+    autoSelectBest();
 }
 
 /*!
@@ -292,7 +298,9 @@ std::vector<double> iDisplays::getPossibleRates(unsigned int _width, unsigned in
   std::vector<double> lTempRates;
 
   for (auto &elem : vModes_V_mode) {
-    if (_width == elem.width && _height == elem.height) { lTempRates.push_back(elem.rate); }
+    if (_width == elem.width && _height == elem.height) {
+      lTempRates.push_back(elem.rate);
+    }
   }
 
   return lTempRates;
@@ -314,7 +322,8 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
       }
     }
 
-    if (lSizeExistsAlready_B) continue;
+    if (lSizeExistsAlready_B)
+      continue;
 
     iDisplayBasic::res lTempRes;
 
@@ -363,7 +372,9 @@ void iDisplays::getSelectedRes(unsigned int &_width, unsigned int &_height, doub
  */
 bool iDisplays::isSizeSupported(unsigned int _width, unsigned int _height) const {
   for (auto &elem : vModes_V_mode) {
-    if (_width == elem.width && _height == elem.height) { return true; }
+    if (_width == elem.width && _height == elem.height) {
+      return true;
+    }
   }
   return false;
 }
@@ -399,7 +410,9 @@ bool iDisplays::select(unsigned int _width, unsigned int _height, double _rate) 
  */
 void iDisplays::setCloneOf(const iDisplays &_disp) {
   for (auto &elem : vClones_V_XRR) {
-    if (elem == _disp.vID_XRR) { return; }
+    if (elem == _disp.vID_XRR) {
+      return;
+    }
   }
 
   vClones_V_XRR.push_back(_disp.vID_XRR);

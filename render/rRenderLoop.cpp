@@ -51,12 +51,14 @@ rRenderLoop::rRenderLoop(iInit *_init, rWorld *_root) : vWorldPtr(_root), vInitP
 
 rRenderLoop::~rRenderLoop() {
   vRunRenderThread = false;
-  if (vRunRenderLoop) stop();
+  if (vRunRenderLoop)
+    stop();
 
   vVarStartRecording.notify_all();
   vVarStartLogLoop.notify_one();
 
-  if (vRenderThread.joinable()) vRenderThread.join();
+  if (vRenderThread.joinable())
+    vRenderThread.join();
 }
 
 void rRenderLoop::renderLoop() {
@@ -70,7 +72,8 @@ void rRenderLoop::renderLoop() {
     vVarStartRecording.wait(lWait1);
 
     // Check for deconstructor
-    if (!vRunRenderThread) return;
+    if (!vRunRenderThread)
+      return;
 
     //    _____      _ _
     //   |_   _|    (_) |
@@ -94,7 +97,9 @@ void rRenderLoop::renderLoop() {
     VkSemaphore    lSemAcquireImg = vWorldPtr->createSemaphore();
     VkFence        lFences[NUM_FENCES];
 
-    for (uint32_t i = 0; i < NUM_FENCES; i++) { lFences[i] = vWorldPtr->createFence(); }
+    for (uint32_t i = 0; i < NUM_FENCES; i++) {
+      lFences[i] = vWorldPtr->createFence();
+    }
 
 
     for (auto const &i : vRenderers) {
@@ -169,10 +174,12 @@ void rRenderLoop::renderLoop() {
 
     std::unique_lock<std::mutex> lWait2(vMutexStartLogLoop);
 
-    if (!vRunRenderLoop) vVarStartLogLoop.wait(lWait2);
+    if (!vRunRenderLoop)
+      vVarStartLogLoop.wait(lWait2);
 
     // Check for deconstructor
-    if (!vRunRenderThread) return;
+    if (!vRunRenderThread)
+      return;
 
     //   ______               _             _
     //   | ___ \             | |           | |
@@ -186,7 +193,8 @@ void rRenderLoop::renderLoop() {
     uint32_t lNextImg;
 
     // Init Uniforms
-    for (auto const &i : vRenderers) i->updateUniforms();
+    for (auto const &i : vRenderers)
+      i->updateUniforms();
 
     iLOG("Starting the render loop");
     while (vRunRenderLoop) {
@@ -241,7 +249,8 @@ void rRenderLoop::renderLoop() {
       vkWaitForFences(vDevice_vk, 1, &lFences[FENCE_RENDER], VK_TRUE, UINT64_MAX);
 
       // Update Uniforms
-      for (auto const &i : vRenderers) i->updateUniforms();
+      for (auto const &i : vRenderers)
+        i->updateUniforms();
 
       vkWaitForFences(vDevice_vk, 1, &lFences[FENCE_IMG_1], VK_TRUE, UINT64_MAX);
       vkWaitForFences(vDevice_vk, 1, &lFences[FENCE_IMG_2], VK_TRUE, UINT64_MAX);
@@ -264,12 +273,16 @@ void rRenderLoop::renderLoop() {
     //                                  |_|
 
     auto lRes = vkDeviceWaitIdle(vDevice_vk);
-    if (lRes) { eLOG("'vkDeviceWaitIdle' returned ", uEnum2Str::toStr(lRes)); }
+    if (lRes) {
+      eLOG("'vkDeviceWaitIdle' returned ", uEnum2Str::toStr(lRes));
+    }
 
-    for (auto const &i : vRenderers) i->freeAllCmdBuffers(lCommandPool);
+    for (auto const &i : vRenderers)
+      i->freeAllCmdBuffers(lCommandPool);
 
     vkDestroySemaphore(vDevice_vk, lSemPresent, nullptr);
-    for (uint32_t i = 0; i < NUM_FENCES; i++) vkDestroyFence(vDevice_vk, lFences[i], nullptr);
+    for (uint32_t i = 0; i < NUM_FENCES; i++)
+      vkDestroyFence(vDevice_vk, lFences[i], nullptr);
 
 
     std::lock_guard<std::mutex> lGuard1(vMutexStopLogLoop);
@@ -282,14 +295,17 @@ void rRenderLoop::renderLoop() {
 }
 
 void rRenderLoop::rebuildCommandBuffersArray(CommandBuffers *_buffers, uint32_t _framebuffer) {
-  for (auto const &i : vRenderers) { i->updatePushConstants(_framebuffer); }
+  for (auto const &i : vRenderers) {
+    i->updatePushConstants(_framebuffer);
+  }
 
   _buffers->pre.clear();
   _buffers->render.clear();
   _buffers->post.clear();
 
   for (auto const &i : _buffers->pointers) {
-    if (!*i[_framebuffer].enableRendering) continue;
+    if (!*i[_framebuffer].enableRendering)
+      continue;
 
     _buffers->pre.emplace_back(*i[_framebuffer].pre);
     _buffers->render.emplace_back(*i[_framebuffer].render);
@@ -306,7 +322,8 @@ int rRenderLoop::init() {
 
   int errorCode = 0;
   for (auto const &i : vRenderers)
-    if (!i->getIsInit()) errorCode += i->init();
+    if (!i->getIsInit())
+      errorCode += i->init();
 
   return errorCode;
 }
@@ -318,7 +335,8 @@ void rRenderLoop::destroy() {
   std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
 
   for (auto const &i : vRenderers)
-    if (i->getIsInit()) i->destroy();
+    if (i->getIsInit())
+      i->destroy();
 }
 
 /**
@@ -338,14 +356,17 @@ bool rRenderLoop::start() {
   dRLOG("Initializing renderers");
 
   for (auto const &i : vRenderers) {
-    if (!i->getIsInit()) { i->init(); }
+    if (!i->getIsInit()) {
+      i->init();
+    }
   }
 
 
   dRLOG("Start recording");
   vVarStartRecording.notify_all();
 
-  if (!vFinishedRecording) vVarFinishedRecording.wait(lWait);
+  if (!vFinishedRecording)
+    vVarFinishedRecording.wait(lWait);
 
   vRunRenderLoop = true;
 
@@ -383,7 +404,9 @@ bool rRenderLoop::stop() {
 void rRenderLoop::updateGlobalClearColor(VkClearColorValue _clear) {
   std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
 
-  for (auto const &i : vRenderers) { i->setClearColor(_clear); }
+  for (auto const &i : vRenderers) {
+    i->setClearColor(_clear);
+  }
 }
 
 /*!
@@ -394,11 +417,13 @@ void rRenderLoop::addRenderer(std::shared_ptr<internal::rRendererBase> _renderer
   std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
 
   bool lStartRenderLoop = vRunRenderLoop;
-  if (vRunRenderLoop) stop();
+  if (vRunRenderLoop)
+    stop();
 
   vRenderers.push_back(_renderer);
 
-  if (lStartRenderLoop) start();
+  if (lStartRenderLoop)
+    start();
 }
 
 /*!
@@ -409,11 +434,13 @@ void rRenderLoop::removeRenderer(std::shared_ptr<internal::rRendererBase> _rende
   std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
 
   bool lStartRenderLoop = vRunRenderLoop;
-  if (vRunRenderLoop) stop();
+  if (vRunRenderLoop)
+    stop();
 
   vRenderers.erase(std::remove(vRenderers.begin(), vRenderers.end(), _renderer), vRenderers.end());
 
-  if (lStartRenderLoop) start();
+  if (lStartRenderLoop)
+    start();
 }
 
 /*!
@@ -424,11 +451,13 @@ void rRenderLoop::clearRenderers() {
   std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
 
   bool lStartRenderLoop = vRunRenderLoop;
-  if (vRunRenderLoop) stop();
+  if (vRunRenderLoop)
+    stop();
 
   vRenderers.clear();
 
-  if (lStartRenderLoop) start();
+  if (lStartRenderLoop)
+    start();
 }
 
 uint64_t *rRenderLoop::getRenderedFramesPtr() { return &vRenderedFrames; }

@@ -24,7 +24,9 @@ cmdANDinit::cmdANDinit(int argc, char *argv[], bool _color) {
   argv0        = argv[0];
   vCanUseColor = _color;
 
-  for (auto i = 1; i < argc; ++i) { args.push_back(argv[i]); }
+  for (auto i = 1; i < argc; ++i) {
+    args.push_back(argv[i]);
+  }
 
   GlobConf.config.appName = "Engine.Benchmarks";
 
@@ -68,7 +70,9 @@ void cmdANDinit::usage() {
   dLOG("    -h | --help    : show this help message");
   dLOG("    --log=<path>   : set a custom log file path to <path>");
   dLOG("    -w | --wait    : wait until log entry is printed");
-  if (vCanUseColor) { dLOG("    -n | --nocolor : disable colored output"); }
+  if (vCanUseColor) {
+    dLOG("    -n | --nocolor : disable colored output");
+  }
   iLOG("");
   iLOG(
       "MODES:"

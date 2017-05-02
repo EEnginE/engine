@@ -97,7 +97,8 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiMesh const *_mesh) {
 
   lIndex.resize(lIndexSize * _mesh->mNumFaces);
   for (uint32_t i = 0; i < _mesh->mNumFaces; i++)
-    for (uint32_t j = 0; j < lIndexSize; j++) lIndex[i * lIndexSize + j] = _mesh->mFaces[i].mIndices[j];
+    for (uint32_t j              = 0; j < lIndexSize; j++)
+      lIndex[i * lIndexSize + j] = _mesh->mFaces[i].mIndices[j];
 
   switch (getDataLayout()) {
     case POS_NORM: setupVertexData_PN(_mesh, lData); break;
@@ -156,7 +157,8 @@ bool rObjectBase::setupVertexData_PN(aiMesh const *_mesh, std::vector<float> &_o
  * \returns the shader or nullptr on error
  */
 rShaderBase *rObjectBase::getShader() {
-  if (!vPipeline) return nullptr;
+  if (!vPipeline)
+    return nullptr;
 
   return vPipeline->getShader();
 }

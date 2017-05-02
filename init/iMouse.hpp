@@ -36,7 +36,8 @@ class iMouse {
    * \param _state The new mouse button state
    */
   void setMousebuttonState(E_BUTTON _button, unsigned short int _state) {
-    if (_button < 0) return;
+    if (_button < 0)
+      return;
 
     button_state[static_cast<unsigned int>(_button)] = _state;
   }
@@ -51,7 +52,9 @@ class iMouse {
    * \returns The mouse button state
    */
   unsigned short int getMousebuttonState(E_BUTTON _button) {
-    if (_button < 0 || _button > E_MOUSE_UNKNOWN) { return static_cast<unsigned short int>(E_UNKNOWN); }
+    if (_button < 0 || _button > E_MOUSE_UNKNOWN) {
+      return static_cast<unsigned short int>(E_UNKNOWN);
+    }
     return button_state[static_cast<unsigned int>(_button)];
   }
 };

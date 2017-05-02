@@ -51,13 +51,15 @@ using namespace internal;
 bool rShaderBase::InOut::operator<(const InOut &rhs) {
   // Vertex
   for (auto const &i : gShaderInputVarNames[IN_VERTEX])
-    if (name == i) return true;
+    if (name == i)
+      return true;
 
   // Normal
   for (auto const &i : gShaderInputVarNames[IN_NORMAL]) {
     if (name == i) {
       for (auto const &j : gShaderInputVarNames[IN_VERTEX])
-        if (rhs.name == j) return false;
+        if (rhs.name == j)
+          return false;
 
       return true;
     }
@@ -67,10 +69,12 @@ bool rShaderBase::InOut::operator<(const InOut &rhs) {
   for (auto const &i : gShaderInputVarNames[IN_UV]) {
     if (name == i) {
       for (auto const &j : gShaderInputVarNames[IN_VERTEX])
-        if (rhs.name == j) return false;
+        if (rhs.name == j)
+          return false;
 
       for (auto const &j : gShaderInputVarNames[IN_NORMAL])
-        if (rhs.name == j) return false;
+        if (rhs.name == j)
+          return false;
 
       return true;
     }
@@ -80,21 +84,29 @@ bool rShaderBase::InOut::operator<(const InOut &rhs) {
 }
 
 rShaderBase::~rShaderBase() {
-  for (auto i : vBuffers) vkDestroyBuffer(vDevice_vk, i, nullptr);
+  for (auto i : vBuffers)
+    vkDestroyBuffer(vDevice_vk, i, nullptr);
 
-  for (auto i : vMemory) vkFreeMemory(vDevice_vk, i, nullptr);
+  for (auto i : vMemory)
+    vkFreeMemory(vDevice_vk, i, nullptr);
 
-  if (vVertModule_vk) vkDestroyShaderModule(vDevice_vk, vVertModule_vk, nullptr);
+  if (vVertModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vVertModule_vk, nullptr);
 
-  if (vTescModule_vk) vkDestroyShaderModule(vDevice_vk, vTescModule_vk, nullptr);
+  if (vTescModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vTescModule_vk, nullptr);
 
-  if (vTeseModule_vk) vkDestroyShaderModule(vDevice_vk, vTeseModule_vk, nullptr);
+  if (vTeseModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vTeseModule_vk, nullptr);
 
-  if (vGeomModule_vk) vkDestroyShaderModule(vDevice_vk, vGeomModule_vk, nullptr);
+  if (vGeomModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vGeomModule_vk, nullptr);
 
-  if (vFragModule_vk) vkDestroyShaderModule(vDevice_vk, vFragModule_vk, nullptr);
+  if (vFragModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vFragModule_vk, nullptr);
 
-  if (vCompModule_vk) vkDestroyShaderModule(vDevice_vk, vCompModule_vk, nullptr);
+  if (vCompModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vCompModule_vk, nullptr);
 
   if (vModulesCreated) {
     vkDestroyDescriptorSetLayout(vDevice_vk, vDescLayout_vk, nullptr);
@@ -175,19 +187,26 @@ uint32_t rShaderBase::createUniformBuffer(uint32_t _size) {
 }
 
 VkDescriptorType rShaderBase::getDescriptorType(std::string _str) {
-  if (_str == "image2D") return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+  if (_str == "image2D")
+    return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 
-  if (_str == "sampler") return VK_DESCRIPTOR_TYPE_SAMPLER;
+  if (_str == "sampler")
+    return VK_DESCRIPTOR_TYPE_SAMPLER;
 
-  if (_str == "texture2D") return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+  if (_str == "texture2D")
+    return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 
-  if (_str == "sampler2D") return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  if (_str == "sampler2D")
+    return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-  if (_str == "samplerBuffer") return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+  if (_str == "samplerBuffer")
+    return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
 
-  if (_str == "imageBuffer") return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+  if (_str == "imageBuffer")
+    return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
 
-  if (_str == "subpassInput") return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+  if (_str == "subpassInput")
+    return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 
   return VK_DESCRIPTOR_TYPE_MAX_ENUM; // Error nor found
 }
@@ -195,24 +214,30 @@ VkDescriptorType rShaderBase::getDescriptorType(std::string _str) {
 rShaderBase::UNIFORM_ROLE rShaderBase::guessRole(std::string _type, std::string _name) {
   if (_type == "mat4" || _type == "mat4x4") {
     for (auto const &i : gShaderInputVarNames[U_M_MVP])
-      if (i == _name) return MODEL_VIEW_PROJECTION_MATRIX;
+      if (i == _name)
+        return MODEL_VIEW_PROJECTION_MATRIX;
 
     for (auto const &i : gShaderInputVarNames[U_M_VP])
-      if (i == _name) return VIEW_PROJECTION_MATRIX;
+      if (i == _name)
+        return VIEW_PROJECTION_MATRIX;
 
     for (auto const &i : gShaderInputVarNames[U_M_M])
-      if (i == _name) return MODEL_MATRIX;
+      if (i == _name)
+        return MODEL_MATRIX;
   }
 
   if (_type == "subpassInput") {
     for (auto const &i : gShaderInputVarNames[U_SP_POS])
-      if (i == _name) return POSITION_SUBPASS_DATA;
+      if (i == _name)
+        return POSITION_SUBPASS_DATA;
 
     for (auto const &i : gShaderInputVarNames[U_SP_NORM])
-      if (i == _name) return NORMAL_SUBPASS_DATA;
+      if (i == _name)
+        return NORMAL_SUBPASS_DATA;
 
     for (auto const &i : gShaderInputVarNames[U_SP_ALBEDO])
-      if (i == _name) return ALBEDO_SUBPASS_DATA;
+      if (i == _name)
+        return ALBEDO_SUBPASS_DATA;
   }
 
   return UNKONOWN;
@@ -261,7 +286,8 @@ void rShaderBase::addLayoutBindings(VkShaderStageFlagBits _stage, ShaderInfo _in
       }
     }
 
-    if (!lFound) vDescPoolSizes.push_back({lTemp.descriptorType, 1});
+    if (!lFound)
+      vDescPoolSizes.push_back({lTemp.descriptorType, 1});
   }
 
 
@@ -294,7 +320,8 @@ void rShaderBase::addLayoutBindings(VkShaderStageFlagBits _stage, ShaderInfo _in
     lRange.size += lTempSize;
   }
 
-  if (lRange.size != 0) vPushConstants.push_back(lRange);
+  if (lRange.size != 0)
+    vPushConstants.push_back(lRange);
 
 
   // Handle Uniform block
@@ -320,7 +347,8 @@ void rShaderBase::addLayoutBindings(VkShaderStageFlagBits _stage, ShaderInfo _in
       }
     }
 
-    if (!lFound) vDescPoolSizes.push_back({lTemp.descriptorType, 1});
+    if (!lFound)
+      vDescPoolSizes.push_back({lTemp.descriptorType, 1});
 
     uint32_t lSize     = 0;
     uint32_t lTempSize = 0;
@@ -350,10 +378,12 @@ void rShaderBase::addLayoutBindings(VkShaderStageFlagBits _stage, ShaderInfo _in
       dVkLOG("      - ", j.type, " ", j.name, " | ", uEnum2Str::toStr(lAlias->guessedRole));
     }
 
-    if (lError) continue;
+    if (lError)
+      continue;
 
     auto lIndex = createUniformBuffer(lSize);
-    if (lIndex == UINT32_MAX) continue;
+    if (lIndex == UINT32_MAX)
+      continue;
 
     vDataBufferInfo.emplace_back();
     auto *lAlias2 = &vDataBufferInfo.back();
@@ -378,7 +408,8 @@ void rShaderBase::addLayoutBindings(VkShaderStageFlagBits _stage, ShaderInfo _in
     vUniformBufferDescs.back().size  = lSize;
     vUniformBufferDescs.back().mem   = vMemory[lIndex];
 
-    for (auto &j : vUniformBufferDescs.back().vars) j.mem = vMemory[lIndex];
+    for (auto &j : vUniformBufferDescs.back().vars)
+      j.mem = vMemory[lIndex];
   }
 }
 
@@ -519,7 +550,8 @@ bool rShaderBase::init() {
     addLayoutBindings(VK_SHADER_STAGE_COMPUTE_BIT, getInfo_comp());
   }
 
-  if (!lStatus) return false;
+  if (!lStatus)
+    return false;
 
   VkDescriptorSetLayoutCreateInfo lSetInfo;
   lSetInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -621,7 +653,8 @@ void rShaderBase::cmdBindDescriptorSets(VkCommandBuffer     _buf,
 
 std::vector<VkPipelineShaderStageCreateInfo> rShaderBase::getShaderStageInfo() {
   if (!vModulesCreated)
-    if (!init()) return {};
+    if (!init())
+      return {};
 
   return vShaderStageInfo;
 }
@@ -637,9 +670,11 @@ std::vector<VkPipelineShaderStageCreateInfo> rShaderBase::getShaderStageInfo() {
  */
 VkDescriptorSet rShaderBase::getDescriptorSet(rMaterial const *_materialPtr) {
   if (!vModulesCreated)
-    if (!init()) return nullptr;
+    if (!init())
+      return nullptr;
 
-  if (vDescSetMap.find(_materialPtr) != vDescSetMap.end()) return vDescSetMap[_materialPtr];
+  if (vDescSetMap.find(_materialPtr) != vDescSetMap.end())
+    return vDescSetMap[_materialPtr];
 
   VkDescriptorSet lDescSet = nullptr;
 
@@ -659,7 +694,8 @@ VkDescriptorSet rShaderBase::getDescriptorSet(rMaterial const *_materialPtr) {
   }
 
   // Update uniform buffers descriptor set
-  for (auto &i : vWriteDescData) i.dstSet = lDescSet;
+  for (auto &i : vWriteDescData)
+    i.dstSet = lDescSet;
 
   vkUpdateDescriptorSets(vDevice_vk, static_cast<uint32_t>(vWriteDescData.size()), vWriteDescData.data(), 0, nullptr);
 
@@ -740,7 +776,8 @@ bool rShaderBase::updateDescriptorSet(UniformVar const &_var,
  */
 VkDescriptorSetLayout rShaderBase::getDescriptorSetLayout() {
   if (!vModulesCreated)
-    if (!init()) return nullptr;
+    if (!init())
+      return nullptr;
 
   return vDescLayout_vk;
 }
@@ -750,40 +787,46 @@ VkDescriptorSetLayout rShaderBase::getDescriptorSetLayout() {
  */
 VkPipelineLayout rShaderBase::getPipelineLayout() {
   if (!vModulesCreated)
-    if (!init()) return nullptr;
+    if (!init())
+      return nullptr;
 
   return vPipelineLayout_vk;
 }
 
 VkVertexInputBindingDescription rShaderBase::getVertexInputBindingDescription() {
   if (!vModulesCreated)
-    if (!init()) return {};
+    if (!init())
+      return {};
 
   return vInputBindingDesc;
 }
 
 std::vector<VkVertexInputAttributeDescription> rShaderBase::getVertexInputAttribureDescriptions() {
   if (!vModulesCreated)
-    if (!init()) return {};
+    if (!init())
+      return {};
 
   return vInputDescs;
 }
 
 std::vector<rShaderBase::PushConstantVar> rShaderBase::getPushConstants(VkShaderStageFlagBits _stage) {
   if (!vModulesCreated)
-    if (!init()) return {};
+    if (!init())
+      return {};
 
   std::vector<rShaderBase::PushConstantVar> lTemp;
 
   for (auto const &i : vPushConstantDescs)
-    if (i.stage == _stage) lTemp.push_back(i);
+    if (i.stage == _stage)
+      lTemp.push_back(i);
 
   return lTemp;
 }
 
 std::vector<rShaderBase::UniformVar> rShaderBase::getUniforms() {
   if (!vModulesCreated)
-    if (!init()) return {};
+    if (!init())
+      return {};
 
   return vUniformDesc;
 }
@@ -794,10 +837,12 @@ std::vector<rShaderBase::UniformVar> rShaderBase::getUniforms() {
  */
 rShaderBase::UniformBuffer const *rShaderBase::getUniformBuffer(VkShaderStageFlagBits _stage) {
   if (!vModulesCreated)
-    if (!init()) return nullptr;
+    if (!init())
+      return nullptr;
 
   for (auto const &i : vUniformBufferDescs)
-    if (i.stage == _stage) return &i;
+    if (i.stage == _stage)
+      return &i;
 
   return nullptr;
 }
@@ -826,7 +871,8 @@ bool rShaderBase::isInitialized() { return vModulesCreated; }
  */
 bool rShaderBase::tryReserveUniform(UniformBuffer::Var const &_var) {
   for (auto const &i : vReservedUniforms)
-    if (i == _var) return false;
+    if (i == _var)
+      return false;
 
   vReservedUniforms.push_back(_var);
   return true;

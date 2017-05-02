@@ -106,7 +106,8 @@ void uRandomISAAC::init(uint32_t _seed) {
     get();
   }
 
-  for (auto &elem : lSeed_ulI) elem = get(); // this should generate the final complete random seeds
+  for (auto &elem : lSeed_ulI)
+    elem = get(); // this should generate the final complete random seeds
 
   mixUp(lSeed_ulI);
 }
@@ -166,7 +167,8 @@ void uRandomISAAC::mixUp(uint32_t _seed[256]) {
   }
 
   // count and discard the first 256 numbers
-  for (unsigned int j = 0; j < 256; ++j) get();
+  for (unsigned int j = 0; j < 256; ++j)
+    get();
 }
 
 

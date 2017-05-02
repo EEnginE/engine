@@ -45,8 +45,9 @@
 #if defined E_COLOR_NO_TERMTEST || !UNIX
 #define __IOCTL_TERMTEST__
 #else
-#define __IOCTL_TERMTEST__ \
-  if (isatty(fileno(stdout)) == 0) return L"";
+#define __IOCTL_TERMTEST__         \
+  if (isatty(fileno(stdout)) == 0) \
+    return L"";
 #endif
 
 namespace e_engine {

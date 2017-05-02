@@ -21,8 +21,8 @@ AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine:             true
 AllowShortCaseLabelsOnASingleLine:         true
 AllowShortFunctionsOnASingleLine:          All
-AllowShortIfStatementsOnASingleLine:       true
-AllowShortLoopsOnASingleLine:              true
+AllowShortIfStatementsOnASingleLine:       false
+AllowShortLoopsOnASingleLine:              false
 
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType:           None

@@ -169,8 +169,10 @@ void rMatrixObjectBase<T, P>::updateFinalMatrix() {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;
 
-  if (vViewProjectionMatrix_MAT) vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
-  if (vViewMatrix_MAT) vModelViewMatrix_MAT                     = *vViewMatrix_MAT * vModelMatrix_MAT;
+  if (vViewProjectionMatrix_MAT)
+    vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
+  if (vViewMatrix_MAT)
+    vModelViewMatrix_MAT = *vViewMatrix_MAT * vModelMatrix_MAT;
 
   vPositionModelView = vModelViewMatrix_MAT * glm::tvec4<T, P>(0, 0, 0, 1);
   vNormalMatrix      = glm::inverseTranspose(glm::tmat3x3<T, P>(vModelViewMatrix_MAT));

@@ -62,7 +62,8 @@ bool rSceneBase::canRenderScene() {
 
   //! \todo Add vulkan stuff
 
-  if (lCanRender) iLOG("Scene '", vName_str, "' with ", vObjects.size(), " objects ready for rendering");
+  if (lCanRender)
+    iLOG("Scene '", vName_str, "' with ", vObjects.size(), " objects ready for rendering");
 
   return lCanRender;
 
@@ -184,7 +185,8 @@ bool rSceneBase::initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objInde
   std::lock_guard<std::recursive_mutex> lGuard(vObjectsInit_MUT);
   auto const *                          lMesh = getAiMesh(_objIndex);
 
-  if (!lMesh) return false;
+  if (!lMesh)
+    return false;
 
   _obj->setData(vInitBuff_vk, lMesh);
   vInitObjects.emplace_back(_obj);
@@ -232,9 +234,12 @@ bool rSceneBase::endInitObject() {
   }
 
   lRes = vkWaitForFences(vWorldPtr->getDevice(), 1, &lFence, VK_TRUE, UINT64_MAX);
-  if (lRes) { eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes)); }
+  if (lRes) {
+    eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
+  }
 
-  for (auto i : vInitObjects) i->finishData();
+  for (auto i : vInitObjects)
+    i->finishData();
 
   vkDestroyFence(vWorldPtr->getDevice(), lFence, nullptr);
   vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk);

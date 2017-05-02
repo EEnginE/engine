@@ -66,13 +66,17 @@ void rRendererBasic::initCmdBuffers(VkCommandPool _pool) {
       return;
     }
 
-    if (i->isMesh()) { vRenderObjects.emplace_back(i); }
+    if (i->isMesh()) {
+      vRenderObjects.emplace_back(i);
+    }
   }
 
   vFbData.resize(getNumFramebuffers());
   for (auto &i : vFbData) {
     i.buffers.resize(vRenderObjects.size());
-    for (auto &j : i.buffers) { j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY); }
+    for (auto &j : i.buffers) {
+      j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+    }
   }
 }
 
@@ -98,7 +102,8 @@ void rRendererBasic::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRend
 
   for (uint32_t i = 0; i < vRenderObjects.size(); i++) {
     if (_toRender == RECORD_PUSH_CONST_ONLY)
-      if (!vRenderObjects[i]->supportsPushConstants()) continue;
+      if (!vRenderObjects[i]->supportsPushConstants())
+        continue;
 
     auto *lPipe = vRenderObjects[i]->getPipeline();
     if (!lPipe) {
@@ -109,9 +114,11 @@ void rRendererBasic::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRend
     vWorldPtr->beginCommandBuffer(
         vFbData[_fb.index].buffers[i], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
-    if (lPipe->getNumViewpors() > 0) vkCmdSetViewport(vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lViewPort);
+    if (lPipe->getNumViewpors() > 0)
+      vkCmdSetViewport(vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lViewPort);
 
-    if (lPipe->getNumScissors() > 0) vkCmdSetScissor(vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lScissors);
+    if (lPipe->getNumScissors() > 0)
+      vkCmdSetScissor(vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lScissors);
 
     vRenderObjects[i]->record(vFbData[_fb.index].buffers[i]);
     vkEndCommandBuffer(vFbData[_fb.index].buffers[i]);

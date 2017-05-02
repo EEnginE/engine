@@ -67,9 +67,11 @@ void iRandR::reload() {
       bool lIsEnabled_B = false;
       bool lIsPrimary_B = false;
 
-      if (lDisplayDeviceTemp_win32.StateFlags & DISPLAY_DEVICE_ACTIVE) lIsEnabled_B = true;
+      if (lDisplayDeviceTemp_win32.StateFlags & DISPLAY_DEVICE_ACTIVE)
+        lIsEnabled_B = true;
 
-      if (lDisplayDeviceTemp_win32.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) lIsPrimary_B = true;
+      if (lDisplayDeviceTemp_win32.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+        lIsPrimary_B = true;
 
       iDisplays lTempDisplay(lDisplayDevice_win32.DeviceName, lIsEnabled_B, lIsPrimary_B);
 
@@ -346,7 +348,8 @@ bool iRandR::restoreScreenLatest() {
 bool iRandR::setGamma(const iDisplays &, float, float, float, float) { return false; }
 
 iRandR::~iRandR() {
-  if (GlobConf.win.restoreOldScreenRes) restoreScreenDefaults();
+  if (GlobConf.win.restoreOldScreenRes)
+    restoreScreenDefaults();
 }
 
 

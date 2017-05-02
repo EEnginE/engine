@@ -20,7 +20,8 @@ using namespace glm;
 using namespace e_engine;
 
 myScene::~myScene() {
-  if (vMovementThread.joinable()) vMovementThread.join();
+  if (vMovementThread.joinable())
+    vMovementThread.join();
 }
 
 int myScene::init() {
@@ -36,7 +37,8 @@ int myScene::init() {
 
   auto lNames = loadFile(vFilePath);
   for (auto const &i : lNames) {
-    if (i.type != MESH_3D) continue;
+    if (i.type != MESH_3D)
+      continue;
 
     vObjects.emplace_back(std::make_shared<rSimpleMesh>(this, i.name));
 
@@ -104,14 +106,16 @@ void myScene::objectMoveLoop() {
     float lRotDeg = lDuration.count() / 50.0f;
 
     std::lock_guard<std::mutex> lLock(vObjAccesMut);
-    for (auto &i : vObjects) i->setRotation(lAxis, lRotDeg);
+    for (auto &i : vObjects)
+      i->setRotation(lAxis, lRotDeg);
 
     getWorldPtr()->waitForFrame(lWaitMutex);
   }
 }
 
 void myScene::keySlot(const iEventInfo &_inf) {
-  if (_inf.eKey.state != E_PRESSED) return;
+  if (_inf.eKey.state != E_PRESSED)
+    return;
 
   for (auto &i : vObjects) {
     switch (_inf.eKey.key) {
@@ -129,7 +133,8 @@ void myScene::keySlot(const iEventInfo &_inf) {
 
 
 void myScene::afterCameraUpdate() {
-  for (auto &i : vObjects) i->updateFinalMatrix();
+  for (auto &i : vObjects)
+    i->updateFinalMatrix();
 
   //    vLight1.updateFinalMatrix();
   //    vLight2.updateFinalMatrix();

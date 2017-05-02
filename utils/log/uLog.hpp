@@ -205,7 +205,9 @@ void uLog::addLogEntry(char              _type,
 template <class __C>
 bool uLog::connectSlotWith(char _type, uSlot<void, __C, uLogEntryRaw &> &_slot) {
   for (unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i) {
-    if (vLogTypes_V_eLT.at(i).getType() == _type) { return _slot.connect(vLogTypes_V_eLT.at(i).getSignal()); }
+    if (vLogTypes_V_eLT.at(i).getType() == _type) {
+      return _slot.connect(vLogTypes_V_eLT.at(i).getSignal());
+    }
   }
   return false;
 }
@@ -213,7 +215,9 @@ bool uLog::connectSlotWith(char _type, uSlot<void, __C, uLogEntryRaw &> &_slot) 
 template <class __C>
 bool uLog::disconnectSlotWith(char _type, uSlot<void, __C, uLogEntryRaw &> &_slot) {
   for (unsigned int i = 0; i < vLogTypes_V_eLT.size(); ++i) {
-    if (vLogTypes_V_eLT.at(i).getType() == _type) { return _slot.disconnect(vLogTypes_V_eLT.at(i).getSignal()); }
+    if (vLogTypes_V_eLT.at(i).getType() == _type) {
+      return _slot.disconnect(vLogTypes_V_eLT.at(i).getSignal());
+    }
   }
   return false;
 }

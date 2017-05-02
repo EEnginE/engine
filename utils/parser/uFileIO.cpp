@@ -53,7 +53,8 @@ void uFileIO::setFilePath(std::string _file) { vFilePath_str = _file; }
  * \returns 5 if the file is not readable
  */
 int uFileIO::read(bool _autoReload) {
-  if (vFileRead_B == true && _autoReload == false) return 2;
+  if (vFileRead_B == true && _autoReload == false)
+    return 2;
 
   fs::path lFilePath_BFS(vFilePath_str.c_str());
 
@@ -88,12 +89,14 @@ int uFileIO::read(bool _autoReload) {
       i = static_cast<char>(c);
     }
 
-    if ((c = fgetc(lFile)) != EOF) wLOG("File size missmatch (to large)! File: '", vFilePath_str, "'");
+    if ((c = fgetc(lFile)) != EOF)
+      wLOG("File size missmatch (to large)! File: '", vFilePath_str, "'");
 
   } else {
     wLOG("Unable to obtain the file size!");
 
-    while ((c = fgetc(lFile)) != EOF) vData += static_cast<char>(c);
+    while ((c = fgetc(lFile)) != EOF)
+      vData += static_cast<char>(c);
   }
 
   fclose(lFile);
@@ -143,7 +146,8 @@ int uFileIO::write(const uFileIO::TYPE &_data, bool _overWrite) {
     return 5;
   }
 
-  for (char ch : _data) fputc(ch, lFile);
+  for (char ch : _data)
+    fputc(ch, lFile);
 
   fclose(lFile);
 

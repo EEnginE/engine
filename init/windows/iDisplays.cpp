@@ -115,15 +115,18 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
   bool lFoundOneSizeMatch      = false;
   bool lFindPreferedRateFailed = false;
 
-  if (_preferedRate < 0) _preferedRate *= -1;
+  if (_preferedRate < 0)
+    _preferedRate *= -1;
 
-  if (_maxDiff < 0) _maxDiff *= -1;
+  if (_maxDiff < 0)
+    _maxDiff *= -1;
 
   if (_preferedRate != 0) {
     lRatePref_D = findNearestFreqTo(_preferedRate, _width, _height, lPref_win32, lMinDiffToPref_D);
 
     // No mode for this size
-    if (lRatePref_D < 0) return 0;
+    if (lRatePref_D < 0)
+      return 0;
 
     if (lMinDiffToPref_D > _maxDiff) {
       lFindPreferedRateFailed = true;
@@ -135,7 +138,8 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
 
   //! \todo Check if there is a preferred mode - is this possible with windows?
 
-  if (!lFoundOneSizeMatch) return false;
+  if (!lFoundOneSizeMatch)
+    return false;
 
   vCurrentWidth_uI  = _width;
   vCurrentHeight_uI = _height;
@@ -146,7 +150,8 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
   lRate480Hz_D = findNearestFreqTo((double)480, _width, _height, l480Hz_win32, lMinDiffTo480Hz_D);
 
   // No mode for this size
-  if (lRate60Hz_D < 0 || lRate120Hz_D < 0 || lRate240Hz_D < 0 || lRate480Hz_D < 0) return 0;
+  if (lRate60Hz_D < 0 || lRate120Hz_D < 0 || lRate240Hz_D < 0 || lRate480Hz_D < 0)
+    return 0;
 
   if (lMinDiffTo60Hz_D == (double)0 || (lMinDiffTo60Hz_D < lMinDiffTo120Hz_D && lMinDiffTo60Hz_D < lMinDiffTo240Hz_D &&
                                         lMinDiffTo60Hz_D < lMinDiffTo480Hz_D)) {
@@ -249,7 +254,8 @@ std::vector<double> iDisplays::getPossibleRates(unsigned int _width, unsigned in
         }
       }
 
-      if (lRateAlreadyFound_B) continue;
+      if (lRateAlreadyFound_B)
+        continue;
 
       lRates_V_D.push_back(d.dmDisplayFrequency);
     }
@@ -276,7 +282,8 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
       }
     }
 
-    if (lHasAlreadyResFound) continue;
+    if (lHasAlreadyResFound)
+      continue;
 
     iDisplayBasic::res lNewRes;
     lNewRes.width  = d.dmPelsWidth;
@@ -333,7 +340,8 @@ bool iDisplays::isSizeSupported(unsigned int _width, unsigned int _height) const
  * \returns true if the mode was found and false if not
  */
 bool iDisplays::select(unsigned int _width, unsigned int _height, double _rate) {
-  if (!isSizeSupported(_width, _height)) return false;
+  if (!isSizeSupported(_width, _height))
+    return false;
 
   for (DEVMODEW const &dMode : vModes_V_win32) {
     if (dMode.dmPelsWidth == _width && dMode.dmPelsHeight == _height && dMode.dmDisplayFrequency == _rate) {
@@ -358,13 +366,16 @@ bool iDisplays::select(unsigned int _width, unsigned int _height, double _rate) 
  * \returns the biggest possible BitsPerPel for this resolution and rate
  */
 int iDisplays::getMaxBitsPerPelFromResolutionAndFreq(unsigned int _width, unsigned int _height, double _rate) const {
-  if (!isSizeSupported(_width, _height)) return -1;
+  if (!isSizeSupported(_width, _height))
+    return -1;
 
   unsigned int lMaxBitsPerPel_uI = 0;
   for (DEVMODEW const &dMode : vModes_V_win32) {
-    if (dMode.dmPelsWidth != _width || dMode.dmPelsHeight != _height || dMode.dmDisplayFrequency != _rate) continue;
+    if (dMode.dmPelsWidth != _width || dMode.dmPelsHeight != _height || dMode.dmDisplayFrequency != _rate)
+      continue;
 
-    if (lMaxBitsPerPel_uI < dMode.dmBitsPerPel) lMaxBitsPerPel_uI = dMode.dmBitsPerPel;
+    if (lMaxBitsPerPel_uI < dMode.dmBitsPerPel)
+      lMaxBitsPerPel_uI = dMode.dmBitsPerPel;
   }
   return lMaxBitsPerPel_uI;
 }
@@ -391,7 +402,8 @@ DEVMODEW iDisplays::getSelectedDevmode() const {
     lTempDevmode_win32.dmPosition.y = vPosY_uI;
   }
 
-  if (!vEnabled_B) memset(&lTempDevmode_win32, 0, sizeof(lTempDevmode_win32));
+  if (!vEnabled_B)
+    memset(&lTempDevmode_win32, 0, sizeof(lTempDevmode_win32));
 
   lTempDevmode_win32.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
   lTempDevmode_win32.dmSize   = sizeof(lTempDevmode_win32);

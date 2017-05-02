@@ -107,14 +107,16 @@ class rCameraHandler {
 
 template <class T, glm::precision P>
 void rCameraHandler<T, P>::setCameraKey(KEY_MOVEMENT _key, wchar_t _what) {
-  if (_key >= __LAST__ || _key < 0) return;
+  if (_key >= __LAST__ || _key < 0)
+    return;
 
   keys[_key] = _what;
 }
 
 template <class T, glm::precision P>
 void rCameraHandler<T, P>::updateCamera() {
-  if (vCameraMovementEnabled) vScene->setCamera(vPosition, vPosition + vDirection, vUp);
+  if (vCameraMovementEnabled)
+    vScene->setCamera(vPosition, vPosition + vDirection, vUp);
 
   afterCameraUpdate();
 }
@@ -122,7 +124,8 @@ void rCameraHandler<T, P>::updateCamera() {
 
 template <class T, glm::precision P>
 void rCameraHandler<T, P>::key(iEventInfo const &_event) {
-  if (!vCameraMovementEnabled || _event.eKey.state == E_RELEASED) return;
+  if (!vCameraMovementEnabled || _event.eKey.state == E_RELEASED)
+    return;
 
   T            lSpeed  = static_cast<T>(GlobConf.camera.movementSpeed);
   KEY_MOVEMENT _action = __LAST__;
@@ -191,7 +194,8 @@ template <class T, glm::precision P>
 void rCameraHandler<T, P>::mouse(iEventInfo const &_event) {
   int lDifX = static_cast<int>((GlobConf.win.width / 2) - _event.iMouse.posX);
   int lDifY = static_cast<int>((GlobConf.win.height / 2) - _event.iMouse.posY);
-  if ((lDifX == 0 && lDifY == 0) || !vCameraMovementEnabled) return;
+  if ((lDifX == 0 && lDifY == 0) || !vCameraMovementEnabled)
+    return;
 
   GlobConf.camera.angleHorizontal += GlobConf.camera.mouseSensitivity * lDifX;
   GlobConf.camera.angleVertical += GlobConf.camera.mouseSensitivity * lDifY;

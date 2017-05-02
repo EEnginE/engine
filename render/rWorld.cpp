@@ -38,7 +38,8 @@ void rWorld::handleResize(iEventInfo const &) {
 
   init(); // Will stop the render loop
 
-  if (lWasRunning) vRenderLoop.start();
+  if (lWasRunning)
+    vRenderLoop.start();
 }
 
 /*!
@@ -76,14 +77,18 @@ rWorld::~rWorld() { shutdown(); }
  */
 int rWorld::init() {
   std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
-  if (vRenderLoop.getIsRunning()) { vRenderLoop.stop(); }
+  if (vRenderLoop.getIsRunning()) {
+    vRenderLoop.stop();
+  }
   vRenderLoop.destroy();
 
   dVkLOG("  -- destroying old swapchain image views");
-  for (auto &i : vSwapchainViews_vk) vkDestroyImageView(vDevice_vk, i, nullptr);
+  for (auto &i : vSwapchainViews_vk)
+    vkDestroyImageView(vDevice_vk, i, nullptr);
 
   dVkLOG("  -- destroying old swapchain");
-  if (vSwapchain_vk) vkDestroySwapchainKHR(vDevice_vk, vSwapchain_vk, nullptr);
+  if (vSwapchain_vk)
+    vkDestroySwapchainKHR(vDevice_vk, vSwapchain_vk, nullptr);
 
   vSwapchainViews_vk.clear();
 
@@ -93,16 +98,21 @@ int rWorld::init() {
   VkCommandBuffer lBuf   = createCommandBuffer(lPool);
   VkFence         lFence = createFence();
 
-  if (!lBuf) return -1;
+  if (!lBuf)
+    return -1;
 
-  if (beginCommandBuffer(lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)) return -2;
+  if (beginCommandBuffer(lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
+    return -2;
 
-  if (vInitPtr->handleResize()) return -3;
+  if (vInitPtr->handleResize())
+    return -3;
   vSurface_vk = vInitPtr->getVulkanSurface();
 
-  if (recreateSwapchain()) return 1;
+  if (recreateSwapchain())
+    return 1;
 
-  if (recreateSwapchainImages(lBuf)) return 2;
+  if (recreateSwapchainImages(lBuf))
+    return 2;
 
   vkEndCommandBuffer(lBuf);
 
@@ -133,7 +143,8 @@ int rWorld::init() {
 
   vRenderLoop.init();
 
-  if (!vIsResizeSlotSetup) vInitPtr->addResizeSlot(&vResizeSlot);
+  if (!vIsResizeSlotSetup)
+    vInitPtr->addResizeSlot(&vResizeSlot);
 
   vIsResizeSlotSetup = true;
   vIsSetup           = true;
@@ -144,9 +155,11 @@ int rWorld::init() {
  * \brief Stops all render loops
  */
 void rWorld::shutdown() {
-  if (!vIsSetup) return;
+  if (!vIsSetup)
+    return;
 
-  if (vRenderLoop.getIsRunning()) vRenderLoop.stop();
+  if (vRenderLoop.getIsRunning())
+    vRenderLoop.stop();
 
 
   dVkLOG("Vulkan cleanup [rWorld]:");
@@ -167,10 +180,12 @@ void rWorld::shutdown() {
   }
 
   dVkLOG("  -- destroying swapchain image views");
-  for (auto &i : vSwapchainViews_vk) vkDestroyImageView(vDevice_vk, i, nullptr);
+  for (auto &i : vSwapchainViews_vk)
+    vkDestroyImageView(vDevice_vk, i, nullptr);
 
   dVkLOG("  -- destroying swapchain");
-  if (vSwapchain_vk) vkDestroySwapchainKHR(vDevice_vk, vSwapchain_vk, nullptr);
+  if (vSwapchain_vk)
+    vkDestroySwapchainKHR(vDevice_vk, vSwapchain_vk, nullptr);
 
   vIsSetup = false;
 }
@@ -289,7 +304,8 @@ VkCommandPool rWorld::getCommandPool(uint32_t _queueFamilyIndex, VkCommandPoolCr
 
   std::lock_guard<std::mutex> lLock(vCommandPoolsMutex);
 
-  if (vCmdPools_vk.count(lTemp) > 0) return vCmdPools_vk[lTemp];
+  if (vCmdPools_vk.count(lTemp) > 0)
+    return vCmdPools_vk[lTemp];
 
   // Command pool does not exists
   dVkLOG("Creating command pool for thread ", lTemp.tID, ", queue family ", lTemp.qfIndex);
@@ -302,7 +318,9 @@ VkCommandPool rWorld::getCommandPool(uint32_t _queueFamilyIndex, VkCommandPoolCr
   lInfo.queueFamilyIndex = _queueFamilyIndex;
 
   auto lRes = vkCreateCommandPool(vInitPtr->getDevice(), &lInfo, nullptr, &lPool);
-  if (lRes) { eLOG("vkCreateCommandPool returned ", uEnum2Str::toStr(lRes)); }
+  if (lRes) {
+    eLOG("vkCreateCommandPool returned ", uEnum2Str::toStr(lRes));
+  }
 
   vCmdPools_vk[lTemp] = lPool;
 
@@ -356,7 +374,9 @@ VkResult rWorld::beginCommandBuffer(VkCommandBuffer                 _buf,
   lBegin.pInheritanceInfo = _info;
 
   VkResult lRes = vkBeginCommandBuffer(_buf, &lBegin);
-  if (lRes) { eLOG("'vkBeginCommandBuffer' returned ", uEnum2Str::toStr(lRes)); }
+  if (lRes) {
+    eLOG("'vkBeginCommandBuffer' returned ", uEnum2Str::toStr(lRes));
+  }
 
   return lRes;
 }
@@ -376,7 +396,9 @@ VkResult rWorld::beginCommandBuffer(VkCommandBuffer                 _buf,
  */
 VkCommandPool rWorld::getCommandPoolFlags(VkQueueFlags _qFlags, VkCommandPoolCreateFlags _flags) {
   uint32_t lFamilyIndex = vInitPtr->getQueueFamily(_qFlags);
-  if (lFamilyIndex == UINT32_MAX) { return nullptr; }
+  if (lFamilyIndex == UINT32_MAX) {
+    return nullptr;
+  }
 
   return getCommandPool(lFamilyIndex, _flags);
 }

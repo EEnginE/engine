@@ -146,11 +146,13 @@ struct uJSON_data {
 
 template <class... ARGS>
 void uJSON_data::_(uJSON_data *_first, std::string _id, ARGS... _args) {
-  if (type == __JSON_NOT_SET__) type = JSON_OBJECT;
+  if (type == __JSON_NOT_SET__)
+    type = JSON_OBJECT;
 
   if (type == JSON_OBJECT)
     for (auto &val : value_obj)
-      if (val.id == _id) return val._(_first, _args...);
+      if (val.id == _id)
+        return val._(_first, _args...);
 
   value_obj.emplace_back(_id, __JSON_NOT_SET__);
   value_obj.back()._(_first, _args...);
@@ -158,9 +160,11 @@ void uJSON_data::_(uJSON_data *_first, std::string _id, ARGS... _args) {
 
 template <class... ARGS>
 void uJSON_data::_(uJSON_data *_first, unsigned int _id, ARGS... _args) {
-  if (type == __JSON_NOT_SET__) type = JSON_ARRAY;
+  if (type == __JSON_NOT_SET__)
+    type = JSON_ARRAY;
 
-  if (_id < value_obj.size() && type == JSON_ARRAY) return value_obj[_id]._(_first, _args...);
+  if (_id < value_obj.size() && type == JSON_ARRAY)
+    return value_obj[_id]._(_first, _args...);
 
   value_obj.emplace_back("", __JSON_NOT_SET__);
   value_obj.back()._(_first, _args...);
@@ -189,7 +193,8 @@ void uJSON_data::_(
       case __JSON_NOT_SET__: break;
     }
 
-    if (_pointer) *_pointer = static_cast<T>(_setData);
+    if (_pointer)
+      *_pointer = static_cast<T>(_setData);
     return _first->_(_first, _args...);
   }
 
@@ -207,9 +212,10 @@ void uJSON_data::_(
     case __JSON_NOT_SET__: lData = nullptr;
   }
 
-  if (lData) *_pointer = *static_cast<T *>(lData); // D must be the right type,
-                                                   // because of the macros, while T
-                                                   // could be something different
+  if (lData)
+    *_pointer = *static_cast<T *>(lData); // D must be the right type,
+                                          // because of the macros, while T
+                                          // could be something different
 
   _first->_(_first, _args...);
 }
@@ -232,7 +238,9 @@ void uJSON_data::_(uJSON_data *    _first,
       }
     }
 
-    if (_pointer) { *_pointer = type; }
+    if (_pointer) {
+      *_pointer = type;
+    }
   }
 
   _first->_(_first, _args...);
@@ -250,7 +258,8 @@ template <class... ARGS>
 void uJSON_data::_(uJSON_data *_first, int *_size, END_MARKER_TYPE, ARGS... _args) {
   *_size = -1;
 
-  if (type == JSON_ARRAY) *_size = static_cast<int>(value_obj.size());
+  if (type == JSON_ARRAY)
+    *_size = static_cast<int>(value_obj.size());
 
   _first->_(_first, _args...);
 }

@@ -73,7 +73,8 @@ int main(int argc, char *argv[]) {
     myWorld handler(cmd, &start);
     start.enableDefaultGrabControl();
 
-    if (handler.initGL() == 0) start.startMainLoop();
+    if (handler.initGL() == 0)
+      start.startMainLoop();
 
     handler.shutdown();
   }

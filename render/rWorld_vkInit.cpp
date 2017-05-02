@@ -51,7 +51,8 @@ int rWorld::recreateSwapchain() {
   dVkLOG("Surface device info:");
   dVkLOG("  -- Surface formats:");
   for (auto const &i : lSInfo.formats) {
-    if (vSwapchainFormat.format == VK_FORMAT_UNDEFINED) vSwapchainFormat = i;
+    if (vSwapchainFormat.format == VK_FORMAT_UNDEFINED)
+      vSwapchainFormat = i;
 
     if (i.format == GlobConf.vk.preferedSurfaceFormat) {
       dVkLOG("    -- Format: ",
@@ -67,14 +68,16 @@ int rWorld::recreateSwapchain() {
 
   dVkLOG("  -- Present models:");
   for (auto const &i : lSInfo.presentModels) {
-    if (lModelToUse == VK_PRESENT_MODE_MAX_ENUM_KHR) lModelToUse = i;
+    if (lModelToUse == VK_PRESENT_MODE_MAX_ENUM_KHR)
+      lModelToUse = i;
 
     if (GlobConf.vk.enableVSync) {
       if (i == VK_PRESENT_MODE_MAILBOX_KHR ||
           (i == VK_PRESENT_MODE_FIFO_KHR && lModelToUse != VK_PRESENT_MODE_MAILBOX_KHR))
         lModelToUse = i;
     } else {
-      if (i == VK_PRESENT_MODE_IMMEDIATE_KHR) lModelToUse = i;
+      if (i == VK_PRESENT_MODE_IMMEDIATE_KHR)
+        lModelToUse = i;
     }
     dVkLOG("    -- model: ", uEnum2Str::toStr(i));
   }
@@ -112,8 +115,9 @@ int rWorld::recreateSwapchain() {
 #endif
   // clang-format on
 
-  uint32_t lNumImages                                           = lSInfo.surfaceInfo.minImageCount + 1;
-  if (lNumImages > lSInfo.surfaceInfo.maxImageCount) lNumImages = lSInfo.surfaceInfo.maxImageCount;
+  uint32_t lNumImages = lSInfo.surfaceInfo.minImageCount + 1;
+  if (lNumImages > lSInfo.surfaceInfo.maxImageCount)
+    lNumImages = lSInfo.surfaceInfo.maxImageCount;
 
   VkExtent2D lExtentToUse = lSInfo.surfaceInfo.currentExtent;
   lExtentToUse.width      = GlobConf.win.width;
@@ -187,7 +191,8 @@ int rWorld::recreateSwapchain() {
  * \returns 0 on success
  */
 int rWorld::recreateSwapchainImages(VkCommandBuffer _buf) {
-  if (!vDevice_vk) return 1;
+  if (!vDevice_vk)
+    return 1;
 
   uint32_t lNum;
   auto     lRes = vkGetSwapchainImagesKHR(vDevice_vk, vSwapchain_vk, &lNum, nullptr);

@@ -37,7 +37,8 @@ class iKeyboardBasic {
    */
   void setKeyState(wchar_t _key, unsigned short int _state) {
 #if !WINDOWS
-    if (_key < 0) return;
+    if (_key < 0)
+      return;
 #endif
 
     key_state[static_cast<unsigned int>(_key)] = _state;
@@ -50,9 +51,13 @@ class iKeyboardBasic {
    */
   unsigned short int getKeyStateArray(wchar_t _key) {
 #if !WINDOWS
-    if (_key < 0 || _key > _E_KEY_LAST) { return static_cast<unsigned short int>(E_UNKNOWN); }
+    if (_key < 0 || _key > _E_KEY_LAST) {
+      return static_cast<unsigned short int>(E_UNKNOWN);
+    }
 #else
-    if (_key > _E_KEY_LAST) { return static_cast<unsigned short int>(E_UNKNOWN); }
+    if (_key > _E_KEY_LAST) {
+      return static_cast<unsigned short int>(E_UNKNOWN);
+    }
 #endif
     return key_state[static_cast<unsigned int>(_key)];
   }

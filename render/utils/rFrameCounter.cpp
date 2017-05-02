@@ -27,8 +27,10 @@ rFrameCounter::~rFrameCounter() { disableFrameCounter(true); }
 rFrameCounter::rFrameCounter(rWorld *_rWorld, bool _enable)
     : vWorld(_rWorld), vRenderedFrames(_rWorld->getRenderedFramesPtr()) {
 
-  if (_enable) enableFrameCounter();
-  if (!vWorld) eLOG("Wrold is NULL");
+  if (_enable)
+    enableFrameCounter();
+  if (!vWorld)
+    eLOG("Wrold is NULL");
 }
 
 /*!
@@ -62,7 +64,8 @@ void rFrameCounter::enableFrameCounter() {
 void rFrameCounter::disableFrameCounter(bool _join) {
   vFrameCounterEnabled = false;
   if (_join)
-    if (frameCounterThread.joinable()) frameCounterThread.join();
+    if (frameCounterThread.joinable())
+      frameCounterThread.join();
   iLOG("Frame counter disabled");
 }
 }

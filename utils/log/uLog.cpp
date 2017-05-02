@@ -68,7 +68,9 @@ uLog::uLog()
 
 uLog::~uLog() {
   stopLogLoop();
-  if (vLogFileOutput_OS.is_open()) { vLogFileOutput_OS.close(); }
+  if (vLogFileOutput_OS.is_open()) {
+    vLogFileOutput_OS.close();
+  }
 }
 
 void uLog::devInit() {
@@ -89,7 +91,8 @@ void uLog::devInit() {
 
   connectSlotWith('E', vStdErr_eSLOT);
 
-  if (!vLogFileOutput_OS.is_open()) openLogFile();
+  if (!vLogFileOutput_OS.is_open())
+    openLogFile();
 
   if (vLogFileOutput_OS.is_open()) {
     connectSlotWith('I', vStdLog_eSLOT);
@@ -112,7 +115,8 @@ void uLog::devInit() {
  */
 void uLog::addType(char _type, std::wstring _name, char _color, bool _bold) {
   vLogTypes_V_eLT.emplace_back(_type, _name, _color, _bold);
-  if (_name.size() > vMaxTypeStringLength_usI) vMaxTypeStringLength_usI = static_cast<unsigned short int>(_name.size());
+  if (_name.size() > vMaxTypeStringLength_usI)
+    vMaxTypeStringLength_usI = static_cast<unsigned short int>(_name.size());
 }
 
 /*!
@@ -130,7 +134,8 @@ void uLog::nameThread(std::wstring _name) {
 }
 
 std::wstring uLog::getThreadName(std::thread::id _id) {
-  if (vThreads.count(_id) == 0) return L"<UNKNOWN>";
+  if (vThreads.count(_id) == 0)
+    return L"<UNKNOWN>";
 
   return vThreads[_id];
 }
@@ -146,18 +151,30 @@ bool uLog::openLogFile(uint16_t i) {
     lThisLog_SS << vLogFileName_str << ".log";
 
     lNextLog_SS << vLogFileName_str << '.';
-    if ((i + 1) < 100) { lNextLog_SS << '0'; }
-    if ((i + 1) < 10) { lNextLog_SS << '0'; }
+    if ((i + 1) < 100) {
+      lNextLog_SS << '0';
+    }
+    if ((i + 1) < 10) {
+      lNextLog_SS << '0';
+    }
     lNextLog_SS << (i + 1) << ".log";
   } else {
     lThisLog_SS << vLogFileName_str << '.';
-    if (i < 100) { lThisLog_SS << '0'; }
-    if (i < 10) { lThisLog_SS << '0'; }
+    if (i < 100) {
+      lThisLog_SS << '0';
+    }
+    if (i < 10) {
+      lThisLog_SS << '0';
+    }
     lThisLog_SS << i << ".log";
 
     lNextLog_SS << vLogFileName_str << '.';
-    if ((i + 1) < 100) { lNextLog_SS << '0'; }
-    if ((i + 1) < 10) { lNextLog_SS << '0'; }
+    if ((i + 1) < 100) {
+      lNextLog_SS << '0';
+    }
+    if ((i + 1) < 10) {
+      lNextLog_SS << '0';
+    }
     lNextLog_SS << (i + 1) << ".log";
   }
 
@@ -288,7 +305,8 @@ void uLog::stdLogStandard(e_engine::uLogEntryRaw &_e) {
 
 void uLog::logLoop() {
   nameThread(L"log");
-  if (vIsLogLoopRunning_B) return;
+  if (vIsLogLoopRunning_B)
+    return;
 
   vIsLogLoopRunning_B = true;
   std::string             lErrorType_STR;
@@ -301,7 +319,8 @@ void uLog::logLoop() {
 
     {
       std::lock_guard<std::mutex> lLock(vLogThreadSaveMutex_BT);
-      if (vLogEntries.empty()) continue;
+      if (vLogEntries.empty())
+        continue;
 
       // Transfer all elements (only the pointers) from vLogEntries to lTempList
       lEntryWorkerList.splice(lEntryWorkerList.end(), vLogEntries);
@@ -317,7 +336,8 @@ void uLog::logLoop() {
 }
 
 bool uLog::startLogLoop() {
-  if (vIsLogLoopRunning_B == true) return false;
+  if (vIsLogLoopRunning_B == true)
+    return false;
 
   if (GlobConf.log.waitUntilLogEntryPrinted == true) {
     vLogLoopRun_B = true;
@@ -325,8 +345,12 @@ bool uLog::startLogLoop() {
   }
 
   // Slow output fix
-  if (setvbuf(stdout, nullptr, _IOLBF, 4096) != 0) { wLOG("Cannot set Windows output buffer [stdout]"); }
-  if (setvbuf(stderr, nullptr, _IOLBF, 4096) != 0) { wLOG("Cannot set Windows output buffer [stderr]"); }
+  if (setvbuf(stdout, nullptr, _IOLBF, 4096) != 0) {
+    wLOG("Cannot set Windows output buffer [stdout]");
+  }
+  if (setvbuf(stderr, nullptr, _IOLBF, 4096) != 0) {
+    wLOG("Cannot set Windows output buffer [stderr]");
+  }
 
   vLogLoopRun_B         = true;
   vLogLoopThread_THREAD = std::thread(&uLog::logLoop, this);
@@ -342,7 +366,8 @@ bool uLog::stopLogLoop() {
   // in this case.
   B_SLEEP(milliseconds, 10);
 
-  if (vIsLogLoopRunning_B == false) return false;
+  if (vIsLogLoopRunning_B == false)
+    return false;
 
   vLogLoopRun_B = false;
   vLogLoopThread_THREAD.join();

@@ -161,7 +161,9 @@ void rRendererDeferred::initBuffers() {
   }
 
   auto lRes = vkWaitForFences(vDevice_vk, 1, &lFence, VK_TRUE, UINT64_MAX);
-  if (lRes) { eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes)); }
+  if (lRes) {
+    eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
+  }
 
   vkDestroyFence(vDevice_vk, lFence, nullptr);
   vkFreeCommandBuffers(vDevice_vk, lPool, 1, &lBuf);
@@ -189,9 +191,11 @@ void rRendererDeferred::initCmdBuffers(VkCommandPool _pool) {
     i.objects.resize(vRenderObjects.size());
     i.lights.resize(vLightObjects.size());
 
-    for (auto &j : i.objects) j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+    for (auto &j : i.objects)
+      j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
 
-    for (auto &j : i.lights) j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+    for (auto &j : i.lights)
+      j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
 
     i.layoutChange1 = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
     i.layoutChange2 = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
@@ -227,7 +231,8 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
 
   for (uint32_t i = 0; i < vRenderObjects.size(); i++) {
     if (_toRender == RECORD_PUSH_CONST_ONLY)
-      if (!vRenderObjects[i]->supportsPushConstants()) continue;
+      if (!vRenderObjects[i]->supportsPushConstants())
+        continue;
 
     auto *lPipe = vRenderObjects[i]->getPipeline();
     if (!lPipe) {
@@ -238,9 +243,11 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
     vWorldPtr->beginCommandBuffer(
         vFbData[_fb.index].objects[i], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
-    if (lPipe->getNumViewpors() > 0) vkCmdSetViewport(vFbData[_fb.index].objects[i], 0, 1, &vCmdRecordInfo.lViewPort);
+    if (lPipe->getNumViewpors() > 0)
+      vkCmdSetViewport(vFbData[_fb.index].objects[i], 0, 1, &vCmdRecordInfo.lViewPort);
 
-    if (lPipe->getNumScissors() > 0) vkCmdSetScissor(vFbData[_fb.index].objects[i], 0, 1, &vCmdRecordInfo.lScissors);
+    if (lPipe->getNumScissors() > 0)
+      vkCmdSetScissor(vFbData[_fb.index].objects[i], 0, 1, &vCmdRecordInfo.lScissors);
 
     vRenderObjects[i]->record(vFbData[_fb.index].objects[i]);
     vkEndCommandBuffer(vFbData[_fb.index].objects[i]);
@@ -287,7 +294,8 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
 
   for (uint32_t i = 0; i < vLightObjects.size(); i++) {
     if (_toRender == RECORD_PUSH_CONST_ONLY)
-      if (!vLightObjects[i]->supportsPushConstants()) continue;
+      if (!vLightObjects[i]->supportsPushConstants())
+        continue;
 
     auto *lPipe = vLightObjects[i]->getPipeline();
     if (!lPipe) {
@@ -298,9 +306,11 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
     vWorldPtr->beginCommandBuffer(
         vFbData[_fb.index].lights[i], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
-    if (lPipe->getNumViewpors() > 0) vkCmdSetViewport(vFbData[_fb.index].lights[i], 0, 1, &vCmdRecordInfo.lViewPort);
+    if (lPipe->getNumViewpors() > 0)
+      vkCmdSetViewport(vFbData[_fb.index].lights[i], 0, 1, &vCmdRecordInfo.lViewPort);
 
-    if (lPipe->getNumScissors() > 0) vkCmdSetScissor(vFbData[_fb.index].lights[i], 0, 1, &vCmdRecordInfo.lScissors);
+    if (lPipe->getNumScissors() > 0)
+      vkCmdSetScissor(vFbData[_fb.index].lights[i], 0, 1, &vCmdRecordInfo.lScissors);
 
     vLightObjects[i]->recordLight(vFbData[_fb.index].lights[i], vDeferredDataBuffer, vDeferredIndexBuffer);
     vkEndCommandBuffer(vFbData[_fb.index].lights[i]);

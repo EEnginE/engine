@@ -51,14 +51,16 @@ bool uParserJSON::parseValue(e_engine::uJSON_data &_currentObject, const std::st
     // String
     case '"':
       _currentObject.value_obj.emplace_back(_name, JSON_STRING);
-      if (!getString(_currentObject.value_obj.back().value_str)) return false;
+      if (!getString(_currentObject.value_obj.back().value_str))
+        return false;
 
       break;
 
     // true
     case 't':
       ++vIter;
-      if (!expect("rue")) return false;
+      if (!expect("rue"))
+        return false;
 
       _currentObject.value_obj.emplace_back(_name, JSON_BOOL);
       _currentObject.value_obj.back().value_bool = true;
@@ -67,7 +69,8 @@ bool uParserJSON::parseValue(e_engine::uJSON_data &_currentObject, const std::st
     // false
     case 'f':
       ++vIter;
-      if (!expect("alse")) return false;
+      if (!expect("alse"))
+        return false;
 
       _currentObject.value_obj.emplace_back(_name, JSON_BOOL);
       _currentObject.value_obj.back().value_bool = false;
@@ -77,7 +80,8 @@ bool uParserJSON::parseValue(e_engine::uJSON_data &_currentObject, const std::st
     case 'n':
       ++vIter;
       if (!expect("il", true, true))
-        if (!expect("ull")) return false;
+        if (!expect("ull"))
+          return false;
 
       _currentObject.value_obj.emplace_back(_name, JSON_NULL);
       break;
@@ -85,13 +89,15 @@ bool uParserJSON::parseValue(e_engine::uJSON_data &_currentObject, const std::st
     case '{':
       ++vIter;
       _currentObject.value_obj.emplace_back(_name, JSON_OBJECT);
-      if (!parseObject(_currentObject.value_obj.back())) return false;
+      if (!parseObject(_currentObject.value_obj.back()))
+        return false;
 
       break;
     case '[':
       ++vIter;
       _currentObject.value_obj.emplace_back(_name, JSON_ARRAY);
-      if (!parseArray(_currentObject.value_obj.back())) return false;
+      if (!parseArray(_currentObject.value_obj.back()))
+        return false;
 
       break;
 
@@ -106,7 +112,8 @@ bool uParserJSON::parseValue(e_engine::uJSON_data &_currentObject, const std::st
       }
 
       vIter = lTempIter;
-      if (!getNum(_currentObject.value_obj.back().value_num)) return false;
+      if (!getNum(_currentObject.value_obj.back().value_num))
+        return false;
 
       break;
     }
@@ -115,7 +122,8 @@ bool uParserJSON::parseValue(e_engine::uJSON_data &_currentObject, const std::st
 }
 
 bool uParserJSON::parseArray(uJSON_data &_currentObject) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   // Empty array
   if (*vIter == ']') {
@@ -123,17 +131,20 @@ bool uParserJSON::parseArray(uJSON_data &_currentObject) {
     return true;
   }
 
-  if (!parseValue(_currentObject, "")) return false;
+  if (!parseValue(_currentObject, ""))
+    return false;
 
   while (expect(',', true, true))
-    if (!parseValue(_currentObject, "")) return false;
+    if (!parseValue(_currentObject, ""))
+      return false;
 
   return expect(']');
 }
 
 
 bool uParserJSON::parseObject(uJSON_data &lCurrentObject) {
-  if (!continueWhitespace()) return false;
+  if (!continueWhitespace())
+    return false;
 
   // Empty object
   if (*vIter == '}') {
@@ -146,15 +157,19 @@ bool uParserJSON::parseObject(uJSON_data &lCurrentObject) {
   while (true) {
     lName.clear();
 
-    if (!getString(lName)) return false;
+    if (!getString(lName))
+      return false;
 
-    if (!expect(':')) return false;
+    if (!expect(':'))
+      return false;
 
     parseValue(lCurrentObject, lName);
 
-    if (expect(',', true, true)) continue;
+    if (expect(',', true, true))
+      continue;
 
-    if (expect('}', false)) break;
+    if (expect('}', false))
+      break;
 
     return unexpectedCharError();
   }
@@ -165,10 +180,12 @@ bool uParserJSON::parseObject(uJSON_data &lCurrentObject) {
 
 
 bool uParserJSON::load_IMPL() {
-  if (!expect('{')) return false;
+  if (!expect('{'))
+    return false;
 
   vData.type = JSON_OBJECT;
-  if (!parseObject(vData)) return false;
+  if (!parseObject(vData))
+    return false;
 
   while (vIter != vEnd) {
     switch (*vIter) {
@@ -185,12 +202,14 @@ bool uParserJSON::load_IMPL() {
 void uParserJSON::setWriteIndent(std::string _in) { vWriteIndent_str = _in; }
 
 std::string uParserJSON::toString(uJSON_data const &_data) {
-  if (_data.type != JSON_OBJECT) return "";
+  if (_data.type != JSON_OBJECT)
+    return "";
 
   std::string lOutput = "{\n";
   for (unsigned int i = 0; i < _data.value_obj.size(); ++i) {
     writeValue(_data.value_obj[i], lOutput, vWriteIndent_str, false);
-    if (i != (_data.value_obj.size() - 1)) lOutput += ",";
+    if (i != (_data.value_obj.size() - 1))
+      lOutput += ",";
 
     lOutput += "\n";
   }
@@ -214,12 +233,14 @@ std::string uParserJSON::toString(uJSON_data const &_data) {
  * \returns -2 if _data has not the type JSON_OBJECT
  */
 int uParserJSON::write(const uJSON_data &_data, bool _overwriteIfNeeded) {
-  if (_data.type != JSON_OBJECT) return -2;
+  if (_data.type != JSON_OBJECT)
+    return -2;
 
   std::string lOutput = "{\n";
   for (unsigned int i = 0; i < _data.value_obj.size(); ++i) {
     writeValue(_data.value_obj[i], lOutput, vWriteIndent_str, false);
-    if (i != (_data.value_obj.size() - 1)) lOutput += ",";
+    if (i != (_data.value_obj.size() - 1))
+      lOutput += ",";
 
     lOutput += "\n";
   }
@@ -231,7 +252,8 @@ int uParserJSON::write(const uJSON_data &_data, bool _overwriteIfNeeded) {
 
 void uParserJSON::prepareString(const std::string &_in, std::string &_out) {
   for (char ch : _in) {
-    if (ch == '"' || ch == '\\') _out.append(1, '\\');
+    if (ch == '"' || ch == '\\')
+      _out.append(1, '\\');
 
     _out.append(1, ch);
   }
@@ -260,7 +282,8 @@ void uParserJSON::writeValue(const uJSON_data &_data, std::string &_worker, std:
       _worker += "[\n";
       for (i = 0; i < _data.value_obj.size(); ++i) {
         writeValue(_data.value_obj[i], _worker, _level + vWriteIndent_str, true);
-        if (i != (_data.value_obj.size() - 1)) _worker += ",";
+        if (i != (_data.value_obj.size() - 1))
+          _worker += ",";
 
         _worker += "\n";
       }
@@ -270,7 +293,8 @@ void uParserJSON::writeValue(const uJSON_data &_data, std::string &_worker, std:
       _worker += "{\n";
       for (i = 0; i < _data.value_obj.size(); ++i) {
         writeValue(_data.value_obj[i], _worker, _level + vWriteIndent_str, false);
-        if (i != (_data.value_obj.size() - 1)) _worker += ",";
+        if (i != (_data.value_obj.size() - 1))
+          _worker += ",";
 
         _worker += "\n";
       }

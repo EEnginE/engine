@@ -34,17 +34,22 @@ rBuffer::rBuffer(rWorld *_tempWorld) : rBuffer(_tempWorld->getInitPtr()) {}
 rBuffer::rBuffer(iInit *_init) : vDevice_vk(_init->getDevice()), vInitPtr(_init) {}
 
 rBuffer::~rBuffer() {
-  if (vIsLoaded) destroy();
+  if (vIsLoaded)
+    destroy();
 }
 
 bool rBuffer::errorCleanup() {
-  if (vTempBuffer_vk) vkDestroyBuffer(vDevice_vk, vTempBuffer_vk, nullptr);
+  if (vTempBuffer_vk)
+    vkDestroyBuffer(vDevice_vk, vTempBuffer_vk, nullptr);
 
-  if (vBuffer_vk) vkDestroyBuffer(vDevice_vk, vBuffer_vk, nullptr);
+  if (vBuffer_vk)
+    vkDestroyBuffer(vDevice_vk, vBuffer_vk, nullptr);
 
-  if (vMemTemp_vk) vkFreeMemory(vDevice_vk, vMemTemp_vk, nullptr);
+  if (vMemTemp_vk)
+    vkFreeMemory(vDevice_vk, vMemTemp_vk, nullptr);
 
-  if (vMem_vk) vkFreeMemory(vDevice_vk, vMem_vk, nullptr);
+  if (vMem_vk)
+    vkFreeMemory(vDevice_vk, vMem_vk, nullptr);
 
   vTempBuffer_vk = nullptr;
   vBuffer_vk     = nullptr;
@@ -250,13 +255,17 @@ bool rBuffer::destroy() {
     return false;
   }
 
-  if (vTempBuffer_vk) vkDestroyBuffer(vDevice_vk, vTempBuffer_vk, nullptr);
+  if (vTempBuffer_vk)
+    vkDestroyBuffer(vDevice_vk, vTempBuffer_vk, nullptr);
 
-  if (vBuffer_vk) vkDestroyBuffer(vDevice_vk, vBuffer_vk, nullptr);
+  if (vBuffer_vk)
+    vkDestroyBuffer(vDevice_vk, vBuffer_vk, nullptr);
 
-  if (vMemTemp_vk) vkFreeMemory(vDevice_vk, vMemTemp_vk, nullptr);
+  if (vMemTemp_vk)
+    vkFreeMemory(vDevice_vk, vMemTemp_vk, nullptr);
 
-  if (vMem_vk) vkFreeMemory(vDevice_vk, vMem_vk, nullptr);
+  if (vMem_vk)
+    vkFreeMemory(vDevice_vk, vMem_vk, nullptr);
 
   vTempBuffer_vk = nullptr;
   vBuffer_vk     = nullptr;
@@ -273,7 +282,8 @@ bool rBuffer::destroy() {
  * \brief returns nullptr on error
  */
 VkBuffer rBuffer::getBuffer() {
-  if (!vIsLoaded) return nullptr;
+  if (!vIsLoaded)
+    return nullptr;
 
   return vBuffer_vk;
 }

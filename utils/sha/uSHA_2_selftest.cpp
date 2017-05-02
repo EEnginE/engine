@@ -72,7 +72,9 @@ bool uSHA_2::selftest() {
 
   // SHA 224: abc
   // Hash:    23097D22 3405D822 8642A477 BDA255B3 2AADBCE4 BDA0B3F7 E36C9DA7
-  if (!test(SHA2_224, "abc", "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7")) { lReturn_B = false; }
+  if (!test(SHA2_224, "abc", "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7")) {
+    lReturn_B = false;
+  }
 
 
   // SHA 224: abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq
@@ -86,7 +88,9 @@ bool uSHA_2::selftest() {
 
   // SHA 256: abc
   // Hash:    BA7816BF 8F01CFEA 414140DE 5DAE2223 B00361A3 96177A9C B410FF61 F20015AD
-  if (!test(SHA2_256, "abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")) { lReturn_B = false; }
+  if (!test(SHA2_256, "abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")) {
+    lReturn_B = false;
+  }
 
 
   // SHA 256: abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq

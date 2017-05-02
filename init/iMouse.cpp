@@ -24,7 +24,8 @@
 namespace e_engine {
 
 iMouse::iMouse() {
-  for (auto &elem : button_state) elem = E_RELEASED;
+  for (auto &elem : button_state)
+    elem = E_RELEASED;
 }
 
 iMouse::~iMouse() {}

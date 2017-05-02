@@ -48,7 +48,8 @@ unsigned int uLogEntryRaw::getLogEntry(std::vector<internal::uLogType> &_vLogTyp
   }
 
   if (_threads.find(vThreadId) != _threads.end())
-    if (!_threads[vThreadId].empty()) data.raw.vThreadName_STR = _threads[vThreadId];
+    if (!_threads[vThreadId].empty())
+      data.raw.vThreadName_STR = _threads[vThreadId];
 
 
   for (unsigned int i = 0; i < _vLogTypes_V_eLT.size(); ++i) {

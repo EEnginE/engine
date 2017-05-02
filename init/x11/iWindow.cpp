@@ -58,7 +58,8 @@ iWindow::~iWindow() { destroyWindow(); }
 internal::iXCBAtom::iXCBAtom(xcb_connection_t *_connection, std::string _name) { genAtom(_connection, _name); }
 
 bool internal::iXCBAtom::genAtom(xcb_connection_t *_connection, std::string _name) {
-  if (vAtomReply_XCB != nullptr) free(vAtomReply_XCB);
+  if (vAtomReply_XCB != nullptr)
+    free(vAtomReply_XCB);
 
   xcb_intern_atom_cookie_t lTempCookie =
       xcb_intern_atom(_connection, 0, static_cast<uint16_t>(_name.size()), _name.c_str());
@@ -68,7 +69,9 @@ bool internal::iXCBAtom::genAtom(xcb_connection_t *_connection, std::string _nam
 }
 
 internal::iXCBAtom::~iXCBAtom() {
-  if (vAtomReply_XCB != nullptr) { free(vAtomReply_XCB); }
+  if (vAtomReply_XCB != nullptr) {
+    free(vAtomReply_XCB);
+  }
 }
 
 /*!
@@ -91,7 +94,8 @@ int iWindow::createWindow() {
   vSetup_XCB                      = xcb_get_setup(vConnection_XCB);
   xcb_screen_iterator_t lIter_XCB = xcb_setup_roots_iterator(vSetup_XCB);
 
-  for (int i = 0; i < lScreenNum; i++) xcb_screen_next(&lIter_XCB);
+  for (int i = 0; i < lScreenNum; i++)
+    xcb_screen_next(&lIter_XCB);
 
   vScreen_XCB = lIter_XCB.data;
 
@@ -180,7 +184,9 @@ int iWindow::createWindow() {
          "\n  - RandR:  ", lC1_C, lRandRVersionString_str );
   // clang-format on
 
-  if (GlobConf.win.fullscreen == true) { fullScreen(C_ADD); }
+  if (GlobConf.win.fullscreen == true) {
+    fullScreen(C_ADD);
+  }
 
   if (GlobConf.win.windowDecoration == true) {
     setDecoration(C_ADD);
@@ -193,7 +199,8 @@ int iWindow::createWindow() {
 
 void iWindow::setWmProperty(
     iXCBAtom &_property, xcb_atom_t _type, uint8_t _format, uint32_t _length, const void *_data) {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   xcb_change_property(
       vConnection_XCB, XCB_PROP_MODE_REPLACE, vWindow_XCB, _property.getAtom(), _type, _format, _length, _data);
@@ -209,7 +216,8 @@ void iWindow::setWmPropertyString(iXCBAtom &_property, std::string _data) {
 }
 
 void iWindow::setWindowNames(std::string _windowName, std::string _iconName) {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   setWmPropertyString(vNetWmName_ATOM, _windowName);
   setWmPropertyString(vNetWmIconName_ATOM, _iconName);
@@ -218,7 +226,8 @@ void iWindow::setWindowNames(std::string _windowName, std::string _iconName) {
 }
 
 void iWindow::setWindowType(WINDOW_TYPE _type) {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   // clang-format off
    std::string lWindowType_str;
@@ -253,7 +262,8 @@ void iWindow::setWindowType(WINDOW_TYPE _type) {
  * \param _posY   The new Y coordinate
  */
 void iWindow::changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY) {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   uint16_t lMask     = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
   uint32_t lValues[] = {static_cast<uint32_t>(_posX), static_cast<uint32_t>(_posY), _width, _height};
@@ -300,9 +310,12 @@ const long unsigned int MWM_HINTS_DECORATIONS = (1L << 1);
  * \param _action Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
  */
 void iWindow::setDecoration(e_engine::ACTION _action) {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
-  if (_action == C_TOGGLE) { _action = (vWindowHasBorder_B) ? C_REMOVE : C_ADD; }
+  if (_action == C_TOGGLE) {
+    _action = (vWindowHasBorder_B) ? C_REMOVE : C_ADD;
+  }
 
   struct MwmHints lHints_X11;
 
@@ -325,7 +338,8 @@ void iWindow::setDecoration(e_engine::ACTION _action) {
 void iWindow::fullScreen(e_engine::ACTION _action, bool _allMonitors) {
   setAttribute(_action, FULLSCREEN);
 
-  if (_allMonitors && !(_action == C_REMOVE)) fullScreenMultiMonitor();
+  if (_allMonitors && !(_action == C_REMOVE))
+    fullScreenMultiMonitor();
 }
 
 /*!
@@ -345,7 +359,8 @@ void iWindow::maximize(e_engine::ACTION _action) { setAttribute(_action, MAXIMIZ
  * \sa e_engine::ACTION, e_engine::WINDOW_ATTRIBUTE
  */
 void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2) {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   if (_type1 == _type2) {
     eLOG(
@@ -431,7 +446,8 @@ void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRI
  * \brief Try to map the fullscreen window to all monitors
  */
 void iWindow::fullScreenMultiMonitor() {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   unsigned int lLeft_I;
   unsigned int lRight_I;
@@ -453,7 +469,8 @@ void iWindow::fullScreenMultiMonitor() {
  * \param _disp The display where the fullscreen window should be
  */
 void iWindow::setFullScreenMonitor(iDisplays &_disp) {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   uint32_t lDisp_I = static_cast<uint32_t>(getIndexOfDisplay(_disp));
 
@@ -473,7 +490,8 @@ void iWindow::setFullScreenMonitor(iDisplays &_disp) {
 
 
 void iWindow::sendX11Event(iXCBAtom &_atom, uint32_t _l0, uint32_t _l1, uint32_t _l2, uint32_t _l3, uint32_t _l4) {
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   xcb_client_message_event_t lEvent_XCB;
 
@@ -532,7 +550,8 @@ bool iWindow::grabMouse() {
     return false;
   }
 
-  if (!vWindowCreated_B) return false;
+  if (!vWindowCreated_B)
+    return false;
 
   uint16_t lEventMask = XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW |
                         XCB_EVENT_MASK_LEAVE_WINDOW | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_1_MOTION |
@@ -580,7 +599,8 @@ void iWindow::freeMouse() {
     return;
   }
 
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
 
   xcb_ungrab_pointer(vConnection_XCB, XCB_CURRENT_TIME);
@@ -603,7 +623,8 @@ void iWindow::moveMouse(unsigned int _posX, unsigned int _posY) {
     return;
   }
 
-  if (!vWindowCreated_B) return;
+  if (!vWindowCreated_B)
+    return;
 
   xcb_warp_pointer(vConnection_XCB,             // Our connection to the X server
                    XCB_NONE,                    // Move it from this window (unknown)...

@@ -30,7 +30,9 @@ cmdANDinit::cmdANDinit(int argc, char *argv[], testStarter &_starter, bool &_err
   dataRoot = INSTALL_PREFIX + string("/share/engineTests/oglTest/data/");
 #endif
 
-  for (auto i = 1; i < argc; ++i) { args.push_back(argv[i]); }
+  for (auto i = 1; i < argc; ++i) {
+    args.push_back(argv[i]);
+  }
 
   GlobConf.win.width          = 800;
   GlobConf.win.height         = 600;
@@ -81,7 +83,9 @@ void cmdANDinit::usage() {
   dLOG("    --log=<path>     : set a custom log file path to <path>");
   dLOG("    -w | --wait      : wait until log entry is printed");
   dLOG("    --data=<path>    : set a custom root path for the data dir");
-  if (vCanUseColor) { dLOG("    -n | --nocolor   : disable colored output"); }
+  if (vCanUseColor) {
+    dLOG("    -n | --nocolor   : disable colored output");
+  }
   dLOG("    -l | --list      : lists all available tests");
   dLOG("    --without-<test> : disables test <test>");
   dLOG("    --with-<test>    : enables test <test>");
@@ -168,7 +172,9 @@ bool cmdANDinit::parseArgsAndInit(testStarter &_starter) {
 
 
 void cmdANDinit::generate(uJSON_data &_data) {
-  if (outputFiles.empty()) { outputFiles.emplace_back("./oglTest.json"); }
+  if (outputFiles.empty()) {
+    outputFiles.emplace_back("./oglTest.json");
+  }
   for (auto &f : outputFiles) {
     uParserJSON generator(f);
     if (generator.write(_data, true) == 1) {

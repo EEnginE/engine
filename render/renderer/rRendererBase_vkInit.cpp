@@ -229,7 +229,8 @@ int rRendererBase::initImageBuffers(VkCommandBuffer _buf) {
  * \returns 0 on success
  */
 int rRendererBase::initRenderPass() {
-  if (!vDevice_vk) return 1;
+  if (!vDevice_vk)
+    return 1;
 
   if (vRenderPass_vk.subpasses.empty()) {
     eLOG("Can not create a renderPass without at least one subpass!");
@@ -271,11 +272,13 @@ int rRendererBase::initRenderPass() {
     dLOG("      - resolveAttachments:");
     for (uint32_t j = 0; j < i.colorAttachmentCount; j++) {
       auto lTemp = i.pResolveAttachments[j];
-      if (lTemp.attachment == VK_ATTACHMENT_UNUSED) continue;
+      if (lTemp.attachment == VK_ATTACHMENT_UNUSED)
+        continue;
       dLOG("        - ", lTemp.attachment, "; ", uEnum2Str::toStr(lTemp.layout));
     }
     auto lTemp = i.pDepthStencilAttachment;
-    if (lTemp) dLOG("      - depthStencilAttachment: ", lTemp->attachment, "; ", uEnum2Str::toStr(lTemp->layout));
+    if (lTemp)
+      dLOG("      - depthStencilAttachment: ", lTemp->attachment, "; ", uEnum2Str::toStr(lTemp->layout));
     dLOG("      - preserveAttachments:");
     for (uint32_t j = 0; j < i.preserveAttachmentCount; j++) {
       auto lTemp = i.pPreserveAttachments[j];

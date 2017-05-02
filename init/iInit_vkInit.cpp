@@ -48,7 +48,9 @@ std::vector<VkExtensionProperties> iInit::getExtProprs(std::string _layerName) {
     return lPorps;
   }
 
-  if (lExtCount == 0) { return lPorps; }
+  if (lExtCount == 0) {
+    return lPorps;
+  }
 
   lPorps.resize(lExtCount);
   lResult = vkEnumerateInstanceExtensionProperties(lNamePtr, &lExtCount, lPorps.data());
@@ -73,7 +75,9 @@ std::vector<VkExtensionProperties> iInit::getDeviceExtProprs(std::string _layerN
     return lPorps;
   }
 
-  if (lExtCount == 0) { return lPorps; }
+  if (lExtCount == 0) {
+    return lPorps;
+  }
 
   lPorps.resize(lExtCount);
   lResult = vkEnumerateDeviceExtensionProperties(_dev, lNamePtr, &lExtCount, lPorps.data());
@@ -107,7 +111,8 @@ int iInit::loadExtensionList() {
       }
     }
 
-    if (lFound) continue;
+    if (lFound)
+      continue;
 
     dVkLOG("  -- '", i.extensionName, "'  -  specVersion: ", i.specVersion);
     vExtensionList.emplace_back(i.extensionName);
@@ -138,7 +143,8 @@ int iInit::loadDeviceExtensionList(VkPhysicalDevice _dev) {
       }
     }
 
-    if (lFound) continue;
+    if (lFound)
+      continue;
 
     dVkLOG("  -- '", i.extensionName, "'  -  specVersion: ", i.specVersion);
     vDeviceExtensionList.emplace_back(i.extensionName);
@@ -172,7 +178,9 @@ int iInit::initVulkan(std::vector<std::string> _layers) {
 
 #if D_LOG_VULKAN_INIT
   dVkLOG("InstanceLayerProperties: ", lPorpCount);
-  for (auto const &i : vLayerProperties_vk) { dVkLOG("  -- ", i.layerName, " (", i.description, ")"); }
+  for (auto const &i : vLayerProperties_vk) {
+    dVkLOG("  -- ", i.layerName, " (", i.description, ")");
+  }
 #endif
 
   iLOG("Using ", _layers.size(), " Vulkan Layers:");
@@ -187,11 +195,13 @@ int iInit::initVulkan(std::vector<std::string> _layers) {
       }
     }
 
-    if (!lFound) wLOG("Vulkan Layer '", i, "' not found!");
+    if (!lFound)
+      wLOG("Vulkan Layer '", i, "' not found!");
   }
 
   int lRet = loadExtensionList();
-  if (lRet != 0) return lRet;
+  if (lRet != 0)
+    return lRet;
 
   const char **lExtensions = new const char *[vExtensionsToUse.size()];
 
@@ -207,10 +217,13 @@ int iInit::initVulkan(std::vector<std::string> _layers) {
   }
 
   const char **lLayers = new const char *[vLayersToUse.size()];
-  for (uint32_t i = 0; i < vLayersToUse.size(); i++) { lLayers[i] = vLayersToUse[i].c_str(); }
+  for (uint32_t i = 0; i < vLayersToUse.size(); i++) {
+    lLayers[i] = vLayersToUse[i].c_str();
+  }
 
-  void *lDebugPTR                   = nullptr;
-  if (vEnableVulkanDebug) lDebugPTR = static_cast<void *>(&vDebugCreateInfo_vk);
+  void *lDebugPTR = nullptr;
+  if (vEnableVulkanDebug)
+    lDebugPTR = static_cast<void *>(&vDebugCreateInfo_vk);
 
   VkInstanceCreateInfo lCreateInfo_vk;
   VkApplicationInfo    lAppInfo_vk;
@@ -317,7 +330,8 @@ int iInit::loadDevices() {
 }
 
 iInit::PhysicalDevice_vk *iInit::chooseDevice() {
-  if (vPhysicalDevices_vk.empty()) return nullptr;
+  if (vPhysicalDevices_vk.empty())
+    return nullptr;
 
   PhysicalDevice_vk *current = nullptr;
 
@@ -332,24 +346,32 @@ iInit::PhysicalDevice_vk *iInit::chooseDevice() {
     }
 
     if (i.properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-      if (current->properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) continue;
+      if (current->properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+        continue;
 
       // Integrated GPU may be better than first device type
-      if (i.properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) continue;
+      if (i.properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
+        continue;
     }
 
     // calc num of queues
     for (auto const &j : i.queueFamilyProperties) {
       lNumQueues += j.queueCount;
-      if (j.queueFlags & VK_QUEUE_GRAPHICS_BIT) { lSupportsGraphicsBit = true; }
+      if (j.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+        lSupportsGraphicsBit = true;
+      }
     }
 
-    for (auto const &j : current->queueFamilyProperties) { lCurrentNumQueues += j.queueCount; }
+    for (auto const &j : current->queueFamilyProperties) {
+      lCurrentNumQueues += j.queueCount;
+    }
 
-    if (!lSupportsGraphicsBit) continue;
+    if (!lSupportsGraphicsBit)
+      continue;
 
 
-    if (lCurrentNumQueues > lNumQueues) continue;
+    if (lCurrentNumQueues > lNumQueues)
+      continue;
 
     //! \todo add more tests here
 
@@ -365,7 +387,9 @@ iInit::PhysicalDevice_vk *iInit::chooseDevice() {
  * \returns 0 -- success
  */
 int iInit::createDevice(std::vector<std::string> _layers) {
-  if (vDevice_vk.pDevice == nullptr) { return 1000; }
+  if (vDevice_vk.pDevice == nullptr) {
+    return 1000;
+  }
 
   uint32_t lPorpCount;
   auto     lResult = vkEnumerateDeviceLayerProperties(vDevice_vk.pDevice->device, &lPorpCount, nullptr);
@@ -383,7 +407,9 @@ int iInit::createDevice(std::vector<std::string> _layers) {
 
 #if D_LOG_VULKAN_INIT
   dVkLOG("DeviceLayerProperties: ", lPorpCount);
-  for (auto const &i : vDeviceLayerProperties_vk) { dVkLOG("  -- ", i.layerName, " (", i.description, ")"); }
+  for (auto const &i : vDeviceLayerProperties_vk) {
+    dVkLOG("  -- ", i.layerName, " (", i.description, ")");
+  }
 #endif
 
   iLOG("Using ", _layers.size(), " Device Layers:");
@@ -398,7 +424,8 @@ int iInit::createDevice(std::vector<std::string> _layers) {
       }
     }
 
-    if (!lFound) wLOG("Vulkan Layer '", i, "' not found!");
+    if (!lFound)
+      wLOG("Vulkan Layer '", i, "' not found!");
   }
 
 
@@ -417,7 +444,9 @@ int iInit::createDevice(std::vector<std::string> _layers) {
   }
 
   const char **lLayers = new const char *[vDeviceLayersToUse.size()];
-  for (uint32_t i = 0; i < vDeviceLayersToUse.size(); i++) { lLayers[i] = vDeviceLayersToUse[i].c_str(); }
+  for (uint32_t i = 0; i < vDeviceLayersToUse.size(); i++) {
+    lLayers[i] = vDeviceLayersToUse[i].c_str();
+  }
 
   std::vector<VkDeviceQueueCreateInfo> lQueueCreateInfo;
   std::vector<std::vector<float>>      lQueuePriorities;

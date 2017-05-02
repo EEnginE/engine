@@ -131,42 +131,48 @@ struct uLogConverter<const char (&)[I]> {
 template <>
 struct uLogConverter<const char *> {
   static void convert(std::wstring &_str, const char *_t) {
-    for (uint32_t i = 0; _t[i] != 0; ++i) _str.append(1, _t[i]);
+    for (uint32_t i = 0; _t[i] != 0; ++i)
+      _str.append(1, _t[i]);
   }
 };
 
 template <>
 struct uLogConverter<const char *&> {
   static void convert(std::wstring &_str, const char *&_t) {
-    for (uint32_t i = 0; _t[i] != 0; ++i) _str.append(1, _t[i]);
+    for (uint32_t i = 0; _t[i] != 0; ++i)
+      _str.append(1, _t[i]);
   }
 };
 
 template <>
 struct uLogConverter<const unsigned char *> {
   static void convert(std::wstring &_str, const unsigned char *_t) {
-    for (uint32_t i = 0; _t[i] != 0; ++i) _str.append(1, static_cast<char>(_t[i]));
+    for (uint32_t i = 0; _t[i] != 0; ++i)
+      _str.append(1, static_cast<char>(_t[i]));
   }
 };
 
 template <>
 struct uLogConverter<const unsigned char *&> {
   static void convert(std::wstring &_str, const unsigned char *&_t) {
-    for (uint32_t i = 0; _t[i] != 0; ++i) _str.append(1, static_cast<char>(_t[i]));
+    for (uint32_t i = 0; _t[i] != 0; ++i)
+      _str.append(1, static_cast<char>(_t[i]));
   }
 };
 
 template <>
 struct uLogConverter<char *> {
   static void convert(std::wstring &_str, char *_t) {
-    for (uint32_t i = 0; _t[i] != 0; ++i) _str.append(1, _t[i]);
+    for (uint32_t i = 0; _t[i] != 0; ++i)
+      _str.append(1, _t[i]);
   }
 };
 
 template <>
 struct uLogConverter<char *&> {
   static void convert(std::wstring &_str, char *&_t) {
-    for (uint32_t i = 0; _t[i] != 0; ++i) _str.append(1, _t[i]);
+    for (uint32_t i = 0; _t[i] != 0; ++i)
+      _str.append(1, _t[i]);
   }
 };
 

@@ -42,7 +42,8 @@ namespace {
  * \returns The result
  */
 std::string placeStringLeft(std::string _str, unsigned int _size, char _fill) {
-  if (_str.size() == _size) return _str;
+  if (_str.size() == _size)
+    return _str;
 
   std::string lResult_str = _str;
   if (lResult_str.size() > _size) {
@@ -59,7 +60,8 @@ std::string placeStringLeft(std::string _str, unsigned int _size, char _fill) {
  * \brief Prints a (more or less) fancy table with all XRandR information
  */
 void iRandR::printRandRStatus() {
-  if (!vIsRandRSupported_B) return;
+  if (!vIsRandRSupported_B)
+    return;
 
   reload(false);
 
@@ -141,11 +143,13 @@ void iRandR::printRandRStatus() {
         if (fCRTC.id == fOutput.crtc) {
           lCRTC_RandR   = fCRTC;
           lPosition_str = "";
-          if (fCRTC.posX >= 0) lPosition_str += '+';
+          if (fCRTC.posX >= 0)
+            lPosition_str += '+';
 
           lPosition_str += std::to_string(fCRTC.posX);
 
-          if (fCRTC.posY >= 0) lPosition_str += '+';
+          if (fCRTC.posY >= 0)
+            lPosition_str += '+';
 
           lPosition_str += std::to_string(fCRTC.posY);
           break;
@@ -216,13 +220,15 @@ void iRandR::printRandRStatus() {
         if (fTempMode == fMode.id) {
           lFoundMode_B = true;
 
-          if (lModeCounter_uI == static_cast<unsigned int>(fOutput.npreferred)) lModePrefered_B = true;
+          if (lModeCounter_uI == static_cast<unsigned int>(fOutput.npreferred))
+            lModePrefered_B = true;
 
           break;
         }
       }
 
-      if (!lFoundMode_B) continue;
+      if (!lFoundMode_B)
+        continue;
 
       if (fMode.width == lWidth_uI && fMode.height == lHeight_uI) {
         lModeSize_str.clear();
@@ -244,7 +250,8 @@ void iRandR::printRandRStatus() {
       // This is a (!) mode with the current width and height of the CRTC
       if (lWidth_uI == lCRTC_RandR.width && lHeight_uI == lCRTC_RandR.height) {
         lAtrib_C = 'B';
-        if (!lModeSize_str.empty()) lModeSize_str += '*';
+        if (!lModeSize_str.empty())
+          lModeSize_str += '*';
       }
 
       // This is the (!) mode of the CRTC
