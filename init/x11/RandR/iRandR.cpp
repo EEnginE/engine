@@ -21,6 +21,11 @@
 #include "iRandR.hpp"
 #include "uLog.hpp"
 
+#if D_LOG_XRANDR
+#define dRandLog(...) dLOG(__VA_ARGS__)
+#else
+#define dRandLog(...)
+#endif
 
 namespace e_engine {
 
@@ -29,18 +34,7 @@ namespace unix_x11 {
 /*!
  * \brief sets only some basic values.
  */
-iRandR::iRandR() {
-  vIsRandRSupported_B = false;
-
-  vRandRVersionMajor_I = -1;
-  vRandRVersionMinor_I = -1;
-
-  vScreenHeight_uI = 0;
-  vScreenWidth_uI  = 0;
-
-  vDisplay_X11        = nullptr;
-  vWasScreenChanged_B = false;
-}
+iRandR::iRandR() {}
 
 iRandR::~iRandR() { endRandR(); }
 
@@ -60,31 +54,52 @@ iRandR::~iRandR() { endRandR(); }
  * \brief Sets the standard values and checks if RandR is supported
  * \warning !!! DO NOT CALL THIS METHOD !!!
  *
- * This method is designed to be called from iContext::createDisplay().
+ * This method is designed to be called from iWindow::iWindow().
  * It is possible to call this manually with a own display and window
  * but it is NOT recommended
+ *
+ * \param _connection The XCB connection
  */
-bool iRandR::initRandR() {
+bool iRandR::initRandR(xcb_connection_t *_connection, xcb_window_t _rootWin) {
+  vConnection_XCB = _connection;
+  vRootWindow_XCB = _rootWin;
   if (vIsRandRSupported_B) {
     return false;
   }
 
-  int lTempVersion_I;
-
   vDisplay_X11    = XOpenDisplay(nullptr);
   auto lScreen    = DefaultScreen(vDisplay_X11);
   vRootWindow_X11 = RootWindow(vDisplay_X11, lScreen);
-  ;
 
-  if (XQueryExtension(vDisplay_X11, "RANDR", &lTempVersion_I, &lTempVersion_I, &lTempVersion_I)) {
-    XRRQueryVersion(vDisplay_X11, &vRandRVersionMajor_I, &vRandRVersionMinor_I);
+
+
+  auto *lExtReply = xcb_get_extension_data(vConnection_XCB, &xcb_randr_id);
+  if (lExtReply->present) {
+    dRandLog("RandR extension present");
+  }
+
+  if (lExtReply->present) {
+    auto lCookie       = xcb_randr_query_version(vConnection_XCB, 100, 100);
+    auto lVersionReply = xcb_randr_query_version_reply(vConnection_XCB, lCookie, nullptr);
+
+    if (!lVersionReply) {
+      eLOG("RandR: Failed to determine the RandR version: xcb_randr_query_version returned NULL.");
+      vRandRVersionMajor_I = UINT32_MAX;
+      vRandRVersionMinor_I = UINT32_MAX;
+    } else {
+      vRandRVersionMajor_I = lVersionReply->major_version;
+      vRandRVersionMinor_I = lVersionReply->minor_version;
+      free(lVersionReply);
+    }
+
     vIsRandRSupported_B = true;
   } else {
     wLOG("X11 RandR standard not supported. Screen resolution wont be changed");
     return vIsRandRSupported_B = false;
   }
 
-  reload(true, true);
+  if (!reload(true, true))
+    return false;
 
   vIsRandRSupported_B = true;
 
@@ -165,6 +180,7 @@ bool iRandR::restore(internal::_config _conf) {
 
   return true;
 }
+
 
 //   _____      _    ______ _           _               _____ _
 //  |  __ \    | |   |  _  (_)         | |             /  ___(_)
@@ -369,7 +385,6 @@ int iRandR::getIndexOfDisplay(iDisplays const &_disp) {
   // Well... this should be impossible, because we have a reload() at top of this function!
   return -10;
 }
-
 
 
 } // unix_x11

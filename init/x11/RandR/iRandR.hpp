@@ -21,9 +21,9 @@
 #pragma once
 
 #include "defines.hpp"
-
 #include "iDisplays.hpp"
 #include "iRandR_structs.hpp"
+#include <xcb/randr.h>
 
 namespace e_engine {
 
@@ -49,6 +49,16 @@ namespace unix_x11 {
 class iRandR {
 
  private:
+  xcb_connection_t *vConnection_XCB = nullptr;
+  xcb_window_t      vRootWindow_XCB;
+
+  xcb_randr_get_screen_info_reply_t *     vScreenInfo_XCB      = nullptr;
+  xcb_randr_get_screen_resources_reply_t *vScreenResources_XCB = nullptr;
+
+  xcb_randr_crtc_t *     vCRTCs_XCB   = nullptr;
+  xcb_randr_output_t *   vOutputs_XCB = nullptr;
+  xcb_randr_mode_info_t *vModes_XCB   = nullptr;
+
   std::vector<internal::_crtc> vCRTC_V_RandR; //!< all current CRTC ( Data saved in \c internal::_crtc )
   std::vector<internal::_output>
                              vOutput_V_RandR; //!< all current possible outputs ( Data saved in \c internal::_output )
@@ -62,17 +72,17 @@ class iRandR {
   Display *vDisplay_X11;    //!< The X11 display      -- set in init(...);
   Window   vRootWindow_X11; //!< The X11 root window  -- set in init(...);
 
-  XRRScreenResources *    vResources_XRR;
-  XRRScreenConfiguration *vConfig_XRR;
+  XRRScreenResources *    vResources_XRR = nullptr;
+  XRRScreenConfiguration *vConfig_XRR    = nullptr;
 
-  unsigned int vScreenWidth_uI;
-  unsigned int vScreenHeight_uI;
+  uint32_t vScreenWidth_uI  = 0;
+  uint32_t vScreenHeight_uI = 0;
 
-  int vRandRVersionMajor_I;
-  int vRandRVersionMinor_I;
+  uint32_t vRandRVersionMajor_I = UINT32_MAX;
+  uint32_t vRandRVersionMinor_I = UINT32_MAX;
 
-  bool vIsRandRSupported_B;
-  bool vWasScreenChanged_B;
+  bool vIsRandRSupported_B = false;
+  bool vWasScreenChanged_B = false;
 
   bool reload(bool _overwriteLatest = true, bool _overwriteDefaults = false);
   bool restore(internal::_config _conf);
@@ -82,7 +92,7 @@ class iRandR {
 
  protected:
   void endRandR();
-  bool initRandR();
+  bool initRandR(xcb_connection_t *_connection, xcb_window_t _rootWin);
 
 
  public:
@@ -113,7 +123,7 @@ class iRandR {
 
   bool isRandRSupported() { return vIsRandRSupported_B; }
 
-  void getRandRVersion(int &_vMajor, int &_vMinor) {
+  void getRandRVersion(uint32_t &_vMajor, uint32_t &_vMinor) {
     _vMajor = vRandRVersionMajor_I;
     _vMinor = vRandRVersionMinor_I;
   }

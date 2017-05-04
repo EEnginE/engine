@@ -69,10 +69,11 @@ class iWindow : public iRandR, public iKeyboard, public iWindowBasic {
   using iXCBAtom = internal::iXCBAtom;
 
  private:
-  xcb_connection_t * vConnection_XCB;
+  xcb_connection_t * vConnection_XCB = nullptr;
+  xcb_window_t       vRootWindow_XCB;
   xcb_window_t       vWindow_XCB;
-  const xcb_setup_t *vSetup_XCB;
-  xcb_screen_t *     vScreen_XCB;
+  const xcb_setup_t *vSetup_XCB  = nullptr;
+  xcb_screen_t *     vScreen_XCB = nullptr;
 
   iXCBAtom vWmProtocol_ATOM;
   iXCBAtom vWmDeleteWindow_ATOM;
@@ -85,12 +86,14 @@ class iWindow : public iRandR, public iKeyboard, public iWindowBasic {
   iXCBAtom vMotifWmHints_ATOM;
 
 
-  bool vWindowHasBorder_B;
+  bool vWindowHasBorder_B = true;
 
-  bool vWindowCreated_B;
+  bool vWindowCreated_B         = false;
+  bool vXCBConnectionHasError_B = false;
+  bool vIsRandrSupported_B      = false;
 
-  bool vIsMouseGrabbed_B;
-  bool vIsCursorHidden_B;
+  bool vIsMouseGrabbed_B = false;
+  bool vIsCursorHidden_B = false;
 
   //! \todo create a function for setting an icon
 
@@ -108,7 +111,7 @@ class iWindow : public iRandR, public iKeyboard, public iWindowBasic {
       iXCBAtom &_atom, uint32_t _l0 = 0, uint32_t _l1 = 0, uint32_t _l2 = 0, uint32_t _l3 = 0, uint32_t _l4 = 0);
 
  protected:
-  bool vWindowRecreate_B;
+  bool vWindowRecreate_B = false;
 
  public:
   iWindow();

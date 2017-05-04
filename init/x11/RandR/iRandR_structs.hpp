@@ -28,6 +28,7 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <xcb/randr.h>
 
 namespace e_engine {
 namespace internal {
@@ -42,7 +43,8 @@ namespace internal {
  * \sa iRandR ; _mode _output
  */
 struct _crtc {
-  RRCrtc id; //!< The unique \b CRTC id form Xlib
+  RRCrtc           id; //!< The unique \b CRTC id form Xlib
+  xcb_randr_crtc_t Xid;
 
   Time timestamp; //!< [not used]; 'timestamp' indicates when the configuration
                   // was last set.
@@ -79,22 +81,27 @@ struct _crtc {
    * 'mode' indicates which mode is active, or None indicating that the CRTC has
    * been disabled and is not displaying the screen contents.
    */
-  RRMode mode;
+  RRMode           mode;
+  xcb_randr_mode_t Xmode;
 
   //! 'rotation' indicates the active rotation. It is set to Rotate_0 when the CRTC is disabled.
   Rotation rotation;
+  uint16_t Xrotation;
 
   //! 'rotations' contains the set of rotations and reflections supported by the CRTC
   Rotation rotations;
+  uint16_t Xrotations;
 
   /*!
    * 'outputs' is the list of outputs currently connected to this CRTC and is
    * empty when the CRTC is disabled.
    */
-  std::vector<RROutput> outputs;
+  std::vector<RROutput>           outputs;
+  std::vector<xcb_randr_output_t> Xoutputs;
 
   //! 'possibleOutputs' lists all of the outputs which may be connected to this CRTC
-  std::vector<RROutput> possibleOutputs;
+  std::vector<RROutput>           possibleOutputs;
+  std::vector<xcb_randr_output_t> XpossibleOutputs;
 };
 
 /*!
@@ -107,7 +114,8 @@ struct _crtc {
  * \sa iRandR ; _crtc _mode
  */
 struct _output {
-  RROutput id; //!< The unique \b CRTC id form Xlib
+  RROutput           id; //!< The unique \b CRTC id form Xlib
+  xcb_randr_output_t Xid;
 
   Time timestamp; //!< [not used]; 'timestamp' indicates when the configuration was last set.
 
@@ -115,7 +123,8 @@ struct _output {
    * 'crtc' is the current source CRTC for video data, or Disabled (= None) if
    * the output is not connected to any CRTC.
    */
-  RRCrtc crtc;
+  RRCrtc           crtc;
+  xcb_randr_crtc_t Xcrtc;
 
   /*!
    * 'name' is a UTF-8 encoded string designed to be presented to the user to
@@ -143,7 +152,8 @@ struct _output {
    * whether something is connected, it will set this to UnknownConnection.
    * ==> 0 - Connected; 1 - Disconnected; 2 - Unknown
    */
-  Connection connection;
+  Connection             connection;
+  xcb_randr_connection_t Xconnection;
 
   /*!
    * 'subpixel_order' contains the resulting subpixel order of the
@@ -156,7 +166,8 @@ struct _output {
    * Attempting to
    * connect this output to a different CRTC results ina Match error.
    */
-  std::vector<RRCrtc> crtcs;
+  std::vector<RRCrtc>           crtcs;
+  std::vector<xcb_randr_crtc_t> Xcrtcs;
 
   /*!
    * 'clones' is the list of outputs which may be simultaneously connected to
@@ -165,14 +176,16 @@ struct _output {
    * not in the 'clones'
    * list results in a Match error.
    */
-  std::vector<RROutput> clones;
+  std::vector<RROutput>           clones;
+  std::vector<xcb_randr_output_t> Xclones;
 
   /*!
    * 'modes' is the list of modes supported by this output. Attempting to
    * connect this output to
    * a CRTC not using one of these modes results in a Match error.
    */
-  std::vector<RRMode> modes;
+  std::vector<RRMode>           modes;
+  std::vector<xcb_randr_mode_t> Xmodes;
 
   /*!
    * The first 'npreferred' modes in 'modes' are preferred by the monitor in
@@ -203,7 +216,8 @@ struct _output {
  * \sa iRandR ; _crtc _output
  */
 struct _mode {
-  RRMode id; //!< The unique \b mode id
+  RRMode           id; //!< The unique \b mode id
+  xcb_randr_mode_t Xid;
 
   unsigned int  width;      //!< The width of the mode
   unsigned int  height;     //!< The height of the mode
@@ -215,8 +229,8 @@ struct _mode {
   unsigned int  vSyncStart; //!< This data is needed for calculating \a refresh and \a syncFreq
   unsigned int  vSyncEnd;   //!< This data is needed for calculating \a refresh and \a syncFreq
   unsigned int  vTotal;     //!< This data is needed for calculating \a refresh and \a syncFreq
-  std::string   name;       //!< The name of the mode
   XRRModeFlags  modeFlags;  //!< Some mode flags
+  uint64_t      XmodeFlags;
 
   double refresh;  //!< The refresh rate
   double syncFreq; //!< The sync frequnece
@@ -229,7 +243,7 @@ struct _mode {
   inline bool operator==(const _mode &_m) const {
     if (_m.id == id && _m.height == height && _m.width == width &&
         std::abs(_m.refresh - refresh) < std::numeric_limits<double>::epsilon() &&
-        std::abs(_m.syncFreq - syncFreq) < std::numeric_limits<double>::epsilon() && _m.name == name)
+        std::abs(_m.syncFreq - syncFreq) < std::numeric_limits<double>::epsilon())
       return true;
 
     return false;
@@ -266,10 +280,12 @@ struct _mode {
  * configuration
  */
 struct _config {
-  RROutput primary; //!< The primary output
+  RROutput           primary; //!< The primary output
+  xcb_randr_output_t Xprimary;
 
-  std::vector<XRRCrtcGamma *> gamma;    //!< Holds gamma information for each CRTC
-  std::vector<_crtc>          CRTCInfo; //!< All important data to restore every CRTC
+  std::vector<XRRCrtcGamma *>                     gamma;    //!< Holds gamma information for each CRTC
+  std::vector<xcb_randr_get_crtc_gamma_reply_t *> Xgamma;   //!< Holds gamma information for each CRTC
+  std::vector<_crtc>                              CRTCInfo; //!< All important data to restore every CRTC
 };
 }
 }

@@ -106,7 +106,7 @@ find_package(glm     REQUIRED)
 
 if( CM_UNIX_X11 )
   find_package(X11 REQUIRED)
-  find_package(XCB REQUIRED)
+  find_package(XCB COMPONENTS xcb xcb-randr REQUIRED)
 
   if( X11_Xrandr_FOUND )
     message( STATUS "Found Xrandr" )

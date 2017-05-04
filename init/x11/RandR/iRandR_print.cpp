@@ -26,9 +26,8 @@
 #include "iRandR.hpp"
 #include "eCMDColor.hpp"
 
-namespace e_engine {
-
-namespace unix_x11 {
+using namespace e_engine;
+using namespace unix_x11;
 
 namespace {
 
@@ -63,6 +62,9 @@ void iRandR::printRandRStatus() {
   if (!vIsRandRSupported_B)
     return;
 
+  if (!vScreenResources_XCB || !vScreenInfo_XCB)
+    return;
+
   reload(false);
 
   std::wstring lOFF_C = eCMDColor::color('O', 'W');
@@ -84,7 +86,9 @@ void iRandR::printRandRStatus() {
   //    |   Output   | CRTC | Primary | Connected |  Position  |          MODE           |
   //    |            |      |         |           |            |  Resolutions  |  Rates  |
   //    |------------|------|---------|-----------|------------|---------------|---------|
-  iLOG("RandR Info -- Screen Size: ", lBG_C, vScreenWidth_uI, 'x', vScreenHeight_uI, "\n");
+  iLOG("RandR Info:");
+  LOG(_hI, "  - Screen Size: ", lBG_C, vScreenWidth_uI, 'x', vScreenHeight_uI);
+  LOG(_hI, "  - Num CRTCs:   ", lBG_C, vScreenResources_XCB->num_crtcs, "\n");
 
   LOG(_hD, "|============|======|=========|===========|============|=========================|");
   LOG(_hD,
@@ -130,17 +134,17 @@ void iRandR::printRandRStatus() {
   for (internal::_output const &fOutput : vOutput_V_RandR) {
     internal::_crtc lCRTC_RandR;
 
-    std::string lCRTC_str      = (fOutput.crtc == 0) ? "OFF" : std::to_string(fOutput.crtc);
-    std::string lPrimary_str   = (vLatestConfig_RandR.primary == fOutput.id) ? "YES" : "NO";
-    std::string lConnected_str = (fOutput.connection == 0) ? "YES" : (fOutput.connection == 2) ? "???" : "NO";
+    std::string lCRTC_str      = (fOutput.Xcrtc == 0) ? "OFF" : std::to_string(fOutput.Xcrtc);
+    std::string lPrimary_str   = (vLatestConfig_RandR.Xprimary == fOutput.id) ? "YES" : "NO";
+    std::string lConnected_str = (fOutput.Xconnection == 0) ? "YES" : (fOutput.Xconnection == 2) ? "???" : "NO";
     std::string lPosition_str  = "   NONE";
 
-    char lBold_C = (fOutput.connection == 0) ? 'B' : 'O';
+    char lBold_C = (fOutput.Xconnection == 0) ? 'B' : 'O';
     char lCRTC_C = (lCRTC_str != "OFF") ? 'G' : 'R';
 
-    if (!(fOutput.crtc == 0)) {
+    if (!(fOutput.Xcrtc == 0)) {
       for (internal::_crtc const &fCRTC : vCRTC_V_RandR) {
-        if (fCRTC.id == fOutput.crtc) {
+        if (fCRTC.Xid == fOutput.Xcrtc) {
           lCRTC_RandR   = fCRTC;
           lPosition_str = "";
           if (fCRTC.posX >= 0)
@@ -168,7 +172,7 @@ void iRandR::printRandRStatus() {
     }
 
 
-    if (lBold_C == 'O' || fOutput.modes.size() == 0) {
+    if (lBold_C == 'O' || fOutput.Xmodes.size() == 0) {
       LOG(_hD,
           "| ",
           lC1_C,
@@ -215,9 +219,9 @@ void iRandR::printRandRStatus() {
       unsigned int lModeCounter_uI = 0; //!< Needed for preferred check
 
       // Check if the mode is supported by the output
-      for (RRMode const &fTempMode : fOutput.modes) {
+      for (xcb_randr_mode_t const &fTempMode : fOutput.Xmodes) {
         ++lModeCounter_uI;
-        if (fTempMode == fMode.id) {
+        if (fTempMode == fMode.Xid) {
           lFoundMode_B = true;
 
           if (lModeCounter_uI == static_cast<unsigned int>(fOutput.npreferred))
@@ -319,10 +323,6 @@ void iRandR::printRandRStatus() {
 
   LOG(_hD, "|============|======|=========|===========|============|=========================|\n\n");
 }
-
-} // unix_x11
-
-} // e_engine
 
 #endif // D_LOG_XRANDR
 

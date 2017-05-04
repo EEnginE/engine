@@ -18,56 +18,110 @@
  * limitations under the License.
  */
 
+#include "uLog.hpp"
 #include "iRandR.hpp"
 
-namespace e_engine {
+using namespace e_engine;
+using namespace unix_x11;
 
-namespace unix_x11 {
+#define CODE(err) static_cast<int>(lError->err)
+#define CHECK_ERROR(func, ret)                                                                                \
+  if (lError) {                                                                                               \
+    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code)); \
+    lNumErrors++;                                                                                             \
+    free(lError);                                                                                             \
+    lError = nullptr;                                                                                         \
+    goto error;                                                                                               \
+  }                                                                                                           \
+  if (!ret) {                                                                                                 \
+    eLOG(#func, " returned a NULL pointer");                                                                  \
+    lNumErrors++;                                                                                             \
+    goto error;                                                                                               \
+  }
 
+#define CLEANUP(P) \
+  if (P)           \
+    free(P);       \
+  P = nullptr;
 
 bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
   if (!vIsRandRSupported_B)
     return false;
 
-  SizeID lTemoID_suI;
-  int    lTempSizes_I;
+  unsigned int lNumErrors = 0;
 
-  Rotation lTempRotate_XRR; // Exists only for XRRConfigCurrentConfiguration(...); to make it happy
+  xcb_generic_error_t *                 lError      = nullptr;
+  xcb_randr_screen_size_t *             lSizes      = nullptr;
+  xcb_randr_get_output_primary_reply_t *lPrimary    = nullptr;
+  xcb_randr_get_crtc_info_reply_t *     lCrtcInfo   = nullptr;
+  xcb_randr_get_output_info_reply_t *   lOutputInfo = nullptr;
 
-  vConfig_XRR    = XRRGetScreenInfo(vDisplay_X11, vRootWindow_X11);
-  vResources_XRR = XRRGetScreenResources(vDisplay_X11, vRootWindow_X11);
+  CLEANUP(vScreenInfo_XCB);
+  CLEANUP(vScreenResources_XCB);
 
-  lTemoID_suI                   = XRRConfigCurrentConfiguration(vConfig_XRR, &lTempRotate_XRR);
-  XRRScreenSize *lTempSizes_XRR = XRRSizes(vDisplay_X11, 0, &lTempSizes_I);
+  auto lSICookie  = xcb_randr_get_screen_info(vConnection_XCB, vRootWindow_XCB);
+  auto lSRCoockie = xcb_randr_get_screen_resources(vConnection_XCB, vRootWindow_XCB);
 
-  if (lTemoID_suI < lTempSizes_I) {
-    vScreenWidth_uI  = static_cast<unsigned>(lTempSizes_XRR[lTemoID_suI].width);
-    vScreenHeight_uI = static_cast<unsigned>(lTempSizes_XRR[lTemoID_suI].height);
+  vScreenInfo_XCB = xcb_randr_get_screen_info_reply(vConnection_XCB, lSICookie, &lError);
+  CHECK_ERROR(xcb_randr_get_screen_info, vScreenInfo_XCB);
+
+  vScreenResources_XCB = xcb_randr_get_screen_resources_reply(vConnection_XCB, lSRCoockie, &lError);
+  CHECK_ERROR(xcb_randr_get_screen_resources, vScreenResources_XCB);
+
+  vCRTCs_XCB   = xcb_randr_get_screen_resources_crtcs(vScreenResources_XCB);
+  vOutputs_XCB = xcb_randr_get_screen_resources_outputs(vScreenResources_XCB);
+  vModes_XCB   = xcb_randr_get_screen_resources_modes(vScreenResources_XCB);
+
+  lSizes = xcb_randr_get_screen_info_sizes(vScreenInfo_XCB);
+
+  if (vScreenInfo_XCB->sizeID < vScreenInfo_XCB->nSizes) {
+    vScreenWidth_uI  = static_cast<uint32_t>(lSizes[vScreenInfo_XCB->sizeID].width);
+    vScreenHeight_uI = static_cast<uint32_t>(lSizes[vScreenInfo_XCB->sizeID].height);
+  } else {
+    wLOG("RandR: Unable to determine screen size: sizeID bigger than number of returned sizes");
+    vScreenWidth_uI  = 0;
+    vScreenHeight_uI = 0;
   }
 
   if (_overwriteLatest) {
-    vLatestConfig_RandR.primary = XRRGetOutputPrimary(vDisplay_X11, vRootWindow_X11);
+    auto lPrimCookie = xcb_randr_get_output_primary(vConnection_XCB, vRootWindow_XCB);
+    lPrimary         = xcb_randr_get_output_primary_reply(vConnection_XCB, lPrimCookie, &lError);
+    CHECK_ERROR(xcb_randr_get_output_primary, lPrimary);
 
-    for (auto &elem : vLatestConfig_RandR.gamma)
-      XRRFreeGamma(elem);
+    vLatestConfig_RandR.Xprimary = lPrimary->output;
+    CLEANUP(lPrimary);
 
-    vLatestConfig_RandR.gamma.clear();
+    for (auto &elem : vLatestConfig_RandR.Xgamma)
+      free(elem);
 
-    for (int i = 0; i < vResources_XRR->ncrtc; ++i) {
-      vLatestConfig_RandR.gamma.push_back(XRRGetCrtcGamma(vDisplay_X11, vResources_XRR->crtcs[i]));
+    vLatestConfig_RandR.Xgamma.clear();
+
+    for (int i = 0; i < vScreenResources_XCB->num_crtcs; ++i) {
+      auto  lGammaCookie = xcb_randr_get_crtc_gamma(vConnection_XCB, vCRTCs_XCB[i]);
+      auto *lGamma       = xcb_randr_get_crtc_gamma_reply(vConnection_XCB, lGammaCookie, &lError);
+      CHECK_ERROR(xcb_randr_get_crtc_gamma, lGamma);
+      vLatestConfig_RandR.Xgamma.push_back(lGamma);
     }
   }
 
   if (_overwriteDefaults) {
-    vDefaultConfig_RandR.primary = XRRGetOutputPrimary(vDisplay_X11, vRootWindow_X11);
+    auto lPrimCookie = xcb_randr_get_output_primary(vConnection_XCB, vRootWindow_XCB);
+    lPrimary         = xcb_randr_get_output_primary_reply(vConnection_XCB, lPrimCookie, &lError);
+    CHECK_ERROR(xcb_randr_get_output_primary, lPrimary);
 
-    for (auto &elem : vDefaultConfig_RandR.gamma)
-      XRRFreeGamma(elem);
+    vDefaultConfig_RandR.Xprimary = lPrimary->output;
+    CLEANUP(lPrimary);
 
-    vDefaultConfig_RandR.gamma.clear();
+    for (auto &elem : vLatestConfig_RandR.Xgamma)
+      free(elem);
 
-    for (int i = 0; i < vResources_XRR->ncrtc; ++i) {
-      vDefaultConfig_RandR.gamma.push_back(XRRGetCrtcGamma(vDisplay_X11, vResources_XRR->crtcs[i]));
+    vDefaultConfig_RandR.Xgamma.clear();
+
+    for (int i = 0; i < vScreenResources_XCB->num_crtcs; ++i) {
+      auto  lGammaCookie = xcb_randr_get_crtc_gamma(vConnection_XCB, vCRTCs_XCB[i]);
+      auto *lGamma       = xcb_randr_get_crtc_gamma_reply(vConnection_XCB, lGammaCookie, &lError);
+      CHECK_ERROR(xcb_randr_get_crtc_gamma, lGamma);
+      vDefaultConfig_RandR.Xgamma.push_back(lGamma);
     }
   }
 
@@ -79,95 +133,105 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
 
 
   // CRTC
-  for (int i = 0; i < vResources_XRR->ncrtc; ++i) {
+  for (int i = 0; i < vScreenResources_XCB->num_crtcs; ++i) {
     internal::_crtc lTempCRTC_RandR;
 
-    XRRCrtcInfo *lTempCRTCInfo_XRR = XRRGetCrtcInfo(vDisplay_X11, vResources_XRR, vResources_XRR->crtcs[i]);
+    auto lCrtcCookie = xcb_randr_get_crtc_info(vConnection_XCB, vCRTCs_XCB[i], vScreenInfo_XCB->config_timestamp);
+    lCrtcInfo        = xcb_randr_get_crtc_info_reply(vConnection_XCB, lCrtcCookie, &lError);
+    CHECK_ERROR(xcb_randr_get_crtc_info, lCrtcInfo);
 
-    lTempCRTC_RandR.id        = vResources_XRR->crtcs[i];
-    lTempCRTC_RandR.timestamp = lTempCRTCInfo_XRR->timestamp;
-    lTempCRTC_RandR.posX      = lTempCRTCInfo_XRR->x;
-    lTempCRTC_RandR.posY      = lTempCRTCInfo_XRR->y;
-    lTempCRTC_RandR.width     = lTempCRTCInfo_XRR->width;
-    lTempCRTC_RandR.height    = lTempCRTCInfo_XRR->height;
-    lTempCRTC_RandR.mode      = lTempCRTCInfo_XRR->mode;
-    lTempCRTC_RandR.rotation  = lTempCRTCInfo_XRR->rotation;
-    lTempCRTC_RandR.rotations = lTempCRTCInfo_XRR->rotations;
+    lTempCRTC_RandR.Xid        = vCRTCs_XCB[i];
+    lTempCRTC_RandR.timestamp  = lCrtcInfo->timestamp;
+    lTempCRTC_RandR.posX       = lCrtcInfo->x;
+    lTempCRTC_RandR.posY       = lCrtcInfo->y;
+    lTempCRTC_RandR.width      = lCrtcInfo->width;
+    lTempCRTC_RandR.height     = lCrtcInfo->height;
+    lTempCRTC_RandR.Xmode      = lCrtcInfo->mode;
+    lTempCRTC_RandR.Xrotation  = lCrtcInfo->rotation;
+    lTempCRTC_RandR.Xrotations = lCrtcInfo->rotations;
 
-    for (int j = 0; j < lTempCRTCInfo_XRR->noutput; ++j) {
-      lTempCRTC_RandR.outputs.push_back(lTempCRTCInfo_XRR->outputs[j]);
+    xcb_randr_output_t *lOutputs  = xcb_randr_get_crtc_info_outputs(lCrtcInfo);
+    xcb_randr_output_t *lPossible = xcb_randr_get_crtc_info_possible(lCrtcInfo);
+
+    for (uint16_t j = 0; j < lCrtcInfo->num_outputs; ++j) {
+      lTempCRTC_RandR.Xoutputs.push_back(lOutputs[j]);
     }
 
-    for (int j = 0; j < lTempCRTCInfo_XRR->npossible; ++j) {
-      lTempCRTC_RandR.possibleOutputs.push_back(lTempCRTCInfo_XRR->possible[j]);
+    for (uint16_t j = 0; j < lCrtcInfo->num_possible_outputs; ++j) {
+      lTempCRTC_RandR.XpossibleOutputs.push_back(lPossible[j]);
     }
 
     vCRTC_V_RandR.push_back(lTempCRTC_RandR);
-    XRRFreeCrtcInfo(lTempCRTCInfo_XRR);
+    CLEANUP(lCrtcInfo);
   }
 
 
   // Output
-  for (int i = 0; i < vResources_XRR->noutput; ++i) {
+  for (int i = 0; i < vScreenResources_XCB->num_outputs; ++i) {
     internal::_output lTempOutput_RandR;
 
-    XRROutputInfo *lTempOutputInfo_XRR = XRRGetOutputInfo(vDisplay_X11, vResources_XRR, vResources_XRR->outputs[i]);
+    auto lOutCookie = xcb_randr_get_output_info(vConnection_XCB, vOutputs_XCB[i], vScreenInfo_XCB->config_timestamp);
+    lOutputInfo     = xcb_randr_get_output_info_reply(vConnection_XCB, lOutCookie, &lError);
+    CHECK_ERROR(xcb_randr_get_output_info, lOutputInfo);
 
-    lTempOutput_RandR.id             = vResources_XRR->outputs[i];
-    lTempOutput_RandR.timestamp      = lTempOutputInfo_XRR->timestamp;
-    lTempOutput_RandR.crtc           = lTempOutputInfo_XRR->crtc;
-    lTempOutput_RandR.name           = lTempOutputInfo_XRR->name;
-    lTempOutput_RandR.mm_width       = lTempOutputInfo_XRR->mm_width;
-    lTempOutput_RandR.mm_height      = lTempOutputInfo_XRR->mm_height;
-    lTempOutput_RandR.connection     = lTempOutputInfo_XRR->connection;
-    lTempOutput_RandR.subpixel_order = lTempOutputInfo_XRR->subpixel_order;
-    lTempOutput_RandR.npreferred     = lTempOutputInfo_XRR->npreferred;
+    char *lName = reinterpret_cast<char *>(xcb_randr_get_output_info_name(lOutputInfo));
 
-    for (int j = 0; j < lTempOutputInfo_XRR->ncrtc; ++j) {
-      lTempOutput_RandR.crtcs.push_back(lTempOutputInfo_XRR->crtcs[j]);
-    }
+    lTempOutput_RandR.id             = vOutputs_XCB[i];
+    lTempOutput_RandR.timestamp      = lOutputInfo->timestamp;
+    lTempOutput_RandR.Xcrtc          = lOutputInfo->crtc;
+    lTempOutput_RandR.name           = std::string(lName, lOutputInfo->name_len);
+    lTempOutput_RandR.mm_width       = lOutputInfo->mm_width;
+    lTempOutput_RandR.mm_height      = lOutputInfo->mm_height;
+    lTempOutput_RandR.connection     = lOutputInfo->connection;
+    lTempOutput_RandR.subpixel_order = lOutputInfo->subpixel_order;
+    lTempOutput_RandR.npreferred     = lOutputInfo->num_preferred;
 
-    for (int j = 0; j < lTempOutputInfo_XRR->nclone; ++j) {
-      lTempOutput_RandR.clones.push_back(lTempOutputInfo_XRR->clones[j]);
-    }
+    xcb_randr_crtc_t *  lOutCrtcs  = xcb_randr_get_output_info_crtcs(lOutputInfo);
+    xcb_randr_output_t *lOutColnes = xcb_randr_get_output_info_clones(lOutputInfo);
+    xcb_randr_mode_t *  lOutModes  = xcb_randr_get_output_info_modes(lOutputInfo);
 
-    for (int j = 0; j < lTempOutputInfo_XRR->nmode; ++j) {
-      lTempOutput_RandR.modes.push_back(lTempOutputInfo_XRR->modes[j]);
-    }
 
-    vOutput_V_RandR.push_back(lTempOutput_RandR);
-    XRRFreeOutputInfo(lTempOutputInfo_XRR);
+    for (uint16_t j = 0; j < lOutputInfo->num_crtcs; ++j)
+      lTempOutput_RandR.Xcrtcs.emplace_back(lOutCrtcs[j]);
+
+    for (uint16_t j = 0; j < lOutputInfo->num_clones; ++j)
+      lTempOutput_RandR.Xclones.emplace_back(lOutColnes[j]);
+
+    for (uint16_t j = 0; j < lOutputInfo->num_modes; ++j)
+      lTempOutput_RandR.Xmodes.emplace_back(lOutModes[j]);
+
+    vOutput_V_RandR.emplace_back(lTempOutput_RandR);
+    CLEANUP(lOutputInfo);
   }
 
 
   // Modes
-  for (int i = 0; i < vResources_XRR->nmode; ++i) {
+  for (int i = 0; i < vScreenResources_XCB->num_modes; ++i) {
     internal::_mode lTempMode_RandR;
 
-    XRRModeInfo lTempModeInfo_XRR = vResources_XRR->modes[i];
+    xcb_randr_mode_info_t lTempModeInfo = vModes_XCB[i];
 
-    lTempMode_RandR.id         = lTempModeInfo_XRR.id;
-    lTempMode_RandR.width      = lTempModeInfo_XRR.width;
-    lTempMode_RandR.height     = lTempModeInfo_XRR.height;
-    lTempMode_RandR.dotClock   = lTempModeInfo_XRR.dotClock;
-    lTempMode_RandR.hSyncStart = lTempModeInfo_XRR.hSyncStart;
-    lTempMode_RandR.hSyncEnd   = lTempModeInfo_XRR.hSyncEnd;
-    lTempMode_RandR.hTotal     = lTempModeInfo_XRR.hTotal;
-    lTempMode_RandR.hSkew      = lTempModeInfo_XRR.hSkew;
-    lTempMode_RandR.vSyncStart = lTempModeInfo_XRR.vSyncStart;
-    lTempMode_RandR.vSyncEnd   = lTempModeInfo_XRR.vSyncEnd;
-    lTempMode_RandR.vTotal     = lTempModeInfo_XRR.vTotal;
-    lTempMode_RandR.name       = lTempModeInfo_XRR.name;
-    lTempMode_RandR.modeFlags  = lTempModeInfo_XRR.modeFlags;
+    lTempMode_RandR.Xid        = lTempModeInfo.id;
+    lTempMode_RandR.width      = lTempModeInfo.width;
+    lTempMode_RandR.height     = lTempModeInfo.height;
+    lTempMode_RandR.dotClock   = lTempModeInfo.dot_clock;
+    lTempMode_RandR.hSyncStart = lTempModeInfo.hsync_start;
+    lTempMode_RandR.hSyncEnd   = lTempModeInfo.hsync_end;
+    lTempMode_RandR.hTotal     = lTempModeInfo.htotal;
+    lTempMode_RandR.hSkew      = lTempModeInfo.hskew;
+    lTempMode_RandR.vSyncStart = lTempModeInfo.vsync_start;
+    lTempMode_RandR.vSyncEnd   = lTempModeInfo.vsync_end;
+    lTempMode_RandR.vTotal     = lTempModeInfo.vtotal;
+    lTempMode_RandR.XmodeFlags = lTempModeInfo.mode_flags;
 
 
     /* v refresh frequency in Hz */
     unsigned int lVTotalTemp = lTempMode_RandR.vTotal;
 
-    if (lTempMode_RandR.modeFlags & RR_DoubleScan)
+    if (lTempMode_RandR.modeFlags & XCB_RANDR_MODE_FLAG_DOUBLE_SCAN)
       lVTotalTemp *= 2;
 
-    if (lTempMode_RandR.modeFlags & RR_Interlace)
+    if (lTempMode_RandR.modeFlags & XCB_RANDR_MODE_FLAG_INTERLACE)
       lVTotalTemp /= 2;
 
     if (lTempMode_RandR.hTotal && lVTotalTemp)
@@ -195,10 +259,15 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
   vMode_V_RandR.sort();
 
   return true;
+
+error:
+  CLEANUP(vScreenInfo_XCB);
+  CLEANUP(vScreenResources_XCB);
+  CLEANUP(lPrimary);
+  CLEANUP(lCrtcInfo);
+  CLEANUP(lOutputInfo);
+
+  return false;
 }
-
-} // unix_x11
-
-} // e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

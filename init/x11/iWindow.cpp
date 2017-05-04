@@ -41,16 +41,25 @@ namespace e_engine {
 namespace unix_x11 {
 
 iWindow::iWindow() {
-  vConnection_XCB    = nullptr;
-  vSetup_XCB         = nullptr;
-  vScreen_XCB        = nullptr;
-  vWindowHasBorder_B = true;
-  vWindowCreated_B   = false;
-  vWindowRecreate_B  = false;
-  vIsMouseGrabbed_B  = false;
+  int lScreenNum;
 
-  vIsCursorHidden_B = false;
-  vIsMouseGrabbed_B = false;
+  vConnection_XCB = xcb_connect(NULL, &lScreenNum);
+  if (xcb_connection_has_error(vConnection_XCB) != 0) {
+    eLOG("Failed to connect to the X-Server; Error code: ", xcb_connection_has_error(vConnection_XCB));
+    vXCBConnectionHasError_B = true;
+  }
+
+  vSetup_XCB                      = xcb_get_setup(vConnection_XCB);
+  xcb_screen_iterator_t lIter_XCB = xcb_setup_roots_iterator(vSetup_XCB);
+
+  for (int i = 0; i < lScreenNum; i++)
+    xcb_screen_next(&lIter_XCB);
+
+  vScreen_XCB     = lIter_XCB.data;
+  vRootWindow_XCB = vScreen_XCB->root;
+
+  // Init RandR
+  vIsRandrSupported_B = initRandR(vConnection_XCB, vRootWindow_XCB);
 }
 
 iWindow::~iWindow() { destroyWindow(); }
@@ -80,24 +89,16 @@ internal::iXCBAtom::~iXCBAtom() {
  * \returns  0 -- success
  * \returns  1 -- Unable to connect to the X-Server
  * \returns  2 -- Failed to init EWMH connection
+ * \returns  3 -- if Window already created
  */
 int iWindow::createWindow() {
-  int         lScreenNum;
   std::string lRandRVersionString_str;
 
-  vConnection_XCB = xcb_connect(NULL, &lScreenNum);
-  if (xcb_connection_has_error(vConnection_XCB) != 0) {
-    eLOG("Failed to connect to the X-Server; Error code: ", xcb_connection_has_error(vConnection_XCB));
+  if (vWindowCreated_B)
+    return 3;
+
+  if (vXCBConnectionHasError_B)
     return 1;
-  }
-
-  vSetup_XCB                      = xcb_get_setup(vConnection_XCB);
-  xcb_screen_iterator_t lIter_XCB = xcb_setup_roots_iterator(vSetup_XCB);
-
-  for (int i = 0; i < lScreenNum; i++)
-    xcb_screen_next(&lIter_XCB);
-
-  vScreen_XCB = lIter_XCB.data;
 
   uint32_t lValueMask_XCB = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
   uint32_t lValues[32];
@@ -164,9 +165,9 @@ int iWindow::createWindow() {
   xcb_map_window(vConnection_XCB, vWindow_XCB);
   xcb_flush(vConnection_XCB);
 
-  if (initRandR()) {
-    int lVRRmajor_I;
-    int lVRRminor_I;
+  if (vIsRandrSupported_B) {
+    uint32_t lVRRmajor_I;
+    uint32_t lVRRminor_I;
     getRandRVersion(lVRRmajor_I, lVRRminor_I);
     lRandRVersionString_str = std::to_string(lVRRmajor_I) + '.' + std::to_string(lVRRminor_I);
   } else {

@@ -21,9 +21,21 @@
 #include "uLog.hpp"
 #include "iRandR.hpp"
 
-namespace e_engine {
+#define CODE(err) static_cast<int>(lError->err)
+#define CHECK_ERROR(func, ret)                                                                                \
+  if (lError) {                                                                                               \
+    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code)); \
+    free(lError);                                                                                             \
+    lError = nullptr;                                                                                         \
+    lNumErrors++;                                                                                             \
+  }                                                                                                           \
+  if (!ret) {                                                                                                 \
+    eLOG(#func, " returned a NULL pointer");                                                                  \
+    lNumErrors++;                                                                                             \
+  }
 
-namespace unix_x11 {
+using namespace e_engine;
+using namespace unix_x11;
 
 /*!
  * \brief Change one CRTC
@@ -32,36 +44,46 @@ namespace unix_x11 {
  * \returns 1 when everything went fine
  */
 int iRandR::changeCRTC(internal::_crtc _changeToThis) {
-  RRCrtc lCRTC_XRR      = _changeToThis.id;
-  bool   lChangedCRTC_B = false;
+  xcb_randr_crtc_t lCRTC_XRR      = _changeToThis.Xid;
+  bool             lChangedCRTC_B = false;
+
+  xcb_generic_error_t *lError;
 
   bool lCRTCInfoFound = false;
+  int  lNumErrors     = 0;
 
-  XRRCrtcInfo *lTempCRTCInfo_XRR;
-  RROutput *   lTempOutputs_XRR;
-
-  for (int i = 0; i < vResources_XRR->ncrtc; ++i) {
-    if (vResources_XRR->crtcs[i] == lCRTC_XRR) {
+  for (int i = 0; i < vScreenResources_XCB->num_crtcs; ++i) {
+    if (vCRTCs_XCB[i] == lCRTC_XRR) {
       lCRTCInfoFound = true;
       break;
     }
   }
 
   if (!lCRTCInfoFound) {
-    wLOG("Cannot find CRTC ", lCRTC_XRR, " in the current CRTC --> return -5");
+    wLOG("RandR: Cannot find CRTC ", lCRTC_XRR, " in the current CRTC --> return -5");
     return -5;
   }
 
-  lTempCRTCInfo_XRR = XRRGetCrtcInfo(vDisplay_X11, vResources_XRR, lCRTC_XRR);
+  auto  lCrtcCookie = xcb_randr_get_crtc_info(vConnection_XCB, lCRTC_XRR, vScreenInfo_XCB->config_timestamp);
+  auto *lCrtcInfo   = xcb_randr_get_crtc_info_reply(vConnection_XCB, lCrtcCookie, &lError);
+  CHECK_ERROR(xcb_randr_get_crtc_info, lCrtcInfo);
+  if (lNumErrors != 0) {
+    eLOG("RandR: Failed to get CRTC info of CRTC ", lCRTC_XRR);
+    if (lCrtcInfo)
+      free(lCrtcInfo);
 
-  if (lTempCRTCInfo_XRR->mode != _changeToThis.mode ||
-      lTempCRTCInfo_XRR->noutput != static_cast<int>(_changeToThis.outputs.size()) ||
-      lTempCRTCInfo_XRR->x != _changeToThis.posX || lTempCRTCInfo_XRR->y != _changeToThis.posY ||
-      lTempCRTCInfo_XRR->rotation != _changeToThis.rotation) {
+    return -5;
+  }
+
+  xcb_randr_output_t *lOutputs = xcb_randr_get_crtc_info_outputs(lCrtcInfo);
+
+  if (lCrtcInfo->mode != _changeToThis.mode ||
+      lCrtcInfo->num_outputs != static_cast<int>(_changeToThis.Xoutputs.size()) || lCrtcInfo->x != _changeToThis.posX ||
+      lCrtcInfo->y != _changeToThis.posY || lCrtcInfo->rotation != _changeToThis.Xrotation) {
     lChangedCRTC_B = true;
   } else {
-    for (unsigned int i = 0; i < _changeToThis.outputs.size(); ++i) {
-      if (lTempCRTCInfo_XRR->outputs[i] != _changeToThis.outputs[i]) {
+    for (unsigned int i = 0; i < _changeToThis.Xoutputs.size(); ++i) {
+      if (lOutputs[i] != _changeToThis.Xoutputs[i]) {
         lChangedCRTC_B = true;
         break;
       }
@@ -69,46 +91,58 @@ int iRandR::changeCRTC(internal::_crtc _changeToThis) {
   }
 
   if (lChangedCRTC_B) {
-    int lReturn_I;
-
-    if (_changeToThis.outputs.size() == 0 || _changeToThis.mode == None) {
+    if (_changeToThis.Xoutputs.size() == 0 || _changeToThis.mode == None) {
       // Disable output
-      lReturn_I =
-          XRRSetCrtcConfig(vDisplay_X11, vResources_XRR, lCRTC_XRR, CurrentTime, 0, 0, None, RR_Rotate_0, nullptr, 0);
-      iLOG("RandR: Disabled CRTC ", _changeToThis.id);
-    } else {
-      lTempOutputs_XRR = new RROutput[_changeToThis.outputs.size()];
-      for (unsigned int i = 0; i < _changeToThis.outputs.size(); ++i) {
-        lTempOutputs_XRR[i] = _changeToThis.outputs[i];
+      auto lConfigCookie = xcb_randr_set_crtc_config(vConnection_XCB,
+                                                     lCRTC_XRR,
+                                                     XCB_CURRENT_TIME,
+                                                     XCB_CURRENT_TIME,
+                                                     0,
+                                                     0,
+                                                     XCB_NONE,
+                                                     XCB_RANDR_ROTATION_ROTATE_0,
+                                                     0,
+                                                     nullptr);
+
+      auto *lConfigResult = xcb_randr_set_crtc_config_reply(vConnection_XCB, lConfigCookie, &lError);
+      CHECK_ERROR(xcb_randr_set_crtc_config, lConfigResult);
+      if (lNumErrors == 0) {
+        iLOG("RandR: Disabled CRTC ", _changeToThis.id);
+      } else {
+        eLOG("RandR: Failed to disable CRTC ", _changeToThis.id);
       }
-      lReturn_I = XRRSetCrtcConfig(vDisplay_X11,
-                                   vResources_XRR,
-                                   lCRTC_XRR,
-                                   CurrentTime,
-                                   _changeToThis.posX,
-                                   _changeToThis.posY,
-                                   _changeToThis.mode,
-                                   _changeToThis.rotation,
-                                   lTempOutputs_XRR,
-                                   static_cast<int>(_changeToThis.outputs.size()));
-      delete[] lTempOutputs_XRR;
-      iLOG("RandR: Changed CRTC ", _changeToThis.id);
-    }
+    } else {
+      xcb_randr_output_t *lTempOutputs = new xcb_randr_output_t[_changeToThis.Xoutputs.size()];
+      for (unsigned int i = 0; i < _changeToThis.Xoutputs.size(); ++i) {
+        lTempOutputs[i] = _changeToThis.Xoutputs[i];
+      }
 
-    if (lReturn_I != RRSetConfigSuccess) {
-      wLOG("RabdR: Failed to set CRTC config ( XRRSetCrtcConfig(...) returns '", lReturn_I, "' )");
-      return lReturn_I;
-    }
+      auto lConfigCookie = xcb_randr_set_crtc_config(vConnection_XCB,
+                                                     lCRTC_XRR,
+                                                     XCB_CURRENT_TIME,
+                                                     XCB_CURRENT_TIME,
+                                                     static_cast<int16_t>(_changeToThis.posX),
+                                                     static_cast<int16_t>(_changeToThis.posY),
+                                                     _changeToThis.Xmode,
+                                                     _changeToThis.Xrotation,
+                                                     static_cast<uint32_t>(_changeToThis.Xoutputs.size()),
+                                                     lTempOutputs);
+      delete[] lTempOutputs;
 
+      auto *lConfigResult = xcb_randr_set_crtc_config_reply(vConnection_XCB, lConfigCookie, &lError);
+      CHECK_ERROR(xcb_randr_set_crtc_config, lConfigResult);
+      if (lNumErrors == 0) {
+        iLOG("RandR: Changed CRTC ", _changeToThis.id);
+      } else {
+        eLOG("RandR: Failed to change CRTC ", _changeToThis.id);
+      }
+    }
   } else {
     iLOG("RandR: Changed CRTC ", _changeToThis.id, " -- nothing to do");
   }
 
-  XRRFreeCrtcInfo(lTempCRTCInfo_XRR);
+  if (lCrtcInfo)
+    free(lCrtcInfo);
 
-  return 1;
+  return (lNumErrors == 0) ? 1 : -10;
 }
-
-} // unix_x11
-
-} // e_engine
