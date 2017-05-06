@@ -22,9 +22,22 @@
 #include "iRandR.hpp"
 #include <strings.h>
 
-namespace e_engine {
+#define CODE(err) static_cast<int>(lError->err)
+#define CHECK_ERROR(func, ret)                                                                                \
+  if (lError) {                                                                                               \
+    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code)); \
+    free(lError);                                                                                             \
+    if (ret)                                                                                                  \
+      free(ret);                                                                                              \
+    return false;                                                                                             \
+  }                                                                                                           \
+  if (!ret) {                                                                                                 \
+    eLOG(#func, " returned a NULL pointer");                                                                  \
+    return false;                                                                                             \
+  }
 
-namespace unix_x11 {
+using namespace e_engine;
+using namespace unix_x11;
 
 /*!
  * \brief Sets the gamma values
@@ -49,27 +62,37 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
 
   reload();
 
-  RRCrtc lTempCRTCId_XRR = None;
+  xcb_generic_error_t *                  lError          = nullptr;
+  xcb_randr_crtc_t                       lCRTC           = XCB_NONE;
+  xcb_randr_get_crtc_gamma_size_reply_t *lGammaSizeReply = nullptr;
+
+  uint32_t  lSize_I       = lGammaSizeReply->length;
+  int       lShift_I      = 0;
+  double    lGammaRed_F   = 0.0;
+  double    lGammaGreen_F = 0.0;
+  double    lGammaBlue_F  = 0.0;
+  uint16_t *lRed          = nullptr;
+  uint16_t *lGreen        = nullptr;
+  uint16_t *lBlue         = nullptr;
 
   for (internal::_output const &fOutout : vOutput_V_RandR) {
     if (fOutout.connection == 0) {
       if (_disp.getOutput() == fOutout.id) {
-        lTempCRTCId_XRR = fOutout.crtc;
+        lCRTC = fOutout.crtc;
         break;
       }
     }
   }
 
-  if (lTempCRTCId_XRR == None)
+  if (lCRTC == XCB_NONE)
     return false;
 
+  auto lGammaSizeCookie = xcb_randr_get_crtc_gamma_size(vConnection_XCB, lCRTC);
+  lGammaSizeReply       = xcb_randr_get_crtc_gamma_size_reply(vConnection_XCB, lGammaSizeCookie, &lError);
+  CHECK_ERROR(xcb_randr_get_crtc_gamma_size, lGammaSizeReply);
 
-  int           lSize_I = XRRGetCrtcGammaSize(vDisplay_X11, lTempCRTCId_XRR);
-  int           lShift_I;
-  XRRCrtcGamma *lCRTCGamma_XRR;
-  double        lGammaRed_F;
-  double        lGammaGreen_F;
-  double        lGammaBlue_F;
+  lSize_I = lGammaSizeReply->length;
+  free(lGammaSizeReply);
 
   if (!lSize_I) {
     eLOG("RandR: Gamma size is 0 => Unable to set Gamma");
@@ -87,19 +110,18 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
     return false;
   }
 
+  // Allocate arays
+  lRed   = new uint16_t[lSize_I];
+  lGreen = new uint16_t[lSize_I];
+  lBlue  = new uint16_t[lSize_I];
+
   /*
    * The hardware color lookup table has a number of significant
    * bits equal to ffs(size) - 1; compute all values so that
    * they are in the range [0,size) then shift the values so
    * that they occupy the MSBs of the 16-bit X Color.
    */
-  lShift_I = 16 - (ffs(lSize_I) - 1);
-
-  lCRTCGamma_XRR = XRRAllocGamma(lSize_I);
-  if (!lCRTCGamma_XRR) {
-    eLOG("RandR: Gamma allocation failed");
-    return false;
-  }
+  lShift_I = 16 - (ffs(static_cast<int>(lSize_I)) - 1);
 
   _r = (std::abs(_r) < std::numeric_limits<double>::epsilon()) ? 1 : _r;
   _g = (std::abs(_g) < std::numeric_limits<double>::epsilon()) ? 1 : _g;
@@ -109,44 +131,46 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
   lGammaGreen_F = 1 / _g;
   lGammaBlue_F  = 1 / _b;
 
-  for (int i = 0; i < lSize_I; ++i) {
+  for (uint32_t i = 0; i < lSize_I; ++i) {
     if (std::abs(lGammaRed_F - 1.0) < std::numeric_limits<double>::epsilon() &&
         std::abs(_brightness - 1.0) < std::numeric_limits<double>::epsilon()) {
-      lCRTCGamma_XRR->red[i] = static_cast<unsigned short>(i);
+      lRed[i] = static_cast<uint16_t>(i);
     } else {
-      lCRTCGamma_XRR->red[i] = static_cast<unsigned short>(
+      lRed[i] = static_cast<uint16_t>(
           fmin(pow(static_cast<double>(i) / static_cast<double>(lSize_I - 1), lGammaRed_F) * _brightness, 1.0) *
           static_cast<double>(lSize_I - 1));
     }
 
-    lCRTCGamma_XRR->red[i] <<= lShift_I;
+    lRed[i] <<= lShift_I;
 
     if (std::abs(lGammaGreen_F - 1.0) < std::numeric_limits<double>::epsilon() &&
         std::abs(_brightness - 1.0) < std::numeric_limits<double>::epsilon()) {
-      lCRTCGamma_XRR->green[i] = static_cast<unsigned short>(i);
+      lGreen[i] = static_cast<uint16_t>(i);
     } else {
-      lCRTCGamma_XRR->green[i] = static_cast<unsigned short>(
+      lGreen[i] = static_cast<uint16_t>(
           fmin(pow(static_cast<double>(i) / static_cast<double>(lSize_I - 1), lGammaGreen_F) * _brightness, 1.0) *
           static_cast<double>(lSize_I - 1));
     }
 
-    lCRTCGamma_XRR->green[i] <<= lShift_I;
+    lGreen[i] <<= lShift_I;
 
     if (std::abs(lGammaBlue_F - 1.0) < std::numeric_limits<double>::epsilon() &&
         std::abs(_brightness - 1.0) < std::numeric_limits<double>::epsilon()) {
-      lCRTCGamma_XRR->blue[i] = static_cast<unsigned short>(i);
+      lBlue[i] = static_cast<uint16_t>(i);
     } else {
-      lCRTCGamma_XRR->blue[i] = static_cast<unsigned short>(
+      lBlue[i] = static_cast<uint16_t>(
           fmin(pow(static_cast<double>(i) / static_cast<double>(lSize_I - 1), lGammaBlue_F) * _brightness, 1.0) *
           static_cast<double>(lSize_I - 1));
     }
 
-    lCRTCGamma_XRR->blue[i] <<= lShift_I;
+    lBlue[i] <<= lShift_I;
   }
 
-  XRRSetCrtcGamma(vDisplay_X11, lTempCRTCId_XRR, lCRTCGamma_XRR);
+  xcb_randr_set_crtc_gamma(vConnection_XCB, lCRTC, static_cast<uint16_t>(lSize_I), lRed, lGreen, lBlue);
 
-  XRRFreeGamma(lCRTCGamma_XRR);
+  delete[] lRed;
+  delete[] lGreen;
+  delete[] lBlue;
 
   iLOG("Successfully set Gamma to   R: ",
        _r,
@@ -157,13 +181,9 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
        "  --  Brightness: ",
        _brightness,
        "  !!  ",
-       lTempCRTCId_XRR);
+       lCRTC);
 
   return true;
 }
-
-} // unix_x11
-
-} // e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

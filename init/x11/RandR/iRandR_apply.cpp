@@ -21,9 +21,22 @@
 #include "uLog.hpp"
 #include "iRandR.hpp"
 
-namespace e_engine {
+#define CODE(err) static_cast<int>(lError->err)
+#define CHECK_ERROR(func, ret)                                                                                \
+  if (lError) {                                                                                               \
+    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code)); \
+    free(lError);                                                                                             \
+    if (ret)                                                                                                  \
+      free(ret);                                                                                              \
+    return false;                                                                                             \
+  }                                                                                                           \
+  if (!ret) {                                                                                                 \
+    eLOG(#func, " returned a NULL pointer");                                                                  \
+    return false;                                                                                             \
+  }
 
-namespace unix_x11 {
+using namespace e_engine;
+using namespace unix_x11;
 
 /*!
  * \brief Applies the new RandR config set
@@ -39,9 +52,11 @@ bool iRandR::applyNewRandRSettings() {
   int                          lMinWidth_I, lMinHeight_I;
   int                          lMaxWidth_I, lMaxHeight_I;
 
-  double lDPI_D;
-  int    lNewWidth_I, lNewHeight_I;
-  int    lCurrentWidth_I, lCurrentHeight_I;
+  uint16_t lNewWidth_I, lNewHeight_I;
+  uint16_t lCurrentWidth_I, lCurrentHeight_I;
+
+  xcb_randr_get_screen_size_range_reply_t *lSizeRangeReply = nullptr;
+  xcb_generic_error_t *                    lError          = nullptr;
 
   reload();
 
@@ -78,7 +93,16 @@ bool iRandR::applyNewRandRSettings() {
   if (lTempAllCRTC_V_RandR.empty())
     return false;
 
-  XRRGetScreenSizeRange(vDisplay_X11, vRootWindow_X11, &lMinWidth_I, &lMinHeight_I, &lMaxWidth_I, &lMaxHeight_I);
+  auto lScreensSizeCookie = xcb_randr_get_screen_size_range(vConnection_XCB, vRootWindow_XCB);
+  lSizeRangeReply         = xcb_randr_get_screen_size_range_reply(vConnection_XCB, lScreensSizeCookie, &lError);
+  CHECK_ERROR(xcb_randr_get_screen_size_range, lSizeRangeReply);
+
+  lMinWidth_I  = lSizeRangeReply->min_width;
+  lMinHeight_I = lSizeRangeReply->min_height;
+  lMaxWidth_I  = lSizeRangeReply->max_width;
+  lMaxHeight_I = lSizeRangeReply->max_height;
+
+  free(lSizeRangeReply);
 
   lNewWidth_I  = 0;
   lNewHeight_I = 0;
@@ -87,7 +111,7 @@ bool iRandR::applyNewRandRSettings() {
     internal::_mode lTempMode_RandR;
     bool            lModeFound_B = false;
 
-    if (fCRTC.mode == None) {
+    if (fCRTC.mode == XCB_NONE) {
       lModeFound_B           = true;
       lTempMode_RandR.width  = 0;
       lTempMode_RandR.height = 0;
@@ -102,61 +126,42 @@ bool iRandR::applyNewRandRSettings() {
     }
 
     if (!lModeFound_B) {
-      wLOG(
-          "RandR: Unable to find mode ( fCRTC.mode = ", fCRTC.mode, ") in vMode_V_RandR --> Do not change Screen size");
+      wLOG("RandR: Unable to find mode (Mode ID = ", fCRTC.mode, ") in vMode_V_RandR --> Do not change Screen size");
       return false;
     }
 
 
-    int lTempWidth_I  = fCRTC.posX + static_cast<int>(lTempMode_RandR.width);
-    int lTempHeight_I = fCRTC.posY + static_cast<int>(lTempMode_RandR.height);
-    lNewWidth_I       = (lTempWidth_I > lNewWidth_I) ? lTempWidth_I : lNewWidth_I;
-    lNewHeight_I      = (lTempHeight_I > lNewHeight_I) ? lTempHeight_I : lNewHeight_I;
+    uint16_t lTempWidth_I  = static_cast<uint16_t>(fCRTC.posX) + static_cast<uint16_t>(lTempMode_RandR.width);
+    uint16_t lTempHeight_I = static_cast<uint16_t>(fCRTC.posY) + static_cast<uint16_t>(lTempMode_RandR.height);
+    lNewWidth_I            = (lTempWidth_I > lNewWidth_I) ? lTempWidth_I : lNewWidth_I;
+    lNewHeight_I           = (lTempHeight_I > lNewHeight_I) ? lTempHeight_I : lNewHeight_I;
   }
 
   // Get current size
-  int            lCountSizes_I;
-  SizeID         lCurrentSizePossition_suI;
-  Rotation       lUselessRotationInfo_XRR;
-  XRRScreenSize *sizes      = XRRSizes(vDisplay_X11, 0, &lCountSizes_I);
-  lCurrentSizePossition_suI = XRRConfigCurrentConfiguration(vConfig_XRR, &lUselessRotationInfo_XRR);
+  xcb_randr_screen_size_t *sizes = xcb_randr_get_screen_info_sizes(vScreenInfo_XCB);
 
-  if (!(lCurrentSizePossition_suI < lCountSizes_I)) {
-    wLOG("XRandR ERROR: ! lCurrentSizePossition_suI < lCountSizes_I ( ",
-         lCurrentSizePossition_suI,
+  if (!(vScreenInfo_XCB->sizeID < vScreenInfo_XCB->nSizes)) {
+    wLOG("XRandR ERROR: ! vScreenInfo_XCB->sizeID < vScreenInfo_XCB->nSizes ( ",
+         vScreenInfo_XCB->sizeID,
          " < ",
-         lCountSizes_I,
+         vScreenInfo_XCB->nSizes,
          " )");
     return false;
   }
 
-  lCurrentWidth_I  = sizes[lCurrentSizePossition_suI].width;
-  lCurrentHeight_I = sizes[lCurrentSizePossition_suI].height;
-
-  /* Only for debugging
-  iLOG( "RandR Screen Size Info:"
-  POINT "MinWidth      - ", lMinWidth_I
-  POINT "MinHeight     - ", lMinHeight_I
-  POINT "MaxWidth      - ", lMaxWidth_I
-  POINT "MaxHeight     - ", lMaxHeight_I
-  POINT "NewWidth      - ", lNewWidth_I
-  POINT "NewHeight     - ", lNewHeight_I
-  POINT "CurrentWidth  - ", lCurrentWidth_I
-  POINT "CurrentHeight - ", lCurrentHeight_I
-  ); */
+  lCurrentWidth_I  = sizes[vScreenInfo_XCB->sizeID].width;
+  lCurrentHeight_I = sizes[vScreenInfo_XCB->sizeID].height;
 
   if ((lNewWidth_I >= lMinWidth_I && lNewWidth_I <= lMaxWidth_I && lNewHeight_I >= lMinHeight_I &&
        lNewHeight_I <= lMaxHeight_I) &&
       (lNewWidth_I != lCurrentWidth_I || lNewHeight_I != lCurrentHeight_I)) {
-    lDPI_D = (25.4 * DefaultScreenOfDisplay(vDisplay_X11)->height) / DefaultScreenOfDisplay(vDisplay_X11)->mheight;
 
-    XRRSetScreenSize(
-        vDisplay_X11,
-        vRootWindow_X11,
-        (lNewWidth_I > lCurrentWidth_I) ? lNewWidth_I : lCurrentWidth_I,
-        (lNewHeight_I > lCurrentHeight_I) ? lNewHeight_I : lCurrentHeight_I,
-        static_cast<int>((25.4 * ((lNewWidth_I > lCurrentWidth_I) ? lNewWidth_I : lCurrentWidth_I)) / lDPI_D),
-        static_cast<int>((25.4 * ((lNewHeight_I > lCurrentHeight_I) ? lNewHeight_I : lCurrentHeight_I)) / lDPI_D));
+    xcb_randr_set_screen_size(vConnection_XCB,
+                              vRootWindow_XCB,
+                              (lNewWidth_I > lCurrentWidth_I) ? lNewWidth_I : lCurrentWidth_I,
+                              (lNewHeight_I > lCurrentHeight_I) ? lNewHeight_I : lCurrentHeight_I,
+                              0,
+                              0);
   }
 
   for (internal::_crtc const &fCRTC : lTempAllCRTC_V_RandR)
@@ -165,14 +170,8 @@ bool iRandR::applyNewRandRSettings() {
   if ((lNewWidth_I >= lMinWidth_I && lNewWidth_I <= lMaxWidth_I && lNewHeight_I >= lMinHeight_I &&
        lNewHeight_I <= lMaxHeight_I) &&
       (lNewWidth_I != lCurrentWidth_I || lNewHeight_I != lCurrentHeight_I)) {
-    lDPI_D = (25.4 * DefaultScreenOfDisplay(vDisplay_X11)->height) / DefaultScreenOfDisplay(vDisplay_X11)->mheight;
 
-    XRRSetScreenSize(vDisplay_X11,
-                     vRootWindow_X11,
-                     lNewWidth_I,
-                     lNewHeight_I,
-                     static_cast<int>((25.4 * lNewWidth_I) / lDPI_D),
-                     static_cast<int>((25.4 * lNewHeight_I) / lDPI_D));
+    xcb_randr_set_screen_size(vConnection_XCB, vRootWindow_XCB, lNewWidth_I, lNewHeight_I, 0, 0);
   }
 
   // We now work with lTempAllCRTC_V_RandR only
@@ -184,11 +183,5 @@ bool iRandR::applyNewRandRSettings() {
 
   return true;
 }
-
-
-} // unix_x11
-
-} // e_engine
-
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

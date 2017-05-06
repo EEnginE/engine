@@ -69,12 +69,6 @@ class iRandR {
 
   std::vector<internal::_crtc> vChangeCRTC_V_RandR;
 
-  Display *vDisplay_X11;    //!< The X11 display      -- set in init(...);
-  Window   vRootWindow_X11; //!< The X11 root window  -- set in init(...);
-
-  XRRScreenResources *    vResources_XRR = nullptr;
-  XRRScreenConfiguration *vConfig_XRR    = nullptr;
-
   uint32_t vScreenWidth_uI  = 0;
   uint32_t vScreenHeight_uI = 0;
 
@@ -88,7 +82,7 @@ class iRandR {
   bool restore(internal::_config _conf);
   int changeCRTC(e_engine::internal::_crtc _changeToThis);
 
-  internal::_crtc isOutputPossible(RROutput _id, RRCrtc _crtc);
+  internal::_crtc isOutputPossible(xcb_randr_output_t _id, xcb_randr_crtc_t _crtc);
 
  protected:
   void endRandR();

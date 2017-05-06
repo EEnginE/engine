@@ -44,7 +44,7 @@ using namespace unix_x11;
  * \returns 1 when everything went fine
  */
 int iRandR::changeCRTC(internal::_crtc _changeToThis) {
-  xcb_randr_crtc_t lCRTC_XRR      = _changeToThis.Xid;
+  xcb_randr_crtc_t lCRTC_XCB      = _changeToThis.id;
   bool             lChangedCRTC_B = false;
 
   xcb_generic_error_t *lError;
@@ -53,22 +53,22 @@ int iRandR::changeCRTC(internal::_crtc _changeToThis) {
   int  lNumErrors     = 0;
 
   for (int i = 0; i < vScreenResources_XCB->num_crtcs; ++i) {
-    if (vCRTCs_XCB[i] == lCRTC_XRR) {
+    if (vCRTCs_XCB[i] == lCRTC_XCB) {
       lCRTCInfoFound = true;
       break;
     }
   }
 
   if (!lCRTCInfoFound) {
-    wLOG("RandR: Cannot find CRTC ", lCRTC_XRR, " in the current CRTC --> return -5");
+    wLOG("RandR: Cannot find CRTC ", lCRTC_XCB, " in the current CRTC --> return -5");
     return -5;
   }
 
-  auto  lCrtcCookie = xcb_randr_get_crtc_info(vConnection_XCB, lCRTC_XRR, vScreenInfo_XCB->config_timestamp);
+  auto  lCrtcCookie = xcb_randr_get_crtc_info(vConnection_XCB, lCRTC_XCB, vScreenInfo_XCB->config_timestamp);
   auto *lCrtcInfo   = xcb_randr_get_crtc_info_reply(vConnection_XCB, lCrtcCookie, &lError);
   CHECK_ERROR(xcb_randr_get_crtc_info, lCrtcInfo);
   if (lNumErrors != 0) {
-    eLOG("RandR: Failed to get CRTC info of CRTC ", lCRTC_XRR);
+    eLOG("RandR: Failed to get CRTC info of CRTC ", lCRTC_XCB);
     if (lCrtcInfo)
       free(lCrtcInfo);
 
@@ -78,12 +78,12 @@ int iRandR::changeCRTC(internal::_crtc _changeToThis) {
   xcb_randr_output_t *lOutputs = xcb_randr_get_crtc_info_outputs(lCrtcInfo);
 
   if (lCrtcInfo->mode != _changeToThis.mode ||
-      lCrtcInfo->num_outputs != static_cast<int>(_changeToThis.Xoutputs.size()) || lCrtcInfo->x != _changeToThis.posX ||
-      lCrtcInfo->y != _changeToThis.posY || lCrtcInfo->rotation != _changeToThis.Xrotation) {
+      lCrtcInfo->num_outputs != static_cast<int>(_changeToThis.outputs.size()) || lCrtcInfo->x != _changeToThis.posX ||
+      lCrtcInfo->y != _changeToThis.posY || lCrtcInfo->rotation != _changeToThis.rotation) {
     lChangedCRTC_B = true;
   } else {
-    for (unsigned int i = 0; i < _changeToThis.Xoutputs.size(); ++i) {
-      if (lOutputs[i] != _changeToThis.Xoutputs[i]) {
+    for (unsigned int i = 0; i < _changeToThis.outputs.size(); ++i) {
+      if (lOutputs[i] != _changeToThis.outputs[i]) {
         lChangedCRTC_B = true;
         break;
       }
@@ -91,10 +91,10 @@ int iRandR::changeCRTC(internal::_crtc _changeToThis) {
   }
 
   if (lChangedCRTC_B) {
-    if (_changeToThis.Xoutputs.size() == 0 || _changeToThis.mode == None) {
+    if (_changeToThis.outputs.size() == 0 || _changeToThis.mode == XCB_NONE) {
       // Disable output
       auto lConfigCookie = xcb_randr_set_crtc_config(vConnection_XCB,
-                                                     lCRTC_XRR,
+                                                     lCRTC_XCB,
                                                      XCB_CURRENT_TIME,
                                                      XCB_CURRENT_TIME,
                                                      0,
@@ -112,20 +112,20 @@ int iRandR::changeCRTC(internal::_crtc _changeToThis) {
         eLOG("RandR: Failed to disable CRTC ", _changeToThis.id);
       }
     } else {
-      xcb_randr_output_t *lTempOutputs = new xcb_randr_output_t[_changeToThis.Xoutputs.size()];
-      for (unsigned int i = 0; i < _changeToThis.Xoutputs.size(); ++i) {
-        lTempOutputs[i] = _changeToThis.Xoutputs[i];
+      xcb_randr_output_t *lTempOutputs = new xcb_randr_output_t[_changeToThis.outputs.size()];
+      for (unsigned int i = 0; i < _changeToThis.outputs.size(); ++i) {
+        lTempOutputs[i] = _changeToThis.outputs[i];
       }
 
       auto lConfigCookie = xcb_randr_set_crtc_config(vConnection_XCB,
-                                                     lCRTC_XRR,
+                                                     lCRTC_XCB,
                                                      XCB_CURRENT_TIME,
                                                      XCB_CURRENT_TIME,
                                                      static_cast<int16_t>(_changeToThis.posX),
                                                      static_cast<int16_t>(_changeToThis.posY),
-                                                     _changeToThis.Xmode,
-                                                     _changeToThis.Xrotation,
-                                                     static_cast<uint32_t>(_changeToThis.Xoutputs.size()),
+                                                     _changeToThis.mode,
+                                                     _changeToThis.rotation,
+                                                     static_cast<uint32_t>(_changeToThis.outputs.size()),
                                                      lTempOutputs);
       delete[] lTempOutputs;
 

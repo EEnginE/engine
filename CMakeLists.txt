@@ -105,18 +105,11 @@ find_package(assimp  REQUIRED)
 find_package(glm     REQUIRED)
 
 if( CM_UNIX_X11 )
-  find_package(X11 REQUIRED)
   find_package(XCB COMPONENTS xcb xcb-randr REQUIRED)
-
-  if( X11_Xrandr_FOUND )
-    message( STATUS "Found Xrandr" )
-  else( X11_Xrandr_FOUND )
-    message( SEND_ERROR "Xrandr NOT FOUND!" )
-  endif( X11_Xrandr_FOUND )
 endif( CM_UNIX_X11 )
 
 
-set( ENGINE_LINK ${VULKAN_LIBRARIES} ${X11_LIBRARIES} ${X11_Xrandr_LIB} ${XCB_LIBRARIES} ${ASSIMP_LIBRARIES} Threads::Threads stdc++fs)
+set( ENGINE_LINK ${VULKAN_LIBRARIES} ${XCB_LIBRARIES} ${ASSIMP_LIBRARIES} Threads::Threads stdc++fs)
 
 message( "" ) # Newline
 
@@ -184,8 +177,6 @@ include_directories(
 include_directories(
   SYSTEM
     ${VULKAN_INCLUDE_DIR}
-    ${X11_INCLUDE_DIRS}
-    ${X11_Xrandr_INCLUDE_PATH}
     ${XCB_INCLUDE_DIRS}
     ${ASSIMP_INCLUDE_DIRS}
 )

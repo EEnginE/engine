@@ -23,9 +23,9 @@
 
 #include "defines.hpp"
 
-#include <X11/extensions/Xrandr.h>
 #include <limits>
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 #include <xcb/randr.h>
@@ -43,11 +43,10 @@ namespace internal {
  * \sa iRandR ; _mode _output
  */
 struct _crtc {
-  RRCrtc           id; //!< The unique \b CRTC id form Xlib
-  xcb_randr_crtc_t Xid;
+  xcb_randr_crtc_t id; //!< The unique \b CRTC id form Xlib
 
-  Time timestamp; //!< [not used]; 'timestamp' indicates when the configuration
-                  // was last set.
+  uint32_t timestamp; //!< [not used]; 'timestamp' indicates when the configuration
+                      // was last set.
 
   /*!
    * 'posX' and 'posY' indicate the position of this CRTC within the screen region.
@@ -81,27 +80,22 @@ struct _crtc {
    * 'mode' indicates which mode is active, or None indicating that the CRTC has
    * been disabled and is not displaying the screen contents.
    */
-  RRMode           mode;
-  xcb_randr_mode_t Xmode;
+  xcb_randr_mode_t mode;
 
   //! 'rotation' indicates the active rotation. It is set to Rotate_0 when the CRTC is disabled.
-  Rotation rotation;
-  uint16_t Xrotation;
+  uint16_t rotation;
 
   //! 'rotations' contains the set of rotations and reflections supported by the CRTC
-  Rotation rotations;
-  uint16_t Xrotations;
+  uint16_t rotations;
 
   /*!
    * 'outputs' is the list of outputs currently connected to this CRTC and is
    * empty when the CRTC is disabled.
    */
-  std::vector<RROutput>           outputs;
-  std::vector<xcb_randr_output_t> Xoutputs;
+  std::vector<xcb_randr_output_t> outputs;
 
   //! 'possibleOutputs' lists all of the outputs which may be connected to this CRTC
-  std::vector<RROutput>           possibleOutputs;
-  std::vector<xcb_randr_output_t> XpossibleOutputs;
+  std::vector<xcb_randr_output_t> possibleOutputs;
 };
 
 /*!
@@ -114,17 +108,15 @@ struct _crtc {
  * \sa iRandR ; _crtc _mode
  */
 struct _output {
-  RROutput           id; //!< The unique \b CRTC id form Xlib
-  xcb_randr_output_t Xid;
+  xcb_randr_output_t id; //!< The unique \b CRTC id form XCB
 
-  Time timestamp; //!< [not used]; 'timestamp' indicates when the configuration was last set.
+  uint32_t timestamp; //!< [not used]; 'timestamp' indicates when the configuration was last set.
 
   /*!
    * 'crtc' is the current source CRTC for video data, or Disabled (= None) if
    * the output is not connected to any CRTC.
    */
-  RRCrtc           crtc;
-  xcb_randr_crtc_t Xcrtc;
+  xcb_randr_crtc_t crtc;
 
   /*!
    * 'name' is a UTF-8 encoded string designed to be presented to the user to
@@ -152,22 +144,20 @@ struct _output {
    * whether something is connected, it will set this to UnknownConnection.
    * ==> 0 - Connected; 1 - Disconnected; 2 - Unknown
    */
-  Connection             connection;
-  xcb_randr_connection_t Xconnection;
+  xcb_randr_connection_t connection;
 
   /*!
    * 'subpixel_order' contains the resulting subpixel order of the
    * connected device to allow correct subpixel rendering.
    */
-  SubpixelOrder subpixel_order;
+  uint8_t subpixel_order;
 
   /*!
    * 'crtcs' is the list of CRTCs that this output may be connected to.
    * Attempting to
    * connect this output to a different CRTC results ina Match error.
    */
-  std::vector<RRCrtc>           crtcs;
-  std::vector<xcb_randr_crtc_t> Xcrtcs;
+  std::vector<xcb_randr_crtc_t> crtcs;
 
   /*!
    * 'clones' is the list of outputs which may be simultaneously connected to
@@ -176,16 +166,14 @@ struct _output {
    * not in the 'clones'
    * list results in a Match error.
    */
-  std::vector<RROutput>           clones;
-  std::vector<xcb_randr_output_t> Xclones;
+  std::vector<xcb_randr_output_t> clones;
 
   /*!
    * 'modes' is the list of modes supported by this output. Attempting to
    * connect this output to
    * a CRTC not using one of these modes results in a Match error.
    */
-  std::vector<RRMode>           modes;
-  std::vector<xcb_randr_mode_t> Xmodes;
+  std::vector<xcb_randr_mode_t> modes;
 
   /*!
    * The first 'npreferred' modes in 'modes' are preferred by the monitor in
@@ -216,8 +204,7 @@ struct _output {
  * \sa iRandR ; _crtc _output
  */
 struct _mode {
-  RRMode           id; //!< The unique \b mode id
-  xcb_randr_mode_t Xid;
+  xcb_randr_mode_t id; //!< The unique \b mode id
 
   unsigned int  width;      //!< The width of the mode
   unsigned int  height;     //!< The height of the mode
@@ -229,8 +216,7 @@ struct _mode {
   unsigned int  vSyncStart; //!< This data is needed for calculating \a refresh and \a syncFreq
   unsigned int  vSyncEnd;   //!< This data is needed for calculating \a refresh and \a syncFreq
   unsigned int  vTotal;     //!< This data is needed for calculating \a refresh and \a syncFreq
-  XRRModeFlags  modeFlags;  //!< Some mode flags
-  uint64_t      XmodeFlags;
+  uint64_t      modeFlags;  //!< Some mode flags
 
   double refresh;  //!< The refresh rate
   double syncFreq; //!< The sync frequnece
@@ -274,18 +260,46 @@ struct _mode {
   }
 };
 
+class _gamma {
+ public:
+  xcb_randr_crtc_t crtc;
+
+  uint16_t  size;
+  uint16_t *red;
+  uint16_t *green;
+  uint16_t *blue;
+
+  _gamma() = delete;
+
+  _gamma(const _gamma &) = delete;
+  _gamma(_gamma &&)      = delete;
+
+  _gamma &operator=(const _gamma &) = delete;
+  _gamma &operator=(_gamma &&) = delete;
+
+  _gamma(uint16_t s, xcb_randr_crtc_t c) : crtc(c), size(s) {
+    red   = new uint16_t[size];
+    green = new uint16_t[size];
+    blue  = new uint16_t[size];
+  }
+
+  ~_gamma() {
+    delete[] red;
+    delete[] green;
+    delete[] blue;
+  }
+};
+
 /*!
  * \struct e_engine::internal::_config
  * \brief Stores all necessary infomation to restore a specific RandR
  * configuration
  */
 struct _config {
-  RROutput           primary; //!< The primary output
-  xcb_randr_output_t Xprimary;
+  xcb_randr_output_t primary;
 
-  std::vector<XRRCrtcGamma *>                     gamma;    //!< Holds gamma information for each CRTC
-  std::vector<xcb_randr_get_crtc_gamma_reply_t *> Xgamma;   //!< Holds gamma information for each CRTC
-  std::vector<_crtc>                              CRTCInfo; //!< All important data to restore every CRTC
+  std::vector<std::shared_ptr<_gamma>> gamma;    //!< Holds gamma information for each CRTC
+  std::vector<_crtc>                   CRTCInfo; //!< All important data to restore every CRTC
 };
 }
 }

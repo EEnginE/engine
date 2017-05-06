@@ -23,7 +23,7 @@
 #include "defines.hpp"
 
 #include "iDisplayBasic.hpp"
-#include <X11/extensions/Xrandr.h>
+#include <xcb/randr.h>
 
 namespace e_engine {
 
@@ -46,34 +46,35 @@ class iDisplays final : public iDisplayBasic {
  private:
   //! \brief internal structure for storing important mode information.
   struct mode : mode_basic {
-    RRMode id;
+    xcb_randr_output_t id;
   };
 
   std::vector<mode> vModes_V_mode; //!< all possible modes
 
-  RROutput              vID_XRR;
-  std::vector<RROutput> vClones_V_XRR;
+  xcb_randr_output_t              vID_XRR;
+  std::vector<xcb_randr_output_t> vClones_V_XRR;
 
-  RRMode vModeToUse_XRR;
+  xcb_randr_mode_t vModeToUse_XRR;
 
 
   iDisplays() {}
 
-  void addClone(RROutput _clone);
-  void addMode(RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate);
+  void addClone(xcb_randr_output_t _clone);
+  void addMode(xcb_randr_mode_t _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate);
 
-  std::vector<RROutput> getClones() const { return vClones_V_XRR; }
-  RRMode                getMode() const { return vModeToUse_XRR; }
-  RROutput              getOutput() const { return vID_XRR; }
-  bool                  getIsEnabled() const { return vEnabled_B; }
+  std::vector<xcb_randr_output_t> getClones() const { return vClones_V_XRR; }
+  xcb_randr_mode_t                getMode() const { return vModeToUse_XRR; }
+  xcb_randr_output_t              getOutput() const { return vID_XRR; }
+  bool                            getIsEnabled() const { return vEnabled_B; }
 
-  double findNearestFreqTo(double _rate, unsigned int _width, unsigned int _height, RRMode &_mode, double &_diff) const;
+  double findNearestFreqTo(
+      double _rate, unsigned int _width, unsigned int _height, xcb_randr_mode_t &_mode, double &_diff) const;
 
  public:
   virtual ~iDisplays();
 
-  iDisplays(std::string _name, RROutput _id, bool _enabled) : vID_XRR(_id) {
-    vModeToUse_XRR = None;
+  iDisplays(std::string _name, xcb_randr_output_t _id, bool _enabled) : vID_XRR(_id) {
+    vModeToUse_XRR = XCB_NONE;
     vEnabled_B     = _enabled;
     vName_str      = _name;
   }

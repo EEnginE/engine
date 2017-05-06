@@ -45,10 +45,10 @@ iDisplays &iDisplays::operator=(const iDisplays &&_e) {
 }
 
 // --- private ---
-void iDisplays::addClone(RROutput _clone) { vClones_V_XRR.push_back(_clone); }
+void iDisplays::addClone(xcb_randr_output_t _clone) { vClones_V_XRR.push_back(_clone); }
 
 // --- private ---
-void iDisplays::addMode(RRMode _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate) {
+void iDisplays::addMode(xcb_randr_mode_t _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate) {
   mode lTempMode_mode;
 
   lTempMode_mode.id = _id;
@@ -93,7 +93,7 @@ void iDisplays::autoSelectBest() {
   if (std::abs(autoSelectBySize(lMaxWidth_uI, lMaxHeight_uI)) < std::numeric_limits<double>::epsilon()) {
     // There are no modes which can be used
     vEnabled_B     = false;
-    vModeToUse_XRR = None;
+    vModeToUse_XRR = XCB_NONE;
   }
 }
 
@@ -113,7 +113,7 @@ void iDisplays::autoSelectBest() {
  * \returns the display frequency closest to _rate
  */
 double iDisplays::findNearestFreqTo(
-    double _rate, unsigned int _width, unsigned int _height, RRMode &_mode, double &_diff) const {
+    double _rate, unsigned int _width, unsigned int _height, xcb_randr_mode_t &_mode, double &_diff) const {
   _diff          = 1000000;
   double lRate_D = -1;
   for (iDisplays::mode const &fMode : vModes_V_mode) {
@@ -180,11 +180,11 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
   double lRate480Hz_D;
   double lRatePref_D;
 
-  RRMode l60Hz_XRR  = None;
-  RRMode l120Hz_XRR = None;
-  RRMode l240Hz_XRR = None;
-  RRMode l480Hz_XRR = None;
-  RRMode lPref_XRR  = None;
+  xcb_randr_mode_t l60Hz_XRR  = XCB_NONE;
+  xcb_randr_mode_t l120Hz_XRR = XCB_NONE;
+  xcb_randr_mode_t l240Hz_XRR = XCB_NONE;
+  xcb_randr_mode_t l480Hz_XRR = XCB_NONE;
+  xcb_randr_mode_t lPref_XRR  = XCB_NONE;
 
   bool lFoundOneSizeMatch      = false;
   bool lFindPreferedRateFailed = false;
@@ -274,7 +274,7 @@ void iDisplays::disable() {
   vCurrentWidth_uI  = 0;
   vCurrentHeight_uI = 0;
   vCurrentRate_D    = 0;
-  vModeToUse_XRR    = None;
+  vModeToUse_XRR    = XCB_NONE;
 }
 
 /*!
@@ -282,7 +282,7 @@ void iDisplays::disable() {
  */
 void iDisplays::enable() {
   vEnabled_B = true;
-  if (vModeToUse_XRR == None)
+  if (vModeToUse_XRR == XCB_NONE)
     autoSelectBest();
 }
 
@@ -345,7 +345,7 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
  * \param[out] _rate   The rate of the selected mode
  */
 void iDisplays::getSelectedRes(unsigned int &_width, unsigned int &_height, double &_rate) const {
-  if (vModeToUse_XRR == None) {
+  if (vModeToUse_XRR == XCB_NONE) {
     _width  = 0;
     _height = 0;
     _rate   = 0;

@@ -67,12 +67,6 @@ bool iRandR::initRandR(xcb_connection_t *_connection, xcb_window_t _rootWin) {
     return false;
   }
 
-  vDisplay_X11    = XOpenDisplay(nullptr);
-  auto lScreen    = DefaultScreen(vDisplay_X11);
-  vRootWindow_X11 = RootWindow(vDisplay_X11, lScreen);
-
-
-
   auto *lExtReply = xcb_get_extension_data(vConnection_XCB, &xcb_randr_id);
   if (lExtReply->present) {
     dRandLog("RandR extension present");
@@ -122,28 +116,21 @@ void iRandR::endRandR() {
   if (!vIsRandRSupported_B)
     return;
 
-  XCloseDisplay(vDisplay_X11);
-
   if (GlobConf.win.restoreOldScreenRes && vWasScreenChanged_B)
     restore(vDefaultConfig_RandR);
 
-
-  for (auto &elem : vDefaultConfig_RandR.gamma)
-    XRRFreeGamma(elem);
-
   vDefaultConfig_RandR.gamma.clear();
   vDefaultConfig_RandR.CRTCInfo.clear();
-
-
-  for (auto &elem : vLatestConfig_RandR.gamma)
-    XRRFreeGamma(elem);
-
-
   vLatestConfig_RandR.gamma.clear();
 
+  if (vScreenInfo_XCB)
+    free(vScreenInfo_XCB);
 
-  XRRFreeScreenConfigInfo(vConfig_XRR);
-  XRRFreeScreenResources(vResources_XRR);
+  if (vScreenResources_XCB)
+    free(vScreenResources_XCB);
+
+  vScreenInfo_XCB      = nullptr;
+  vScreenResources_XCB = nullptr;
 
   vCRTC_V_RandR.clear();
   vOutput_V_RandR.clear();
@@ -163,7 +150,7 @@ bool iRandR::restore(internal::_config _conf) {
     return false;
 
   // Who is primary?
-  XRRSetOutputPrimary(vDisplay_X11, vRootWindow_X11, _conf.primary);
+  xcb_randr_set_output_primary(vConnection_XCB, vRootWindow_XCB, _conf.primary);
 
 
   // Reset gamma
@@ -172,9 +159,12 @@ bool iRandR::restore(internal::_config _conf) {
     return false;
   }
 
-  for (unsigned int i = 0; i < _conf.CRTCInfo.size(); ++i) {
-    for (auto &elem : _conf.gamma) {
-      XRRSetCrtcGamma(vDisplay_X11, vCRTC_V_RandR[i].id, elem);
+  for (auto &i : _conf.CRTCInfo) {
+    for (auto &j : _conf.gamma) {
+      if (j->crtc == i.id) {
+        xcb_randr_set_crtc_gamma(vConnection_XCB, j->crtc, j->size, j->red, j->green, j->blue);
+        break;
+      }
     }
   }
 
@@ -211,9 +201,9 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
     if (fOutput.connection != 0)
       continue;
 
-    lTempSizes_eWS.emplace_back(fOutput.name, fOutput.id, (fOutput.crtc != None) ? true : false);
+    lTempSizes_eWS.emplace_back(fOutput.name, fOutput.id, (fOutput.crtc != XCB_NONE) ? true : false);
 
-    if (fOutput.crtc != None) {
+    if (fOutput.crtc != XCB_NONE) {
 
       // Find the CRTC of the output
       for (internal::_crtc const &fCRTC : vCRTC_V_RandR) {
@@ -231,7 +221,7 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
           }
 
           // Clones
-          for (RROutput const &fClone : fCRTC.outputs) {
+          for (auto const &fClone : fCRTC.outputs) {
             if (fClone != fOutput.id)
               lTempSizes_eWS.back().addClone(fClone);
           }
@@ -287,7 +277,7 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
 bool iRandR::setPrimary(iDisplays const &_disp) {
   if (!isRandRSupported())
     return false;
-  XRRSetOutputPrimary(vDisplay_X11, vRootWindow_X11, _disp.getOutput());
+  xcb_randr_set_output_primary(vConnection_XCB, vRootWindow_XCB, _disp.getOutput());
   return true;
 }
 
@@ -357,13 +347,13 @@ void iRandR::getMostLeftRightTopBottomCRTC(unsigned int &_left,
 int iRandR::getIndexOfDisplay(iDisplays const &_disp) {
   reload();
 
-  RRCrtc lCRTC_XRR    = None;
-  bool   lOutputFound = false;
+  xcb_randr_crtc_t lCRTC_XCB    = XCB_NONE;
+  bool             lOutputFound = false;
 
   for (internal::_output fOut : vOutput_V_RandR) {
     if (_disp.getOutput() == fOut.id) {
       lOutputFound = true;
-      lCRTC_XRR    = fOut.crtc;
+      lCRTC_XCB    = fOut.crtc;
       break;
     }
   }
@@ -373,12 +363,12 @@ int iRandR::getIndexOfDisplay(iDisplays const &_disp) {
     return -2;
 
   // The output is not connected or disabled
-  if (lCRTC_XRR == None)
+  if (lCRTC_XCB == XCB_NONE)
     return -1;
 
 
   for (unsigned int i = 0; i < vCRTC_V_RandR.size(); ++i) {
-    if (vCRTC_V_RandR[i].id == lCRTC_XRR)
+    if (vCRTC_V_RandR[i].id == lCRTC_XCB)
       return static_cast<int>(i); // The index
   }
 

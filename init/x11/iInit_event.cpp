@@ -21,7 +21,6 @@
 #include "uLog.hpp"
 #include "iInit.hpp"
 
-#include <X11/XKBlib.h>
 #include <sys/time.h>
 
 namespace e_engine {

@@ -20,6 +20,7 @@
 
 #include "uLog.hpp"
 #include "iRandR.hpp"
+#include <string.h> // memcpy
 
 using namespace e_engine;
 using namespace unix_x11;
@@ -56,6 +57,16 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
   xcb_randr_get_crtc_info_reply_t *     lCrtcInfo   = nullptr;
   xcb_randr_get_output_info_reply_t *   lOutputInfo = nullptr;
 
+  std::vector<internal::_config *> lCFGs;
+
+
+  if (_overwriteLatest)
+    lCFGs.emplace_back(&vLatestConfig_RandR);
+
+  if (_overwriteDefaults)
+    lCFGs.emplace_back(&vDefaultConfig_RandR);
+
+
   CLEANUP(vScreenInfo_XCB);
   CLEANUP(vScreenResources_XCB);
 
@@ -83,45 +94,27 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
     vScreenHeight_uI = 0;
   }
 
-  if (_overwriteLatest) {
+
+  for (auto *cfg : lCFGs) {
     auto lPrimCookie = xcb_randr_get_output_primary(vConnection_XCB, vRootWindow_XCB);
     lPrimary         = xcb_randr_get_output_primary_reply(vConnection_XCB, lPrimCookie, &lError);
     CHECK_ERROR(xcb_randr_get_output_primary, lPrimary);
 
-    vLatestConfig_RandR.Xprimary = lPrimary->output;
+    cfg->primary = lPrimary->output;
     CLEANUP(lPrimary);
 
-    for (auto &elem : vLatestConfig_RandR.Xgamma)
-      free(elem);
-
-    vLatestConfig_RandR.Xgamma.clear();
+    cfg->gamma.clear();
 
     for (int i = 0; i < vScreenResources_XCB->num_crtcs; ++i) {
       auto  lGammaCookie = xcb_randr_get_crtc_gamma(vConnection_XCB, vCRTCs_XCB[i]);
       auto *lGamma       = xcb_randr_get_crtc_gamma_reply(vConnection_XCB, lGammaCookie, &lError);
       CHECK_ERROR(xcb_randr_get_crtc_gamma, lGamma);
-      vLatestConfig_RandR.Xgamma.push_back(lGamma);
-    }
-  }
 
-  if (_overwriteDefaults) {
-    auto lPrimCookie = xcb_randr_get_output_primary(vConnection_XCB, vRootWindow_XCB);
-    lPrimary         = xcb_randr_get_output_primary_reply(vConnection_XCB, lPrimCookie, &lError);
-    CHECK_ERROR(xcb_randr_get_output_primary, lPrimary);
-
-    vDefaultConfig_RandR.Xprimary = lPrimary->output;
-    CLEANUP(lPrimary);
-
-    for (auto &elem : vLatestConfig_RandR.Xgamma)
-      free(elem);
-
-    vDefaultConfig_RandR.Xgamma.clear();
-
-    for (int i = 0; i < vScreenResources_XCB->num_crtcs; ++i) {
-      auto  lGammaCookie = xcb_randr_get_crtc_gamma(vConnection_XCB, vCRTCs_XCB[i]);
-      auto *lGamma       = xcb_randr_get_crtc_gamma_reply(vConnection_XCB, lGammaCookie, &lError);
-      CHECK_ERROR(xcb_randr_get_crtc_gamma, lGamma);
-      vDefaultConfig_RandR.Xgamma.push_back(lGamma);
+      cfg->gamma.emplace_back(std::make_shared<internal::_gamma>(lGamma->size, vCRTCs_XCB[i]));
+      memcpy(cfg->gamma.back()->red, xcb_randr_get_crtc_gamma_red(lGamma), lGamma->size);
+      memcpy(cfg->gamma.back()->green, xcb_randr_get_crtc_gamma_green(lGamma), lGamma->size);
+      memcpy(cfg->gamma.back()->blue, xcb_randr_get_crtc_gamma_blue(lGamma), lGamma->size);
+      CLEANUP(lGamma);
     }
   }
 
@@ -140,25 +133,25 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
     lCrtcInfo        = xcb_randr_get_crtc_info_reply(vConnection_XCB, lCrtcCookie, &lError);
     CHECK_ERROR(xcb_randr_get_crtc_info, lCrtcInfo);
 
-    lTempCRTC_RandR.Xid        = vCRTCs_XCB[i];
-    lTempCRTC_RandR.timestamp  = lCrtcInfo->timestamp;
-    lTempCRTC_RandR.posX       = lCrtcInfo->x;
-    lTempCRTC_RandR.posY       = lCrtcInfo->y;
-    lTempCRTC_RandR.width      = lCrtcInfo->width;
-    lTempCRTC_RandR.height     = lCrtcInfo->height;
-    lTempCRTC_RandR.Xmode      = lCrtcInfo->mode;
-    lTempCRTC_RandR.Xrotation  = lCrtcInfo->rotation;
-    lTempCRTC_RandR.Xrotations = lCrtcInfo->rotations;
+    lTempCRTC_RandR.id        = vCRTCs_XCB[i];
+    lTempCRTC_RandR.timestamp = lCrtcInfo->timestamp;
+    lTempCRTC_RandR.posX      = lCrtcInfo->x;
+    lTempCRTC_RandR.posY      = lCrtcInfo->y;
+    lTempCRTC_RandR.width     = lCrtcInfo->width;
+    lTempCRTC_RandR.height    = lCrtcInfo->height;
+    lTempCRTC_RandR.mode      = lCrtcInfo->mode;
+    lTempCRTC_RandR.rotation  = lCrtcInfo->rotation;
+    lTempCRTC_RandR.rotations = lCrtcInfo->rotations;
 
     xcb_randr_output_t *lOutputs  = xcb_randr_get_crtc_info_outputs(lCrtcInfo);
     xcb_randr_output_t *lPossible = xcb_randr_get_crtc_info_possible(lCrtcInfo);
 
     for (uint16_t j = 0; j < lCrtcInfo->num_outputs; ++j) {
-      lTempCRTC_RandR.Xoutputs.push_back(lOutputs[j]);
+      lTempCRTC_RandR.outputs.push_back(lOutputs[j]);
     }
 
     for (uint16_t j = 0; j < lCrtcInfo->num_possible_outputs; ++j) {
-      lTempCRTC_RandR.XpossibleOutputs.push_back(lPossible[j]);
+      lTempCRTC_RandR.possibleOutputs.push_back(lPossible[j]);
     }
 
     vCRTC_V_RandR.push_back(lTempCRTC_RandR);
@@ -178,11 +171,11 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
 
     lTempOutput_RandR.id             = vOutputs_XCB[i];
     lTempOutput_RandR.timestamp      = lOutputInfo->timestamp;
-    lTempOutput_RandR.Xcrtc          = lOutputInfo->crtc;
+    lTempOutput_RandR.crtc           = lOutputInfo->crtc;
     lTempOutput_RandR.name           = std::string(lName, lOutputInfo->name_len);
     lTempOutput_RandR.mm_width       = lOutputInfo->mm_width;
     lTempOutput_RandR.mm_height      = lOutputInfo->mm_height;
-    lTempOutput_RandR.connection     = lOutputInfo->connection;
+    lTempOutput_RandR.connection     = static_cast<xcb_randr_connection_t>(lOutputInfo->connection);
     lTempOutput_RandR.subpixel_order = lOutputInfo->subpixel_order;
     lTempOutput_RandR.npreferred     = lOutputInfo->num_preferred;
 
@@ -192,13 +185,13 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
 
 
     for (uint16_t j = 0; j < lOutputInfo->num_crtcs; ++j)
-      lTempOutput_RandR.Xcrtcs.emplace_back(lOutCrtcs[j]);
+      lTempOutput_RandR.crtcs.emplace_back(lOutCrtcs[j]);
 
     for (uint16_t j = 0; j < lOutputInfo->num_clones; ++j)
-      lTempOutput_RandR.Xclones.emplace_back(lOutColnes[j]);
+      lTempOutput_RandR.clones.emplace_back(lOutColnes[j]);
 
     for (uint16_t j = 0; j < lOutputInfo->num_modes; ++j)
-      lTempOutput_RandR.Xmodes.emplace_back(lOutModes[j]);
+      lTempOutput_RandR.modes.emplace_back(lOutModes[j]);
 
     vOutput_V_RandR.emplace_back(lTempOutput_RandR);
     CLEANUP(lOutputInfo);
@@ -211,7 +204,7 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
 
     xcb_randr_mode_info_t lTempModeInfo = vModes_XCB[i];
 
-    lTempMode_RandR.Xid        = lTempModeInfo.id;
+    lTempMode_RandR.id         = lTempModeInfo.id;
     lTempMode_RandR.width      = lTempModeInfo.width;
     lTempMode_RandR.height     = lTempModeInfo.height;
     lTempMode_RandR.dotClock   = lTempModeInfo.dot_clock;
@@ -222,7 +215,7 @@ bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {
     lTempMode_RandR.vSyncStart = lTempModeInfo.vsync_start;
     lTempMode_RandR.vSyncEnd   = lTempModeInfo.vsync_end;
     lTempMode_RandR.vTotal     = lTempModeInfo.vtotal;
-    lTempMode_RandR.XmodeFlags = lTempModeInfo.mode_flags;
+    lTempMode_RandR.modeFlags  = lTempModeInfo.mode_flags;
 
 
     /* v refresh frequency in Hz */

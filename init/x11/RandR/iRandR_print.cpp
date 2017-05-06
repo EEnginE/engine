@@ -134,17 +134,17 @@ void iRandR::printRandRStatus() {
   for (internal::_output const &fOutput : vOutput_V_RandR) {
     internal::_crtc lCRTC_RandR;
 
-    std::string lCRTC_str      = (fOutput.Xcrtc == 0) ? "OFF" : std::to_string(fOutput.Xcrtc);
-    std::string lPrimary_str   = (vLatestConfig_RandR.Xprimary == fOutput.id) ? "YES" : "NO";
-    std::string lConnected_str = (fOutput.Xconnection == 0) ? "YES" : (fOutput.Xconnection == 2) ? "???" : "NO";
+    std::string lCRTC_str      = (fOutput.crtc == 0) ? "OFF" : std::to_string(fOutput.crtc);
+    std::string lPrimary_str   = (vLatestConfig_RandR.primary == fOutput.id) ? "YES" : "NO";
+    std::string lConnected_str = (fOutput.connection == 0) ? "YES" : (fOutput.connection == 2) ? "???" : "NO";
     std::string lPosition_str  = "   NONE";
 
-    char lBold_C = (fOutput.Xconnection == 0) ? 'B' : 'O';
+    char lBold_C = (fOutput.connection == 0) ? 'B' : 'O';
     char lCRTC_C = (lCRTC_str != "OFF") ? 'G' : 'R';
 
-    if (!(fOutput.Xcrtc == 0)) {
+    if (!(fOutput.crtc == 0)) {
       for (internal::_crtc const &fCRTC : vCRTC_V_RandR) {
-        if (fCRTC.Xid == fOutput.Xcrtc) {
+        if (fCRTC.id == fOutput.crtc) {
           lCRTC_RandR   = fCRTC;
           lPosition_str = "";
           if (fCRTC.posX >= 0)
@@ -172,7 +172,7 @@ void iRandR::printRandRStatus() {
     }
 
 
-    if (lBold_C == 'O' || fOutput.Xmodes.size() == 0) {
+    if (lBold_C == 'O' || fOutput.modes.size() == 0) {
       LOG(_hD,
           "| ",
           lC1_C,
@@ -219,9 +219,9 @@ void iRandR::printRandRStatus() {
       unsigned int lModeCounter_uI = 0; //!< Needed for preferred check
 
       // Check if the mode is supported by the output
-      for (xcb_randr_mode_t const &fTempMode : fOutput.Xmodes) {
+      for (xcb_randr_mode_t const &fTempMode : fOutput.modes) {
         ++lModeCounter_uI;
-        if (fTempMode == fMode.Xid) {
+        if (fTempMode == fMode.id) {
           lFoundMode_B = true;
 
           if (lModeCounter_uI == static_cast<unsigned int>(fOutput.npreferred))
