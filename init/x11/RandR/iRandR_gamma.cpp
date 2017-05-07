@@ -29,11 +29,11 @@
     free(lError);                                                                                             \
     if (ret)                                                                                                  \
       free(ret);                                                                                              \
-    return false;                                                                                             \
+    return RANDR_XCB_ERROR;                                                                                   \
   }                                                                                                           \
   if (!ret) {                                                                                                 \
     eLOG(#func, " returned a NULL pointer");                                                                  \
-    return false;                                                                                             \
+    return RANDR_XCB_ERROR;                                                                                   \
   }
 
 using namespace e_engine;
@@ -56,9 +56,13 @@ using namespace unix_x11;
  * \note Most code is a simple copy and paste from the XRandR project
  *(http://www.x.org/wiki/Projects/XRandR/)
  */
-bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, double _brightness) {
-  if (_r < 0 || _g < 0 || _b < 0 || _brightness < 0 || !isRandRSupported())
-    return false;
+iRandR::ERROR_CODE iRandR::setGamma(iDisplayBasic *_disp, double _r, double _g, double _b, double _brightness) {
+  iDisplayRandR *dispRandR = dynamic_cast<iDisplayRandR *>(_disp);
+  if (!dispRandR)
+    return INVALID_DISPLAY_CLASS;
+
+  if (_r < 0 || _g < 0 || _b < 0 || _brightness < 0 || !isProtocolSupported())
+    return INVALID_ARGUMENT;
 
   reload();
 
@@ -77,7 +81,7 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
 
   for (internal::_output const &fOutout : vOutput_V_RandR) {
     if (fOutout.connection == 0) {
-      if (_disp.getOutput() == fOutout.id) {
+      if (dispRandR->getOutput() == fOutout.id) {
         lCRTC = fOutout.crtc;
         break;
       }
@@ -85,7 +89,7 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
   }
 
   if (lCRTC == XCB_NONE)
-    return false;
+    return RANDR_CRTC_NOT_FOUND;
 
   auto lGammaSizeCookie = xcb_randr_get_crtc_gamma_size(vConnection_XCB, lCRTC);
   lGammaSizeReply       = xcb_randr_get_crtc_gamma_size_reply(vConnection_XCB, lGammaSizeCookie, &lError);
@@ -96,7 +100,7 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
 
   if (!lSize_I) {
     eLOG("RandR: Gamma size is 0 => Unable to set Gamma");
-    return false;
+    return RANDR_OTHER_ERROR;
   }
 
   /*
@@ -107,7 +111,7 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
    */
   if (lSize_I > 65536) {
     eLOG("RandR: Gamma correction table is impossibly large");
-    return false;
+    return RANDR_OTHER_ERROR;
   }
 
   // Allocate arays
@@ -183,7 +187,7 @@ bool iRandR::setGamma(iDisplays const &_disp, double _r, double _g, double _b, d
        "  !!  ",
        lCRTC);
 
-  return true;
+  return OK;
 }
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

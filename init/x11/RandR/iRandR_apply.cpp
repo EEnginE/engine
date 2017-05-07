@@ -28,11 +28,11 @@
     free(lError);                                                                                             \
     if (ret)                                                                                                  \
       free(ret);                                                                                              \
-    return false;                                                                                             \
+    return RANDR_XCB_ERROR;                                                                                   \
   }                                                                                                           \
   if (!ret) {                                                                                                 \
     eLOG(#func, " returned a NULL pointer");                                                                  \
-    return false;                                                                                             \
+    return RANDR_XCB_ERROR;                                                                                   \
   }
 
 using namespace e_engine;
@@ -44,9 +44,9 @@ using namespace unix_x11;
  * \returns true when everything went fine
  * \returns false when there was an error
  */
-bool iRandR::applyNewRandRSettings() {
-  if (!isRandRSupported())
-    return false;
+iRandR::ERROR_CODE iRandR::applyNewRandRSettings() {
+  if (!isProtocolSupported())
+    return RANDR_NOT_SUPPORTED;
 
   std::vector<internal::_crtc> lTempAllCRTC_V_RandR;
   int                          lMinWidth_I, lMinHeight_I;
@@ -91,7 +91,7 @@ bool iRandR::applyNewRandRSettings() {
   }
 
   if (lTempAllCRTC_V_RandR.empty())
-    return false;
+    return RANDR_CRTC_NOT_FOUND;
 
   auto lScreensSizeCookie = xcb_randr_get_screen_size_range(vConnection_XCB, vRootWindow_XCB);
   lSizeRangeReply         = xcb_randr_get_screen_size_range_reply(vConnection_XCB, lScreensSizeCookie, &lError);
@@ -127,7 +127,7 @@ bool iRandR::applyNewRandRSettings() {
 
     if (!lModeFound_B) {
       wLOG("RandR: Unable to find mode (Mode ID = ", fCRTC.mode, ") in vMode_V_RandR --> Do not change Screen size");
-      return false;
+      return RANDR_OTHER_ERROR;
     }
 
 
@@ -146,7 +146,7 @@ bool iRandR::applyNewRandRSettings() {
          " < ",
          vScreenInfo_XCB->nSizes,
          " )");
-    return false;
+    return RANDR_OTHER_ERROR;
   }
 
   lCurrentWidth_I  = sizes[vScreenInfo_XCB->sizeID].width;
@@ -178,10 +178,10 @@ bool iRandR::applyNewRandRSettings() {
   vChangeCRTC_V_RandR.clear();
 
 #if D_LOG_XRANDR
-  printRandRStatus();
+  printStatus();
 #endif
 
-  return true;
+  return OK;
 }
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -27,17 +27,8 @@
 #define dRandLog(...)
 #endif
 
-namespace e_engine {
-
-namespace unix_x11 {
-
-/*!
- * \brief sets only some basic values.
- */
-iRandR::iRandR() {}
-
-iRandR::~iRandR() { endRandR(); }
-
+using namespace e_engine;
+using namespace unix_x11;
 
 
 //   _____      _ _       _____          _    ______          _
@@ -51,21 +42,11 @@ iRandR::~iRandR() { endRandR(); }
 
 
 /*!
- * \brief Sets the standard values and checks if RandR is supported
- * \warning !!! DO NOT CALL THIS METHOD !!!
- *
- * This method is designed to be called from iWindow::iWindow().
- * It is possible to call this manually with a own display and window
- * but it is NOT recommended
- *
- * \param _connection The XCB connection
+ * \brief sets only some basic values.
  */
-bool iRandR::initRandR(xcb_connection_t *_connection, xcb_window_t _rootWin) {
+iRandR::iRandR(xcb_connection_t *_connection, xcb_window_t _rootWin) {
   vConnection_XCB = _connection;
   vRootWindow_XCB = _rootWin;
-  if (vIsRandRSupported_B) {
-    return false;
-  }
 
   auto *lExtReply = xcb_get_extension_data(vConnection_XCB, &xcb_randr_id);
   if (lExtReply->present) {
@@ -89,30 +70,21 @@ bool iRandR::initRandR(xcb_connection_t *_connection, xcb_window_t _rootWin) {
     vIsRandRSupported_B = true;
   } else {
     wLOG("X11 RandR standard not supported. Screen resolution wont be changed");
-    return vIsRandRSupported_B = false;
+    vIsRandRSupported_B = false;
+    return;
   }
 
   if (!reload(true, true))
-    return false;
+    return;
 
   vIsRandRSupported_B = true;
 
 #if D_LOG_XRANDR
-  printRandRStatus();
+  printStatus();
 #endif
-
-  return true;
 }
 
-/*!
- * \brief Ends RandR support
- * \warning !!! DO NOT CALL THIS METHOD !!!
- *
- * This method is designed to be called from iContext::destroy() or
- * from the destructor of this class. Calling this method will end
- * the RandR support.
- */
-void iRandR::endRandR() {
+iRandR::~iRandR() {
   if (!vIsRandRSupported_B)
     return;
 
@@ -139,15 +111,16 @@ void iRandR::endRandR() {
   vIsRandRSupported_B = false;
 }
 
-bool iRandR::restore(internal::_config _conf) {
-  if (!isRandRSupported())
-    return false;
+iRandR::ERROR_CODE iRandR::restore(internal::_config _conf) {
+  if (!isProtocolSupported())
+    return RANDR_NOT_SUPPORTED;
 
   vChangeCRTC_V_RandR.clear();
   vChangeCRTC_V_RandR = _conf.CRTCInfo;
 
-  if (!applyNewRandRSettings())
-    return false;
+  auto lError = applyNewRandRSettings();
+  if (lError != OK)
+    return lError;
 
   // Who is primary?
   xcb_randr_set_output_primary(vConnection_XCB, vRootWindow_XCB, _conf.primary);
@@ -156,7 +129,7 @@ bool iRandR::restore(internal::_config _conf) {
   // Reset gamma
   if (_conf.gamma.size() != vCRTC_V_RandR.size()) {
     eLOG("RandR: Fatal internal ERROR:  _conf.gamma.size() != vCRTC_V_RandR.size()");
-    return false;
+    return RANDR_OTHER_ERROR;
   }
 
   for (auto &i : _conf.CRTCInfo) {
@@ -168,7 +141,7 @@ bool iRandR::restore(internal::_config _conf) {
     }
   }
 
-  return true;
+  return OK;
 }
 
 
@@ -189,10 +162,11 @@ bool iRandR::restore(internal::_config _conf) {
  *
  * \sa iRandRDisplay
  */
-std::vector<iDisplays> iRandR::getDisplayResolutions() {
-  std::vector<iDisplays> lTempSizes_eWS;
-  if (!isRandRSupported())
-    return lTempSizes_eWS;
+std::vector<std::shared_ptr<iDisplayBasic>> iRandR::getDisplayResolutions() {
+  std::vector<std::shared_ptr<iDisplayBasic>> lResult;
+  if (!isProtocolSupported())
+    return lResult;
+
   reload(false);
 
   vMode_V_RandR.sort();
@@ -201,7 +175,8 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
     if (fOutput.connection != 0)
       continue;
 
-    lTempSizes_eWS.emplace_back(fOutput.name, fOutput.id, (fOutput.crtc != XCB_NONE) ? true : false);
+    std::shared_ptr<iDisplayRandR> lDsiplay =
+        std::make_shared<iDisplayRandR>(fOutput.name, fOutput.id, (fOutput.crtc != XCB_NONE) ? true : false);
 
     if (fOutput.crtc != XCB_NONE) {
 
@@ -211,11 +186,11 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
 
           for (internal::_mode const &fMode : vMode_V_RandR) {
             if (fCRTC.mode == fMode.id) {
-              lTempSizes_eWS.back().setCurrentSizeAndPosition(fMode.width,
-                                                              fMode.height,
-                                                              static_cast<unsigned>(fCRTC.posX),
-                                                              static_cast<unsigned>(fCRTC.posY),
-                                                              static_cast<unsigned>(fMode.refresh));
+              lDsiplay->setCurrentSizeAndPosition(fMode.width,
+                                                  fMode.height,
+                                                  static_cast<unsigned>(fCRTC.posX),
+                                                  static_cast<unsigned>(fCRTC.posY),
+                                                  static_cast<unsigned>(fMode.refresh));
               break;
             }
           }
@@ -223,7 +198,7 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
           // Clones
           for (auto const &fClone : fCRTC.outputs) {
             if (fClone != fOutput.id)
-              lTempSizes_eWS.back().addClone(fClone);
+              lDsiplay->addClone(fClone);
           }
 
           break;
@@ -248,11 +223,13 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
       if (!lModeSupported_B)
         continue;
 
-      lTempSizes_eWS.back().addMode(fMode.id, lModePrefered_B, fMode.width, fMode.height, fMode.refresh);
+      lDsiplay->addMode(fMode.id, lModePrefered_B, fMode.width, fMode.height, fMode.refresh);
     }
+
+    lResult.emplace_back(lDsiplay);
   }
 
-  return lTempSizes_eWS;
+  return lResult;
 }
 
 //  ______     _
@@ -274,11 +251,16 @@ std::vector<iDisplays> iRandR::getDisplayResolutions() {
  * \note This function will change the primary display IMMEDIATELY; Calling applyNewSettings() will
  *have no effect to this.
  */
-bool iRandR::setPrimary(iDisplays const &_disp) {
-  if (!isRandRSupported())
-    return false;
-  xcb_randr_set_output_primary(vConnection_XCB, vRootWindow_XCB, _disp.getOutput());
-  return true;
+iRandR::ERROR_CODE iRandR::setPrimary(iDisplayBasic *_disp) {
+  if (!isProtocolSupported())
+    return RANDR_NOT_SUPPORTED;
+
+  iDisplayRandR *lDisp = dynamic_cast<iDisplayRandR *>(_disp);
+  if (!lDisp)
+    return INVALID_DISPLAY_CLASS;
+
+  xcb_randr_set_output_primary(vConnection_XCB, vRootWindow_XCB, lDisp->getOutput());
+  return OK;
 }
 
 
@@ -344,14 +326,21 @@ void iRandR::getMostLeftRightTopBottomCRTC(unsigned int &_left,
  * \returns -2 When the iRandRDisplay is out of date
  * \returns -10 When an impossible error happened
  */
-int iRandR::getIndexOfDisplay(iDisplays const &_disp) {
+iRandR::ERROR_CODE iRandR::getIndexOfDisplay(iDisplayBasic *_disp, uint32_t *index) {
+  iDisplayRandR *dispRandR = dynamic_cast<iDisplayRandR *>(_disp);
+  if (!dispRandR)
+    return INVALID_DISPLAY_CLASS;
+
+  if (!index)
+    return INVALID_ARGUMENT;
+
   reload();
 
   xcb_randr_crtc_t lCRTC_XCB    = XCB_NONE;
   bool             lOutputFound = false;
 
   for (internal::_output fOut : vOutput_V_RandR) {
-    if (_disp.getOutput() == fOut.id) {
+    if (dispRandR->getOutput() == fOut.id) {
       lOutputFound = true;
       lCRTC_XCB    = fOut.crtc;
       break;
@@ -360,24 +349,23 @@ int iRandR::getIndexOfDisplay(iDisplays const &_disp) {
 
   // Invalid iRandRDisplay. (Should never happen)
   if (!lOutputFound)
-    return -2;
+    return RANDR_OTHER_ERROR;
 
   // The output is not connected or disabled
   if (lCRTC_XCB == XCB_NONE)
-    return -1;
+    return RANDR_CRTC_NOT_FOUND;
 
 
-  for (unsigned int i = 0; i < vCRTC_V_RandR.size(); ++i) {
-    if (vCRTC_V_RandR[i].id == lCRTC_XCB)
-      return static_cast<int>(i); // The index
+  for (uint32_t i = 0; i < vCRTC_V_RandR.size(); ++i) {
+    if (vCRTC_V_RandR[i].id == lCRTC_XCB) {
+      *index = i; // The index
+      return OK;
+    }
   }
 
   // Well... this should be impossible, because we have a reload() at top of this function!
-  return -10;
+  eLOG("Reached (theoretically) unreachable code");
+  return RANDR_OTHER_ERROR;
 }
 
-
-} // unix_x11
-
-} // e_engine
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

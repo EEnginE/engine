@@ -33,6 +33,7 @@
 
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "iRandR.hpp"
 #include "iWindow.hpp"
 #include "eCMDColor.hpp"
 
@@ -59,10 +60,20 @@ iWindow::iWindow() {
   vRootWindow_XCB = vScreen_XCB->root;
 
   // Init RandR
-  vIsRandrSupported_B = initRandR(vConnection_XCB, vRootWindow_XCB);
+  vRandR = new iRandR(vConnection_XCB, vRootWindow_XCB);
+
+  if (vRandR)
+    vIsRandrSupported_B = vRandR->isProtocolSupported();
 }
 
-iWindow::~iWindow() { destroyWindow(); }
+iWindow::~iWindow() {
+  if (vRandR)
+    delete vRandR;
+
+  vRandR = nullptr;
+
+  destroyWindow();
+}
 
 internal::iXCBAtom::iXCBAtom(xcb_connection_t *_connection, std::string _name) { genAtom(_connection, _name); }
 
@@ -168,7 +179,7 @@ int iWindow::createWindow() {
   if (vIsRandrSupported_B) {
     uint32_t lVRRmajor_I;
     uint32_t lVRRminor_I;
-    getRandRVersion(lVRRmajor_I, lVRRminor_I);
+    vRandR->getRandRVersion(lVRRmajor_I, lVRRminor_I);
     lRandRVersionString_str = std::to_string(lVRRmajor_I) + '.' + std::to_string(lVRRminor_I);
   } else {
     lRandRVersionString_str = "!!! NOT SUPPORTED !!!";
@@ -283,7 +294,6 @@ void iWindow::changeWindowConfig(unsigned int _width, unsigned int _height, int 
  * \brief Destroy the window and the context
  */
 void iWindow::destroyWindow() {
-  endRandR();
   if (vWindowCreated_B == true) {
     xcb_disconnect(vConnection_XCB);
     vWindowCreated_B = false;
@@ -447,7 +457,7 @@ void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRI
  * \brief Try to map the fullscreen window to all monitors
  */
 void iWindow::fullScreenMultiMonitor() {
-  if (!vWindowCreated_B)
+  if (!vWindowCreated_B || !vRandR)
     return;
 
   unsigned int lLeft_I;
@@ -455,7 +465,7 @@ void iWindow::fullScreenMultiMonitor() {
   unsigned int lTop_I;
   unsigned int lBot_I;
 
-  getMostLeftRightTopBottomCRTC(lLeft_I, lRight_I, lTop_I, lBot_I);
+  vRandR->getMostLeftRightTopBottomCRTC(lLeft_I, lRight_I, lTop_I, lBot_I);
 
   iXCBAtom lAtom(vConnection_XCB, "_NET_WM_FULLSCREEN_MONITORS");
 
@@ -469,17 +479,15 @@ void iWindow::fullScreenMultiMonitor() {
  *
  * \param _disp The display where the fullscreen window should be
  */
-void iWindow::setFullScreenMonitor(iDisplays &_disp) {
-  if (!vWindowCreated_B)
+void iWindow::setFullScreenMonitor(iDisplayBasic *_disp) {
+  if (!vWindowCreated_B || !vRandR)
     return;
 
-  uint32_t lDisp_I = static_cast<uint32_t>(getIndexOfDisplay(_disp));
+  uint32_t                lDisp_I = 0;
+  iRandRBasic::ERROR_CODE lError  = vRandR->getIndexOfDisplay(_disp, &lDisp_I);
 
-  if (lDisp_I > INT32_MAX) {
-    wLOG(
-        "No valid iDisplays [ setFullScreenMonitor(...) ] ==> Return "
-        "iRandR::getIndexOfDisplay( _disp ) = ",
-        lDisp_I);
+  if (lError != iRandRBasic::OK) {
+    wLOG("Invalid Display (iRandR::getIndexOfDisplay returned ", uEnum2Str::toStr(lError), " ) ==> Return ");
     return;
   }
 
@@ -743,6 +751,9 @@ VkSurfaceKHR iWindow::getVulkanSurface(VkInstance _instance) {
 
   return lSurface;
 }
+
+
+iRandRBasic *iWindow::getRandRManager() { return vRandR; }
 
 
 } // unix_x11

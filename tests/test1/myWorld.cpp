@@ -30,7 +30,7 @@ myWorld::~myWorld() {}
 void myWorld::key(iEventInfo const &info) {
 #if UNIX_X11
   if (vDisp_RandR.empty())
-    vDisp_RandR = static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->getDisplayResolutions();
+    vDisp_RandR = info.iInitPointer->getWindow()->getRandRManager()->getDisplayResolutions();
 #endif
 
   if (info.eKey.state == E_PRESSED) {
@@ -44,11 +44,11 @@ void myWorld::key(iEventInfo const &info) {
 #if UNIX_X11
       case E_KEY_F10:
         if (vDisp_RandR.size() > 0)
-          static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->setFullScreenMonitor(vDisp_RandR[0]);
+          info.iInitPointer->getWindow()->setFullScreenMonitor(vDisp_RandR[0].get());
         break;
       case E_KEY_F12:
         if (vDisp_RandR.size() > 1)
-          static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->setFullScreenMonitor(vDisp_RandR[1]);
+          info.iInitPointer->getWindow()->setFullScreenMonitor(vDisp_RandR[1].get());
         break;
 #endif
 

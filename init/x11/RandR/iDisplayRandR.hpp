@@ -1,6 +1,6 @@
 /*!
- * \file x11/RandR/iDisplays.hpp
- * \brief \b Classes: \a iDisplays
+ * \file x11/RandR/iDisplayRandR.hpp
+ * \brief \b Classes: \a iDisplayRandR
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -42,7 +42,7 @@ class iRandR;
  * \note To apply the changes made here, you must call iRandR::setDisplaySizes()
  *       first and then iRandR::applyNewSettings()
  */
-class iDisplays final : public iDisplayBasic {
+class iDisplayRandR final : public iDisplayBasic {
  private:
   //! \brief internal structure for storing important mode information.
   struct mode : mode_basic {
@@ -57,7 +57,7 @@ class iDisplays final : public iDisplayBasic {
   xcb_randr_mode_t vModeToUse_XRR;
 
 
-  iDisplays() {}
+  iDisplayRandR() {}
 
   void addClone(xcb_randr_output_t _clone);
   void addMode(xcb_randr_mode_t _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate);
@@ -71,19 +71,19 @@ class iDisplays final : public iDisplayBasic {
       double _rate, unsigned int _width, unsigned int _height, xcb_randr_mode_t &_mode, double &_diff) const;
 
  public:
-  virtual ~iDisplays();
+  virtual ~iDisplayRandR();
 
-  iDisplays(std::string _name, xcb_randr_output_t _id, bool _enabled) : vID_XRR(_id) {
+  iDisplayRandR(std::string _name, xcb_randr_output_t _id, bool _enabled) : vID_XRR(_id) {
     vModeToUse_XRR = XCB_NONE;
     vEnabled_B     = _enabled;
     vName_str      = _name;
   }
 
-  iDisplays(const iDisplays &_e) = delete;
-  iDisplays(const iDisplays &&_e);
+  iDisplayRandR(const iDisplayRandR &_e) = delete;
+  iDisplayRandR(const iDisplayRandR &&_e);
 
-  iDisplays &operator=(const iDisplays &_e) = delete;
-  iDisplays &operator                       =(const iDisplays &&_e);
+  iDisplayRandR &operator=(const iDisplayRandR &_e) = delete;
+  iDisplayRandR &operator                           =(const iDisplayRandR &&_e);
 
   void autoSelectBest();
 
@@ -99,7 +99,7 @@ class iDisplays final : public iDisplayBasic {
   bool select(unsigned int _width, unsigned int _height, double _rate);
 
   void setNoClones() { vClones_V_XRR.clear(); }
-  void setCloneOf(iDisplays const &_disp);
+  void setCloneOf(iDisplayRandR const &_disp);
 
   void getSelectedRes(unsigned int &_width, unsigned int &_height, double &_rate) const;
 
@@ -111,7 +111,7 @@ class iDisplays final : public iDisplayBasic {
 //    #########################
 
 /*!
- * \fn void iDisplays::setNoClones()
+ * \fn void iDisplayRandR::setNoClones()
  * \brief Disable all clones of this display
  *
  * \returns Nothing

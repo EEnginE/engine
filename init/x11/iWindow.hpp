@@ -30,9 +30,7 @@
 #include <vulkan.h>
 
 #include "iKeyboard.hpp"
-#include "iRandR.hpp"
 #include "iWindowBasic.hpp"
-
 
 namespace e_engine {
 
@@ -65,7 +63,7 @@ class iXCBAtom {
  * This class creates the connection to the X-Server and
  * opens a window via xcb
  */
-class iWindow : public iRandR, public iKeyboard, public iWindowBasic {
+class iWindow : public iKeyboard, public iWindowBasic {
   using iXCBAtom = internal::iXCBAtom;
 
  private:
@@ -74,6 +72,8 @@ class iWindow : public iRandR, public iKeyboard, public iWindowBasic {
   xcb_window_t       vWindow_XCB;
   const xcb_setup_t *vSetup_XCB  = nullptr;
   xcb_screen_t *     vScreen_XCB = nullptr;
+
+  iRandRBasic *vRandR = nullptr;
 
   iXCBAtom vWmProtocol_ATOM;
   iXCBAtom vWmDeleteWindow_ATOM;
@@ -117,39 +117,41 @@ class iWindow : public iRandR, public iKeyboard, public iWindowBasic {
   iWindow();
   virtual ~iWindow();
 
-  virtual int createWindow();
+  virtual int createWindow() override;
 
   void getXCBVersion(int *_major, int *_minor);
   xcb_connection_t *getXCBConnection();
   xcb_atom_t        getWmProtocolAtom() const;
   xcb_atom_t        getWmDeleteWindowAtom() const;
 
-  virtual void destroyWindow();
+  void destroyWindow() override;
 
-  virtual void changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY);
+  void changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY) override;
 
-  virtual void setWindowType(WINDOW_TYPE _type);
-  virtual void setWindowNames(std::string _windowName, std::string _iconName = "<NONE>");
-  virtual void setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE);
+  void setWindowType(WINDOW_TYPE _type) override;
+  void setWindowNames(std::string _windowName, std::string _iconName = "<NONE>") override;
+  void setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE) override;
 
-  virtual void fullScreen(ACTION _action, bool _allMonitors = false);
+  void fullScreen(ACTION _action, bool _allMonitors = false) override;
   void fullScreenMultiMonitor();
-  void setFullScreenMonitor(iDisplays &_disp);
-  virtual void maximize(ACTION _action);
-  virtual void setDecoration(ACTION _action);
+  void setFullScreenMonitor(iDisplayBasic *_disp) override;
+  void maximize(ACTION _action) override;
+  void setDecoration(ACTION _action) override;
 
-  virtual bool grabMouse();
-  virtual void freeMouse();
-  virtual bool getIsMouseGrabbed() const;
+  bool grabMouse() override;
+  void freeMouse() override;
+  bool getIsMouseGrabbed() const override;
 
-  virtual void moveMouse(unsigned int _posX, unsigned int _posY);
+  void moveMouse(unsigned int _posX, unsigned int _posY) override;
 
-  virtual void hideMouseCursor();
-  virtual void showMouseCursor();
-  virtual bool getIsCursorHidden() const;
-  virtual bool getIsWindowCreated() const;
+  void hideMouseCursor() override;
+  void showMouseCursor() override;
+  bool getIsCursorHidden() const override;
+  bool getIsWindowCreated() const override;
 
-  virtual VkSurfaceKHR getVulkanSurface(VkInstance _instance);
+  iRandRBasic *getRandRManager() override;
+
+  VkSurfaceKHR getVulkanSurface(VkInstance _instance) override;
 };
 
 

@@ -28,6 +28,7 @@
 using e_engine::rWorld;
 using e_engine::rRendererDeferred;
 using e_engine::rFrameCounter;
+using e_engine::iDisplayBasic;
 
 class myWorld final : public rWorld, public rFrameCounter {
   typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;
@@ -35,8 +36,8 @@ class myWorld final : public rWorld, public rFrameCounter {
  private:
   float vAlpha;
 
-  std::vector<e_engine::OS_NAMESPACE::iDisplays> vDisp_RandR;
-  std::shared_ptr<rRendererDeferred>             vRenderer;
+  std::vector<std::shared_ptr<iDisplayBasic>> vDisp_RandR;
+  std::shared_ptr<rRendererDeferred>          vRenderer;
 
   myScene          vScene;
   e_engine::iInit *vInitPointer;

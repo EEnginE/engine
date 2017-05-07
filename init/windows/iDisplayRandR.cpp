@@ -18,8 +18,8 @@
  * limitations under the License.
  */
 
-#include "iDisplays.hpp"
 #include "uLog.hpp"
+#include "iDisplays.hpp"
 
 namespace e_engine {
 

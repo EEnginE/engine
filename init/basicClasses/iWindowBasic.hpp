@@ -23,6 +23,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "iRandRBasic.hpp"
 
 #include <string>
 #include <vulkan.h>
@@ -53,8 +54,9 @@ class iWindowBasic {
   virtual void setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE) = 0;
 
   virtual void fullScreen(ACTION _action, bool _allMonitors = false) = 0;
-  virtual void maximize(ACTION _action)      = 0;
-  virtual void setDecoration(ACTION _action) = 0;
+  virtual void setFullScreenMonitor(iDisplayBasic *_disp) = 0;
+  virtual void maximize(ACTION _action)                   = 0;
+  virtual void setDecoration(ACTION _action)              = 0;
 
   virtual bool grabMouse()               = 0;
   virtual void freeMouse()               = 0;
@@ -66,6 +68,8 @@ class iWindowBasic {
   virtual void showMouseCursor()          = 0;
   virtual bool getIsCursorHidden() const  = 0;
   virtual bool getIsWindowCreated() const = 0;
+
+  virtual iRandRBasic *getRandRManager() = 0;
 
   virtual VkSurfaceKHR getVulkanSurface(VkInstance _instance) = 0;
 };

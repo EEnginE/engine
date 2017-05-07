@@ -19,9 +19,6 @@
  */
 
 #include "defines.hpp"
-
-#if D_LOG_XRANDR
-
 #include "uLog.hpp"
 #include "iRandR.hpp"
 #include "eCMDColor.hpp"
@@ -58,7 +55,9 @@ std::string placeStringLeft(std::string _str, unsigned int _size, char _fill) {
 /*!
  * \brief Prints a (more or less) fancy table with all XRandR information
  */
-void iRandR::printRandRStatus() {
+void iRandR::printStatus() {
+#if D_LOG_XRANDR
+
   if (!vIsRandRSupported_B)
     return;
 
@@ -322,8 +321,7 @@ void iRandR::printRandRStatus() {
 
 
   LOG(_hD, "|============|======|=========|===========|============|=========================|\n\n");
-}
-
 #endif // D_LOG_XRANDR
+}
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

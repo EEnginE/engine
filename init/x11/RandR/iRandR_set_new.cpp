@@ -54,9 +54,13 @@ internal::_crtc iRandR::isOutputPossible(xcb_randr_output_t _id, xcb_randr_crtc_
  * \note It is also possible to run setDisplaySizes() more than once without running
  *applyNewSettings().
  */
-bool iRandR::setDisplaySizes(iDisplays const &_disp) {
-  if (!isRandRSupported())
-    return false;
+iRandR::ERROR_CODE iRandR::setDisplaySizes(iDisplayBasic *_disp) {
+  if (!isProtocolSupported())
+    return RANDR_NOT_SUPPORTED;
+
+  iDisplayRandR *lDisp = dynamic_cast<iDisplayRandR *>(_disp);
+  if (!lDisp)
+    return INVALID_DISPLAY_CLASS;
 
   reload(false);
 
@@ -66,13 +70,13 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
 
   // Check mode
   bool lModeSupported_B = false;
-  if (_disp.getMode() != XCB_NONE) {
+  if (lDisp->getMode() != XCB_NONE) {
     for (internal::_output const &fOutput : vOutput_V_RandR) {
-      if (_disp.getOutput() != fOutput.id)
+      if (lDisp->getOutput() != fOutput.id)
         continue;
 
       for (xcb_randr_mode_t const &fMode : fOutput.modes) {
-        if (fMode == _disp.getMode()) {
+        if (fMode == lDisp->getMode()) {
           lModeSupported_B = true;
           break;
         }
@@ -80,21 +84,21 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
     }
   }
 
-  if (!lModeSupported_B && _disp.getMode() != XCB_NONE) {
+  if (!lModeSupported_B && lDisp->getMode() != XCB_NONE) {
     // This should generally never happen because of iRandRDisplay! Something went wrong!!!
     wLOG("RandR: Selected mode ( ",
-         _disp.getMode(),
+         lDisp->getMode(),
          " ) is not supported by output ",
-         _disp.getOutput(),
+         lDisp->getOutput(),
          " --> Do Nothing");
-    return false;
+    return RANDR_OTHER_ERROR;
   }
 
   // Find CRTCs
   internal::_crtc lTempCRTC_RandR;
   lTempCRTC_RandR.id = XCB_NONE;
   for (internal::_crtc const &fCRTC : vCRTC_V_RandR) {
-    if (fCRTC.outputs.size() == 1 && fCRTC.outputs[0] == _disp.getOutput()) {
+    if (fCRTC.outputs.size() == 1 && fCRTC.outputs[0] == lDisp->getOutput()) {
       lSingleMatch_XRR = fCRTC.id;
       // A Output can not be in two CRTC's
       break;
@@ -107,8 +111,8 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
 
     if (fCRTC.outputs.size() > 1) {
       for (xcb_randr_output_t const &fRROut : fCRTC.outputs) {
-        if (fRROut == _disp.getOutput()) {
-          lClonesMatch_XRR = _disp.getOutput();
+        if (fRROut == lDisp->getOutput()) {
+          lClonesMatch_XRR = lDisp->getOutput();
           break;
         }
       }
@@ -119,14 +123,14 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
 
   // ========== Disable something disabled
   // =============================================================================================
-  if (!_disp.getIsEnabled() && lSingleMatch_XRR == XCB_NONE && lClonesMatch_XRR == XCB_NONE) {
+  if (!lDisp->getIsEnabled() && lSingleMatch_XRR == XCB_NONE && lClonesMatch_XRR == XCB_NONE) {
     // Nothing to do here ( we dont need a change from diabled to disabled )
-    return true;
+    return OK;
   }
 
   // ========== Disable something enabled
   // =============================================================================================
-  if (!_disp.getIsEnabled() && lSingleMatch_XRR != XCB_NONE && lClonesMatch_XRR == XCB_NONE) {
+  if (!lDisp->getIsEnabled() && lSingleMatch_XRR != XCB_NONE && lClonesMatch_XRR == XCB_NONE) {
     // We disable an enabled Output
     lTempCRTC_RandR.id   = lSingleMatch_XRR;
     lTempCRTC_RandR.mode = XCB_NONE;
@@ -136,12 +140,12 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
     lTempCRTC_RandR.rotation = XCB_RANDR_ROTATION_ROTATE_0;
 
     vChangeCRTC_V_RandR.push_back(lTempCRTC_RandR);
-    return true;
+    return OK;
   }
 
   // ========== Disable something cloned
   // =============================================================================================
-  if (!_disp.getIsEnabled() && lSingleMatch_XRR == XCB_NONE && lClonesMatch_XRR != XCB_NONE) {
+  if (!lDisp->getIsEnabled() && lSingleMatch_XRR == XCB_NONE && lClonesMatch_XRR != XCB_NONE) {
     // We disable an enabled Output but not the clone
     std::vector<xcb_randr_output_t> lTempOutputs_V_XRR;
     for (internal::_crtc const &fCRTC : vCRTC_V_RandR) {
@@ -153,7 +157,7 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
 
     // Copy all but the output we want to disable
     for (xcb_randr_output_t const &fRROut : lTempCRTC_RandR.outputs) {
-      if (_disp.getOutput() != fRROut) {
+      if (lDisp->getOutput() != fRROut) {
         lTempOutputs_V_XRR.push_back(fRROut);
       }
     }
@@ -163,55 +167,55 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
     lTempCRTC_RandR.rotation = XCB_RANDR_ROTATION_ROTATE_0;
 
     vChangeCRTC_V_RandR.push_back(lTempCRTC_RandR);
-    return true;
+    return OK;
   }
 
   // ========== Enable something disabled
   // =============================================================================================
-  if (_disp.getIsEnabled() && lSingleMatch_XRR == XCB_NONE && lClonesMatch_XRR == XCB_NONE) {
+  if (lDisp->getIsEnabled() && lSingleMatch_XRR == XCB_NONE && lClonesMatch_XRR == XCB_NONE) {
     // We want to enable a disabled output
     if (!lEmptyCRTC_V_XRR.empty()) {
       // Test if it is possible to set output
       for (xcb_randr_crtc_t const &fRRCrtc : lEmptyCRTC_V_XRR) {
-        lTempCRTC_RandR = isOutputPossible(_disp.getOutput(), fRRCrtc);
+        lTempCRTC_RandR = isOutputPossible(lDisp->getOutput(), fRRCrtc);
         if (lTempCRTC_RandR.id != XCB_NONE)
           break;
       }
 
       if (lTempCRTC_RandR.id != XCB_NONE) {
-        lTempCRTC_RandR.mode    = _disp.getMode();
-        lTempCRTC_RandR.outputs = _disp.getClones();
-        lTempCRTC_RandR.outputs.push_back(_disp.getOutput());
-        _disp.getSelectedPosition(lTempCRTC_RandR.posX, lTempCRTC_RandR.posY);
+        lTempCRTC_RandR.mode    = lDisp->getMode();
+        lTempCRTC_RandR.outputs = lDisp->getClones();
+        lTempCRTC_RandR.outputs.push_back(lDisp->getOutput());
+        lDisp->getSelectedPosition(lTempCRTC_RandR.posX, lTempCRTC_RandR.posY);
         lTempCRTC_RandR.rotation = XCB_RANDR_ROTATION_ROTATE_0;
 
         vChangeCRTC_V_RandR.push_back(lTempCRTC_RandR);
-        return true;
+        return OK;
       }
     }
 
     // We can not use a fresh CRTC
-    if (_disp.getClones().empty()) {
+    if (lDisp->getClones().empty()) {
       wLOG("RandR: Impossible to enable the Output ",
-           _disp.getOutput(),
+           lDisp->getOutput(),
            " without cloning --> do nothing ( return false (iRandR::setDisplaySizes))");
-      return false;
+      return RANDR_OTHER_ERROR;
     }
 
     for (internal::_crtc const &fCRTC : vCRTC_V_RandR) {
       for (xcb_randr_output_t const &fRROut : fCRTC.outputs) {
-        for (xcb_randr_output_t const &fRRClone : _disp.getClones()) {
+        for (xcb_randr_output_t const &fRRClone : lDisp->getClones()) {
           if (fRROut == fRRClone) {
-            lTempCRTC_RandR = isOutputPossible(_disp.getOutput(), fCRTC.id);
+            lTempCRTC_RandR = isOutputPossible(lDisp->getOutput(), fCRTC.id);
             if (lTempCRTC_RandR.id != XCB_NONE) {
-              lTempCRTC_RandR.mode    = _disp.getMode();
-              lTempCRTC_RandR.outputs = _disp.getClones();
-              lTempCRTC_RandR.outputs.push_back(_disp.getOutput());
-              _disp.getSelectedPosition(lTempCRTC_RandR.posX, lTempCRTC_RandR.posY);
+              lTempCRTC_RandR.mode    = lDisp->getMode();
+              lTempCRTC_RandR.outputs = lDisp->getClones();
+              lTempCRTC_RandR.outputs.push_back(lDisp->getOutput());
+              lDisp->getSelectedPosition(lTempCRTC_RandR.posX, lTempCRTC_RandR.posY);
               lTempCRTC_RandR.rotation = XCB_RANDR_ROTATION_ROTATE_0;
 
               vChangeCRTC_V_RandR.push_back(lTempCRTC_RandR);
-              return true;
+              return OK;
             }
           }
         }
@@ -219,27 +223,27 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
     }
 
     // Also finding the crtc with the clone failed
-    return false;
+    return RANDR_CRTC_NOT_FOUND;
   }
 
   // ========== Change something enabled
   // =============================================================================================
-  if (_disp.getIsEnabled() && lSingleMatch_XRR != XCB_NONE && lClonesMatch_XRR == XCB_NONE) {
+  if (lDisp->getIsEnabled() && lSingleMatch_XRR != XCB_NONE && lClonesMatch_XRR == XCB_NONE) {
     // We want to change a enabled output
     lTempCRTC_RandR.id      = lSingleMatch_XRR;
-    lTempCRTC_RandR.mode    = _disp.getMode();
-    lTempCRTC_RandR.outputs = _disp.getClones();
-    lTempCRTC_RandR.outputs.push_back(_disp.getOutput());
-    _disp.getSelectedPosition(lTempCRTC_RandR.posX, lTempCRTC_RandR.posY);
+    lTempCRTC_RandR.mode    = lDisp->getMode();
+    lTempCRTC_RandR.outputs = lDisp->getClones();
+    lTempCRTC_RandR.outputs.push_back(lDisp->getOutput());
+    lDisp->getSelectedPosition(lTempCRTC_RandR.posX, lTempCRTC_RandR.posY);
     lTempCRTC_RandR.rotation = XCB_RANDR_ROTATION_ROTATE_0;
 
     vChangeCRTC_V_RandR.push_back(lTempCRTC_RandR);
-    return true;
+    return OK;
   }
 
   // ========== Change something cloned
   // =============================================================================================
-  if (_disp.getIsEnabled() && lSingleMatch_XRR == XCB_NONE && lClonesMatch_XRR != XCB_NONE) {
+  if (lDisp->getIsEnabled() && lSingleMatch_XRR == XCB_NONE && lClonesMatch_XRR != XCB_NONE) {
     std::vector<xcb_randr_output_t> lTempOutputs_V_XRR;
     for (internal::_crtc const &fCRTC : vCRTC_V_RandR) {
       if (lClonesMatch_XRR == fCRTC.id) {
@@ -248,19 +252,16 @@ bool iRandR::setDisplaySizes(iDisplays const &_disp) {
       }
     }
 
-    lTempCRTC_RandR.mode = _disp.getMode();
-    _disp.getSelectedPosition(lTempCRTC_RandR.posX, lTempCRTC_RandR.posY);
+    lTempCRTC_RandR.mode = lDisp->getMode();
+    lDisp->getSelectedPosition(lTempCRTC_RandR.posX, lTempCRTC_RandR.posY);
     lTempCRTC_RandR.rotation = XCB_RANDR_ROTATION_ROTATE_0;
 
     vChangeCRTC_V_RandR.push_back(lTempCRTC_RandR);
-    return true;
+    return OK;
   }
 
-  wLOG(
-      "Congratulations! It should be theoretically impossible to reach the end of this function "
-      "[ iRandR::setDisplaySizes(...); ]");
-
-  return false;
+  wLOG("Congratulations! It should be theoretically impossible to reach the end of this function");
+  return RANDR_OTHER_ERROR;
 }
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

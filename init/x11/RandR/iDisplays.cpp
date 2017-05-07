@@ -1,6 +1,6 @@
 /*!
- * \file x11/RandR/iDisplays.cpp
- * \brief \b Classes: \a iDisplays
+ * \file x11/RandR/iDisplayRandR.cpp
+ * \brief \b Classes: \a iDisplayRandR
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -18,16 +18,16 @@
  * limitations under the License.
  */
 
-#include "iDisplays.hpp"
+#include "iDisplayRandR.hpp"
 #include <limits>
 
 namespace e_engine {
 
 namespace unix_x11 {
 
-iDisplays::~iDisplays() {}
+iDisplayRandR::~iDisplayRandR() {}
 
-iDisplays::iDisplays(const iDisplays &&_e) {
+iDisplayRandR::iDisplayRandR(const iDisplayRandR &&_e) {
   vModes_V_mode = std::move(_e.vModes_V_mode);
   vClones_V_XRR = std::move(_e.vClones_V_XRR);
 
@@ -35,7 +35,7 @@ iDisplays::iDisplays(const iDisplays &&_e) {
   vModeToUse_XRR = _e.vModeToUse_XRR;
 }
 
-iDisplays &iDisplays::operator=(const iDisplays &&_e) {
+iDisplayRandR &iDisplayRandR::operator=(const iDisplayRandR &&_e) {
   vModes_V_mode = std::move(_e.vModes_V_mode);
   vClones_V_XRR = std::move(_e.vClones_V_XRR);
 
@@ -45,10 +45,11 @@ iDisplays &iDisplays::operator=(const iDisplays &&_e) {
 }
 
 // --- private ---
-void iDisplays::addClone(xcb_randr_output_t _clone) { vClones_V_XRR.push_back(_clone); }
+void iDisplayRandR::addClone(xcb_randr_output_t _clone) { vClones_V_XRR.push_back(_clone); }
 
 // --- private ---
-void iDisplays::addMode(xcb_randr_mode_t _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate) {
+void iDisplayRandR::addMode(
+    xcb_randr_mode_t _id, bool _prefered, unsigned int _width, unsigned int _height, double _rate) {
   mode lTempMode_mode;
 
   lTempMode_mode.id = _id;
@@ -71,9 +72,9 @@ void iDisplays::addMode(xcb_randr_mode_t _id, bool _prefered, unsigned int _widt
  * \note This function will be automatically run if you enable() a display
  *       which was disabled before.
  */
-void iDisplays::autoSelectBest() {
+void iDisplayRandR::autoSelectBest() {
   // Check if there is a preferred mode
-  for (iDisplays::mode const &fMode : vModes_V_mode) {
+  for (iDisplayRandR::mode const &fMode : vModes_V_mode) {
     if (fMode.prefered) {
       vModeToUse_XRR = fMode.id;
       return; // We have everything we need
@@ -83,7 +84,7 @@ void iDisplays::autoSelectBest() {
   unsigned int lMaxWidth_uI  = 0; //!< Max currently found width
   unsigned int lMaxHeight_uI = 0; //!< Max currently found height
 
-  for (iDisplays::mode const &fMode : vModes_V_mode) {
+  for (iDisplayRandR::mode const &fMode : vModes_V_mode) {
     if ((lMaxWidth_uI < fMode.width) && (lMaxHeight_uI < fMode.height)) {
       vCurrentWidth_uI = lMaxWidth_uI = fMode.width;
       vCurrentHeight_uI = lMaxHeight_uI = fMode.height;
@@ -112,11 +113,11 @@ void iDisplays::autoSelectBest() {
  *
  * \returns the display frequency closest to _rate
  */
-double iDisplays::findNearestFreqTo(
+double iDisplayRandR::findNearestFreqTo(
     double _rate, unsigned int _width, unsigned int _height, xcb_randr_mode_t &_mode, double &_diff) const {
   _diff          = 1000000;
   double lRate_D = -1;
-  for (iDisplays::mode const &fMode : vModes_V_mode) {
+  for (iDisplayRandR::mode const &fMode : vModes_V_mode) {
     if (_width == fMode.width && _height == fMode.height) {
       if (std::abs(_rate - fMode.rate) < std::numeric_limits<double>::epsilon()) {
         _diff = 0;
@@ -167,7 +168,10 @@ double iDisplays::findNearestFreqTo(
  *          If _preferedRate failed but a mode with the "normal" behavior
  *          was found, the rate will be negative.
  */
-double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, double _preferedRate, double _maxDiff) {
+double iDisplayRandR::autoSelectBySize(unsigned int _width,
+                                       unsigned int _height,
+                                       double       _preferedRate,
+                                       double       _maxDiff) {
   double lMinDiffTo60Hz_D;
   double lMinDiffTo120Hz_D;
   double lMinDiffTo240Hz_D;
@@ -210,7 +214,7 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
     }
   }
 
-  for (iDisplays::mode const &fMode : vModes_V_mode) {
+  for (iDisplayRandR::mode const &fMode : vModes_V_mode) {
     if (_width == fMode.width && _height == fMode.height) {
       lFoundOneSizeMatch = true;
       if (fMode.prefered) {
@@ -269,7 +273,7 @@ double iDisplays::autoSelectBySize(unsigned int _width, unsigned int _height, do
 /*!
  * \brief Disables the display
  */
-void iDisplays::disable() {
+void iDisplayRandR::disable() {
   vEnabled_B        = false;
   vCurrentWidth_uI  = 0;
   vCurrentHeight_uI = 0;
@@ -280,7 +284,7 @@ void iDisplays::disable() {
 /*!
  * \brief Enables the display and runs autoSelectBest() if necessary.
  */
-void iDisplays::enable() {
+void iDisplayRandR::enable() {
   vEnabled_B = true;
   if (vModeToUse_XRR == XCB_NONE)
     autoSelectBest();
@@ -294,7 +298,7 @@ void iDisplays::enable() {
  *
  * \returns A vector with all possible rates for the resolution
  */
-std::vector<double> iDisplays::getPossibleRates(unsigned int _width, unsigned int _height) const {
+std::vector<double> iDisplayRandR::getPossibleRates(unsigned int _width, unsigned int _height) const {
   std::vector<double> lTempRates;
 
   for (auto &elem : vModes_V_mode) {
@@ -310,7 +314,7 @@ std::vector<double> iDisplays::getPossibleRates(unsigned int _width, unsigned in
  * \brief Returns a vector with all possible resolutions
  * \returns a vector with all possible resolutions
  */
-std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
+std::vector<iDisplayBasic::res> iDisplayRandR::getPossibleResolutions() const {
   std::vector<iDisplayBasic::res> lTempSizes_V;
   for (auto &elem : vModes_V_mode) {
     bool lSizeExistsAlready_B = false;
@@ -344,7 +348,7 @@ std::vector<iDisplayBasic::res> iDisplays::getPossibleResolutions() const {
  * \param[out] _height The height of the selected resolution
  * \param[out] _rate   The rate of the selected mode
  */
-void iDisplays::getSelectedRes(unsigned int &_width, unsigned int &_height, double &_rate) const {
+void iDisplayRandR::getSelectedRes(unsigned int &_width, unsigned int &_height, double &_rate) const {
   if (vModeToUse_XRR == XCB_NONE) {
     _width  = 0;
     _height = 0;
@@ -370,7 +374,7 @@ void iDisplays::getSelectedRes(unsigned int &_width, unsigned int &_height, doub
  *
  * \returns true if the resolution is supported and false if not
  */
-bool iDisplays::isSizeSupported(unsigned int _width, unsigned int _height) const {
+bool iDisplayRandR::isSizeSupported(unsigned int _width, unsigned int _height) const {
   for (auto &elem : vModes_V_mode) {
     if (_width == elem.width && _height == elem.height) {
       return true;
@@ -388,7 +392,7 @@ bool iDisplays::isSizeSupported(unsigned int _width, unsigned int _height) const
  *
  * \returns true if the mode was found and false if not
  */
-bool iDisplays::select(unsigned int _width, unsigned int _height, double _rate) {
+bool iDisplayRandR::select(unsigned int _width, unsigned int _height, double _rate) {
   for (unsigned int i = 0; vModes_V_mode.size(); ++i) {
     if (_width == vModes_V_mode[i].width && _height == vModes_V_mode[i].height &&
         std::abs(_rate - vModes_V_mode[i].rate) < std::numeric_limits<double>::epsilon()) {
@@ -408,7 +412,7 @@ bool iDisplays::select(unsigned int _width, unsigned int _height, double _rate) 
  *
  * \param[in] _disp The display to set clone off
  */
-void iDisplays::setCloneOf(const iDisplays &_disp) {
+void iDisplayRandR::setCloneOf(const iDisplayRandR &_disp) {
   for (auto &elem : vClones_V_XRR) {
     if (elem == _disp.vID_XRR) {
       return;

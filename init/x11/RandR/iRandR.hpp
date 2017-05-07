@@ -21,7 +21,8 @@
 #pragma once
 
 #include "defines.hpp"
-#include "iDisplays.hpp"
+#include "iDisplayRandR.hpp"
+#include "iRandRBasic.hpp"
 #include "iRandR_structs.hpp"
 #include <xcb/randr.h>
 
@@ -36,7 +37,7 @@ namespace unix_x11 {
  * for changing their resolution.
  *
  * This class "only" checks and loads the configuration and applies it. This class
- * generates iDisplays objects containing the display ID and some configurations.
+ * generates iDisplayRandR objects containing the display ID and some configurations.
  *
  * If you want to change anything, you need to get those via getDisplayResolutions()
  * and change them. Then you can feed them back to this class. Some changes will only
@@ -46,7 +47,7 @@ namespace unix_x11 {
  * \todo Add subpixel order support -- internal::_output::subpixel_order
  * \todo Add mode flags support -- internal::_mode::modeFlags
  */
-class iRandR {
+class iRandR final : public iRandRBasic {
 
  private:
   xcb_connection_t *vConnection_XCB = nullptr;
@@ -79,49 +80,43 @@ class iRandR {
   bool vWasScreenChanged_B = false;
 
   bool reload(bool _overwriteLatest = true, bool _overwriteDefaults = false);
-  bool restore(internal::_config _conf);
+  ERROR_CODE restore(internal::_config _conf);
   int changeCRTC(e_engine::internal::_crtc _changeToThis);
 
   internal::_crtc isOutputPossible(xcb_randr_output_t _id, xcb_randr_crtc_t _crtc);
 
- protected:
-  void endRandR();
-  bool initRandR(xcb_connection_t *_connection, xcb_window_t _rootWin);
-
-
  public:
-  iRandR();
+  iRandR() = delete;
+  iRandR(xcb_connection_t *_connection, xcb_window_t _rootWin);
   virtual ~iRandR();
 
-#if D_LOG_XRANDR
-  void printRandRStatus();
-#endif
+  void printStatus() override;
 
-  bool setGamma(iDisplays const &_disp, double _r, double _g, double _b, double _brightness = 1);
+  ERROR_CODE setGamma(iDisplayBasic *_disp, double _r, double _g, double _b, double _brightness = 1) override;
 
+  ERROR_CODE getIndexOfDisplay(iDisplayBasic *_disp, uint32_t *index) override;
   void getMostLeftRightTopBottomCRTC(unsigned int &_left,
                                      unsigned int &_right,
                                      unsigned int &_top,
-                                     unsigned int &_bottom);
-  int getIndexOfDisplay(iDisplays const &_disp);
+                                     unsigned int &_bottom) override;
 
-  std::vector<iDisplays> getDisplayResolutions();
+  std::vector<std::shared_ptr<iDisplayBasic>> getDisplayResolutions() override;
 
-  bool setDisplaySizes(iDisplays const &_disp);
-  bool setPrimary(iDisplays const &_disp);
+  ERROR_CODE setDisplaySizes(iDisplayBasic *_disp) override;
+  ERROR_CODE setPrimary(iDisplayBasic *_disp) override;
 
-  bool applyNewRandRSettings();
+  ERROR_CODE applyNewRandRSettings() override;
 
-  bool restoreScreenDefaults() { return restore(vDefaultConfig_RandR); }
-  bool restoreScreenLatest() { return restore(vLatestConfig_RandR); }
+  ERROR_CODE restoreScreenDefaults() override { return restore(vDefaultConfig_RandR); }
+  ERROR_CODE restoreScreenLatest() override { return restore(vLatestConfig_RandR); }
 
-  bool isRandRSupported() { return vIsRandRSupported_B; }
+  bool isProtocolSupported() override { return vIsRandRSupported_B; }
 
-  void getRandRVersion(uint32_t &_vMajor, uint32_t &_vMinor) {
+  void getRandRVersion(uint32_t &_vMajor, uint32_t &_vMinor) override {
     _vMajor = vRandRVersionMajor_I;
     _vMinor = vRandRVersionMinor_I;
   }
-  void getScreenResolution(unsigned int &_width, unsigned int &_height) {
+  void getScreenResolution(unsigned int &_width, unsigned int &_height) override {
     _width  = vScreenWidth_uI;
     _height = vScreenHeight_uI;
   }
@@ -166,7 +161,7 @@ class iRandR {
  */
 
 /*!
- * \fn bool iRandR::isRandRSupported()
+ * \fn bool iRandR::isProtocolSupported()
  * \brief Check if RandR is supported
  *
  * \returns \a true when RandR is support and \a false when not.
