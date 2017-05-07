@@ -26,6 +26,8 @@
 using namespace e_engine;
 using namespace unix_x11;
 
+#if D_LOG_XRANDR
+
 namespace {
 
 /*!
@@ -51,6 +53,8 @@ std::string placeStringLeft(std::string _str, unsigned int _size, char _fill) {
   return lResult_str;
 }
 }
+
+#endif
 
 /*!
  * \brief Prints a (more or less) fancy table with all XRandR information
