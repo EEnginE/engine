@@ -22,30 +22,12 @@
 #pragma once
 
 #include "defines.hpp"
-
-#include <vulkan/vulkan.h>
-
-#if UNIX_X11 || UNIX_WAYLAND
 #include "iInitSignals.hpp"
 #include "iMouse.hpp"
 #include "iWindowBasic.hpp"
-#endif
-
-#if UNIX_X11
-#include "x11/iWindow.hpp"
-
-#elif UNIX_WAYLAND
-#include "wayland/iWindow.hpp"
-
-#elif WINDOWS
-#include "windows/iContext.hpp"
-
-#else
-#error "PLATFORM not supported"
-#endif
-
 #include <thread>
 #include <unordered_map>
+#include <vulkan/vulkan.h>
 
 
 namespace e_engine {
@@ -68,13 +50,7 @@ typedef void (*RENDER_FUNC)(iEventInfo info);
  *
  * \sa iContext uConfig e_iInit.cpp e_event.cpp
  */
-#if UNIX_X11 || UNIX_WAYLAND
 class iInit : public iInitSignals, public iMouse {
-#elif WINDOWS
-class iInit : public windows_win32::iContext {
-#else
-#error "PLATFORM not supported"
-#endif
  public:
   SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
 
@@ -115,11 +91,7 @@ class iInit : public windows_win32::iContext {
   } SurfaceInfo_vk;
 
  private:
-#if UNIX_X11
-  unix_x11::iWindow vWindow;
-#elif UNIX_WAYLAND
-  unix_wayland::iWindow vWindow;
-#endif
+  iWindowBasic *vWindow = nullptr;
 
   std::vector<std::string> vExtensionList;
   std::vector<std::string> vDeviceExtensionList;
@@ -146,30 +118,12 @@ class iInit : public windows_win32::iContext {
 
   Device_vk vDevice_vk;
 
-  bool vMainLoopRunning_B      = false; //!< Should the main loop be running?
-  bool vEventLoopHasFinished_B = true;  //!< Has the event loop finished?
-
-  std::thread vEventLoop_BT; //!< The thread for the event loop
-
   bool vWasMouseGrabbed_B               = false;
   bool vAreRenderLoopSignalsConnected_B = false;
   bool vIsVulkanSetup_B                 = false;
   bool vEnableVulkanDebug               = false;
   bool vEnableVSync                     = false;
   int  vCreateWindowReturn_I            = -1000;
-
-#if WINDOWS
-  std::mutex              vCreateWindowMutex_BT;
-  std::condition_variable vCreateWindowCondition_BT;
-
-  std::mutex              vStartEventMutex_BT;
-  std::condition_variable vStartEventCondition_BT;
-
-  std::mutex              vStopEventLoopMutex;
-  std::condition_variable vStopEventLoopCondition;
-
-  bool vContinueWithEventLoop_B;
-#endif
 
   PhysicalDevice_vk *chooseDevice();
 
@@ -207,9 +161,6 @@ class iInit : public windows_win32::iContext {
   int init(std::vector<std::string> _layers = {});
   int handleResize();
   int shutdown();
-  int startMainLoop(bool _wait = true);
-
-  void quitMainLoop();
 
   bool enableDefaultGrabControl();
   bool disableDefaultGrabControl();
@@ -219,6 +170,9 @@ class iInit : public windows_win32::iContext {
 
   iWindowBasic *getWindow();
   void          closeWindow();
+
+  void waitForWindowToClose();
+  bool getIsSetup() const noexcept;
 
   uint32_t getQueueFamily(VkQueueFlags _flags);
 

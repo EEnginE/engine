@@ -21,6 +21,10 @@
 #include "myWorld.hpp"
 #include "config.hpp"
 
+#if UNIX_X11
+#include "iWindow.hpp"
+#endif
+
 using namespace e_engine;
 
 
@@ -28,10 +32,8 @@ myWorld::~myWorld() {}
 
 
 void myWorld::key(iEventInfo const &info) {
-#if UNIX_X11
   if (vDisp_RandR.empty())
     vDisp_RandR = info.iInitPointer->getWindow()->getRandRManager()->getDisplayResolutions();
-#endif
 
   if (info.eKey.state == E_PRESSED) {
     switch (info.eKey.key) {
@@ -41,7 +43,6 @@ void myWorld::key(iEventInfo const &info) {
       case E_KEY_F9: static_cast<unix_x11::iWindow *>(info.iInitPointer->getWindow())->fullScreenMultiMonitor(); break;
 #endif
       case E_KEY_F11: info.iInitPointer->getWindow()->fullScreen(e_engine::C_TOGGLE); break;
-#if UNIX_X11
       case E_KEY_F10:
         if (vDisp_RandR.size() > 0)
           info.iInitPointer->getWindow()->setFullScreenMonitor(vDisp_RandR[0].get());
@@ -50,7 +51,6 @@ void myWorld::key(iEventInfo const &info) {
         if (vDisp_RandR.size() > 1)
           info.iInitPointer->getWindow()->setFullScreenMonitor(vDisp_RandR[1].get());
         break;
-#endif
 
       // Mouse control
       case L'g': info.iInitPointer->getWindow()->grabMouse(); break;
@@ -82,7 +82,13 @@ void myWorld::key(iEventInfo const &info) {
 
       // Quit
       case L'Q':
-      case E_KEY_ESCAPE: info.iInitPointer->quitMainLoop(); break;
+      case L'q':
+      case E_KEY_ESCAPE:
+        shutdown();
+        vRenderer->destroy();
+        vScene.destroy();
+        info.iInitPointer->shutdown();
+        break;
     }
   }
 }

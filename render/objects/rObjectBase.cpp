@@ -129,9 +129,12 @@ bool rObjectBase::finishData() {
     }
   }
 
+  vLoadBuffers.clear();
   vIsLoaded_B = true;
   return true;
 }
+
+void rObjectBase::destroy() { destroy_IMPL(); }
 
 bool rObjectBase::setupVertexData_PN(aiMesh const *_mesh, std::vector<float> &_out) {
   if (!_mesh->HasNormals()) {

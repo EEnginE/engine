@@ -21,12 +21,96 @@
  */
 
 #include "iWindowBasic.hpp"
+#include "uLog.hpp"
 
-namespace e_engine {
+using namespace e_engine;
 
-iWindowBasic::~iWindowBasic() {}
+iWindowBasic::iWindowBasic(iInit *_init) : vParent(_init) {}
+iWindowBasic::~iWindowBasic() {
+  if (vEventLoopThread.joinable())
+    vEventLoopThread.join();
+}
 
-} // e_engine
+void iWindowBasic::evLoopWrapper() {
+  {
+    std::unique_lock<std::mutex> lLock(vEventThreadControlMutex);
+    vIsLoopRunning = true;
+    vLoopResponseCond.notify_all();
+  }
+
+  LOG.nameThread(L"EVENT");
+  iLOG("Event loop started");
+
+  while (vKeepLoopRunning)
+    eventLoop();
+
+  iLOG("Event Loop finished");
+
+  std::unique_lock<std::mutex> lLock(vEventThreadControlMutex);
+  vIsLoopRunning = false;
+  vLoopResponseCond.notify_all();
+}
+
+void iWindowBasic::startEventLoop(iSignalReference _signals) {
+  std::unique_lock<std::mutex> lLock(vEventThreadControlMutex);
+
+  if (vIsLoopRunning)
+    return;
+
+  vKeepLoopRunning = true;
+  vEventLoopThread = std::thread(&iWindowBasic::evLoopWrapper, this);
+
+  vSignals = _signals;
+
+  while (!vIsLoopRunning)
+    vLoopResponseCond.wait(lLock);
+}
+
+void iWindowBasic::stopEventLoop() {
+  std::unique_lock<std::mutex> lLock(vEventThreadControlMutex);
+
+  if (!vIsLoopRunning)
+    return;
+
+  vKeepLoopRunning = false;
+
+  while (vIsLoopRunning)
+    vLoopResponseCond.wait(lLock);
+}
+
+void iWindowBasic::sendEvent(iEventInfo &ev) noexcept {
+  if (!vWindowCreated)
+    return;
+
+  switch (ev.type) {
+    case E_EVENT_RESIZE: vSignals.resize->send(ev); break;
+    case E_EVENT_KEY: vSignals.key->send(ev); break;
+    case E_EVENT_MOUSE: vSignals.mouse->send(ev); break;
+    case E_EVENT_FOCUS: vSignals.focus->send(ev); break;
+    case E_EVENT_WINDOWCLOSE: vSignals.windowClose->send(ev); break;
+    case E_EVENT_UNKNOWN: break;
+  }
+}
+
+void iWindowBasic::waitForWindowToClose() {
+  std::unique_lock<std::mutex> lLock(vWindowCloseMutex);
+
+  while (vWindowCreated)
+    vWindowCloseCond.wait(lLock);
+}
+
+bool iWindowBasic::isLoopRunning() { return vIsLoopRunning; }
+bool iWindowBasic::getRunEventLoop() const noexcept { return vKeepLoopRunning; }
+bool iWindowBasic::getIsWindowCreated() const noexcept { return vWindowCreated; }
+
+void iWindowBasic::setWindowCreated(bool _isCreated) noexcept {
+  std::unique_lock<std::mutex> lLock(vWindowCloseMutex);
+
+  vWindowCreated = _isCreated;
+
+  if (vWindowCreated == false)
+    vWindowCloseCond.notify_all();
+}
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -151,6 +151,9 @@ int rRendererBase::init() {
   vkDestroyFence(vDevice_vk, lFence, nullptr);
   vkFreeCommandBuffers(vDevice_vk, lPool, 1, &lBuf);
 
+  if (!initRendererData())
+    return 4;
+
   vIsSetup = true;
 
   if (!vUserDisabledRendering)
@@ -168,6 +171,9 @@ void rRendererBase::destroy() {
   vEnableRendering = false;
 
   dVkLOG("Destroying old render pass data [renderer ", vID, "]");
+
+  dVkLOG("  -- freeing old renderer data [renderer ", vID, "]");
+  freeRendererData();
 
   dVkLOG("  -- destroying old framebuffers [renderer ", vID, "]");
   for (auto &i : vFramebuffers_vk)

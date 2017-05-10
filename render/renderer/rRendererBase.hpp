@@ -181,6 +181,9 @@ class rRendererBase {
   virtual void freeCmdBuffers(VkCommandPool _pool) = 0;
   virtual void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) = 0;
 
+  virtual bool initRendererData() { return true; }
+  virtual bool freeRendererData() { return true; }
+
  public:
   rRendererBase() = delete;
   rRendererBase(iInit *_init, rWorld *_root, std::wstring _id);

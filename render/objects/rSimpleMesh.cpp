@@ -71,6 +71,11 @@ std::vector<rBuffer *> rSimpleMesh::setData_IMPL(VkCommandBuffer              _b
   return {&vIndex, &vVertex};
 }
 
+void rSimpleMesh::destroy_IMPL() {
+  vIndex.destroy();
+  vVertex.destroy();
+}
+
 void rSimpleMesh::signalRenderReset(internal::rRendererBase *) {
   if (!vPipeline) {
     eLOG("Pipeline not setup!");

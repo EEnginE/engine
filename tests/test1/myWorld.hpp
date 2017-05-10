@@ -75,7 +75,8 @@ class myWorld final : public rWorld, public rFrameCounter {
 
   void windowClose(e_engine::iEventInfo const &info) {
     iLOG("User closed window");
-    info.iInitPointer->quitMainLoop();
+    getRenderLoop()->stop();
+    info.iInitPointer->shutdown();
   }
   void key(e_engine::iEventInfo const &info);
   void resize(e_engine::iEventInfo const &info) {

@@ -295,6 +295,8 @@ int iInit::loadDevices() {
       vkGetPhysicalDeviceFormatProperties(lTempDevs[i], static_cast<VkFormat>(j), &vPhysicalDevices_vk[i].formats[j]);
 
 #if D_LOG_VULKAN_INIT
+#define GET_VERSION(v) VK_VERSION_MAJOR(v), '.', VK_VERSION_MINOR(v), '.', VK_VERSION_PATCH(v)
+
     auto &props = vPhysicalDevices_vk[i].properties;
 
     dLOG(L"GPU ", i, ":");
@@ -307,22 +309,24 @@ int iInit::loadDevices() {
     dLOG(L"    - deviceName    = ", props.deviceName);
     dLOG(L"  -- Queue Family Properties:");
 
-    for (uint32_t i = 0; i < lQueueAlias.size(); i++) {
-      dLOG(L"    -- Queue Family ", i);
+    for (uint32_t j = 0; j < lQueueAlias.size(); j++) {
+      dLOG(L"    -- Queue Family ", j);
       dLOG(L"      - queueFlags: (prefix VK_QUEUE_)");
-      dLOG(L"        - GRAPHICS_BIT:       ", lQueueAlias[i].queueFlags & VK_QUEUE_GRAPHICS_BIT ? true : false);
-      dLOG(L"        - COMPUTE_BIT:        ", lQueueAlias[i].queueFlags & VK_QUEUE_COMPUTE_BIT ? true : false);
-      dLOG(L"        - TRANSFER_BIT:       ", lQueueAlias[i].queueFlags & VK_QUEUE_TRANSFER_BIT ? true : false);
-      dLOG(L"        - SPARSE_BINDING_BIT: ", lQueueAlias[i].queueFlags & VK_QUEUE_SPARSE_BINDING_BIT ? true : false);
-      dLOG(L"      - queueCount                  = ", lQueueAlias[i].queueCount);
-      dLOG(L"      - timestampValidBits          = ", lQueueAlias[i].timestampValidBits);
+      dLOG(L"        - GRAPHICS_BIT:       ", lQueueAlias[j].queueFlags & VK_QUEUE_GRAPHICS_BIT ? true : false);
+      dLOG(L"        - COMPUTE_BIT:        ", lQueueAlias[j].queueFlags & VK_QUEUE_COMPUTE_BIT ? true : false);
+      dLOG(L"        - TRANSFER_BIT:       ", lQueueAlias[j].queueFlags & VK_QUEUE_TRANSFER_BIT ? true : false);
+      dLOG(L"        - SPARSE_BINDING_BIT: ", lQueueAlias[j].queueFlags & VK_QUEUE_SPARSE_BINDING_BIT ? true : false);
+      dLOG(L"      - queueCount                  = ", lQueueAlias[j].queueCount);
+      dLOG(L"      - timestampValidBits          = ", lQueueAlias[j].timestampValidBits);
       dLOG(L"      - minImageTransferGranularity = ",
-           lQueueAlias[i].minImageTransferGranularity.width,
+           lQueueAlias[j].minImageTransferGranularity.width,
            L'x',
-           lQueueAlias[i].minImageTransferGranularity.height,
+           lQueueAlias[j].minImageTransferGranularity.height,
            L"; depth: ",
-           lQueueAlias[i].minImageTransferGranularity.depth);
+           lQueueAlias[j].minImageTransferGranularity.depth);
     }
+
+#undef GET_VERSION
 #endif
   }
 

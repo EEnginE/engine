@@ -76,6 +76,9 @@ rWorld::~rWorld() { shutdown(); }
  * \note this function will be automatically called every time the window is resized
  */
 int rWorld::init() {
+  if (!vInitPtr->getIsSetup())
+    return -100;
+
   std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
   if (vRenderLoop.getIsRunning()) {
     vRenderLoop.stop();
@@ -155,7 +158,7 @@ int rWorld::init() {
  * \brief Stops all render loops
  */
 void rWorld::shutdown() {
-  if (!vIsSetup)
+  if (!vIsSetup || !vInitPtr->getIsSetup())
     return;
 
   if (vRenderLoop.getIsRunning())

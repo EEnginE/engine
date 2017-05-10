@@ -45,12 +45,13 @@ class rRendererDeferred : public internal::rRendererBase {
   rBuffer vDeferredDataBuffer;
   rBuffer vDeferredIndexBuffer;
 
-  void initBuffers();
-
  protected:
   void                        setupSubpasses() override;
   std::vector<AttachmentInfo> getAttachmentInfos() override;
   void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) override;
+
+  bool initRendererData() override;
+  bool freeRendererData() override;
 
   void initCmdBuffers(VkCommandPool _pool) override;
   void freeCmdBuffers(VkCommandPool _pool) override;
@@ -65,8 +66,6 @@ class rRendererDeferred : public internal::rRendererBase {
 
   rRendererDeferred() = delete;
   rRendererDeferred(iInit *_init, rWorld *_root, std::wstring _id)
-      : internal::rRendererBase(_init, _root, _id), vDeferredDataBuffer(_root), vDeferredIndexBuffer(_root) {
-    initBuffers();
-  }
+      : internal::rRendererBase(_init, _root, _id), vDeferredDataBuffer(_root), vDeferredIndexBuffer(_root) {}
 };
 }

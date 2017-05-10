@@ -83,37 +83,7 @@ bool rShaderBase::InOut::operator<(const InOut &rhs) {
   return location < rhs.location;
 }
 
-rShaderBase::~rShaderBase() {
-  for (auto i : vBuffers)
-    vkDestroyBuffer(vDevice_vk, i, nullptr);
-
-  for (auto i : vMemory)
-    vkFreeMemory(vDevice_vk, i, nullptr);
-
-  if (vVertModule_vk)
-    vkDestroyShaderModule(vDevice_vk, vVertModule_vk, nullptr);
-
-  if (vTescModule_vk)
-    vkDestroyShaderModule(vDevice_vk, vTescModule_vk, nullptr);
-
-  if (vTeseModule_vk)
-    vkDestroyShaderModule(vDevice_vk, vTeseModule_vk, nullptr);
-
-  if (vGeomModule_vk)
-    vkDestroyShaderModule(vDevice_vk, vGeomModule_vk, nullptr);
-
-  if (vFragModule_vk)
-    vkDestroyShaderModule(vDevice_vk, vFragModule_vk, nullptr);
-
-  if (vCompModule_vk)
-    vkDestroyShaderModule(vDevice_vk, vCompModule_vk, nullptr);
-
-  if (vModulesCreated) {
-    vkDestroyDescriptorSetLayout(vDevice_vk, vDescLayout_vk, nullptr);
-    vkDestroyPipelineLayout(vDevice_vk, vPipelineLayout_vk, nullptr);
-    vkDestroyDescriptorPool(vDevice_vk, vDescPool_vk, nullptr);
-  }
-}
+rShaderBase::~rShaderBase() { destroy(); }
 
 bool rShaderBase::createModule(VkShaderModule *_module, std::vector<unsigned char> _data) {
   VkShaderModuleCreateInfo lInfo = {};
@@ -597,6 +567,52 @@ bool rShaderBase::init() {
 
   vModulesCreated = true;
   return true;
+}
+
+void rShaderBase::destroy() {
+  if (!vModulesCreated)
+    return;
+
+  for (auto i : vBuffers)
+    vkDestroyBuffer(vDevice_vk, i, nullptr);
+
+  for (auto i : vMemory)
+    vkFreeMemory(vDevice_vk, i, nullptr);
+
+  if (vVertModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vVertModule_vk, nullptr);
+
+  if (vTescModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vTescModule_vk, nullptr);
+
+  if (vTeseModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vTeseModule_vk, nullptr);
+
+  if (vGeomModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vGeomModule_vk, nullptr);
+
+  if (vFragModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vFragModule_vk, nullptr);
+
+  if (vCompModule_vk)
+    vkDestroyShaderModule(vDevice_vk, vCompModule_vk, nullptr);
+
+  if (vModulesCreated) {
+    vkDestroyDescriptorSetLayout(vDevice_vk, vDescLayout_vk, nullptr);
+    vkDestroyPipelineLayout(vDevice_vk, vPipelineLayout_vk, nullptr);
+    vkDestroyDescriptorPool(vDevice_vk, vDescPool_vk, nullptr);
+  }
+
+  vVertModule_vk     = nullptr;
+  vTescModule_vk     = nullptr;
+  vTeseModule_vk     = nullptr;
+  vGeomModule_vk     = nullptr;
+  vFragModule_vk     = nullptr;
+  vCompModule_vk     = nullptr;
+  vDescLayout_vk     = nullptr;
+  vPipelineLayout_vk = nullptr;
+  vDescPool_vk       = nullptr;
+  vModulesCreated    = false;
 }
 
 /*!

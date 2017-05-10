@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     start.enableDefaultGrabControl();
 
     if (handler.initGL() == 0)
-      start.startMainLoop();
+      start.waitForWindowToClose();
 
     handler.shutdown();
   }

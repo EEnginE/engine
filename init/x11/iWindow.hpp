@@ -26,11 +26,9 @@
 #pragma once
 
 #include "defines.hpp"
-
-#include <vulkan.h>
-
 #include "iKeyboard.hpp"
 #include "iWindowBasic.hpp"
+#include <vulkan.h>
 
 namespace e_engine {
 
@@ -88,7 +86,6 @@ class iWindow : public iKeyboard, public iWindowBasic {
 
   bool vWindowHasBorder_B = true;
 
-  bool vWindowCreated_B         = false;
   bool vXCBConnectionHasError_B = false;
   bool vIsRandrSupported_B      = false;
 
@@ -106,23 +103,24 @@ class iWindow : public iKeyboard, public iWindowBasic {
   void setWmPropertyAtom(iXCBAtom &_property, iXCBAtom &_data);
   void setWmPropertyString(iXCBAtom &_property, std::string _data);
 
-
   void sendX11Event(
       iXCBAtom &_atom, uint32_t _l0 = 0, uint32_t _l1 = 0, uint32_t _l2 = 0, uint32_t _l3 = 0, uint32_t _l4 = 0);
 
+  struct Config {
+    int64_t eventTimeoutSeconds     = 0;
+    int64_t eventTimeoutNanoSeconds = 100000000;
+  } cfg;
+
  protected:
-  bool vWindowRecreate_B = false;
+  void eventLoop() override;
 
  public:
-  iWindow();
+  iWindow(iInit *_init);
   virtual ~iWindow();
 
-  virtual int createWindow() override;
+  int createWindow() override;
 
   void getXCBVersion(int *_major, int *_minor);
-  xcb_connection_t *getXCBConnection();
-  xcb_atom_t        getWmProtocolAtom() const;
-  xcb_atom_t        getWmDeleteWindowAtom() const;
 
   void destroyWindow() override;
 
@@ -147,7 +145,6 @@ class iWindow : public iKeyboard, public iWindowBasic {
   void hideMouseCursor() override;
   void showMouseCursor() override;
   bool getIsCursorHidden() const override;
-  bool getIsWindowCreated() const override;
 
   iRandRBasic *getRandRManager() override;
 

@@ -20,15 +20,26 @@
  */
 
 #include "defines.hpp"
-
+#include "iInit.hpp"
+#include "uEnum2Str.hpp"
+#include "uLog.hpp"
+#include "uSystem.hpp"
 #include <csignal>
 #include <string.h>
 #include <vulkan/vulkan.h>
 
-#include "uEnum2Str.hpp"
-#include "uLog.hpp"
-#include "uSystem.hpp"
-#include "iInit.hpp"
+#if UNIX_X11
+#include "x11/iWindow.hpp"
+
+#elif UNIX_WAYLAND
+#include "wayland/iWindow.hpp"
+
+#elif WINDOWS
+#include "windows/iContext.hpp"
+
+#else
+#error "PLATFORM not supported"
+#endif
 
 #if D_LOG_VULKAN_INIT
 #define dVkLOG(...) dLOG(__VA_ARGS__)
@@ -42,9 +53,12 @@
 #define CONTINUE_DB_REPORT_INFO return;
 #endif
 
+using namespace e_engine;
+
 namespace e_engine {
 namespace internal {
 __iInit_Pointer __iInit_Pointer_OBJ;
+}
 }
 
 
@@ -78,9 +92,36 @@ iInit::iInit() : vGrabControl_SLOT(&iInit::s_advancedGrabControl, this) {
   vDeviceExtensionsToUse.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
   _setThisForHandluSignal();
+
+#if UNIX_X11
+  vWindow = new unix_x11::iWindow(this);
+#elif UNIX_WAYLAND
+  vWindow = new unix_wayland::iWindow(this);
+#endif
+
+  iWindowBasic::iSignalReference ref;
+  ref.windowClose = &vWindowClose_SIG;
+  ref.resize      = &vResize_SIG;
+  ref.key         = &vKey_SIG;
+  ref.mouse       = &vMouse_SIG;
+  ref.focus       = &vFocus_SIG;
+  vWindow->startEventLoop(ref);
 }
 
-iInit::~iInit() { shutdown(); }
+iInit::~iInit() {
+  shutdown();
+
+  if (!vWindow)
+    return;
+
+  vWindow->stopEventLoop();
+  delete vWindow;
+}
+
+void iInit::waitForWindowToClose() {
+  if (vWindow)
+    vWindow->waitForWindowToClose();
+}
 
 
 /*!
@@ -96,22 +137,22 @@ void iInit::s_advancedGrabControl(iEventInfo const &_info) {
   if ((_info.type == E_EVENT_FOCUS) && _info.eFocus.hasFocus && vWasMouseGrabbed_B) {
     // Focus restored
     vWasMouseGrabbed_B = false;
-    if (!vWindow.grabMouse()) {
+    if (!vWindow->grabMouse()) {
       // Cannot grab again when X11 has not handled some events
 
       for (unsigned short int i = 0; i < 25; ++i) {
         iLOG("Try Grab ", i + 1, " of 25");
-        if (vWindow.grabMouse())
+        if (vWindow->grabMouse())
           break; // Grab success
         B_SLEEP(milliseconds, 100);
       }
     }
     return;
   }
-  if ((_info.type == E_EVENT_FOCUS) && !_info.eFocus.hasFocus && vWindow.getIsMouseGrabbed()) {
+  if ((_info.type == E_EVENT_FOCUS) && !_info.eFocus.hasFocus && vWindow->getIsMouseGrabbed()) {
     // Focus lost
     vWasMouseGrabbed_B = true;
-    vWindow.freeMouse();
+    vWindow->freeMouse();
     return;
   }
 }
@@ -257,12 +298,12 @@ int iInit::init(std::vector<std::string> _layers) {
   if (vEnableVulkanDebug)
     initDebug();
 
-  vCreateWindowReturn_I = vWindow.createWindow();
+  vCreateWindowReturn_I = vWindow->createWindow();
   if (vCreateWindowReturn_I != 0) {
     return vCreateWindowReturn_I;
   }
 
-  vSurface_vk = vWindow.getVulkanSurface(vInstance_vk);
+  vSurface_vk = vWindow->getVulkanSurface(vInstance_vk);
   if (!vSurface_vk)
     return 2;
 
@@ -287,6 +328,17 @@ int iInit::init(std::vector<std::string> _layers) {
     vCreateWindowCondition_BT.wait(lLock_BT);
 
 #endif
+
+  // Send a resize signal to ensure that the viewport is updated
+  iEventInfo _tempInfo(this);
+  _tempInfo.iInitPointer   = this;
+  _tempInfo.type           = E_EVENT_RESIZE;
+  _tempInfo.eResize.width  = GlobConf.win.width;
+  _tempInfo.eResize.height = GlobConf.win.height;
+  _tempInfo.eResize.posX   = GlobConf.win.posX;
+  _tempInfo.eResize.posY   = GlobConf.win.posY;
+
+  vResize_SIG.send(_tempInfo);
 
   vIsVulkanSetup_B = true;
 
@@ -355,10 +407,18 @@ void iInit::destroyVulkan() {
 }
 
 int iInit::shutdown() {
+  iLOG(L"Shutting down");
   destroyVulkan();
-  closeWindow();
 
-  return LOG.stopLogLoop();
+  if (!vWindow->getIsWindowCreated())
+    return 0;
+
+  dVkLOG(L"  -- Closing Window");
+
+  vWindow->destroyWindow();
+  vCreateWindowReturn_I = -1000;
+
+  return 1;
 }
 
 /*!
@@ -399,94 +459,7 @@ void iInit::handleSignal(int _signal) {
 }
 
 
-/*!
- * \brief Starts the main loop
- * \returns \c SUCCESS: \a 1 -- \c FAIL: \a 0
- */
-int iInit::startMainLoop(bool _wait) {
-  if (!vIsVulkanSetup_B) {
-    wLOG("Cannot start the main loop. There is no OpenGL context!");
-    return 0;
-  }
-  vMainLoopRunning_B = true;
-
-  // Send a resize signal to ensure that the viewport is updated
-  iEventInfo _tempInfo(this);
-  _tempInfo.iInitPointer   = this;
-  _tempInfo.type           = E_EVENT_RESIZE;
-  _tempInfo.eResize.width  = GlobConf.win.width;
-  _tempInfo.eResize.height = GlobConf.win.height;
-  _tempInfo.eResize.posX   = GlobConf.win.posX;
-  _tempInfo.eResize.posY   = GlobConf.win.posY;
-
-  vResize_SIG.send(_tempInfo);
-
-#if UNIX_X11 || UNIX_WAYLAND
-  vEventLoop_BT = std::thread(&iInit::eventLoop, this);
-#elif WINDOWS
-  {
-    // Make sure lLockEvent_BT will be destroyed
-    std::lock_guard<std::mutex> lLockEvent_BT(vStartEventMutex_BT);
-    vContinueWithEventLoop_B = true;
-    vStartEventCondition_BT.notify_one();
-  }
-#endif
-
-  if (_wait) {
-#if WINDOWS
-    {
-      std::unique_lock<std::mutex> lLockEvent_BT(vStopEventLoopMutex);
-      while (!vEventLoopHasFinished_B)
-        vStopEventLoopCondition.wait(lLockEvent_BT);
-    }
-#else
-    if (vEventLoop_BT.joinable())
-      vEventLoop_BT.join();
-#endif
-  }
-
-  return 1;
-}
-
-void iInit::quitMainLoop() { vMainLoopRunning_B = false; }
-
-/*!
- * \brief Quit the main loop and close the window
- */
-void iInit::closeWindow() {
-  if (vIsVulkanSetup_B || !vWindow.getIsWindowCreated())
-    return;
-
-  if (vMainLoopRunning_B) {
-    quitMainLoop();
-  }
-
-  if (vEventLoop_BT.joinable())
-    vEventLoop_BT.join();
-
-  vWindow.destroyWindow();
-
-#if WINDOWS
-  // The event loop thread must do some stuff
-
-  {
-    std::lock_guard<std::mutex> lLockEvent_BT(vStartEventMutex_BT);
-    vContinueWithEventLoop_B = true;
-    vStartEventCondition_BT.notify_one();
-  }
-
-  if (vEventLoop_BT.joinable() && _waitUntilClosed)
-    vEventLoop_BT.join();
-
-  iLOG("Done close window");
-
-  vContinueWithEventLoop_B = false;
-#endif
-
-  vCreateWindowReturn_I = -1000;
-}
-
-iWindowBasic *iInit::getWindow() { return static_cast<iWindowBasic *>(&vWindow); }
+iWindowBasic *iInit::getWindow() { return vWindow; }
 
 bool iInit::isExtensionSupported(std::string _extension) {
   for (auto const &i : vExtensionList) {
@@ -644,8 +617,10 @@ VkSurfaceKHR iInit::getVulkanSurface() { return vSurface_vk; }
  * \vkIntern
  */
 iInit::SurfaceInfo_vk iInit::getSurfaceInfo() { return vSurfaceInfo_vk; }
-}
 
-
+/*!
+ * \brief Returns whether Vulkan is setup
+ */
+bool iInit::getIsSetup() const noexcept { return vIsVulkanSetup_B; }
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

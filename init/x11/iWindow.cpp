@@ -27,21 +27,22 @@
 
 #include "defines.hpp"
 
-#include <string.h> // memset
-#include <xcb/xcb.h>
-#include <xcb/xproto.h>
-
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "iEventInfo.hpp"
 #include "iRandR.hpp"
 #include "iWindow.hpp"
 #include "eCMDColor.hpp"
+#include <string.h> // memset
+#include <sys/select.h>
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
 
-namespace e_engine {
+using namespace e_engine;
+using namespace unix_x11;
+using namespace unix_x11::internal;
 
-namespace unix_x11 {
-
-iWindow::iWindow() {
+iWindow::iWindow(iInit *_init) : iWindowBasic(_init) {
   int lScreenNum;
 
   vConnection_XCB = xcb_connect(NULL, &lScreenNum);
@@ -70,14 +71,18 @@ iWindow::~iWindow() {
   if (vRandR)
     delete vRandR;
 
-  vRandR = nullptr;
+  if (vConnection_XCB)
+    xcb_disconnect(vConnection_XCB);
 
-  destroyWindow();
+  vConnection_XCB = nullptr;
+  vSetup_XCB      = nullptr;
+  vScreen_XCB     = nullptr;
+  vRandR          = nullptr;
 }
 
-internal::iXCBAtom::iXCBAtom(xcb_connection_t *_connection, std::string _name) { genAtom(_connection, _name); }
+iXCBAtom::iXCBAtom(xcb_connection_t *_connection, std::string _name) { genAtom(_connection, _name); }
 
-bool internal::iXCBAtom::genAtom(xcb_connection_t *_connection, std::string _name) {
+bool iXCBAtom::genAtom(xcb_connection_t *_connection, std::string _name) {
   if (vAtomReply_XCB != nullptr)
     free(vAtomReply_XCB);
 
@@ -88,7 +93,7 @@ bool internal::iXCBAtom::genAtom(xcb_connection_t *_connection, std::string _nam
   return true;
 }
 
-internal::iXCBAtom::~iXCBAtom() {
+iXCBAtom::~iXCBAtom() {
   if (vAtomReply_XCB != nullptr) {
     free(vAtomReply_XCB);
   }
@@ -105,7 +110,7 @@ internal::iXCBAtom::~iXCBAtom() {
 int iWindow::createWindow() {
   std::string lRandRVersionString_str;
 
-  if (vWindowCreated_B)
+  if (getIsWindowCreated())
     return 3;
 
   if (vXCBConnectionHasError_B)
@@ -148,7 +153,7 @@ int iWindow::createWindow() {
                     lValueMask_XCB,
                     lValues);
 
-  vWindowCreated_B = true;
+  setWindowCreated(true);
 
   // Set some properties
   vWmProtocol_ATOM.genAtom(vConnection_XCB, "WM_PROTOCOLS");
@@ -211,7 +216,7 @@ int iWindow::createWindow() {
 
 void iWindow::setWmProperty(
     iXCBAtom &_property, xcb_atom_t _type, uint8_t _format, uint32_t _length, const void *_data) {
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
   xcb_change_property(
@@ -228,7 +233,7 @@ void iWindow::setWmPropertyString(iXCBAtom &_property, std::string _data) {
 }
 
 void iWindow::setWindowNames(std::string _windowName, std::string _iconName) {
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
   setWmPropertyString(vNetWmName_ATOM, _windowName);
@@ -238,7 +243,7 @@ void iWindow::setWindowNames(std::string _windowName, std::string _iconName) {
 }
 
 void iWindow::setWindowType(WINDOW_TYPE _type) {
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
   // clang-format off
@@ -274,7 +279,7 @@ void iWindow::setWindowType(WINDOW_TYPE _type) {
  * \param _posY   The new Y coordinate
  */
 void iWindow::changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY) {
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
   uint16_t lMask     = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
@@ -294,15 +299,13 @@ void iWindow::changeWindowConfig(unsigned int _width, unsigned int _height, int 
  * \brief Destroy the window and the context
  */
 void iWindow::destroyWindow() {
-  if (vWindowCreated_B == true) {
-    xcb_disconnect(vConnection_XCB);
-    vWindowCreated_B = false;
-    vConnection_XCB  = nullptr;
-    vSetup_XCB       = nullptr;
-    vScreen_XCB      = nullptr;
-  }
+  if (!getIsWindowCreated())
+    return;
 
-  vWindowCreated_B = false;
+  setWindowCreated(false);
+  xcb_destroy_window(vConnection_XCB, vWindow_XCB);
+  vSetup_XCB  = nullptr;
+  vScreen_XCB = nullptr;
 }
 
 struct MwmHints {
@@ -321,7 +324,7 @@ const long unsigned int MWM_HINTS_DECORATIONS = (1L << 1);
  * \param _action Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
  */
 void iWindow::setDecoration(e_engine::ACTION _action) {
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
   if (_action == C_TOGGLE) {
@@ -370,7 +373,7 @@ void iWindow::maximize(e_engine::ACTION _action) { setAttribute(_action, MAXIMIZ
  * \sa e_engine::ACTION, e_engine::WINDOW_ATTRIBUTE
  */
 void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2) {
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
   if (_type1 == _type2) {
@@ -457,7 +460,7 @@ void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRI
  * \brief Try to map the fullscreen window to all monitors
  */
 void iWindow::fullScreenMultiMonitor() {
-  if (!vWindowCreated_B || !vRandR)
+  if (!getIsWindowCreated() || !vRandR)
     return;
 
   unsigned int lLeft_I;
@@ -480,7 +483,7 @@ void iWindow::fullScreenMultiMonitor() {
  * \param _disp The display where the fullscreen window should be
  */
 void iWindow::setFullScreenMonitor(iDisplayBasic *_disp) {
-  if (!vWindowCreated_B || !vRandR)
+  if (!getIsWindowCreated() || !vRandR)
     return;
 
   uint32_t                lDisp_I = 0;
@@ -499,7 +502,7 @@ void iWindow::setFullScreenMonitor(iDisplayBasic *_disp) {
 
 
 void iWindow::sendX11Event(iXCBAtom &_atom, uint32_t _l0, uint32_t _l1, uint32_t _l2, uint32_t _l3, uint32_t _l4) {
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
   xcb_client_message_event_t lEvent_XCB;
@@ -535,7 +538,7 @@ void iWindow::sendX11Event(iXCBAtom &_atom, uint32_t _l0, uint32_t _l1, uint32_t
  * \param[out] _minor The minor version number
  */
 void iWindow::getXCBVersion(int *_major, int *_minor) {
-  if (!vWindowCreated_B) {
+  if (!getIsWindowCreated()) {
     *_major = -1;
     *_minor = -1;
     return;
@@ -559,7 +562,7 @@ bool iWindow::grabMouse() {
     return false;
   }
 
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return false;
 
   uint16_t lEventMask = XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW |
@@ -608,7 +611,7 @@ void iWindow::freeMouse() {
     return;
   }
 
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
 
@@ -632,7 +635,7 @@ void iWindow::moveMouse(unsigned int _posX, unsigned int _posY) {
     return;
   }
 
-  if (!vWindowCreated_B)
+  if (!getIsWindowCreated())
     return;
 
   xcb_warp_pointer(vConnection_XCB,             // Our connection to the X server
@@ -688,6 +691,191 @@ void iWindow::hideMouseCursor() {
   vIsCursorHidden_B = true;
 }
 
+
+#define CAST_EVENT(type, source, dest) xcb_##type##_event_t *dest = reinterpret_cast<xcb_##type##_event_t *>(source);
+
+void iWindow::eventLoop() {
+  xcb_generic_event_t *lEvent_XCB;
+  uint32_t             lAutoRepeatType = XCB_AUTO_REPEAT_MODE_ON;
+
+  unsigned int lKeyState_uI, lButtonState_uI;
+
+  // Fix autotype keyrelease
+  xcb_change_keyboard_control(vConnection_XCB, XCB_KB_AUTO_REPEAT_MODE, &lAutoRepeatType);
+
+  int      lFileDesc_XCB = xcb_get_file_descriptor(vConnection_XCB);
+  timespec lTimeout      = {cfg.eventTimeoutSeconds, cfg.eventTimeoutNanoSeconds};
+  fd_set   lFileDescriptors;
+
+  FD_ZERO(&lFileDescriptors);
+  FD_SET(lFileDesc_XCB, &lFileDescriptors);
+
+  while (getRunEventLoop()) {
+    lEvent_XCB = xcb_poll_for_event(vConnection_XCB);
+
+    // Wait for events
+    if (lEvent_XCB == nullptr) {
+      pselect(lFileDesc_XCB + 1, &lFileDescriptors, nullptr, nullptr, &lTimeout, nullptr);
+      lEvent_XCB = xcb_poll_for_event(vConnection_XCB);
+    }
+
+    // Check for timeout
+    if (lEvent_XCB == nullptr)
+      continue;
+
+    lKeyState_uI    = E_PRESSED;
+    lButtonState_uI = E_PRESSED;
+
+    switch (lEvent_XCB->response_type & ~0x80) {
+      case XCB_CONFIGURE_NOTIFY: {
+        CAST_EVENT(configure_notify, lEvent_XCB, lEvent);
+        if (lEvent->width != static_cast<int>(GlobConf.win.width) ||
+            lEvent->height != static_cast<int>(GlobConf.win.height)) {
+
+          iEventInfo tempInfo(vParent);
+          tempInfo.type          = E_EVENT_RESIZE;
+          tempInfo.eResize.width = GlobConf.win.width = lEvent->width;
+          tempInfo.eResize.height = GlobConf.win.height = lEvent->height;
+          tempInfo.eResize.posX                         = GlobConf.win.posX;
+          tempInfo.eResize.posY                         = GlobConf.win.posY;
+
+          sendEvent(tempInfo);
+        }
+      } break;
+
+      case XCB_RESIZE_REQUEST:
+      case XCB_EXPOSE:
+      case XCB_VISIBILITY_NOTIFY:
+      case XCB_PROPERTY_NOTIFY:
+        // Ignore for now
+        break;
+
+      case XCB_KEY_RELEASE: lKeyState_uI = E_RELEASED; FALLTHROUGH
+      case XCB_KEY_PRESS: {
+        CAST_EVENT(key_press, lEvent_XCB, lEvent);
+        iEventInfo tempInfo(vParent);
+        tempInfo.type       = E_EVENT_KEY;
+        tempInfo.eKey.state = lKeyState_uI;
+        tempInfo.eKey.key   = processX11KeyInput(
+            lEvent->detail, static_cast<unsigned short>(lKeyState_uI), lEvent->state, vConnection_XCB);
+
+        sendEvent(tempInfo);
+      } break;
+
+      case XCB_BUTTON_RELEASE: lButtonState_uI = E_RELEASED; FALLTHROUGH
+      case XCB_BUTTON_PRESS: {
+        CAST_EVENT(button_press, lEvent_XCB, lEvent);
+        iEventInfo tempInfo(vParent);
+        tempInfo.type         = E_EVENT_MOUSE;
+        tempInfo.iMouse.state = static_cast<int>(lButtonState_uI);
+        tempInfo.iMouse.posX  = static_cast<uint32_t>(lEvent->event_x);
+        tempInfo.iMouse.posY  = static_cast<uint32_t>(lEvent->event_y);
+
+        tempInfo.iMouse.button = E_MOUSE_LEFT;
+
+        switch (lEvent->detail) {
+          case 1: tempInfo.iMouse.button  = E_MOUSE_LEFT; break;
+          case 2: tempInfo.iMouse.button  = E_MOUSE_MIDDLE; break;
+          case 3: tempInfo.iMouse.button  = E_MOUSE_RIGHT; break;
+          case 4: tempInfo.iMouse.button  = E_MOUSE_WHEEL_UP; break;
+          case 5: tempInfo.iMouse.button  = E_MOUSE_WHEEL_DOWN; break;
+          case 6: tempInfo.iMouse.button  = E_MOUSE_1; break;
+          case 7: tempInfo.iMouse.button  = E_MOUSE_2; break;
+          case 8: tempInfo.iMouse.button  = E_MOUSE_3; break;
+          case 9: tempInfo.iMouse.button  = E_MOUSE_4; break;
+          case 10: tempInfo.iMouse.button = E_MOUSE_5; break;
+          default: tempInfo.iMouse.button = E_MOUSE_UNKNOWN;
+        }
+
+        sendEvent(tempInfo);
+      } break;
+
+
+      case XCB_MOTION_NOTIFY: {
+        CAST_EVENT(motion_notify, lEvent_XCB, lEvent);
+        iEventInfo tempInfo(vParent);
+
+        tempInfo.iMouse.button = E_MOUSE_MOVE;
+        tempInfo.type          = E_EVENT_MOUSE;
+        tempInfo.iMouse.state  = E_PRESSED;
+        tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
+        tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
+
+        GlobConf.win.mouseIsInWindow = true;
+        sendEvent(tempInfo);
+      } break;
+
+      case XCB_ENTER_NOTIFY: {
+        CAST_EVENT(enter_notify, lEvent_XCB, lEvent);
+        iEventInfo tempInfo(vParent);
+
+        tempInfo.iMouse.button = E_MOUSE_ENTER;
+        tempInfo.type          = E_EVENT_MOUSE;
+        tempInfo.iMouse.state  = E_PRESSED;
+        tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
+        tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
+
+        GlobConf.win.mouseIsInWindow = true;
+        sendEvent(tempInfo);
+      } break;
+
+      case XCB_LEAVE_NOTIFY: {
+        CAST_EVENT(leave_notify, lEvent_XCB, lEvent);
+        iEventInfo tempInfo(vParent);
+
+        tempInfo.iMouse.button = E_MOUSE_LEAVE;
+        tempInfo.type          = E_EVENT_MOUSE;
+        tempInfo.iMouse.state  = E_PRESSED;
+        tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
+        tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
+
+        GlobConf.win.mouseIsInWindow = false;
+        sendEvent(tempInfo);
+      } break;
+
+      case XCB_FOCUS_IN: {
+        iEventInfo tempInfo(vParent);
+        tempInfo.type               = E_EVENT_FOCUS;
+        GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = true;
+        sendEvent(tempInfo);
+      } break;
+
+      case XCB_FOCUS_OUT: {
+        iEventInfo tempInfo(vParent);
+        tempInfo.type               = E_EVENT_FOCUS;
+        GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = false;
+        sendEvent(tempInfo);
+      } break;
+
+      case XCB_CLIENT_MESSAGE: {
+        CAST_EVENT(client_message, lEvent_XCB, lEvent);
+        // Check if the User pressed the [x] button or ALT+F4 [etc.]
+        if (lEvent->type == vWmProtocol_ATOM.getAtom()) {
+          if (lEvent->data.data32[0] == vWmDeleteWindow_ATOM.getAtom()) {
+            iLOG("User pressed the close button");
+            iEventInfo tempInfo(vParent);
+            tempInfo.type = E_EVENT_WINDOWCLOSE;
+            sendEvent(tempInfo);
+          }
+        }
+        break;
+      }
+
+      case XCB_DESTROY_NOTIFY: {
+        iLOG("User pressed the close button");
+        iEventInfo tempInfo(vParent);
+        tempInfo.type = E_EVENT_WINDOWCLOSE;
+        sendEvent(tempInfo);
+        break;
+      }
+
+      default: dLOG("Found Unknown Event: ", lEvent_XCB->response_type); break;
+    }
+  }
+}
+
+
+
 /*!
  * \brief Shows the cursor
  */
@@ -710,29 +898,6 @@ void iWindow::showMouseCursor() {
  */
 bool iWindow::getIsCursorHidden() const { return vIsCursorHidden_B; }
 
-/*!
- * \brief Get if the window is created
- * \returns true if the window is created
- */
-bool iWindow::getIsWindowCreated() const { return vWindowCreated_B; }
-
-/*!
- * \brief Get the XCB connection to the X-Server
- * \returns the XCB connection to the X-Server
- */
-xcb_connection_t *iWindow::getXCBConnection() { return vConnection_XCB; }
-
-/*!
- * \brief Get the XCB WM_DELETE_WINDOW atom
- * \returns the XCB WM_DELETE_WINDOW atom
- */
-xcb_atom_t iWindow::getWmDeleteWindowAtom() const { return vWmDeleteWindow_ATOM.getAtom(); }
-
-/*!
- * \brief Get the XCB WM_PROTOCOLS atom
- * \returns the XCB WM_PROTOCOLS atom
- */
-xcb_atom_t iWindow::getWmProtocolAtom() const { return vWmProtocol_ATOM.getAtom(); }
 
 VkSurfaceKHR iWindow::getVulkanSurface(VkInstance _instance) {
   VkXcbSurfaceCreateInfoKHR lInfo;
@@ -754,10 +919,5 @@ VkSurfaceKHR iWindow::getVulkanSurface(VkInstance _instance) {
 
 
 iRandRBasic *iWindow::getRandRManager() { return vRandR; }
-
-
-} // unix_x11
-
-} // e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

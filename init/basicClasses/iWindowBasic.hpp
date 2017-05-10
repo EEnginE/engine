@@ -23,13 +23,18 @@
 #pragma once
 
 #include "defines.hpp"
+#include "uSignalSlot.hpp"
+#include "iEventInfo.hpp"
 #include "iRandRBasic.hpp"
-
+#include <condition_variable>
 #include <string>
+#include <thread>
 #include <vulkan.h>
 
 
 namespace e_engine {
+
+class iInit;
 
 /*!
  * \class e_engine::iWindowBasic
@@ -39,9 +44,45 @@ namespace e_engine {
  * connection to a wm and create a window.
  */
 class iWindowBasic {
+ public:
+  typedef iEventInfo const &SIGNAL_TYPE;
+  typedef uSignal<void, SIGNAL_TYPE> SIGNAL;
+
+  struct iSignalReference {
+    SIGNAL *windowClose = nullptr; //!< The signal for Window close
+    SIGNAL *resize      = nullptr; //!< The signal for Resize
+    SIGNAL *key         = nullptr; //!< The signal for Key
+    SIGNAL *mouse       = nullptr; //!< The signal for Mouse
+    SIGNAL *focus       = nullptr; //!< The signal for focus change
+
+    iSignalReference() = default;
+  };
+
+ private:
+  bool                    vWindowCreated   = false;
+  bool                    vKeepLoopRunning = false;
+  bool                    vIsLoopRunning   = false;
+  std::thread             vEventLoopThread;
+  std::mutex              vEventThreadControlMutex;
+  std::mutex              vWindowCloseMutex;
+  std::condition_variable vLoopResponseCond;
+  std::condition_variable vWindowCloseCond;
+
+  iSignalReference vSignals;
+
+  void evLoopWrapper();
+
+ protected:
+  virtual void eventLoop() = 0;
+  bool         getRunEventLoop() const noexcept;
+  void sendEvent(iEventInfo &ev) noexcept;
+  void setWindowCreated(bool _isCreated) noexcept;
+
+  iInit *vParent = nullptr;
 
  public:
-  iWindowBasic() = default;
+  iWindowBasic() = delete;
+  iWindowBasic(iInit *_init);
   virtual ~iWindowBasic();
 
   virtual int  createWindow()  = 0;
@@ -64,15 +105,36 @@ class iWindowBasic {
 
   virtual void moveMouse(unsigned int _posX, unsigned int _posY) = 0;
 
-  virtual void hideMouseCursor()          = 0;
-  virtual void showMouseCursor()          = 0;
-  virtual bool getIsCursorHidden() const  = 0;
-  virtual bool getIsWindowCreated() const = 0;
+  virtual void hideMouseCursor()         = 0;
+  virtual void showMouseCursor()         = 0;
+  virtual bool getIsCursorHidden() const = 0;
+  bool         getIsWindowCreated() const noexcept;
+
+  void waitForWindowToClose();
 
   virtual iRandRBasic *getRandRManager() = 0;
 
+  void startEventLoop(iSignalReference _signals);
+  void stopEventLoop();
+  bool isLoopRunning();
+
   virtual VkSurfaceKHR getVulkanSurface(VkInstance _instance) = 0;
 };
+
+/*!
+ * \fn void iWindowBasic::createWindow
+ * \brief Creates a PLAIN window
+ *
+ * \note This function is intended to be called from iInit::init
+ */
+
+/*!
+ * \fn void iWindowBasic::destroyWindow
+ * \brief Closes a PLAIN window
+ *
+ * \note This function is intended to be called from iInit::init
+ * \warning do NOT call this function if you created the window with iInit::init
+ */
 
 } // e_engine
 

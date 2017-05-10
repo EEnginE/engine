@@ -83,7 +83,8 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
     _world->getInitPtr()->addKeySlot(&vKeySlot);
   }
 
-  int init();
+  int  init();
+  void destroy();
 
   void keySlot(iEventInfo const &_inf);
 

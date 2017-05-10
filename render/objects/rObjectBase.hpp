@@ -134,6 +134,7 @@ class rObjectBase {
   }
 
   bool setupVertexData_PN(aiMesh const *_mesh, std::vector<float> &_out);
+  virtual void destroy_IMPL() {}
 
  public:
   rObjectBase(std::string _name) : vName_str(_name) {}
@@ -153,6 +154,7 @@ class rObjectBase {
   virtual ~rObjectBase();
 
   bool setData(VkCommandBuffer _buf, aiMesh const *_mesh);
+  void destroy();
 
   bool finishData();
 

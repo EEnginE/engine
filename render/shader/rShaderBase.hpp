@@ -198,6 +198,7 @@ class rShaderBase {
   virtual ~rShaderBase();
 
   bool                                         init();
+  void                                         destroy();
   bool                                         isInitialized();
   std::vector<VkPipelineShaderStageCreateInfo> getShaderStageInfo();
   VkDescriptorSet getDescriptorSet(rMaterial const *_materialPtr = nullptr);

@@ -88,6 +88,18 @@ int myScene::init() {
   return 0;
 }
 
+void myScene::destroy() {
+  vPipeline.destroy();
+  vLightPipeline.destroy();
+  vShader.destroy();
+  vLightShader.destroy();
+
+  for (auto i : vObjects)
+    i->destroy();
+
+  vObjects.clear();
+}
+
 void myScene::objectMoveLoop() {
   LOG.nameThread(L"move1");
   std::mutex                            lWaitMutex;

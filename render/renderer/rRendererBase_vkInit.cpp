@@ -281,8 +281,8 @@ int rRendererBase::initRenderPass() {
       dLOG("      - depthStencilAttachment: ", lTemp->attachment, "; ", uEnum2Str::toStr(lTemp->layout));
     dLOG("      - preserveAttachments:");
     for (uint32_t j = 0; j < i.preserveAttachmentCount; j++) {
-      auto lTemp = i.pPreserveAttachments[j];
-      dLOG("       - ", lTemp);
+      auto lTemp2 = i.pPreserveAttachments[j];
+      dLOG("       - ", lTemp2);
     }
   }
 

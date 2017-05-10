@@ -127,7 +127,7 @@ VkImageView rRendererDeferred::getAttachmentView(ATTACHMENT_ROLE _role) {
  *
  * The buffers have 2 triangles, filling the entire normalized space (-1,-1) - (1,1)
  */
-void rRendererDeferred::initBuffers() {
+bool rRendererDeferred::initRendererData() {
   uint32_t        lQueueFamily;
   VkQueue         lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
   VkCommandPool   lPool  = vWorldPtr->getCommandPool(lQueueFamily);
@@ -170,6 +170,12 @@ void rRendererDeferred::initBuffers() {
 
   vDeferredDataBuffer.doneCopying();
   vDeferredIndexBuffer.doneCopying();
+  return true;
+}
+bool rRendererDeferred::freeRendererData() {
+  vDeferredDataBuffer.destroy();
+  vDeferredIndexBuffer.destroy();
+  return true;
 }
 
 void rRendererDeferred::initCmdBuffers(VkCommandPool _pool) {
