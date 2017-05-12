@@ -44,7 +44,7 @@ using namespace unix_x11;
  * \returns true when everything went fine
  * \returns false when there was an error
  */
-iRandR::ERROR_CODE iRandR::applyNewRandRSettings() {
+iRandR::ErrorCode iRandR::applyNewRandRSettings() {
   if (!isProtocolSupported())
     return RANDR_NOT_SUPPORTED;
 

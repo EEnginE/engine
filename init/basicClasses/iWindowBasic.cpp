@@ -25,7 +25,13 @@
 
 using namespace e_engine;
 
-iWindowBasic::iWindowBasic(iInit *_init) : vParent(_init) {}
+iWindowBasic::iWindowBasic(iInit *_init) : vParent(_init) {
+  for (auto &elem : vButtonState)
+    elem = E_RELEASED;
+
+  for (auto &elem : vKeyState)
+    elem = E_RELEASED;
+}
 iWindowBasic::~iWindowBasic() {
   if (vEventLoopThread.joinable())
     vEventLoopThread.join();
@@ -83,12 +89,18 @@ void iWindowBasic::sendEvent(iEventInfo &ev) noexcept {
     return;
 
   switch (ev.type) {
-    case E_EVENT_RESIZE: vSignals.resize->send(ev); break;
-    case E_EVENT_KEY: vSignals.key->send(ev); break;
-    case E_EVENT_MOUSE: vSignals.mouse->send(ev); break;
-    case E_EVENT_FOCUS: vSignals.focus->send(ev); break;
-    case E_EVENT_WINDOWCLOSE: vSignals.windowClose->send(ev); break;
-    case E_EVENT_UNKNOWN: break;
+    case EventType::RESIZE: vSignals.resize->send(ev); break;
+    case EventType::KEY:
+      setMousebuttonState(ev.iMouse.button, ev.iMouse.state);
+      vSignals.key->send(ev);
+      break;
+    case EventType::MOUSE:
+      setKeyState(ev.eKey.key, ev.eKey.state);
+      vSignals.mouse->send(ev);
+      break;
+    case EventType::FOCUS: vSignals.focus->send(ev); break;
+    case EventType::WINDOWCLOSE: vSignals.windowClose->send(ev); break;
+    case EventType::UNKNOWN: break;
   }
 }
 
@@ -110,6 +122,63 @@ void iWindowBasic::setWindowCreated(bool _isCreated) noexcept {
 
   if (vWindowCreated == false)
     vWindowCloseCond.notify_all();
+}
+
+
+/*!
+ * \brief Set a mouse button to a specific state
+ * \param _button   The mouse button ID
+ * \param _state The new mouse button state
+ */
+void iWindowBasic::setMousebuttonState(E_BUTTON _button, uint16_t _state) noexcept {
+  if (_button < 0)
+    return;
+
+  vButtonState[static_cast<unsigned int>(_button)] = _state;
+}
+
+/*!
+ * \brief Set a key to a specific state
+ * \param _key   The key ID
+ * \param _state The new key state
+ */
+void iWindowBasic::setKeyState(wchar_t _key, uint16_t _state) noexcept {
+#if !WINDOWS
+  if (_key < 0)
+    return;
+#endif
+
+  vKeyState[static_cast<unsigned int>(_key)] = _state;
+}
+
+/*!
+ * \brief Get the mouse button's state
+ * \param _button The mouse button to check
+ * \returns The mouse button state
+ */
+uint16_t iWindowBasic::getMousebuttonState(E_BUTTON _button) const noexcept {
+  if (_button < 0 || _button > E_MOUSE_UNKNOWN) {
+    return static_cast<uint16_t>(E_UNKNOWN);
+  }
+  return vButtonState[static_cast<unsigned int>(_button)];
+}
+
+/*!
+ * \brief Get the key state
+ * \param _key The key
+ * \returns The key state
+ */
+uint16_t iWindowBasic::getKeyState(wchar_t _key) const noexcept {
+#if !WINDOWS
+  if (_key < 0 || _key > _E_KEY_LAST) {
+    return static_cast<uint16_t>(E_UNKNOWN);
+  }
+#else
+  if (_key > _E_KEY_LAST) {
+    return static_cast<uint16_t>(E_UNKNOWN);
+  }
+#endif
+  return vKeyState[static_cast<unsigned int>(_key)];
 }
 
 

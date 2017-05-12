@@ -56,7 +56,7 @@ using namespace unix_x11;
  * \note Most code is a simple copy and paste from the XRandR project
  *(http://www.x.org/wiki/Projects/XRandR/)
  */
-iRandR::ERROR_CODE iRandR::setGamma(iDisplayBasic *_disp, double _r, double _g, double _b, double _brightness) {
+iRandR::ErrorCode iRandR::setGamma(iDisplayBasic *_disp, double _r, double _g, double _b, double _brightness) {
   iDisplayRandR *dispRandR = dynamic_cast<iDisplayRandR *>(_disp);
   if (!dispRandR)
     return INVALID_DISPLAY_CLASS;

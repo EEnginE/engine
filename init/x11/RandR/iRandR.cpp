@@ -111,7 +111,7 @@ iRandR::~iRandR() {
   vIsRandRSupported_B = false;
 }
 
-iRandR::ERROR_CODE iRandR::restore(internal::_config _conf) {
+iRandR::ErrorCode iRandR::restore(internal::_config _conf) {
   if (!isProtocolSupported())
     return RANDR_NOT_SUPPORTED;
 
@@ -251,7 +251,7 @@ std::vector<std::shared_ptr<iDisplayBasic>> iRandR::getDisplayResolutions() {
  * \note This function will change the primary display IMMEDIATELY; Calling applyNewSettings() will
  *have no effect to this.
  */
-iRandR::ERROR_CODE iRandR::setPrimary(iDisplayBasic *_disp) {
+iRandR::ErrorCode iRandR::setPrimary(iDisplayBasic *_disp) {
   if (!isProtocolSupported())
     return RANDR_NOT_SUPPORTED;
 
@@ -326,7 +326,7 @@ void iRandR::getMostLeftRightTopBottomCRTC(unsigned int &_left,
  * \returns -2 When the iRandRDisplay is out of date
  * \returns -10 When an impossible error happened
  */
-iRandR::ERROR_CODE iRandR::getIndexOfDisplay(iDisplayBasic *_disp, uint32_t *index) {
+iRandR::ErrorCode iRandR::getIndexOfDisplay(iDisplayBasic *_disp, uint32_t *index) {
   iDisplayRandR *dispRandR = dynamic_cast<iDisplayRandR *>(_disp);
   if (!dispRandR)
     return INVALID_DISPLAY_CLASS;

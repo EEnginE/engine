@@ -28,7 +28,7 @@ namespace e_engine {
 
 class iRandRBasic {
  public:
-  enum ERROR_CODE {
+  enum ErrorCode {
     OK = 0,
     INVALID_DISPLAY_CLASS,
     INVALID_ARGUMENT,
@@ -48,10 +48,10 @@ class iRandRBasic {
   iRandRBasic &operator=(const iRandRBasic &) = delete;
   iRandRBasic &operator=(iRandRBasic &&) = delete;
 
-  virtual void       printStatus() = 0;
-  virtual ERROR_CODE setGamma(iDisplayBasic *_disp, double _r, double _g, double _b, double _brightness = 1) = 0;
+  virtual void      printStatus() = 0;
+  virtual ErrorCode setGamma(iDisplayBasic *_disp, double _r, double _g, double _b, double _brightness = 1) = 0;
 
-  virtual ERROR_CODE getIndexOfDisplay(iDisplayBasic *_disp, uint32_t *index) = 0;
+  virtual ErrorCode getIndexOfDisplay(iDisplayBasic *_disp, uint32_t *index) = 0;
   virtual void getMostLeftRightTopBottomCRTC(unsigned int &_left,
                                              unsigned int &_right,
                                              unsigned int &_top,
@@ -59,13 +59,13 @@ class iRandRBasic {
 
   virtual std::vector<std::shared_ptr<iDisplayBasic>> getDisplayResolutions() = 0;
 
-  virtual ERROR_CODE setDisplaySizes(iDisplayBasic *_disp) = 0;
-  virtual ERROR_CODE setPrimary(iDisplayBasic *_disp)      = 0;
+  virtual ErrorCode setDisplaySizes(iDisplayBasic *_disp) = 0;
+  virtual ErrorCode setPrimary(iDisplayBasic *_disp)      = 0;
 
-  virtual ERROR_CODE applyNewRandRSettings() = 0;
+  virtual ErrorCode applyNewRandRSettings() = 0;
 
-  virtual ERROR_CODE restoreScreenDefaults() = 0;
-  virtual ERROR_CODE restoreScreenLatest()   = 0;
+  virtual ErrorCode restoreScreenDefaults() = 0;
+  virtual ErrorCode restoreScreenLatest()   = 0;
 
   virtual void getRandRVersion(uint32_t &_vMajor, uint32_t &_vMinor)            = 0;
   virtual void getScreenResolution(unsigned int &_width, unsigned int &_height) = 0;

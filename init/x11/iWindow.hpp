@@ -26,7 +26,6 @@
 #pragma once
 
 #include "defines.hpp"
-#include "iKeyboard.hpp"
 #include "iWindowBasic.hpp"
 #include <vulkan.h>
 
@@ -61,7 +60,7 @@ class iXCBAtom {
  * This class creates the connection to the X-Server and
  * opens a window via xcb
  */
-class iWindow : public iKeyboard, public iWindowBasic {
+class iWindow : public iWindowBasic {
   using iXCBAtom = internal::iXCBAtom;
 
  private:
@@ -106,6 +105,9 @@ class iWindow : public iKeyboard, public iWindowBasic {
   void sendX11Event(
       iXCBAtom &_atom, uint32_t _l0 = 0, uint32_t _l1 = 0, uint32_t _l2 = 0, uint32_t _l3 = 0, uint32_t _l4 = 0);
 
+  static wchar_t keysym2unicode(xcb_keysym_t keysym) noexcept;
+  wchar_t processX11KeyInput(xcb_keycode_t _kEv, uint16_t _modMask) noexcept;
+
   struct Config {
     int64_t eventTimeoutSeconds     = 0;
     int64_t eventTimeoutNanoSeconds = 100000000;
@@ -118,7 +120,7 @@ class iWindow : public iKeyboard, public iWindowBasic {
   iWindow(iInit *_init);
   virtual ~iWindow();
 
-  int createWindow() override;
+  ErrorCode createWindow() override;
 
   void getXCBVersion(int *_major, int *_minor);
 

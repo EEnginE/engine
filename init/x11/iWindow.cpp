@@ -101,20 +101,15 @@ iXCBAtom::~iXCBAtom() {
 
 /*!
  * \brief Creates the window and prints versions
- *
- * \returns  0 -- success
- * \returns  1 -- Unable to connect to the X-Server
- * \returns  2 -- Failed to init EWMH connection
- * \returns  3 -- if Window already created
  */
-int iWindow::createWindow() {
+iWindowBasic::ErrorCode iWindow::createWindow() {
   std::string lRandRVersionString_str;
 
   if (getIsWindowCreated())
-    return 3;
+    return WINDOW_ALREADY_CREATED;
 
   if (vXCBConnectionHasError_B)
-    return 1;
+    return XCB_BAD_CONNECTION;
 
   uint32_t lValueMask_XCB = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
   uint32_t lValues[32];
@@ -211,7 +206,7 @@ int iWindow::createWindow() {
     setDecoration(C_REMOVE);
   }
 
-  return 0;
+  return OK;
 }
 
 void iWindow::setWmProperty(
@@ -486,8 +481,8 @@ void iWindow::setFullScreenMonitor(iDisplayBasic *_disp) {
   if (!getIsWindowCreated() || !vRandR)
     return;
 
-  uint32_t                lDisp_I = 0;
-  iRandRBasic::ERROR_CODE lError  = vRandR->getIndexOfDisplay(_disp, &lDisp_I);
+  uint32_t               lDisp_I = 0;
+  iRandRBasic::ErrorCode lError  = vRandR->getIndexOfDisplay(_disp, &lDisp_I);
 
   if (lError != iRandRBasic::OK) {
     wLOG("Invalid Display (iRandR::getIndexOfDisplay returned ", uEnum2Str::toStr(lError), " ) ==> Return ");
@@ -698,7 +693,7 @@ void iWindow::eventLoop() {
   xcb_generic_event_t *lEvent_XCB;
   uint32_t             lAutoRepeatType = XCB_AUTO_REPEAT_MODE_ON;
 
-  unsigned int lKeyState_uI, lButtonState_uI;
+  uint16_t lKeyState_uI, lButtonState_uI;
 
   // Fix autotype keyrelease
   xcb_change_keyboard_control(vConnection_XCB, XCB_KB_AUTO_REPEAT_MODE, &lAutoRepeatType);
@@ -733,7 +728,7 @@ void iWindow::eventLoop() {
             lEvent->height != static_cast<int>(GlobConf.win.height)) {
 
           iEventInfo tempInfo(vParent);
-          tempInfo.type          = E_EVENT_RESIZE;
+          tempInfo.type          = EventType::RESIZE;
           tempInfo.eResize.width = GlobConf.win.width = lEvent->width;
           tempInfo.eResize.height = GlobConf.win.height = lEvent->height;
           tempInfo.eResize.posX                         = GlobConf.win.posX;
@@ -754,10 +749,9 @@ void iWindow::eventLoop() {
       case XCB_KEY_PRESS: {
         CAST_EVENT(key_press, lEvent_XCB, lEvent);
         iEventInfo tempInfo(vParent);
-        tempInfo.type       = E_EVENT_KEY;
+        tempInfo.type       = EventType::KEY;
         tempInfo.eKey.state = lKeyState_uI;
-        tempInfo.eKey.key   = processX11KeyInput(
-            lEvent->detail, static_cast<unsigned short>(lKeyState_uI), lEvent->state, vConnection_XCB);
+        tempInfo.eKey.key   = processX11KeyInput(lEvent->detail, lEvent->state);
 
         sendEvent(tempInfo);
       } break;
@@ -766,8 +760,8 @@ void iWindow::eventLoop() {
       case XCB_BUTTON_PRESS: {
         CAST_EVENT(button_press, lEvent_XCB, lEvent);
         iEventInfo tempInfo(vParent);
-        tempInfo.type         = E_EVENT_MOUSE;
-        tempInfo.iMouse.state = static_cast<int>(lButtonState_uI);
+        tempInfo.type         = EventType::MOUSE;
+        tempInfo.iMouse.state = lButtonState_uI;
         tempInfo.iMouse.posX  = static_cast<uint32_t>(lEvent->event_x);
         tempInfo.iMouse.posY  = static_cast<uint32_t>(lEvent->event_y);
 
@@ -796,7 +790,7 @@ void iWindow::eventLoop() {
         iEventInfo tempInfo(vParent);
 
         tempInfo.iMouse.button = E_MOUSE_MOVE;
-        tempInfo.type          = E_EVENT_MOUSE;
+        tempInfo.type          = EventType::MOUSE;
         tempInfo.iMouse.state  = E_PRESSED;
         tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
         tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
@@ -810,7 +804,7 @@ void iWindow::eventLoop() {
         iEventInfo tempInfo(vParent);
 
         tempInfo.iMouse.button = E_MOUSE_ENTER;
-        tempInfo.type          = E_EVENT_MOUSE;
+        tempInfo.type          = EventType::MOUSE;
         tempInfo.iMouse.state  = E_PRESSED;
         tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
         tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
@@ -824,7 +818,7 @@ void iWindow::eventLoop() {
         iEventInfo tempInfo(vParent);
 
         tempInfo.iMouse.button = E_MOUSE_LEAVE;
-        tempInfo.type          = E_EVENT_MOUSE;
+        tempInfo.type          = EventType::MOUSE;
         tempInfo.iMouse.state  = E_PRESSED;
         tempInfo.iMouse.posX = GlobConf.win.mousePosX = static_cast<uint32_t>(lEvent->event_x);
         tempInfo.iMouse.posY = GlobConf.win.mousePosY = static_cast<uint32_t>(lEvent->event_y);
@@ -835,14 +829,14 @@ void iWindow::eventLoop() {
 
       case XCB_FOCUS_IN: {
         iEventInfo tempInfo(vParent);
-        tempInfo.type               = E_EVENT_FOCUS;
+        tempInfo.type               = EventType::FOCUS;
         GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = true;
         sendEvent(tempInfo);
       } break;
 
       case XCB_FOCUS_OUT: {
         iEventInfo tempInfo(vParent);
-        tempInfo.type               = E_EVENT_FOCUS;
+        tempInfo.type               = EventType::FOCUS;
         GlobConf.win.windowHasFocus = tempInfo.eFocus.hasFocus = false;
         sendEvent(tempInfo);
       } break;
@@ -854,7 +848,7 @@ void iWindow::eventLoop() {
           if (lEvent->data.data32[0] == vWmDeleteWindow_ATOM.getAtom()) {
             iLOG("User pressed the close button");
             iEventInfo tempInfo(vParent);
-            tempInfo.type = E_EVENT_WINDOWCLOSE;
+            tempInfo.type = EventType::WINDOWCLOSE;
             sendEvent(tempInfo);
           }
         }
@@ -864,7 +858,7 @@ void iWindow::eventLoop() {
       case XCB_DESTROY_NOTIFY: {
         iLOG("User pressed the close button");
         iEventInfo tempInfo(vParent);
-        tempInfo.type = E_EVENT_WINDOWCLOSE;
+        tempInfo.type = EventType::WINDOWCLOSE;
         sendEvent(tempInfo);
         break;
       }

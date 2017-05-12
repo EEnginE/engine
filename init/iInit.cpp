@@ -134,7 +134,7 @@ void iInit::waitForWindowToClose() {
  * be ungrabbed and when focus is restored that it will be locked again.
  */
 void iInit::s_advancedGrabControl(iEventInfo const &_info) {
-  if ((_info.type == E_EVENT_FOCUS) && _info.eFocus.hasFocus && vWasMouseGrabbed_B) {
+  if ((_info.type == EventType::FOCUS) && _info.eFocus.hasFocus && vWasMouseGrabbed_B) {
     // Focus restored
     vWasMouseGrabbed_B = false;
     if (!vWindow->grabMouse()) {
@@ -149,7 +149,7 @@ void iInit::s_advancedGrabControl(iEventInfo const &_info) {
     }
     return;
   }
-  if ((_info.type == E_EVENT_FOCUS) && !_info.eFocus.hasFocus && vWindow->getIsMouseGrabbed()) {
+  if ((_info.type == EventType::FOCUS) && !_info.eFocus.hasFocus && vWindow->getIsMouseGrabbed()) {
     // Focus lost
     vWasMouseGrabbed_B = true;
     vWindow->freeMouse();
@@ -249,24 +249,11 @@ int iInit::initDebug() {
 
 
 /*!
- * \brief Creates the window and the OpenGL context
+ * \brief Creates the window and the Vulkan context
  *
- * Creates a \c X11 connection first, then looks for the
- * best FB config, then creates the window and at last
- * it creates the \c OpenGL context and inits \c GLEW
- *
- * \par Linux
- *
- * More information iContext
- *
- * \returns  0 -- Success
- * \returns  1 -- Failed to init vulkan
- * \returns  2 -- Failed to create surface
- * \returns  3 -- Failed to load devices
- * \returns  4 -- Failed to create a vulkan device
- * \returns  5 -- Failed to create the swapchain
+ * Creates all basic platform specific / Vulkan resources, necessary to run Vulkan commands.
  */
-int iInit::init(std::vector<std::string> _layers) {
+iInit::ErrorCode iInit::init(std::vector<std::string> _layers) {
   signal(SIGINT, handleSignal);
   signal(SIGTERM, handleSignal);
 
@@ -293,46 +280,36 @@ int iInit::init(std::vector<std::string> _layers) {
   vDebugCreateInfo_vk.pUserData   = reinterpret_cast<void *>(this);
 
   if (initVulkan(_layers))
-    return 1;
+    return FAILED_TO_INIT_VULKAN;
 
   if (vEnableVulkanDebug)
     initDebug();
 
-  vCreateWindowReturn_I = vWindow->createWindow();
-  if (vCreateWindowReturn_I != 0) {
-    return vCreateWindowReturn_I;
+  auto ret = vWindow->createWindow();
+  if (ret != iWindowBasic::OK) {
+    eLOG("Failed to create window: ", uEnum2Str::toStr(ret));
+    return FAILED_TO_CREATE_WINDOW;
   }
 
   vSurface_vk = vWindow->getVulkanSurface(vInstance_vk);
   if (!vSurface_vk)
-    return 2;
+    return FAILED_TO_AQUIRE_VK_SURFACE;
 
   if (loadDevices())
-    return 3;
+    return FAILED_TO_LOAD_VULKAN_DEVICES;
 
   vDevice_vk.pDevice = chooseDevice();
 
   if (createDevice(_layers))
-    return 4;
+    return FAILED_TO_CREATE_THE_VULKAN_DEVICE;
 
   if (loadDeviceSurfaceInfo())
-    return 5;
-
-
-#if WINDOWS
-  // Windows needs the PeekMessage call in the same thread where the window is created
-  std::unique_lock<std::mutex> lLock_BT(vCreateWindowMutex_BT);
-  vEventLoop_BT = std::thread(&iInit::eventLoop, this);
-
-  while (vCreateWindowReturn_I == -1000)
-    vCreateWindowCondition_BT.wait(lLock_BT);
-
-#endif
+    return FAILED_TO_LOAD_SURFACE_INFORMATION;
 
   // Send a resize signal to ensure that the viewport is updated
   iEventInfo _tempInfo(this);
   _tempInfo.iInitPointer   = this;
-  _tempInfo.type           = E_EVENT_RESIZE;
+  _tempInfo.type           = EventType::RESIZE;
   _tempInfo.eResize.width  = GlobConf.win.width;
   _tempInfo.eResize.height = GlobConf.win.height;
   _tempInfo.eResize.posX   = GlobConf.win.posX;
@@ -342,7 +319,7 @@ int iInit::init(std::vector<std::string> _layers) {
 
   vIsVulkanSetup_B = true;
 
-  return 0;
+  return OK;
 }
 
 int iInit::handleResize() {
@@ -416,7 +393,6 @@ int iInit::shutdown() {
   dVkLOG(L"  -- Closing Window");
 
   vWindow->destroyWindow();
-  vCreateWindowReturn_I = -1000;
 
   return 1;
 }
@@ -598,6 +574,17 @@ uint32_t iInit::getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags
   }
 
   return UINT32_MAX;
+}
+
+/*!
+ * \brief Removes \c ALL slots from the \c ALL events
+ */
+void iInit::removeAllSlots() {
+  vWindowClose_SIG.disconnectAll();
+  vResize_SIG.disconnectAll();
+  vKey_SIG.disconnectAll();
+  vMouse_SIG.disconnectAll();
+  vFocus_SIG.disconnectAll();
 }
 
 /*!

@@ -54,7 +54,7 @@ internal::_crtc iRandR::isOutputPossible(xcb_randr_output_t _id, xcb_randr_crtc_
  * \note It is also possible to run setDisplaySizes() more than once without running
  *applyNewSettings().
  */
-iRandR::ERROR_CODE iRandR::setDisplaySizes(iDisplayBasic *_disp) {
+iRandR::ErrorCode iRandR::setDisplaySizes(iDisplayBasic *_disp) {
   if (!isProtocolSupported())
     return RANDR_NOT_SUPPORTED;
 

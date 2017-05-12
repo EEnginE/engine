@@ -191,7 +191,10 @@ enum2str_generate(
   NAMESPACE  "e_engine"
   FUNC_NAME  "toStr"
   INDENT_STR "  "
-  INCLUDES   "defines.hpp" "vulkan/vulkan.h" "rObjectBase.hpp" "rShaderBase.hpp" "iRandRBasic.hpp"
+  INCLUDES
+    "defines.hpp" "vulkan/vulkan.h"
+    "rObjectBase.hpp" "rShaderBase.hpp"
+    "iRandRBasic.hpp" "iWindowBasic.hpp" "iInit.hpp"
   ENUMS
     # EEnginE
     "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
@@ -199,7 +202,8 @@ enum2str_generate(
     "rObjectBase::ERROR_FLAGS" "rObjectBase::VERTEX_DATA_LAYOUT" "rShaderBase::UNIFORM_ROLE"
     "internal::SHADER_INPUT_NAME_INDEX"
 
-    "iRandRBasic::ERROR_CODE"
+    # EEnginE error codes
+    "iRandRBasic::ErrorCode" "iWindowBasic::ErrorCode" "iInit::ErrorCode"
 
     # Vulkan
     "VkPipelineCacheHeaderVersion"

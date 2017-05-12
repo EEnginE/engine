@@ -24,7 +24,7 @@
 
 namespace e_engine {
 
-enum EVENT_TYPE { E_EVENT_UNKNOWN, E_EVENT_KEY, E_EVENT_FOCUS, E_EVENT_MOUSE, E_EVENT_WINDOWCLOSE, E_EVENT_RESIZE };
+enum class EventType { UNKNOWN, KEY, FOCUS, MOUSE, WINDOWCLOSE, RESIZE };
 
 class iInit;
 
@@ -36,8 +36,8 @@ class iInit;
  * \sa iInit uSignal uSlot
  */
 struct iEventInfo {
-  EVENT_TYPE type         = E_EVENT_UNKNOWN;
-  iInit *    iInitPointer = nullptr;
+  EventType type         = EventType::UNKNOWN;
+  iInit *   iInitPointer = nullptr;
 
   /*!
    * \struct e_engine::iEventInfo::_eRsize
@@ -55,8 +55,8 @@ struct iEventInfo {
    * \brief The key part
    */
   struct _eKey {
-    wchar_t      key   = 0;
-    unsigned int state = 0;
+    wchar_t  key   = 0;
+    uint16_t state = 0;
   } eKey;
 
   /*!
@@ -66,7 +66,7 @@ struct iEventInfo {
   struct _iMouse {
     unsigned int posX   = 0;
     unsigned int posY   = 0;
-    int          state  = 0;
+    uint16_t     state  = 0;
     E_BUTTON     button = E_MOUSE_UNKNOWN;
   } iMouse;
 
@@ -75,7 +75,7 @@ struct iEventInfo {
   } eFocus;
 
   void reset() {
-    type            = E_EVENT_UNKNOWN;
+    type            = EventType::UNKNOWN;
     eResize.posX    = 0;
     eResize.posY    = 0;
     eResize.height  = 0;

@@ -45,6 +45,14 @@ class iInit;
  */
 class iWindowBasic {
  public:
+  enum ErrorCode {
+    OK = 0,
+    WINDOW_ALREADY_CREATED,
+
+    // XCB specific
+    XCB_BAD_CONNECTION = 100
+  };
+
   typedef iEventInfo const &SIGNAL_TYPE;
   typedef uSignal<void, SIGNAL_TYPE> SIGNAL;
 
@@ -70,6 +78,10 @@ class iWindowBasic {
 
   iSignalReference vSignals;
 
+  // Keyboard and mouse state tracking
+  uint16_t vButtonState[E_MOUSE_UNKNOWN];
+  uint16_t vKeyState[_E_KEY_LAST + 1];
+
   void evLoopWrapper();
 
  protected:
@@ -78,6 +90,9 @@ class iWindowBasic {
   void sendEvent(iEventInfo &ev) noexcept;
   void setWindowCreated(bool _isCreated) noexcept;
 
+  void setMousebuttonState(E_BUTTON _button, uint16_t _state) noexcept;
+  void setKeyState(wchar_t _key, unsigned short int _state) noexcept;
+
   iInit *vParent = nullptr;
 
  public:
@@ -85,8 +100,8 @@ class iWindowBasic {
   iWindowBasic(iInit *_init);
   virtual ~iWindowBasic();
 
-  virtual int  createWindow()  = 0;
-  virtual void destroyWindow() = 0;
+  virtual ErrorCode createWindow()  = 0;
+  virtual void      destroyWindow() = 0;
 
   virtual void changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY) = 0;
 
@@ -117,6 +132,9 @@ class iWindowBasic {
   void startEventLoop(iSignalReference _signals);
   void stopEventLoop();
   bool isLoopRunning();
+
+  uint16_t getMousebuttonState(E_BUTTON _button) const noexcept;
+  uint16_t getKeyState(wchar_t _key) const noexcept;
 
   virtual VkSurfaceKHR getVulkanSurface(VkInstance _instance) = 0;
 };

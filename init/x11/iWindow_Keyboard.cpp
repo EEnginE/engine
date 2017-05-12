@@ -1,6 +1,6 @@
 /*!
- * \file x11/iKeyboard.cpp
- * \brief \b Classes: \a iKeyboard
+ * \file x11/iWindow_Keyboard.cpp
+ * \brief \b Classes: \a iWindow
  */
 /*
  * Copyright (C) 2015 EEnginE project
@@ -28,16 +28,12 @@
 #define XK_XKB_KEYS
 
 #include "defines.hpp"
-
 #include "uLog.hpp"
-#include "iKeyboard.hpp"
-#include <X11/keysymdef.h>
+#include "iWindow.hpp"
+#include <X11/keysym.h>
 
-namespace e_engine {
-
-namespace unix_x11 {
-
-iKeyboard::~iKeyboard() {}
+using namespace e_engine;
+using namespace unix_x11;
 
 static struct codepair {
   unsigned short keysym;
@@ -836,7 +832,7 @@ static struct codepair {
 };
 
 
-wchar_t iKeyboard::keysym2unicode(xcb_keysym_t keysym) {
+wchar_t iWindow::keysym2unicode(xcb_keysym_t keysym) noexcept {
   int min = 0;
   int max = sizeof(keysymtab) / sizeof(struct codepair) - 1;
   int mid;
@@ -866,15 +862,18 @@ wchar_t iKeyboard::keysym2unicode(xcb_keysym_t keysym) {
   return E_UNKNOWN;
 }
 
-wchar_t iKeyboard::processX11KeyInput(xcb_keycode_t      _kEv,
-                                      short unsigned int _key_state,
-                                      uint32_t           _modMask,
-                                      xcb_connection_t * _connection) {
+/*!
+ * \brief Convert a X11 keyevent to a key and set the state of it
+ * \param _kEv        The key event
+ * \param _modMask    XCB mod mask
+ * \return The key in wchar
+ */
+wchar_t iWindow::processX11KeyInput(xcb_keycode_t _kEv, uint16_t _modMask) noexcept {
   uint32_t shift = 0, numLock = 0, altGR = 0, control = 0; // alt = 0
 
   // Num-Lock? Shift?
-  auto  lControlCookie = xcb_get_keyboard_control(_connection);
-  auto *lControl       = xcb_get_keyboard_control_reply(_connection, lControlCookie, NULL);
+  auto  lControlCookie = xcb_get_keyboard_control(vConnection_XCB);
+  auto *lControl       = xcb_get_keyboard_control_reply(vConnection_XCB, lControlCookie, NULL);
 
   if (lControl == NULL) {
     eLOG("xcb_get_keyboard_control error");
@@ -887,33 +886,38 @@ wchar_t iKeyboard::processX11KeyInput(xcb_keycode_t      _kEv,
   control = _modMask & XCB_MOD_MASK_CONTROL;
   // alt     = _modMask & XCB_MOD_MASK_1;
 
+  free(lControl);
+
   // Get KeySym for the rest
-  auto          lKBCookie = xcb_get_keyboard_mapping(_connection, _kEv, 1);
-  auto *        lKB       = xcb_get_keyboard_mapping_reply(_connection, lKBCookie, NULL);
-  xcb_keysym_t *lKeys     = xcb_get_keyboard_mapping_keysyms(lKB);
+  auto          lKBCookie        = xcb_get_keyboard_mapping(vConnection_XCB, _kEv, 1);
+  auto *        lKB              = xcb_get_keyboard_mapping_reply(vConnection_XCB, lKBCookie, NULL);
+  xcb_keysym_t *lKeys            = xcb_get_keyboard_mapping_keysyms(lKB);
+  auto          lKBMappingLength = xcb_get_keyboard_mapping_keysyms_length(lKB);
+
+  free(lKB);
 
   if (lKeys == NULL) {
     eLOG("xcb_get_keyboard_mapping_keysyms failed!");
     return E_UNKNOWN;
   }
 
-  if (xcb_get_keyboard_mapping_keysyms_length(lKB) < 7) {
+  if (lKBMappingLength < 7) {
     eLOG("xcb_get_keyboard_mapping_keysyms_length < 7");
     return E_UNKNOWN;
   }
 
   if (numLock) {
     switch (lKeys[3]) {
-      case XK_KP_0: setKeyState(E_KEY_KP_0, _key_state); return E_KEY_KP_0;
-      case XK_KP_1: setKeyState(E_KEY_KP_1, _key_state); return E_KEY_KP_1;
-      case XK_KP_2: setKeyState(E_KEY_KP_2, _key_state); return E_KEY_KP_2;
-      case XK_KP_3: setKeyState(E_KEY_KP_3, _key_state); return E_KEY_KP_3;
-      case XK_KP_4: setKeyState(E_KEY_KP_4, _key_state); return E_KEY_KP_4;
-      case XK_KP_5: setKeyState(E_KEY_KP_5, _key_state); return E_KEY_KP_5;
-      case XK_KP_6: setKeyState(E_KEY_KP_6, _key_state); return E_KEY_KP_6;
-      case XK_KP_7: setKeyState(E_KEY_KP_7, _key_state); return E_KEY_KP_7;
-      case XK_KP_8: setKeyState(E_KEY_KP_8, _key_state); return E_KEY_KP_8;
-      case XK_KP_9: setKeyState(E_KEY_KP_9, _key_state); return E_KEY_KP_9;
+      case XK_KP_0: return E_KEY_KP_0;
+      case XK_KP_1: return E_KEY_KP_1;
+      case XK_KP_2: return E_KEY_KP_2;
+      case XK_KP_3: return E_KEY_KP_3;
+      case XK_KP_4: return E_KEY_KP_4;
+      case XK_KP_5: return E_KEY_KP_5;
+      case XK_KP_6: return E_KEY_KP_6;
+      case XK_KP_7: return E_KEY_KP_7;
+      case XK_KP_8: return E_KEY_KP_8;
+      case XK_KP_9: return E_KEY_KP_9;
     }
   }
 
@@ -933,101 +937,94 @@ wchar_t iKeyboard::processX11KeyInput(xcb_keycode_t      _kEv,
 
   // printable keys
   if ((key >= 32 && key <= 126) || (key >= 160 && key <= 255)) {
-    setKeyState(static_cast<wchar_t>(key), _key_state);
     return static_cast<wchar_t>(key);
   }
 
   switch (key) {
-    case XK_BackSpace: setKeyState(E_KEY_BACKSPACE, _key_state); return E_KEY_BACKSPACE;
-    case XK_Tab: setKeyState(E_KEY_TAB, _key_state); return E_KEY_TAB;
-    case XK_Clear: setKeyState(E_KEY_CLEAR, _key_state); return E_KEY_CLEAR;
-    case XK_Return: setKeyState(E_KEY_RETURN, _key_state); return E_KEY_RETURN;
-    case XK_Pause: setKeyState(E_KEY_PAUSE, _key_state); return E_KEY_PAUSE;
-    case XK_Sys_Req: setKeyState(E_KEY_SYS_REQ, _key_state); return E_KEY_SYS_REQ;
-    case XK_Escape: setKeyState(E_KEY_ESCAPE, _key_state); return E_KEY_ESCAPE;
+    case XK_BackSpace: return E_KEY_BACKSPACE;
+    case XK_Tab: return E_KEY_TAB;
+    case XK_Clear: return E_KEY_CLEAR;
+    case XK_Return: return E_KEY_RETURN;
+    case XK_Pause: return E_KEY_PAUSE;
+    case XK_Sys_Req: return E_KEY_SYS_REQ;
+    case XK_Escape: return E_KEY_ESCAPE;
     case XK_KP_Delete:
-    case XK_Delete: setKeyState(E_KEY_DELETE, _key_state); return E_KEY_DELETE;
+    case XK_Delete: return E_KEY_DELETE;
 
-    case XK_Scroll_Lock: setKeyState(E_KEY_SCROLL_LOCK, _key_state); return E_KEY_SCROLL_LOCK;
-    case XK_Caps_Lock: setKeyState(E_KEY_CAPS_LOCK, _key_state); return E_KEY_CAPS_LOCK;
+    case XK_Scroll_Lock: return E_KEY_SCROLL_LOCK;
+    case XK_Caps_Lock: return E_KEY_CAPS_LOCK;
 
-    case XK_F1: setKeyState(E_KEY_F1, _key_state); return E_KEY_F1;
-    case XK_F2: setKeyState(E_KEY_F2, _key_state); return E_KEY_F2;
-    case XK_F3: setKeyState(E_KEY_F3, _key_state); return E_KEY_F3;
-    case XK_F4: setKeyState(E_KEY_F4, _key_state); return E_KEY_F4;
-    case XK_F5: setKeyState(E_KEY_F5, _key_state); return E_KEY_F5;
-    case XK_F6: setKeyState(E_KEY_F6, _key_state); return E_KEY_F6;
-    case XK_F7: setKeyState(E_KEY_F7, _key_state); return E_KEY_F7;
-    case XK_F8: setKeyState(E_KEY_F8, _key_state); return E_KEY_F8;
-    case XK_F9: setKeyState(E_KEY_F9, _key_state); return E_KEY_F9;
-    case XK_F10: setKeyState(E_KEY_F10, _key_state); return E_KEY_F10;
-    case XK_F11: setKeyState(E_KEY_F11, _key_state); return E_KEY_F11;
-    case XK_F12: setKeyState(E_KEY_F12, _key_state); return E_KEY_F12;
-    case XK_F13: setKeyState(E_KEY_F13, _key_state); return E_KEY_F13;
-    case XK_F14: setKeyState(E_KEY_F14, _key_state); return E_KEY_F14;
-    case XK_F15: setKeyState(E_KEY_F15, _key_state); return E_KEY_F15;
-    case XK_F16: setKeyState(E_KEY_F16, _key_state); return E_KEY_F16;
-    case XK_F17: setKeyState(E_KEY_F17, _key_state); return E_KEY_F17;
-    case XK_F18: setKeyState(E_KEY_F18, _key_state); return E_KEY_F18;
-    case XK_F19: setKeyState(E_KEY_F19, _key_state); return E_KEY_F19;
-    case XK_F20: setKeyState(E_KEY_F20, _key_state); return E_KEY_F20;
-    case XK_F21: setKeyState(E_KEY_F21, _key_state); return E_KEY_F21;
-    case XK_F22: setKeyState(E_KEY_F22, _key_state); return E_KEY_F22;
-    case XK_F23: setKeyState(E_KEY_F23, _key_state); return E_KEY_F23;
-    case XK_F24: setKeyState(E_KEY_F24, _key_state); return E_KEY_F24;
-    case XK_F25: setKeyState(E_KEY_F25, _key_state); return E_KEY_F25;
+    case XK_F1: return E_KEY_F1;
+    case XK_F2: return E_KEY_F2;
+    case XK_F3: return E_KEY_F3;
+    case XK_F4: return E_KEY_F4;
+    case XK_F5: return E_KEY_F5;
+    case XK_F6: return E_KEY_F6;
+    case XK_F7: return E_KEY_F7;
+    case XK_F8: return E_KEY_F8;
+    case XK_F9: return E_KEY_F9;
+    case XK_F10: return E_KEY_F10;
+    case XK_F11: return E_KEY_F11;
+    case XK_F12: return E_KEY_F12;
+    case XK_F13: return E_KEY_F13;
+    case XK_F14: return E_KEY_F14;
+    case XK_F15: return E_KEY_F15;
+    case XK_F16: return E_KEY_F16;
+    case XK_F17: return E_KEY_F17;
+    case XK_F18: return E_KEY_F18;
+    case XK_F19: return E_KEY_F19;
+    case XK_F20: return E_KEY_F20;
+    case XK_F21: return E_KEY_F21;
+    case XK_F22: return E_KEY_F22;
+    case XK_F23: return E_KEY_F23;
+    case XK_F24: return E_KEY_F24;
+    case XK_F25: return E_KEY_F25;
 
     case XK_KP_Up:
-    case XK_Up: setKeyState(E_KEY_UP, _key_state); return E_KEY_UP;
+    case XK_Up: return E_KEY_UP;
     case XK_KP_Down:
-    case XK_Down: setKeyState(E_KEY_DOWN, _key_state); return E_KEY_DOWN;
+    case XK_Down: return E_KEY_DOWN;
     case XK_KP_Left:
-    case XK_Left: setKeyState(E_KEY_LEFT, _key_state); return E_KEY_LEFT;
+    case XK_Left: return E_KEY_LEFT;
     case XK_KP_Right:
-    case XK_Right: setKeyState(E_KEY_RIGHT, _key_state); return E_KEY_RIGHT;
+    case XK_Right: return E_KEY_RIGHT;
 
-    case XK_Shift_L: setKeyState(E_KEY_L_SHIFT, _key_state); return E_KEY_L_SHIFT;
-    case XK_Shift_R: setKeyState(E_KEY_R_SHIFT, _key_state); return E_KEY_R_SHIFT;
-    case XK_Control_L: setKeyState(E_KEY_L_CTRL, _key_state); return E_KEY_L_CTRL;
-    case XK_Control_R: setKeyState(E_KEY_R_CTRL, _key_state); return E_KEY_R_CTRL;
+    case XK_Shift_L: return E_KEY_L_SHIFT;
+    case XK_Shift_R: return E_KEY_R_SHIFT;
+    case XK_Control_L: return E_KEY_L_CTRL;
+    case XK_Control_R: return E_KEY_R_CTRL;
     case XK_Meta_L:
-    case XK_Alt_L: setKeyState(E_KEY_L_ALT, _key_state); return E_KEY_L_ALT;
+    case XK_Alt_L: return E_KEY_L_ALT;
     case XK_Mode_switch:
     case XK_Meta_R:
     case XK_ISO_Level3_Shift:
-    case XK_Alt_R: setKeyState(E_KEY_R_ALT, _key_state); return E_KEY_R_ALT;
-    case XK_Super_L: setKeyState(E_KEY_L_SUPER, _key_state); return E_KEY_L_SUPER;
-    case XK_Super_R: setKeyState(E_KEY_R_SUPER, _key_state); return E_KEY_R_SUPER;
+    case XK_Alt_R: return E_KEY_R_ALT;
+    case XK_Super_L: return E_KEY_L_SUPER;
+    case XK_Super_R: return E_KEY_R_SUPER;
 
     case XK_KP_Home:
-    case XK_Home: setKeyState(E_KEY_HOME, _key_state); return E_KEY_HOME;
+    case XK_Home: return E_KEY_HOME;
     case XK_KP_Insert:
-    case XK_Insert: setKeyState(E_KEY_INSERT, _key_state); return E_KEY_INSERT;
+    case XK_Insert: return E_KEY_INSERT;
     case XK_KP_Page_Up:
-    case XK_Page_Up: setKeyState(E_KEY_PAGE_UP, _key_state); return E_KEY_PAGE_UP;
+    case XK_Page_Up: return E_KEY_PAGE_UP;
     case XK_KP_Page_Down:
-    case XK_Page_Down: setKeyState(E_KEY_PAGE_DOWN, _key_state); return E_KEY_PAGE_DOWN;
+    case XK_Page_Down: return E_KEY_PAGE_DOWN;
     case XK_KP_End:
-    case XK_End: setKeyState(E_KEY_END, _key_state); return E_KEY_END;
-    case XK_Menu: setKeyState(E_KEY_MENU, _key_state); return E_KEY_MENU;
+    case XK_End: return E_KEY_END;
+    case XK_Menu: return E_KEY_MENU;
 
-    case XK_KP_Divide: setKeyState(E_KEY_KP_DIVIDE, _key_state); return E_KEY_KP_DIVIDE;
-    case XK_KP_Multiply: setKeyState(E_KEY_KP_MULTIPLY, _key_state); return E_KEY_KP_MULTIPLY;
-    case XK_KP_Subtract: setKeyState(E_KEY_KP_SUBTRACT, _key_state); return E_KEY_KP_SUBTRACT;
-    case XK_KP_Add: setKeyState(E_KEY_KP_ADD, _key_state); return E_KEY_KP_ADD;
-    case XK_KP_Equal: setKeyState(E_KEY_KP_EQUAL, _key_state); return E_KEY_KP_EQUAL;
-    case XK_KP_Enter: setKeyState(E_KEY_KP_ENTER, _key_state); return E_KEY_KP_ENTER;
-    case XK_Num_Lock: setKeyState(E_KEY_KP_NUM_LOCK, _key_state); return E_KEY_KP_NUM_LOCK;
+    case XK_KP_Divide: return E_KEY_KP_DIVIDE;
+    case XK_KP_Multiply: return E_KEY_KP_MULTIPLY;
+    case XK_KP_Subtract: return E_KEY_KP_SUBTRACT;
+    case XK_KP_Add: return E_KEY_KP_ADD;
+    case XK_KP_Equal: return E_KEY_KP_EQUAL;
+    case XK_KP_Enter: return E_KEY_KP_ENTER;
+    case XK_Num_Lock: return E_KEY_KP_NUM_LOCK;
   }
 
   wchar_t key_wchar = keysym2unicode(key);
-  if (!(key_wchar < 0)) { // TODO: Richtig intepretiert? before: if(! key_wchar < 0)
-    setKeyState(key_wchar, _key_state);
-  }
   return key_wchar;
 }
 
-} // unix_x11
-
-} // e_engine
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

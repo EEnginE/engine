@@ -236,7 +236,7 @@ int iInit::initVulkan(std::vector<std::string> _layers) {
   lAppInfo_vk.applicationVersion = 1; //!< \todo change this const
   lAppInfo_vk.engineVersion      = 1; //!< \todo change this const
 
-  lCreateInfo_vk.sType                   = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+  lCreateInfo_vk.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   lCreateInfo_vk.pNext                   = lDebugPTR;
   lCreateInfo_vk.flags                   = 0;
   lCreateInfo_vk.pApplicationInfo        = &lAppInfo_vk;

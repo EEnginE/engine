@@ -22,8 +22,6 @@
 #pragma once
 
 #include "defines.hpp"
-#include "iInitSignals.hpp"
-#include "iMouse.hpp"
 #include "iWindowBasic.hpp"
 #include <thread>
 #include <unordered_map>
@@ -50,9 +48,27 @@ typedef void (*RENDER_FUNC)(iEventInfo info);
  *
  * \sa iContext uConfig e_iInit.cpp e_event.cpp
  */
-class iInit : public iInitSignals, public iMouse {
+class iInit {
  public:
+  typedef iEventInfo const &SIGNAL_TYPE;
+  typedef uSignal<void, SIGNAL_TYPE> SIGNAL;
+
+  template <class __C>
+  using SLOT_C = uSlot<void, __C, SIGNAL_TYPE>;
+  typedef SLOT_C<iInit> SLOT;
+
   SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
+
+
+  enum ErrorCode {
+    OK = 0,
+    FAILED_TO_INIT_VULKAN,
+    FAILED_TO_CREATE_WINDOW,
+    FAILED_TO_AQUIRE_VK_SURFACE,
+    FAILED_TO_LOAD_VULKAN_DEVICES,
+    FAILED_TO_CREATE_THE_VULKAN_DEVICE,
+    FAILED_TO_LOAD_SURFACE_INFORMATION
+  };
 
   typedef struct PhysicalDevice_vk {
     VkPhysicalDevice                     device;
@@ -93,6 +109,12 @@ class iInit : public iInitSignals, public iMouse {
  private:
   iWindowBasic *vWindow = nullptr;
 
+  SIGNAL vWindowClose_SIG; //!< The signal for Window close
+  SIGNAL vResize_SIG;      //!< The signal for Resize
+  SIGNAL vKey_SIG;         //!< The signal for Key
+  SIGNAL vMouse_SIG;       //!< The signal for Mouse
+  SIGNAL vFocus_SIG;       //!< The signal for focus change
+
   std::vector<std::string> vExtensionList;
   std::vector<std::string> vDeviceExtensionList;
   std::vector<std::string> vExtensionsToUse;
@@ -118,12 +140,10 @@ class iInit : public iInitSignals, public iMouse {
 
   Device_vk vDevice_vk;
 
-  bool vWasMouseGrabbed_B               = false;
-  bool vAreRenderLoopSignalsConnected_B = false;
-  bool vIsVulkanSetup_B                 = false;
-  bool vEnableVulkanDebug               = false;
-  bool vEnableVSync                     = false;
-  int  vCreateWindowReturn_I            = -1000;
+  bool vWasMouseGrabbed_B = false;
+  bool vIsVulkanSetup_B   = false;
+  bool vEnableVulkanDebug = false;
+  bool vEnableVSync       = false;
 
   PhysicalDevice_vk *chooseDevice();
 
@@ -158,7 +178,7 @@ class iInit : public iInitSignals, public iMouse {
   iInit();
   virtual ~iInit();
 
-  int init(std::vector<std::string> _layers = {});
+  ErrorCode init(std::vector<std::string> _layers = {});
   int handleResize();
   int shutdown();
 
@@ -200,6 +220,52 @@ class iInit : public iInitSignals, public iMouse {
 
   VkSurfaceKHR getVulkanSurface();
 
+
+  // Manage Signals and slots
+  template <class __C>
+  bool addWindowCloseSlot(SLOT_C<__C> *_slot) {
+    return _slot->connect(&vWindowClose_SIG);
+  }
+  template <class __C>
+  bool addResizeSlot(SLOT_C<__C> *_slot) {
+    return _slot->connect(&vResize_SIG);
+  }
+  template <class __C>
+  bool addKeySlot(SLOT_C<__C> *_slot) {
+    return _slot->connect(&vKey_SIG);
+  }
+  template <class __C>
+  bool addMouseSlot(SLOT_C<__C> *_slot) {
+    return _slot->connect(&vMouse_SIG);
+  }
+  template <class __C>
+  bool addFocusSlot(SLOT_C<__C> *_slot) {
+    return _slot->connect(&vFocus_SIG);
+  }
+
+  template <class __C>
+  bool removeWindowCloseSlot(SLOT_C<__C> *_slot) {
+    return vWindowClose_SIG.disconnect(_slot);
+  }
+  template <class __C>
+  bool removeResizeSlot(SLOT_C<__C> *_slot) {
+    return vResize_SIG.disconnect(_slot);
+  }
+  template <class __C>
+  bool removeKeySlot(SLOT_C<__C> *_slot) {
+    return vKey_SIG.disconnect(_slot);
+  }
+  template <class __C>
+  bool removeMouseSlot(SLOT_C<__C> *_slot) {
+    return vMouse_SIG.disconnect(_slot);
+  }
+  template <class __C>
+  bool removeFocusSlot(SLOT_C<__C> *_slot) {
+    return vFocus_SIG.disconnect(_slot);
+  }
+
+  void removeAllSlots();
+
   friend class rWorld;
 };
 
@@ -235,6 +301,101 @@ class __iInit_Pointer {
 };
 extern __iInit_Pointer __iInit_Pointer_OBJ;
 }
+
+
+// Documentation
+
+/*!
+ * \fn void iInitSignals::addWindowCloseSlot
+ * \brief Adds a slot for the \c WindowClose event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+/*!
+ * \fn void iInitSignals::addResizeSlot
+ * \brief Adds a slot for the \c Resize event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+/*!
+ * \fn void iInitSignals::addKeySlot
+ * \brief Adds a slot for the \c Key event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+/*!
+ * \fn void iInitSignals::addMouseSlot
+ * \brief Adds a slot for the \c Mouse event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+/*!
+ * \fn void iInitSignals::addFocusSlot
+ * \brief Adds a slot for the \c Focus event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+
+
+/*!
+ * \fn bool iInitSignals::removeWindowCloseSlot
+ * \brief Removes _slot from the \c WindowClose event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+/*!
+ * \fn bool iInitSignals::removeResizeSlot
+ * \brief Removes _slot from the \c Resize event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+/*!
+ * \fn bool iInitSignals::removeKeySlot
+ * \brief Removes _slot from the \c Key event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+/*!
+ * \fn bool iInitSignals::removeMouseSlot
+ * \brief Removes _slot from the \c Mouse event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
+
+/*!
+ * \fn void iInitSignals::removeFocusSlot
+ * \brief Removes _slot from the \c Focus event
+ *
+ * \param[in] _slot The Slot for the event
+ * \returns true  when successfull
+ * \returns false when not
+ */
 }
 
 
