@@ -54,9 +54,6 @@ rRenderLoop::~rRenderLoop() {
   if (vRunRenderLoop)
     stop();
 
-  vVarStartRecording.notify_all();
-  vVarStartLogLoop.notify_one();
-
   if (vRenderThread.joinable())
     vRenderThread.join();
 }
@@ -66,14 +63,23 @@ void rRenderLoop::renderLoop() {
   iLOG("Starting render thread");
 
   while (vRunRenderThread) {
-    std::unique_lock<std::mutex> lWait1(vMutexStartRecording);
+    {
+      std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
 
-    dRLOG("Waiting for command buffer recording signal");
-    vVarStartRecording.wait(lWait1);
+      dRLOG("Waiting for command buffer recording signal");
 
-    // Check for deconstructor
-    if (!vRunRenderThread)
-      return;
+      while (vLoopStartCommand != PASS) {
+        vRenderLoopControl.wait_for(lControl, cfg.condWaitTimeout);
+
+        if (!vRunRenderThread)
+          return;
+      }
+
+      dRLOG("DONE Waiting for command buffer recording signal");
+
+      vLoopStartCommand = PASSED;
+      vRenderLoopResponse.notify_all();
+    }
 
     //    _____      _ _
     //   |_   _|    (_) |
@@ -163,23 +169,30 @@ void rRenderLoop::renderLoop() {
       }
     }
 
-    // Notifying other thread to continue
+
     {
-      std::lock_guard<std::mutex> lGuard(vMutexFinishedRecording);
+      std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
+
+      dRLOG("Notifying main thread that command buffers were recorded");
+
       vFinishedRecording = true;
+      vRenderLoopResponse.notify_all(); // Notifying other thread to continue
+
+
+      dRLOG("Waiting for start render loop signal");
+
+      while (vStartRenderLoop != PASS) {
+        vRenderLoopControl.wait_for(lControl, cfg.condWaitTimeout);
+
+        if (!vRunRenderThread)
+          return;
+      }
+
+      dRLOG("DONE Waiting for start render loop signal");
+
+      vStartRenderLoop = PASSED;
+      vRenderLoopResponse.notify_all();
     }
-    vVarFinishedRecording.notify_all();
-
-    dRLOG("Waiting for start render loop signal");
-
-    std::unique_lock<std::mutex> lWait2(vMutexStartLogLoop);
-
-    if (!vRunRenderLoop)
-      vVarStartLogLoop.wait(lWait2);
-
-    // Check for deconstructor
-    if (!vRunRenderThread)
-      return;
 
     //   ______               _             _
     //   | ___ \             | |           | |
@@ -245,6 +258,7 @@ void rRenderLoop::renderLoop() {
         break;
       }
 
+
       // Wait until rendering is done
       vkWaitForFences(vDevice_vk, 1, &lFences[FENCE_RENDER], VK_TRUE, UINT64_MAX);
 
@@ -284,11 +298,21 @@ void rRenderLoop::renderLoop() {
     for (uint32_t i = 0; i < NUM_FENCES; i++)
       vkDestroyFence(vDevice_vk, lFences[i], nullptr);
 
+    std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
 
-    std::lock_guard<std::mutex> lGuard1(vMutexStopLogLoop);
-    std::lock_guard<std::mutex> lGuard2(vMutexFinishedRecording);
-    vVarStopLogLoop.notify_all();
+    dRLOG("Waiting for stop render loop signal");
+    while (vStopRenderLoop != PASS) {
+      vRenderLoopControl.wait_for(lControl, cfg.condWaitTimeout);
+
+      if (!vRunRenderThread)
+        return;
+    }
+
+    dRLOG("DONE Waiting for stop render loop signal");
+
+    vStopRenderLoop    = PASSED;
     vFinishedRecording = false;
+    vRenderLoopResponse.notify_all();
   }
 
   iLOG("Stopping render thread");
@@ -345,8 +369,7 @@ void rRenderLoop::destroy() {
  */
 bool rRenderLoop::start() {
   std::lock_guard<std::recursive_mutex> lGuard1(vLoopAccessMutex);
-  std::lock_guard<std::mutex>           lGuard2(vMutexStartLogLoop);
-  std::unique_lock<std::mutex>          lWait(vMutexFinishedRecording);
+  std::unique_lock<std::mutex>          lControl(vRenderLoopControlMutex);
 
   if (vRunRenderLoop) {
     wLOG("Render loop already running!");
@@ -363,15 +386,24 @@ bool rRenderLoop::start() {
 
 
   dRLOG("Start recording");
-  vVarStartRecording.notify_all();
+  vLoopStartCommand = PASS;
+  vRenderLoopControl.notify_all();
 
-  if (!vFinishedRecording)
-    vVarFinishedRecording.wait(lWait);
+  while (!vFinishedRecording || vLoopStartCommand != PASSED)
+    vRenderLoopResponse.wait_for(lControl, cfg.condWaitTimeout);
 
-  vRunRenderLoop = true;
+  vLoopStartCommand = BLOCK; // Reset
 
   dRLOG("Sending start render loop");
-  vVarStartLogLoop.notify_all();
+  vStartRenderLoop = PASS;
+  vRunRenderLoop   = true;
+
+  vRenderLoopControl.notify_all();
+  while (vStartRenderLoop != PASSED)
+    vRenderLoopResponse.wait_for(lControl, cfg.condWaitTimeout);
+
+  vStartRenderLoop = BLOCK; // Reset
+  wLOG("START RETURN");
   return true;
 }
 
@@ -381,6 +413,7 @@ bool rRenderLoop::start() {
  */
 bool rRenderLoop::stop() {
   std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
+  std::unique_lock<std::mutex>          lControl(vRenderLoopControlMutex);
 
   if (!vRunRenderLoop) {
     wLOG("Render loop already stopped!");
@@ -389,12 +422,15 @@ bool rRenderLoop::stop() {
 
   dRLOG("Sending stop to render loop");
 
-  vVarStartRecording.notify_all();
-  vRunRenderLoop = false;
+  vRunRenderLoop  = false;
+  vStopRenderLoop = PASS;
+  vRenderLoopControl.notify_all();
 
-  std::unique_lock<std::mutex> lWait(vMutexStopLogLoop);
+  while (vStartRenderLoop != PASSED)
+    vRenderLoopResponse.wait_for(lControl, cfg.condWaitTimeout);
 
-  vVarStopLogLoop.wait(lWait);
+  vStartRenderLoop = BLOCK;
+  wLOG("STOP Return");
   return true;
 }
 

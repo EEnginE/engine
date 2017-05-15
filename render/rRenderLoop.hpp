@@ -43,6 +43,8 @@ class rRenderLoop {
     std::vector<std::vector<internal::rRendererBase::CommandBuffers>> pointers;
   } CommandBuffers;
 
+  enum LoopCommand { BLOCK, PASS, PASSED };
+
 
  private:
   static uint64_t vRenderedFrames;
@@ -60,17 +62,19 @@ class rRenderLoop {
 
   std::thread vRenderThread;
 
-  std::mutex vMutexStartRecording;
-  std::mutex vMutexFinishedRecording;
-  std::mutex vMutexStartLogLoop;
-  std::mutex vMutexStopLogLoop;
-
   std::recursive_mutex vLoopAccessMutex;
+  std::mutex           vRenderLoopControlMutex;
 
-  std::condition_variable vVarStartRecording;
-  std::condition_variable vVarFinishedRecording;
-  std::condition_variable vVarStartLogLoop;
-  std::condition_variable vVarStopLogLoop;
+  std::condition_variable vRenderLoopControl;
+  std::condition_variable vRenderLoopResponse;
+
+  LoopCommand vLoopStartCommand = BLOCK;
+  LoopCommand vStartRenderLoop  = BLOCK;
+  LoopCommand vStopRenderLoop   = BLOCK;
+
+  struct Config {
+    std::chrono::milliseconds condWaitTimeout = std::chrono::milliseconds(100);
+  } cfg;
 
   void rebuildCommandBuffersArray(CommandBuffers *_buffers, uint32_t _framebuffer);
   void renderLoop();
