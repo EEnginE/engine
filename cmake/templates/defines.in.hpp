@@ -72,7 +72,7 @@
 #elif defined __GNUC__
 // #    define W_FUNC __PRETTY_FUNCTION__ // A bit to long ...
 #       define W_FUNC __func__
-#       define FALLTHROUGH
+#       define FALLTHROUGH [[gcc::fallthrough]];
 
 #       define COMPILER_CLANG 0
 #       define COMPILER_GCC   1

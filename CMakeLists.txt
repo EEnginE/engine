@@ -25,7 +25,7 @@ set( COMPILER_TESTS_DIR ${PROJECT_SOURCE_DIR}/cmake/tests )
 # Build options
 option( DEBUG_LOG_ALL       "Enable all debug defines"                         OFF )
 
-set( CMAKE_CXX_STANDARD               17 )
+set( CMAKE_CXX_STANDARD               14 )
 set( CMAKE_CXX_STANDARD_REQUIRED      ON )
 set( CMAKE_C_STANDARD                 11 )
 set( CMAKE_C_STANDARD_REQUIRED        ON )
