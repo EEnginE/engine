@@ -447,7 +447,9 @@ void uLogEntryRaw::defaultEntryGenerator() {
     if (*c == L'\n' || lCurrentStringSize >= lMaxMessageSize_uI) {
       lMessage_VEC.emplace_back(lDefCol_STR);
       lCurrentStringSize = 0;
-      continue;
+
+      if (*c == L'\n')
+        continue;
     }
 
     lMessage_VEC.back().append(1, *c);

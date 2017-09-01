@@ -22,6 +22,7 @@
 
 #include "SPIRV_deferred1.hpp"
 #include "SPIRV_deferred2.hpp"
+#include "SPIRV_triangle1.hpp"
 #include "cmdANDinit.hpp"
 #include <engine.hpp>
 
@@ -37,6 +38,7 @@ using e_engine::rWorld;
 using e_engine::rPipeline;
 using e_engine::SPIRV_deferred1;
 using e_engine::SPIRV_deferred2;
+using e_engine::SPIRV_triangle1;
 
 class myScene final : public rScene<float>, public rCameraHandler<float> {
   typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;
@@ -46,10 +48,10 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
   OBJECTS<rPointLightF>       vPointLights;
   OBJECTS<rDirectionalLightF> vDirectionalLights;
 
-  rPipeline       vPipeline;
-  rPipeline       vLightPipeline;
-  SPIRV_deferred1 vShader;
-  SPIRV_deferred2 vLightShader;
+  rPipeline vPipeline;
+  //   rPipeline       vLightPipeline;
+  SPIRV_triangle1 vShader;
+  //   SPIRV_deferred2 vLightShader;
 
   std::string vShader_str;
   std::string vNormalShader_str;
@@ -73,7 +75,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
       : rScene("MAIN SCENE", _world),
         rCameraHandler(this, _world->getInitPtr()),
         vShader(_world),
-        vLightShader(_world),
+        //         vLightShader(_world),
         vShader_str(_cmd.getShader()),
         vNormalShader_str(_cmd.getNormalShader()),
         vFilePath(_cmd.getMesh()),

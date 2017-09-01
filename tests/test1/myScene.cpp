@@ -30,8 +30,8 @@ int myScene::init() {
   vPipeline.setDynamicViewports(1)->setDynamicScissors(1)->enableDepthTest()->enableCulling();
   vPipeline.setShader(&vShader);
 
-  vLightPipeline.setDynamicViewports(1)->setDynamicScissors(1); //->enableDepthTest();
-  vLightPipeline.setShader(&vLightShader);
+  //   vLightPipeline.setDynamicViewports(1)->setDynamicScissors(1); //->enableDepthTest();
+  //   vLightPipeline.setShader(&vLightShader);
 
   beginInitObject();
 
@@ -48,19 +48,19 @@ int myScene::init() {
 
   endInitObject();
 
-  vPointLights.emplace_back(std::make_shared<rPointLightF>(this, "L1"));
+  //    vPointLights.emplace_back(std::make_shared<rPointLightF>(this, "L1"));
   //    vPointLights.emplace_back( std::make_shared<rPointLightF>( this, "L2" ) );
   //    vDirectionalLights.emplace_back(
   //          std::make_shared<rDirectionalLightF>( "L3", vec3( 0.5, -1, 0.5 ) ) );
 
-  vPointLights[0]->setPosition(vec3(1, 1, -4));
+  //    vPointLights[0]->setPosition(vec3(1, 1, -4));
   //    vPointLights[1]->setPosition( vec3( -1, -1, -4 ) );
 
-  vPointLights[0]->setColor(vec3(1.0f, 0.2f, 0.2f), vec3(0.1f, 0.0f, 0.0f));
+  //    vPointLights[0]->setColor(vec3(1.0f, 0.2f, 0.2f), vec3(0.1f, 0.0f, 0.0f));
   //    vPointLights[1]->setColor( vec3( 0.2f, 0.2f, 1.0f ), vec3( 0.0, 0.0f, 0.1f ) );
   //    vPointLights[2]->setColor( vec3( 0.9f, 0.9f, 0.9f ), vec3( 0.05f, 0.05f, 0.05f ) );
 
-  vPointLights[0]->setAttenuation(0.1f, 0.01f, 0.1f);
+  //    vPointLights[0]->setAttenuation(0.1f, 0.01f, 0.1f);
   //    vPointLights[1]->setAttenuation( 0.1f, 0.02f, 0.2f );
 
 
@@ -69,10 +69,10 @@ int myScene::init() {
     addObject(i);
   }
 
-  for (auto &i : vPointLights) {
-    i->setPipeline(&vLightPipeline);
-    addObject(i);
-  }
+  //   for (auto &i : vPointLights) {
+  //     i->setPipeline(&vLightPipeline);
+  //     addObject(i);
+  //   }
 
   //    for ( auto &i : vDirectionalLights ) {
   //       i->setPipeline( &vLightPipeline );
@@ -90,9 +90,9 @@ int myScene::init() {
 
 void myScene::destroy() {
   vPipeline.destroy();
-  vLightPipeline.destroy();
+  //   vLightPipeline.destroy();
   vShader.destroy();
-  vLightShader.destroy();
+  //   vLightShader.destroy();
 
   for (auto i : vObjects)
     i->destroy();

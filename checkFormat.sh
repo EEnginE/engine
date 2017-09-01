@@ -6,7 +6,7 @@
 # BEGIN CONFIG SECTION #
 ########################
 
-CLANG_FORMAT_VERSIONS=( "4.0.0" )
+CLANG_FORMAT_VERSIONS=( "4.0.0" "4.0.1" )
 CALNG_FORMAT_DEFAULT_CMD="clang-format"
 EXTENSIONS=( cpp hpp )
 SOURCE_DIRS=( utils init render tests )

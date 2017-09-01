@@ -28,7 +28,7 @@ class cmdANDinit {
   std::string              argv0;
   std::string              dataRoot;
   std::string              meshToRender  = "meshS.dae";
-  std::string              vShader       = "phong";
+  std::string              vShader       = "triangle1";
   std::string              vNormalShader = "normals";
 
   e_engine::uJSON_data vData_JSON;

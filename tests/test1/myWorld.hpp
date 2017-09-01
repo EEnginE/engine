@@ -27,6 +27,8 @@
 
 using e_engine::rWorld;
 using e_engine::rRendererDeferred;
+using e_engine::rRendererBasic;
+using e_engine::internal::rRendererBase;
 using e_engine::rFrameCounter;
 using e_engine::iDisplayBasic;
 
@@ -37,7 +39,7 @@ class myWorld final : public rWorld, public rFrameCounter {
   float vAlpha;
 
   std::vector<std::shared_ptr<iDisplayBasic>> vDisp_RandR;
-  std::shared_ptr<rRendererDeferred>          vRenderer;
+  std::shared_ptr<rRendererBase>              vRenderer;
 
   myScene          vScene;
   e_engine::iInit *vInitPointer;
@@ -53,7 +55,7 @@ class myWorld final : public rWorld, public rFrameCounter {
   myWorld(cmdANDinit &_cmd, e_engine::iInit *_init)
       : rWorld(_init),
         rFrameCounter(this, true),
-        vRenderer(std::make_shared<rRendererDeferred>(getInitPtr(), this, L"R1")),
+        vRenderer(std::make_shared<rRendererBasic>(getInitPtr(), this, L"R1")),
         vScene(this, _cmd),
         vInitPointer(_init),
         vNearZ(_cmd.getNearZ()),

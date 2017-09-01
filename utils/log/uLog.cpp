@@ -27,7 +27,7 @@
 #include <iostream>
 #include <sstream>
 
-#if __cplusplus <= 201402L
+#if __cplusplus <= 201402L || true //! \todo FIX THIS when C++17 is released
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 #else

@@ -95,6 +95,11 @@
 #       define COMPILER_MSC   0
 #endif
 
+#if __cplusplus > 201402L
+#undef FALLTHROUGH
+#define FALLTHROUGH [[fallthrough]];
+#endif
+
 #ifndef W_FUNC
 #error "Can not get functuon name"
 #endif

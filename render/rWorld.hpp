@@ -44,6 +44,7 @@ class rSceneBase;
  *
  * This class manages
  *   - the renderers
+ *   - the render loop
  *
  * This class is responsible for (Vulkan)
  *   - command pool handling

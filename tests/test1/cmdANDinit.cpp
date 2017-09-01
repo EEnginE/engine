@@ -101,15 +101,6 @@ void cmdANDinit::usage() {
 
 
 bool cmdANDinit::parseArgsAndInit() {
-
-  // Try to parse oglTest.json
-  uParserJSON lTrialAndErrorParser("oglTest.json");
-  if (lTrialAndErrorParser.parse() == 1) {
-    iLOG("Found oglTest.json");
-    auto lTempData = lTrialAndErrorParser.getData();
-    vData_JSON.merge(lTempData);
-  }
-
   for (auto const &arg : args) {
     if (arg == "-h" || arg == "--help") {
       postInit();

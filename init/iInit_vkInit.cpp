@@ -163,6 +163,7 @@ int iInit::initVulkan(std::vector<std::string> _layers) {
   VkResult lResult;
   uint32_t lPorpCount;
 
+  // Get instance layers
   lResult = vkEnumerateInstanceLayerProperties(&lPorpCount, nullptr);
   if (lResult) {
     eLOG("'vkEnumerateInstanceLayerProperties' returned ", uEnum2Str::toStr(lResult));
@@ -199,6 +200,7 @@ int iInit::initVulkan(std::vector<std::string> _layers) {
       wLOG("Vulkan Layer '", i, "' not found!");
   }
 
+  // Get extensions
   int lRet = loadExtensionList();
   if (lRet != 0)
     return lRet;
@@ -221,6 +223,7 @@ int iInit::initVulkan(std::vector<std::string> _layers) {
     lLayers[i] = vLayersToUse[i].c_str();
   }
 
+  // vDebugCreateInfo_vk is set in iInit::init()
   void *lDebugPTR = nullptr;
   if (vEnableVulkanDebug)
     lDebugPTR = static_cast<void *>(&vDebugCreateInfo_vk);
@@ -395,6 +398,7 @@ int iInit::createDevice(std::vector<std::string> _layers) {
     return 1000;
   }
 
+  // Get device layers
   uint32_t lPorpCount;
   auto     lResult = vkEnumerateDeviceLayerProperties(vDevice_vk.pDevice->device, &lPorpCount, nullptr);
   if (lResult) {
@@ -433,6 +437,7 @@ int iInit::createDevice(std::vector<std::string> _layers) {
   }
 
 
+  // Get device extensions
   loadDeviceExtensionList(vDevice_vk.pDevice->device);
   const char **lExtensions = new const char *[vDeviceExtensionsToUse.size()];
 

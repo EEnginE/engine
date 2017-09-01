@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.8)
 
 project(EEnginE)
 
@@ -25,7 +25,7 @@ set( COMPILER_TESTS_DIR ${PROJECT_SOURCE_DIR}/cmake/tests )
 # Build options
 option( DEBUG_LOG_ALL       "Enable all debug defines"                         OFF )
 
-set( CMAKE_CXX_STANDARD               14 )
+set( CMAKE_CXX_STANDARD               17 )
 set( CMAKE_CXX_STANDARD_REQUIRED      ON )
 set( CMAKE_C_STANDARD                 11 )
 set( CMAKE_C_STANDARD_REQUIRED        ON )
@@ -219,7 +219,7 @@ enum2str_generate(
     "VkPipelineStageFlagBits" "VkImageAspectFlagBits" "VkSparseImageFormatFlagBits"
     "VkSparseMemoryBindFlagBits" "VkFenceCreateFlagBits" "VkQueryPipelineStatisticFlagBits"
     "VkQueryResultFlagBits" "VkBufferCreateFlagBits" "VkBufferUsageFlagBits"
-    "VkPipelineCreateFlagBits" "VkShaderStageFlagBits" "VkCullModeFlagBits"
+    "VkPipelineCreateFlagBits" "VkShaderStageFlagBits" "VkCullModeFlagBits" "VkObjectType"
     "VkColorComponentFlagBits" "VkDescriptorPoolCreateFlagBits" "VkAttachmentDescriptionFlagBits"
     "VkSubpassDescriptionFlagBits" "VkAccessFlagBits"  "VkDependencyFlagBits"
     "VkCommandPoolCreateFlagBits" "VkCommandPoolResetFlagBits" "VkCommandBufferUsageFlagBits"
@@ -229,8 +229,8 @@ enum2str_generate(
     "VkCompositeAlphaFlagBitsKHR" "VkDisplayPlaneAlphaFlagBitsKHR"
     "VkSwapchainCreateFlagBitsKHR"
     # Vulkan etc
-    "VkDescriptorUpdateTemplateTypeKHR"
-    "VkDebugReportObjectTypeEXT" "VkDebugReportErrorEXT" "VkDebugReportFlagBitsEXT"
+    "VkDescriptorUpdateTemplateTypeKHR" "VkSamplerReductionModeEXT"
+    "VkDebugReportObjectTypeEXT" "VkDebugReportFlagBitsEXT" "VkBlendOverlapEXT"
 
     # AMD
     "VkRasterizationOrderAMD"
@@ -238,14 +238,17 @@ enum2str_generate(
     "VkExternalMemoryHandleTypeFlagBitsNV" "VkExternalMemoryFeatureFlagBitsNV"
     "VkIndirectCommandsTokenTypeNVX" "VkObjectEntryTypeNVX"
     "VkIndirectCommandsLayoutUsageFlagBitsNVX" "VkObjectEntryUsageFlagBitsNVX"
-    "VkViewportCoordinateSwizzleNV"
+    "VkViewportCoordinateSwizzleNV" "VkCoverageModulationModeNV"
+
     # KHX
     "VkPeerMemoryFeatureFlagBitsKHX" "VkMemoryAllocateFlagBitsKHX"
     "VkDeviceGroupPresentModeFlagBitsKHX" "VkValidationCheckEXT"
-    "VkExternalMemoryHandleTypeFlagBitsKHX" "VkExternalMemoryFeatureFlagBitsKHX"
-    "VkExternalSemaphoreHandleTypeFlagBitsKHX" "VkExternalSemaphoreFeatureFlagBitsKHX"
     "VkSurfaceCounterFlagBitsEXT" "VkDisplayPowerStateEXT" "VkDeviceEventTypeEXT"
     "VkDisplayEventTypeEXT" "VkDiscardRectangleModeEXT"
+
+    "VkExternalFenceFeatureFlagBitsKHR" "VkExternalFenceHandleTypeFlagBitsKHR" "VkExternalMemoryFeatureFlagBitsKHR"
+    "VkExternalMemoryHandleTypeFlagBitsKHR" "VkExternalSemaphoreFeatureFlagBitsKHR"
+    "VkExternalSemaphoreHandleTypeFlagBitsKHR" "VkFenceImportFlagBitsKHR" "VkSemaphoreImportFlagBitsKHR"
 
   BLACKLIST "VK_SAMPLER_ADDRESS_MODE_RANGE_SIZE" "VK_PIPELINE_CACHE_HEADER_VERSION_RANGE_SIZE"
 )

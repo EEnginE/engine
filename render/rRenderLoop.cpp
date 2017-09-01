@@ -50,9 +50,10 @@ rRenderLoop::rRenderLoop(iInit *_init, rWorld *_root) : vWorldPtr(_root), vInitP
 }
 
 rRenderLoop::~rRenderLoop() {
-  vRunRenderThread = false;
   if (vRunRenderLoop)
     stop();
+
+  vRunRenderThread = false;
 
   if (vRenderThread.joinable())
     vRenderThread.join();
@@ -63,6 +64,7 @@ void rRenderLoop::renderLoop() {
   iLOG("Starting render thread");
 
   while (vRunRenderThread) {
+    // Sync point 1: Sync with start()
     {
       std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
 
@@ -171,6 +173,7 @@ void rRenderLoop::renderLoop() {
 
 
     {
+      // Sync point 2
       std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
 
       dRLOG("Notifying main thread that command buffers were recorded");
@@ -298,6 +301,7 @@ void rRenderLoop::renderLoop() {
     for (uint32_t i = 0; i < NUM_FENCES; i++)
       vkDestroyFence(vDevice_vk, lFences[i], nullptr);
 
+    // Sync point 3
     std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
 
     dRLOG("Waiting for stop render loop signal");
@@ -385,6 +389,7 @@ bool rRenderLoop::start() {
   }
 
 
+  // Sync point 1
   dRLOG("Start recording");
   vLoopStartCommand = PASS;
   vRenderLoopControl.notify_all();
@@ -394,6 +399,7 @@ bool rRenderLoop::start() {
 
   vLoopStartCommand = BLOCK; // Reset
 
+  // Sync point 2
   dRLOG("Sending start render loop");
   vStartRenderLoop = PASS;
   vRunRenderLoop   = true;
@@ -420,16 +426,17 @@ bool rRenderLoop::stop() {
     return false;
   }
 
+  // Sync point 3
   dRLOG("Sending stop to render loop");
 
   vRunRenderLoop  = false;
   vStopRenderLoop = PASS;
   vRenderLoopControl.notify_all();
 
-  while (vStartRenderLoop != PASSED)
+  while (vStopRenderLoop != PASSED)
     vRenderLoopResponse.wait_for(lControl, cfg.condWaitTimeout);
 
-  vStartRenderLoop = BLOCK;
+  vStopRenderLoop = BLOCK;
   wLOG("STOP Return");
   return true;
 }
