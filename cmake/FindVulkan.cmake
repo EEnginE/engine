@@ -9,6 +9,26 @@ if (VULKAN_INCLUDE_DIR AND VULKAN_LIBRARIES)
                 set(VULKAN_FIND_QUIETLY TRUE)
 endif (VULKAN_INCLUDE_DIR AND VULKAN_LIBRARIES)
 
+if(WIN32)
+
+ find_path(
+  VULKAN_INCLUDE_DIR
+  NAMES vulkan/vulkan.h
+  PATHS
+   "$ENV{VULKAN_SDK}/Include"
+   "$ENV{VK_SDK_PATH}/Include"
+ )
+
+ find_library(
+  VULKAN_LIBRARY
+  NAMES vulkan-1
+  PATHS
+   "$ENV{VULKAN_SDK}/Lib"
+   "$ENV{VK_SDK_PATH}/Lib"
+ )
+
+else()
+
 find_path(
  VULKAN_INCLUDE_DIR
  NAMES vulkan.h
@@ -33,6 +53,8 @@ find_library(
   /usr/lib
   /usr/local/lib
 )
+
+endif()
 
 
 set( VULKAN_LIBRARIES    ${VULKAN_LIBRARY} )
