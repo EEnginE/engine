@@ -58,6 +58,9 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 file( GLOB MODULE_LIST ${PROJECT_SOURCE_DIR}/cmake/*.cmake )
 
 foreach( I IN LISTS MODULE_LIST )
+   if( "${I}" MATCHES "Find*")
+    continue()
+   endif()
    include( ${I} )
 endforeach( I IN LISTS MODULE_LIST )
 
@@ -102,7 +105,6 @@ endif( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
 find_package(Threads REQUIRED)
 find_package(Vulkan  REQUIRED)
 find_package(assimp  REQUIRED)
-find_package(glm     REQUIRED)
 
 if( CM_UNIX_X11 )
   find_package(XCB COMPONENTS xcb xcb-randr REQUIRED)
