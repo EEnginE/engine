@@ -21,6 +21,7 @@
 
 #include "defines.hpp"
 
+#include "vkuCommandPoolManager.hpp"
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
 #include <memory>
@@ -62,7 +63,7 @@ class rSceneBase {
   std::recursive_mutex vObjectsInit_MUT;
 
   bool            vInitializingObjects = false;
-  VkCommandPool   vInitPool_vk;
+  vkuCommandPool *vInitPool_vk         = nullptr;
   VkCommandBuffer vInitBuff_vk;
   VkQueue         vInitQueue_vk;
 

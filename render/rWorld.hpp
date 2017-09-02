@@ -25,7 +25,6 @@
 #include "uSignalSlot.hpp"
 #include "rRenderLoop.hpp"
 #include "rRendererBase.hpp"
-#include "rWorld_structs.hpp"
 #include <condition_variable>
 #include <mutex>
 #include <unordered_map>
@@ -47,7 +46,6 @@ class rSceneBase;
  *   - the render loop
  *
  * This class is responsible for (Vulkan)
- *   - command pool handling
  *   - presenting images (todo)
  *   - eventually other stuff
  *
@@ -62,8 +60,6 @@ class rSceneBase;
  */
 class rWorld {
  public:
-  typedef internal::CommandPoolInfo PoolInfo;
-
   struct ViewPort {
     bool vNeedUpdate_B;
     int  x;
@@ -102,7 +98,6 @@ class rWorld {
 
   VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
 
-  std::unordered_map<PoolInfo, VkCommandPool> vCmdPools_vk;
   std::mutex              vCommandPoolsMutex;
   std::mutex              vRenderAccessMutex;
   std::condition_variable vRenderedFrameSignal;
@@ -150,15 +145,6 @@ class rWorld {
                             VkImageLayout           _dst,
                             VkPipelineStageFlags    _srcFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                             VkPipelineStageFlags    _dstFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
-
-  VkCommandPool getCommandPool(uint32_t                 _queueFamilyIndex,
-                               VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-
-  VkCommandPool getCommandPoolFlags(VkQueueFlags             _qFlags,
-                                    VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-
-  VkFence createFence(VkFenceCreateFlags _flags = 0);
-  VkSemaphore createSemaphore();
 
   void updateViewPort(int _x, int _y, int _width, int _height);
   void updateClearColor(float _r, float _g, float _b, float _a);

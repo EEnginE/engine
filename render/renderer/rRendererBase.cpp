@@ -22,6 +22,8 @@
 #include "rRendererBase.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "vkuCommandPoolManager.hpp"
+#include "vkuFence.hpp"
 #include "iInit.hpp"
 #include "rObjectBase.hpp"
 #include "rPipeline.hpp"
@@ -90,9 +92,9 @@ int rRendererBase::init() {
 
   uint32_t        lQueueFamily;
   VkQueue         lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  VkCommandPool   lPool  = vWorldPtr->getCommandPool(lQueueFamily);
-  VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer(lPool);
-  VkFence         lFence = vWorldPtr->createFence();
+  vkuCommandPool *lPool  = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
+  VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer(lPool->get());
+  vkuFence_t      lFence(vDevice_vk);
 
   if (!lBuf)
     return -1;
@@ -139,17 +141,16 @@ int rRendererBase::init() {
 
   {
     std::lock_guard<std::mutex> lGuard2(vInitPtr->getQueueMutex(lQueue));
-    vkQueueSubmit(lQueue, 1, &lInfo, lFence);
+    vkQueueSubmit(lQueue, 1, &lInfo, lFence[0]);
   }
 
-  auto lRes = vkWaitForFences(vDevice_vk, 1, &lFence, VK_TRUE, UINT64_MAX);
+  auto lRes = lFence();
   if (lRes) {
     eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
     return 3;
   }
 
-  vkDestroyFence(vDevice_vk, lFence, nullptr);
-  vkFreeCommandBuffers(vDevice_vk, lPool, 1, &lBuf);
+  vkFreeCommandBuffers(vDevice_vk, lPool->get(), 1, &lBuf);
 
   if (!initRendererData())
     return 4;

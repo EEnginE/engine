@@ -22,6 +22,8 @@
 #include "rWorld.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "vkuCommandPoolManager.hpp"
+#include "vkuFence.hpp"
 #include "iInit.hpp"
 #include "rScene.hpp"
 
@@ -97,9 +99,9 @@ int rWorld::init() {
 
   uint32_t        lQueueFamily;
   VkQueue         lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  VkCommandPool   lPool  = getCommandPool(lQueueFamily);
-  VkCommandBuffer lBuf   = createCommandBuffer(lPool);
-  VkFence         lFence = createFence();
+  vkuCommandPool *lPool  = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
+  VkCommandBuffer lBuf   = createCommandBuffer(lPool->get());
+  vkuFence_t      lFence(vDevice_vk);
 
   if (!lBuf)
     return -1;
@@ -132,17 +134,16 @@ int rWorld::init() {
 
   {
     std::lock_guard<std::mutex> lGuard3(vInitPtr->getQueueMutex(lQueue));
-    vkQueueSubmit(lQueue, 1, &lInfo, lFence);
+    vkQueueSubmit(lQueue, 1, &lInfo, lFence[0]);
   }
 
-  auto lRes = vkWaitForFences(vDevice_vk, 1, &lFence, VK_TRUE, UINT64_MAX);
+  auto lRes = lFence();
   if (lRes) {
     eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
     return 3;
   }
 
-  vkDestroyFence(vDevice_vk, lFence, nullptr);
-  vkFreeCommandBuffers(vDevice_vk, lPool, 1, &lBuf);
+  vkFreeCommandBuffers(vDevice_vk, lPool->get(), 1, &lBuf);
 
   vRenderLoop.init();
 
@@ -169,18 +170,7 @@ void rWorld::shutdown() {
   vRenderLoop.destroy();
 
   dVkLOG("  -- Destroying command pools...");
-
-  std::lock_guard<std::mutex> lLock(vCommandPoolsMutex);
-  vkDeviceWaitIdle(vInitPtr->getDevice());
-  for (auto &i : vCmdPools_vk) {
-    dVkLOG("    -- tID: ", i.first.tID, "; queue family: ", i.first.qfIndex);
-    if (i.second == nullptr) {
-      wLOG("Command pool already destroyed");
-      continue;
-    }
-
-    vkDestroyCommandPool(vInitPtr->getDevice(), i.second, nullptr);
-  }
+  vkuCommandPoolManager::getManager().cleanup(vDevice_vk);
 
   dVkLOG("  -- destroying swapchain image views");
   for (auto &i : vSwapchainViews_vk)
@@ -289,48 +279,6 @@ void rWorld::cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
 
 
 /*!
- * \brief Get a command pool
- * \vkIntern
- *
- * This function selects (or generates if needed) a command pool for the current thread (commad
- * pools are not thread safe ==> one command pool for every thread).
- *
- * \param _queueFamilyIndex The queue family index
- * \param _flags            command pool flags
- * \returns a command buffer (or nullptr)
- */
-VkCommandPool rWorld::getCommandPool(uint32_t _queueFamilyIndex, VkCommandPoolCreateFlags _flags) {
-  PoolInfo lTemp;
-  lTemp.tID     = std::this_thread::get_id();
-  lTemp.qfIndex = _queueFamilyIndex;
-  lTemp.flags   = _flags;
-
-  std::lock_guard<std::mutex> lLock(vCommandPoolsMutex);
-
-  if (vCmdPools_vk.count(lTemp) > 0)
-    return vCmdPools_vk[lTemp];
-
-  // Command pool does not exists
-  dVkLOG("Creating command pool for thread ", lTemp.tID, ", queue family ", lTemp.qfIndex);
-
-  VkCommandPool           lPool;
-  VkCommandPoolCreateInfo lInfo;
-  lInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  lInfo.pNext            = nullptr;
-  lInfo.flags            = _flags;
-  lInfo.queueFamilyIndex = _queueFamilyIndex;
-
-  auto lRes = vkCreateCommandPool(vInitPtr->getDevice(), &lInfo, nullptr, &lPool);
-  if (lRes) {
-    eLOG("vkCreateCommandPool returned ", uEnum2Str::toStr(lRes));
-  }
-
-  vCmdPools_vk[lTemp] = lPool;
-
-  return lPool;
-}
-
-/*!
  * \brief Creates a vulkan command buffer
  * \vkIntern
  *
@@ -383,77 +331,6 @@ VkResult rWorld::beginCommandBuffer(VkCommandBuffer                 _buf,
 
   return lRes;
 }
-
-/*!
- * \brief Get a command pool
- * \vkIntern
- *
- * This function selects (or generates if needed) a command pool for the current thread (commad
- * pools are not thread safe ==> one command pool for every thread).
- *
- * \param _qFlags Flags the queue family MUST support
- * \param _flags  command pool flags
- * \returns a command buffer (or nullptr)
- *
- * \note Wrapper for rWorld::getCommandPool
- */
-VkCommandPool rWorld::getCommandPoolFlags(VkQueueFlags _qFlags, VkCommandPoolCreateFlags _flags) {
-  uint32_t lFamilyIndex = vInitPtr->getQueueFamily(_qFlags);
-  if (lFamilyIndex == UINT32_MAX) {
-    return nullptr;
-  }
-
-  return getCommandPool(lFamilyIndex, _flags);
-}
-
-/*!
- * \brief Creates a Vulkan fence
- * \vkIntern
- *
- * \param _flags Some Vulkan flags (default value should be fine in most cases)
- *
- * \returns The fence or nullptr on error
- */
-VkFence rWorld::createFence(VkFenceCreateFlags _flags) {
-  VkFence lFence;
-
-  VkFenceCreateInfo lInfo;
-  lInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  lInfo.pNext = nullptr;
-  lInfo.flags = _flags;
-
-  auto lRes = vkCreateFence(vDevice_vk, &lInfo, nullptr, &lFence);
-  if (lRes) {
-    eLOG("'vkCreateFence' returned ", uEnum2Str::toStr(lRes));
-    return nullptr;
-  }
-
-  return lFence;
-}
-
-/*!
- * \brief Creates a Vulkan semaphore
- * \vkIntern
- *
- * \returns The semaphore or nullptr on error
- */
-VkSemaphore rWorld::createSemaphore() {
-  VkSemaphore lTemp;
-
-  VkSemaphoreCreateInfo lInfo = {};
-  lInfo.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-  lInfo.pNext                 = nullptr;
-  lInfo.flags                 = 0;
-
-  auto lRes = vkCreateSemaphore(vDevice_vk, &lInfo, nullptr, &lTemp);
-  if (lRes) {
-    eLOG("'vkCreateSemaphore' returned ", uEnum2Str::toStr(lRes));
-    return nullptr;
-  }
-
-  return lTemp;
-}
-
 
 VkSwapchainKHR     rWorld::getSwapchain() { return vSwapchain_vk; }
 VkSurfaceFormatKHR rWorld::getSwapchainFormat() { return vSwapchainFormat; }

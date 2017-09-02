@@ -136,10 +136,17 @@ new_project_library(
 )
 
 new_project_library(
+  PATH         "${PROJECT_SOURCE_DIR}/vulkanUtils"
+  NAME         "vulkanUtils"
+  TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
+  DEPENDENCIES utils_shared
+)
+
+new_project_library(
   PATH         "${PROJECT_SOURCE_DIR}/render"
   NAME         "render"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
-  DEPENDENCIES utils_shared init_shared glm
+  DEPENDENCIES utils_shared init_shared vulkanUtils_shared glm
 )
 
 generate_engine_hpp( "${TEMPLATES_DIR}/engine.in.hpp" "${PROJECT_SOURCE_DIR}/include/engine.hpp" )
@@ -179,6 +186,7 @@ include_directories(
     ${VULKAN_INCLUDE_DIR}
     ${XCB_INCLUDE_DIRS}
     ${ASSIMP_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/external/plf_colony
 )
 
 configure_file( "${TEMPLATES_DIR}/defines.in.hpp"      "${PROJECT_SOURCE_DIR}/include/defines.hpp" )
@@ -192,7 +200,7 @@ enum2str_generate(
   FUNC_NAME  "toStr"
   INDENT_STR "  "
   INCLUDES
-    "defines.hpp" "vulkan/vulkan.h"
+    "defines.hpp" "vulkan.h"
     "rObjectBase.hpp" "rShaderBase.hpp"
     "iRandRBasic.hpp" "iWindowBasic.hpp" "iInit.hpp"
   ENUMS

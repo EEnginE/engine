@@ -58,6 +58,8 @@ IncludeCategories:
    Priority: 10
  - Regex: 'i[A-Z][a-zA-Z0-9]*\.hpp'
    Priority: 20
+ - Regex: 'vku[A-Z][a-zA-Z0-9]*\.hpp'
+   Priority: 25
  - Regex: 'r[A-Z][a-zA-Z0-9]*\.hpp'
    Priority: 30
  - Regex: '.*'

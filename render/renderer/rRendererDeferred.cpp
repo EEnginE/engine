@@ -24,6 +24,8 @@
 
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "vkuCommandPoolManager.hpp"
+#include "vkuFence.hpp"
 #include "iInit.hpp"
 #include "rObjectBase.hpp"
 #include "rPipeline.hpp"
@@ -130,9 +132,9 @@ VkImageView rRendererDeferred::getAttachmentView(ATTACHMENT_ROLE _role) {
 bool rRendererDeferred::initRendererData() {
   uint32_t        lQueueFamily;
   VkQueue         lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  VkCommandPool   lPool  = vWorldPtr->getCommandPool(lQueueFamily);
-  VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer(lPool);
-  VkFence         lFence = vWorldPtr->createFence();
+  vkuCommandPool *lPool  = vkuCommandPoolManager::get(vWorldPtr->getDevice(), lQueueFamily);
+  VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer(lPool->get());
+  vkuFence_t      lFence(vWorldPtr->getDevice());
 
   std::vector<float>    lDefBufferData  = {1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
   std::vector<uint32_t> lDefBufferIndex = {0, 1, 2, 2, 3, 0};
@@ -157,16 +159,15 @@ bool rRendererDeferred::initRendererData() {
 
   {
     std::lock_guard<std::mutex> lGuard(vInitPtr->getQueueMutex(lQueue));
-    vkQueueSubmit(lQueue, 1, &lInfo, lFence);
+    vkQueueSubmit(lQueue, 1, &lInfo, lFence[0]);
   }
 
-  auto lRes = vkWaitForFences(vDevice_vk, 1, &lFence, VK_TRUE, UINT64_MAX);
+  auto lRes = lFence();
   if (lRes) {
     eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
   }
 
-  vkDestroyFence(vDevice_vk, lFence, nullptr);
-  vkFreeCommandBuffers(vDevice_vk, lPool, 1, &lBuf);
+  vkFreeCommandBuffers(vDevice_vk, lPool->get(), 1, &lBuf);
 
   vDeferredDataBuffer.doneCopying();
   vDeferredIndexBuffer.doneCopying();

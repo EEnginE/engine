@@ -20,6 +20,8 @@
 #include "rScene.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "vkuCommandPoolManager.hpp"
+#include "vkuFence.hpp"
 #include "iInit.hpp"
 #include "rWorld.hpp"
 
@@ -157,11 +159,11 @@ bool rSceneBase::beginInitObject() {
   uint32_t lQueueFamily;
 
   vInitQueue_vk = vWorldPtr->getInitPtr()->getQueue(VK_QUEUE_TRANSFER_BIT, 0.25f, &lQueueFamily);
-  vInitPool_vk  = vWorldPtr->getCommandPool(lQueueFamily);
-  vInitBuff_vk  = vWorldPtr->createCommandBuffer(vInitPool_vk);
+  vInitPool_vk  = vkuCommandPoolManager::get(vWorldPtr->getDevice(), lQueueFamily);
+  vInitBuff_vk  = vWorldPtr->createCommandBuffer(vInitPool_vk->get());
 
   if (vWorldPtr->beginCommandBuffer(vInitBuff_vk, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)) {
-    vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk);
+    vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk->get(), 1, &vInitBuff_vk);
     vObjectsInit_MUT.unlock();
     return false;
   }
@@ -217,13 +219,13 @@ bool rSceneBase::endInitObject() {
   lInfo.signalSemaphoreCount = 0;
   lInfo.pSignalSemaphores    = nullptr;
 
-  auto lFence = vWorldPtr->createFence();
+  vkuFence_t lFence(vWorldPtr->getDevice());
 
   VkResult lRes;
 
   {
     std::lock_guard<std::mutex> lLock(vWorldPtr->getInitPtr()->getQueueMutex(vInitQueue_vk));
-    lRes = vkQueueSubmit(vInitQueue_vk, 1, &lInfo, lFence);
+    lRes = vkQueueSubmit(vInitQueue_vk, 1, &lInfo, lFence[0]);
   }
 
   if (lRes) {
@@ -233,16 +235,15 @@ bool rSceneBase::endInitObject() {
     return false;
   }
 
-  lRes = vkWaitForFences(vWorldPtr->getDevice(), 1, &lFence, VK_TRUE, UINT64_MAX);
+  lRes = lFence();
   if (lRes) {
-    eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
+    eLOG("Failed to wait for fence: ", uEnum2Str::toStr(lRes));
   }
 
   for (auto i : vInitObjects)
     i->finishData();
 
-  vkDestroyFence(vWorldPtr->getDevice(), lFence, nullptr);
-  vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk, 1, &vInitBuff_vk);
+  vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk->get(), 1, &vInitBuff_vk);
 
   vInitObjects.clear();
   vInitializingObjects = false;

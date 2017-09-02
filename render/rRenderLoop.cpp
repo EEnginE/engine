@@ -23,6 +23,9 @@
 #include "rRenderLoop.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "vkuCommandPoolManager.hpp"
+#include "vkuFence.hpp"
+#include "vkuSemaphore.hpp"
 #include "iInit.hpp"
 #include "rPipeline.hpp"
 #include "rWorld.hpp"
@@ -96,19 +99,17 @@ void rRenderLoop::renderLoop() {
     const static uint32_t FENCE_IMG_1  = 1;
     const static uint32_t FENCE_IMG_2  = 2;
 
+    const static uint32_t NUM_SEMAPHORES = 2;
+    const static uint32_t SEM_PRESENT    = 0;
+    const static uint32_t SEM_ACQUIRE    = 1;
+
     uint32_t lQueueFamily = 0;
 
-    VkSwapchainKHR lSwapchain_vk  = vWorldPtr->getSwapchain();
-    VkQueue        lQueue         = vInitPtr->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily);
-    VkCommandPool  lCommandPool   = vWorldPtr->getCommandPool(lQueueFamily);
-    VkSemaphore    lSemPresent    = vWorldPtr->createSemaphore();
-    VkSemaphore    lSemAcquireImg = vWorldPtr->createSemaphore();
-    VkFence        lFences[NUM_FENCES];
-
-    for (uint32_t i = 0; i < NUM_FENCES; i++) {
-      lFences[i] = vWorldPtr->createFence();
-    }
-
+    VkSwapchainKHR                lSwapchain_vk = vWorldPtr->getSwapchain();
+    VkQueue                       lQueue        = vInitPtr->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily);
+    vkuCommandPool *              lCommandPool  = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
+    vkuFences<NUM_FENCES>         lFences(vDevice_vk);
+    vkuSemaphores<NUM_SEMAPHORES> lSemaphores(vDevice_vk);
 
     for (auto const &i : vRenderers) {
       if (vWorldPtr->getNumFramebuffers() != i->getNumFramebuffers()) {
@@ -116,7 +117,7 @@ void rRenderLoop::renderLoop() {
         eLOG("This might cause undefined behaviour!");
       }
 
-      i->initAllCmdBuffers(lCommandPool);
+      i->initAllCmdBuffers(lCommandPool->get());
     }
 
     VkPipelineStageFlags lSubmitWaitFlags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
@@ -136,16 +137,16 @@ void rRenderLoop::renderLoop() {
     lRenderSubmit[2] = lRenderSubmit[0];
 
     lRenderSubmit[0].waitSemaphoreCount   = 1;
-    lRenderSubmit[0].pWaitSemaphores      = &lSemAcquireImg;
+    lRenderSubmit[0].pWaitSemaphores      = &lSemaphores[SEM_ACQUIRE];
     lRenderSubmit[0].pWaitDstStageMask    = &lSubmitWaitFlags;
     lRenderSubmit[2].signalSemaphoreCount = 1;
-    lRenderSubmit[2].pSignalSemaphores    = &lSemPresent;
+    lRenderSubmit[2].pSignalSemaphores    = &lSemaphores[SEM_PRESENT];
 
     VkPresentInfoKHR lPresentInfo   = {};
     lPresentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     lPresentInfo.pNext              = nullptr;
     lPresentInfo.waitSemaphoreCount = 1;
-    lPresentInfo.pWaitSemaphores    = &lSemPresent;
+    lPresentInfo.pWaitSemaphores    = &lSemaphores[SEM_PRESENT];
     lPresentInfo.swapchainCount     = 1;
     lPresentInfo.pSwapchains        = &lSwapchain_vk;
     lPresentInfo.pImageIndices      = nullptr; // set in render loop
@@ -216,8 +217,8 @@ void rRenderLoop::renderLoop() {
     while (vRunRenderLoop) {
 
       // Get present image (this command blocks)
-      auto lRes =
-          vkAcquireNextImageKHR(vDevice_vk, lSwapchain_vk, UINT64_MAX, lSemAcquireImg, VK_NULL_HANDLE, &lNextImg);
+      auto lRes = vkAcquireNextImageKHR(
+          vDevice_vk, lSwapchain_vk, UINT64_MAX, lSemaphores[SEM_ACQUIRE], VK_NULL_HANDLE, &lNextImg);
       if (lRes) {
         eLOG("'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr(lRes));
         break;
@@ -263,16 +264,16 @@ void rRenderLoop::renderLoop() {
 
 
       // Wait until rendering is done
-      vkWaitForFences(vDevice_vk, 1, &lFences[FENCE_RENDER], VK_TRUE, UINT64_MAX);
+      lFences.wait(FENCE_RENDER, 1);
 
       // Update Uniforms
       for (auto const &i : vRenderers)
         i->updateUniforms();
 
-      vkWaitForFences(vDevice_vk, 1, &lFences[FENCE_IMG_1], VK_TRUE, UINT64_MAX);
-      vkWaitForFences(vDevice_vk, 1, &lFences[FENCE_IMG_2], VK_TRUE, UINT64_MAX);
+      lFences.wait(FENCE_IMG_1, 1);
+      lFences.wait(FENCE_IMG_2, 1);
 
-      vkResetFences(vDevice_vk, NUM_FENCES, lFences);
+      lFences.reset();
 
       vWorldPtr->signalRenderdFrame();
       vRenderedFrames++;
@@ -295,11 +296,7 @@ void rRenderLoop::renderLoop() {
     }
 
     for (auto const &i : vRenderers)
-      i->freeAllCmdBuffers(lCommandPool);
-
-    vkDestroySemaphore(vDevice_vk, lSemPresent, nullptr);
-    for (uint32_t i = 0; i < NUM_FENCES; i++)
-      vkDestroyFence(vDevice_vk, lFences[i], nullptr);
+      i->freeAllCmdBuffers(lCommandPool->get());
 
     // Sync point 3
     std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);

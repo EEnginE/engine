@@ -4,3 +4,6 @@
 [submodule "cmake/cmakeBuildTools"]
 	path = cmake/cmakeBuildTools
 	url = https://github.com/mensinda/cmakeBuildTools
+[submodule "external/plf_colony"]
+	path = external/plf_colony
+	url = https://github.com/mattreecebentley/plf_colony.git
