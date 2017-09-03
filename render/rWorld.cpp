@@ -97,16 +97,15 @@ int rWorld::init() {
 
   vSwapchainViews_vk.clear();
 
-  uint32_t        lQueueFamily;
-  VkQueue         lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  vkuCommandPool *lPool  = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
-  VkCommandBuffer lBuf   = createCommandBuffer(lPool->get());
-  vkuFence_t      lFence(vDevice_vk);
+  uint32_t         lQueueFamily;
+  VkQueue          lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
+  vkuCommandBuffer lBuf   = vkuCommandPoolManager::getBuffer(vDevice_vk, lQueueFamily);
+  vkuFence_t       lFence(vDevice_vk);
 
   if (!lBuf)
     return -1;
 
-  if (beginCommandBuffer(lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
+  if (lBuf.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) != VK_SUCCESS)
     return -2;
 
   if (vInitPtr->handleResize())
@@ -116,10 +115,10 @@ int rWorld::init() {
   if (recreateSwapchain())
     return 1;
 
-  if (recreateSwapchainImages(lBuf))
+  if (recreateSwapchainImages(*lBuf))
     return 2;
 
-  vkEndCommandBuffer(lBuf);
+  lBuf.end();
 
   VkSubmitInfo lInfo;
   lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -128,7 +127,7 @@ int rWorld::init() {
   lInfo.pWaitSemaphores      = nullptr;
   lInfo.pWaitDstStageMask    = nullptr;
   lInfo.commandBufferCount   = 1;
-  lInfo.pCommandBuffers      = &lBuf;
+  lInfo.pCommandBuffers      = &lBuf.get();
   lInfo.signalSemaphoreCount = 0;
   lInfo.pSignalSemaphores    = nullptr;
 
@@ -142,8 +141,6 @@ int rWorld::init() {
     eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
     return 3;
   }
-
-  vkFreeCommandBuffers(vDevice_vk, lPool->get(), 1, &lBuf);
 
   vRenderLoop.init();
 
@@ -168,9 +165,6 @@ void rWorld::shutdown() {
 
   dVkLOG("Vulkan cleanup [rWorld]:");
   vRenderLoop.destroy();
-
-  dVkLOG("  -- Destroying command pools...");
-  vkuCommandPoolManager::getManager().cleanup(vDevice_vk);
 
   dVkLOG("  -- destroying swapchain image views");
   for (auto &i : vSwapchainViews_vk)
@@ -277,60 +271,6 @@ void rWorld::cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
   vkCmdPipelineBarrier(_cmdBuffer, _srcFlags, _dstFlags, 0, 0, nullptr, 0, nullptr, 1, &lBarriar);
 }
 
-
-/*!
- * \brief Creates a vulkan command buffer
- * \vkIntern
- *
- * \param _pool  The command pool to use
- * \param _level The command buffer level (primary/secondary)
- *
- * \returns the command buffer or nullptr on error
- */
-VkCommandBuffer rWorld::createCommandBuffer(VkCommandPool _pool, VkCommandBufferLevel _level) {
-  VkCommandBuffer             lBuf;
-  VkCommandBufferAllocateInfo lInfo;
-  lInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  lInfo.pNext              = nullptr;
-  lInfo.commandPool        = _pool;
-  lInfo.level              = _level;
-  lInfo.commandBufferCount = 1;
-
-  auto lRes = vkAllocateCommandBuffers(vDevice_vk, &lInfo, &lBuf);
-  if (lRes) {
-    eLOG("'vkAllocateCommandBuffers' returned ", uEnum2Str::toStr(lRes));
-    return nullptr;
-  }
-
-  return lBuf;
-}
-
-/*!
- * \brief Starts recording a command buffer
- * \vkIntern
- *
- * \param _buf   The command buffer to start recording
- * \param _flags Vulkan flags to specify the command buffer usage
- * \param _info  Inheritance info for secondary command buffers
- *
- * \returns the result of vkBeginCommandBuffer
- */
-VkResult rWorld::beginCommandBuffer(VkCommandBuffer                 _buf,
-                                    VkCommandBufferUsageFlags       _flags,
-                                    VkCommandBufferInheritanceInfo *_info) {
-  VkCommandBufferBeginInfo lBegin;
-  lBegin.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  lBegin.pNext            = nullptr;
-  lBegin.flags            = _flags;
-  lBegin.pInheritanceInfo = _info;
-
-  VkResult lRes = vkBeginCommandBuffer(_buf, &lBegin);
-  if (lRes) {
-    eLOG("'vkBeginCommandBuffer' returned ", uEnum2Str::toStr(lRes));
-  }
-
-  return lRes;
-}
 
 VkSwapchainKHR     rWorld::getSwapchain() { return vSwapchain_vk; }
 VkSurfaceFormatKHR rWorld::getSwapchainFormat() { return vSwapchainFormat; }

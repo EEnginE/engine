@@ -18,17 +18,25 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuCommandBuffer.hpp"
 #include <vulkan/vulkan.h>
 
 namespace e_engine {
 
+/*!
+ * \brief Manages a command pool
+ *
+ * Command pools are managed by vkuCommandPoolManager
+ *
+ * \note This objects of this class should not be created / destroyed manually!
+ */
 class vkuCommandPool final {
  private:
   VkCommandPool vCmdPool = VK_NULL_HANDLE;
   VkDevice      vDevice  = VK_NULL_HANDLE;
 
  public:
-  vkuCommandPool() = delete;
+  vkuCommandPool() = default;
   vkuCommandPool(VkDevice _device, VkCommandPoolCreateFlags _flags, uint32_t _queueFamilyIndex);
   ~vkuCommandPool();
 
@@ -38,6 +46,14 @@ class vkuCommandPool final {
   vkuCommandPool &operator=(const vkuCommandPool &) = delete;
   vkuCommandPool &operator=(vkuCommandPool &&) = delete;
 
+  VkResult init(VkDevice _device, VkCommandPoolCreateFlags _flags, uint32_t _queueFamilyIndex);
+  void destroy();
+
   inline VkCommandPool get() const noexcept { return vCmdPool; }
+  inline VkDevice      getDevice() const noexcept { return vDevice; }
+  vkuCommandBuffer getBuffer(VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+  inline bool operator!() const { return vCmdPool == VK_NULL_HANDLE || vDevice == VK_NULL_HANDLE; }
+  inline explicit operator bool() const { return vCmdPool != VK_NULL_HANDLE && vDevice != VK_NULL_HANDLE; }
 };
 }

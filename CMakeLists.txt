@@ -129,17 +129,17 @@ new_project_library(
 )
 
 new_project_library(
-  PATH         "${PROJECT_SOURCE_DIR}/init"
-  NAME         "init"
+  PATH         "${PROJECT_SOURCE_DIR}/vulkanUtils"
+  NAME         "vulkanUtils"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
   DEPENDENCIES utils_shared
 )
 
 new_project_library(
-  PATH         "${PROJECT_SOURCE_DIR}/vulkanUtils"
-  NAME         "vulkanUtils"
+  PATH         "${PROJECT_SOURCE_DIR}/init"
+  NAME         "init"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
-  DEPENDENCIES utils_shared
+  DEPENDENCIES utils_shared vulkanUtils_shared
 )
 
 new_project_library(

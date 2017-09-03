@@ -46,6 +46,7 @@ vkuCommandPoolManager &vkuCommandPoolManager::getManager() { return sManager; }
 vkuCommandPool *vkuCommandPoolManager::getCmdPool(VkDevice                 _device,
                                                   uint32_t                 _queueFamilyIndex,
                                                   VkCommandPoolCreateFlags _flags) {
+  std::lock_guard<std::mutex> lGuard(vAccessMutex);
 
   for (auto &i : vPools) {
     if (i.threadID == std::this_thread::get_id() && i.device == _device && i.queueFamilyIndex == _queueFamilyIndex &&
@@ -58,6 +59,17 @@ vkuCommandPool *vkuCommandPoolManager::getCmdPool(VkDevice                 _devi
 }
 
 /*!
+ * \brief Wrapper for vkuCommandPool::getBuffer()
+ */
+vkuCommandBuffer vkuCommandPoolManager::getCommandBuffer(VkDevice                 _device,
+                                                         uint32_t                 _queueFamilyIndex,
+                                                         VkCommandBufferLevel     _level,
+                                                         VkCommandPoolCreateFlags _flags) {
+  return getCmdPool(_device, _queueFamilyIndex, _flags)->getBuffer(_level);
+}
+
+
+/*!
  * \brief (static) wrapper for vkuCommandPoolManager::getCmdPool()
  */
 vkuCommandPool *vkuCommandPoolManager::get(VkDevice                 _device,
@@ -67,10 +79,28 @@ vkuCommandPool *vkuCommandPoolManager::get(VkDevice                 _device,
 }
 
 /*!
+ * \brief (static) wrapper for vkuCommandPool::getBuffer()
+ */
+vkuCommandBuffer vkuCommandPoolManager::getBuffer(VkDevice                 _device,
+                                                  uint32_t                 _queueFamilyIndex,
+                                                  VkCommandBufferLevel     _level,
+                                                  VkCommandPoolCreateFlags _flags) {
+  return getManager().getCmdPool(_device, _queueFamilyIndex, _flags)->getBuffer(_level);
+}
+
+/*!
  * \brief Removes all command polls created on a device
  * \param _device The device to clean
+ *
+ * This function should be called just before the vulkan device is destroyed and AFTER all
+ * command buffers on the device are destroyed.
+ *
+ * \note This function is automatically called in iInit::destroyVulkan()
+ * \warning Do not call this function manually, unless you know what you are doing!
  */
 void vkuCommandPoolManager::cleanup(VkDevice _device) {
+  std::lock_guard<std::mutex> lGuard(vAccessMutex);
+
   auto iter = vPools.begin();
   while (iter != vPools.end()) {
     if (iter->device == _device) {

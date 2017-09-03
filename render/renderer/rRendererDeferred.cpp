@@ -130,19 +130,18 @@ VkImageView rRendererDeferred::getAttachmentView(ATTACHMENT_ROLE _role) {
  * The buffers have 2 triangles, filling the entire normalized space (-1,-1) - (1,1)
  */
 bool rRendererDeferred::initRendererData() {
-  uint32_t        lQueueFamily;
-  VkQueue         lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  vkuCommandPool *lPool  = vkuCommandPoolManager::get(vWorldPtr->getDevice(), lQueueFamily);
-  VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer(lPool->get());
-  vkuFence_t      lFence(vWorldPtr->getDevice());
+  uint32_t         lQueueFamily;
+  VkQueue          lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
+  vkuCommandBuffer lBuf   = vkuCommandPoolManager::getBuffer(vWorldPtr->getDevice(), lQueueFamily);
+  vkuFence_t       lFence(vWorldPtr->getDevice());
 
   std::vector<float>    lDefBufferData  = {1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
   std::vector<uint32_t> lDefBufferIndex = {0, 1, 2, 2, 3, 0};
 
-  vWorldPtr->beginCommandBuffer(lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+  lBuf.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-  vDeferredDataBuffer.cmdInit(lDefBufferData, lBuf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-  vDeferredIndexBuffer.cmdInit(lDefBufferIndex, lBuf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+  vDeferredDataBuffer.cmdInit(lDefBufferData, *lBuf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+  vDeferredIndexBuffer.cmdInit(lDefBufferIndex, *lBuf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
   VkSubmitInfo lInfo;
   lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -151,11 +150,11 @@ bool rRendererDeferred::initRendererData() {
   lInfo.pWaitSemaphores      = nullptr;
   lInfo.pWaitDstStageMask    = nullptr;
   lInfo.commandBufferCount   = 1;
-  lInfo.pCommandBuffers      = &lBuf;
+  lInfo.pCommandBuffers      = &lBuf.get();
   lInfo.signalSemaphoreCount = 0;
   lInfo.pSignalSemaphores    = nullptr;
 
-  vkEndCommandBuffer(lBuf);
+  lBuf.end();
 
   {
     std::lock_guard<std::mutex> lGuard(vInitPtr->getQueueMutex(lQueue));
@@ -167,8 +166,6 @@ bool rRendererDeferred::initRendererData() {
     eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
   }
 
-  vkFreeCommandBuffers(vDevice_vk, lPool->get(), 1, &lBuf);
-
   vDeferredDataBuffer.doneCopying();
   vDeferredIndexBuffer.doneCopying();
   return true;
@@ -179,7 +176,7 @@ bool rRendererDeferred::freeRendererData() {
   return true;
 }
 
-void rRendererDeferred::initCmdBuffers(VkCommandPool _pool) {
+void rRendererDeferred::initCmdBuffers(vkuCommandPool *_pool) {
   for (auto i : vObjects) {
     if (i.get() == nullptr) {
       eLOG("FATAL ERROR: nullptr in object list!");
@@ -199,27 +196,17 @@ void rRendererDeferred::initCmdBuffers(VkCommandPool _pool) {
     i.lights.resize(vLightObjects.size());
 
     for (auto &j : i.objects)
-      j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+      j.init(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
 
     for (auto &j : i.lights)
-      j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+      j.init(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
 
-    i.layoutChange1 = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
-    i.layoutChange2 = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+    i.layoutChange1.init(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+    i.layoutChange2.init(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
   }
 }
 
-void rRendererDeferred::freeCmdBuffers(VkCommandPool _pool) {
-  for (auto &i : vFbData) {
-    if (i.objects.size() > 0)
-      vkFreeCommandBuffers(vDevice_vk, _pool, static_cast<uint32_t>(i.objects.size()), i.objects.data());
-
-    if (i.lights.size() > 0)
-      vkFreeCommandBuffers(vDevice_vk, _pool, static_cast<uint32_t>(i.lights.size()), i.lights.data());
-
-    vkFreeCommandBuffers(vDevice_vk, _pool, 1, &i.layoutChange1);
-    vkFreeCommandBuffers(vDevice_vk, _pool, 1, &i.layoutChange2);
-  }
+void rRendererDeferred::freeCmdBuffers() {
   vFbData.clear();
   vRenderObjects.clear();
   vLightObjects.clear();
@@ -232,9 +219,9 @@ void rRendererDeferred::freeCmdBuffers(VkCommandPool _pool) {
  * Elements in _toRender can be skipped by setting them to nullptr
  */
 void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) {
-  vWorldPtr->beginCommandBuffer(_fb.render);
+  _fb.render.begin();
 
-  vkCmdBeginRenderPass(_fb.render, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+  vkCmdBeginRenderPass(*_fb.render, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
   for (uint32_t i = 0; i < vRenderObjects.size(); i++) {
     if (_toRender == RECORD_PUSH_CONST_ONLY)
@@ -247,24 +234,23 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
       continue;
     }
 
-    vWorldPtr->beginCommandBuffer(
-        vFbData[_fb.index].objects[i], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
+    vFbData[_fb.index].objects[i].begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
     if (lPipe->getNumViewpors() > 0)
-      vkCmdSetViewport(vFbData[_fb.index].objects[i], 0, 1, &vCmdRecordInfo.lViewPort);
+      vkCmdSetViewport(*vFbData[_fb.index].objects[i], 0, 1, &vCmdRecordInfo.lViewPort);
 
     if (lPipe->getNumScissors() > 0)
-      vkCmdSetScissor(vFbData[_fb.index].objects[i], 0, 1, &vCmdRecordInfo.lScissors);
+      vkCmdSetScissor(*vFbData[_fb.index].objects[i], 0, 1, &vCmdRecordInfo.lScissors);
 
-    vRenderObjects[i]->record(vFbData[_fb.index].objects[i]);
-    vkEndCommandBuffer(vFbData[_fb.index].objects[i]);
+    vRenderObjects[i]->record(*vFbData[_fb.index].objects[i]);
+    vFbData[_fb.index].objects[i].end();
   }
 
-  vkCmdExecuteCommands(
-      _fb.render, static_cast<uint32_t>(vFbData[_fb.index].objects.size()), vFbData[_fb.index].objects.data());
+  for (auto &i : vFbData[_fb.index].objects) {
+    vkCmdExecuteCommands(*_fb.render, 1, &i.get());
+  }
 
-  vWorldPtr->beginCommandBuffer(
-      vFbData[_fb.index].layoutChange1, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
+  vFbData[_fb.index].layoutChange1.begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
   VkImageSubresourceRange lRange = {};
   lRange.aspectMask              = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -277,27 +263,27 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
   auto *lBuffNormal = vRenderPass_vk.attachmentBuffers[DEFERRED_NORMAL_ATTACHMENT_INDEX];
   auto *lBuffAlbedo = vRenderPass_vk.attachmentBuffers[DEFERRED_ALBEDO_ATTACHMENT_INDEX];
 
-  vWorldPtr->cmdChangeImageLayout(vFbData[_fb.index].layoutChange1,
+  vWorldPtr->cmdChangeImageLayout(*vFbData[_fb.index].layoutChange1,
                                   lBuffPos->img,
                                   lRange,
                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-  vWorldPtr->cmdChangeImageLayout(vFbData[_fb.index].layoutChange1,
+  vWorldPtr->cmdChangeImageLayout(*vFbData[_fb.index].layoutChange1,
                                   lBuffNormal->img,
                                   lRange,
                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-  vWorldPtr->cmdChangeImageLayout(vFbData[_fb.index].layoutChange1,
+  vWorldPtr->cmdChangeImageLayout(*vFbData[_fb.index].layoutChange1,
                                   lBuffAlbedo->img,
                                   lRange,
                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-  vkEndCommandBuffer(vFbData[_fb.index].layoutChange1);
-  vkCmdExecuteCommands(_fb.render, 1, &vFbData[_fb.index].layoutChange1);
-  vkCmdNextSubpass(_fb.render, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+  vFbData[_fb.index].layoutChange1.end();
+  vkCmdExecuteCommands(*_fb.render, 1, &vFbData[_fb.index].layoutChange1.get());
+  vkCmdNextSubpass(*_fb.render, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
   for (uint32_t i = 0; i < vLightObjects.size(); i++) {
     if (_toRender == RECORD_PUSH_CONST_ONLY)
@@ -310,49 +296,49 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
       continue;
     }
 
-    vWorldPtr->beginCommandBuffer(
-        vFbData[_fb.index].lights[i], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
+    vFbData[_fb.index].lights[i].begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
     if (lPipe->getNumViewpors() > 0)
-      vkCmdSetViewport(vFbData[_fb.index].lights[i], 0, 1, &vCmdRecordInfo.lViewPort);
+      vkCmdSetViewport(*vFbData[_fb.index].lights[i], 0, 1, &vCmdRecordInfo.lViewPort);
 
     if (lPipe->getNumScissors() > 0)
-      vkCmdSetScissor(vFbData[_fb.index].lights[i], 0, 1, &vCmdRecordInfo.lScissors);
+      vkCmdSetScissor(*vFbData[_fb.index].lights[i], 0, 1, &vCmdRecordInfo.lScissors);
 
-    vLightObjects[i]->recordLight(vFbData[_fb.index].lights[i], vDeferredDataBuffer, vDeferredIndexBuffer);
-    vkEndCommandBuffer(vFbData[_fb.index].lights[i]);
+    vLightObjects[i]->recordLight(*vFbData[_fb.index].lights[i], vDeferredDataBuffer, vDeferredIndexBuffer);
+    vFbData[_fb.index].lights[i].end();
   }
 
-  vkCmdExecuteCommands(
-      _fb.render, static_cast<uint32_t>(vFbData[_fb.index].lights.size()), vFbData[_fb.index].lights.data());
+  for (auto &i : vFbData[_fb.index].lights) {
+    vkCmdExecuteCommands(*_fb.render, 1, &i.get());
+  }
 
-  vWorldPtr->beginCommandBuffer(
-      vFbData[_fb.index].layoutChange2, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
+  vFbData[_fb.index].layoutChange2.begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
-  vWorldPtr->cmdChangeImageLayout(vFbData[_fb.index].layoutChange2,
+  vWorldPtr->cmdChangeImageLayout(*vFbData[_fb.index].layoutChange2,
                                   lBuffPos->img,
                                   lRange,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-  vWorldPtr->cmdChangeImageLayout(vFbData[_fb.index].layoutChange2,
+  vWorldPtr->cmdChangeImageLayout(*vFbData[_fb.index].layoutChange2,
                                   lBuffNormal->img,
                                   lRange,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-  vWorldPtr->cmdChangeImageLayout(vFbData[_fb.index].layoutChange2,
+  vWorldPtr->cmdChangeImageLayout(*vFbData[_fb.index].layoutChange2,
                                   lBuffAlbedo->img,
                                   lRange,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-  vkEndCommandBuffer(vFbData[_fb.index].layoutChange2);
-  vkCmdExecuteCommands(_fb.render, 1, &vFbData[_fb.index].layoutChange2);
+  vFbData[_fb.index].layoutChange2.end();
+  vkCmdExecuteCommands(*_fb.render, 1, &vFbData[_fb.index].layoutChange2.get());
 
-  vkCmdEndRenderPass(_fb.render);
+  vkCmdEndRenderPass(*_fb.render);
 
-  auto lRes = vkEndCommandBuffer(_fb.render);
+  auto lRes = _fb.render.end();
+  ;
   if (lRes) {
     eLOG("'vkEndCommandBuffer' returned ", uEnum2Str::toStr(lRes));
     //! \todo Handle this somehow (practically this code must not execute)

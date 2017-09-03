@@ -26,10 +26,24 @@
 
 using namespace e_engine;
 
-vkuCommandPool::vkuCommandPool(VkDevice _device, VkCommandPoolCreateFlags _flags, uint32_t _queueFamilyIndex)
-    : vDevice(_device) {
-  if (vDevice == VK_NULL_HANDLE)
-    return;
+vkuCommandPool::vkuCommandPool(VkDevice _device, VkCommandPoolCreateFlags _flags, uint32_t _queueFamilyIndex) {
+  init(_device, _flags, _queueFamilyIndex);
+}
+
+vkuCommandPool::~vkuCommandPool() { destroy(); }
+
+/*!
+ * \brief Initializes the command pool
+ * \param _device           The Vulkan device to use
+ * \param _flags            The create flags
+ * \param _queueFamilyIndex The queue family to use
+ */
+VkResult vkuCommandPool::init(VkDevice _device, VkCommandPoolCreateFlags _flags, uint32_t _queueFamilyIndex) {
+  vDevice = _device;
+  if (vDevice == VK_NULL_HANDLE) {
+    eLOG(L"Invalid parameter: _device is VK_NULL_HANDLE");
+    return VK_ERROR_INITIALIZATION_FAILED;
+  }
 
   VkCommandPoolCreateInfo lCreateInfo;
   lCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -42,13 +56,31 @@ vkuCommandPool::vkuCommandPool(VkDevice _device, VkCommandPoolCreateFlags _flags
     eLOG("'vkCreateCommandPool' returned ", uEnum2Str::toStr(lRes));
     eLOG("Failed to create cmd pool for thread ", std::this_thread::get_id(), " and queue family ", _queueFamilyIndex);
     vCmdPool = VK_NULL_HANDLE;
+    vDevice  = VK_NULL_HANDLE;
   } else {
     dVkLOG("Created command pool for thread ", std::this_thread::get_id(), " and queue family ", _queueFamilyIndex);
   }
+
+  return lRes;
 }
 
-vkuCommandPool::~vkuCommandPool() {
+/*!
+ * \brief Destroyes the command pool
+ * \warning All command buffers (vkuCommandBuffer) must be destoyed before this function is called
+ * \note Command pools should only be destroyed before its vulkan device is destroyed.
+ */
+void vkuCommandPool::destroy() {
   if (vCmdPool) {
     vkDestroyCommandPool(vDevice, vCmdPool, nullptr);
+  }
+  vCmdPool = VK_NULL_HANDLE;
+  vDevice  = VK_NULL_HANDLE;
+}
+
+vkuCommandBuffer vkuCommandPool::getBuffer(VkCommandBufferLevel _level) {
+  if (*this) {
+    return vkuCommandBuffer(this, _level);
+  } else {
+    return vkuCommandBuffer();
   }
 }

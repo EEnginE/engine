@@ -22,13 +22,14 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuCommandBuffer.hpp"
 #include "rRendererBase.hpp"
 
 namespace e_engine {
 
 class rRendererBasic : public internal::rRendererBase {
   struct FB_DATA {
-    std::vector<VkCommandBuffer> buffers;
+    std::vector<vkuCommandBuffer> buffers;
   };
 
  private:
@@ -41,8 +42,8 @@ class rRendererBasic : public internal::rRendererBase {
   std::vector<AttachmentInfo> getAttachmentInfos() override;
   void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) override;
 
-  void initCmdBuffers(VkCommandPool _pool) override;
-  void freeCmdBuffers(VkCommandPool _pool) override;
+  void initCmdBuffers(vkuCommandPool *_pool) override;
+  void freeCmdBuffers() override;
 
  public:
   static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 0;

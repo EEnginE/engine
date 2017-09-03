@@ -90,19 +90,18 @@ int rRendererBase::init() {
   if (vIsSetup)
     return -3;
 
-  uint32_t        lQueueFamily;
-  VkQueue         lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  vkuCommandPool *lPool  = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
-  VkCommandBuffer lBuf   = vWorldPtr->createCommandBuffer(lPool->get());
-  vkuFence_t      lFence(vDevice_vk);
+  uint32_t         lQueueFamily;
+  VkQueue          lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
+  vkuCommandBuffer lBuf   = vkuCommandPoolManager::getBuffer(vDevice_vk, lQueueFamily);
+  vkuFence_t       lFence(vDevice_vk);
 
   if (!lBuf)
     return -1;
 
-  if (vWorldPtr->beginCommandBuffer(lBuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
+  if (lBuf.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) != VK_SUCCESS)
     return -2;
 
-  if (initImageBuffers(lBuf))
+  if (initImageBuffers(*lBuf))
     return 1;
 
   // vRenderPass_vk.attachments resized in 'initImageBuffers'
@@ -126,7 +125,7 @@ int rRendererBase::init() {
   if (initFramebuffers())
     return 3;
 
-  vkEndCommandBuffer(lBuf);
+  vkEndCommandBuffer(*lBuf);
 
   VkSubmitInfo lInfo;
   lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -135,7 +134,7 @@ int rRendererBase::init() {
   lInfo.pWaitSemaphores      = nullptr;
   lInfo.pWaitDstStageMask    = nullptr;
   lInfo.commandBufferCount   = 1;
-  lInfo.pCommandBuffers      = &lBuf;
+  lInfo.pCommandBuffers      = &lBuf.get();
   lInfo.signalSemaphoreCount = 0;
   lInfo.pSignalSemaphores    = nullptr;
 
@@ -149,8 +148,6 @@ int rRendererBase::init() {
     eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
     return 3;
   }
-
-  vkFreeCommandBuffers(vDevice_vk, lPool->get(), 1, &lBuf);
 
   if (!initRendererData())
     return 4;
@@ -329,7 +326,7 @@ void rRendererBase::updateUniforms() {
 }
 
 
-void rRendererBase::initFrameCommandBuffers(VkCommandPool _pool) {
+void rRendererBase::initFrameCommandBuffers(vkuCommandPool *_pool) {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
   VkImageSubresourceRange lSubResRange = {};
@@ -340,54 +337,50 @@ void rRendererBase::initFrameCommandBuffers(VkCommandPool _pool) {
   lSubResRange.layerCount              = 1;
 
   for (auto &i : vFramebuffers_vk) {
-    i.preRender  = vWorldPtr->createCommandBuffer(_pool);
-    i.render     = vWorldPtr->createCommandBuffer(_pool);
-    i.postRender = vWorldPtr->createCommandBuffer(_pool);
+    i.preRender.init(_pool);
+    i.render.init(_pool);
+    i.postRender.init(_pool);
 
-    vWorldPtr->beginCommandBuffer(i.preRender);
-    vWorldPtr->cmdChangeImageLayout(i.preRender,
+    i.preRender.begin();
+    vWorldPtr->cmdChangeImageLayout(*i.preRender,
                                     i.img,
                                     lSubResRange,
                                     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
-    vkEndCommandBuffer(i.preRender);
+    i.preRender.end();
 
-    vWorldPtr->beginCommandBuffer(i.postRender);
-    vWorldPtr->cmdChangeImageLayout(i.postRender,
+    i.postRender.begin();
+    vWorldPtr->cmdChangeImageLayout(*i.postRender,
                                     i.img,
                                     lSubResRange,
                                     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
-    vkEndCommandBuffer(i.postRender);
+    i.postRender.end();
   }
 }
 
-void rRendererBase::freeFrameCommandBuffers(VkCommandPool _pool) {
+void rRendererBase::freeFrameCommandBuffers() {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
   for (auto &i : vFramebuffers_vk) {
-    vkFreeCommandBuffers(vDevice_vk, _pool, 1, &i.preRender);
-    vkFreeCommandBuffers(vDevice_vk, _pool, 1, &i.render);
-    vkFreeCommandBuffers(vDevice_vk, _pool, 1, &i.postRender);
-
-    i.preRender  = nullptr;
-    i.render     = nullptr;
-    i.postRender = nullptr;
+    i.preRender.destroy();
+    i.render.destroy();
+    i.postRender.destroy();
   }
 }
 
-void rRendererBase::initAllCmdBuffers(VkCommandPool _pool) {
+void rRendererBase::initAllCmdBuffers(vkuCommandPool *_pool) {
   initFrameCommandBuffers(_pool);
   initCmdBuffers(_pool);
 }
 
-void rRendererBase::freeAllCmdBuffers(VkCommandPool _pool) {
-  freeCmdBuffers(_pool);
-  freeFrameCommandBuffers(_pool);
+void rRendererBase::freeAllCmdBuffers() {
+  freeCmdBuffers();
+  freeFrameCommandBuffers();
 }
 
 /*!
@@ -554,9 +547,9 @@ rRendererBase::CommandBuffers rRendererBase::getCommandBuffers(uint32_t _framebu
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
   CommandBuffers                        lBuffers = {};
 
-  lBuffers.pre             = &vFramebuffers_vk[_framebuffer].preRender;
-  lBuffers.render          = &vFramebuffers_vk[_framebuffer].render;
-  lBuffers.post            = &vFramebuffers_vk[_framebuffer].postRender;
+  lBuffers.pre             = &vFramebuffers_vk[_framebuffer].preRender.get();
+  lBuffers.render          = &vFramebuffers_vk[_framebuffer].render.get();
+  lBuffers.post            = &vFramebuffers_vk[_framebuffer].postRender.get();
   lBuffers.enableRendering = &vEnableRendering;
 
   return lBuffers;

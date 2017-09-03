@@ -62,10 +62,9 @@ class rSceneBase {
   std::mutex           vObjects_MUT;
   std::recursive_mutex vObjectsInit_MUT;
 
-  bool            vInitializingObjects = false;
-  vkuCommandPool *vInitPool_vk         = nullptr;
-  VkCommandBuffer vInitBuff_vk;
-  VkQueue         vInitQueue_vk;
+  bool             vInitializingObjects = false;
+  vkuCommandBuffer vInitBuff_vk;
+  VkQueue          vInitQueue_vk;
 
   BASE_OBJS vInitObjects;
 

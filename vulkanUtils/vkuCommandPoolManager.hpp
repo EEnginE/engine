@@ -42,7 +42,7 @@ class vkuCommandPoolManager {
 
   plf::colony<CmdPoolMetaData> vPools;
 
-  std::mutex accessMutex;
+  std::mutex vAccessMutex;
 
   vkuCommandPoolManager();
 
@@ -53,9 +53,19 @@ class vkuCommandPoolManager {
                              uint32_t                 _queueFamilyIndex,
                              VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
+  vkuCommandBuffer getCommandBuffer(VkDevice                 _device,
+                                    uint32_t                 _queueFamilyIndex,
+                                    VkCommandBufferLevel     _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                                    VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
   static vkuCommandPool *get(VkDevice                 _device,
                              uint32_t                 _queueFamilyIndex,
                              VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
+  static vkuCommandBuffer getBuffer(VkDevice                 _device,
+                                    uint32_t                 _queueFamilyIndex,
+                                    VkCommandBufferLevel     _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                                    VkCommandPoolCreateFlags _flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
   void cleanup(VkDevice _device);
 };

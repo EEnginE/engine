@@ -117,7 +117,7 @@ void rRenderLoop::renderLoop() {
         eLOG("This might cause undefined behaviour!");
       }
 
-      i->initAllCmdBuffers(lCommandPool->get());
+      i->initAllCmdBuffers(lCommandPool);
     }
 
     VkPipelineStageFlags lSubmitWaitFlags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
@@ -296,7 +296,7 @@ void rRenderLoop::renderLoop() {
     }
 
     for (auto const &i : vRenderers)
-      i->freeAllCmdBuffers(lCommandPool->get());
+      i->freeAllCmdBuffers();
 
     // Sync point 3
     std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);

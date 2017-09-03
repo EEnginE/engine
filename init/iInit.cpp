@@ -24,6 +24,7 @@
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
 #include "uSystem.hpp"
+#include "vkuCommandPoolManager.hpp"
 #include <csignal>
 #include <string.h>
 #include <vulkan/vulkan.h>
@@ -350,6 +351,8 @@ void iInit::destroyVulkan() {
   if (vSurface_vk)
     vkDestroySurfaceKHR(vInstance_vk, vSurface_vk, nullptr);
 
+  dVkLOG("  -- Destroying command pools");
+  vkuCommandPoolManager::getManager().cleanup(vDevice_vk.device);
 
   dVkLOG("  -- destroying device");
   if (vDevice_vk.device)

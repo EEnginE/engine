@@ -159,11 +159,10 @@ bool rSceneBase::beginInitObject() {
   uint32_t lQueueFamily;
 
   vInitQueue_vk = vWorldPtr->getInitPtr()->getQueue(VK_QUEUE_TRANSFER_BIT, 0.25f, &lQueueFamily);
-  vInitPool_vk  = vkuCommandPoolManager::get(vWorldPtr->getDevice(), lQueueFamily);
-  vInitBuff_vk  = vWorldPtr->createCommandBuffer(vInitPool_vk->get());
+  vInitBuff_vk  = vkuCommandPoolManager::getBuffer(vWorldPtr->getDevice(), lQueueFamily);
 
-  if (vWorldPtr->beginCommandBuffer(vInitBuff_vk, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)) {
-    vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk->get(), 1, &vInitBuff_vk);
+  if (vInitBuff_vk.begin() != VK_SUCCESS) {
+    vInitBuff_vk.destroy();
     vObjectsInit_MUT.unlock();
     return false;
   }
@@ -190,7 +189,7 @@ bool rSceneBase::initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objInde
   if (!lMesh)
     return false;
 
-  _obj->setData(vInitBuff_vk, lMesh);
+  _obj->setData(*vInitBuff_vk, lMesh);
   vInitObjects.emplace_back(_obj);
   return true;
 }
@@ -206,7 +205,7 @@ bool rSceneBase::endInitObject() {
     return false;
   }
 
-  vkEndCommandBuffer(vInitBuff_vk);
+  vInitBuff_vk.end();
 
   VkSubmitInfo lInfo         = {};
   lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -215,7 +214,7 @@ bool rSceneBase::endInitObject() {
   lInfo.pWaitSemaphores      = nullptr;
   lInfo.pWaitDstStageMask    = nullptr;
   lInfo.commandBufferCount   = 1;
-  lInfo.pCommandBuffers      = &vInitBuff_vk;
+  lInfo.pCommandBuffers      = &vInitBuff_vk.get();
   lInfo.signalSemaphoreCount = 0;
   lInfo.pSignalSemaphores    = nullptr;
 
@@ -243,7 +242,7 @@ bool rSceneBase::endInitObject() {
   for (auto i : vInitObjects)
     i->finishData();
 
-  vkFreeCommandBuffers(vWorldPtr->getDevice(), vInitPool_vk->get(), 1, &vInitBuff_vk);
+  vInitBuff_vk.destroy();
 
   vInitObjects.clear();
   vInitializingObjects = false;

@@ -98,7 +98,6 @@ class rWorld {
 
   VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
 
-  std::mutex              vCommandPoolsMutex;
   std::mutex              vRenderAccessMutex;
   std::condition_variable vRenderedFrameSignal;
 
@@ -130,14 +129,6 @@ class rWorld {
 
 
   // Begin Low level Vulkan section
-
-  VkCommandBuffer createCommandBuffer(VkCommandPool        _pool,
-                                      VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-
-  VkResult beginCommandBuffer(VkCommandBuffer                 _buf,
-                              VkCommandBufferUsageFlags       _flags = 0,
-                              VkCommandBufferInheritanceInfo *_info  = nullptr);
-
   void cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
                             VkImage                 _img,
                             VkImageSubresourceRange _imgSubres,

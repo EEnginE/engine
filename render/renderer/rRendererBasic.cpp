@@ -59,7 +59,7 @@ VkImageView rRendererBasic::getAttachmentView(ATTACHMENT_ROLE _role) {
   }
 }
 
-void rRendererBasic::initCmdBuffers(VkCommandPool _pool) {
+void rRendererBasic::initCmdBuffers(vkuCommandPool *_pool) {
   for (auto i : vObjects) {
     if (i.get() == nullptr) {
       eLOG("FATAL ERROR: nullptr in object list!");
@@ -75,16 +75,12 @@ void rRendererBasic::initCmdBuffers(VkCommandPool _pool) {
   for (auto &i : vFbData) {
     i.buffers.resize(vRenderObjects.size());
     for (auto &j : i.buffers) {
-      j = vWorldPtr->createCommandBuffer(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+      j.init(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
     }
   }
 }
 
-void rRendererBasic::freeCmdBuffers(VkCommandPool _pool) {
-  for (auto &i : vFbData) {
-    if (i.buffers.size() > 0)
-      vkFreeCommandBuffers(vDevice_vk, _pool, static_cast<uint32_t>(i.buffers.size()), i.buffers.data());
-  }
+void rRendererBasic::freeCmdBuffers() {
   vFbData.clear();
   vRenderObjects.clear();
 }
@@ -96,9 +92,9 @@ void rRendererBasic::freeCmdBuffers(VkCommandPool _pool) {
  * Elements in _toRender can be skipped by setting them to nullptr
  */
 void rRendererBasic::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) {
-  vWorldPtr->beginCommandBuffer(_fb.render);
+  _fb.render.begin();
 
-  vkCmdBeginRenderPass(_fb.render, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+  vkCmdBeginRenderPass(*_fb.render, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
   for (uint32_t i = 0; i < vRenderObjects.size(); i++) {
     if (_toRender == RECORD_PUSH_CONST_ONLY)
@@ -111,24 +107,25 @@ void rRendererBasic::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRend
       continue;
     }
 
-    vWorldPtr->beginCommandBuffer(
-        vFbData[_fb.index].buffers[i], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
+    vFbData[_fb.index].buffers[i].begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
     if (lPipe->getNumViewpors() > 0)
-      vkCmdSetViewport(vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lViewPort);
+      vkCmdSetViewport(*vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lViewPort);
 
     if (lPipe->getNumScissors() > 0)
-      vkCmdSetScissor(vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lScissors);
+      vkCmdSetScissor(*vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lScissors);
 
-    vRenderObjects[i]->record(vFbData[_fb.index].buffers[i]);
-    vkEndCommandBuffer(vFbData[_fb.index].buffers[i]);
+    vRenderObjects[i]->record(*vFbData[_fb.index].buffers[i]);
+    vFbData[_fb.index].buffers[i].end();
   }
 
-  vkCmdExecuteCommands(
-      _fb.render, static_cast<uint32_t>(vFbData[_fb.index].buffers.size()), vFbData[_fb.index].buffers.data());
-  vkCmdEndRenderPass(_fb.render);
+  for (auto &i : vFbData[_fb.index].buffers) {
+    vkCmdExecuteCommands(*_fb.render, 1, &i.get());
+  }
 
-  auto lRes = vkEndCommandBuffer(_fb.render);
+  vkCmdEndRenderPass(*_fb.render);
+
+  auto lRes = vkEndCommandBuffer(*_fb.render);
   if (lRes) {
     eLOG("'vkEndCommandBuffer' returned ", uEnum2Str::toStr(lRes));
     //! \todo Handle this somehow (practically this code must not execute)

@@ -22,7 +22,7 @@
 #pragma once
 
 #include "defines.hpp"
-
+#include "vkuCommandPool.hpp"
 #include <condition_variable>
 #include <memory>
 #include <mutex>
@@ -87,11 +87,11 @@ class rRendererBase {
   } RenderPass_vk;
 
   typedef struct Framebuffer_vk : Buffer_vk {
-    uint32_t        index      = 0;
-    VkFramebuffer   fb         = nullptr;
-    VkCommandBuffer preRender  = nullptr;
-    VkCommandBuffer render     = nullptr;
-    VkCommandBuffer postRender = nullptr;
+    uint32_t         index = 0;
+    VkFramebuffer    fb    = nullptr;
+    vkuCommandBuffer preRender;
+    vkuCommandBuffer render;
+    vkuCommandBuffer postRender;
   } Framebuffer_vk;
 
   typedef struct RecordInfo_vk {
@@ -132,14 +132,14 @@ class rRendererBase {
   int initRenderPass();
   int initFramebuffers();
 
-  void initFrameCommandBuffers(VkCommandPool _pool);
-  void freeFrameCommandBuffers(VkCommandPool _pool);
+  void initFrameCommandBuffers(vkuCommandPool *_pool);
+  void freeFrameCommandBuffers();
 
   void recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _toRender);
 
   // Meant for the render loop
-  void initAllCmdBuffers(VkCommandPool _pool);
-  void freeAllCmdBuffers(VkCommandPool _pool);
+  void initAllCmdBuffers(vkuCommandPool *_pool);
+  void freeAllCmdBuffers();
 
   void updateRenderer();
   void updatePushConstants(uint32_t _framebuffer);
@@ -177,8 +177,8 @@ class rRendererBase {
                            uint32_t _dstAccessMask   = 0,
                            uint32_t _dependencyFlags = 0);
 
-  virtual void initCmdBuffers(VkCommandPool _pool) = 0;
-  virtual void freeCmdBuffers(VkCommandPool _pool) = 0;
+  virtual void initCmdBuffers(vkuCommandPool *_pool) = 0;
+  virtual void freeCmdBuffers()                      = 0;
   virtual void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) = 0;
 
   virtual bool initRendererData() { return true; }

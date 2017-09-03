@@ -22,6 +22,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuCommandBuffer.hpp"
 #include "rBuffer.hpp"
 #include "rRendererBase.hpp"
 
@@ -29,11 +30,11 @@ namespace e_engine {
 
 class rRendererDeferred : public internal::rRendererBase {
   struct FB_DATA {
-    std::vector<VkCommandBuffer> objects;
-    std::vector<VkCommandBuffer> lights;
+    std::vector<vkuCommandBuffer> objects;
+    std::vector<vkuCommandBuffer> lights;
 
-    VkCommandBuffer layoutChange1;
-    VkCommandBuffer layoutChange2;
+    vkuCommandBuffer layoutChange1;
+    vkuCommandBuffer layoutChange2;
   };
 
  private:
@@ -53,8 +54,8 @@ class rRendererDeferred : public internal::rRendererBase {
   bool initRendererData() override;
   bool freeRendererData() override;
 
-  void initCmdBuffers(VkCommandPool _pool) override;
-  void freeCmdBuffers(VkCommandPool _pool) override;
+  void initCmdBuffers(vkuCommandPool *_pool) override;
+  void freeCmdBuffers() override;
 
  public:
   static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX   = FIRST_FREE_ATTACHMENT_INDEX + 0;
