@@ -27,7 +27,7 @@ myScene::~myScene() {
 int myScene::init() {
   // updateCamera();
 
-  vPipeline.setDynamicViewports(1)->setDynamicScissors(1)->enableDepthTest()->enableCulling();
+  vPipeline.setDynamicViewports(1)->setDynamicScissors(1); //->enableDepthTest()->enableCulling();
   vPipeline.setShader(&vShader);
 
   //   vLightPipeline.setDynamicViewports(1)->setDynamicScissors(1); //->enableDepthTest();
@@ -115,11 +115,11 @@ void myScene::objectMoveLoop() {
     lNow      = std::chrono::system_clock::now();
     lDuration = std::chrono::duration_cast<std::chrono::milliseconds>(lNow - lStart);
 
-    float lRotDeg = lDuration.count() / 50.0f;
+    // float lRotDeg = lDuration.count() / 50.0f;
 
     std::lock_guard<std::mutex> lLock(vObjAccesMut);
-    for (auto &i : vObjects)
-      i->setRotation(lAxis, lRotDeg);
+    // for (auto &i : vObjects)
+    // i->setRotation(lAxis, lRotDeg);
 
     getWorldPtr()->waitForFrame(lWaitMutex);
   }

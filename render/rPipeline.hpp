@@ -69,6 +69,7 @@ class rPipeline {
   VkPipelineRasterizationStateCreateInfo vRasterization = {};
   VkPipelineMultisampleStateCreateInfo   vMultisample   = {};
   VkPipelineDepthStencilStateCreateInfo  vDepthStencil  = {};
+  VkPipelineColorBlendAttachmentState    vBlendAttactch = {};
   VkPipelineColorBlendStateCreateInfo    vColorBlend    = {};
   VkPipelineDynamicStateCreateInfo       vDynamic       = {};
 

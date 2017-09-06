@@ -98,8 +98,8 @@ rPipeline::rPipeline() {
   vColorBlend.flags                       = 0;
   vColorBlend.logicOpEnable               = VK_FALSE;
   vColorBlend.logicOp                     = VK_LOGIC_OP_COPY;
-  vColorBlend.attachmentCount             = 0;
-  vColorBlend.pAttachments                = nullptr;
+  vColorBlend.attachmentCount             = 1;
+  vColorBlend.pAttachments                = &vBlendAttactch;
   vColorBlend.blendConstants[0]           = 0.0f;
   vColorBlend.blendConstants[1]           = 0.0f;
   vColorBlend.blendConstants[2]           = 0.0f;
@@ -109,6 +109,15 @@ rPipeline::rPipeline() {
   vDynamic.flags                          = 0;
   vDynamic.dynamicStateCount              = 0;
   vDynamic.pDynamicStates                 = nullptr;
+  vBlendAttactch.blendEnable              = VK_FALSE;
+  vBlendAttactch.srcColorBlendFactor      = VK_BLEND_FACTOR_ONE;
+  vBlendAttactch.dstColorBlendFactor      = VK_BLEND_FACTOR_ONE;
+  vBlendAttactch.colorBlendOp             = VK_BLEND_OP_ADD;
+  vBlendAttactch.srcAlphaBlendFactor      = VK_BLEND_FACTOR_ONE;
+  vBlendAttactch.dstAlphaBlendFactor      = VK_BLEND_FACTOR_ONE;
+  vBlendAttactch.alphaBlendOp             = VK_BLEND_OP_ADD;
+  vBlendAttactch.colorWriteMask =
+      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 }
 
 rPipeline::~rPipeline() {

@@ -348,7 +348,7 @@ void rRendererBase::initFrameCommandBuffers(vkuCommandPool *_pool) {
                                     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
     i.preRender.end();
 
     i.postRender.begin();
@@ -358,7 +358,7 @@ void rRendererBase::initFrameCommandBuffers(vkuCommandPool *_pool) {
                                     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
     i.postRender.end();
   }
 }
