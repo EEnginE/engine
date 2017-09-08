@@ -138,7 +138,7 @@ void _uConfig::__uConfig_Config::reset() {
 
 void _uConfig::__uConfig_Camera::reset() {
   movementSpeed    = 0.2;
-  mouseSensitivity = 0.001;
+  mouseSensitivity = 0.0001;
   angleHorizontal  = M_PI;
   angleVertical    = 0;
 }

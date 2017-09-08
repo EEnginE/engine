@@ -28,7 +28,7 @@ int myScene::init() {
   updateCamera();
   calculateProjectionPerspective(GlobConf.win.width, GlobConf.win.height, 0.01f, 256.0f, glm::radians(60.0f));
 
-  vPipeline.setDynamicViewports(1)->setDynamicScissors(1)->enableDepthTest()->enableCulling();
+  vPipeline.setDynamicViewports(1)->setDynamicScissors(1)->enableDepthTest()->enableCulling(VK_FRONT_FACE_CLOCKWISE);
   vPipeline.setShader(&vShader);
 
   //   vLightPipeline.setDynamicViewports(1)->setDynamicScissors(1); //->enableDepthTest();
