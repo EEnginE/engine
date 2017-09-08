@@ -31,6 +31,7 @@ using e_engine::rRendererBasic;
 using e_engine::internal::rRendererBase;
 using e_engine::rFrameCounter;
 using e_engine::iDisplayBasic;
+using e_engine::GlobConf;
 
 class myWorld final : public rWorld, public rFrameCounter {
   typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;
@@ -83,10 +84,8 @@ class myWorld final : public rWorld, public rFrameCounter {
   void key(e_engine::iEventInfo const &info);
   void resize(e_engine::iEventInfo const &info) {
     iLOG("Window resized: W = ", info.eResize.width, ";  H = ", info.eResize.height);
-    updateViewPort(
-        0, 0, static_cast<int>(e_engine::GlobConf.win.width), static_cast<int>(e_engine::GlobConf.win.height));
-    vScene.calculateProjectionPerspective(
-        e_engine::GlobConf.win.width, e_engine::GlobConf.win.height, vNearZ, vFarZ, 35.0);
+    updateViewPort(0, 0, static_cast<int>(GlobConf.win.width), static_cast<int>(GlobConf.win.height));
+    vScene.calculateProjectionPerspective(GlobConf.win.width, GlobConf.win.height, vNearZ, vFarZ, glm::radians(60.0f));
   }
 
   int initGL();

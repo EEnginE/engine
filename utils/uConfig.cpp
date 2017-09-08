@@ -44,7 +44,7 @@ _uConfig::__uConfig_Camera::__uConfig_Camera() { reset(); }
 
 void _uConfig::__uConfig_Vulkan::reset() {
   samples               = VK_SAMPLE_COUNT_1_BIT;
-  preferedSurfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
+  preferedSurfaceFormat = VK_FORMAT_B8G8R8A8_UNORM;
   enableVSync           = false;
 }
 

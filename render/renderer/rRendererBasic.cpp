@@ -33,6 +33,21 @@ namespace e_engine {
 
 void rRendererBasic::setupSubpasses() {
   addSubpass(VK_PIPELINE_BIND_POINT_GRAPHICS, DEPTH_STENCIL_ATTACHMENT_INDEX, {FRAMEBUFFER_ATTACHMENT_INDEX});
+  addSubpassDependecy(VK_SUBPASS_EXTERNAL,
+                      0,
+                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                      VK_ACCESS_MEMORY_READ_BIT,
+                      VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                      VK_DEPENDENCY_BY_REGION_BIT);
+
+  addSubpassDependecy(0,
+                      VK_SUBPASS_EXTERNAL,
+                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                      VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                      VK_ACCESS_MEMORY_READ_BIT,
+                      VK_DEPENDENCY_BY_REGION_BIT);
 }
 
 std::vector<rRendererBasic::AttachmentInfo> rRendererBasic::getAttachmentInfos() {
