@@ -48,7 +48,7 @@ int rWorld::recreateSwapchain() {
   VkPresentModeKHR lModelToUse = VK_PRESENT_MODE_MAX_ENUM_KHR;
   vSwapchainFormat.format      = VK_FORMAT_UNDEFINED;
 
-  dVkLOG("Surface device info:");
+  dVkLOG("Recreating Swapchain: Surface device info:");
   dVkLOG("  -- Surface formats:");
   for (auto const &i : lSInfo.formats) {
     if (vSwapchainFormat.format == VK_FORMAT_UNDEFINED)
@@ -83,11 +83,18 @@ int rWorld::recreateSwapchain() {
   }
 
 // clang-format off
-#if D_LOG_VULKAN_INIT
+#if D_LOG_VULKAN
    auto lSupUsageFlags = lSInfo.surfaceInfo.supportedUsageFlags;
    auto lSupCompAlpha  = lSInfo.surfaceInfo.supportedCompositeAlpha;
    auto lSupTransforms = lSInfo.surfaceInfo.supportedTransforms;
+   auto lMinExtent     = lSInfo.surfaceInfo.minImageExtent;
+   auto lMaxExtent     = lSInfo.surfaceInfo.maxImageExtent;
 
+   dLOG( "  -- images Info:");
+   dLOG( "    -- minImageCount:  ", lSInfo.surfaceInfo.minImageCount );
+   dLOG( "    -- maxImageCount:  ", lSInfo.surfaceInfo.maxImageCount );
+   dLOG( "    -- minImageExtent: ", lMinExtent.width, "x", lMinExtent.height );
+   dLOG( "    -- maxImageExtent: ", lMaxExtent.width, "x", lMaxExtent.height );
    dLOG( "  -- Supported usage flags: (prefix VK_IMAGE_USAGE_)" );
    dLOG( "    -- TRANSFER_SRC_BIT:                 ", ( lSupUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT )                           != 0 );
    dLOG( "    -- TRANSFER_DST_BIT:                 ", ( lSupUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT )                           != 0 );
@@ -116,7 +123,7 @@ int rWorld::recreateSwapchain() {
   // clang-format on
 
   uint32_t lNumImages = lSInfo.surfaceInfo.minImageCount + 1;
-  if (lNumImages > lSInfo.surfaceInfo.maxImageCount)
+  if (lNumImages > lSInfo.surfaceInfo.maxImageCount && lSInfo.surfaceInfo.maxImageCount != 0) // max == 0: unlimited
     lNumImages = lSInfo.surfaceInfo.maxImageCount;
 
   VkExtent2D lExtentToUse = lSInfo.surfaceInfo.currentExtent;
