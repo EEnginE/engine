@@ -152,13 +152,6 @@ new_project_library(
 generate_engine_hpp( "${TEMPLATES_DIR}/engine.in.hpp" "${PROJECT_SOURCE_DIR}/include/engine.hpp" )
 
 new_project_executable(
-  PATH         "${PROJECT_SOURCE_DIR}/tests/oglTest"
-  NAME         "oglTest"
-  TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
-  DEPENDENCIES utils_shared init_shared render_shared glm
-)
-
-new_project_executable(
   PATH         "${PROJECT_SOURCE_DIR}/tests/test1"
   NAME         "test1"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"

@@ -31,8 +31,6 @@ class cmdANDinit {
   std::string              vShader       = "triangle1";
   std::string              vNormalShader = "normals";
 
-  e_engine::uJSON_data vData_JSON;
-
   bool vCanUseColor;
   bool vRenderNormals = false;
 

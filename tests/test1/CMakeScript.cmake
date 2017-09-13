@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ogltest_gen_binding_class( oglTestBind "${ENGINE_TEST_ROOT}/test1" )
-
 set( SHADERS_TO_COMPILE_T1 triangle1 deferred1 deferred2 )
 
 foreach( I IN LISTS SHADERS_TO_COMPILE_T1 )

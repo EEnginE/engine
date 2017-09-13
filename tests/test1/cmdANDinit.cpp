@@ -16,7 +16,6 @@
 
 #include "cmdANDinit.hpp"
 #include "config.hpp"
-#include "oglTestBind.hpp"
 #include <regex>
 
 using namespace e_engine;
@@ -92,7 +91,6 @@ void cmdANDinit::usage() {
   dLOG("    -N | --normals     : Visulize mesh normals");
   dLOG("    --shader=<shader>  : set the shader to use (default: ", vShader, ")");
   dLOG("    --Nshader=<shader> : set the shader to use for rendering normals (default: ", vNormalShader, ")");
-  dLOG("    --conf=<path>      : add a config file to parse");
   dLOG("    -n | --nocolor     : disable colored output");
   dLOG("    -c | --color       : enabel colored output");
   dLOG("    --near=<z>         : set near z clipping to <z> (default: ", vNearZ, ")");
@@ -177,25 +175,6 @@ bool cmdANDinit::parseArgsAndInit() {
     }
 
 
-    std::regex lConfRegex("^\\-\\-conf=[0-9]+$");
-    if (std::regex_match(arg, lConfRegex)) {
-      std::regex  lDataRegexRep("^\\-\\-conf=");
-      const char *lRep = "";
-      string      conf = std::regex_replace(arg, lDataRegexRep, lRep);
-      uParserJSON parser(conf);
-
-      if (parser.parse() == 1) {
-        auto lTempData = parser.getData();
-        vData_JSON.merge(lTempData);
-        iLOG("Successfully parsed additional JSON config '", conf, "'");
-      } else {
-        wLOG("Failed to parse additional JSON config '", conf, "'");
-      }
-
-      continue;
-    }
-
-
     std::regex lNearRegex("^\\-\\-near=[0-9]+(\\.[0-9]+)?$");
     if (std::regex_match(arg, lNearRegex)) {
       std::regex  lDataRegexRep("^\\-\\-near=");
@@ -216,9 +195,6 @@ bool cmdANDinit::parseArgsAndInit() {
 
     eLOG("Unkonwn option '", arg, "'");
   }
-
-  // Automatically parse the output from oglTest into GlobConf
-  oglTestBind::process(vData_JSON);
 
   return true;
 }

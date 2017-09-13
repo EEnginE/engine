@@ -9,6 +9,8 @@
 
 #pragma once
 
+// clang-format off
+
 
 @CM_UNDEFS1@
 
@@ -27,3 +29,4 @@
 
 @CM_DEFINES3@
 
+// clang-format on
