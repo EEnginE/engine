@@ -47,9 +47,10 @@ namespace e_engine {
 
 uint64_t rRenderLoop::vRenderedFrames = 0;
 
-rRenderLoop::rRenderLoop(iInit *_init, rWorld *_root) : vWorldPtr(_root), vInitPtr(_init) {
+rRenderLoop::rRenderLoop(rWorld *_root) : vWorldPtr(_root) {
   vRenderThread = std::thread(&rRenderLoop::renderLoop, this);
-  vDevice_vk    = vInitPtr->getDevice();
+  vDevice       = vWorldPtr->getDevicePTR();
+  vDevice_vk    = **vDevice;
 }
 
 rRenderLoop::~rRenderLoop() {
@@ -106,7 +107,7 @@ void rRenderLoop::renderLoop() {
     uint32_t lQueueFamily = 0;
 
     VkSwapchainKHR                lSwapchain_vk = vWorldPtr->getSwapchain();
-    VkQueue                       lQueue        = vInitPtr->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily);
+    VkQueue                       lQueue        = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily);
     vkuCommandPool *              lCommandPool  = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
     vkuFences<NUM_FENCES>         lFences(vDevice_vk);
     vkuSemaphores<NUM_SEMAPHORES> lSemaphores(vDevice_vk);
@@ -406,7 +407,6 @@ bool rRenderLoop::start() {
     vRenderLoopResponse.wait_for(lControl, cfg.condWaitTimeout);
 
   vStartRenderLoop = BLOCK; // Reset
-  wLOG("START RETURN");
   return true;
 }
 
@@ -434,7 +434,6 @@ bool rRenderLoop::stop() {
     vRenderLoopResponse.wait_for(lControl, cfg.condWaitTimeout);
 
   vStopRenderLoop = BLOCK;
-  wLOG("STOP Return");
   return true;
 }
 

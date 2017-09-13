@@ -48,8 +48,12 @@ void rWorld::handleResize(iEventInfo const &) {
  * \brief Constructor
  * \note The pointer _init must be valid over the lifetime of the object!
  */
-rWorld::rWorld(iInit *_init) : vInitPtr(_init), vRenderLoop(_init, this), vResizeSlot(&rWorld::handleResize, this) {
-  vDevice_vk  = vInitPtr->getDevice();
+rWorld::rWorld(iInit *_init)
+    : vInitPtr(_init),
+      vDevice(_init->getDevicePTR()),
+      vDevice_vk(**vDevice),
+      vRenderLoop(this),
+      vResizeSlot(&rWorld::handleResize, this) {
   vSurface_vk = vInitPtr->getVulkanSurface();
 
   vViewPort.vNeedUpdate_B = false;
@@ -98,7 +102,7 @@ int rWorld::init() {
   vSwapchainViews_vk.clear();
 
   uint32_t         lQueueFamily;
-  VkQueue          lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
+  VkQueue          lQueue = vDevice->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
   vkuCommandBuffer lBuf   = vkuCommandPoolManager::getBuffer(vDevice_vk, lQueueFamily);
   vkuFence_t       lFence(vDevice_vk);
 
@@ -132,7 +136,7 @@ int rWorld::init() {
   lInfo.pSignalSemaphores    = nullptr;
 
   {
-    std::lock_guard<std::mutex> lGuard3(vInitPtr->getQueueMutex(lQueue));
+    std::lock_guard<std::mutex> lGuard3(vDevice->getQueueMutex(lQueue));
     vkQueueSubmit(lQueue, 1, &lInfo, lFence[0]);
   }
 
@@ -161,7 +165,6 @@ void rWorld::shutdown() {
 
   if (vRenderLoop.getIsRunning())
     vRenderLoop.stop();
-
 
   dVkLOG("Vulkan cleanup [rWorld]:");
   vRenderLoop.destroy();
@@ -318,6 +321,12 @@ uint32_t rWorld::getNumFramebuffers() const { return static_cast<uint32_t>(vSwap
  * \vkIntern
  */
 VkDevice rWorld::getDevice() { return vDevice_vk; }
+
+/*!
+ * \returns A shared pointer to the vulkan device wrapper
+ * \vkIntern
+ */
+vkuDevicePTR rWorld::getDevicePTR() { return vDevice; }
 
 /*!
  * \returns the internaly used iInit pointer

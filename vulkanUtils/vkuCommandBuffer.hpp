@@ -2,7 +2,7 @@
  * Copyright (C) 2017 EEnginE project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this fFile except in compliance with the License.
+ * you may not use this File except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -47,17 +47,17 @@ class vkuCommandBuffer final {
 
   vkuCommandBuffer &operator=(vkuCommandBuffer &&);
 
-  VkResult init(vkuCommandPool *_pool, VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-  void destroy();
+  VkResult init(vkuCommandPool *_pool, VkCommandBufferLevel _level = VK_COMMAND_BUFFER_LEVEL_PRIMARY) noexcept;
+  void destroy() noexcept;
 
-  inline VkCommandBuffer &get() { return vBuffer; }
-  inline VkCommandBuffer &operator*() { return vBuffer; }
+  inline VkCommandBuffer &get() noexcept { return vBuffer; }
+  inline VkCommandBuffer &operator*() noexcept { return vBuffer; }
 
-  inline bool operator!() const { return !vPool || vBuffer == VK_NULL_HANDLE || vDevice == VK_NULL_HANDLE; }
-  inline explicit operator bool() const { return vPool && vBuffer != VK_NULL_HANDLE && vDevice != VK_NULL_HANDLE; }
+  inline bool operator!() const noexcept { return !vPool || vBuffer == VK_NULL_HANDLE || vDevice == VK_NULL_HANDLE; }
+  inline explicit operator bool() const noexcept { return vPool && vBuffer != VK_NULL_HANDLE && vDevice != VK_NULL_HANDLE; }
 
   // Vulkan bindings
-  VkResult begin(VkCommandBufferUsageFlags _flags = 0, VkCommandBufferInheritanceInfo *_info = nullptr);
-  VkResult end();
+  VkResult begin(VkCommandBufferUsageFlags _flags = 0, VkCommandBufferInheritanceInfo *_info = nullptr) noexcept;
+  VkResult end() noexcept;
 };
 }

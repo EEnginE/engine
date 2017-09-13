@@ -99,29 +99,16 @@ iInit::iInit() : vGrabControl_SLOT(&iInit::s_advancedGrabControl, this) {
 #elif UNIX_WAYLAND
   vWindow = new unix_wayland::iWindow(this);
 #endif
-
-  iWindowBasic::iSignalReference ref;
-  ref.windowClose = &vWindowClose_SIG;
-  ref.resize      = &vResize_SIG;
-  ref.key         = &vKey_SIG;
-  ref.mouse       = &vMouse_SIG;
-  ref.focus       = &vFocus_SIG;
-  vWindow->startEventLoop(ref);
 }
 
 iInit::~iInit() {
-  shutdown();
+  destroy();
 
   if (!vWindow)
     return;
 
   vWindow->stopEventLoop();
   delete vWindow;
-}
-
-void iInit::waitForWindowToClose() {
-  if (vWindow)
-    vWindow->waitForWindowToClose();
 }
 
 
@@ -292,6 +279,14 @@ iInit::ErrorCode iInit::init(std::vector<std::string> _layers) {
     return FAILED_TO_CREATE_WINDOW;
   }
 
+  iWindowBasic::iSignalReference ref;
+  ref.windowClose = &vWindowClose_SIG;
+  ref.resize      = &vResize_SIG;
+  ref.key         = &vKey_SIG;
+  ref.mouse       = &vMouse_SIG;
+  ref.focus       = &vFocus_SIG;
+  vWindow->startEventLoop(ref);
+
   vSurface_vk = vWindow->getVulkanSurface(vInstance_vk);
   if (!vSurface_vk)
     return FAILED_TO_AQUIRE_VK_SURFACE;
@@ -299,13 +294,10 @@ iInit::ErrorCode iInit::init(std::vector<std::string> _layers) {
   if (loadDevices())
     return FAILED_TO_LOAD_VULKAN_DEVICES;
 
-  vDevice_vk.pDevice = chooseDevice();
+  auto *lDevice = chooseDevice();
 
-  if (createDevice(_layers))
+  if (!lDevice || createDevice(_layers, lDevice->device))
     return FAILED_TO_CREATE_THE_VULKAN_DEVICE;
-
-  if (loadDeviceSurfaceInfo())
-    return FAILED_TO_LOAD_SURFACE_INFORMATION;
 
   // Send a resize signal to ensure that the viewport is updated
   iEventInfo _tempInfo(this);
@@ -332,8 +324,11 @@ int iInit::handleResize() {
   if (!vSurface_vk)
     return 1;
 
-  if (loadDeviceSurfaceInfo())
+  if (!vDevice || !*vDevice)
     return 2;
+
+  if (vDevice->loadDeviceSurfaceInfo())
+    return 3;
 
   return 0;
 }
@@ -344,19 +339,22 @@ void iInit::destroyVulkan() {
 
   dVkLOG("Vulkan cleanup [iInit]:");
 
-  if (vDevice_vk.device)
-    vkDeviceWaitIdle(vDevice_vk.device);
+  if (vDevice && *vDevice)
+    vkDeviceWaitIdle(**vDevice);
 
   dVkLOG("  -- destroying surface");
   if (vSurface_vk)
     vkDestroySurfaceKHR(vInstance_vk, vSurface_vk, nullptr);
 
   dVkLOG("  -- Destroying command pools");
-  vkuCommandPoolManager::getManager().cleanup(vDevice_vk.device);
+  vkuCommandPoolManager::getManager().cleanup(**vDevice);
 
   dVkLOG("  -- destroying device");
-  if (vDevice_vk.device)
-    vkDestroyDevice(vDevice_vk.device, nullptr);
+  auto refCount = vDevice.use_count();
+  if (refCount != 1) {
+    wLOG(L"Can not destroy vulkan device, bacause it is in use by ", refCount - 1, L" other objects");
+  }
+  vDevice = nullptr;
 
   dVkLOG("  -- destroying debug callback");
   if (vCallback && f_vkDestroyDebugReportCallbackEXT)
@@ -366,28 +364,23 @@ void iInit::destroyVulkan() {
   if (vInstance_vk)
     vkDestroyInstance(vInstance_vk, nullptr);
 
-  vDevice_vk.device  = nullptr;
-  vDevice_vk.pDevice = nullptr;
-  vCallback          = nullptr;
-  vInstance_vk       = nullptr;
-  vSurface_vk        = nullptr;
+  vCallback    = nullptr;
+  vInstance_vk = nullptr;
+  vSurface_vk  = nullptr;
 
   vIsVulkanSetup_B = false;
   vExtensionList.clear();
   vDeviceExtensionList.clear();
-  vQueues_vk.clear();
   vLayerProperties_vk.clear();
   vDeviceLayerProperties_vk.clear();
   vPhysicalDevices_vk.clear();
-  vSurfaceInfo_vk.formats.clear();
-  vSurfaceInfo_vk.presentModels.clear();
-  vQueueMutexMap.clear();
 
   dVkLOG("  -- DONE");
 }
 
-int iInit::shutdown() {
-  iLOG(L"Shutting down");
+int iInit::destroy() {
+  iLOG(L"Destroying window and Vulkan");
+  vWindow->stopEventLoop();
   destroyVulkan();
 
   if (!vWindow->getIsWindowCreated())
@@ -400,18 +393,6 @@ int iInit::shutdown() {
   return 1;
 }
 
-/*!
- * \brief enables VSync
- * \note This will only take effect BEFORE creating the swapchain
- */
-void iInit::enableVSync() { vEnableVSync = true; }
-
-/*!
- * \brief disables VSync
- * \note This will only take effect BEFORE creating the swapchain
- */
-void iInit::disableVSync() { vEnableVSync = false; }
-
 
 void iInit::handleSignal(int _signal) {
   iInit *_THIS = internal::__iInit_Pointer_OBJ.get();
@@ -420,7 +401,7 @@ void iInit::handleSignal(int _signal) {
   if (_signal == SIGINT) {
     if (GlobConf.handleSIGINT == true) {
       wLOG("Received SIGINT (Crt-C) => Closing Window and exiting(5);");
-      _THIS->shutdown();
+      _THIS->destroy();
       exit(5);
     }
     wLOG("Received SIGINT (Crt-C) => ", 'B', 'Y', "DO NOTHING");
@@ -429,7 +410,7 @@ void iInit::handleSignal(int _signal) {
   if (_signal == SIGTERM) {
     if (GlobConf.handleSIGTERM == true) {
       wLOG("Received SIGTERM => Closing Window and exiting(6);");
-      _THIS->shutdown();
+      _THIS->destroy();
       exit(6);
     }
     wLOG("Received SIGTERM => Closing Window and exiting(6);", 'B', 'Y', "DO NOTHING");
@@ -458,126 +439,7 @@ bool iInit::isDeviceExtensionSupported(std::string _extension) {
   return false;
 }
 
-/*!
- * \brief Returns the queue family index, that supports _flags
- * \param _flags Flags the Queue family MUST support
- * \returns the queue family index, that supports _flags (UINT32_MAX on not found / error)
- *
- * \vkIntern
- */
-uint32_t iInit::getQueueFamily(VkQueueFlags _flags) {
-  if (vDevice_vk.pDevice == nullptr)
-    return UINT32_MAX;
 
-  uint32_t lCounter = 0;
-  for (auto const &i : vDevice_vk.pDevice->queueFamilyProperties) {
-    if (i.queueFlags & _flags)
-      return lCounter;
-
-    lCounter++;
-  }
-  return UINT32_MAX;
-}
-
-/*!
- * \brief Selects and returns a vulkan queue
- *
- * Selects and returns a vulkan queue. This function will not return the same
- * queue twice unless the queue is (manualy freed)
- *
- * \param _flags    Flags the Queue MUST support
- * \param _priority Queue target priority
- * \returns the best matching queue; nullptr if none found
- *
- * \vkIntern
- */
-VkQueue iInit::getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily) {
-  std::lock_guard<std::mutex> lGuard(vQueueAccessMutex);
-  float                       lMinDiff = 100.0f;
-  VkQueue                     lQueue   = nullptr;
-
-  for (auto i : vQueues_vk) {
-    if (!(i.flags & _flags))
-      continue;
-
-    auto lTemp = i.priority - _priority;
-    lTemp      = lTemp < 0 ? -lTemp : lTemp; // Make positive
-    if (lTemp < lMinDiff) {
-      lMinDiff = lTemp;
-      lQueue   = i.queue;
-      if (_queueFamily)
-        *_queueFamily = i.familyIndex;
-    }
-  }
-
-  return lQueue;
-}
-
-
-std::mutex &iInit::getQueueMutex(VkQueue _queue) {
-  std::lock_guard<std::mutex> lGuard(vQueueAccessMutex);
-  return vQueueMutexMap[_queue];
-}
-
-
-/*!
- * \brief Checks whether a format is supported on the device
- * \vkIntern
- */
-bool iInit::isFormatSupported(VkFormat _format) {
-  if (vDevice_vk.pDevice == nullptr)
-    return false;
-
-  return vDevice_vk.pDevice->formats[_format].linearTilingFeatures != 0 ||
-         vDevice_vk.pDevice->formats[_format].optimalTilingFeatures != 0 ||
-         vDevice_vk.pDevice->formats[_format].bufferFeatures != 0;
-}
-
-/*!
- * \brief Checks whether a format supports a feature
- * \param _format The format to check
- * \param _flags  The flags the format must support
- * \param _type   The feature type
- *
- * Supported values for _type:
- *   - VK_IMAGE_TILING_LINEAR
- *   - VK_IMAGE_TILING_OPTIMAL
- *   - VK_IMAGE_TILING_MAX_ENUM == buffer
- *
- * \vkIntern
- */
-bool iInit::formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type) {
-  if (vDevice_vk.pDevice == nullptr)
-    return false;
-
-  switch (_type) {
-    case VK_IMAGE_TILING_LINEAR: return (vDevice_vk.pDevice->formats[_format].linearTilingFeatures & _flags) != 0;
-    case VK_IMAGE_TILING_OPTIMAL: return (vDevice_vk.pDevice->formats[_format].optimalTilingFeatures & _flags) != 0;
-    case VK_IMAGE_TILING_MAX_ENUM: return (vDevice_vk.pDevice->formats[_format].bufferFeatures & _flags) != 0;
-    default: return false;
-  }
-}
-
-/*!
- * \brief returns the best supported memory index
- * \param _bits  The bitfield (see vkGetImageMemoryRequirements)
- * \param _flags Flags the memory type must support
- * \returns a memory index or UINT32_MAX on error
- * \vkIntern
- */
-uint32_t iInit::getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags) {
-  for (uint16_t i = 0; i < vDevice_vk.pDevice->memoryProperties.memoryTypeCount; i++) {
-    if ((_bits & 1)) {
-      // Finds best match because of memory type ordering
-      if (_flags == (vDevice_vk.pDevice->memoryProperties.memoryTypes[i].propertyFlags & _flags)) {
-        return i;
-      }
-    }
-    _bits >>= 1;
-  }
-
-  return UINT32_MAX;
-}
 
 /*!
  * \brief Removes \c ALL slots from the \c ALL events
@@ -590,11 +452,50 @@ void iInit::removeAllSlots() {
   vFocus_SIG.disconnectAll();
 }
 
+uint32_t iInit::getQueueFamily(VkQueueFlags _flags) {
+  if (!vDevice || !*vDevice)
+    return 0;
+  return vDevice->getQueueFamily(_flags);
+}
+
+VkQueue iInit::getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily) {
+  if (!vDevice || !*vDevice)
+    return VK_NULL_HANDLE;
+  return vDevice->getQueue(_flags, _priority, _queueFamily);
+}
+
+std::mutex &iInit::getQueueMutex(VkQueue _queue) { return vDevice->getQueueMutex(_queue); }
+
+uint32_t iInit::getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags) {
+  if (!vDevice || !*vDevice)
+    return 0;
+  return vDevice->getMemoryTypeIndexFromBitfield(_bits, _flags);
+}
+
+bool iInit::isFormatSupported(VkFormat _format) {
+  if (!vDevice || !*vDevice)
+    return false;
+  return vDevice->isFormatSupported(_format);
+}
+
+bool iInit::formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type) {
+  if (!vDevice || !*vDevice)
+    return false;
+  return vDevice->formatSupportsFeature(_format, _flags, _type);
+}
+
 /*!
  * \returns The vulkan device handle
  * \vkIntern
  */
-VkDevice iInit::getDevice() { return vDevice_vk.device; }
+VkDevice iInit::getDevice() { return vDevice ? **vDevice : VK_NULL_HANDLE; }
+
+/*!
+ * \returns A shared pointer to the vulkan device wrapper
+ * \vkIntern
+ */
+vkuDevicePTR iInit::getDevicePTR() { return vDevice; }
+
 
 /*!
  * \returns The vulkan surface
@@ -606,7 +507,11 @@ VkSurfaceKHR iInit::getVulkanSurface() { return vSurface_vk; }
  * \returns The vulkan surface info
  * \vkIntern
  */
-iInit::SurfaceInfo_vk iInit::getSurfaceInfo() { return vSurfaceInfo_vk; }
+vkuDevice::SurfaceInfo iInit::getSurfaceInfo() {
+  if (!vDevice || !*vDevice)
+    return {};
+  return vDevice->getSurfaceInfo();
+}
 
 /*!
  * \brief Returns whether Vulkan is setup

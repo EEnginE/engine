@@ -28,7 +28,7 @@
 using namespace e_engine;
 
 
-myWorld::~myWorld() {}
+myWorld::~myWorld() { shutdown(); }
 
 
 void myWorld::key(iEventInfo const &info) {
@@ -83,12 +83,7 @@ void myWorld::key(iEventInfo const &info) {
       // Quit
       case L'Q':
       case L'q':
-      case E_KEY_ESCAPE:
-        shutdown();
-        vRenderer->destroy();
-        vScene.destroy();
-        info.iInitPointer->shutdown();
-        break;
+      case E_KEY_ESCAPE: disconnectSlotsAndContinue(); break;
     }
   }
 }
@@ -106,6 +101,24 @@ int myWorld::initGL() {
   vInitPointer->getWindow()->moveMouse(GlobConf.win.width / 2, GlobConf.win.height / 2);
   // vInitPointer->hideMouseCursor();
   return lReturn;
+}
+
+void myWorld::disconnectSlotsAndContinue() {
+  slotKey.disconnectAll();
+  slotResize.disconnectAll();
+  slotWindowClose.disconnectAll();
+  vScene.disableCamera();
+
+  std::unique_lock<std::mutex> lLock(vWaitMutex);
+  vKeepWaiting = false;
+  vWaitCond.notify_all();
+}
+
+void myWorld::waitForEnd() {
+  std::unique_lock<std::mutex> lLock(vWaitMutex);
+
+  while (vKeepWaiting)
+    vWaitCond.wait(lLock);
 }
 
 

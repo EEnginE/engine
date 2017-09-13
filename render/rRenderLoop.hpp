@@ -22,6 +22,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuDevice.hpp"
 #include "rRendererBase.hpp"
 #include <condition_variable>
 #include <mutex>
@@ -31,7 +32,6 @@
 namespace e_engine {
 
 class rWorld;
-class iInit;
 
 class rRenderLoop {
  public:
@@ -50,9 +50,9 @@ class rRenderLoop {
   static uint64_t vRenderedFrames;
 
   rWorld *vWorldPtr;
-  iInit * vInitPtr;
 
-  VkDevice vDevice_vk;
+  VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
+  vkuDevicePTR vDevice;
 
   std::vector<std::shared_ptr<internal::rRendererBase>> vRenderers;
 
@@ -81,7 +81,7 @@ class rRenderLoop {
 
  public:
   rRenderLoop() = delete;
-  rRenderLoop(iInit *_init, rWorld *_root);
+  rRenderLoop(rWorld *_root);
   rRenderLoop(const rRenderLoop &_obj) = delete;
   rRenderLoop(rRenderLoop &&)          = delete;
   rRenderLoop &operator=(const rRenderLoop &) = delete;

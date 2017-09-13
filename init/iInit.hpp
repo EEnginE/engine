@@ -22,10 +22,11 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuDevice.hpp"
 #include "iWindowBasic.hpp"
 #include <thread>
 #include <unordered_map>
-#include <vulkan/vulkan.h>
+#include <vulkan.h>
 
 
 namespace e_engine {
@@ -79,33 +80,6 @@ class iInit {
     VkFormatProperties                   formats[VK_FORMAT_RANGE_SIZE];
   } PhysicalDevice_vk;
 
-  typedef struct Device_vk {
-    PhysicalDevice_vk *pDevice = nullptr;
-    VkDevice           device  = NULL;
-  } Device_vk;
-
-  typedef struct Queue_vk {
-    VkQueue      queue;
-    float        priority;
-    VkQueueFlags flags;
-    u_int32_t    familyIndex;
-    u_int32_t    index;
-    bool         surfaceSupport;
-
-    Queue_vk(float _priority, VkQueueFlags _flags, u_int32_t _familyIndex, u_int32_t _index, bool _surfaceSupport)
-        : priority(_priority),
-          flags(_flags),
-          familyIndex(_familyIndex),
-          index(_index),
-          surfaceSupport(_surfaceSupport) {}
-  } Queue_vk;
-
-  typedef struct SurfaceInfo_vk {
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR>   presentModels;
-    VkSurfaceCapabilitiesKHR        surfaceInfo;
-  } SurfaceInfo_vk;
-
  private:
   iWindowBasic *vWindow = nullptr;
 
@@ -125,10 +99,6 @@ class iInit {
   std::vector<VkLayerProperties> vLayerProperties_vk;
   std::vector<VkLayerProperties> vDeviceLayerProperties_vk;
   std::vector<PhysicalDevice_vk> vPhysicalDevices_vk;
-  std::vector<Queue_vk>          vQueues_vk;
-
-  std::unordered_map<VkQueue, std::mutex> vQueueMutexMap;
-  std::mutex vQueueAccessMutex;
 
   VkDebugReportCallbackCreateInfoEXT vDebugCreateInfo_vk;
 
@@ -136,14 +106,11 @@ class iInit {
   VkInstance               vInstance_vk = nullptr;
   VkSurfaceKHR             vSurface_vk  = nullptr;
 
-  SurfaceInfo_vk vSurfaceInfo_vk;
-
-  Device_vk vDevice_vk;
+  vkuDevicePTR vDevice = nullptr;
 
   bool vWasMouseGrabbed_B = false;
   bool vIsVulkanSetup_B   = false;
   bool vEnableVulkanDebug = false;
-  bool vEnableVSync       = false;
 
   PhysicalDevice_vk *chooseDevice();
 
@@ -152,15 +119,11 @@ class iInit {
   int loadExtensionList();
   int loadDeviceExtensionList(VkPhysicalDevice _dev);
   int loadDevices();
-  int loadDeviceSurfaceInfo();
-  int createDevice(std::vector<std::string> _layers);
+  int createDevice(std::vector<std::string> _layers, VkPhysicalDevice _pDeviceToUse);
   int initVulkan(std::vector<std::string> _layers);
   int initDebug();
 
   void destroyVulkan();
-
-  // Thread Functions --------------------------------------------------------- ###
-  int eventLoop(); //!< The event loop function ( In PLATFORM/e_event.cpp )
 
   // Signal handling ---------------------------------------------------------- ###
   static void handleSignal(int _signal); //!< The signal handle function
@@ -170,7 +133,7 @@ class iInit {
 
   void s_advancedGrabControl(iEventInfo const &_info);
 
-  SurfaceInfo_vk getSurfaceInfo();
+  [[deprecated]] vkuDevice::SurfaceInfo getSurfaceInfo();
 
   virtual void makeEInitEventBasicAbstract() {}
 
@@ -179,35 +142,32 @@ class iInit {
   virtual ~iInit();
 
   ErrorCode init(std::vector<std::string> _layers = {});
+  int destroy();
   int handleResize();
-  int shutdown();
 
   bool enableDefaultGrabControl();
   bool disableDefaultGrabControl();
 
-  void enableVSync();
-  void disableVSync();
-
   iWindowBasic *getWindow();
   void          closeWindow();
 
-  void waitForWindowToClose();
   bool getIsSetup() const noexcept;
 
-  uint32_t getQueueFamily(VkQueueFlags _flags);
+  [[deprecated]] uint32_t getQueueFamily(VkQueueFlags _flags);
 
-  VkQueue getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr);
-  std::mutex &getQueueMutex(VkQueue _queue);
+  [[deprecated]] VkQueue getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr);
+  [[deprecated]] std::mutex &getQueueMutex(VkQueue _queue);
 
-  VkDevice getDevice();
+  [[deprecated]] VkDevice getDevice();
+  vkuDevicePTR            getDevicePTR();
 
   bool isExtensionSupported(std::string _extension);
   bool isDeviceExtensionSupported(std::string _extension);
 
-  uint32_t getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags = 0);
+  [[deprecated]] uint32_t getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags = 0);
 
-  bool isFormatSupported(VkFormat _format);
-  bool formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type);
+  [[deprecated]] bool isFormatSupported(VkFormat _format);
+  [[deprecated]] bool formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type);
 
   void enableVulkanDebug() { vEnableVulkanDebug = true; }
   void vulkanDebugHandler(VkDebugReportFlagsEXT      _flags,

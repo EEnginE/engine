@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
   B_SLEEP(milliseconds, 100); /// \todo Fix this segfault hack
 
-  init.shutdown();
+  init.destroy();
 
   return 0;
 }

@@ -23,12 +23,13 @@
 
 #include "defines.hpp"
 #include "uSignalSlot.hpp"
+#include "vkuDevice.hpp"
 #include "rRenderLoop.hpp"
 #include "rRendererBase.hpp"
 #include <condition_variable>
 #include <mutex>
 #include <unordered_map>
-#include <vulkan/vulkan.h>
+#include <vulkan.h>
 
 #include <type_traits>
 
@@ -45,18 +46,11 @@ class rSceneBase;
  *   - the renderers
  *   - the render loop
  *
- * This class is responsible for (Vulkan)
- *   - presenting images (todo)
- *   - eventually other stuff
- *
  * This class handles two render class instances. A front and a back renderer. This allows modifying
  * and setting up the back rendere without impacting the performance to mutch.
  *
  * \warning An object of this class must be destroyed BEFORE the vulkan context is destroyed (= the
  *          iInit object is destroyed)!!!
- *
- * \note When creating rWorld objects (or inheritance) use the (template) wrapper class
- * rWorldCreator
  */
 class rWorld {
  public:
@@ -84,7 +78,8 @@ class rWorld {
  private:
   iInit *vInitPtr;
 
-  VkDevice       vDevice_vk;
+  vkuDevicePTR   vDevice;
+  VkDevice       vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
   VkSurfaceKHR   vSurface_vk;
   VkSwapchainKHR vSwapchain_vk = nullptr;
 
@@ -139,10 +134,11 @@ class rWorld {
 
   void updateViewPort(int _x, int _y, int _width, int _height);
   void updateClearColor(float _r, float _g, float _b, float _a);
-  uint64_t *   getRenderedFramesPtr();
-  VkDevice     getDevice();
-  iInit *      getInitPtr();
-  rRenderLoop *getRenderLoop();
+  uint64_t *              getRenderedFramesPtr();
+  [[deprecated]] VkDevice getDevice();
+  vkuDevicePTR            getDevicePTR();
+  iInit *                 getInitPtr();
+  rRenderLoop *           getRenderLoop();
 
   uint32_t getNumFramebuffers() const;
 

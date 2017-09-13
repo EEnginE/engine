@@ -45,12 +45,12 @@ void iWindowBasic::evLoopWrapper() {
   }
 
   LOG.nameThread(L"EVENT");
-  iLOG("Event loop started");
+  iLOG(L"Event loop started");
 
   while (vKeepLoopRunning)
     eventLoop();
 
-  iLOG("Event Loop finished");
+  iLOG(L"Event Loop finished");
 
   std::unique_lock<std::mutex> lLock(vEventThreadControlMutex);
   vIsLoopRunning = false;
@@ -104,12 +104,6 @@ void iWindowBasic::sendEvent(iEventInfo &ev) noexcept {
   }
 }
 
-void iWindowBasic::waitForWindowToClose() {
-  std::unique_lock<std::mutex> lLock(vWindowCloseMutex);
-
-  while (vWindowCreated)
-    vWindowCloseCond.wait(lLock);
-}
 
 bool iWindowBasic::isLoopRunning() { return vIsLoopRunning; }
 bool iWindowBasic::getRunEventLoop() const noexcept { return vKeepLoopRunning; }

@@ -66,7 +66,6 @@ class rRendererDeferred : public internal::rRendererBase {
   VkImageView getAttachmentView(ATTACHMENT_ROLE _role) override;
 
   rRendererDeferred() = delete;
-  rRendererDeferred(iInit *_init, rWorld *_root, std::wstring _id)
-      : internal::rRendererBase(_init, _root, _id), vDeferredDataBuffer(_root), vDeferredIndexBuffer(_root) {}
+  rRendererDeferred(rWorld *_root, std::wstring _id);
 };
 }

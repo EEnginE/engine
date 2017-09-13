@@ -171,7 +171,7 @@ int rRendererBase::initImageBuffers(VkCommandBuffer _buf) {
 
     vkGetImageMemoryRequirements(vDevice_vk, i.buff->img, &lRequirements);
     lMemoryAlloc.allocationSize  = lRequirements.size;
-    lMemoryAlloc.memoryTypeIndex = vInitPtr->getMemoryTypeIndexFromBitfield(lRequirements.memoryTypeBits);
+    lMemoryAlloc.memoryTypeIndex = vDevice->getMemoryTypeIndexFromBitfield(lRequirements.memoryTypeBits);
 
     if (lMemoryAlloc.memoryTypeIndex == UINT32_MAX) {
       eLOG("No valid memory type found!");
@@ -292,11 +292,11 @@ int rRendererBase::initRenderPass() {
     dLOG("    -- dependecy ", lCounter++);
     dLOG("      - srcSubpass:      ", i.srcSubpass);
     dLOG("      - dstSubpass:      ", i.dstSubpass);
-    dLOG("      - srcStageMask:    ", i.srcStageMask);
-    dLOG("      - dstStageMask:    ", i.dstStageMask);
-    dLOG("      - srcAccessMask:   ", i.srcAccessMask);
-    dLOG("      - dstAccessMask:   ", i.dstAccessMask);
-    dLOG("      - dependencyFlags: ", i.dependencyFlags);
+    dLOG("      - srcStageMask:    ", uEnum2Str::VkPipelineStageFlagBits_toStr(i.srcStageMask));
+    dLOG("      - dstStageMask:    ", uEnum2Str::VkPipelineStageFlagBits_toStr(i.dstStageMask));
+    dLOG("      - srcAccessMask:   ", uEnum2Str::VkAccessFlagBits_toStr(i.srcAccessMask));
+    dLOG("      - dstAccessMask:   ", uEnum2Str::VkAccessFlagBits_toStr(i.dstAccessMask));
+    dLOG("      - dependencyFlags: ", uEnum2Str::VkDependencyFlagBits_toStr(i.dependencyFlags));
   }
 #endif
 

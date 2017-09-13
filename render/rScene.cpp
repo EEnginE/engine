@@ -158,8 +158,10 @@ bool rSceneBase::beginInitObject() {
 
   uint32_t lQueueFamily;
 
-  vInitQueue_vk = vWorldPtr->getInitPtr()->getQueue(VK_QUEUE_TRANSFER_BIT, 0.25f, &lQueueFamily);
-  vInitBuff_vk  = vkuCommandPoolManager::getBuffer(vWorldPtr->getDevice(), lQueueFamily);
+  auto lDevice = vWorldPtr->getDevicePTR();
+
+  vInitQueue_vk = lDevice->getQueue(VK_QUEUE_TRANSFER_BIT, 0.25f, &lQueueFamily);
+  vInitBuff_vk  = vkuCommandPoolManager::getBuffer(**lDevice, lQueueFamily);
 
   if (vInitBuff_vk.begin() != VK_SUCCESS) {
     vInitBuff_vk.destroy();
@@ -218,12 +220,14 @@ bool rSceneBase::endInitObject() {
   lInfo.signalSemaphoreCount = 0;
   lInfo.pSignalSemaphores    = nullptr;
 
-  vkuFence_t lFence(vWorldPtr->getDevice());
+  auto lDevice = vWorldPtr->getDevicePTR();
+
+  vkuFence_t lFence(**lDevice);
 
   VkResult lRes;
 
   {
-    std::lock_guard<std::mutex> lLock(vWorldPtr->getInitPtr()->getQueueMutex(vInitQueue_vk));
+    std::lock_guard<std::mutex> lLock(lDevice->getQueueMutex(vInitQueue_vk));
     lRes = vkQueueSubmit(vInitQueue_vk, 1, &lInfo, lFence[0]);
   }
 

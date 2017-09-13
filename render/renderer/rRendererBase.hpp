@@ -23,6 +23,7 @@
 
 #include "defines.hpp"
 #include "vkuCommandPool.hpp"
+#include "vkuDevice.hpp"
 #include <condition_variable>
 #include <memory>
 #include <mutex>
@@ -148,12 +149,12 @@ class rRendererBase {
  protected:
   enum PREDEFINED_ATTACHMENT_INDEXES { FRAMEBUFFER_ATTACHMENT_INDEX = 0, FIRST_FREE_ATTACHMENT_INDEX };
 
-  iInit * vInitPtr;
   rWorld *vWorldPtr;
 
   RenderPass_vk vRenderPass_vk;
 
-  VkDevice vDevice_vk;
+  VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
+  vkuDevicePTR vDevice;
 
   RecordInfo_vk vCmdRecordInfo;
 
@@ -186,7 +187,7 @@ class rRendererBase {
 
  public:
   rRendererBase() = delete;
-  rRendererBase(iInit *_init, rWorld *_root, std::wstring _id);
+  rRendererBase(rWorld *_root, std::wstring _id);
   rRendererBase(const rRendererBase &_obj) = delete;
   rRendererBase(rRendererBase &&)          = delete;
   rRendererBase &operator=(const rRendererBase &) = delete;

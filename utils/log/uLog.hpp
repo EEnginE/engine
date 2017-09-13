@@ -27,6 +27,7 @@
 #include "uLog_resources.hpp"
 #include <chrono>
 #include <fstream>
+#include <list>
 #include <thread>
 
 namespace e_engine {

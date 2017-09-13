@@ -64,6 +64,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
   _SLOT_ vKeySlot;
   float  vRotationAngle;
   bool   vRenderNormals;
+  bool   vRunMovementThread = true;
 
   void objectMoveLoop();
 
@@ -74,7 +75,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
   myScene(rWorld *_world, cmdANDinit &_cmd)
       : rScene("MAIN SCENE", _world),
         rCameraHandler(this, _world->getInitPtr()),
-        vShader(_world),
+        vShader(_world->getDevicePTR()),
         //         vLightShader(_world),
         vShader_str(_cmd.getShader()),
         vNormalShader_str(_cmd.getNormalShader()),

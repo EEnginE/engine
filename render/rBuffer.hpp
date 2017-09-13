@@ -22,24 +22,23 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuDevice.hpp"
 #include <vector>
 #include <vulkan.h>
 
 
 namespace e_engine {
 
-class iInit;
-class rWorld;
-
 class rBuffer {
  private:
-  VkDevice vDevice_vk;
-  iInit *  vInitPtr;
+  VkBuffer       vBuffer_vk     = VK_NULL_HANDLE;
+  VkBuffer       vTempBuffer_vk = VK_NULL_HANDLE;
+  VkDeviceMemory vMemTemp_vk    = VK_NULL_HANDLE;
+  VkDeviceMemory vMem_vk        = VK_NULL_HANDLE;
+  VkDevice       vDevice_vk     = VK_NULL_HANDLE;
 
-  VkBuffer       vTempBuffer_vk = nullptr;
-  VkBuffer       vBuffer_vk     = nullptr;
-  VkDeviceMemory vMemTemp_vk    = nullptr;
-  VkDeviceMemory vMem_vk        = nullptr;
+  vkuDevicePTR vDevice;
+
 
   bool vIsLoaded            = false;
   bool vSettingUpInProgress = false;
@@ -50,8 +49,7 @@ class rBuffer {
 
  public:
   rBuffer() = delete;
-  rBuffer(iInit *_init);
-  rBuffer(rWorld *_tempWorld);
+  rBuffer(vkuDevicePTR _device);
   rBuffer(const rBuffer &_obj) = delete;
   rBuffer(rBuffer &&)          = default;
   rBuffer &operator=(const rBuffer &) = delete;

@@ -195,10 +195,13 @@ configure_file( "${TEMPLATES_DIR}/FindEngine.cmake.in" "${PROJECT_SOURCE_DIR}/in
 
 enum2str_generate(
   PATH "${PROJECT_SOURCE_DIR}/utils"
-  CLASS_NAME "uEnum2Str"
-  NAMESPACE  "e_engine"
-  FUNC_NAME  "toStr"
-  INDENT_STR "  "
+  CLASS_NAME      "uEnum2Str"
+  NAMESPACE       "e_engine"
+  FUNC_NAME       "toStr"
+  INDENT_STR      "  "
+  BITFIELD_TYPE   uint32_t
+  CONCATINATE_STR " | "
+  ENABLE_BITFIELDS
   INCLUDES
     "defines.hpp" "vulkan.h"
     "rObjectBase.hpp" "rShaderBase.hpp"

@@ -29,9 +29,7 @@
 
 namespace e_engine {
 
-rBuffer::rBuffer(rWorld *_tempWorld) : rBuffer(_tempWorld->getInitPtr()) {}
-
-rBuffer::rBuffer(iInit *_init) : vDevice_vk(_init->getDevice()), vInitPtr(_init) {}
+rBuffer::rBuffer(vkuDevicePTR _device) : vDevice_vk(**_device), vDevice(_device) {}
 
 rBuffer::~rBuffer() {
   if (vIsLoaded)
@@ -140,11 +138,8 @@ bool rBuffer::cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBuff
   vkGetBufferMemoryRequirements(vDevice_vk, vTempBuffer_vk, &lMemReqs_temp);
   vkGetBufferMemoryRequirements(vDevice_vk, vBuffer_vk, &lMemReqs_final);
 
-  lIndex_temp =
-      vInitPtr->getMemoryTypeIndexFromBitfield(lMemReqs_temp.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
-  lIndex_final =
-      vInitPtr->getMemoryTypeIndexFromBitfield(lMemReqs_final.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  lIndex_temp  = vDevice->getMemoryTypeIndex(lMemReqs_temp, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+  lIndex_final = vDevice->getMemoryTypeIndex(lMemReqs_temp, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
   if (lIndex_temp == UINT32_MAX || lIndex_final == UINT32_MAX) {
     eLOG("Unable to find memory type");

@@ -30,8 +30,8 @@ using namespace glm;
 rSimpleMesh::rSimpleMesh(rMatrixSceneBase<float> *_scene, std::string _name)
     : rMatrixObjectBase(_scene),
       rObjectBase(_name),
-      vIndex(_scene->getWorldPtr()->getInitPtr()),
-      vVertex(_scene->getWorldPtr()->getInitPtr()) {}
+      vIndex(_scene->getWorldPtr()->getDevicePTR()),
+      vVertex(_scene->getWorldPtr()->getDevicePTR()) {}
 
 
 /*!

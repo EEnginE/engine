@@ -20,6 +20,7 @@ using namespace glm;
 using namespace e_engine;
 
 myScene::~myScene() {
+  vRunMovementThread = false;
   if (vMovementThread.joinable())
     vMovementThread.join();
 }
@@ -85,11 +86,13 @@ int myScene::init() {
     return 2;
   }
 
-  vMovementThread = std::thread(&myScene::objectMoveLoop, this);
+  vRunMovementThread = true;
+  vMovementThread    = std::thread(&myScene::objectMoveLoop, this);
   return 0;
 }
 
 void myScene::destroy() {
+  vRunMovementThread = false;
   vPipeline.destroy();
   //   vLightPipeline.destroy();
   vShader.destroy();
@@ -112,7 +115,7 @@ void myScene::objectMoveLoop() {
 
   getWorldPtr()->waitForFrame(lWaitMutex);
 
-  while (getWorldPtr()->isSetup()) {
+  while (getWorldPtr()->isSetup() && vRunMovementThread) {
     lNow      = std::chrono::system_clock::now();
     lDuration = std::chrono::duration_cast<std::chrono::milliseconds>(lNow - lStart);
 

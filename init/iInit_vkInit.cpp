@@ -393,40 +393,38 @@ iInit::PhysicalDevice_vk *iInit::chooseDevice() {
  * \brief creates the dvice with all queues
  * \returns 0 -- success
  */
-int iInit::createDevice(std::vector<std::string> _layers) {
-  if (vDevice_vk.pDevice == nullptr) {
+int iInit::createDevice(std::vector<std::string> _layers, VkPhysicalDevice _pDeviceToUse) {
+  if (_pDeviceToUse == VK_NULL_HANDLE) {
     return 1000;
   }
 
   // Get device layers
   uint32_t lPorpCount;
-  auto     lResult = vkEnumerateDeviceLayerProperties(vDevice_vk.pDevice->device, &lPorpCount, nullptr);
+  auto     lResult = vkEnumerateDeviceLayerProperties(_pDeviceToUse, &lPorpCount, nullptr);
   if (lResult) {
     eLOG("'vkEnumerateDeviceLayerProperties' returned ", uEnum2Str::toStr(lResult));
     return lResult;
   }
 
   vDeviceLayerProperties_vk.resize(lPorpCount);
-  lResult = vkEnumerateDeviceLayerProperties(vDevice_vk.pDevice->device, &lPorpCount, vDeviceLayerProperties_vk.data());
+  lResult = vkEnumerateDeviceLayerProperties(_pDeviceToUse, &lPorpCount, vDeviceLayerProperties_vk.data());
   if (lResult) {
     eLOG("'vkEnumerateDeviceLayerProperties' returned ", uEnum2Str::toStr(lResult));
     return lResult;
   }
 
 #if D_LOG_VULKAN_INIT
-  dVkLOG("DeviceLayerProperties: ", lPorpCount);
+  dLOG("DeviceLayerProperties: ", lPorpCount);
   for (auto const &i : vDeviceLayerProperties_vk) {
-    dVkLOG("  -- ", i.layerName, " (", i.description, ")");
+    dLOG("  -- ", i.layerName, " (", i.description, ")");
   }
 #endif
 
-  iLOG("Using ", _layers.size(), " Device Layers:");
   for (auto const &i : _layers) {
     bool lFound = false;
     for (auto const &j : vDeviceLayerProperties_vk) {
       if (i == j.layerName) {
         vDeviceLayersToUse.emplace_back(i);
-        iLOG("  -- Using Layer '", i, "'");
         lFound = true;
         break;
       }
@@ -438,147 +436,17 @@ int iInit::createDevice(std::vector<std::string> _layers) {
 
 
   // Get device extensions
-  loadDeviceExtensionList(vDevice_vk.pDevice->device);
-  const char **lExtensions = new const char *[vDeviceExtensionsToUse.size()];
+  loadDeviceExtensionList(_pDeviceToUse);
 
-  iLOG("Using ", vDeviceExtensionsToUse.size(), " device extension: ");
   for (uint32_t i = 0; i < vDeviceExtensionsToUse.size(); i++) {
     if (!isDeviceExtensionSupported(vDeviceExtensionsToUse[i])) {
       eLOG("Extension '", i, "' is not supported!");
-      delete[] lExtensions;
       return 1;
     }
-    lExtensions[i] = vDeviceExtensionsToUse[i].c_str();
-    iLOG("  -- '", vDeviceExtensionsToUse[i], '\'');
   }
 
-  const char **lLayers = new const char *[vDeviceLayersToUse.size()];
-  for (uint32_t i = 0; i < vDeviceLayersToUse.size(); i++) {
-    lLayers[i] = vDeviceLayersToUse[i].c_str();
-  }
+  vDevice = std::make_shared<vkuDevice>(_pDeviceToUse, vDeviceLayersToUse, vDeviceExtensionsToUse, vSurface_vk);
 
-  std::vector<VkDeviceQueueCreateInfo> lQueueCreateInfo;
-  std::vector<std::vector<float>>      lQueuePriorities;
-  float                                lPriority;
-  uint32_t                             lFIndex;
-
-  for (auto const &i : vDevice_vk.pDevice->queueFamilyProperties) {
-    lQueuePriorities.emplace_back();
-    lQueuePriorities.back().resize(i.queueCount);
-
-    lFIndex = static_cast<uint32_t>(lQueueCreateInfo.size());
-
-    VkBool32 lSupported;
-    auto     lRes = vkGetPhysicalDeviceSurfaceSupportKHR(vDevice_vk.pDevice->device, lFIndex, vSurface_vk, &lSupported);
-
-    if (lRes) {
-      eLOG("'vkGetPhysicalDeviceSurfaceSupportKHR' returned ", uEnum2Str::toStr(lRes));
-      lSupported = 0;
-    }
-
-    // Setting priorities (1.0, 0.5, 0.25, ...)
-    for (uint32_t j = 0; j < i.queueCount; j++) {
-      lPriority                  = 1.0f / static_cast<float>(j + 1);
-      lQueuePriorities.back()[j] = lPriority;
-
-      // Also create the queue object (only setting priority, and indexes)
-      // The actual queue will be stored after creating the device (==> and the queues),
-      // using this data.
-      vQueues_vk.emplace_back(lPriority,
-                              vDevice_vk.pDevice->queueFamilyProperties[lFIndex].queueFlags,
-                              lFIndex,
-                              j,
-                              lSupported == VK_TRUE ? true : false);
-    }
-
-    lQueueCreateInfo.emplace_back();
-    lQueueCreateInfo.back().sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    lQueueCreateInfo.back().pNext            = nullptr;
-    lQueueCreateInfo.back().flags            = 0;
-    lQueueCreateInfo.back().queueFamilyIndex = static_cast<uint32_t>(lQueueCreateInfo.size() - 1);
-    lQueueCreateInfo.back().queueCount       = i.queueCount;
-    lQueueCreateInfo.back().pQueuePriorities = lQueuePriorities.back().data();
-  }
-
-  VkDeviceCreateInfo lCreateInfo;
-  lCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  lCreateInfo.pNext                   = nullptr;
-  lCreateInfo.flags                   = 0;
-  lCreateInfo.queueCreateInfoCount    = static_cast<uint32_t>(lQueueCreateInfo.size());
-  lCreateInfo.pQueueCreateInfos       = lQueueCreateInfo.data();
-  lCreateInfo.enabledLayerCount       = static_cast<uint32_t>(vDeviceLayersToUse.size());
-  lCreateInfo.ppEnabledLayerNames     = lLayers;
-  lCreateInfo.enabledExtensionCount   = static_cast<uint32_t>(vDeviceExtensionsToUse.size());
-  lCreateInfo.ppEnabledExtensionNames = lExtensions;
-  lCreateInfo.pEnabledFeatures        = &vDevice_vk.pDevice->features;
-
-  iLOG("Creating vulkan device on GPU '",
-       vDevice_vk.pDevice->properties.deviceName,
-       "'; id = ",
-       vDevice_vk.pDevice->properties.deviceID);
-
-  lResult = vkCreateDevice(vDevice_vk.pDevice->device, &lCreateInfo, nullptr, &vDevice_vk.device);
-  if (lResult) {
-    eLOG("'vkCreateDevice' returned ", uEnum2Str::toStr(lResult));
-    return lResult;
-  }
-
-  dVkLOG("  -- Created Queues:");
-  for (auto &i : vQueues_vk) {
-    vkGetDeviceQueue(vDevice_vk.device, i.familyIndex, i.index, &i.queue);
-    dVkLOG("    -- family: ", i.familyIndex, "; index: ", i.index, "; priority: ", i.priority);
-  }
-
-  return 0;
-}
-
-
-
-int iInit::loadDeviceSurfaceInfo() {
-  if (!vDevice_vk.device) {
-    eLOG("Device not setup!");
-    return 6;
-  }
-
-  vSurfaceInfo_vk.formats.clear();
-  vSurfaceInfo_vk.presentModels.clear();
-
-  uint32_t lNum;
-  auto     lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(vDevice_vk.pDevice->device, vSurface_vk, &lNum, nullptr);
-  if (lRes) {
-    eLOG("'vkGetPhysicalDeviceSurfaceFormatsKHR' returned ", uEnum2Str::toStr(lRes));
-    return 1;
-  }
-
-  vSurfaceInfo_vk.formats.resize(lNum);
-  lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(
-      vDevice_vk.pDevice->device, vSurface_vk, &lNum, vSurfaceInfo_vk.formats.data());
-  if (lRes) {
-    eLOG("'vkGetPhysicalDeviceSurfaceFormatsKHR' returned ", uEnum2Str::toStr(lRes));
-    return 2;
-  }
-
-  lRes =
-      vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vDevice_vk.pDevice->device, vSurface_vk, &vSurfaceInfo_vk.surfaceInfo);
-  if (lRes) {
-    eLOG("'vkGetPhysicalDeviceSurfaceCapabilitiesKHR' returned ", uEnum2Str::toStr(lRes));
-    return 3;
-  }
-
-  lRes = vkGetPhysicalDeviceSurfacePresentModesKHR(vDevice_vk.pDevice->device, vSurface_vk, &lNum, nullptr);
-  if (lRes) {
-    eLOG("'vkGetPhysicalDeviceSurfacePresentModesKHR' returned ", uEnum2Str::toStr(lRes));
-    return 4;
-  }
-
-  vSurfaceInfo_vk.presentModels.resize(lNum);
-  lRes = vkGetPhysicalDeviceSurfacePresentModesKHR(
-      vDevice_vk.pDevice->device, vSurface_vk, &lNum, vSurfaceInfo_vk.presentModels.data());
-  if (lRes) {
-    eLOG("'vkGetPhysicalDeviceSurfacePresentModesKHR' returned ", uEnum2Str::toStr(lRes));
-    return 5;
-  }
-
-  return 0;
+  return vDevice->isCreated() ? 0 : -1;
 }
 }

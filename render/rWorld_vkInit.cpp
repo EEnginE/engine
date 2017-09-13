@@ -43,7 +43,8 @@ namespace e_engine {
  */
 int rWorld::recreateSwapchain() {
   vSurface_vk = vInitPtr->getVulkanSurface();
-  auto lSInfo = vInitPtr->getSurfaceInfo();
+  vDevice->loadDeviceSurfaceInfo();
+  auto lSInfo = vDevice->getSurfaceInfo();
 
   VkPresentModeKHR lModelToUse = VK_PRESENT_MODE_MAX_ENUM_KHR;
   vSwapchainFormat.format      = VK_FORMAT_UNDEFINED;

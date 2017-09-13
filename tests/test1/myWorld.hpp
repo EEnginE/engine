@@ -48,15 +48,22 @@ class myWorld final : public rWorld, public rFrameCounter {
   float vNearZ;
   float vFarZ;
 
+  bool vKeepWaiting = true;
+
   _SLOT_ slotWindowClose;
   _SLOT_ slotResize;
   _SLOT_ slotKey;
+
+  std::mutex              vWaitMutex;
+  std::condition_variable vWaitCond;
+
+  void disconnectSlotsAndContinue();
 
  public:
   myWorld(cmdANDinit &_cmd, e_engine::iInit *_init)
       : rWorld(_init),
         rFrameCounter(this, true),
-        vRenderer(std::make_shared<rRendererBasic>(getInitPtr(), this, L"R1")),
+        vRenderer(std::make_shared<rRendererBasic>(this, L"R1")),
         vScene(this, _cmd),
         vInitPointer(_init),
         vNearZ(_cmd.getNearZ()),
@@ -76,10 +83,9 @@ class myWorld final : public rWorld, public rFrameCounter {
   myWorld() = delete;
 
 
-  void windowClose(e_engine::iEventInfo const &info) {
+  void windowClose(e_engine::iEventInfo const &) {
     iLOG("User closed window");
-    getRenderLoop()->stop();
-    info.iInitPointer->shutdown();
+    disconnectSlotsAndContinue();
   }
   void key(e_engine::iEventInfo const &info);
   void resize(e_engine::iEventInfo const &info) {
@@ -87,6 +93,8 @@ class myWorld final : public rWorld, public rFrameCounter {
     updateViewPort(0, 0, static_cast<int>(GlobConf.win.width), static_cast<int>(GlobConf.win.height));
     vScene.calculateProjectionPerspective(GlobConf.win.width, GlobConf.win.height, vNearZ, vFarZ, glm::radians(60.0f));
   }
+
+  void waitForEnd();
 
   int initGL();
 };

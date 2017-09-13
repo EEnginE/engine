@@ -32,6 +32,12 @@
 #include "rWorld.hpp"
 
 namespace e_engine {
+
+rRendererDeferred::rRendererDeferred(rWorld *_root, std::wstring _id)
+    : internal::rRendererBase(_root, _id),
+      vDeferredDataBuffer(_root->getDevicePTR()),
+      vDeferredIndexBuffer(_root->getDevicePTR()) {}
+
 void rRendererDeferred::setupSubpasses() {
   addSubpass(VK_PIPELINE_BIND_POINT_GRAPHICS,
              DEPTH_STENCIL_ATTACHMENT_INDEX, // Depth / Stencil
@@ -131,9 +137,10 @@ VkImageView rRendererDeferred::getAttachmentView(ATTACHMENT_ROLE _role) {
  */
 bool rRendererDeferred::initRendererData() {
   uint32_t         lQueueFamily;
-  VkQueue          lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  vkuCommandBuffer lBuf   = vkuCommandPoolManager::getBuffer(vWorldPtr->getDevice(), lQueueFamily);
-  vkuFence_t       lFence(vWorldPtr->getDevice());
+  auto             lDevice = vWorldPtr->getDevicePTR();
+  VkQueue          lQueue  = lDevice->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
+  vkuCommandBuffer lBuf    = vkuCommandPoolManager::getBuffer(**lDevice, lQueueFamily);
+  vkuFence_t       lFence(**lDevice);
 
   std::vector<float>    lDefBufferData  = {1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f};
   std::vector<uint32_t> lDefBufferIndex = {0, 1, 2, 2, 3, 0};
@@ -157,7 +164,7 @@ bool rRendererDeferred::initRendererData() {
   lBuf.end();
 
   {
-    std::lock_guard<std::mutex> lGuard(vInitPtr->getQueueMutex(lQueue));
+    std::lock_guard<std::mutex> lGuard(lDevice->getQueueMutex(lQueue));
     vkQueueSubmit(lQueue, 1, &lInfo, lFence[0]);
   }
 

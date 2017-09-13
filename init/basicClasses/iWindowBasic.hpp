@@ -125,8 +125,6 @@ class iWindowBasic {
   virtual bool getIsCursorHidden() const = 0;
   bool         getIsWindowCreated() const noexcept;
 
-  void waitForWindowToClose();
-
   virtual iRandRBasic *getRandRManager() = 0;
 
   void startEventLoop(iSignalReference _signals);

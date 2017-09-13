@@ -51,6 +51,6 @@ class rRendererBasic : public internal::rRendererBase {
   VkImageView getAttachmentView(ATTACHMENT_ROLE _role) override;
 
   rRendererBasic() = delete;
-  rRendererBasic(iInit *_init, rWorld *_root, std::wstring _id) : internal::rRendererBase(_init, _root, _id) {}
+  rRendererBasic(rWorld *_root, std::wstring _id) : internal::rRendererBase(_root, _id) {}
 };
 }

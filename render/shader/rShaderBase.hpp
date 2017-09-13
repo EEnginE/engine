@@ -22,6 +22,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuDevice.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -30,9 +31,6 @@
 #include "rMaterial.hpp"
 
 namespace e_engine {
-
-class iInit;
-class rWorld;
 
 namespace internal {
 class rRendererBase;
@@ -142,8 +140,8 @@ class rShaderBase {
   };
 
  private:
-  VkDevice vDevice_vk;
-  iInit *  vInitPtr;
+  vkuDevicePTR vDevice;
+  VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
 
   VkShaderModule vVertModule_vk = nullptr;
   VkShaderModule vTescModule_vk = nullptr;
@@ -193,8 +191,7 @@ class rShaderBase {
 
  public:
   rShaderBase() = delete;
-  rShaderBase(iInit *_init);
-  rShaderBase(rWorld *_tempWorld);
+  rShaderBase(vkuDevicePTR _device);
   virtual ~rShaderBase();
 
   bool                                         init();

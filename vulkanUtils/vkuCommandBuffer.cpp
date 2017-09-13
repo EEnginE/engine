@@ -2,7 +2,7 @@
  * Copyright (C) 2017 EEnginE project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this fFile except in compliance with the License.
+ * you may not use this File except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -52,7 +52,7 @@ vkuCommandBuffer &vkuCommandBuffer::operator=(vkuCommandBuffer &&_old) {
   return *this;
 }
 
-VkResult vkuCommandBuffer::init(vkuCommandPool *_pool, VkCommandBufferLevel _level) {
+VkResult vkuCommandBuffer::init(vkuCommandPool *_pool, VkCommandBufferLevel _level) noexcept {
   vPool = _pool;
   if (!vPool) {
     eLOG("_pool MUST NOT be nullptr!");
@@ -84,7 +84,7 @@ VkResult vkuCommandBuffer::init(vkuCommandPool *_pool, VkCommandBufferLevel _lev
   return lRes;
 }
 
-void vkuCommandBuffer::destroy() {
+void vkuCommandBuffer::destroy() noexcept {
   if (vDevice && vPool) {
     vkFreeCommandBuffers(vDevice, vPool->get(), 1, &vBuffer);
   }
@@ -103,7 +103,7 @@ void vkuCommandBuffer::destroy() {
  *
  * \returns the result of vkBeginCommandBuffer
  */
-VkResult vkuCommandBuffer::begin(VkCommandBufferUsageFlags _flags, VkCommandBufferInheritanceInfo *_info) {
+VkResult vkuCommandBuffer::begin(VkCommandBufferUsageFlags _flags, VkCommandBufferInheritanceInfo *_info) noexcept {
   VkCommandBufferBeginInfo lBegin;
   lBegin.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   lBegin.pNext            = nullptr;
@@ -123,4 +123,4 @@ VkResult vkuCommandBuffer::begin(VkCommandBufferUsageFlags _flags, VkCommandBuff
  *
  * must be called after begin() or vkBeginCommandBuffer
  */
-VkResult vkuCommandBuffer::end() { return vkEndCommandBuffer(vBuffer); }
+VkResult vkuCommandBuffer::end() noexcept { return vkEndCommandBuffer(vBuffer); }

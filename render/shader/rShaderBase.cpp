@@ -35,8 +35,7 @@
 
 namespace e_engine {
 
-rShaderBase::rShaderBase(iInit *_init) : vDevice_vk(_init->getDevice()), vInitPtr(_init) {}
-rShaderBase::rShaderBase(rWorld *_tempWorld) : rShaderBase(_tempWorld->getInitPtr()) {}
+rShaderBase::rShaderBase(vkuDevicePTR _device) : vDevice(_device), vDevice_vk(**_device) {}
 
 using namespace internal;
 
@@ -129,7 +128,7 @@ uint32_t rShaderBase::createUniformBuffer(uint32_t _size) {
 
   vkGetBufferMemoryRequirements(vDevice_vk, vBuffers.back(), &lMemReqs);
 
-  lIndex = vInitPtr->getMemoryTypeIndexFromBitfield(lMemReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+  lIndex = vDevice->getMemoryTypeIndex(lMemReqs, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
   if (lIndex == UINT32_MAX) {
     eLOG("Unable to find memory type");

@@ -27,7 +27,7 @@ namespace e_engine {
  * \warning This class does no parameter validation, to reduce overhead!
  */
 template <uint32_t N>
-class vkuFences     final {
+class vkuFences    final {
   static_assert(N > 0, "Min for N is 1");
 
  private:
@@ -46,14 +46,14 @@ class vkuFences     final {
   vkuFences(vkuFences<N> &&);
   vkuFences &operator=(vkuFences<N> &&);
 
-  VkResult reset(uint32_t _start = 0, uint32_t _num = N);
-  VkResult wait(uint32_t _start = 0, uint32_t _num = N, uint64_t _timeout = UINT64_MAX);
-  VkResult waitThenReset(uint32_t _start = 0, uint32_t _num = N, uint64_t _timeout = UINT64_MAX);
-  VkResult status(uint32_t _n = 0);
+  VkResult reset(uint32_t _start = 0, uint32_t _num = N) noexcept;
+  VkResult wait(uint32_t _start = 0, uint32_t _num = N, uint64_t _timeout = UINT64_MAX) noexcept;
+  VkResult waitThenReset(uint32_t _start = 0, uint32_t _num = N, uint64_t _timeout = UINT64_MAX) noexcept;
+  VkResult status(uint32_t _n = 0) noexcept;
 
   inline VkFence &at(uint32_t _n = 0) noexcept { return vFence[_n]; }
   inline VkFence &operator[](uint32_t _n) { return vFence[_n]; }
-  inline VkResult operator()(uint32_t _start = 0, uint32_t _num = N, uint64_t _timeout = UINT64_MAX) {
+  inline VkResult operator()(uint32_t _start = 0, uint32_t _num = N, uint64_t _timeout = UINT64_MAX) noexcept {
     return waitThenReset(_start, _num, _timeout);
   }
 
@@ -143,7 +143,7 @@ vkuFences<N> &vkuFences<N>::operator=(vkuFences<N> &&_old) {
  * \param _num   Number of fences (after the start fence)
  */
 template <uint32_t N>
-VkResult vkuFences<N>::reset(uint32_t _start, uint32_t _num) {
+VkResult vkuFences<N>::reset(uint32_t _start, uint32_t _num) noexcept {
   return vkResetFences(vDevice, _num, &vFence[_start]);
 }
 
@@ -154,7 +154,7 @@ VkResult vkuFences<N>::reset(uint32_t _start, uint32_t _num) {
  * \param _timeout The timeout
  */
 template <uint32_t N>
-VkResult vkuFences<N>::wait(uint32_t _start, uint32_t _num, uint64_t _timeout) {
+VkResult vkuFences<N>::wait(uint32_t _start, uint32_t _num, uint64_t _timeout) noexcept {
   return vkWaitForFences(vDevice, _num, &vFence[_start], VK_TRUE, _timeout);
 }
 
@@ -165,7 +165,7 @@ VkResult vkuFences<N>::wait(uint32_t _start, uint32_t _num, uint64_t _timeout) {
  * \param _timeout The timeout
  */
 template <uint32_t N>
-VkResult vkuFences<N>::waitThenReset(uint32_t _start, uint32_t _num, uint64_t _timeout) {
+VkResult vkuFences<N>::waitThenReset(uint32_t _start, uint32_t _num, uint64_t _timeout) noexcept {
   auto lRes = vkWaitForFences(vDevice, _num, &vFence[_start], VK_TRUE, _timeout);
   if (lRes != VK_SUCCESS) {
     return lRes;
@@ -179,7 +179,7 @@ VkResult vkuFences<N>::waitThenReset(uint32_t _start, uint32_t _num, uint64_t _t
  * \param _n The fence to check
  */
 template <uint32_t N>
-VkResult vkuFences<N>::status(uint32_t _n) {
+VkResult vkuFences<N>::status(uint32_t _n) noexcept {
   return vkGetFenceStatus(vDevice, vFence[_n]);
 }
 

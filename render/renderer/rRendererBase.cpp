@@ -47,9 +47,9 @@
 namespace e_engine {
 namespace internal {
 
-rRendererBase::rRendererBase(iInit *_init, rWorld *_root, std::wstring _id)
-    : vID(_id), vInitPtr(_init), vWorldPtr(_root) {
-  vDevice_vk = vInitPtr->getDevice();
+rRendererBase::rRendererBase(rWorld *_root, std::wstring _id) : vID(_id), vWorldPtr(_root) {
+  vDevice    = vWorldPtr->getDevicePTR();
+  vDevice_vk = **vDevice;
 
   vCmdRecordInfo.lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   vCmdRecordInfo.lRPInfo.pNext                    = nullptr;
@@ -91,7 +91,7 @@ int rRendererBase::init() {
     return -3;
 
   uint32_t         lQueueFamily;
-  VkQueue          lQueue = vInitPtr->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
+  VkQueue          lQueue = vDevice->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
   vkuCommandBuffer lBuf   = vkuCommandPoolManager::getBuffer(vDevice_vk, lQueueFamily);
   vkuFence_t       lFence(vDevice_vk);
 
@@ -139,7 +139,7 @@ int rRendererBase::init() {
   lInfo.pSignalSemaphores    = nullptr;
 
   {
-    std::lock_guard<std::mutex> lGuard2(vInitPtr->getQueueMutex(lQueue));
+    std::lock_guard<std::mutex> lGuard2(vDevice->getQueueMutex(lQueue));
     vkQueueSubmit(lQueue, 1, &lInfo, lFence[0]);
   }
 
@@ -217,11 +217,11 @@ void rRendererBase::getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, Vk
   };
 
   for (auto i : lDepthFormats) {
-    if (vInitPtr->formatSupportsFeature(i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_LINEAR)) {
+    if (vDevice->formatSupportsFeature(i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_LINEAR)) {
       _format = i;
       _tiling = VK_IMAGE_TILING_LINEAR;
       break;
-    } else if (vInitPtr->formatSupportsFeature(
+    } else if (vDevice->formatSupportsFeature(
                    i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL)) {
       _format = i;
       _tiling = VK_IMAGE_TILING_OPTIMAL;

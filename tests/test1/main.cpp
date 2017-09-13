@@ -64,12 +64,10 @@ int main(int argc, char *argv[]) {
     start.enableDefaultGrabControl();
 
     if (handler.initGL() == 0)
-      start.waitForWindowToClose();
-
-    handler.shutdown();
+      handler.waitForEnd();
   }
 
-  start.shutdown();
+  start.destroy();
 
   return EXIT_SUCCESS;
 }
