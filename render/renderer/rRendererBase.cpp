@@ -376,7 +376,7 @@ uint32_t rRendererBase::getNumFramebuffers() const {
     return UINT32_MAX;
 
   // assert(vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size());
-  return vFramebuffers_vk.size();
+  return static_cast<uint32_t>(vFramebuffers_vk.size());
 }
 }
 }
