@@ -40,7 +40,6 @@ VkResult rRendererBasic::initRenderer(std::vector<VkImageView> _images, VkSurfac
     return lRes;
   }
 
-  assert(vFbData.size() == _images.size());
   for (size_t i = 0; i < vFbData.size(); ++i) {
     vFbData[i].frameBuffer.setup(vRenderPass);
     lRes = vFbData[i].frameBuffer.reCreateFrameBuffers(getFrameBufferDescription(_images[i]));
