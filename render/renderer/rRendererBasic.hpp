@@ -23,24 +23,37 @@
 
 #include "defines.hpp"
 #include "vkuCommandBuffer.hpp"
+#include "vkuFrameBuffer.hpp"
+#include "vkuRenderPass.hpp"
 #include "rRendererBase.hpp"
 
 namespace e_engine {
 
-class rRendererBasic : public internal::rRendererBase {
+class rRendererBasic final : public internal::rRendererBase {
   struct FB_DATA {
     std::vector<vkuCommandBuffer> buffers;
+    vkuFrameBuffer                frameBuffer;
   };
 
  private:
   std::vector<FB_DATA> vFbData;
 
+  vkuRenderPass vRenderPass;
+
   OBJECTS vRenderObjects;
 
+  vkuRenderPass::Config getRenderPassDescription(VkSurfaceFormatKHR _surfaceFormat);
+  vkuFrameBuffer::Config getFrameBufferDescription(VkImageView _swapChainImageView);
+
  protected:
-  void                        setupSubpasses() override;
-  std::vector<AttachmentInfo> getAttachmentInfos() override;
+  VkResult initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) override;
+  void destroyRenderer() override;
+
   void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) override;
+
+  VkRenderPass  getRenderPass() override { return *vRenderPass; }
+  VkFramebuffer getFrameBuffer(uint32_t _fbIndex) override { return *vFbData[_fbIndex].frameBuffer; }
+  std::vector<VkClearValue>             getClearValues() override { return vRenderPass.getClearValues(); }
 
   void initCmdBuffers(vkuCommandPool *_pool) override;
   void freeCmdBuffers() override;

@@ -38,6 +38,7 @@ rRendererDeferred::rRendererDeferred(rWorld *_root, std::wstring _id)
       vDeferredDataBuffer(_root->getDevicePTR()),
       vDeferredIndexBuffer(_root->getDevicePTR()) {}
 
+#if 0
 void rRendererDeferred::setupSubpasses() {
   addSubpass(VK_PIPELINE_BIND_POINT_GRAPHICS,
              DEPTH_STENCIL_ATTACHMENT_INDEX, // Depth / Stencil
@@ -72,7 +73,7 @@ std::vector<rRendererDeferred::AttachmentInfo> rRendererDeferred::getAttachmentI
   VkImageTiling      lTiling;
   VkImageAspectFlags lAspectFlags;
 
-  getDepthFormat(lDepthStencilFormat, lTiling, lAspectFlags);
+  vDevice->getDepthFormat(lDepthStencilFormat, lTiling, lAspectFlags);
 
   return {
 
@@ -129,6 +130,8 @@ VkImageView rRendererDeferred::getAttachmentView(ATTACHMENT_ROLE _role) {
 
   return nullptr;
 }
+
+#endif
 
 /*!
  * \brief Initializes vertex and Index buffer
@@ -226,6 +229,9 @@ void rRendererDeferred::freeCmdBuffers() {
  * Elements in _toRender can be skipped by setting them to nullptr
  */
 void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) {
+  (void)_fb;
+  (void)_toRender;
+#if 0
   _fb.render.begin();
 
   vkCmdBeginRenderPass(*_fb.render, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
@@ -350,5 +356,6 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
     eLOG("'vkEndCommandBuffer' returned ", uEnum2Str::toStr(lRes));
     //! \todo Handle this somehow (practically this code must not execute)
   }
+#endif
 }
 }

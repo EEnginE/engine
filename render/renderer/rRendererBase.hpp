@@ -51,45 +51,11 @@ class rRendererBase {
  public:
   typedef std::unordered_map<uint32_t, VkImageLayout> AttachmentLayoutMap;
 
-  typedef struct Buffer_vk {
-    VkImage        img = nullptr;
-    VkImageView    iv  = nullptr;
-    VkDeviceMemory mem = nullptr;
-  } Buffer_vk;
 
-  struct AttachmentInfo {
-    VkFormat           format;
-    VkImageUsageFlags  usage;
-    VkImageLayout      layout;
-    VkImageTiling      tiling;
-    VkImageAspectFlags aspect;
-    uint32_t           attachmentID;
-  };
-
-  typedef struct RenderPass_vk {
-    struct SubPassData {
-      std::vector<uint32_t>              preserve;
-      std::vector<VkAttachmentReference> color;
-      std::vector<VkAttachmentReference> input;
-      std::vector<VkAttachmentReference> resolve;
-      VkAttachmentReference              depth = {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
-    };
-
-    std::vector<std::unique_ptr<SubPassData>> data;
-    std::vector<VkAttachmentDescription>      attachments;
-    std::vector<VkClearValue>                 clearValues;
-    std::vector<VkSubpassDescription>         subpasses;
-    std::vector<VkSubpassDependency>          dependecies;
-
-    std::vector<VkImageView> attachmentViews;
-    std::vector<Buffer_vk *> attachmentBuffers; //!< Correctly indexed reference to vBuffers
-
-    VkRenderPass renderPass = nullptr;
-  } RenderPass_vk;
-
-  typedef struct Framebuffer_vk : Buffer_vk {
+  typedef struct Framebuffer_vk {
+    VkImage          img; //!< \brief The swapchain image
+    VkImageView      iv;  //!< \brief The swapchain image view
     uint32_t         index = 0;
-    VkFramebuffer    fb    = nullptr;
     vkuCommandBuffer preRender;
     vkuCommandBuffer render;
     vkuCommandBuffer postRender;
@@ -118,20 +84,14 @@ class rRendererBase {
   std::wstring vID;
 
   std::vector<Framebuffer_vk> vFramebuffers_vk;
-  std::vector<Buffer_vk>      vBuffers;
 
   std::recursive_mutex vMutexRecordData;
 
   VkClearColorValue vClearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
 
   bool vIsSetup               = false;
-  bool vHasStencilBuffer      = false;
   bool vEnableRendering       = false;
   bool vUserDisabledRendering = false; //!< User manually disabled rendering
-
-  int initImageBuffers(VkCommandBuffer _buf);
-  int initRenderPass();
-  int initFramebuffers();
 
   void initFrameCommandBuffers(vkuCommandPool *_pool);
   void freeFrameCommandBuffers();
@@ -151,8 +111,6 @@ class rRendererBase {
 
   rWorld *vWorldPtr;
 
-  RenderPass_vk vRenderPass_vk;
-
   VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
   vkuDevicePTR vDevice;
 
@@ -160,27 +118,15 @@ class rRendererBase {
 
   OBJECTS vObjects;
 
-  virtual std::vector<AttachmentInfo> getAttachmentInfos() = 0;
-  virtual void                        setupSubpasses()     = 0;
-  uint32_t addSubpass(VkPipelineBindPoint   _bindPoint,
-                      uint32_t              _deptStencil = UINT32_MAX,
-                      std::vector<uint32_t> _color       = {UINT32_MAX},
-                      std::vector<uint32_t> _input       = {},
-                      std::vector<uint32_t> _preserve    = {},
-                      std::vector<uint32_t> _resolve     = {},
-                      AttachmentLayoutMap   _layoutMap   = {});
-
-  void addSubpassDependecy(uint32_t _srcSubPass,
-                           uint32_t _dstSubPass,
-                           uint32_t _srcStageMask    = 0,
-                           uint32_t _dstStageMask    = 0,
-                           uint32_t _srcAccessMask   = 0,
-                           uint32_t _dstAccessMask   = 0,
-                           uint32_t _dependencyFlags = 0);
-
+  virtual VkResult initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) = 0;
+  virtual void destroyRenderer()                     = 0;
   virtual void initCmdBuffers(vkuCommandPool *_pool) = 0;
   virtual void freeCmdBuffers()                      = 0;
   virtual void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) = 0;
+
+  virtual VkRenderPass  getRenderPass()                   = 0;
+  virtual VkFramebuffer getFrameBuffer(uint32_t _fbIndex) = 0;
+  virtual std::vector<VkClearValue> getClearValues()      = 0;
 
   virtual bool initRendererData() { return true; }
   virtual bool freeRendererData() { return true; }
@@ -213,7 +159,7 @@ class rRendererBase {
 
   void setClearColor(VkClearColorValue _clearColor);
 
-  void getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect);
+  [[deprecated]] void getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect);
   uint32_t getNumFramebuffers() const;
 
   friend class ::e_engine::rRenderLoop;

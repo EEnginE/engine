@@ -20,59 +20,41 @@
  */
 
 #include "defines.hpp"
-
+#include "rRendererBasic.hpp"
 #include "uConfig.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
 #include "rObjectBase.hpp"
 #include "rPipeline.hpp"
-#include "rRendererBasic.hpp"
 #include "rWorld.hpp"
 
-namespace e_engine {
+using namespace e_engine;
 
-void rRendererBasic::setupSubpasses() {
-  addSubpass(VK_PIPELINE_BIND_POINT_GRAPHICS, DEPTH_STENCIL_ATTACHMENT_INDEX, {FRAMEBUFFER_ATTACHMENT_INDEX});
-  addSubpassDependecy(VK_SUBPASS_EXTERNAL,
-                      0,
-                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                      VK_ACCESS_MEMORY_READ_BIT,
-                      VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                      VK_DEPENDENCY_BY_REGION_BIT);
+VkResult rRendererBasic::initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) {
+  vFbData.resize(_images.size());
+  vRenderPass.setup(getRenderPassDescription(_surfaceFormat));
 
-  addSubpassDependecy(0,
-                      VK_SUBPASS_EXTERNAL,
-                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                      VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                      VK_ACCESS_MEMORY_READ_BIT,
-                      VK_DEPENDENCY_BY_REGION_BIT);
-}
-
-std::vector<rRendererBasic::AttachmentInfo> rRendererBasic::getAttachmentInfos() {
-  VkFormat           lDepthStencilFormat;
-  VkImageTiling      lTiling;
-  VkImageAspectFlags lAspectFlags;
-
-  getDepthFormat(lDepthStencilFormat, lTiling, lAspectFlags);
-
-  return {{
-      lDepthStencilFormat,                              // format
-      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,      // usage
-      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, // layout
-      lTiling,                                          // tiling
-      lAspectFlags,                                     // aspect
-      DEPTH_STENCIL_ATTACHMENT_INDEX,                   // attachID
-  }};
-}
-
-VkImageView rRendererBasic::getAttachmentView(ATTACHMENT_ROLE _role) {
-  switch (_role) {
-    case DEPTH_STENCIL: return vRenderPass_vk.attachmentViews[DEPTH_STENCIL_ATTACHMENT_INDEX];
-    default: return nullptr;
+  auto lRes = vRenderPass.init(vDevice);
+  if (lRes != VK_SUCCESS) {
+    eLOG(L"Failed to init render pass. Can not initialize renderer");
+    return lRes;
   }
+
+  assert(vFbData.size() == _images.size());
+  for (size_t i = 0; i < vFbData.size(); ++i) {
+    vFbData[i].frameBuffer.setup(vRenderPass);
+    lRes = vFbData[i].frameBuffer.reCreateFrameBuffers(getFrameBufferDescription(_images[i]));
+  }
+
+  return lRes;
 }
+
+void rRendererBasic::destroyRenderer() {
+  vRenderPass.destroy();
+  vFbData.clear();
+}
+
+
 
 void rRendererBasic::initCmdBuffers(vkuCommandPool *_pool) {
   for (auto i : vObjects) {
@@ -86,7 +68,6 @@ void rRendererBasic::initCmdBuffers(vkuCommandPool *_pool) {
     }
   }
 
-  vFbData.resize(getNumFramebuffers());
   for (auto &i : vFbData) {
     i.buffers.resize(vRenderObjects.size());
     for (auto &j : i.buffers) {
@@ -96,9 +77,19 @@ void rRendererBasic::initCmdBuffers(vkuCommandPool *_pool) {
 }
 
 void rRendererBasic::freeCmdBuffers() {
-  vFbData.clear();
+  for (auto &i : vFbData)
+    i.buffers.clear();
+
   vRenderObjects.clear();
 }
+
+VkImageView rRendererBasic::getAttachmentView(internal::rRendererBase::ATTACHMENT_ROLE _role) {
+  switch (_role) {
+    case DEPTH_STENCIL: return VK_NULL_HANDLE;
+    default: return VK_NULL_HANDLE;
+  }
+}
+
 
 
 /*!
@@ -145,5 +136,4 @@ void rRendererBasic::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRend
     eLOG("'vkEndCommandBuffer' returned ", uEnum2Str::toStr(lRes));
     //! \todo Handle this somehow (practically this code must not execute)
   }
-}
 }

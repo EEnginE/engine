@@ -95,11 +95,13 @@ class vkuDevice {
   VkQueue getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr);
   std::mutex &getQueueMutex(VkQueue _queue);
 
-  uint32_t getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags = 0);
-  uint32_t getMemoryTypeIndex(VkMemoryRequirements _requirements, VkMemoryHeapFlags _flags = 0);
+  uint32_t getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryPropertyFlags _flags = 0);
+  uint32_t getMemoryTypeIndex(VkMemoryRequirements _requirements, VkMemoryPropertyFlags _flags = 0);
 
   bool isFormatSupported(VkFormat _format);
   bool formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type);
+
+  void getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect);
 
   VkResult loadDeviceSurfaceInfo();
 

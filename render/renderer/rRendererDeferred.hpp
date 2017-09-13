@@ -28,6 +28,11 @@
 
 namespace e_engine {
 
+/*!
+ * \warning THIS RENDERER IS BROKEN
+ *
+ * \todo FIX THIS
+ */
 class rRendererDeferred : public internal::rRendererBase {
   struct FB_DATA {
     std::vector<vkuCommandBuffer> objects;
@@ -47,8 +52,6 @@ class rRendererDeferred : public internal::rRendererBase {
   rBuffer vDeferredIndexBuffer;
 
  protected:
-  void                        setupSubpasses() override;
-  std::vector<AttachmentInfo> getAttachmentInfos() override;
   void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) override;
 
   bool initRendererData() override;
@@ -62,8 +65,6 @@ class rRendererDeferred : public internal::rRendererBase {
   static const uint32_t DEFERRED_POS_ATTACHMENT_INDEX    = FIRST_FREE_ATTACHMENT_INDEX + 1;
   static const uint32_t DEFERRED_NORMAL_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 2;
   static const uint32_t DEFERRED_ALBEDO_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 3;
-
-  VkImageView getAttachmentView(ATTACHMENT_ROLE _role) override;
 
   rRendererDeferred() = delete;
   rRendererDeferred(rWorld *_root, std::wstring _id);

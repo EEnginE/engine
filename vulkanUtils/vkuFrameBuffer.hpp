@@ -18,7 +18,9 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuImageBuffer.hpp"
 #include "vkuRenderPass.hpp"
+#include <plf_colony.h>
 #include <vulkan.h>
 
 namespace e_engine {
@@ -33,30 +35,53 @@ namespace e_engine {
  * \todo support multiview
  */
 class vkuFrameBuffer {
+ public:
+  typedef vkuRenderPass::AttachmentDescription AttachmentDesc;
+
+  struct Config {
+    VkExtent3D size; //!< Size of the framebuffer
+
+    struct AttachmentData {
+      uint32_t attachmentID = 0;
+
+      /*!
+       * \brief Stores the image views to use when useExternalImageView is true in the attachment description
+       */
+      VkImageView view = VK_NULL_HANDLE;
+    };
+
+    std::vector<AttachmentData> data = {}; //!< \brief Image views for the new framebuffer, provided externally
+
+    uint32_t layers = 1; //!< The number of layers for multiview
+  };
+
  private:
   VkFramebuffer vFrameBuffer = VK_NULL_HANDLE;
-  VkDevice      vDevice      = VK_NULL_HANDLE;
   VkRenderPass  vRenderPass  = VK_NULL_HANDLE;
+  vkuDevicePTR  vDevice      = nullptr;
+
+  std::vector<AttachmentDesc> vAttachments;
+  plf::colony<vkuImageBuffer> vImageBuffers; // Can not use vector because vkuImageBuffer can not be copied or moved
 
  public:
-  vkuFrameBuffer() : vkuFrameBuffer(VK_NULL_HANDLE) {}
-  vkuFrameBuffer(VkDevice _device);
+  vkuFrameBuffer() = default;
   ~vkuFrameBuffer();
 
   vkuFrameBuffer(vkuFrameBuffer const &) = delete;
-  vkuFrameBuffer(vkuFrameBuffer &&)      = delete;
-
   vkuFrameBuffer &operator=(const vkuFrameBuffer &) = delete;
-  vkuFrameBuffer &operator=(vkuFrameBuffer &&) = delete;
 
-  VkResult init(vkuRenderPass &_renderPass);
+  vkuFrameBuffer(vkuFrameBuffer &&);
+  vkuFrameBuffer &operator=(vkuFrameBuffer &&);
+
+  bool setup(vkuRenderPass &_renderPass);
+  VkResult reCreateFrameBuffers(Config _cfg);
   void destroy();
 
-  inline VkFramebuffer get() const noexcept { return vFrameBuffer; }
-  inline VkRenderPass  getRenderPass() const noexcept { return vRenderPass; }
-  inline VkDevice      getDevice() const noexcept { return vDevice; }
-  inline bool          isCreated() const noexcept { return vFrameBuffer != VK_NULL_HANDLE; }
+  inline VkRenderPass getRenderPass() const noexcept { return vRenderPass; }
+  inline vkuDevicePTR getDevice() const noexcept { return vDevice; }
+  inline bool         isCreated() const noexcept { return vFrameBuffer != VK_NULL_HANDLE; }
 
+  inline VkFramebuffer get() const noexcept { return vFrameBuffer; }
   inline VkFramebuffer operator*() const noexcept { return vFrameBuffer; }
 
   inline bool operator!() const noexcept { return !isCreated(); }

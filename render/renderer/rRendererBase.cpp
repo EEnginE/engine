@@ -90,64 +90,23 @@ int rRendererBase::init() {
   if (vIsSetup)
     return -3;
 
-  uint32_t         lQueueFamily;
-  VkQueue          lQueue = vDevice->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  vkuCommandBuffer lBuf   = vkuCommandPoolManager::getBuffer(vDevice_vk, lQueueFamily);
-  vkuFence_t       lFence(vDevice_vk);
+  auto                     lImages = vWorldPtr->getSwapchainImageViews();
+  std::vector<VkImageView> lViews;
 
-  if (!lBuf)
-    return -1;
+  lViews.reserve(lImages.size());
+  vFramebuffers_vk.resize(lImages.size());
+  for (auto &i : lImages) {
+    lViews.emplace_back(i.iv);
+  }
 
-  if (lBuf.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) != VK_SUCCESS)
-    return -2;
+  for (size_t i = 0; i < lImages.size(); ++i) {
+    vFramebuffers_vk[i].img   = lImages[i].img;
+    vFramebuffers_vk[i].iv    = lImages[i].iv;
+    vFramebuffers_vk[i].index = static_cast<uint32_t>(i);
+  }
 
-  if (initImageBuffers(*lBuf))
-    return 1;
-
-  // vRenderPass_vk.attachments resized in 'initImageBuffers'
-  VkAttachmentDescription *lAttachment = &vRenderPass_vk.attachments[FRAMEBUFFER_ATTACHMENT_INDEX];
-  lAttachment->flags                   = 0;
-  lAttachment->format                  = vWorldPtr->getSwapchainFormat().format;
-  lAttachment->samples                 = GlobConf.vk.samples;
-  lAttachment->loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  lAttachment->storeOp                 = VK_ATTACHMENT_STORE_OP_STORE;
-  lAttachment->stencilLoadOp           = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  lAttachment->stencilStoreOp          = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  lAttachment->initialLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-  lAttachment->finalLayout             = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-  if (vRenderPass_vk.subpasses.empty())
-    setupSubpasses();
-
-  if (initRenderPass())
+  if (initRenderer(lViews, vWorldPtr->getSwapchainFormat()))
     return 2;
-
-  if (initFramebuffers())
-    return 3;
-
-  vkEndCommandBuffer(*lBuf);
-
-  VkSubmitInfo lInfo;
-  lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  lInfo.pNext                = nullptr;
-  lInfo.waitSemaphoreCount   = 0;
-  lInfo.pWaitSemaphores      = nullptr;
-  lInfo.pWaitDstStageMask    = nullptr;
-  lInfo.commandBufferCount   = 1;
-  lInfo.pCommandBuffers      = &lBuf.get();
-  lInfo.signalSemaphoreCount = 0;
-  lInfo.pSignalSemaphores    = nullptr;
-
-  {
-    std::lock_guard<std::mutex> lGuard2(vDevice->getQueueMutex(lQueue));
-    vkQueueSubmit(lQueue, 1, &lInfo, lFence[0]);
-  }
-
-  auto lRes = lFence();
-  if (lRes) {
-    eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
-    return 3;
-  }
 
   if (!initRendererData())
     return 4;
@@ -173,92 +132,31 @@ void rRendererBase::destroy() {
   dVkLOG("  -- freeing old renderer data [renderer ", vID, "]");
   freeRendererData();
 
-  dVkLOG("  -- destroying old framebuffers [renderer ", vID, "]");
-  for (auto &i : vFramebuffers_vk)
-    if (i.fb)
-      vkDestroyFramebuffer(vDevice_vk, i.fb, nullptr);
-
   dVkLOG("  -- destroying old renderpass [renderer ", vID, "]");
-  vkDestroyRenderPass(vDevice_vk, vRenderPass_vk.renderPass, nullptr);
-
-  dVkLOG("  -- destroying old image buffer(s) [renderer ", vID, "]");
-  for (auto &i : vBuffers) {
-    vkDestroyImageView(vDevice_vk, i.iv, nullptr);
-    vkDestroyImage(vDevice_vk, i.img, nullptr);
-    vkFreeMemory(vDevice_vk, i.mem, nullptr);
-  }
-
-  vRenderPass_vk.renderPass = nullptr;
+  destroyRenderer();
 
   vFramebuffers_vk.clear();
-  vBuffers.clear();
-  vRenderPass_vk.attachmentViews.clear();
-  vRenderPass_vk.attachmentBuffers.clear();
   vIsSetup = false;
 }
 
 void rRendererBase::getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect) {
-  _format = VK_FORMAT_UNDEFINED;
-  _tiling = VK_IMAGE_TILING_MAX_ENUM;
-  _aspect = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;
-
-  if (!vDevice_vk) {
-    eLOG("Device not created!");
-    return;
-  }
-
-  static const VkFormat lDepthFormats[] = {
-      VK_FORMAT_D32_SFLOAT_S8_UINT,
-      VK_FORMAT_D24_UNORM_S8_UINT,
-      VK_FORMAT_D16_UNORM_S8_UINT,
-      VK_FORMAT_D32_SFLOAT,
-      VK_FORMAT_X8_D24_UNORM_PACK32,
-      VK_FORMAT_D16_UNORM,
-  };
-
-  for (auto i : lDepthFormats) {
-    if (vDevice->formatSupportsFeature(i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_LINEAR)) {
-      _format = i;
-      _tiling = VK_IMAGE_TILING_LINEAR;
-      break;
-    } else if (vDevice->formatSupportsFeature(
-                   i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL)) {
-      _format = i;
-      _tiling = VK_IMAGE_TILING_OPTIMAL;
-      break;
-    }
-  }
-
-  if (_format == VK_FORMAT_UNDEFINED) {
-    eLOG("Unable to find depth format for the depth buffer");
-    return;
-  }
-
-  vHasStencilBuffer = _format == VK_FORMAT_D32_SFLOAT_S8_UINT || _format == VK_FORMAT_D24_UNORM_S8_UINT ||
-                      _format == VK_FORMAT_D16_UNORM_S8_UINT;
-
-  _aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
-  _aspect |= vHasStencilBuffer ? VK_IMAGE_ASPECT_STENCIL_BIT : 0;
+  vDevice->getDepthFormat(_format, _tiling, _aspect);
 }
 
 void rRendererBase::recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _toRender) {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
-  VkClearValue *lClearValue = &vRenderPass_vk.clearValues[FRAMEBUFFER_ATTACHMENT_INDEX];
-  lClearValue->depthStencil = {1.0f, 0};
-
-  lClearValue->color = {
-      {vClearColor.float32[0], vClearColor.float32[1], vClearColor.float32[2], vClearColor.float32[3]}};
+  auto lClearValues = getClearValues();
 
   vCmdRecordInfo.lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   vCmdRecordInfo.lRPInfo.pNext                    = nullptr;
-  vCmdRecordInfo.lRPInfo.renderPass               = vRenderPass_vk.renderPass;
-  vCmdRecordInfo.lRPInfo.framebuffer              = _fb.fb;
+  vCmdRecordInfo.lRPInfo.renderPass               = getRenderPass();
+  vCmdRecordInfo.lRPInfo.framebuffer              = getFrameBuffer(_fb.index);
   vCmdRecordInfo.lRPInfo.renderArea.extent.width  = GlobConf.win.width;
   vCmdRecordInfo.lRPInfo.renderArea.extent.height = GlobConf.win.height;
   vCmdRecordInfo.lRPInfo.renderArea.offset        = {0, 0};
-  vCmdRecordInfo.lRPInfo.clearValueCount          = static_cast<uint32_t>(vRenderPass_vk.clearValues.size());
-  vCmdRecordInfo.lRPInfo.pClearValues             = vRenderPass_vk.clearValues.data();
+  vCmdRecordInfo.lRPInfo.clearValueCount          = static_cast<uint32_t>(lClearValues.size());
+  vCmdRecordInfo.lRPInfo.pClearValues             = lClearValues.data();
 
   vCmdRecordInfo.lViewPort.x        = 0;
   vCmdRecordInfo.lViewPort.y        = 0;
@@ -274,8 +172,8 @@ void rRendererBase::recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _
 
   vCmdRecordInfo.lInherit.sType                = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
   vCmdRecordInfo.lInherit.pNext                = nullptr;
-  vCmdRecordInfo.lInherit.renderPass           = vRenderPass_vk.renderPass;
-  vCmdRecordInfo.lInherit.framebuffer          = _fb.fb;
+  vCmdRecordInfo.lInherit.renderPass           = getRenderPass();
+  vCmdRecordInfo.lInherit.framebuffer          = getFrameBuffer(_fb.index);
   vCmdRecordInfo.lInherit.occlusionQueryEnable = VK_FALSE;
   vCmdRecordInfo.lInherit.queryFlags           = 0;
   vCmdRecordInfo.lInherit.pipelineStatistics   = 0;
@@ -307,7 +205,7 @@ void rRendererBase::updateRenderer() {
     rPipeline *lPipe = i->getPipeline();
     if (lPipe != nullptr) {
       if (!lPipe->getIsCreated()) {
-        lPipe->create(vDevice_vk, vRenderPass_vk.renderPass, 0);
+        lPipe->create(vDevice_vk, getRenderPass(), 0);
       }
     }
 
@@ -411,130 +309,6 @@ bool rRendererBase::resetObjects() {
   return true;
 }
 
-/*!
- * \brief Creates a suppass description, used to create a rennderPass
- *
- * \param _bindPoint   The vulkan pipeline bindpoint
- * \param _deptStencil Index of the depth stencil attachment (UINT32_MAX to ignore)
- * \param _color       Indexes of the color attachments (UINT32_MAX for default color attachment)
- * \param _input       Indexes of the input attachments
- * \param _preserve    Indexes of the attachments to preserve
- * \param _resolve     Indexes of the color attachments to resolve
- * \param _layoutMap   Overwrites the default layout for an attachment
- *
- * \returns the created sbpass index (UINT32_MAX on error)
- */
-uint32_t rRendererBase::addSubpass(VkPipelineBindPoint   _bindPoint,
-                                   uint32_t              _deptStencil,
-                                   std::vector<uint32_t> _color,
-                                   std::vector<uint32_t> _input,
-                                   std::vector<uint32_t> _preserve,
-                                   std::vector<uint32_t> _resolve,
-                                   std::unordered_map<uint32_t, VkImageLayout> _layoutMap) {
-  vRenderPass_vk.data.emplace_back(std::make_unique<RenderPass_vk::SubPassData>());
-  auto &lData     = vRenderPass_vk.data.back();
-  lData->preserve = _preserve;
-
-  for (uint32_t i : _color) {
-    if (i == UINT32_MAX)
-      i = FRAMEBUFFER_ATTACHMENT_INDEX;
-
-    if (i > vRenderPass_vk.attachments.size()) {
-      eLOG("Invalid attachment ID ", i, "!");
-      return UINT32_MAX;
-    }
-
-    VkAttachmentReference lTemp;
-    lTemp.attachment = i;
-    lTemp.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    if (_layoutMap.count(i) > 0)
-      lTemp.layout = _layoutMap[i];
-
-    lData->color.emplace_back(lTemp);
-  }
-
-  for (uint32_t i : _input) {
-    if (i > vRenderPass_vk.attachments.size()) {
-      eLOG("Invalid attachment ID ", i, "!");
-      return UINT32_MAX;
-    }
-
-    VkAttachmentReference lTemp;
-    lTemp.attachment = i;
-    lTemp.layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-    if (_layoutMap.count(i) > 0)
-      lTemp.layout = _layoutMap[i];
-
-    lData->input.emplace_back(lTemp);
-  }
-
-  lData->resolve.resize(lData->color.size());
-  for (auto &i : lData->resolve) {
-    i = {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
-  }
-
-  for (auto i : _resolve) {
-    if (i > lData->color.size()) {
-      eLOG("Invalid resolve index ", i, "! Read the vulkan doc!");
-      return UINT32_MAX;
-    }
-
-    lData->resolve[i] = lData->color[i];
-  }
-
-  if (_deptStencil != UINT32_MAX) {
-    if (_deptStencil > vRenderPass_vk.attachments.size()) {
-      eLOG("Invalid attachment ID ", _deptStencil, "!");
-      return UINT32_MAX;
-    }
-
-    lData->depth.attachment = _deptStencil;
-    lData->depth.layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    if (_layoutMap.count(_deptStencil) > 0)
-      lData->depth.layout = _layoutMap[_deptStencil];
-  }
-
-  VkSubpassDescription lDesc;
-  lDesc.flags                   = 0;
-  lDesc.pipelineBindPoint       = _bindPoint;
-  lDesc.inputAttachmentCount    = static_cast<uint32_t>(lData->input.size());
-  lDesc.pInputAttachments       = lData->input.data();
-  lDesc.colorAttachmentCount    = static_cast<uint32_t>(lData->color.size());
-  lDesc.pColorAttachments       = lData->color.data();
-  lDesc.pResolveAttachments     = lData->resolve.data();
-  lDesc.pDepthStencilAttachment = &lData->depth;
-  lDesc.preserveAttachmentCount = static_cast<uint32_t>(lData->preserve.size());
-  lDesc.pPreserveAttachments    = lData->preserve.data();
-
-  vRenderPass_vk.subpasses.push_back(lDesc);
-
-  return 0;
-}
-
-/*!
- * \brief Adds a Vulkan subpass dependecy
- */
-void rRendererBase::addSubpassDependecy(uint32_t _srcSubPass,
-                                        uint32_t _dstSubPass,
-                                        uint32_t _srcStageMask,
-                                        uint32_t _dstStageMask,
-                                        uint32_t _srcAccessMask,
-                                        uint32_t _dstAccessMask,
-                                        uint32_t _dependencyFlags) {
-  vRenderPass_vk.dependecies.emplace_back();
-  auto *lAlias            = &vRenderPass_vk.dependecies.back();
-  lAlias->srcSubpass      = _srcSubPass;
-  lAlias->dstSubpass      = _dstSubPass;
-  lAlias->srcStageMask    = _srcStageMask;
-  lAlias->dstStageMask    = _dstStageMask;
-  lAlias->srcAccessMask   = _srcAccessMask;
-  lAlias->dstAccessMask   = _dstAccessMask;
-  lAlias->dependencyFlags = _dependencyFlags;
-}
-
 void rRendererBase::updatePushConstants(uint32_t _framebuffer) {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
   recordCmdBuffersWrapper(vFramebuffers_vk[_framebuffer], RECORD_PUSH_CONST_ONLY);
@@ -602,7 +376,7 @@ uint32_t rRendererBase::getNumFramebuffers() const {
     return UINT32_MAX;
 
   // assert(vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size());
-  return vWorldPtr->getNumFramebuffers();
+  return vFramebuffers_vk.size();
 }
 }
 }

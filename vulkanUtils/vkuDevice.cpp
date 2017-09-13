@@ -270,6 +270,50 @@ bool vkuDevice::isFormatSupported(VkFormat _format) {
          vFormats[_format].bufferFeatures != 0;
 }
 
+
+void vkuDevice::getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect) {
+  _format = VK_FORMAT_UNDEFINED;
+  _tiling = VK_IMAGE_TILING_MAX_ENUM;
+  _aspect = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;
+
+  if (!isCreated()) {
+    eLOG("Device not created!");
+    return;
+  }
+
+  static const VkFormat lDepthFormats[] = {
+      VK_FORMAT_D32_SFLOAT_S8_UINT,
+      VK_FORMAT_D24_UNORM_S8_UINT,
+      VK_FORMAT_D16_UNORM_S8_UINT,
+      VK_FORMAT_D32_SFLOAT,
+      VK_FORMAT_X8_D24_UNORM_PACK32,
+      VK_FORMAT_D16_UNORM,
+  };
+
+  for (auto i : lDepthFormats) {
+    if (formatSupportsFeature(i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_LINEAR)) {
+      _format = i;
+      _tiling = VK_IMAGE_TILING_LINEAR;
+      break;
+    } else if (formatSupportsFeature(i, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL)) {
+      _format = i;
+      _tiling = VK_IMAGE_TILING_OPTIMAL;
+      break;
+    }
+  }
+
+  if (_format == VK_FORMAT_UNDEFINED) {
+    eLOG("Unable to find depth format for the depth buffer");
+    return;
+  }
+
+  bool lHasStencilBuffer = _format == VK_FORMAT_D32_SFLOAT_S8_UINT || _format == VK_FORMAT_D24_UNORM_S8_UINT ||
+                           _format == VK_FORMAT_D16_UNORM_S8_UINT;
+
+  _aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+  _aspect |= lHasStencilBuffer ? VK_IMAGE_ASPECT_STENCIL_BIT : 0;
+}
+
 /*!
  * \brief Checks whether a format supports a feature
  * \param _format The format to check
@@ -302,7 +346,7 @@ bool vkuDevice::formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits 
  * \returns a memory index or UINT32_MAX on error
  * \vkIntern
  */
-uint32_t vkuDevice::getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags) {
+uint32_t vkuDevice::getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryPropertyFlags _flags) {
   for (uint16_t i = 0; i < vMemoryProperties.memoryTypeCount; i++) {
     if ((_bits & 1)) {
       // Finds best match because of memory type ordering
@@ -316,6 +360,6 @@ uint32_t vkuDevice::getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapF
   return UINT32_MAX;
 }
 
-uint32_t vkuDevice::getMemoryTypeIndex(VkMemoryRequirements _requirements, VkMemoryHeapFlags _flags) {
+uint32_t vkuDevice::getMemoryTypeIndex(VkMemoryRequirements _requirements, VkMemoryPropertyFlags _flags) {
   return getMemoryTypeIndexFromBitfield(_requirements.memoryTypeBits, _flags);
 }

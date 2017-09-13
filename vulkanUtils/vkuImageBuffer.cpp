@@ -22,20 +22,50 @@
 
 using namespace e_engine;
 
-vkuImageBuffer::vkuImageBuffer(VkDevice _device) : vDevice(_device) {}
+vkuImageBuffer::vkuImageBuffer(vkuDevicePTR _device) : vDevice(_device) {}
 vkuImageBuffer::~vkuImageBuffer() { destroy(); }
 
-VkResult vkuImageBuffer::init(VkDevice _device) {
+vkuImageBuffer::vkuImageBuffer(vkuImageBuffer &&_old) {
+  vImage     = _old.vImage;
+  vImageView = _old.vImageView;
+  vMemory    = _old.vMemory;
+  vDevice    = _old.vDevice;
+  cfg        = _old.cfg;
+
+  // Invalidate old object
+  _old.vImage     = VK_NULL_HANDLE;
+  _old.vImageView = VK_NULL_HANDLE;
+  _old.vMemory    = VK_NULL_HANDLE;
+  _old.vDevice    = nullptr;
+}
+
+vkuImageBuffer &vkuImageBuffer::operator=(vkuImageBuffer &&_old) {
+  vImage     = _old.vImage;
+  vImageView = _old.vImageView;
+  vMemory    = _old.vMemory;
+  vDevice    = _old.vDevice;
+  cfg        = _old.cfg;
+
+  // Invalidate old object
+  _old.vImage     = VK_NULL_HANDLE;
+  _old.vImageView = VK_NULL_HANDLE;
+  _old.vMemory    = VK_NULL_HANDLE;
+  _old.vDevice    = nullptr;
+
+  return *this;
+}
+
+VkResult vkuImageBuffer::init(vkuDevicePTR _device) {
   if (isCreated()) {
     wLOG(L"Image buffer already created");
     return VK_ERROR_INITIALIZATION_FAILED;
   }
 
-  if (_device != VK_NULL_HANDLE)
+  if (_device)
     vDevice = _device;
 
-  if (vDevice == VK_NULL_HANDLE) {
-    eLOG(L"");
+  if (!vDevice) {
+    eLOG(L"Device not set");
     return VK_ERROR_INITIALIZATION_FAILED;
   }
 
@@ -63,12 +93,12 @@ VkResult vkuImageBuffer::init(VkDevice _device) {
   lImageCreate.sharingMode           = cfg.sharingMode;
   lImageCreate.queueFamilyIndexCount = 0;
   lImageCreate.pQueueFamilyIndices   = nullptr;
-  lImageCreate.initialLayout         = cfg.initialLayout;
+  lImageCreate.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
   lImageViewCreate.sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   lImageViewCreate.pNext            = nullptr;
   lImageViewCreate.flags            = 0;
-  lImageViewCreate.image            = vImage;
+  lImageViewCreate.image            = VK_NULL_HANDLE; // Set after image creation
   lImageViewCreate.viewType         = VK_IMAGE_VIEW_TYPE_2D;
   lImageViewCreate.format           = cfg.format;
   lImageViewCreate.components       = cfg.components;
@@ -106,18 +136,18 @@ VkResult vkuImageBuffer::init(VkDevice _device) {
   dLOG(L"    - initialLayout: ", uEnum2Str::toStr(lImageCreate.initialLayout));
 #endif
 
-  auto lRes = vkCreateImage(vDevice, &lImageCreate, nullptr, &vImage);
+  auto lRes = vkCreateImage(**vDevice, &lImageCreate, nullptr, &vImage);
   if (lRes != VK_SUCCESS) {
     eLOG(L"Failed to create image: vkCreateImage returned ", uEnum2Str::toStr(lRes));
     vImage = VK_NULL_HANDLE;
     return lRes;
   }
 
-  vkGetImageMemoryRequirements(vDevice, vImage, &lRequirements);
+  vkGetImageMemoryRequirements(**vDevice, vImage, &lRequirements);
   lMemoryAlloc.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   lMemoryAlloc.pNext           = nullptr;
   lMemoryAlloc.allocationSize  = lRequirements.size;
-  lMemoryAlloc.memoryTypeIndex = 0; //! \todo FIX THIS!!!
+  lMemoryAlloc.memoryTypeIndex = vDevice->getMemoryTypeIndex(lRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 #if D_LOG_VULKAN_UTILS
   dLOG(L"  -- Allocating Memory:");
@@ -125,24 +155,26 @@ VkResult vkuImageBuffer::init(VkDevice _device) {
   dLOG(L"    - memoryTypeIndex: ", lMemoryAlloc.memoryTypeIndex);
 #endif
 
-  lRes = vkAllocateMemory(vDevice, &lMemoryAlloc, nullptr, &vMemory);
+  lRes = vkAllocateMemory(**vDevice, &lMemoryAlloc, nullptr, &vMemory);
   if (lRes != VK_SUCCESS) {
     eLOG(L"Failed to create image: vkAllocateMemory returned ", uEnum2Str::toStr(lRes));
-    vkDestroyImage(vDevice, vImage, nullptr);
+    vkDestroyImage(**vDevice, vImage, nullptr);
     vImage  = VK_NULL_HANDLE;
     vMemory = VK_NULL_HANDLE;
     return lRes;
   }
 
-  lRes = vkBindImageMemory(vDevice, vImage, vMemory, 0);
+  lRes = vkBindImageMemory(**vDevice, vImage, vMemory, 0);
   if (lRes != VK_SUCCESS) {
     eLOG(L"Failed to create image: vkAllocateMemory returned ", uEnum2Str::toStr(lRes));
-    vkFreeMemory(vDevice, vMemory, nullptr);
-    vkDestroyImage(vDevice, vImage, nullptr);
+    vkFreeMemory(**vDevice, vMemory, nullptr);
+    vkDestroyImage(**vDevice, vImage, nullptr);
     vImage  = VK_NULL_HANDLE;
     vMemory = VK_NULL_HANDLE;
     return lRes;
   }
+
+  lImageViewCreate.image = vImage;
 
 #if D_LOG_VULKAN_UTILS
   dLOG(L"  -- Creating Image view:");
@@ -165,11 +197,11 @@ VkResult vkuImageBuffer::init(VkDevice _device) {
   dLOG(L"    - Device Memory: ", reinterpret_cast<uint64_t>(vMemory));
 #endif
 
-  lRes = vkCreateImageView(vDevice, &lImageViewCreate, nullptr, &vImageView);
+  lRes = vkCreateImageView(**vDevice, &lImageViewCreate, nullptr, &vImageView);
   if (lRes != VK_SUCCESS) {
     eLOG(L"Failed to create image view: vkCreateImageView returned ", uEnum2Str::toStr(lRes));
-    vkFreeMemory(vDevice, vMemory, nullptr);
-    vkDestroyImage(vDevice, vImage, nullptr);
+    vkFreeMemory(**vDevice, vMemory, nullptr);
+    vkDestroyImage(**vDevice, vImage, nullptr);
     vImage     = VK_NULL_HANDLE;
     vMemory    = VK_NULL_HANDLE;
     vImageView = VK_NULL_HANDLE;
@@ -184,9 +216,9 @@ void vkuImageBuffer::destroy() {
     return;
   }
 
-  vkDestroyImageView(vDevice, vImageView, nullptr);
-  vkDestroyImage(vDevice, vImage, nullptr);
-  vkFreeMemory(vDevice, vMemory, nullptr);
+  vkDestroyImageView(**vDevice, vImageView, nullptr);
+  vkDestroyImage(**vDevice, vImage, nullptr);
+  vkFreeMemory(**vDevice, vMemory, nullptr);
 
   vImageView = VK_NULL_HANDLE;
   vImage     = VK_NULL_HANDLE;

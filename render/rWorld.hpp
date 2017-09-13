@@ -106,10 +106,8 @@ class rWorld {
 
   void handleResize(iEventInfo const &);
 
-  VkSwapchainKHR            getSwapchain();
-  std::vector<SwapChainImg> getSwapchainImageViews();
-  VkSurfaceFormatKHR        getSwapchainFormat();
-  inline void               signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
+  VkSwapchainKHR getSwapchain();
+  inline void    signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
 
  public:
   rWorld() = delete;
@@ -139,6 +137,9 @@ class rWorld {
   vkuDevicePTR            getDevicePTR();
   iInit *                 getInitPtr();
   rRenderLoop *           getRenderLoop();
+
+  std::vector<SwapChainImg> getSwapchainImageViews();
+  VkSurfaceFormatKHR        getSwapchainFormat();
 
   uint32_t getNumFramebuffers() const;
 

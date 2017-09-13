@@ -18,6 +18,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuDevice.hpp"
 #include <vulkan.h>
 
 namespace e_engine {
@@ -40,8 +41,8 @@ class vkuImageBuffer {
     VkSampleCountFlagBits   samples          = VK_SAMPLE_COUNT_1_BIT;
     VkImageTiling           tiling           = VK_IMAGE_TILING_OPTIMAL;
     VkImageUsageFlags       usage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    VkSharingMode           sharingMode      = VK_SHARING_MODE_EXCLUSIVE;
     VkImageLayout           initialLayout    = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkSharingMode           sharingMode      = VK_SHARING_MODE_EXCLUSIVE;
     VkImageSubresourceRange subresourceRange = {0, 0, 1, 0, 1};
     VkComponentMapping      components       = {
         VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
@@ -53,30 +54,30 @@ class vkuImageBuffer {
   VkImage        vImage     = VK_NULL_HANDLE;
   VkImageView    vImageView = VK_NULL_HANDLE;
   VkDeviceMemory vMemory    = VK_NULL_HANDLE;
-  VkDevice       vDevice    = VK_NULL_HANDLE;
+  vkuDevicePTR   vDevice    = nullptr;
 
   Config cfg;
 
  public:
   vkuImageBuffer() : vkuImageBuffer(VK_NULL_HANDLE) {}
-  vkuImageBuffer(VkDevice _device);
+  vkuImageBuffer(vkuDevicePTR _device);
   ~vkuImageBuffer();
 
   vkuImageBuffer(vkuImageBuffer const &) = delete;
-  vkuImageBuffer(vkuImageBuffer &&)      = delete;
-
   vkuImageBuffer &operator=(const vkuImageBuffer &) = delete;
-  vkuImageBuffer &operator=(vkuImageBuffer &&) = delete;
 
-  VkResult init(VkDevice _device = VK_NULL_HANDLE);
+  vkuImageBuffer(vkuImageBuffer &&);
+  vkuImageBuffer &operator=(vkuImageBuffer &&);
+
+  VkResult init(vkuDevicePTR _device = nullptr);
   void destroy();
 
-  inline VkImageView get() const noexcept { return vImageView; }
-  inline VkImage     getImage() const noexcept { return vImage; }
-  inline VkDevice    getDevice() const noexcept { return vDevice; }
-  inline Config      getConfig() const noexcept { return cfg; }
-  inline Config *    getConfigPTR() noexcept { return &cfg; }
-  inline bool        isCreated() const noexcept { return vImage != VK_NULL_HANDLE; }
+  inline VkImageView  get() const noexcept { return vImageView; }
+  inline VkImage      getImage() const noexcept { return vImage; }
+  inline vkuDevicePTR getDevice() const noexcept { return vDevice; }
+  inline Config       getConfig() const noexcept { return cfg; }
+  inline Config *     getConfigPTR() noexcept { return &cfg; }
+  inline bool         isCreated() const noexcept { return vImage != VK_NULL_HANDLE; }
 
   inline VkImageView operator*() const noexcept { return vImageView; }
   inline Config *operator->() noexcept { return &cfg; } //! \brief Allow config access via buffer->cfgField = 1;

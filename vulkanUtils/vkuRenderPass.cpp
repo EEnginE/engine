@@ -22,22 +22,46 @@
 
 using namespace e_engine;
 
-vkuRenderPass::vkuRenderPass(VkDevice _device) {
+vkuRenderPass::vkuRenderPass(vkuDevicePTR _device) {
   vDevice = _device;
 
-  cfg.createInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  cfg.createInfo.pNext           = nullptr;
-  cfg.createInfo.flags           = 0;
-  cfg.createInfo.attachmentCount = 0;
-  cfg.createInfo.pAttachments    = nullptr;
-  cfg.createInfo.subpassCount    = 0;
-  cfg.createInfo.pSubpasses      = nullptr;
-  cfg.createInfo.dependencyCount = 0;
-  cfg.createInfo.pDependencies   = nullptr;
+  vCreateInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  vCreateInfo.pNext           = nullptr;
+  vCreateInfo.flags           = 0;
+  vCreateInfo.attachmentCount = 0;
+  vCreateInfo.pAttachments    = nullptr;
+  vCreateInfo.subpassCount    = 0;
+  vCreateInfo.pSubpasses      = nullptr;
+  vCreateInfo.dependencyCount = 0;
+  vCreateInfo.pDependencies   = nullptr;
 }
 
 
 vkuRenderPass::~vkuRenderPass() { destroy(); }
+
+vkuRenderPass::vkuRenderPass(vkuRenderPass &&_old) {
+  vRenderPass = _old.vRenderPass;
+  vDevice     = _old.vDevice;
+  cfg         = _old.cfg;
+  vCreateInfo = _old.vCreateInfo;
+
+  // Invalidate old object
+  _old.vRenderPass = VK_NULL_HANDLE;
+  _old.vDevice     = nullptr;
+}
+
+vkuRenderPass &vkuRenderPass::operator=(vkuRenderPass &&_old) {
+  vRenderPass = _old.vRenderPass;
+  vDevice     = _old.vDevice;
+  cfg         = _old.cfg;
+  vCreateInfo = _old.vCreateInfo;
+
+  // Invalidate old object
+  _old.vRenderPass = VK_NULL_HANDLE;
+  _old.vDevice     = nullptr;
+
+  return *this;
+}
 
 /*!
  * \brief Creates the render pass
@@ -48,21 +72,22 @@ vkuRenderPass::~vkuRenderPass() { destroy(); }
  *
  * \note If _device is VK_NULL_HANDLE the last valid device will be used
  */
-VkResult vkuRenderPass::init(VkDevice _device) noexcept {
+VkResult vkuRenderPass::init(vkuDevicePTR _device) noexcept {
   if (isCreated()) {
     wLOG(L"Render pass already created");
     return VK_ERROR_INITIALIZATION_FAILED;
   }
 
-  if (_device != VK_NULL_HANDLE)
+  if (_device)
     vDevice = _device;
 
-  if (vDevice == VK_NULL_HANDLE) {
+  if (!vDevice) {
     eLOG("vDevice is VK_NULL_HANDLE");
     return VK_ERROR_INITIALIZATION_FAILED;
   }
 
-  std::vector<VkSubpassDescription> lSubpasses;
+  std::vector<VkAttachmentDescription> lAttachments;
+  std::vector<VkSubpassDescription>    lSubpasses;
   lSubpasses.resize(cfg.subpasses.size());
   for (size_t i = 0; i < cfg.subpasses.size(); ++i) {
     lSubpasses[i].flags                   = cfg.subpasses[i].flags;
@@ -82,12 +107,17 @@ VkResult vkuRenderPass::init(VkDevice _device) noexcept {
     }
   }
 
-  cfg.createInfo.attachmentCount = static_cast<uint32_t>(cfg.attachments.size());
-  cfg.createInfo.pAttachments    = cfg.attachments.data();
-  cfg.createInfo.subpassCount    = static_cast<uint32_t>(lSubpasses.size());
-  cfg.createInfo.pSubpasses      = lSubpasses.data();
-  cfg.createInfo.dependencyCount = static_cast<uint32_t>(cfg.dependencies.size());
-  cfg.createInfo.pDependencies   = cfg.dependencies.data();
+  for (auto &i : cfg.attachments) {
+    lAttachments.push_back(i.desc);
+  }
+
+
+  vCreateInfo.attachmentCount = static_cast<uint32_t>(lAttachments.size());
+  vCreateInfo.pAttachments    = lAttachments.data();
+  vCreateInfo.subpassCount    = static_cast<uint32_t>(lSubpasses.size());
+  vCreateInfo.pSubpasses      = lSubpasses.data();
+  vCreateInfo.dependencyCount = static_cast<uint32_t>(cfg.dependencies.size());
+  vCreateInfo.pDependencies   = cfg.dependencies.data();
 
 
 #if D_LOG_VULKAN_UTILS
@@ -96,15 +126,25 @@ VkResult vkuRenderPass::init(VkDevice _device) noexcept {
   dLOG(L"  -- attachments:");
   for (auto const &i : cfg.attachments) {
     dLOG(L"    -- attachment ", lCounter++);
-    dLOG(L"      - flags:          ", i.flags);
-    dLOG(L"      - format:         ", uEnum2Str::toStr(i.format));
-    dLOG(L"      - samples:        ", uEnum2Str::toStr(i.samples));
-    dLOG(L"      - loadOp:         ", uEnum2Str::toStr(i.loadOp));
-    dLOG(L"      - storeOp:        ", uEnum2Str::toStr(i.storeOp));
-    dLOG(L"      - stencilLoadOp:  ", uEnum2Str::toStr(i.stencilLoadOp));
-    dLOG(L"      - stencilStoreOp: ", uEnum2Str::toStr(i.stencilStoreOp));
-    dLOG(L"      - initialLayout:  ", uEnum2Str::toStr(i.initialLayout));
-    dLOG(L"      - finalLayout:    ", uEnum2Str::toStr(i.finalLayout));
+    dLOG(L"      - flags:             ", uEnum2Str::VkAttachmentDescriptionFlagBits_toStr(i.desc.flags));
+    dLOG(L"      - format:            ", uEnum2Str::toStr(i.desc.format));
+    dLOG(L"      - samples:           ", uEnum2Str::toStr(i.desc.samples));
+    dLOG(L"      - loadOp:            ", uEnum2Str::toStr(i.desc.loadOp));
+    dLOG(L"      - storeOp:           ", uEnum2Str::toStr(i.desc.storeOp));
+    dLOG(L"      - stencilLoadOp:     ", uEnum2Str::toStr(i.desc.stencilLoadOp));
+    dLOG(L"      - stencilStoreOp:    ", uEnum2Str::toStr(i.desc.stencilStoreOp));
+    dLOG(L"      - initialLayout:     ", uEnum2Str::toStr(i.desc.initialLayout));
+    dLOG(L"      - finalLayout:       ", uEnum2Str::toStr(i.desc.finalLayout));
+    dLOG(L"      - useExternalImage:  ", i.imageCfg.useExternalImageView);
+    if (!i.imageCfg.useExternalImageView) {
+      dLOG(L"      - Image create config:");
+      dLOG(L"        - mipLevels:        ", i.bufferCreateCfg.mipLevels);
+      dLOG(L"        - arrayLayers:      ", i.bufferCreateCfg.arrayLayers);
+      dLOG(L"        - tiling:           ", uEnum2Str::toStr(i.bufferCreateCfg.tiling));
+      dLOG(L"        - usage:            ", uEnum2Str::VkImageUsageFlagBits_toStr(i.bufferCreateCfg.usage));
+      dLOG(L"        - sharingMode:      ", uEnum2Str::toStr(i.bufferCreateCfg.sharingMode));
+      dLOG(L"        - imageCreateFlags: ", uEnum2Str::VkImageCreateFlagBits_toStr(i.bufferCreateCfg.imageCreateFlags));
+    }
   }
   lCounter = 0;
   dLOG(L"  -- subpasses:");
@@ -149,7 +189,7 @@ VkResult vkuRenderPass::init(VkDevice _device) noexcept {
   }
 #endif
 
-  auto lRes = vkCreateRenderPass(vDevice, &cfg.createInfo, nullptr, &vRenderPass);
+  auto lRes = vkCreateRenderPass(**vDevice, &vCreateInfo, nullptr, &vRenderPass);
   if (lRes != VK_SUCCESS) {
     vRenderPass = VK_NULL_HANDLE;
     eLOG(L"Failed to create render pass: vkCreateRenderPass returned ", uEnum2Str::toStr(lRes));
@@ -169,7 +209,7 @@ void vkuRenderPass::destroy() noexcept {
   if (!(*this))
     return;
 
-  vkDestroyRenderPass(vDevice, vRenderPass, nullptr);
+  vkDestroyRenderPass(**vDevice, vRenderPass, nullptr);
   vRenderPass = VK_NULL_HANDLE;
 }
 
@@ -179,7 +219,7 @@ void vkuRenderPass::destroy() noexcept {
  *
  * \note This function does nothing when the render pass is already created
  */
-void vkuRenderPass::addAttachment(VkAttachmentDescription _attachment) noexcept {
+void vkuRenderPass::addAttachment(AttachmentDescription _attachment) noexcept {
   if (isCreated()) {
     wLOG(L"Render pass can NOT be configured after initialization");
     return;
@@ -232,4 +272,30 @@ void vkuRenderPass::resetConfig() noexcept {
   cfg.attachments.clear();
   cfg.subpasses.clear();
   cfg.dependencies.clear();
+}
+
+/*!
+ * \brief Sets all config options
+ *
+ * This will REPLACE the current configuration
+ *
+ * \note This function does nothing when the render pass is already created
+ */
+void vkuRenderPass::setup(Config _newCfg) noexcept {
+  if (isCreated()) {
+    wLOG(L"Render pass can NOT be configured after initialization");
+    return;
+  }
+
+  cfg = _newCfg;
+}
+
+
+std::vector<VkClearValue> vkuRenderPass::getClearValues() {
+  std::vector<VkClearValue> lValues;
+  lValues.reserve(cfg.attachments.size());
+  for (auto &i : cfg.attachments)
+    lValues.push_back(i.clear);
+
+  return lValues;
 }

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuDevice.hpp"
 #include <vector>
 #include <vulkan.h>
 
@@ -42,9 +43,43 @@ namespace e_engine {
  */
 class vkuRenderPass final {
  public:
+  struct AttachmentDescription {
+    VkAttachmentDescription desc = {
+        0,                                // flags
+        VK_FORMAT_R8G8B8A8_UNORM,         // format
+        VK_SAMPLE_COUNT_1_BIT,            // samples
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,  // loadOp
+        VK_ATTACHMENT_STORE_OP_DONT_CARE, // storeOp
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,  // stencilLoadOp
+        VK_ATTACHMENT_STORE_OP_DONT_CARE, // stencilStoreOp
+        VK_IMAGE_LAYOUT_UNDEFINED,        // initialLayout
+        VK_IMAGE_LAYOUT_UNDEFINED         // finalLayout
+    };
+
+    VkClearValue clear = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+
+    struct {
+      VkImageType             type             = VK_IMAGE_TYPE_2D;
+      uint32_t                mipLevels        = 1;
+      uint32_t                arrayLayers      = 1;
+      VkImageTiling           tiling           = VK_IMAGE_TILING_OPTIMAL;
+      VkImageUsageFlags       usage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+      VkSharingMode           sharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+      VkImageSubresourceRange subresourceRange = {0, 0, 1, 0, 1};
+      VkComponentMapping      components       = {
+          VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
+
+      VkImageCreateFlags imageCreateFlags = 0;
+    } bufferCreateCfg; //!< Will only be used when useExternalImageView is false
+
+    struct {
+      bool useExternalImageView = false; //!< The image buffer wont be automatically created and must be provided
+    } imageCfg;
+  };
+
   struct SubpassDescription {
-    VkSubpassDescriptionFlags          flags;
-    VkPipelineBindPoint                pipelineBindPoint;
+    VkSubpassDescriptionFlags          flags             = 0;
+    VkPipelineBindPoint                pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     std::vector<VkAttachmentReference> inputAttachments;
     std::vector<VkAttachmentReference> colorAttachments;
     std::vector<VkAttachmentReference> resolveAttachments;
@@ -53,39 +88,44 @@ class vkuRenderPass final {
   };
 
   struct Config {
-    VkRenderPassCreateInfo               createInfo;
-    std::vector<VkAttachmentDescription> attachments;
-    std::vector<SubpassDescription>      subpasses;
-    std::vector<VkSubpassDependency>     dependencies;
+    std::vector<AttachmentDescription> attachments;
+    std::vector<SubpassDescription>    subpasses;
+    std::vector<VkSubpassDependency>   dependencies;
   };
 
  private:
   VkRenderPass vRenderPass = VK_NULL_HANDLE;
-  VkDevice     vDevice     = VK_NULL_HANDLE;
+  vkuDevicePTR vDevice     = nullptr;
 
-  Config cfg;
+  Config                 cfg;
+  VkRenderPassCreateInfo vCreateInfo;
+
 
  public:
-  vkuRenderPass() : vkuRenderPass(VK_NULL_HANDLE) {}
-  vkuRenderPass(VkDevice _device);
+  vkuRenderPass() : vkuRenderPass(nullptr) {}
+  vkuRenderPass(vkuDevicePTR _device);
   ~vkuRenderPass();
 
   vkuRenderPass(vkuRenderPass const &) = delete;
-  vkuRenderPass(vkuRenderPass &&)      = delete;
-
   vkuRenderPass &operator=(const vkuRenderPass &) = delete;
-  vkuRenderPass &operator=(vkuRenderPass &&) = delete;
 
-  VkResult init(VkDevice _device = VK_NULL_HANDLE) noexcept;
+  vkuRenderPass(vkuRenderPass &&);
+  vkuRenderPass &operator=(vkuRenderPass &&);
+
+  VkResult init(vkuDevicePTR _device = nullptr) noexcept;
   void destroy() noexcept;
 
   void resetConfig() noexcept;
-  void addAttachment(VkAttachmentDescription _attachment) noexcept;
+  void addAttachment(AttachmentDescription _attachment) noexcept;
   void addSubpass(SubpassDescription _subpass) noexcept;
   void addDependency(VkSubpassDependency _dependency) noexcept;
 
+  void setup(Config _newCfg) noexcept;
+
+  std::vector<VkClearValue> getClearValues();
+
   inline VkRenderPass get() const noexcept { return vRenderPass; }
-  inline VkDevice     getDevice() const noexcept { return vDevice; }
+  inline vkuDevicePTR getDevice() const noexcept { return vDevice; }
   inline Config       getConfig() const noexcept { return cfg; }
   inline bool         isCreated() const noexcept { return vRenderPass != VK_NULL_HANDLE; }
 
