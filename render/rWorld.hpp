@@ -24,6 +24,7 @@
 #include "defines.hpp"
 #include "uSignalSlot.hpp"
 #include "vkuDevice.hpp"
+#include "vkuSwapChain.hpp"
 #include "rRenderLoop.hpp"
 #include "rRendererBase.hpp"
 #include <condition_variable>
@@ -70,21 +71,14 @@ class rWorld {
     float a;
   };
 
-  struct SwapChainImg {
-    VkImage     img;
-    VkImageView iv;
-  };
-
  private:
   iInit *vInitPtr;
 
-  vkuDevicePTR   vDevice;
-  VkDevice       vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
-  VkSurfaceKHR   vSurface_vk;
-  VkSwapchainKHR vSwapchain_vk = nullptr;
+  vkuDevicePTR vDevice;
+  VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
+  VkSurfaceKHR vSurface_vk;
 
-  std::vector<VkImage>     vSwapchainImages_vk;
-  std::vector<VkImageView> vSwapchainViews_vk;
+  vkuSwapChain vSwapChain;
 
   ViewPort   vViewPort;
   ClearColor vClearColor;
@@ -101,13 +95,9 @@ class rWorld {
   bool vIsResizeSlotSetup = false;
   bool vIsSetup           = false;
 
-  int recreateSwapchain();
-  int recreateSwapchainImages(VkCommandBuffer _buf);
-
   void handleResize(iEventInfo const &);
 
-  VkSwapchainKHR getSwapchain();
-  inline void    signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
+  inline void signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
 
  public:
   rWorld() = delete;
@@ -137,11 +127,7 @@ class rWorld {
   vkuDevicePTR            getDevicePTR();
   iInit *                 getInitPtr();
   rRenderLoop *           getRenderLoop();
-
-  std::vector<SwapChainImg> getSwapchainImageViews();
-  VkSurfaceFormatKHR        getSwapchainFormat();
-
-  uint32_t getNumFramebuffers() const;
+  vkuSwapChain *          getSwapChain();
 
   friend class rRenderLoop;
   friend class internal::rRendererBase;

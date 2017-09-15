@@ -60,7 +60,6 @@ class vkuDevice {
  private:
   VkDevice         vDevice         = VK_NULL_HANDLE;
   VkPhysicalDevice vPhysicalDevice = VK_NULL_HANDLE;
-  VkSurfaceKHR     vSurface        = VK_NULL_HANDLE;
 
   std::vector<Queue> vQueues;
 
@@ -70,8 +69,6 @@ class vkuDevice {
   VkFormatProperties                   vFormats[VK_FORMAT_RANGE_SIZE];
   VkPhysicalDeviceFeatures             vFeatures;
 
-  SurfaceInfo vSurfaceInfo;
-
   std::vector<std::string> vLayers;
   std::vector<std::string> vExtensions;
   std::unordered_map<VkQueue, std::mutex> vQueueMutexMap;
@@ -80,8 +77,7 @@ class vkuDevice {
   vkuDevice() = delete;
   vkuDevice(VkPhysicalDevice         _device,
             std::vector<std::string> _layers,
-            std::vector<std::string> _extensions,
-            VkSurfaceKHR             _surface);
+            std::vector<std::string> _extensions, VkSurfaceKHR _surface);
   ~vkuDevice();
 
   vkuDevice(vkuDevice const &) = delete;
@@ -103,10 +99,9 @@ class vkuDevice {
 
   void getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect);
 
-  VkResult loadDeviceSurfaceInfo();
+  SurfaceInfo getSurfaceInfo(VkSurfaceKHR _surface);
 
   inline VkDevice    get() const noexcept { return vDevice; }
-  inline SurfaceInfo getSurfaceInfo() const noexcept { return vSurfaceInfo; }
 
   inline bool isCreated() const noexcept { return vDevice != VK_NULL_HANDLE; }
 

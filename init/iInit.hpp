@@ -143,7 +143,6 @@ class iInit {
 
   ErrorCode init(std::vector<std::string> _layers = {});
   int destroy();
-  int handleResize();
 
   bool enableDefaultGrabControl();
   bool disableDefaultGrabControl();

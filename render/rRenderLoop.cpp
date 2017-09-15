@@ -106,14 +106,14 @@ void rRenderLoop::renderLoop() {
 
     uint32_t lQueueFamily = 0;
 
-    VkSwapchainKHR                lSwapchain_vk = vWorldPtr->getSwapchain();
-    VkQueue                       lQueue        = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily);
-    vkuCommandPool *              lCommandPool  = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
+    vkuSwapChain *                lSwapchain   = vWorldPtr->getSwapChain();
+    VkQueue                       lQueue       = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily);
+    vkuCommandPool *              lCommandPool = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
     vkuFences<NUM_FENCES>         lFences(vDevice_vk);
     vkuSemaphores<NUM_SEMAPHORES> lSemaphores(vDevice_vk);
 
     for (auto const &i : vRenderers) {
-      if (vWorldPtr->getNumFramebuffers() != i->getNumFramebuffers()) {
+      if (lSwapchain->getNumImages() != i->getNumFramebuffers()) {
         eLOG("Internal error: number of framebuffers not equal in renderer and world!");
         eLOG("This might cause undefined behaviour!");
       }
@@ -149,7 +149,7 @@ void rRenderLoop::renderLoop() {
     lPresentInfo.waitSemaphoreCount = 1;
     lPresentInfo.pWaitSemaphores    = &lSemaphores[SEM_PRESENT];
     lPresentInfo.swapchainCount     = 1;
-    lPresentInfo.pSwapchains        = &lSwapchain_vk;
+    lPresentInfo.pSwapchains        = nullptr;
     lPresentInfo.pImageIndices      = nullptr; // set in render loop
     lPresentInfo.pResults           = nullptr;
 
@@ -168,7 +168,7 @@ void rRenderLoop::renderLoop() {
       i->updateRenderer();
       lCmdBuffers.pointers.emplace_back();
 
-      for (uint32_t j = 0; j < vWorldPtr->getNumFramebuffers(); j++) {
+      for (uint32_t j = 0; j < lSwapchain->getNumImages(); j++) {
         lCmdBuffers.pointers.back().push_back(i->getCommandBuffers(j));
       }
     }
@@ -208,8 +208,6 @@ void rRenderLoop::renderLoop() {
     //                                                       | |
     //                                                       |_|
 
-    uint32_t lNextImg;
-
     // Init Uniforms
     for (auto const &i : vRenderers)
       i->updateUniforms();
@@ -218,14 +216,14 @@ void rRenderLoop::renderLoop() {
     while (vRunRenderLoop) {
 
       // Get present image (this command blocks)
-      auto lRes = vkAcquireNextImageKHR(
-          vDevice_vk, lSwapchain_vk, UINT64_MAX, lSemaphores[SEM_ACQUIRE], VK_NULL_HANDLE, &lNextImg);
-      if (lRes) {
-        eLOG("'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr(lRes));
+      auto lNextImg = lSwapchain->acquireNextImage(lSemaphores[SEM_ACQUIRE]);
+
+      if (!lNextImg) {
+        eLOG("'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr(lNextImg.getError()));
         break;
       }
 
-      rebuildCommandBuffersArray(&lCmdBuffers, lNextImg);
+      rebuildCommandBuffersArray(&lCmdBuffers, *lNextImg);
 
       // Set CMD buffers
       lRenderSubmit[0].commandBufferCount = static_cast<uint32_t>(lCmdBuffers.pre.size());
@@ -236,7 +234,7 @@ void rRenderLoop::renderLoop() {
       lRenderSubmit[2].pCommandBuffers    = lCmdBuffers.post.data();
 
       // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  -->  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-      lRes = vkQueueSubmit(lQueue, 1, &lRenderSubmit[0], lFences[FENCE_IMG_1]);
+      auto lRes = vkQueueSubmit(lQueue, 1, &lRenderSubmit[0], lFences[FENCE_IMG_1]);
       if (lRes) {
         eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
         break;
@@ -256,7 +254,11 @@ void rRenderLoop::renderLoop() {
         break;
       }
 
-      lPresentInfo.pImageIndices = &lNextImg;
+      VkSwapchainKHR lTempSc   = **lSwapchain;
+      uint32_t       lImgIndex = *lNextImg;
+
+      lPresentInfo.pSwapchains   = &lTempSc;
+      lPresentInfo.pImageIndices = &lImgIndex;
       lRes                       = vkQueuePresentKHR(lQueue, &lPresentInfo);
       if (lRes) {
         eLOG("'vkQueuePresentKHR' returned ", uEnum2Str::toStr(lRes));

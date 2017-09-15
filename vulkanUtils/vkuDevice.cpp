@@ -37,7 +37,6 @@ vkuDevice::vkuDevice(VkPhysicalDevice         _device,
   vPhysicalDevice = _device;
   vLayers         = _layers;
   vExtensions     = _extensions;
-  vSurface        = _surface;
 
   vkGetPhysicalDeviceProperties(vPhysicalDevice, &vProperties);
   vkGetPhysicalDeviceFeatures(vPhysicalDevice, &vFeatures);
@@ -50,15 +49,12 @@ vkuDevice::vkuDevice(VkPhysicalDevice         _device,
   for (uint32_t i = 0; i <= VK_FORMAT_END_RANGE; i++)
     vkGetPhysicalDeviceFormatProperties(vPhysicalDevice, static_cast<VkFormat>(i), &vFormats[i]);
 
-  auto lRes = loadDeviceSurfaceInfo();
-  if (lRes) {
-    eLOG("'loadDeviceSurfaceInfo' returned ", uEnum2Str::toStr(lRes));
-  }
-
   std::vector<VkDeviceQueueCreateInfo> lQueueCreateInfo;
   std::vector<float>                   lQueuePriorities;
   float                                lPriority;
   uint32_t                             lFamilyIndex;
+
+  VkResult lRes;
 
   for (auto const &i : vQueueFamilyProperties) {
     lQueuePriorities.clear();
@@ -159,43 +155,43 @@ vkuDevice::~vkuDevice() {
   }
 }
 
-VkResult vkuDevice::loadDeviceSurfaceInfo() {
+vkuDevice::SurfaceInfo vkuDevice::getSurfaceInfo(VkSurfaceKHR _surface) {
+  SurfaceInfo lInfo;
   uint32_t lCount;
 
-  auto lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(vPhysicalDevice, vSurface, &lCount, nullptr);
+  auto lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(vPhysicalDevice, _surface, &lCount, nullptr);
   if (lRes) {
     eLOG("'vkGetPhysicalDeviceSurfaceFormatsKHR' returned ", uEnum2Str::toStr(lRes));
-    return lRes;
+    throw std::runtime_error("vkGetPhysicalDeviceSurfaceFormatsKHR returned " + uEnum2Str::toStr(lRes));
   }
 
-  vSurfaceInfo.formats.resize(lCount);
-  lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(vPhysicalDevice, vSurface, &lCount, vSurfaceInfo.formats.data());
+  lInfo.formats.resize(lCount);
+  lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(vPhysicalDevice, _surface, &lCount, lInfo.formats.data());
   if (lRes) {
     eLOG("'vkGetPhysicalDeviceSurfaceFormatsKHR' returned ", uEnum2Str::toStr(lRes));
-    return lRes;
+    throw std::runtime_error("vkGetPhysicalDeviceSurfaceFormatsKHR returned " + uEnum2Str::toStr(lRes));
   }
 
-  lRes = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vPhysicalDevice, vSurface, &vSurfaceInfo.surfaceInfo);
+  lRes = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vPhysicalDevice, _surface, &lInfo.surfaceInfo);
   if (lRes) {
     eLOG("'vkGetPhysicalDeviceSurfaceCapabilitiesKHR' returned ", uEnum2Str::toStr(lRes));
-    return lRes;
+    throw std::runtime_error("vkGetPhysicalDeviceSurfaceCapabilitiesKHR returned " + uEnum2Str::toStr(lRes));
   }
 
-  lRes = vkGetPhysicalDeviceSurfacePresentModesKHR(vPhysicalDevice, vSurface, &lCount, nullptr);
+  lRes = vkGetPhysicalDeviceSurfacePresentModesKHR(vPhysicalDevice, _surface, &lCount, nullptr);
   if (lRes) {
     eLOG("'vkGetPhysicalDeviceSurfacePresentModesKHR' returned ", uEnum2Str::toStr(lRes));
-    return lRes;
+    throw std::runtime_error("vkGetPhysicalDeviceSurfacePresentModesKHR returned " + uEnum2Str::toStr(lRes));
   }
 
-  vSurfaceInfo.presentModels.resize(lCount);
-  lRes =
-      vkGetPhysicalDeviceSurfacePresentModesKHR(vPhysicalDevice, vSurface, &lCount, vSurfaceInfo.presentModels.data());
+  lInfo.presentModels.resize(lCount);
+  lRes = vkGetPhysicalDeviceSurfacePresentModesKHR(vPhysicalDevice, _surface, &lCount, lInfo.presentModels.data());
   if (lRes) {
     eLOG("'vkGetPhysicalDeviceSurfacePresentModesKHR' returned ", uEnum2Str::toStr(lRes));
-    return lRes;
+    throw std::runtime_error("vkGetPhysicalDeviceSurfacePresentModesKHR returned " + uEnum2Str::toStr(lRes));
   }
 
-  return VK_SUCCESS;
+  return lInfo;
 }
 
 

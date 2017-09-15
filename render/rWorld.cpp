@@ -91,60 +91,10 @@ int rWorld::init() {
   }
   vRenderLoop.destroy();
 
-  dVkLOG("  -- destroying old swapchain image views");
-  for (auto &i : vSwapchainViews_vk)
-    vkDestroyImageView(vDevice_vk, i, nullptr);
-
-  dVkLOG("  -- destroying old swapchain");
-  if (vSwapchain_vk)
-    vkDestroySwapchainKHR(vDevice_vk, vSwapchain_vk, nullptr);
-
-  vSwapchainViews_vk.clear();
-
-  uint32_t         lQueueFamily;
-  VkQueue          lQueue = vDevice->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
-  vkuCommandBuffer lBuf   = vkuCommandPoolManager::getBuffer(vDevice_vk, lQueueFamily);
-  vkuFence_t       lFence(vDevice_vk);
-
-  if (!lBuf)
-    return -1;
-
-  if (lBuf.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) != VK_SUCCESS)
-    return -2;
-
-  if (vInitPtr->handleResize())
-    return -3;
   vSurface_vk = vInitPtr->getVulkanSurface();
 
-  if (recreateSwapchain())
+  if (!vSwapChain.init(vDevice, vSurface_vk))
     return 1;
-
-  if (recreateSwapchainImages(*lBuf))
-    return 2;
-
-  lBuf.end();
-
-  VkSubmitInfo lInfo;
-  lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  lInfo.pNext                = nullptr;
-  lInfo.waitSemaphoreCount   = 0;
-  lInfo.pWaitSemaphores      = nullptr;
-  lInfo.pWaitDstStageMask    = nullptr;
-  lInfo.commandBufferCount   = 1;
-  lInfo.pCommandBuffers      = &lBuf.get();
-  lInfo.signalSemaphoreCount = 0;
-  lInfo.pSignalSemaphores    = nullptr;
-
-  {
-    std::lock_guard<std::mutex> lGuard3(vDevice->getQueueMutex(lQueue));
-    vkQueueSubmit(lQueue, 1, &lInfo, lFence[0]);
-  }
-
-  auto lRes = lFence();
-  if (lRes) {
-    eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
-    return 3;
-  }
 
   vRenderLoop.init();
 
@@ -168,14 +118,7 @@ void rWorld::shutdown() {
 
   dVkLOG("Vulkan cleanup [rWorld]:");
   vRenderLoop.destroy();
-
-  dVkLOG("  -- destroying swapchain image views");
-  for (auto &i : vSwapchainViews_vk)
-    vkDestroyImageView(vDevice_vk, i, nullptr);
-
-  dVkLOG("  -- destroying swapchain");
-  if (vSwapchain_vk)
-    vkDestroySwapchainKHR(vDevice_vk, vSwapchain_vk, nullptr);
+  vSwapChain.destroy();
 
   vIsSetup = false;
 }
@@ -274,21 +217,6 @@ void rWorld::cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
   vkCmdPipelineBarrier(_cmdBuffer, _srcFlags, _dstFlags, 0, 0, nullptr, 0, nullptr, 1, &lBarriar);
 }
 
-
-VkSwapchainKHR     rWorld::getSwapchain() { return vSwapchain_vk; }
-VkSurfaceFormatKHR rWorld::getSwapchainFormat() { return vSwapchainFormat; }
-
-std::vector<rWorld::SwapChainImg> rWorld::getSwapchainImageViews() {
-  std::vector<SwapChainImg> lTemp;
-
-  for (uint32_t i = 0; i < vSwapchainViews_vk.size(); i++) {
-    lTemp.emplace_back();
-    lTemp.back() = {vSwapchainImages_vk[i], vSwapchainViews_vk[i]};
-  }
-
-  return lTemp;
-}
-
 void rWorld::updateViewPort(int _x, int _y, int _width, int _height) {
   vViewPort.vNeedUpdate_B = true;
   vViewPort.x             = _x;
@@ -312,11 +240,6 @@ void rWorld::updateClearColor(float _r, float _g, float _b, float _a) {
 uint64_t *rWorld::getRenderedFramesPtr() { return vRenderLoop.getRenderedFramesPtr(); }
 
 /*!
- * \returns The nuber of framebuffers
- */
-uint32_t rWorld::getNumFramebuffers() const { return static_cast<uint32_t>(vSwapchainImages_vk.size()); }
-
-/*!
  * \returns The used vulkan device handle
  * \vkIntern
  */
@@ -327,6 +250,12 @@ VkDevice rWorld::getDevice() { return vDevice_vk; }
  * \vkIntern
  */
 vkuDevicePTR rWorld::getDevicePTR() { return vDevice; }
+
+/*!
+ * \returns A pointer to the swapchain in use
+ * \vkIntern
+ */
+vkuSwapChain *rWorld::getSwapChain() { return &vSwapChain; }
 
 /*!
  * \returns the internaly used iInit pointer

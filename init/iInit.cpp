@@ -315,23 +315,6 @@ iInit::ErrorCode iInit::init(std::vector<std::string> _layers) {
   return OK;
 }
 
-int iInit::handleResize() {
-  if (!vIsVulkanSetup_B) {
-    eLOG("Vulkan not setup yet");
-    return -1;
-  }
-
-  if (!vSurface_vk)
-    return 1;
-
-  if (!vDevice || !*vDevice)
-    return 2;
-
-  if (vDevice->loadDeviceSurfaceInfo())
-    return 3;
-
-  return 0;
-}
 
 void iInit::destroyVulkan() {
   if (!vIsVulkanSetup_B)
@@ -510,7 +493,7 @@ VkSurfaceKHR iInit::getVulkanSurface() { return vSurface_vk; }
 vkuDevice::SurfaceInfo iInit::getSurfaceInfo() {
   if (!vDevice || !*vDevice)
     return {};
-  return vDevice->getSurfaceInfo();
+  return vDevice->getSurfaceInfo(vSurface_vk);
 }
 
 /*!

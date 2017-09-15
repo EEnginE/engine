@@ -90,7 +90,9 @@ int rRendererBase::init() {
   if (vIsSetup)
     return -3;
 
-  auto                     lImages = vWorldPtr->getSwapchainImageViews();
+  vkuSwapChain *lSwapChain = vWorldPtr->getSwapChain();
+
+  auto                     lImages = lSwapChain->getImages();
   std::vector<VkImageView> lViews;
 
   lViews.reserve(lImages.size());
@@ -105,7 +107,7 @@ int rRendererBase::init() {
     vFramebuffers_vk[i].index = static_cast<uint32_t>(i);
   }
 
-  if (initRenderer(lViews, vWorldPtr->getSwapchainFormat()))
+  if (initRenderer(lViews, lSwapChain->getFormat()))
     return 2;
 
   if (!initRendererData())
