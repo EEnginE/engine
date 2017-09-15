@@ -44,7 +44,7 @@ class vkuSwapChain final {
 
    public:
     LockAndResult() = delete;
-    LockAndResult(LOCK _l, uint32_t _img) : vLock(std::move(_l)), vImg(_img) {}
+    LockAndResult(LOCK _l, uint64_t _img) : vLock(std::move(_l)), vImg(_img) {}
     LockAndResult(LOCK _l, VkResult _res) : vLock(std::move(_l)), vImg(static_cast<uint64_t>(_res) + UINT32_MAX) {}
 
     LockAndResult(LockAndResult const &) = delete;
