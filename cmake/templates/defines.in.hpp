@@ -49,10 +49,21 @@
 
 #define E_DEBUG_LOGGING     @DEBUG_LOGGING@
 
+#define OVERRIDE_VK_NULL_HANDLE @CM_OVERRIDE_VK_NULL_HANDLE@
+
 // GLM defines
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_CXX14
+
+#if OVERRIDE_VK_NULL_HANDLE
+#include <vulkan.h>
+
+#if VK_NULL_HANDLE == 0
+#undef VK_NULL_HANDLE
+#define VK_NULL_HANDLE nullptr
+#endif
+#endif
 
 
 #define WIDEN2(x) L##x

@@ -873,9 +873,9 @@ wchar_t iWindow::processX11KeyInput(xcb_keycode_t _kEv, uint16_t _modMask) noexc
 
   // Num-Lock? Shift?
   auto  lControlCookie = xcb_get_keyboard_control(vConnection_XCB);
-  auto *lControl       = xcb_get_keyboard_control_reply(vConnection_XCB, lControlCookie, NULL);
+  auto *lControl       = xcb_get_keyboard_control_reply(vConnection_XCB, lControlCookie, nullptr);
 
-  if (lControl == NULL) {
+  if (lControl == nullptr) {
     eLOG("xcb_get_keyboard_control error");
     return E_UNKNOWN;
   }
@@ -890,13 +890,13 @@ wchar_t iWindow::processX11KeyInput(xcb_keycode_t _kEv, uint16_t _modMask) noexc
 
   // Get KeySym for the rest
   auto          lKBCookie        = xcb_get_keyboard_mapping(vConnection_XCB, _kEv, 1);
-  auto *        lKB              = xcb_get_keyboard_mapping_reply(vConnection_XCB, lKBCookie, NULL);
+  auto *        lKB              = xcb_get_keyboard_mapping_reply(vConnection_XCB, lKBCookie, nullptr);
   xcb_keysym_t *lKeys            = xcb_get_keyboard_mapping_keysyms(lKB);
   auto          lKBMappingLength = xcb_get_keyboard_mapping_keysyms_length(lKB);
 
   free(lKB);
 
-  if (lKeys == NULL) {
+  if (lKeys == nullptr) {
     eLOG("xcb_get_keyboard_mapping_keysyms failed!");
     return E_UNKNOWN;
   }

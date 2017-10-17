@@ -58,7 +58,7 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
  public:
   rSimpleMesh(rMatrixSceneBase<float> *_scene, std::string _name);
 
-  virtual ~rSimpleMesh() { destroy_IMPL(); }
+  ~rSimpleMesh() override { destroy_IMPL(); }
 
   rSimpleMesh()               = delete;
   rSimpleMesh(rSimpleMesh &&) = default;

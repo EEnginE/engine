@@ -45,7 +45,7 @@ using namespace unix_x11::internal;
 iWindow::iWindow(iInit *_init) : iWindowBasic(_init) {
   int lScreenNum;
 
-  vConnection_XCB = xcb_connect(NULL, &lScreenNum);
+  vConnection_XCB = xcb_connect(nullptr, &lScreenNum);
   if (xcb_connection_has_error(vConnection_XCB) != 0) {
     eLOG("Failed to connect to the X-Server; Error code: ", xcb_connection_has_error(vConnection_XCB));
     vXCBConnectionHasError_B = true;

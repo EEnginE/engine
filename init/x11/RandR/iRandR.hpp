@@ -88,7 +88,7 @@ class iRandR final : public iRandRBasic {
  public:
   iRandR() = delete;
   iRandR(xcb_connection_t *_connection, xcb_window_t _rootWin);
-  virtual ~iRandR();
+  ~iRandR() override;
 
   void printStatus() override;
 

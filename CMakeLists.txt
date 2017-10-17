@@ -24,6 +24,7 @@ set( COMPILER_TESTS_DIR ${PROJECT_SOURCE_DIR}/cmake/tests )
 
 # Build options
 option( DEBUG_LOG_ALL       "Enable all debug defines"                         OFF )
+option( OVERRIDE_VK_NULL    "Overrides the VK_NULL_HADNLE with nullptr"        ON )
 
 set( CMAKE_CXX_STANDARD               14 )
 set( CMAKE_CXX_STANDARD_REQUIRED      ON )
@@ -34,6 +35,12 @@ set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
 if( NOT DEFINED GLSL_TO_SPIRV_COMPILER )
    set( GLSL_TO_SPIRV_COMPILER "glslangValidator" )
 endif( NOT DEFINED GLSL_TO_SPIRV_COMPILER )
+
+if(OVERRIDE_VK_NULL)
+  set(CM_OVERRIDE_VK_NULL_HANDLE 1)
+else()
+  set(CM_OVERRIDE_VK_NULL_HANDLE 0)
+endif()
 
 if( NOT EXISTS "${PROJECT_SOURCE_DIR}/include" )
    file( MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/include" )

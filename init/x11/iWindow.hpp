@@ -118,7 +118,7 @@ class iWindow : public iWindowBasic {
 
  public:
   iWindow(iInit *_init);
-  virtual ~iWindow();
+  ~iWindow() override;
 
   ErrorCode createWindow() override;
 

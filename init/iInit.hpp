@@ -244,10 +244,10 @@ class __iInit_Pointer {
 
  public:
   __iInit_Pointer() {
-    pointer = 0;
+    pointer = nullptr;
     is_set  = false;
   }
-  ~__iInit_Pointer() { pointer = 0; }
+  ~__iInit_Pointer() { pointer = nullptr; }
   bool set(iInit *_THIS) {
     if (is_set == true) {
       return false;
