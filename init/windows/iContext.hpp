@@ -91,7 +91,7 @@ class iContext : public iKeyboard, public iRandR, public iInitSignals {
 
   int createContext();
 
-  int fullScreen(ACTION _action, bool _allMonitors = false);
+  int         fullScreen(ACTION _action, bool _allMonitors = false);
   int         enableVSync();
   int         disableVSync();
   void        destroyContext();
@@ -107,7 +107,7 @@ class iContext : public iKeyboard, public iRandR, public iInitSignals {
 
   int  setFullScreenMonitor(iDisplays &) { return 0; }
   bool setDecoration(ACTION _action);
-  int changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY);
+  int  changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY);
   bool fullScreenMultiMonitor() { return false; }
 
   bool grabMouse();
@@ -180,10 +180,10 @@ class eWindowClassRegister {
 //! Global object that stores the state of the window classes
 extern eWindowClassRegister CLASS_REGISTER;
 
-} // internal
+} // namespace internal
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

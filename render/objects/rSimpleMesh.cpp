@@ -139,14 +139,14 @@ bool rSimpleMesh::checkIsCompatible(rPipeline *_pipe) {
 
 uint32_t rSimpleMesh::getMatrix(mat4 **_mat, rObjectBase::MATRIX_TYPES _type) {
   switch (_type) {
-    case SCALE: *_mat                 = getScaleMatrix(); return 0;
-    case ROTATION: *_mat              = getRotationMatrix(); return 0;
-    case TRANSLATION: *_mat           = getTranslationMatrix(); return 0;
-    case CAMERA_MATRIX: *_mat         = getViewProjectionMatrix(); return 0;
-    case MODEL_MATRIX: *_mat          = getModelMatrix(); return 0;
-    case VIEW_MATRIX: *_mat           = getViewMatrix(); return 0;
-    case PROJECTION_MATRIX: *_mat     = getProjectionMatrix(); return 0;
-    case MODEL_VIEW_MATRIX: *_mat     = getModelViewMatrix(); return 0;
+    case SCALE: *_mat = getScaleMatrix(); return 0;
+    case ROTATION: *_mat = getRotationMatrix(); return 0;
+    case TRANSLATION: *_mat = getTranslationMatrix(); return 0;
+    case CAMERA_MATRIX: *_mat = getViewProjectionMatrix(); return 0;
+    case MODEL_MATRIX: *_mat = getModelMatrix(); return 0;
+    case VIEW_MATRIX: *_mat = getViewMatrix(); return 0;
+    case PROJECTION_MATRIX: *_mat = getProjectionMatrix(); return 0;
+    case MODEL_VIEW_MATRIX: *_mat = getModelViewMatrix(); return 0;
     case MODEL_VIEW_PROJECTION: *_mat = getModelViewProjectionMatrix(); return 0;
     case NORMAL_MATRIX: break;
   }

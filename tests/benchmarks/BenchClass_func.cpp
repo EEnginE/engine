@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "BenchClass.hpp"
 #include <engine.hpp>
+#include "BenchClass.hpp"
 
 // Do it here so that the compiler can't do its inline optimization
 // for inline we have another function

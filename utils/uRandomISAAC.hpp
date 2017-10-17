@@ -50,7 +50,7 @@ class uRandomISAAC {
   inline uint32_t operator()() { return get(); }
   inline uint32_t operator()(uint32_t _min, uint32_t _max) { return get(_min, _max); }
 };
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

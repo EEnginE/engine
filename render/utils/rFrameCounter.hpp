@@ -58,5 +58,5 @@ class rFrameCounter {
 
   bool getIsCounterEnabled() const { return vFrameCounterEnabled; }
 };
-}
+} // namespace e_engine
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on;

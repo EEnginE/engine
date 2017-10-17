@@ -84,7 +84,7 @@ class rPipeline {
 
   bool isReadyToCreate() const;
 
-  void setShader(rShaderBase *_shader);
+  void         setShader(rShaderBase *_shader);
   rShaderBase *getShader() { return vShader; }
 
   // Setter functions
@@ -131,4 +131,4 @@ class rPipeline {
 
   virtual ~rPipeline();
 };
-}
+} // namespace e_engine

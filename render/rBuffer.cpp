@@ -294,4 +294,4 @@ template bool rBuffer::cmdInit<int8_t>(std::vector<int8_t> const &, VkCommandBuf
 template bool rBuffer::cmdInit<int16_t>(std::vector<int16_t> const &, VkCommandBuffer, VkBufferUsageFlags);
 template bool rBuffer::cmdInit<int32_t>(std::vector<int32_t> const &, VkCommandBuffer, VkBufferUsageFlags);
 template bool rBuffer::cmdInit<int64_t>(std::vector<int64_t> const &, VkCommandBuffer, VkBufferUsageFlags);
-}
+} // namespace e_engine

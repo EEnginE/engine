@@ -503,4 +503,4 @@ void rRenderLoop::clearRenderers() {
 
 uint64_t *rRenderLoop::getRenderedFramesPtr() { return &vRenderedFrames; }
 bool      rRenderLoop::getIsRunning() const { return vRunRenderLoop; }
-}
+} // namespace e_engine

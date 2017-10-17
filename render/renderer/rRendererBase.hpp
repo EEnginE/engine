@@ -102,8 +102,8 @@ class rRendererBase {
   void initAllCmdBuffers(vkuCommandPool *_pool);
   void freeAllCmdBuffers();
 
-  void updateRenderer();
-  void updatePushConstants(uint32_t _framebuffer);
+  void           updateRenderer();
+  void           updatePushConstants(uint32_t _framebuffer);
   CommandBuffers getCommandBuffers(uint32_t _framebuffer);
 
  protected:
@@ -119,14 +119,14 @@ class rRendererBase {
   OBJECTS vObjects;
 
   virtual VkResult initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) = 0;
-  virtual void destroyRenderer()                     = 0;
-  virtual void initCmdBuffers(vkuCommandPool *_pool) = 0;
-  virtual void freeCmdBuffers()                      = 0;
-  virtual void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) = 0;
+  virtual void     destroyRenderer()                                                                 = 0;
+  virtual void     initCmdBuffers(vkuCommandPool *_pool)                                             = 0;
+  virtual void     freeCmdBuffers()                                                                  = 0;
+  virtual void     recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender)                    = 0;
 
-  virtual VkRenderPass  getRenderPass()                   = 0;
-  virtual VkFramebuffer getFrameBuffer(uint32_t _fbIndex) = 0;
-  virtual std::vector<VkClearValue> getClearValues()      = 0;
+  virtual VkRenderPass              getRenderPass()                   = 0;
+  virtual VkFramebuffer             getFrameBuffer(uint32_t _fbIndex) = 0;
+  virtual std::vector<VkClearValue> getClearValues()                  = 0;
 
   virtual bool initRendererData() { return true; }
   virtual bool freeRendererData() { return true; }
@@ -160,9 +160,9 @@ class rRendererBase {
   void setClearColor(VkClearColorValue _clearColor);
 
   [[deprecated]] void getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect);
-  uint32_t getNumFramebuffers() const;
+  uint32_t            getNumFramebuffers() const;
 
   friend class ::e_engine::rRenderLoop;
 };
-}
-}
+} // namespace internal
+} // namespace e_engine

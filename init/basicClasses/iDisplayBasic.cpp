@@ -88,5 +88,5 @@ void iDisplayBasic::getCurrentResolution(unsigned int &_width, unsigned int &_he
   _height = vCurrentHeight_uI;
   _rate   = vCurrentRate_D;
 }
-}
+} // namespace e_engine
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

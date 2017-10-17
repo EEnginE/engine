@@ -96,7 +96,7 @@ class iDisplayBasic {
  *
  * \returns The name of the display
  */
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "BenchClass.hpp"
 #include "cmdANDinit.hpp"
 #include <engine.hpp>
+#include "BenchClass.hpp"
 #include <string>
 #include <vector>
 

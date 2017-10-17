@@ -364,7 +364,7 @@ void iWindow::maximize(e_engine::ACTION _action) { setAttribute(_action, MAXIMIZ
  * \param _action What to do
  * \param _type1  The first thing to change
  * \param _type2  The second thing to change (Default: NONE)
-*
+ *
  * \sa e_engine::ACTION, e_engine::WINDOW_ATTRIBUTE
  */
 void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2) {
@@ -388,7 +388,7 @@ void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRI
 
   if (_type1 != NONE) {
     switch (_type1) {
-      // clang-format off
+        // clang-format off
          case MODAL:             lState1_str = "_NET_WM_STATE_MODAL"; break;
          case STICKY:            lState1_str = "_NET_WM_STATE_STICKY"; break;
          case MAXIMIZED_VERT:    lState1_str = "_NET_WM_STATE_MAXIMIZED_VERT"; break;
@@ -412,19 +412,19 @@ void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRI
 
   if (_type2 != NONE) {
     switch (_type2) {
-      case MODAL: lState2_str             = "_NET_WM_STATE_MODAL"; break;
-      case STICKY: lState2_str            = "_NET_WM_STATE_STICKY"; break;
-      case MAXIMIZED_VERT: lState2_str    = "_NET_WM_STATE_MAXIMIZED_VERT"; break;
-      case MAXIMIZED_HORZ: lState2_str    = "_NET_WM_STATE_MAXIMIZED_HORZ"; break;
-      case SHADED: lState2_str            = "_NET_WM_STATE_SHADED"; break;
-      case SKIP_TASKBAR: lState2_str      = "_NET_WM_STATE_SKIP_TASKBAR"; break;
-      case SKIP_PAGER: lState2_str        = "_NET_WM_STATE_SKIP_PAGER"; break;
-      case HIDDEN: lState2_str            = "_NET_WM_STATE_HIDDEN"; break;
-      case FULLSCREEN: lState2_str        = "_NET_WM_STATE_FULLSCREEN"; break;
-      case ABOVE: lState2_str             = "_NET_WM_STATE_ABOVE"; break;
-      case BELOW: lState2_str             = "_NET_WM_STATE_BELOW"; break;
+      case MODAL: lState2_str = "_NET_WM_STATE_MODAL"; break;
+      case STICKY: lState2_str = "_NET_WM_STATE_STICKY"; break;
+      case MAXIMIZED_VERT: lState2_str = "_NET_WM_STATE_MAXIMIZED_VERT"; break;
+      case MAXIMIZED_HORZ: lState2_str = "_NET_WM_STATE_MAXIMIZED_HORZ"; break;
+      case SHADED: lState2_str = "_NET_WM_STATE_SHADED"; break;
+      case SKIP_TASKBAR: lState2_str = "_NET_WM_STATE_SKIP_TASKBAR"; break;
+      case SKIP_PAGER: lState2_str = "_NET_WM_STATE_SKIP_PAGER"; break;
+      case HIDDEN: lState2_str = "_NET_WM_STATE_HIDDEN"; break;
+      case FULLSCREEN: lState2_str = "_NET_WM_STATE_FULLSCREEN"; break;
+      case ABOVE: lState2_str = "_NET_WM_STATE_ABOVE"; break;
+      case BELOW: lState2_str = "_NET_WM_STATE_BELOW"; break;
       case DEMANDS_ATTENTION: lState2_str = "_NET_WM_STATE_DEMANDS_ATTENTION"; break;
-      case FOCUSED: lState2_str           = "_NET_WM_STATE_FOCUSED"; break;
+      case FOCUSED: lState2_str = "_NET_WM_STATE_FOCUSED"; break;
       case NONE: return;
     }
 
@@ -436,7 +436,7 @@ void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRI
 
   if (_type1 == FULLSCREEN || _type2 == FULLSCREEN) {
     switch (_action) {
-      case C_ADD: GlobConf.win.fullscreen    = true; break;
+      case C_ADD: GlobConf.win.fullscreen = true; break;
       case C_REMOVE: GlobConf.win.fullscreen = false; break;
       case C_TOGGLE: GlobConf.win.fullscreen = !GlobConf.win.fullscreen; break;
     }
@@ -444,7 +444,7 @@ void iWindow::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRI
 
   switch (_action) {
     case C_REMOVE: lMode_STR = "Removed"; break;
-    case C_ADD: lMode_STR    = "Enabled"; break;
+    case C_ADD: lMode_STR = "Enabled"; break;
     case C_TOGGLE: lMode_STR = "Toggled"; break;
   }
 
@@ -574,7 +574,7 @@ bool iWindow::grabMouse() {
                                   vWindow_XCB,         // Lock the cursor in this window
                                   XCB_NONE,            // Use the default window cursor icon
                                   XCB_CURRENT_TIME     // X11 needs a time
-                                  );
+  );
 
   xcb_grab_pointer_reply_t *lReply = xcb_grab_pointer_reply(vConnection_XCB, lCookie, nullptr);
 
@@ -623,7 +623,7 @@ void iWindow::freeMouse() {
  * \param[in] _posY The y coordinate in our window
  *
  * \note _posX and _posY must be inside our window
-*/
+ */
 void iWindow::moveMouse(unsigned int _posX, unsigned int _posY) {
   if (_posX > GlobConf.win.width || _posY > GlobConf.win.height) {
     wLOG("_posX and/or _posY outside the window");
@@ -642,7 +642,7 @@ void iWindow::moveMouse(unsigned int _posX, unsigned int _posY) {
                    0,                           // ...the source window!
                    static_cast<int16_t>(_posX), // Posx in the window
                    static_cast<int16_t>(_posY)  // Posy in the window
-                   );
+  );
 
   xcb_flush(vConnection_XCB);
 }
@@ -673,7 +673,7 @@ void iWindow::hideMouseCursor() {
                     vWindow_XCB,     // The drawable
                     1,               // width
                     1                // height
-                    );
+  );
 
   xcb_create_cursor(vConnection_XCB, lCursor, lPixmap, lPixmap, 0, 0, 0, 0, 0, 0, 0, 0);
   xcb_change_window_attributes(vConnection_XCB, vWindow_XCB, XCB_CW_CURSOR, &lCursor);
@@ -702,10 +702,10 @@ void iWindow::eventLoop() {
   timespec lTimeout      = {cfg.eventTimeoutSeconds, cfg.eventTimeoutNanoSeconds};
   fd_set   lFileDescriptors;
 
-  FD_ZERO(&lFileDescriptors);
-  FD_SET(lFileDesc_XCB, &lFileDescriptors);
-
   while (getRunEventLoop()) {
+    FD_ZERO(&lFileDescriptors);
+    FD_SET(lFileDesc_XCB, &lFileDescriptors);
+
     lEvent_XCB = xcb_poll_for_event(vConnection_XCB);
 
     // Wait for events
@@ -768,15 +768,15 @@ void iWindow::eventLoop() {
         tempInfo.iMouse.button = E_MOUSE_LEFT;
 
         switch (lEvent->detail) {
-          case 1: tempInfo.iMouse.button  = E_MOUSE_LEFT; break;
-          case 2: tempInfo.iMouse.button  = E_MOUSE_MIDDLE; break;
-          case 3: tempInfo.iMouse.button  = E_MOUSE_RIGHT; break;
-          case 4: tempInfo.iMouse.button  = E_MOUSE_WHEEL_UP; break;
-          case 5: tempInfo.iMouse.button  = E_MOUSE_WHEEL_DOWN; break;
-          case 6: tempInfo.iMouse.button  = E_MOUSE_1; break;
-          case 7: tempInfo.iMouse.button  = E_MOUSE_2; break;
-          case 8: tempInfo.iMouse.button  = E_MOUSE_3; break;
-          case 9: tempInfo.iMouse.button  = E_MOUSE_4; break;
+          case 1: tempInfo.iMouse.button = E_MOUSE_LEFT; break;
+          case 2: tempInfo.iMouse.button = E_MOUSE_MIDDLE; break;
+          case 3: tempInfo.iMouse.button = E_MOUSE_RIGHT; break;
+          case 4: tempInfo.iMouse.button = E_MOUSE_WHEEL_UP; break;
+          case 5: tempInfo.iMouse.button = E_MOUSE_WHEEL_DOWN; break;
+          case 6: tempInfo.iMouse.button = E_MOUSE_1; break;
+          case 7: tempInfo.iMouse.button = E_MOUSE_2; break;
+          case 8: tempInfo.iMouse.button = E_MOUSE_3; break;
+          case 9: tempInfo.iMouse.button = E_MOUSE_4; break;
           case 10: tempInfo.iMouse.button = E_MOUSE_5; break;
           default: tempInfo.iMouse.button = E_MOUSE_UNKNOWN;
         }

@@ -64,7 +64,7 @@ class uParserHelper {
 
   bool        getIsParsed() const;
   std::string getFilePath() const;
-  void setFile(std::string _file);
+  void        setFile(std::string _file);
 };
-}
-}
+} // namespace internal
+} // namespace e_engine

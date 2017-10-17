@@ -133,7 +133,7 @@ class rObjectBase {
     return {};
   }
 
-  bool setupVertexData_PN(aiMesh const *_mesh, std::vector<float> &_out);
+  bool         setupVertexData_PN(aiMesh const *_mesh, std::vector<float> &_out);
   virtual void destroy_IMPL() {}
 
  public:
@@ -170,7 +170,7 @@ class rObjectBase {
   rShaderBase *getShader();
   bool         getIsDataLoaded() const { return vIsLoaded_B; }
   std::string  getName() const { return vName_str; }
-  bool setPipeline(rPipeline *_pipe);
+  bool         setPipeline(rPipeline *_pipe);
 
   virtual uint32_t getMatrix(glm::mat4 **_mat, MATRIX_TYPES _type);
   virtual uint32_t getMatrix(glm::dmat4 **_mat, MATRIX_TYPES _type);

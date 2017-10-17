@@ -66,4 +66,4 @@ class rBuffer {
   VkBuffer getBuffer();
   uint32_t getSize() { return vSize; }
 };
-}
+} // namespace e_engine

@@ -50,7 +50,7 @@ inline std::string numToSizeStringLeft(T _val, unsigned int _size, char _fill) {
     lResult_STR.append((_size - lResult_STR.size()), _fill);
   return lResult_STR;
 }
-}
+} // namespace
 
 // Temp wndProc
 LRESULT CALLBACK __WndProc(HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam) {
@@ -147,7 +147,7 @@ int iContext::createContext() {
                                            NULL,                            // No menu
                                            lInstance_TEMP_win32,            // The instance
                                            NULL                             // We dont want special window creation
-                                           );
+  );
 
 
   vHDC_win32 = GetDC(lHWND_Window_TEMP_win32);       // Get the device context
@@ -254,7 +254,7 @@ int iContext::createContext() {
       NULL,                                          // No menu
       vInstance_win32,                               // The instance
       this                                           // We dont want spacial window creation
-      );
+  );
 
   /*!
    *\todo: Changed the vClassName_win32 and Windowname into a LPCWSTR,
@@ -510,8 +510,8 @@ int iContext::createContext() {
 
 
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -66,7 +66,7 @@ class rDirectionalLight : public rObjectBase {
   glm::tvec3<T, P> *getColor() { return &vLightColor; }
 
   uint32_t getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPES _type) override;
-  bool checkIsCompatible(rPipeline *) override { return true; }
+  bool     checkIsCompatible(rPipeline *) override { return true; }
 };
 
 
@@ -76,8 +76,8 @@ uint32_t rDirectionalLight<T, P>::getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPE
 
   switch (_type) {
     case AMBIENT_COLOR: *_vec = &vAmbientColor; return ALL_OK;
-    case LIGHT_COLOR: *_vec   = &vLightColor; return ALL_OK;
-    case DIRECTION: *_vec     = &vLightDirection; return ALL_OK;
+    case LIGHT_COLOR: *_vec = &vLightColor; return ALL_OK;
+    case DIRECTION: *_vec = &vLightDirection; return ALL_OK;
     case POSITION:
     case POSITION_MODEL_VIEW:
     case ATTENUATION: return UNSUPPORTED_TYPE;
@@ -87,7 +87,7 @@ uint32_t rDirectionalLight<T, P>::getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPE
 }
 
 typedef rDirectionalLight<float> rDirectionalLightF;
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

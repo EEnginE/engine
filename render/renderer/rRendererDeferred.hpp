@@ -22,8 +22,8 @@
 #pragma once
 
 #include "defines.hpp"
-#include "vkuCommandBuffer.hpp"
 #include "rBuffer.hpp"
+#include "vkuCommandBuffer.hpp"
 #include "rRendererBase.hpp"
 
 namespace e_engine {
@@ -69,4 +69,4 @@ class rRendererDeferred : public internal::rRendererBase {
   rRendererDeferred() = delete;
   rRendererDeferred(rWorld *_root, std::wstring _id);
 };
-}
+} // namespace e_engine

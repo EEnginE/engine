@@ -421,5 +421,5 @@ bool uParserHelper::unexpectedCharError() {
   eLOG("Unexpected char '", *vIter, "' at line ", vCurrentLine, " [", vFilePath_str, "]");
   return false;
 }
-}
-}
+} // namespace internal
+} // namespace e_engine

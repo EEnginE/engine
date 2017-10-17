@@ -414,7 +414,7 @@ DEVMODEW iDisplays::getSelectedDevmode() const {
 
 
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

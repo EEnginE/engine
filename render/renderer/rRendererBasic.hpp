@@ -42,18 +42,18 @@ class rRendererBasic final : public internal::rRendererBase {
 
   OBJECTS vRenderObjects;
 
-  vkuRenderPass::Config getRenderPassDescription(VkSurfaceFormatKHR _surfaceFormat);
+  vkuRenderPass::Config  getRenderPassDescription(VkSurfaceFormatKHR _surfaceFormat);
   vkuFrameBuffer::Config getFrameBufferDescription(VkImageView _swapChainImageView);
 
  protected:
   VkResult initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) override;
-  void destroyRenderer() override;
+  void     destroyRenderer() override;
 
   void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) override;
 
-  VkRenderPass  getRenderPass() override { return *vRenderPass; }
-  VkFramebuffer getFrameBuffer(uint32_t _fbIndex) override { return *vFbData[_fbIndex].frameBuffer; }
-  std::vector<VkClearValue>             getClearValues() override { return vRenderPass.getClearValues(); }
+  VkRenderPass              getRenderPass() override { return *vRenderPass; }
+  VkFramebuffer             getFrameBuffer(uint32_t _fbIndex) override { return *vFbData[_fbIndex].frameBuffer; }
+  std::vector<VkClearValue> getClearValues() override { return vRenderPass.getClearValues(); }
 
   void initCmdBuffers(vkuCommandPool *_pool) override;
   void freeCmdBuffers() override;
@@ -66,4 +66,4 @@ class rRendererBasic final : public internal::rRendererBase {
   rRendererBasic() = delete;
   rRendererBasic(rWorld *_root, std::wstring _id) : internal::rRendererBase(_root, _id) {}
 };
-}
+} // namespace e_engine

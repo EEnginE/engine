@@ -193,7 +193,7 @@ void rCameraHandler<T, P>::updateDirectionAndUp() {
 template <class T, glm::precision P>
 void rCameraHandler<T, P>::mouse(iEventInfo const &_event) {
   int lDifX = static_cast<int>((GlobConf.win.width / 2) - _event.iMouse.posX);
-  int lDifY = static_cast<int>((GlobConf.win.height / 2) - _event.iMouse.posY);
+  int lDifY = -static_cast<int>((GlobConf.win.height / 2) - _event.iMouse.posY);
   if ((lDifX == 0 && lDifY == 0) || !vCameraMovementEnabled)
     return;
 
@@ -210,7 +210,7 @@ template <class T, glm::precision P>
 void rCameraHandler<T, P>::printCameraPosition() {
   iLOG(L"Camera position:  X = ", vPosition.x, L"; Y = ", vPosition.y, "; Z = ", vPosition.z);
 }
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

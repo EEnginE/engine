@@ -33,11 +33,11 @@ class iKeyboard : public iKeyboardBasic {
 
  protected:
   /*!
-      * \brief Convert a Windows keyevent to a key and set the state of it
-      * \param _wparam    The key to process
-      * \param _key_state The new state
-      * \return The key in wchar
-      */
+   * \brief Convert a Windows keyevent to a key and set the state of it
+   * \param _wparam    The key to process
+   * \param _key_state The new state
+   * \return The key in wchar
+   */
   wchar_t processWindowsKeyInput(WPARAM _wparam, short unsigned int _key_state);
 
  public:
@@ -47,9 +47,9 @@ class iKeyboard : public iKeyboardBasic {
   unsigned short int getKeyState(wchar_t _key);
 };
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

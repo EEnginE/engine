@@ -33,7 +33,7 @@ namespace e_engine {
 
 uLogEntryRaw::~uLogEntryRaw() {}
 
-unsigned int uLogEntryRaw::getLogEntry(std::vector<internal::uLogType> &_vLogTypes_V_eLT,
+unsigned int uLogEntryRaw::getLogEntry(std::vector<internal::uLogType> &        _vLogTypes_V_eLT,
                                        std::map<std::thread::id, std::wstring> &_threads) {
   data.raw.vType_STR       = L"UNKNOWN";
   data.raw.vThreadName_STR = L"noname";
@@ -82,7 +82,7 @@ void uLogEntryRaw::__DATA__::configure(e_engine::LOG_COLOR_TYPE _color,
   config.vColumns_I     = _columns;
   config.vThread_LPT    = _thread;
 }
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

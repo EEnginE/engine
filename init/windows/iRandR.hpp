@@ -52,7 +52,7 @@ class iRandR {
                                      unsigned int &_right,
                                      unsigned int &_top,
                                      unsigned int &_bottom);
-  int getIndexOfDisplay(iDisplays const &) { return -1; }
+  int  getIndexOfDisplay(iDisplays const &) { return -1; }
 
   std::vector<iDisplays> getDisplayResolutions() { return vCurrentConfig_eD; }
 
@@ -95,9 +95,9 @@ class iRandR {
  * \param[out] _height The current height
  */
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

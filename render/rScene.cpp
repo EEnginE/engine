@@ -109,10 +109,10 @@ std::vector<rSceneBase::MeshInfo> rSceneBase::loadFile(std::string _file) {
     lTempInfo.name    = vScene_assimp->mMeshes[i]->mName.length > 0 ? lTemp : "";
 
     switch (vScene_assimp->mMeshes[i]->mPrimitiveTypes) {
-      case aiPrimitiveType_POINT: lTempInfo.type    = POINTS_3D; break;
-      case aiPrimitiveType_LINE: lTempInfo.type     = LINES_3D; break;
+      case aiPrimitiveType_POINT: lTempInfo.type = POINTS_3D; break;
+      case aiPrimitiveType_LINE: lTempInfo.type = LINES_3D; break;
       case aiPrimitiveType_TRIANGLE: lTempInfo.type = MESH_3D; break;
-      case aiPrimitiveType_POLYGON: lTempInfo.type  = POLYGON_3D; break;
+      case aiPrimitiveType_POLYGON: lTempInfo.type = POLYGON_3D; break;
       default:
         lTempInfo.type = UNDEFINED_3D;
         wLOG("Unknown primitive type ", vScene_assimp->mMeshes[i]->mPrimitiveTypes);
@@ -280,6 +280,6 @@ unsigned rSceneBase::addObject(std::shared_ptr<rObjectBase> _obj) {
 }
 
 std::vector<std::shared_ptr<rObjectBase>> rSceneBase::getObjects() { return vObjects; }
-}
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

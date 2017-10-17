@@ -310,8 +310,8 @@ LRESULT CALLBACK iContext::actualWndProc(UINT _uMsg, WPARAM _wParam, LPARAM _lPa
   return DefWindowProc(vHWND_Window_win32, _uMsg, _wParam, _lParam);
 }
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

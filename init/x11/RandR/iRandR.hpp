@@ -21,9 +21,9 @@
 #pragma once
 
 #include "defines.hpp"
+#include "iRandR_structs.hpp"
 #include "iDisplayRandR.hpp"
 #include "iRandRBasic.hpp"
-#include "iRandR_structs.hpp"
 #include <xcb/randr.h>
 
 namespace e_engine {
@@ -79,9 +79,9 @@ class iRandR final : public iRandRBasic {
   bool vIsRandRSupported_B = false;
   bool vWasScreenChanged_B = false;
 
-  bool reload(bool _overwriteLatest = true, bool _overwriteDefaults = false);
+  bool      reload(bool _overwriteLatest = true, bool _overwriteDefaults = false);
   ErrorCode restore(internal::_config _conf);
-  int changeCRTC(e_engine::internal::_crtc _changeToThis);
+  int       changeCRTC(e_engine::internal::_crtc _changeToThis);
 
   internal::_crtc isOutputPossible(xcb_randr_output_t _id, xcb_randr_crtc_t _crtc);
 
@@ -95,10 +95,10 @@ class iRandR final : public iRandRBasic {
   ErrorCode setGamma(iDisplayBasic *_disp, double _r, double _g, double _b, double _brightness = 1) override;
 
   ErrorCode getIndexOfDisplay(iDisplayBasic *_disp, uint32_t *index) override;
-  void getMostLeftRightTopBottomCRTC(unsigned int &_left,
-                                     unsigned int &_right,
-                                     unsigned int &_top,
-                                     unsigned int &_bottom) override;
+  void      getMostLeftRightTopBottomCRTC(unsigned int &_left,
+                                          unsigned int &_right,
+                                          unsigned int &_top,
+                                          unsigned int &_bottom) override;
 
   std::vector<std::shared_ptr<iDisplayBasic>> getDisplayResolutions() override;
 
@@ -167,9 +167,9 @@ class iRandR final : public iRandRBasic {
  * \returns \a true when RandR is support and \a false when not.
  */
 
-} // unix_x11
+} // namespace unix_x11
 
-} // e_engine
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -218,7 +218,7 @@ void uSlotBase<__R, __A...>::disconnectAll() {
 
   vSignals.clear();
 }
-}
+} // namespace internal
 
 
 
@@ -244,7 +244,7 @@ template <class __R, class... __A>
 class uSignal final {
  public:
   typedef internal::uSlotBase<__R, __A...> SLOT;
-  typedef internal::__uReturnStruct<__R> RETURN;
+  typedef internal::__uReturnStruct<__R>   RETURN;
 
  private:
   std::mutex          vSignalMutex;
@@ -482,12 +482,12 @@ class uSlot final : public internal::uSlotBase<__R, __A...> {
   static_assert(std::is_class<__C>::value, "template argument __C MUST be a class!");
 
  public:
-  typedef uSignal<__R, __A...> SIGNAL;
+  typedef uSignal<__R, __A...>           SIGNAL;
   typedef internal::__uReturnStruct<__R> RETURN;
 
  private:
   __R (__C::*CALL)(__A... _arg); //!< This is the member function pointer
-  __C *      classPointer;       //!< This object pointer is needed to call the function pointer
+  __C *classPointer;             //!< This object pointer is needed to call the function pointer
 
   using internal::uSlotBase<__R, __A...>::vSlotMutex;
   using internal::uSlotBase<__R, __A...>::vDestructorMutex;
@@ -535,7 +535,7 @@ typename uSlot<__R, __C, __A...>::RETURN uSlot<__R, __C, __A...>::call(__A... _a
  * \param _CALL The function pointer
  * \param _obj  Object pointer, which is needed to call the function pointer
  */
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

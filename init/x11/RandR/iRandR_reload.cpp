@@ -26,23 +26,23 @@ using namespace e_engine;
 using namespace unix_x11;
 
 #define CODE(err) static_cast<int>(lError->err)
-#define CHECK_ERROR(func, ret)                                                                                \
-  if (lError) {                                                                                               \
-    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code)); \
-    lNumErrors++;                                                                                             \
-    free(lError);                                                                                             \
-    lError = nullptr;                                                                                         \
-    goto error;                                                                                               \
-  }                                                                                                           \
-  if (!ret) {                                                                                                 \
-    eLOG(#func, " returned a NULL pointer");                                                                  \
-    lNumErrors++;                                                                                             \
-    goto error;                                                                                               \
+#define CHECK_ERROR(func, ret)                                                                                         \
+  if (lError) {                                                                                                        \
+    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code));          \
+    lNumErrors++;                                                                                                      \
+    free(lError);                                                                                                      \
+    lError = nullptr;                                                                                                  \
+    goto error;                                                                                                        \
+  }                                                                                                                    \
+  if (!ret) {                                                                                                          \
+    eLOG(#func, " returned a NULL pointer");                                                                           \
+    lNumErrors++;                                                                                                      \
+    goto error;                                                                                                        \
   }
 
-#define CLEANUP(P) \
-  if (P)           \
-    free(P);       \
+#define CLEANUP(P)                                                                                                     \
+  if (P)                                                                                                               \
+    free(P);                                                                                                           \
   P = nullptr;
 
 bool iRandR::reload(bool _overwriteLatest, bool _overwriteDefaults) {

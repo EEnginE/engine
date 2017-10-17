@@ -39,7 +39,7 @@ inline std::string numToSizeStringLeft(T _val, unsigned int _size, char _fill) {
     lResult_STR.append((_size - lResult_STR.size()), _fill);
   return lResult_STR;
 }
-}
+} // namespace
 
 namespace e_engine {
 
@@ -339,7 +339,7 @@ bool iContext::setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTR
 
   switch (_action) {
     case C_REMOVE: lMode_STR = "Removed"; break;
-    case C_ADD: lMode_STR    = "Enabled"; break;
+    case C_ADD: lMode_STR = "Enabled"; break;
     case C_TOGGLE: lMode_STR = "Toggled"; break;
     default: return -1;
   }
@@ -452,7 +452,7 @@ bool iContext::setDecoration(ACTION _action) {
   bool lGlobConfOld_B = GlobConf.win.windowDecoration;
 
   switch (_action) {
-    case C_ADD: GlobConf.win.windowDecoration    = true; break;
+    case C_ADD: GlobConf.win.windowDecoration = true; break;
     case C_REMOVE: GlobConf.win.windowDecoration = false; break;
     case C_TOGGLE: GlobConf.win.windowDecoration = !GlobConf.win.windowDecoration; break;
 
@@ -481,7 +481,7 @@ int iContext::fullScreen(ACTION _action, bool) {
   bool lGlobConfOld_B = GlobConf.win.fullscreen;
 
   switch (_action) {
-    case C_ADD: GlobConf.win.fullscreen    = true; break;
+    case C_ADD: GlobConf.win.fullscreen = true; break;
     case C_REMOVE: GlobConf.win.fullscreen = false; break;
     case C_TOGGLE: GlobConf.win.fullscreen = !GlobConf.win.fullscreen; break;
 
@@ -632,8 +632,8 @@ bool iContext::getIsCursorHidden() const { return vIsCursorHidden_B; }
 
 
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

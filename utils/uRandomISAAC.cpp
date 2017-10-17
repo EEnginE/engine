@@ -26,32 +26,32 @@
 #include <ctime>
 #endif // __liunx__
 
-#define mix(a, b, c, d, e, f, g, h) \
-  {                                 \
-    a ^= b << 11;                   \
-    d += a;                         \
-    b += c;                         \
-    b ^= c >> 2;                    \
-    e += b;                         \
-    c += d;                         \
-    c ^= d << 8;                    \
-    f += c;                         \
-    d += e;                         \
-    d ^= e >> 16;                   \
-    g += d;                         \
-    e += f;                         \
-    e ^= f << 10;                   \
-    h += e;                         \
-    f += g;                         \
-    f ^= g >> 4;                    \
-    a += f;                         \
-    g += h;                         \
-    g ^= h << 8;                    \
-    b += g;                         \
-    h += a;                         \
-    h ^= a >> 9;                    \
-    c += h;                         \
-    a += b;                         \
+#define mix(a, b, c, d, e, f, g, h)                                                                                    \
+  {                                                                                                                    \
+    a ^= b << 11;                                                                                                      \
+    d += a;                                                                                                            \
+    b += c;                                                                                                            \
+    b ^= c >> 2;                                                                                                       \
+    e += b;                                                                                                            \
+    c += d;                                                                                                            \
+    c ^= d << 8;                                                                                                       \
+    f += c;                                                                                                            \
+    d += e;                                                                                                            \
+    d ^= e >> 16;                                                                                                      \
+    g += d;                                                                                                            \
+    e += f;                                                                                                            \
+    e ^= f << 10;                                                                                                      \
+    h += e;                                                                                                            \
+    f += g;                                                                                                            \
+    f ^= g >> 4;                                                                                                       \
+    a += f;                                                                                                            \
+    g += h;                                                                                                            \
+    g ^= h << 8;                                                                                                       \
+    b += g;                                                                                                            \
+    h += a;                                                                                                            \
+    h ^= a >> 9;                                                                                                       \
+    c += h;                                                                                                            \
+    a += b;                                                                                                            \
   }
 
 namespace e_engine {
@@ -200,6 +200,6 @@ uint32_t uRandomISAAC::get() {
   ++step;
   return bb;
 }
-}
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

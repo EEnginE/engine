@@ -137,8 +137,8 @@ void _uConfig::__uConfig_Config::reset() {
 }
 
 void _uConfig::__uConfig_Camera::reset() {
-  movementSpeed    = 0.2;
-  mouseSensitivity = 0.0001;
+  movementSpeed    = 0.1;
+  mouseSensitivity = 0.00075;
   angleHorizontal  = M_PI;
   angleVertical    = 0;
 }
@@ -152,5 +152,5 @@ _uConfig::_uConfig() {
 }
 
 _uConfig GlobConf;
-}
+} // namespace e_engine
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

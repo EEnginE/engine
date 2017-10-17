@@ -97,7 +97,7 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiMesh const *_mesh) {
 
   lIndex.resize(lIndexSize * _mesh->mNumFaces);
   for (uint32_t i = 0; i < _mesh->mNumFaces; i++)
-    for (uint32_t j              = 0; j < lIndexSize; j++)
+    for (uint32_t j = 0; j < lIndexSize; j++)
       lIndex[i * lIndexSize + j] = _mesh->mFaces[i].mIndices[j];
 
   switch (getDataLayout()) {

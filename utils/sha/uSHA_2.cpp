@@ -236,7 +236,7 @@ void int64ToString(std::vector<unsigned char> &_str, uint64_t const &_num, uint3
   _str[_level + 6] = static_cast<uint8_t>(_num >> 8);
   _str[_level + 7] = static_cast<uint8_t>(_num);
 }
-}
+} // namespace
 
 /*!
  * \brief Ends the hash operation and returns the hash (std::string)
@@ -379,6 +379,6 @@ unsigned int uSHA_2::getHashLength() {
 
   return 0;
 }
-}
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -73,9 +73,9 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
 
   uint32_t getMatrix(glm::mat4 **_mat, rObjectBase::MATRIX_TYPES _type) override;
   uint32_t getMatrix(glm::mat3 **_mat, rObjectBase::MATRIX_TYPES _type) override;
-  bool checkIsCompatible(rPipeline *_pipe) override;
+  bool     checkIsCompatible(rPipeline *_pipe) override;
 };
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -38,7 +38,7 @@ wchar_t iKeyboard::processWindowsKeyInput(WPARAM _wparam, short unsigned int _ke
   wchar_t _charToCheck = (wchar_t)_wparam; // Convert _wparam to a wide char
 
   switch (_charToCheck) {
-    // Check for special keys, see http://msdn.microsoft.com/en-us/library/ms927178.aspx
+      // Check for special keys, see http://msdn.microsoft.com/en-us/library/ms927178.aspx
 
     case VK_BACK: setKeyState(E_KEY_BACKSPACE, _key_state); return E_KEY_BACKSPACE;
     case VK_TAB: setKeyState(E_KEY_TAB, _key_state); return E_KEY_TAB;
@@ -90,8 +90,8 @@ wchar_t iKeyboard::processWindowsKeyInput(WPARAM _wparam, short unsigned int _ke
       setKeyState(E_KEY_F24, _key_state);
       return E_KEY_F24;
 
-    // Nonexistant under windows:
-    // case VK_F25:               setKeyState( E_KEY_F25,         _key_state );  return E_KEY_F25;
+      // Nonexistant under windows:
+      // case VK_F25:               setKeyState( E_KEY_F25,         _key_state );  return E_KEY_F25;
 
     case VK_UP: setKeyState(E_KEY_UP, _key_state); return E_KEY_UP;
     case VK_DOWN: setKeyState(E_KEY_DOWN, _key_state); return E_KEY_DOWN;
@@ -128,13 +128,13 @@ wchar_t iKeyboard::processWindowsKeyInput(WPARAM _wparam, short unsigned int _ke
       setKeyState(E_KEY_KP_ADD, _key_state);
       return E_KEY_KP_ADD;
 
-    // Nonexistant under windows
-    // case XK_KP_Equal:          setKeyState( E_KEY_KP_EQUAL,    _key_state );  return
-    // E_KEY_KP_EQUAL;
+      // Nonexistant under windows
+      // case XK_KP_Equal:          setKeyState( E_KEY_KP_EQUAL,    _key_state );  return
+      // E_KEY_KP_EQUAL;
 
-    // Already registered earlier, no difference between normal and Keypad
-    // case XK_KP_Enter:          setKeyState( E_KEY_KP_ENTER,    _key_state );  return
-    // E_KEY_KP_ENTER;
+      // Already registered earlier, no difference between normal and Keypad
+      // case XK_KP_Enter:          setKeyState( E_KEY_KP_ENTER,    _key_state );  return
+      // E_KEY_KP_ENTER;
 
     case VK_NUMPAD0: setKeyState(E_KEY_KP_0, _key_state); return E_KEY_KP_0;
     case VK_NUMPAD1: setKeyState(E_KEY_KP_1, _key_state); return E_KEY_KP_1;
@@ -157,7 +157,7 @@ wchar_t iKeyboard::processWindowsKeyInput(WPARAM _wparam, short unsigned int _ke
 }
 
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

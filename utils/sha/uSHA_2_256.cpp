@@ -49,7 +49,7 @@ inline uint32_t S0(uint32_t x) {
 inline uint32_t S1(uint32_t x) {
   return ROTR(x, 17) ^ ROTR(x, 19) ^ (x >> 10); // FIPS-180-4  --- 4.7
 }
-}
+} // namespace
 
 
 /*!
@@ -73,9 +73,9 @@ void uSHA_2::block(std::array<unsigned char, 64> const &_data) {
   };
 
 
-  uint32_t a, b, c, d, e, f, g, h, t1, t2;
+  uint32_t                 a, b, c, d, e, f, g, h, t1, t2;
   std::array<uint32_t, 64> word;
-  uint16_t t;
+  uint16_t                 t;
 
   for (t = 0; t < 16; ++t) {
     word[t] = (static_cast<uint32_t>(_data[t * 4 + 0]) << 24) + (static_cast<uint32_t>(_data[t * 4 + 1]) << 16) +
@@ -237,6 +237,6 @@ void uSHA_2::padd512() {
 
   block(vBuffer512_A_uC);
 }
-}
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

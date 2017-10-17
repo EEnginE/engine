@@ -425,8 +425,8 @@ void iDisplayRandR::setCloneOf(const iDisplayRandR &_disp) {
 
 
 
-} // unix_x11
+} // namespace unix_x11
 
-} // e_engine
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

@@ -92,7 +92,7 @@ struct uConverter<__A> {
     uLogConverter<__A>::convert(_str, std::forward<__A>(_toConvert));
   }
 };
-}
+} // namespace internal
 
 class uLog;
 
@@ -173,12 +173,12 @@ class uLogEntryRaw {
   ~uLogEntryRaw();
 
   inline size_t getElementsSize() const { return vSize; }
-  unsigned int getLogEntry(std::vector<e_engine::internal::uLogType> &_vLogTypes_V_eLT,
-                           std::map<std::thread::id, std::wstring> &_threads);
+  unsigned int  getLogEntry(std::vector<e_engine::internal::uLogType> &_vLogTypes_V_eLT,
+                            std::map<std::thread::id, std::wstring> &  _threads);
 
   void defaultEntryGenerator();
 };
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

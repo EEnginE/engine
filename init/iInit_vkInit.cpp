@@ -449,4 +449,4 @@ int iInit::createDevice(std::vector<std::string> _layers, VkPhysicalDevice _pDev
 
   return vDevice->isCreated() ? 0 : -1;
 }
-}
+} // namespace e_engine

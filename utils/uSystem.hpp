@@ -76,4 +76,4 @@ class uSystem {
  * The standard \c uSystem object
  */
 extern uSystem SYSTEM;
-}
+} // namespace e_engine

@@ -20,25 +20,25 @@
 #ifndef MY_SCENE_HPP
 #define MY_SCENE_HPP
 
-#include "SPIRV_deferred1.hpp"
-#include "SPIRV_deferred2.hpp"
 #include "SPIRV_triangle1.hpp"
 #include "cmdANDinit.hpp"
 #include <engine.hpp>
+#include "SPIRV_deferred1.hpp"
+#include "SPIRV_deferred2.hpp"
 
-using e_engine::rScene;
-using e_engine::rCameraHandler;
-using e_engine::rSimpleMesh;
-using e_engine::rPointLightF;
-using e_engine::rDirectionalLightF;
-using e_engine::uSlot;
-using e_engine::iInit;
-using e_engine::iEventInfo;
-using e_engine::rWorld;
-using e_engine::rPipeline;
 using e_engine::SPIRV_deferred1;
 using e_engine::SPIRV_deferred2;
 using e_engine::SPIRV_triangle1;
+using e_engine::iEventInfo;
+using e_engine::iInit;
+using e_engine::rCameraHandler;
+using e_engine::rDirectionalLightF;
+using e_engine::rPipeline;
+using e_engine::rPointLightF;
+using e_engine::rScene;
+using e_engine::rSimpleMesh;
+using e_engine::rWorld;
+using e_engine::uSlot;
 
 class myScene final : public rScene<float>, public rCameraHandler<float> {
   typedef uSlot<void, myScene, iEventInfo const &> _SLOT_;

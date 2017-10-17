@@ -25,8 +25,8 @@
 #include "vkuCommandPoolManager.hpp"
 #include "vkuFence.hpp"
 #include "iInit.hpp"
-#include "rObjectBase.hpp"
 #include "rPipeline.hpp"
+#include "rObjectBase.hpp"
 #include "rScene.hpp"
 #include "rShaderBase.hpp"
 #include "rWorld.hpp"
@@ -380,5 +380,5 @@ uint32_t rRendererBase::getNumFramebuffers() const {
   // assert(vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size());
   return static_cast<uint32_t>(vFramebuffers_vk.size());
 }
-}
-}
+} // namespace internal
+} // namespace e_engine

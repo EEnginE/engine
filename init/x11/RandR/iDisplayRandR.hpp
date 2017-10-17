@@ -91,12 +91,12 @@ class iDisplayRandR final : public iDisplayBasic {
   void enable();
 
   std::vector<iDisplayBasic::res> getPossibleResolutions() const;
-  bool isSizeSupported(unsigned int _width, unsigned int _height) const;
+  bool                            isSizeSupported(unsigned int _width, unsigned int _height) const;
 
   std::vector<double> getPossibleRates(unsigned int _width, unsigned int _height) const;
 
   double autoSelectBySize(unsigned int _width, unsigned int _height, double _preferedRate = 0, double _maxDiff = 1);
-  bool select(unsigned int _width, unsigned int _height, double _rate);
+  bool   select(unsigned int _width, unsigned int _height, double _rate);
 
   void setNoClones() { vClones_V_XRR.clear(); }
   void setCloneOf(iDisplayRandR const &_disp);
@@ -117,9 +117,9 @@ class iDisplayRandR final : public iDisplayBasic {
  * \returns Nothing
  */
 
-} // unix_x11
+} // namespace unix_x11
 
-} // e_engine
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

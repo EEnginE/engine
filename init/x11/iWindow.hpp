@@ -51,7 +51,7 @@ class iXCBAtom {
   xcb_atom_t  getAtom() const { return vAtomReply_XCB->atom; }
   xcb_atom_t *getAtomRef() { return &vAtomReply_XCB->atom; }
 };
-}
+} // namespace internal
 
 /*!
  * \class e_engine::unix_x11::iWindow
@@ -106,7 +106,7 @@ class iWindow : public iWindowBasic {
       iXCBAtom &_atom, uint32_t _l0 = 0, uint32_t _l1 = 0, uint32_t _l2 = 0, uint32_t _l3 = 0, uint32_t _l4 = 0);
 
   static wchar_t keysym2unicode(xcb_keysym_t keysym) noexcept;
-  wchar_t processX11KeyInput(xcb_keycode_t _kEv, uint16_t _modMask) noexcept;
+  wchar_t        processX11KeyInput(xcb_keycode_t _kEv, uint16_t _modMask) noexcept;
 
   struct Config {
     int64_t eventTimeoutSeconds     = 0;
@@ -154,9 +154,9 @@ class iWindow : public iWindowBasic {
 };
 
 
-} // unix_x11
+} // namespace unix_x11
 
-} // e_engine
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

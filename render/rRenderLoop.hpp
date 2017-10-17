@@ -103,4 +103,4 @@ class rRenderLoop {
 
   uint64_t *getRenderedFramesPtr();
 };
-}
+} // namespace e_engine

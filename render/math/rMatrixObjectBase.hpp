@@ -62,19 +62,19 @@ class rMatrixObjectBase {
  public:
   rMatrixObjectBase(rMatrixSceneBase<T> *_scene);
 
-  inline void setPosition(const glm::tvec3<T, P> &_pos);
-  inline void getPosition(glm::tvec3<T, P> &_pos);
+  inline void              setPosition(const glm::tvec3<T, P> &_pos);
+  inline void              getPosition(glm::tvec3<T, P> &_pos);
   inline glm::tvec3<T, P> *getPosition() { return &vPosition; }
-  inline void addPositionDelta(const glm::tvec3<T, P> &_pos);
+  inline void              addPositionDelta(const glm::tvec3<T, P> &_pos);
 
   inline glm::tvec3<T, P> *getPositionModelView() { return &vPositionModelView; }
 
   inline void setRotation(const glm::tvec3<T, P> &_axis, T _angle);
 
-  inline void setScale(T _scale);
-  inline void setScale(const glm::tvec3<T, P> &_scale);
+  inline void              setScale(T _scale);
+  inline void              setScale(const glm::tvec3<T, P> &_scale);
   inline glm::tvec3<T, P> *getScale() { return &vScale; }
-  inline void addScaleDelta(const glm::tvec3<T, P> &_scale);
+  inline void              addScaleDelta(const glm::tvec3<T, P> &_scale);
 
 
   inline glm::tmat4x4<T, P> *getScaleMatrix() { return &vScaleMatrix_MAT; }
@@ -177,7 +177,7 @@ void rMatrixObjectBase<T, P>::updateFinalMatrix() {
   vPositionModelView = vModelViewMatrix_MAT * glm::tvec4<T, P>(0, 0, 0, 1);
   vNormalMatrix      = glm::inverseTranspose(glm::tmat3x3<T, P>(vModelViewMatrix_MAT));
 }
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

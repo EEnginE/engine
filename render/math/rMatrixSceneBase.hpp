@@ -119,7 +119,7 @@ void rMatrixSceneBase<T, P>::setCamera(const glm::tvec3<T, P> &_position,
   vViewMatrix_MAT           = glm::lookAt(_position, _lookAt, _upVector);
   vViewProjectionMatrix_MAT = vProjectionMatrix_MAT * vViewMatrix_MAT;
 }
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

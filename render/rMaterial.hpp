@@ -28,4 +28,4 @@ namespace e_engine {
  * \todo Implement this dummy class
  */
 class rMaterial {};
-}
+} // namespace e_engine

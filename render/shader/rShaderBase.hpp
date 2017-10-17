@@ -59,7 +59,7 @@ enum SHADER_INPUT_NAME_INDEX {
   U_SP_NORM   = 7,
   U_SP_ALBEDO = 8
 };
-}
+} // namespace internal
 
 class rShaderBase {
  public:
@@ -175,10 +175,10 @@ class rShaderBase {
 
   bool vModulesCreated = false;
 
-  bool createModule(VkShaderModule *_module, std::vector<unsigned char> _data);
+  bool             createModule(VkShaderModule *_module, std::vector<unsigned char> _data);
   VkDescriptorType getDescriptorType(std::string _str);
-  UNIFORM_ROLE guessRole(std::string _type, std::string _name);
-  void addLayoutBindings(VkShaderStageFlagBits _stage, ShaderInfo _info);
+  UNIFORM_ROLE     guessRole(std::string _type, std::string _name);
+  void             addLayoutBindings(VkShaderStageFlagBits _stage, ShaderInfo _info);
 
   uint32_t createUniformBuffer(uint32_t _size);
 
@@ -194,11 +194,11 @@ class rShaderBase {
   rShaderBase(vkuDevicePTR _device);
   virtual ~rShaderBase();
 
-  bool                                         init();
-  void                                         destroy();
-  bool                                         isInitialized();
-  std::vector<VkPipelineShaderStageCreateInfo> getShaderStageInfo();
-  VkDescriptorSet getDescriptorSet(rMaterial const *_materialPtr = nullptr);
+  bool                                           init();
+  void                                           destroy();
+  bool                                           isInitialized();
+  std::vector<VkPipelineShaderStageCreateInfo>   getShaderStageInfo();
+  VkDescriptorSet                                getDescriptorSet(rMaterial const *_materialPtr = nullptr);
   VkDescriptorSetLayout                          getDescriptorSetLayout();
   VkPipelineLayout                               getPipelineLayout();
   VkVertexInputBindingDescription                getVertexInputBindingDescription();
@@ -209,11 +209,11 @@ class rShaderBase {
 
   // Uniform handling
 
-  UniformBuffer const *getUniformBuffer(VkShaderStageFlagBits _stage);
-  bool updateUniform(UniformBuffer::Var const &_var, void const *_data);
-  bool tryReserveUniform(UniformBuffer::Var const &_var);
+  UniformBuffer const *        getUniformBuffer(VkShaderStageFlagBits _stage);
+  bool                         updateUniform(UniformBuffer::Var const &_var, void const *_data);
+  bool                         tryReserveUniform(UniformBuffer::Var const &_var);
   std::vector<PushConstantVar> getPushConstants(VkShaderStageFlagBits _stage);
-  std::vector<UniformVar> getUniforms();
+  std::vector<UniformVar>      getUniforms();
 
   bool updateDescriptorSet(UniformVar const &_var,
                            void *            _data,
@@ -251,7 +251,7 @@ class rShaderBase {
 
   friend class internal::rRendererBase;
 };
-}
+} // namespace e_engine
 
 template std::vector<e_engine::rShaderBase::InOut>::~vector();
 template std::vector<e_engine::rShaderBase::Uniform>::~vector();

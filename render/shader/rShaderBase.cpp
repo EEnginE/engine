@@ -898,4 +898,4 @@ bool rShaderBase::tryReserveUniform(UniformBuffer::Var const &_var) {
  * \note This function is only supposed to be called by rRender::renderLoop during the init phase
  */
 void rShaderBase::signalRenderReset() { vReservedUniforms.clear(); }
-}
+} // namespace e_engine

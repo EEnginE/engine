@@ -44,7 +44,7 @@
 namespace fs = std::experimental::filesystem;
 #else
 #include <filesystem>
-namespace fs            = std::filesystem;
+namespace fs = std::filesystem;
 #endif
 
 #include <iostream>
@@ -90,9 +90,9 @@ uSystem::uSystem() {
     wLOG("Failed to convert a WCHAR string to a CHAR string using wcstombs (APPDATA)");
   }
 
-  vUserName        = lUsername_CSTR;
-  vUserLogin       = vUserName;
-  vUserHome        = lAppData_CSTR;
+  vUserName  = lUsername_CSTR;
+  vUserLogin = vUserName;
+  vUserHome  = lAppData_CSTR;
 #else
   vUserName  = lUsername_TCSTR;
   vUserLogin = vUserName;
@@ -305,7 +305,7 @@ std::string uSystem::getLogFilePath() {
 #if UNIX
       std::string temp = getMainConfigDirPath() + "/";
 #elif WINDOWS
-      std::string                        temp = getMainConfigDirPath() + "\\";
+      std::string temp = getMainConfigDirPath() + "\\";
 #endif
 
       temp += GlobConf.config.logSubFolder;
@@ -357,7 +357,7 @@ std::string uSystem::getConfigFilePath() {
 #if UNIX
       std::string temp = getMainConfigDirPath() + "/";
 #elif WINDOWS
-      std::string                        temp = getMainConfigDirPath() + "\\";
+      std::string temp = getMainConfigDirPath() + "\\";
 #endif
       temp += GlobConf.config.logSubFolder;
 
@@ -386,7 +386,7 @@ std::string uSystem::getConfigFilePath() {
   }
   return vConfigFilePath;
 }
-}
+} // namespace e_engine
 
 
 

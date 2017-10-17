@@ -157,6 +157,6 @@ void uJSON_data::merge(uJSON_data &_toMerge, bool _overWrite) {
 
   return;
 }
-}
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

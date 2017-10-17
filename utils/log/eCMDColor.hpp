@@ -45,8 +45,8 @@
 #if defined E_COLOR_NO_TERMTEST || !UNIX
 #define __IOCTL_TERMTEST__
 #else
-#define __IOCTL_TERMTEST__         \
-  if (isatty(fileno(stdout)) == 0) \
+#define __IOCTL_TERMTEST__                                                                                             \
+  if (isatty(fileno(stdout)) == 0)                                                                                     \
     return L"";
 #endif
 
@@ -289,6 +289,6 @@ uint16_t eCMDColor::charToColorId(char _c) {
     default: return WHITE;
   }
 }
-}
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

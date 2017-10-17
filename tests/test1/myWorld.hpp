@@ -19,19 +19,19 @@
  */
 
 #include "cmdANDinit.hpp"
-#include "myScene.hpp"
 #include <engine.hpp>
+#include "myScene.hpp"
 
 #ifndef HANDLER_HPP
 #define HANDLER_HPP
 
-using e_engine::rWorld;
-using e_engine::rRendererDeferred;
-using e_engine::rRendererBasic;
+using e_engine::GlobConf;
+using e_engine::iDisplayBasic;
 using e_engine::internal::rRendererBase;
 using e_engine::rFrameCounter;
-using e_engine::iDisplayBasic;
-using e_engine::GlobConf;
+using e_engine::rRendererBasic;
+using e_engine::rRendererDeferred;
+using e_engine::rWorld;
 
 class myWorld final : public rWorld, public rFrameCounter {
   typedef uSlot<void, myWorld, e_engine::iEventInfo const &> _SLOT_;

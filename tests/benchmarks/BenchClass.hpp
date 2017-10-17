@@ -34,10 +34,10 @@ class BenchClass : public BenchBaseVirtual {
   // --- function Bench ---
   unsigned int vLoopsToDo;
 
-  e_engine::uSignal<double, int, double> vTheSignal;
+  e_engine::uSignal<double, int, double>           vTheSignal;
   e_engine::uSlot<double, BenchClass, int, double> vTheSlot;
 
-  e_engine::uSignal<double, int, double> vTheSignalInline;
+  e_engine::uSignal<double, int, double>           vTheSignalInline;
   e_engine::uSlot<double, BenchClass, int, double> vTheSlotInline;
 
   double (BenchClass::*vFunctionPointer)(int, double);
@@ -49,7 +49,7 @@ class BenchClass : public BenchBaseVirtual {
   std::function<double(int, double)> vStdFunc;
   std::function<double(int, double)> vStdFuncInline;
 
-  double funcToCall(int _a, double _b);
+  double        funcToCall(int _a, double _b);
   inline double funcToCallInline(int _a, double _b) {
     for (auto i = 0; i < 100; ++i)
       ++_a;
@@ -80,7 +80,7 @@ class BenchClass : public BenchBaseVirtual {
   BenchClass(cmdANDinit *_cmd);
 };
 
-double cFuncToCall(int _a, double _b);
+double        cFuncToCall(int _a, double _b);
 inline double cFuncToCallInline(int _a, double _b) {
   for (auto i = 0; i < 100; ++i)
     ++_a;

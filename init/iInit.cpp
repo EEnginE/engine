@@ -60,7 +60,7 @@ namespace e_engine {
 namespace internal {
 __iInit_Pointer __iInit_Pointer_OBJ;
 }
-}
+} // namespace e_engine
 
 
 extern PFN_vkCreateDebugReportCallbackEXT  f_vkCreateDebugReportCallbackEXT;

@@ -22,17 +22,17 @@
 #include "iRandR.hpp"
 
 #define CODE(err) static_cast<int>(lError->err)
-#define CHECK_ERROR(func, ret)                                                                                \
-  if (lError) {                                                                                               \
-    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code)); \
-    free(lError);                                                                                             \
-    if (ret)                                                                                                  \
-      free(ret);                                                                                              \
-    return RANDR_XCB_ERROR;                                                                                   \
-  }                                                                                                           \
-  if (!ret) {                                                                                                 \
-    eLOG(#func, " returned a NULL pointer");                                                                  \
-    return RANDR_XCB_ERROR;                                                                                   \
+#define CHECK_ERROR(func, ret)                                                                                         \
+  if (lError) {                                                                                                        \
+    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code));          \
+    free(lError);                                                                                                      \
+    if (ret)                                                                                                           \
+      free(ret);                                                                                                       \
+    return RANDR_XCB_ERROR;                                                                                            \
+  }                                                                                                                    \
+  if (!ret) {                                                                                                          \
+    eLOG(#func, " returned a NULL pointer");                                                                           \
+    return RANDR_XCB_ERROR;                                                                                            \
   }
 
 using namespace e_engine;

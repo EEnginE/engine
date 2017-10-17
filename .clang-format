@@ -13,7 +13,7 @@ AccessModifierOffset:         -1
 AlignAfterOpenBracket:        Align
 AlignConsecutiveAssignments:  true
 AlignConsecutiveDeclarations: true
-AlignEscapedNewlinesLeft:     true
+AlignEscapedNewlines:         Right
 AlignOperands:                true
 AlignTrailingComments:        true
 
@@ -35,11 +35,14 @@ BinPackParameters: false
 BreakAfterJavaFieldAnnotations:          true
 BreakBeforeBinaryOperators:              None
 BreakBeforeBraces:                       Attach
+BreakBeforeInheritanceComma:             false
 BreakBeforeTernaryOperators:             true
 BreakConstructorInitializersBeforeComma: false
-BreakStringLiterals:                     false
+BreakConstructorInitializers:            BeforeColon
+BreakStringLiterals:                     true
 
-CommentPragmas:  '^ IWYU pragma:'
+CommentPragmas:    '^ IWYU pragma:'
+CompactNamespaces: false
 
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth:              4
@@ -47,10 +50,19 @@ ContinuationIndentWidth:                        4
 Cpp11BracedListStyle:                           true
 
 DerivePointerAlignment:           false
+DisableFormat:                    false
 ExperimentalAutoDetectBinPacking: false
-ForEachMacros: [ foreach, Q_FOREACH, BOOST_FOREACH ]
+FixNamespaceComments:             true
 
-SortIncludes: true
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+
+SortIncludes:          true
+SortUsingDeclarations: true
+ReflowComments:        true
+
 IncludeCategories:
  - Regex: 'defines.hpp'
    Priority: -1
@@ -65,17 +77,25 @@ IncludeCategories:
  - Regex: '.*'
    Priority: 100
 
-IndentCaseLabels:                   true
-IndentWrappedFunctionNames:         false
+IncludeIsMainRegex: '(Test)?$'
+
+IndentCaseLabels:           true
+IndentWrappedFunctionNames: false
+JavaScriptQuotes:           Double
+JavaScriptWrapImports:      true
 
 KeepEmptyLinesAtTheStartOfBlocks: true
 MaxEmptyLinesToKeep:              4
+
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
 
 NamespaceIndentation:        None
 ObjCBlockIndentWidth:        2
 ObjCSpaceAfterProperty:      false
 ObjCSpaceBeforeProtocolList: true
 
+PenaltyBreakAssignment:               2
 PenaltyBreakBeforeFirstCallParameter: 19
 PenaltyBreakComment:                  10000
 PenaltyBreakFirstLessLess:            120
@@ -91,9 +111,7 @@ SpaceInEmptyParentheses:        false
 SpacesBeforeTrailingComments:   1
 SpacesInAngles:                 false
 SpacesInCStyleCastParentheses:  false
-SpacesInContainerLiterals:      true
+SpacesInContainerLiterals:      false
 SpacesInParentheses:            false
 SpacesInSquareBrackets:         false
-
-DisableFormat:   false
 ...

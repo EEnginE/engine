@@ -24,35 +24,35 @@
 #include <string>
 #include <vector>
 
-#define G_STR(_out_, _def_) \
+#define G_STR(_out_, _def_)                                                                                            \
   ::e_engine::JSON_STRING, &_out_, std::string(_def_), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
-#define G_NUM(_out_, _def_) \
+#define G_NUM(_out_, _def_)                                                                                            \
   ::e_engine::JSON_NUMBER, &_out_, static_cast<double>(_def_), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
-#define G_INT(_out_, _def_) \
+#define G_INT(_out_, _def_)                                                                                            \
   ::e_engine::JSON_INT, &_out_, static_cast<int>(_def_), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
-#define G_BOOL(_out_, _def_) \
+#define G_BOOL(_out_, _def_)                                                                                           \
   ::e_engine::JSON_BOOL, &_out_, static_cast<bool>(_def_), ::e_engine::uJSON_data::END_MARKER_TYPE::GET
 
-#define E_STR(_exists_, _type_)                                             \
-  ::e_engine::JSON_STRING, _exists_, static_cast<JSON_DATA_TYPE *>(_type_), \
+#define E_STR(_exists_, _type_)                                                                                        \
+  ::e_engine::JSON_STRING, _exists_, static_cast<JSON_DATA_TYPE *>(_type_),                                            \
       ::e_engine::uJSON_data::END_MARKER_TYPE::EXISTS
-#define E_NUM(_exists_, _type_)                                             \
-  ::e_engine::JSON_NUMBER, _exists_, static_cast<JSON_DATA_TYPE *>(_type_), \
+#define E_NUM(_exists_, _type_)                                                                                        \
+  ::e_engine::JSON_NUMBER, _exists_, static_cast<JSON_DATA_TYPE *>(_type_),                                            \
       ::e_engine::uJSON_data::END_MARKER_TYPE::EXISTS
-#define E_INT(_exists_, _type_) \
+#define E_INT(_exists_, _type_)                                                                                        \
   ::e_engine::JSON_INT, _exists_, static_cast<JSON_DATA_TYPE *>(_type_), ::e_engine::uJSON_data::END_MARKER_TYPE::EXISTS
-#define E_BOOL(_exists_, _type_)                                          \
-  ::e_engine::JSON_BOOL, _exists_, static_cast<JSON_DATA_TYPE *>(_type_), \
+#define E_BOOL(_exists_, _type_)                                                                                       \
+  ::e_engine::JSON_BOOL, _exists_, static_cast<JSON_DATA_TYPE *>(_type_),                                              \
       ::e_engine::uJSON_data::END_MARKER_TYPE::EXISTS
 
-#define S_STR(_def_) \
+#define S_STR(_def_)                                                                                                   \
   ::e_engine::JSON_STRING, (std::string *)0, std::string(_def_), ::e_engine::uJSON_data::END_MARKER_TYPE::SET
-#define S_NUM(_def_)                                                             \
-  ::e_engine::JSON_NUMBER, static_cast<double *>(0), static_cast<double>(_def_), \
+#define S_NUM(_def_)                                                                                                   \
+  ::e_engine::JSON_NUMBER, static_cast<double *>(0), static_cast<double>(_def_),                                       \
       ::e_engine::uJSON_data::END_MARKER_TYPE::SET
-#define S_INT(_def_) \
+#define S_INT(_def_)                                                                                                   \
   ::e_engine::JSON_INT, static_cast<int *>(0), static_cast<int>(_def_), ::e_engine::uJSON_data::END_MARKER_TYPE::SET
-#define S_BOOL(_def_) \
+#define S_BOOL(_def_)                                                                                                  \
   ::e_engine::JSON_BOOL, static_cast<bool *>(0), static_cast<bool>(_def_), ::e_engine::uJSON_data::END_MARKER_TYPE::SET
 
 namespace e_engine {
@@ -71,7 +71,7 @@ enum JSON_DATA_TYPE {
 
 
 struct uJSON_data;
-}
+} // namespace e_engine
 
 namespace {
 typedef std::vector<::e_engine::uJSON_data> VALUES;
@@ -183,9 +183,9 @@ void uJSON_data::_(
 
     switch (_type) {
       case JSON_STRING: value_str = *static_cast<const std::string *>(lData); break;
-      case JSON_INT: value_int    = *static_cast<const int *>(lData); break;
+      case JSON_INT: value_int = *static_cast<const int *>(lData); break;
       case JSON_NUMBER: value_num = *static_cast<const double *>(lData); break;
-      case JSON_BOOL: value_bool  = *static_cast<const bool *>(lData); break;
+      case JSON_BOOL: value_bool = *static_cast<const bool *>(lData); break;
       case JSON_ARRAY:
       case JSON_OBJECT: value_obj = *static_cast<const VALUES *>(lData); break;
       case JSON_NULL:
@@ -203,8 +203,8 @@ void uJSON_data::_(
   switch (_type) {
     case JSON_STRING: lData = static_cast<void *>(&value_str); break;
     case JSON_NUMBER: lData = static_cast<void *>(&value_num); break;
-    case JSON_INT: lData    = static_cast<void *>(&value_int); break;
-    case JSON_BOOL: lData   = static_cast<void *>(&value_bool); break;
+    case JSON_INT: lData = static_cast<void *>(&value_int); break;
+    case JSON_BOOL: lData = static_cast<void *>(&value_bool); break;
     case JSON_ARRAY:
     case JSON_OBJECT: lData = static_cast<void *>(&value_obj); break;
     case JSON_NULL:
@@ -263,7 +263,7 @@ void uJSON_data::_(uJSON_data *_first, int *_size, END_MARKER_TYPE, ARGS... _arg
 
   _first->_(_first, _args...);
 }
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

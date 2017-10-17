@@ -23,8 +23,8 @@ BenchBaseVirtual::~BenchBaseVirtual() {}
 using namespace std;
 
 #define START(__VarName__) std::chrono::system_clock::time_point __VarName__ = std::chrono::system_clock::now();
-#define STOP(__VarName__) \
-  static_cast<uint64_t>(  \
+#define STOP(__VarName__)                                                                                              \
+  static_cast<uint64_t>(                                                                                               \
       std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - __VarName__).count());
 
 typedef std::chrono::system_clock::duration TIME_DURATION;

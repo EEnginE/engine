@@ -49,7 +49,7 @@ inline uint64_t S0(uint64_t x) {
 inline uint64_t S1(uint64_t x) {
   return ROTR(x, 19) ^ ROTR(x, 61) ^ (x >> 6); // FIPS-180-4  --- 4.13
 }
-}
+} // namespace
 
 
 /*!
@@ -79,9 +79,9 @@ void uSHA_2::block(std::array<unsigned char, 128> const &_data) {
       0x113f9804bef90dae, 0x1b710b35131c471b, 0x28db77f523047d84, 0x32caab7b40c72493, 0x3c9ebe0a15c9bebc,
       0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817};
 
-  uint64_t a, b, c, d, e, f, g, h, t1, t2;
+  uint64_t                 a, b, c, d, e, f, g, h, t1, t2;
   std::array<uint64_t, 80> word;
-  uint16_t t;
+  uint16_t                 t;
 
   for (t = 0; t < 16; ++t) {
     word[t] = (static_cast<uint64_t>(_data[t * 8 + 0]) << 56) + (static_cast<uint64_t>(_data[t * 8 + 1]) << 48) +
@@ -256,6 +256,6 @@ void uSHA_2::padd1024() {
 
   block(vBuffer1024_A_uC);
 }
-}
+} // namespace e_engine
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

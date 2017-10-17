@@ -52,7 +52,7 @@ std::string placeStringLeft(std::string _str, unsigned int _size, char _fill) {
   lResult_str.append(_size - lResult_str.size(), _fill);
   return lResult_str;
 }
-}
+} // namespace
 
 #endif
 

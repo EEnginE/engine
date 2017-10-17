@@ -435,4 +435,4 @@ rPipeline *rPipeline::disableStencilTest() {
   vDepthStencil.stencilTestEnable = VK_FALSE;
   return this;
 }
-}
+} // namespace e_engine

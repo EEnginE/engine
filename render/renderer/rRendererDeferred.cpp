@@ -27,8 +27,8 @@
 #include "vkuCommandPoolManager.hpp"
 #include "vkuFence.hpp"
 #include "iInit.hpp"
-#include "rObjectBase.hpp"
 #include "rPipeline.hpp"
+#include "rObjectBase.hpp"
 #include "rWorld.hpp"
 
 namespace e_engine {
@@ -358,4 +358,4 @@ void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toR
   }
 #endif
 }
-}
+} // namespace e_engine

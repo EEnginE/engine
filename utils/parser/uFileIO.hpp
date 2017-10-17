@@ -41,7 +41,7 @@ class uFileIO final {
  public:
   uFileIO() : vFileRead_B(false) {}
   uFileIO(std::string _file) : vFilePath_str(_file), vFileRead_B(false) {}
-  void setFilePath(std::string _file);
+  void        setFilePath(std::string _file);
   std::string getFilePath();
 
   C_ITERATOR begin() const { return vData.begin(); }
@@ -52,15 +52,15 @@ class uFileIO final {
 
   bool isFileRead() { return vFileRead_B; }
 
-  int read(bool _autoReload = true);
-  int write(TYPE const &_data, bool _overWrite = false);
+  int  read(bool _autoReload = true);
+  int  write(TYPE const &_data, bool _overWrite = false);
   void clear();
 
   TYPE *getData() { return &vData; }
 
   int operator()(bool _autoReload = true) { return read(_autoReload); }
 };
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

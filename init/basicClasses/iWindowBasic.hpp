@@ -53,7 +53,7 @@ class iWindowBasic {
     XCB_BAD_CONNECTION = 100
   };
 
-  typedef iEventInfo const &SIGNAL_TYPE;
+  typedef iEventInfo const &         SIGNAL_TYPE;
   typedef uSignal<void, SIGNAL_TYPE> SIGNAL;
 
   struct iSignalReference {
@@ -87,8 +87,8 @@ class iWindowBasic {
  protected:
   virtual void eventLoop() = 0;
   bool         getRunEventLoop() const noexcept;
-  void sendEvent(iEventInfo &ev) noexcept;
-  void setWindowCreated(bool _isCreated) noexcept;
+  void         sendEvent(iEventInfo &ev) noexcept;
+  void         setWindowCreated(bool _isCreated) noexcept;
 
   void setMousebuttonState(E_BUTTON _button, uint16_t _state) noexcept;
   void setKeyState(wchar_t _key, unsigned short int _state) noexcept;
@@ -105,14 +105,14 @@ class iWindowBasic {
 
   virtual void changeWindowConfig(unsigned int _width, unsigned int _height, int _posX, int _posY) = 0;
 
-  virtual void setWindowType(WINDOW_TYPE _type) = 0;
-  virtual void setWindowNames(std::string _windowName, std::string _iconName = "<NONE>") = 0;
+  virtual void setWindowType(WINDOW_TYPE _type)                                                      = 0;
+  virtual void setWindowNames(std::string _windowName, std::string _iconName = "<NONE>")             = 0;
   virtual void setAttribute(ACTION _action, WINDOW_ATTRIBUTE _type1, WINDOW_ATTRIBUTE _type2 = NONE) = 0;
 
   virtual void fullScreen(ACTION _action, bool _allMonitors = false) = 0;
-  virtual void setFullScreenMonitor(iDisplayBasic *_disp) = 0;
-  virtual void maximize(ACTION _action)                   = 0;
-  virtual void setDecoration(ACTION _action)              = 0;
+  virtual void setFullScreenMonitor(iDisplayBasic *_disp)            = 0;
+  virtual void maximize(ACTION _action)                              = 0;
+  virtual void setDecoration(ACTION _action)                         = 0;
 
   virtual bool grabMouse()               = 0;
   virtual void freeMouse()               = 0;
@@ -152,7 +152,7 @@ class iWindowBasic {
  * \warning do NOT call this function if you created the window with iInit::init
  */
 
-} // e_engine
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

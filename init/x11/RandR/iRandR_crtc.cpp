@@ -22,16 +22,16 @@
 #include "iRandR.hpp"
 
 #define CODE(err) static_cast<int>(lError->err)
-#define CHECK_ERROR(func, ret)                                                                                \
-  if (lError) {                                                                                               \
-    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code)); \
-    free(lError);                                                                                             \
-    lError = nullptr;                                                                                         \
-    lNumErrors++;                                                                                             \
-  }                                                                                                           \
-  if (!ret) {                                                                                                 \
-    eLOG(#func, " returned a NULL pointer");                                                                  \
-    lNumErrors++;                                                                                             \
+#define CHECK_ERROR(func, ret)                                                                                         \
+  if (lError) {                                                                                                        \
+    eLOG("RandR: ", #func, " returned ", CODE(error_code), " -- ", CODE(major_code), ", ", CODE(minor_code));          \
+    free(lError);                                                                                                      \
+    lError = nullptr;                                                                                                  \
+    lNumErrors++;                                                                                                      \
+  }                                                                                                                    \
+  if (!ret) {                                                                                                          \
+    eLOG(#func, " returned a NULL pointer");                                                                           \
+    lNumErrors++;                                                                                                      \
   }
 
 using namespace e_engine;

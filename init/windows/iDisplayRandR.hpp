@@ -64,8 +64,8 @@ class iDisplays : public iDisplayBasic {
   //! \brief Sets the current settings (DEVMODEW)
   void setCurrentSettings(DEVMODEW _current) { vSelectedDisplaySettings_win32 = vCurrentSettings_win32 = _current; }
   //! \brief Set the display device (needed for the disply ID)
-  void setDisplayDevice(DISPLAY_DEVICEW _device) { vDisplayDevice_win32 = _device; }
-  DEVMODEW                              getSelectedDevmode() const;
+  void     setDisplayDevice(DISPLAY_DEVICEW _device) { vDisplayDevice_win32 = _device; }
+  DEVMODEW getSelectedDevmode() const;
   //! \brief Get the display device (needed for the disply ID)
   DISPLAY_DEVICEW getDisplayDevice() const { return vDisplayDevice_win32; }
 
@@ -80,12 +80,12 @@ class iDisplays : public iDisplayBasic {
   void enable();
 
   std::vector<iDisplayBasic::res> getPossibleResolutions() const;
-  bool isSizeSupported(unsigned int _width, unsigned int _height) const;
+  bool                            isSizeSupported(unsigned int _width, unsigned int _height) const;
 
   std::vector<double> getPossibleRates(unsigned int _width, unsigned int _height) const;
 
   double autoSelectBySize(unsigned int _width, unsigned int _height, double _preferedRate = 0, double _maxDiff = 1);
-  bool select(unsigned int _width, unsigned int _height, double _rate);
+  bool   select(unsigned int _width, unsigned int _height, double _rate);
 
   void setNoClones() {}
   void setCloneOf(iDisplays const &) {}
@@ -113,9 +113,9 @@ class iDisplays : public iDisplayBasic {
  * \returns Nothing
  */
 
-} // windows_win32
+} // namespace windows_win32
 
-} // e_engine
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

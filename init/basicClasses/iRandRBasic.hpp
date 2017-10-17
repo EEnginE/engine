@@ -48,14 +48,14 @@ class iRandRBasic {
   iRandRBasic &operator=(const iRandRBasic &) = delete;
   iRandRBasic &operator=(iRandRBasic &&) = delete;
 
-  virtual void      printStatus() = 0;
+  virtual void      printStatus()                                                                           = 0;
   virtual ErrorCode setGamma(iDisplayBasic *_disp, double _r, double _g, double _b, double _brightness = 1) = 0;
 
   virtual ErrorCode getIndexOfDisplay(iDisplayBasic *_disp, uint32_t *index) = 0;
-  virtual void getMostLeftRightTopBottomCRTC(unsigned int &_left,
-                                             unsigned int &_right,
-                                             unsigned int &_top,
-                                             unsigned int &_bottom) = 0;
+  virtual void      getMostLeftRightTopBottomCRTC(unsigned int &_left,
+                                                  unsigned int &_right,
+                                                  unsigned int &_top,
+                                                  unsigned int &_bottom)     = 0;
 
   virtual std::vector<std::shared_ptr<iDisplayBasic>> getDisplayResolutions() = 0;
 
@@ -72,4 +72,4 @@ class iRandRBasic {
 
   virtual bool isProtocolSupported() = 0;
 };
-}
+} // namespace e_engine

@@ -23,8 +23,8 @@
 
 #include "defines.hpp"
 
-#include "uMacros.hpp"
 #include "uLog_resources.hpp"
+#include "uMacros.hpp"
 #include <chrono>
 #include <fstream>
 #include <list>
@@ -98,15 +98,15 @@ namespace e_engine {
  * \note Only the <b>single predefined</b> instance \c LOG of this class should be used!
  */
 class uLog final {
-  typedef uSignal<void, uLogEntryRaw &> _SIGNAL_;
+  typedef uSignal<void, uLogEntryRaw &>     _SIGNAL_;
   typedef uSlot<void, uLog, uLogEntryRaw &> _SLOT_;
 
  private:
-  std::vector<internal::uLogType> vLogTypes_V_eLT;
+  std::vector<internal::uLogType>         vLogTypes_V_eLT;
   std::map<std::thread::id, std::wstring> vThreads;
-  std::string    vLogFileName_str;
-  std::string    vLogFielFullPath_str;
-  std::wofstream vLogFileOutput_OS;
+  std::string                             vLogFileName_str;
+  std::string                             vLogFielFullPath_str;
+  std::wofstream                          vLogFileOutput_OS;
 
   std::mutex vLogMutex_BT;
   std::mutex vLogThreadSaveMutex_BT;
@@ -141,8 +141,8 @@ class uLog final {
 
   void devInit();
 
-  void addType(char _type, std::wstring _name, char _color, bool _bold);
-  void nameThread(std::wstring _name);
+  void         addType(char _type, std::wstring _name, char _color, bool _bold);
+  void         nameThread(std::wstring _name);
   std::wstring getThreadName(std::thread::id _id);
 
   template <class __C>
@@ -258,8 +258,8 @@ struct uLogConverter<std::thread::id> {
     _str.append(std::forward<std::wstring>(LOG.getThreadName(_t)));
   }
 };
-}
-}
+} // namespace internal
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

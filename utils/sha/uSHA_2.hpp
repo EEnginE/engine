@@ -74,7 +74,7 @@ class uSHA_2 {
   void block(std::array<unsigned char, 128> const &_data);
 
   std::vector<unsigned char> end();
-  std::string get(bool _space = false);
+  std::string                get(bool _space = false);
 
   std::vector<unsigned char> quickHash(HASH_FUNCTION _type, std::string _message);
   std::vector<unsigned char> quickHash(HASH_FUNCTION _type, std::vector<unsigned char> _binary);
@@ -92,7 +92,7 @@ class uSHA_2 {
 
   void reset(HASH_FUNCTION _type);
 };
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

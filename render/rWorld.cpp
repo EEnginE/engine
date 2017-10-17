@@ -189,7 +189,7 @@ void rWorld::cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
       lBarriar.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
       break;
     case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: lBarriar.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT; break;
-    default: lBarriar.srcAccessMask                              = 0; break;
+    default: lBarriar.srcAccessMask = 0; break;
   }
 
   switch (_dst) {
@@ -266,4 +266,4 @@ iInit *rWorld::getInitPtr() { return vInitPtr; }
  * \returns a reverence to the render loop
  */
 rRenderLoop *rWorld::getRenderLoop() { return &vRenderLoop; }
-}
+} // namespace e_engine

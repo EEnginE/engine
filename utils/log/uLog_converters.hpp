@@ -225,8 +225,8 @@ template <>
 struct uLogConverter<const bool &> {
   static void convert(std::wstring &_str, const bool &_t) { _str.append(_t ? L"true" : L"false"); }
 };
-}
-}
+} // namespace internal
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

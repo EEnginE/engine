@@ -51,7 +51,7 @@ typedef void (*RENDER_FUNC)(iEventInfo info);
  */
 class iInit {
  public:
-  typedef iEventInfo const &SIGNAL_TYPE;
+  typedef iEventInfo const &         SIGNAL_TYPE;
   typedef uSignal<void, SIGNAL_TYPE> SIGNAL;
 
   template <class __C>
@@ -116,18 +116,18 @@ class iInit {
 
   std::vector<VkExtensionProperties> getExtProprs(std::string _layerName);
   std::vector<VkExtensionProperties> getDeviceExtProprs(std::string _layerName, VkPhysicalDevice _dev);
-  int loadExtensionList();
-  int loadDeviceExtensionList(VkPhysicalDevice _dev);
-  int loadDevices();
-  int createDevice(std::vector<std::string> _layers, VkPhysicalDevice _pDeviceToUse);
-  int initVulkan(std::vector<std::string> _layers);
-  int initDebug();
+  int                                loadExtensionList();
+  int                                loadDeviceExtensionList(VkPhysicalDevice _dev);
+  int                                loadDevices();
+  int                                createDevice(std::vector<std::string> _layers, VkPhysicalDevice _pDeviceToUse);
+  int                                initVulkan(std::vector<std::string> _layers);
+  int                                initDebug();
 
   void destroyVulkan();
 
   // Signal handling ---------------------------------------------------------- ###
   static void handleSignal(int _signal); //!< The signal handle function
-  void _setThisForHandluSignal();        //!< Unfortunately you cannot pass this with signal()
+  void        _setThisForHandluSignal(); //!< Unfortunately you cannot pass this with signal()
 
   // Standard callbacks NEW --------------------------------------------------- ###
 
@@ -142,7 +142,7 @@ class iInit {
   virtual ~iInit();
 
   ErrorCode init(std::vector<std::string> _layers = {});
-  int destroy();
+  int       destroy();
 
   bool enableDefaultGrabControl();
   bool disableDefaultGrabControl();
@@ -154,7 +154,7 @@ class iInit {
 
   [[deprecated]] uint32_t getQueueFamily(VkQueueFlags _flags);
 
-  [[deprecated]] VkQueue getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr);
+  [[deprecated]] VkQueue     getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr);
   [[deprecated]] std::mutex &getQueueMutex(VkQueue _queue);
 
   [[deprecated]] VkDevice getDevice();
@@ -259,7 +259,7 @@ class __iInit_Pointer {
   iInit *get() { return pointer; }
 };
 extern __iInit_Pointer __iInit_Pointer_OBJ;
-}
+} // namespace internal
 
 
 // Documentation
@@ -355,7 +355,7 @@ extern __iInit_Pointer __iInit_Pointer_OBJ;
  * \returns true  when successfull
  * \returns false when not
  */
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

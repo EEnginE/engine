@@ -79,11 +79,11 @@ class rSceneBase {
 
   bool canRenderScene();
 
-  unsigned addObject(std::shared_ptr<rObjectBase> _obj);
+  unsigned  addObject(std::shared_ptr<rObjectBase> _obj);
   BASE_OBJS getObjects();
 
   std::vector<MeshInfo> loadFile(std::string _file);
-  aiMesh const *getAiMesh(uint32_t _objIndex);
+  aiMesh const *        getAiMesh(uint32_t _objIndex);
 
   bool beginInitObject();
   bool initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objIndex);
@@ -97,7 +97,7 @@ class rScene : public rSceneBase, public rMatrixSceneBase<float> {
  public:
   rScene(std::string _name, rWorld *_world) : rSceneBase(_name, _world), rMatrixSceneBase<float>(_world) {}
 };
-}
+} // namespace e_engine
 
 
 // kate: indent-mode cstyle; indent-width 2; replace-tabs on; line-numbers on;

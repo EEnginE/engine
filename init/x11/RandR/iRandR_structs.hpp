@@ -301,5 +301,5 @@ struct _config {
   std::vector<std::shared_ptr<_gamma>> gamma;    //!< Holds gamma information for each CRTC
   std::vector<_crtc>                   CRTCInfo; //!< All important data to restore every CRTC
 };
-}
-}
+} // namespace internal
+} // namespace e_engine

@@ -120,8 +120,8 @@ class rWorld {
                             VkPipelineStageFlags    _srcFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                             VkPipelineStageFlags    _dstFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
-  void updateViewPort(int _x, int _y, int _width, int _height);
-  void updateClearColor(float _r, float _g, float _b, float _a);
+  void                    updateViewPort(int _x, int _y, int _width, int _height);
+  void                    updateClearColor(float _r, float _g, float _b, float _a);
   uint64_t *              getRenderedFramesPtr();
   [[deprecated]] VkDevice getDevice();
   vkuDevicePTR            getDevicePTR();
@@ -132,4 +132,4 @@ class rWorld {
   friend class rRenderLoop;
   friend class internal::rRendererBase;
 };
-}
+} // namespace e_engine
