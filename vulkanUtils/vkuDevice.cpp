@@ -83,7 +83,7 @@ vkuDevice::vkuDevice(VkPhysicalDevice         _device,
                            lFamilyIndex,                                    // familyIndex
                            j,                                               // index
                            lSupported == VK_TRUE ? true : false             // surfaceSupport
-                           );
+      );
     }
 
     lQueueCreateInfo.push_back({
@@ -129,6 +129,21 @@ vkuDevice::vkuDevice(VkPhysicalDevice         _device,
   for (auto &i : vExtensions) {
     dLOG(L"    - ", i);
   }
+  dLOG(L"  -- Device memory types properties:");
+  for (uint32_t i = 0; i < vMemoryProperties.memoryTypeCount; ++i) {
+    auto const &mem = vMemoryProperties.memoryTypes[i];
+    dLOG(L"    - ID: ", i);
+    dLOG(L"      - Heap:  ", mem.heapIndex);
+    dLOG(L"      - Flags: ", uEnum2Str::VkMemoryPropertyFlagBits_toStr(mem.propertyFlags));
+  }
+
+  dLOG(L"  -- Device memory heaps:");
+  for (uint32_t i = 0; i < vMemoryProperties.memoryHeapCount; ++i) {
+    auto const &mem = vMemoryProperties.memoryHeaps[i];
+    dLOG(L"    - ID: ", i);
+    dLOG(L"      - Size:  ", mem.size);
+    dLOG(L"      - Flags: ", uEnum2Str::VkMemoryHeapFlagBits_toStr(mem.flags));
+  }
 #endif
 
   lRes = vkCreateDevice(vPhysicalDevice, &lCreateInfo, nullptr, &vDevice);
@@ -157,7 +172,7 @@ vkuDevice::~vkuDevice() {
 
 vkuDevice::SurfaceInfo vkuDevice::getSurfaceInfo(VkSurfaceKHR _surface) {
   SurfaceInfo lInfo;
-  uint32_t lCount;
+  uint32_t    lCount;
 
   auto lRes = vkGetPhysicalDeviceSurfaceFormatsKHR(vPhysicalDevice, _surface, &lCount, nullptr);
   if (lRes) {

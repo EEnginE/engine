@@ -111,12 +111,6 @@ bool rBuffer::cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBuff
   lBuffInfo.queueFamilyIndexCount = 0;
   lBuffInfo.pQueueFamilyIndices   = nullptr;
 
-#if D_LOG_VULKAN
-  dLOG("Creating buffer:");
-  dLOG("  -- size:  ", _data.size() * sizeof(T), " = ", _data.size(), "*", sizeof(T));
-  dLOG("  -- usage: ", uEnum2Str::toStr(static_cast<VkBufferUsageFlagBits>(_flags)));
-#endif
-
   auto lRes = vkCreateBuffer(vDevice_vk, &lBuffInfo, nullptr, &vTempBuffer_vk);
   if (lRes) {
     eLOG("'vkCreateBuffer' returned ", uEnum2Str::toStr(lRes));
@@ -139,7 +133,23 @@ bool rBuffer::cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBuff
   vkGetBufferMemoryRequirements(vDevice_vk, vBuffer_vk, &lMemReqs_final);
 
   lIndex_temp  = vDevice->getMemoryTypeIndex(lMemReqs_temp, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-  lIndex_final = vDevice->getMemoryTypeIndex(lMemReqs_temp, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  lIndex_final = vDevice->getMemoryTypeIndex(lMemReqs_final, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+#if D_LOG_VULKAN
+  dLOG("Creating buffer:");
+  dLOG("  -- size:  ", _data.size() * sizeof(T), " = ", _data.size(), "*", sizeof(T));
+  dLOG("  -- usage: ", uEnum2Str::toStr(static_cast<VkBufferUsageFlagBits>(_flags)));
+  if (lIndex_temp != lIndex_final) {
+    dLOG("  -- requirements (temp buffer)  Index: ", lIndex_temp);
+    dLOG("    - size:           ", lMemReqs_temp.size);
+    dLOG("    - alignment:      ", lMemReqs_temp.alignment);
+    dLOG("    - memoryTypeBits: ", uEnum2Str::VkMemoryPropertyFlagBits_toStr(lMemReqs_temp.memoryTypeBits));
+  }
+  dLOG("  -- requirements (final buffer) Index: ", lIndex_final);
+  dLOG("    - size:           ", lMemReqs_temp.size);
+  dLOG("    - alignment:      ", lMemReqs_temp.alignment);
+  dLOG("    - memoryTypeBits: ", uEnum2Str::VkMemoryPropertyFlagBits_toStr(lMemReqs_temp.memoryTypeBits));
+#endif
 
   if (lIndex_temp == UINT32_MAX || lIndex_final == UINT32_MAX) {
     eLOG("Unable to find memory type");
@@ -151,10 +161,14 @@ bool rBuffer::cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBuff
   lAllocInfo.pNext                = nullptr;
   lAllocInfo.allocationSize       = lMemReqs_temp.size;
   lAllocInfo.memoryTypeIndex      = lIndex_temp;
-  lRes                            = vkAllocateMemory(vDevice_vk, &lAllocInfo, nullptr, &vMemTemp_vk);
-  if (lRes) {
-    eLOG("'vkAllocateMemory' returned ", uEnum2Str::toStr(lRes));
-    return errorCleanup();
+
+  // Only allocate the memory if the temp buffer is required (the memory types are different)
+  if (lIndex_temp != lIndex_final) {
+    lRes = vkAllocateMemory(vDevice_vk, &lAllocInfo, nullptr, &vMemTemp_vk);
+    if (lRes) {
+      eLOG("'vkAllocateMemory' returned ", uEnum2Str::toStr(lRes));
+      return errorCleanup();
+    }
   }
 
   lAllocInfo.allocationSize  = lMemReqs_final.size;
@@ -169,8 +183,13 @@ bool rBuffer::cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBuff
   // Copy memory
   // ===========
 
+  VkDeviceMemory lDestMemory = vMemTemp_vk;
+  if (lIndex_temp == lIndex_final) {
+    lDestMemory = vMem_vk;
+  }
+
   // Make device memory available
-  lRes = vkMapMemory(vDevice_vk, vMemTemp_vk, 0, lAllocInfo.allocationSize, 0, &lData);
+  lRes = vkMapMemory(vDevice_vk, lDestMemory, 0, lAllocInfo.allocationSize, 0, &lData);
   if (lRes) {
     eLOG("'vkMapMemory' returned ", uEnum2Str::toStr(lRes));
     return errorCleanup();
@@ -180,16 +199,19 @@ bool rBuffer::cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBuff
   memcpy(lData, _data.data(), _data.size() * sizeof(T));
 
   // Done copying
-  vkUnmapMemory(vDevice_vk, vMemTemp_vk);
+  vkUnmapMemory(vDevice_vk, lDestMemory);
 
   // ============
   // Bind Buffers
   // ============
 
-  lRes = vkBindBufferMemory(vDevice_vk, vTempBuffer_vk, vMemTemp_vk, 0);
-  if (lRes) {
-    eLOG("'vkBindBufferMemory' returned ", uEnum2Str::toStr(lRes));
-    return errorCleanup();
+  // Only bind the temp buffer if it is required
+  if (lIndex_temp != lIndex_final) {
+    lRes = vkBindBufferMemory(vDevice_vk, vTempBuffer_vk, vMemTemp_vk, 0);
+    if (lRes) {
+      eLOG("'vkBindBufferMemory' returned ", uEnum2Str::toStr(lRes));
+      return errorCleanup();
+    }
   }
 
   lRes = vkBindBufferMemory(vDevice_vk, vBuffer_vk, vMem_vk, 0);
@@ -202,6 +224,11 @@ bool rBuffer::cmdInit(std::vector<T> const &_data, VkCommandBuffer _buff, VkBuff
   // ============
   // Copy Buffers
   // ============
+
+  // We are done if the memory types are the same
+  if (lIndex_temp == lIndex_final) {
+    return true;
+  }
 
   VkBufferCopy lRegion = {};
   lRegion.srcOffset    = 0;
@@ -233,8 +260,11 @@ bool rBuffer::doneCopying() {
     return false;
   }
 
-  vkDestroyBuffer(vDevice_vk, vTempBuffer_vk, nullptr);
-  vkFreeMemory(vDevice_vk, vMemTemp_vk, nullptr);
+  if (vTempBuffer_vk)
+    vkDestroyBuffer(vDevice_vk, vTempBuffer_vk, nullptr);
+
+  if (vMemTemp_vk)
+    vkFreeMemory(vDevice_vk, vMemTemp_vk, nullptr);
 
   vTempBuffer_vk = nullptr;
   vMemTemp_vk    = nullptr;

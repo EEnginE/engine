@@ -29,6 +29,10 @@
 
 namespace e_engine {
 
+/*!
+ * Data buffer class
+ * \todo Make it more generic and move it to vulkan utils
+ */
 class rBuffer {
  private:
   VkBuffer       vBuffer_vk     = VK_NULL_HANDLE;
