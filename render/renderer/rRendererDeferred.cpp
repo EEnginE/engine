@@ -35,8 +35,8 @@ namespace e_engine {
 
 rRendererDeferred::rRendererDeferred(rWorld *_root, std::wstring _id)
     : internal::rRendererBase(_root, _id),
-      vDeferredDataBuffer(_root->getDevicePTR()),
-      vDeferredIndexBuffer(_root->getDevicePTR()) {}
+      vDeferredDataBuffer(_root->getDevice()),
+      vDeferredIndexBuffer(_root->getDevice()) {}
 
 #if 0
 void rRendererDeferred::setupSubpasses() {
@@ -140,7 +140,7 @@ VkImageView rRendererDeferred::getAttachmentView(ATTACHMENT_ROLE _role) {
  */
 bool rRendererDeferred::initRendererData() {
   uint32_t         lQueueFamily;
-  auto             lDevice = vWorldPtr->getDevicePTR();
+  auto             lDevice = vWorldPtr->getDevice();
   VkQueue          lQueue  = lDevice->getQueue(VK_QUEUE_TRANSFER_BIT, 0.0, &lQueueFamily);
   vkuCommandBuffer lBuf    = vkuCommandPoolManager::getBuffer(**lDevice, lQueueFamily);
   vkuFence_t       lFence(**lDevice);

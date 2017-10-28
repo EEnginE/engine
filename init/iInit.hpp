@@ -133,8 +133,6 @@ class iInit {
 
   void s_advancedGrabControl(iEventInfo const &_info);
 
-  [[deprecated]] vkuDevice::SurfaceInfo getSurfaceInfo();
-
   virtual void makeEInitEventBasicAbstract() {}
 
  public:
@@ -152,21 +150,10 @@ class iInit {
 
   bool getIsSetup() const noexcept;
 
-  [[deprecated]] uint32_t getQueueFamily(VkQueueFlags _flags);
-
-  [[deprecated]] VkQueue     getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr);
-  [[deprecated]] std::mutex &getQueueMutex(VkQueue _queue);
-
-  [[deprecated]] VkDevice getDevice();
-  vkuDevicePTR            getDevicePTR();
+  vkuDevicePTR getDevicePTR();
 
   bool isExtensionSupported(std::string _extension);
   bool isDeviceExtensionSupported(std::string _extension);
-
-  [[deprecated]] uint32_t getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags = 0);
-
-  [[deprecated]] bool isFormatSupported(VkFormat _format);
-  [[deprecated]] bool formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type);
 
   void enableVulkanDebug() { vEnableVulkanDebug = true; }
   void vulkanDebugHandler(VkDebugReportFlagsEXT      _flags,

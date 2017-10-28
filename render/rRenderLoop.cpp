@@ -49,7 +49,7 @@ uint64_t rRenderLoop::vRenderedFrames = 0;
 
 rRenderLoop::rRenderLoop(rWorld *_root) : vWorldPtr(_root) {
   vRenderThread = std::thread(&rRenderLoop::renderLoop, this);
-  vDevice       = vWorldPtr->getDevicePTR();
+  vDevice       = vWorldPtr->getDevice();
   vDevice_vk    = **vDevice;
 }
 

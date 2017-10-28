@@ -48,7 +48,7 @@ namespace e_engine {
 namespace internal {
 
 rRendererBase::rRendererBase(rWorld *_root, std::wstring _id) : vID(_id), vWorldPtr(_root) {
-  vDevice    = vWorldPtr->getDevicePTR();
+  vDevice    = vWorldPtr->getDevice();
   vDevice_vk = **vDevice;
 
   vCmdRecordInfo.lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -139,10 +139,6 @@ void rRendererBase::destroy() {
 
   vFramebuffers_vk.clear();
   vIsSetup = false;
-}
-
-void rRendererBase::getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect) {
-  vDevice->getDepthFormat(_format, _tiling, _aspect);
 }
 
 void rRendererBase::recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _toRender) {

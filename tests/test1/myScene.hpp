@@ -75,7 +75,7 @@ class myScene final : public rScene<float>, public rCameraHandler<float> {
   myScene(rWorld *_world, cmdANDinit &_cmd)
       : rScene("MAIN SCENE", _world),
         rCameraHandler(this, _world->getInitPtr()),
-        vShader(_world->getDevicePTR()),
+        vShader(_world->getDevice()),
         //         vLightShader(_world),
         vShader_str(_cmd.getShader()),
         vNormalShader_str(_cmd.getNormalShader()),

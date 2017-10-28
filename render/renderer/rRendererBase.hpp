@@ -159,8 +159,7 @@ class rRendererBase {
 
   void setClearColor(VkClearColorValue _clearColor);
 
-  [[deprecated]] void getDepthFormat(VkFormat &_format, VkImageTiling &_tiling, VkImageAspectFlags &_aspect);
-  uint32_t            getNumFramebuffers() const;
+  uint32_t getNumFramebuffers() const;
 
   friend class ::e_engine::rRenderLoop;
 };

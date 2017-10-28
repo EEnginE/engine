@@ -240,16 +240,10 @@ void rWorld::updateClearColor(float _r, float _g, float _b, float _a) {
 uint64_t *rWorld::getRenderedFramesPtr() { return vRenderLoop.getRenderedFramesPtr(); }
 
 /*!
- * \returns The used vulkan device handle
- * \vkIntern
- */
-VkDevice rWorld::getDevice() { return vDevice_vk; }
-
-/*!
  * \returns A shared pointer to the vulkan device wrapper
  * \vkIntern
  */
-vkuDevicePTR rWorld::getDevicePTR() { return vDevice; }
+vkuDevicePTR rWorld::getDevice() { return vDevice; }
 
 /*!
  * \returns A pointer to the swapchain in use

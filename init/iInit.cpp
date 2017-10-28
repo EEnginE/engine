@@ -435,44 +435,6 @@ void iInit::removeAllSlots() {
   vFocus_SIG.disconnectAll();
 }
 
-uint32_t iInit::getQueueFamily(VkQueueFlags _flags) {
-  if (!vDevice || !*vDevice)
-    return 0;
-  return vDevice->getQueueFamily(_flags);
-}
-
-VkQueue iInit::getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily) {
-  if (!vDevice || !*vDevice)
-    return VK_NULL_HANDLE;
-  return vDevice->getQueue(_flags, _priority, _queueFamily);
-}
-
-std::mutex &iInit::getQueueMutex(VkQueue _queue) { return vDevice->getQueueMutex(_queue); }
-
-uint32_t iInit::getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryHeapFlags _flags) {
-  if (!vDevice || !*vDevice)
-    return 0;
-  return vDevice->getMemoryTypeIndexFromBitfield(_bits, _flags);
-}
-
-bool iInit::isFormatSupported(VkFormat _format) {
-  if (!vDevice || !*vDevice)
-    return false;
-  return vDevice->isFormatSupported(_format);
-}
-
-bool iInit::formatSupportsFeature(VkFormat _format, VkFormatFeatureFlagBits _flags, VkImageTiling _type) {
-  if (!vDevice || !*vDevice)
-    return false;
-  return vDevice->formatSupportsFeature(_format, _flags, _type);
-}
-
-/*!
- * \returns The vulkan device handle
- * \vkIntern
- */
-VkDevice iInit::getDevice() { return vDevice ? **vDevice : VK_NULL_HANDLE; }
-
 /*!
  * \returns A shared pointer to the vulkan device wrapper
  * \vkIntern
@@ -486,15 +448,6 @@ vkuDevicePTR iInit::getDevicePTR() { return vDevice; }
  */
 VkSurfaceKHR iInit::getVulkanSurface() { return vSurface_vk; }
 
-/*!
- * \returns The vulkan surface info
- * \vkIntern
- */
-vkuDevice::SurfaceInfo iInit::getSurfaceInfo() {
-  if (!vDevice || !*vDevice)
-    return {};
-  return vDevice->getSurfaceInfo(vSurface_vk);
-}
 
 /*!
  * \brief Returns whether Vulkan is setup

@@ -158,7 +158,7 @@ bool rSceneBase::beginInitObject() {
 
   uint32_t lQueueFamily;
 
-  auto lDevice = vWorldPtr->getDevicePTR();
+  auto lDevice = vWorldPtr->getDevice();
 
   vInitQueue_vk = lDevice->getQueue(VK_QUEUE_TRANSFER_BIT, 0.25f, &lQueueFamily);
   vInitBuff_vk  = vkuCommandPoolManager::getBuffer(**lDevice, lQueueFamily);
@@ -220,7 +220,7 @@ bool rSceneBase::endInitObject() {
   lInfo.signalSemaphoreCount = 0;
   lInfo.pSignalSemaphores    = nullptr;
 
-  auto lDevice = vWorldPtr->getDevicePTR();
+  auto lDevice = vWorldPtr->getDevice();
 
   vkuFence_t lFence(**lDevice);
 
