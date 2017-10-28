@@ -27,8 +27,8 @@
 
 using e_engine::GlobConf;
 using e_engine::iDisplayBasic;
-using e_engine::internal::rRendererBase;
 using e_engine::rFrameCounter;
+using e_engine::rRendererBase;
 using e_engine::rRendererBasic;
 using e_engine::rRendererDeferred;
 using e_engine::rWorld;

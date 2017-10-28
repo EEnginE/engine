@@ -44,8 +44,7 @@
 #define dRLOG(...)
 #endif
 
-namespace e_engine {
-namespace internal {
+using namespace e_engine;
 
 rRendererBase::rRendererBase(rWorld *_root, std::wstring _id) : vID(_id), vWorldPtr(_root) {
   vDevice    = vWorldPtr->getDevice();
@@ -376,5 +375,3 @@ uint32_t rRendererBase::getNumFramebuffers() const {
   // assert(vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size());
   return static_cast<uint32_t>(vFramebuffers_vk.size());
 }
-} // namespace internal
-} // namespace e_engine

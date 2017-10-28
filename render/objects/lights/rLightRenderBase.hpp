@@ -26,18 +26,17 @@
 #include <vulkan.h>
 
 namespace e_engine {
-namespace internal {
 
 class rLightRenderBase : public rObjectBase {
  private:
   bool isMesh() override { return false; }
   void recordLight(VkCommandBuffer _buf, rBuffer &_vertex, rBuffer &_index) override;
   bool checkIsCompatible(rPipeline *_pipe) override;
-  void signalRenderReset(internal::rRendererBase *_renderer) override;
+  void signalRenderReset(rRendererBase *_renderer) override;
 
  public:
   rLightRenderBase() = delete;
   rLightRenderBase(std::string _name) : rObjectBase(_name) {}
 };
-} // namespace internal
+
 } // namespace e_engine

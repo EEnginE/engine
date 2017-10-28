@@ -40,7 +40,7 @@ class rRenderLoop {
     std::vector<VkCommandBuffer> render;
     std::vector<VkCommandBuffer> post;
 
-    std::vector<std::vector<internal::rRendererBase::CommandBuffers>> pointers;
+    std::vector<std::vector<rRendererBase::CommandBuffers>> pointers;
   } CommandBuffers;
 
   enum LoopCommand { BLOCK, PASS, PASSED };
@@ -54,7 +54,7 @@ class rRenderLoop {
   VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
   vkuDevicePTR vDevice;
 
-  std::vector<std::shared_ptr<internal::rRendererBase>> vRenderers;
+  std::vector<std::shared_ptr<rRendererBase>> vRenderers;
 
   bool vRunRenderLoop     = false;
   bool vRunRenderThread   = true;
@@ -95,8 +95,8 @@ class rRenderLoop {
   bool stop();
   bool getIsRunning() const;
 
-  void addRenderer(std::shared_ptr<internal::rRendererBase> _renderer);
-  void removeRenderer(std::shared_ptr<internal::rRendererBase> _renderer);
+  void addRenderer(std::shared_ptr<rRendererBase> _renderer);
+  void removeRenderer(std::shared_ptr<rRendererBase> _renderer);
   void clearRenderers();
 
   void updateGlobalClearColor(VkClearColorValue _clear);

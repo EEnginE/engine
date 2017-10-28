@@ -454,7 +454,7 @@ void rRenderLoop::updateGlobalClearColor(VkClearColorValue _clear) {
  * \brief Ads a renderer to the render loop
  * \note This will restart the render loop
  */
-void rRenderLoop::addRenderer(std::shared_ptr<internal::rRendererBase> _renderer) {
+void rRenderLoop::addRenderer(std::shared_ptr<rRendererBase> _renderer) {
   std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
 
   bool lStartRenderLoop = vRunRenderLoop;
@@ -471,7 +471,7 @@ void rRenderLoop::addRenderer(std::shared_ptr<internal::rRendererBase> _renderer
  * \brief Removes a renderer to the render loop
  * \note This will restart the render loop
  */
-void rRenderLoop::removeRenderer(std::shared_ptr<internal::rRendererBase> _renderer) {
+void rRenderLoop::removeRenderer(std::shared_ptr<rRendererBase> _renderer) {
   std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
 
   bool lStartRenderLoop = vRunRenderLoop;

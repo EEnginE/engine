@@ -33,7 +33,7 @@ namespace e_engine {
  *
  * \todo FIX THIS
  */
-class rRendererDeferred : public internal::rRendererBase {
+class rRendererDeferred : public rRendererBase {
   struct FB_DATA {
     std::vector<vkuCommandBuffer> objects;
     std::vector<vkuCommandBuffer> lights;

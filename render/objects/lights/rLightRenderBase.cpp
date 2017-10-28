@@ -23,8 +23,7 @@
 #include "rPipeline.hpp"
 #include "rRendererBase.hpp"
 
-namespace e_engine {
-namespace internal {
+using namespace e_engine;
 
 void rLightRenderBase::recordLight(VkCommandBuffer _buf, rBuffer &_vertex, rBuffer &_index) {
   VkDeviceSize lOffsets[] = {0};
@@ -37,7 +36,7 @@ void rLightRenderBase::recordLight(VkCommandBuffer _buf, rBuffer &_vertex, rBuff
   vkCmdDrawIndexed(_buf, _index.getSize(), 1, 0, 0, 1);
 }
 
-void rLightRenderBase::signalRenderReset(internal::rRendererBase *_renderer) {
+void rLightRenderBase::signalRenderReset(rRendererBase *_renderer) {
   rShaderBase *lShader = vPipeline->getShader();
   if (!lShader) {
     eLOG("Fatal error: Shader not set");
@@ -75,5 +74,3 @@ bool rLightRenderBase::checkIsCompatible(rPipeline *_pipe) {
          _pipe->checkUniformCompatible(
              {rShaderBase::POSITION_SUBPASS_DATA, rShaderBase::NORMAL_SUBPASS_DATA, rShaderBase::ALBEDO_SUBPASS_DATA});
 }
-} // namespace internal
-} // namespace e_engine

@@ -32,9 +32,9 @@
 
 namespace e_engine {
 
-namespace internal {
 class rRendererBase;
 
+namespace internal {
 
 static const std::vector<std::vector<std::string>> gShaderInputVarNames = {
     {"iVertex", "iVertices", "iVert"},                // Input Verex
@@ -249,7 +249,7 @@ class rShaderBase {
   virtual std::vector<unsigned char> getRawData_frag() const = 0;
   virtual std::vector<unsigned char> getRawData_comp() const = 0;
 
-  friend class internal::rRendererBase;
+  friend class rRendererBase;
 };
 } // namespace e_engine
 

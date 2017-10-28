@@ -34,9 +34,7 @@
 namespace e_engine {
 
 rRendererDeferred::rRendererDeferred(rWorld *_root, std::wstring _id)
-    : internal::rRendererBase(_root, _id),
-      vDeferredDataBuffer(_root->getDevice()),
-      vDeferredIndexBuffer(_root->getDevice()) {}
+    : rRendererBase(_root, _id), vDeferredDataBuffer(_root->getDevice()), vDeferredIndexBuffer(_root->getDevice()) {}
 
 #if 0
 void rRendererDeferred::setupSubpasses() {

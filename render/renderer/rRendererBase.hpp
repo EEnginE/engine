@@ -34,13 +34,10 @@
 
 namespace e_engine {
 
-class iInit;
 class rWorld;
 class rObjectBase;
 class rRenderLoop;
 class rSceneBase;
-
-namespace internal {
 
 /*!
  * \brief Main render class
@@ -163,5 +160,4 @@ class rRendererBase {
 
   friend class ::e_engine::rRenderLoop;
 };
-} // namespace internal
 } // namespace e_engine

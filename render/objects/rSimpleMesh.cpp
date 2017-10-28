@@ -76,7 +76,7 @@ void rSimpleMesh::destroy_IMPL() {
   vVertex.destroy();
 }
 
-void rSimpleMesh::signalRenderReset(internal::rRendererBase *) {
+void rSimpleMesh::signalRenderReset(rRendererBase *) {
   if (!vPipeline) {
     eLOG("Pipeline not setup!");
     return;

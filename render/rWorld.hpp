@@ -129,6 +129,6 @@ class rWorld {
   vkuSwapChain *getSwapChain();
 
   friend class rRenderLoop;
-  friend class internal::rRendererBase;
+  friend class rRendererBase;
 };
 } // namespace e_engine

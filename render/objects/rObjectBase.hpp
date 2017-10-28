@@ -55,10 +55,7 @@ namespace e_engine {
 #define NORMAL_MATRIX_FLAG (1 << 9)
 
 class rPipeline;
-
-namespace internal {
 class rRendererBase;
-}
 
 /*!
  * \brief Base class for creating objects
@@ -163,7 +160,7 @@ class rObjectBase {
   virtual void updateUniforms() {}
   virtual void record(VkCommandBuffer) {}
   virtual void recordLight(VkCommandBuffer, rBuffer &, rBuffer &) {}
-  virtual void signalRenderReset(internal::rRendererBase *) {}
+  virtual void signalRenderReset(rRendererBase *) {}
   virtual bool supportsPushConstants() { return false; }
 
   rPipeline *  getPipeline() { return vPipeline; }

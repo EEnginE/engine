@@ -29,7 +29,7 @@
 
 namespace e_engine {
 
-class rRendererBasic final : public internal::rRendererBase {
+class rRendererBasic final : public rRendererBase {
   struct FB_DATA {
     std::vector<vkuCommandBuffer> buffers;
     vkuFrameBuffer                frameBuffer;
@@ -64,6 +64,6 @@ class rRendererBasic final : public internal::rRendererBase {
   VkImageView getAttachmentView(ATTACHMENT_ROLE _role) override;
 
   rRendererBasic() = delete;
-  rRendererBasic(rWorld *_root, std::wstring _id) : internal::rRendererBase(_root, _id) {}
+  rRendererBasic(rWorld *_root, std::wstring _id) : rRendererBase(_root, _id) {}
 };
 } // namespace e_engine

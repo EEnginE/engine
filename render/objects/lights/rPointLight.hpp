@@ -27,7 +27,7 @@
 namespace e_engine {
 
 template <class T, glm::precision P = glm::precision::highp>
-class rPointLight : public internal::rLightRenderBase, public rMatrixObjectBase<T> {
+class rPointLight : public rLightRenderBase, public rMatrixObjectBase<T> {
   typedef rMatrixSceneBase<float> *SCENE;
 
  private:

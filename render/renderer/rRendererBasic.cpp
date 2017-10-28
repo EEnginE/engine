@@ -82,7 +82,7 @@ void rRendererBasic::freeCmdBuffers() {
   vRenderObjects.clear();
 }
 
-VkImageView rRendererBasic::getAttachmentView(internal::rRendererBase::ATTACHMENT_ROLE _role) {
+VkImageView rRendererBasic::getAttachmentView(rRendererBase::ATTACHMENT_ROLE _role) {
   switch (_role) {
     case DEPTH_STENCIL: return VK_NULL_HANDLE;
     default: return VK_NULL_HANDLE;

@@ -69,7 +69,7 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
   bool supportsPushConstants() override { return vHasModelMatrix_PC; }
   void record(VkCommandBuffer _buf) override;
   void updateUniforms() override;
-  void signalRenderReset(internal::rRendererBase *) override;
+  void signalRenderReset(rRendererBase *) override;
 
   uint32_t getMatrix(glm::mat4 **_mat, rObjectBase::MATRIX_TYPES _type) override;
   uint32_t getMatrix(glm::mat3 **_mat, rObjectBase::MATRIX_TYPES _type) override;
