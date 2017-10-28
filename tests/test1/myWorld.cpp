@@ -92,10 +92,10 @@ void myWorld::key(iEventInfo const &info) {
 int myWorld::initGL() {
   // vInitPointer->fullScreen( C_ADD );
   int lReturn = vScene.init();
-  init();
   updateClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   vRenderer->renderScene(&vScene);
-  getRenderLoop()->addRenderer(vRenderer);
+  addRenderer(vRenderer);
+  init(); // Initializes everything
   getRenderLoop()->start();
 
   vInitPointer->getWindow()->moveMouse(GlobConf.win.width / 2, GlobConf.win.height / 2);

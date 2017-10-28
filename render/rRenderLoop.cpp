@@ -51,6 +51,7 @@ rRenderLoop::rRenderLoop(rWorld *_root) : vWorldPtr(_root) {
   vRenderThread = std::thread(&rRenderLoop::renderLoop, this);
   vDevice       = vWorldPtr->getDevice();
   vDevice_vk    = **vDevice;
+  vQueue        = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &vQueueFamilyIndex);
 }
 
 rRenderLoop::~rRenderLoop() {
@@ -104,22 +105,9 @@ void rRenderLoop::renderLoop() {
     const static uint32_t SEM_PRESENT    = 0;
     const static uint32_t SEM_ACQUIRE    = 1;
 
-    uint32_t lQueueFamily = 0;
-
-    vkuSwapChain *                lSwapchain   = vWorldPtr->getSwapChain();
-    VkQueue                       lQueue       = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &lQueueFamily);
-    vkuCommandPool *              lCommandPool = vkuCommandPoolManager::get(vDevice_vk, lQueueFamily);
+    vkuSwapChain *                lSwapchain = vWorldPtr->getSwapChain();
     vkuFences<NUM_FENCES>         lFences(vDevice_vk);
     vkuSemaphores<NUM_SEMAPHORES> lSemaphores(vDevice_vk);
-
-    for (auto const &i : vRenderers) {
-      if (lSwapchain->getNumImages() != i->getNumFramebuffers()) {
-        eLOG("Internal error: number of framebuffers not equal in renderer and world!");
-        eLOG("This might cause undefined behaviour!");
-      }
-
-      i->initAllCmdBuffers(lCommandPool);
-    }
 
     VkPipelineStageFlags lSubmitWaitFlags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
@@ -153,52 +141,6 @@ void rRenderLoop::renderLoop() {
     lPresentInfo.pImageIndices      = nullptr; // set in render loop
     lPresentInfo.pResults           = nullptr;
 
-
-    // ==============================
-    // Rocord and get command buffers
-    // ==============================
-
-    CommandBuffers lCmdBuffers;
-
-    lCmdBuffers.pre.reserve(vRenderers.size());
-    lCmdBuffers.render.reserve(vRenderers.size());
-    lCmdBuffers.post.reserve(vRenderers.size());
-
-    for (auto const &i : vRenderers) {
-      i->updateRenderer();
-      lCmdBuffers.pointers.emplace_back();
-
-      for (uint32_t j = 0; j < lSwapchain->getNumImages(); j++) {
-        lCmdBuffers.pointers.back().push_back(i->getCommandBuffers(j));
-      }
-    }
-
-
-    {
-      // Sync point 2
-      std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
-
-      dRLOG("Notifying main thread that command buffers were recorded");
-
-      vFinishedRecording = true;
-      vRenderLoopResponse.notify_all(); // Notifying other thread to continue
-
-
-      dRLOG("Waiting for start render loop signal");
-
-      while (vStartRenderLoop != PASS) {
-        vRenderLoopControl.wait_for(lControl, cfg.condWaitTimeout);
-
-        if (!vRunRenderThread)
-          return;
-      }
-
-      dRLOG("DONE Waiting for start render loop signal");
-
-      vStartRenderLoop = PASSED;
-      vRenderLoopResponse.notify_all();
-    }
-
     //   ______               _             _
     //   | ___ \             | |           | |
     //   | |_/ /___ _ __   __| | ___ _ __  | |     ___   ___  _ __
@@ -208,47 +150,56 @@ void rRenderLoop::renderLoop() {
     //                                                       | |
     //                                                       |_|
 
-    // Init Uniforms
-    for (auto const &i : vRenderers)
-      i->updateUniforms();
 
-    iLOG("Starting the render loop");
+    iLOG(L"Render loop started");
     while (vRunRenderLoop) {
+      {
+        // Sync point 2 (makes sure that the lock thread will acquire the mutex ())
+        std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
+        if (vBlockRenderLoop) {
+          dRLOG(L"Blocking render loop...");
+
+          while (vBlockRenderLoop)
+            vRenderLoopControl.wait_for(lControl, cfg.condWaitTimeout);
+        }
+      }
+
+      std::unique_lock<std::mutex> lCmdAccessLock(vRenderLoopLockMutex);
 
       // Get present image (this command blocks)
       auto lNextImg = lSwapchain->acquireNextImage(lSemaphores[SEM_ACQUIRE]);
 
       if (!lNextImg) {
-        eLOG("'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr(lNextImg.getError()));
-        break;
+        eLOG(L"'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr(lNextImg.getError()));
+        continue;
       }
 
-      rebuildCommandBuffersArray(&lCmdBuffers, *lNextImg);
+      //! \todo Update push constants here
 
       // Set CMD buffers
-      lRenderSubmit[0].commandBufferCount = static_cast<uint32_t>(lCmdBuffers.pre.size());
-      lRenderSubmit[0].pCommandBuffers    = lCmdBuffers.pre.data();
-      lRenderSubmit[1].commandBufferCount = static_cast<uint32_t>(lCmdBuffers.render.size());
-      lRenderSubmit[1].pCommandBuffers    = lCmdBuffers.render.data();
-      lRenderSubmit[2].commandBufferCount = static_cast<uint32_t>(lCmdBuffers.post.size());
-      lRenderSubmit[2].pCommandBuffers    = lCmdBuffers.post.data();
+      lRenderSubmit[0].commandBufferCount = static_cast<uint32_t>(vCommandBufferRefs.frames[*lNextImg].pre.size());
+      lRenderSubmit[0].pCommandBuffers    = vCommandBufferRefs.frames[*lNextImg].pre.data();
+      lRenderSubmit[1].commandBufferCount = static_cast<uint32_t>(vCommandBufferRefs.frames[*lNextImg].render.size());
+      lRenderSubmit[1].pCommandBuffers    = vCommandBufferRefs.frames[*lNextImg].render.data();
+      lRenderSubmit[2].commandBufferCount = static_cast<uint32_t>(vCommandBufferRefs.frames[*lNextImg].post.size());
+      lRenderSubmit[2].pCommandBuffers    = vCommandBufferRefs.frames[*lNextImg].post.data();
 
       // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  -->  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-      auto lRes = vkQueueSubmit(lQueue, 1, &lRenderSubmit[0], lFences[FENCE_IMG_1]);
+      auto lRes = vkQueueSubmit(vQueue, 1, &lRenderSubmit[0], lFences[FENCE_IMG_1]);
       if (lRes) {
         eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
         break;
       }
 
       // Render
-      lRes = vkQueueSubmit(lQueue, 1, &lRenderSubmit[1], lFences[FENCE_RENDER]);
+      lRes = vkQueueSubmit(vQueue, 1, &lRenderSubmit[1], lFences[FENCE_RENDER]);
       if (lRes) {
         eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
         break;
       }
 
       // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  -->  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-      lRes = vkQueueSubmit(lQueue, 1, &lRenderSubmit[2], lFences[FENCE_IMG_2]);
+      lRes = vkQueueSubmit(vQueue, 1, &lRenderSubmit[2], lFences[FENCE_IMG_2]);
       if (lRes) {
         eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
         break;
@@ -259,29 +210,32 @@ void rRenderLoop::renderLoop() {
 
       lPresentInfo.pSwapchains   = &lTempSc;
       lPresentInfo.pImageIndices = &lImgIndex;
-      lRes                       = vkQueuePresentKHR(lQueue, &lPresentInfo);
+      lRes                       = vkQueuePresentKHR(vQueue, &lPresentInfo);
       if (lRes) {
         eLOG("'vkQueuePresentKHR' returned ", uEnum2Str::toStr(lRes));
-        break;
+        //         break;
       }
 
 
       // Wait until rendering is done
       lFences.wait(FENCE_RENDER, 1);
 
-      // Update Uniforms
-      for (auto const &i : vRenderers)
-        i->updateUniforms();
+      //       // Update Uniforms
+      //       for (auto const &i : vRenderers)
+      //         i->updateUniforms();
 
       lFences.wait(FENCE_IMG_1, 1);
       lFences.wait(FENCE_IMG_2, 1);
 
       lFences.reset();
 
+      lCmdAccessLock.unlock();
+
+
       vWorldPtr->signalRenderdFrame();
       vRenderedFrames++;
     }
-    iLOG("Render loop stopped");
+    iLOG(L"Render loop stopped");
 
 
     //    _____ _
@@ -298,9 +252,6 @@ void rRenderLoop::renderLoop() {
       eLOG("'vkDeviceWaitIdle' returned ", uEnum2Str::toStr(lRes));
     }
 
-    for (auto const &i : vRenderers)
-      i->freeAllCmdBuffers();
-
     // Sync point 3
     std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
 
@@ -314,57 +265,11 @@ void rRenderLoop::renderLoop() {
 
     dRLOG("DONE Waiting for stop render loop signal");
 
-    vStopRenderLoop    = PASSED;
-    vFinishedRecording = false;
+    vStopRenderLoop = PASSED;
     vRenderLoopResponse.notify_all();
   }
 
   iLOG("Stopping render thread");
-}
-
-void rRenderLoop::rebuildCommandBuffersArray(CommandBuffers *_buffers, uint32_t _framebuffer) {
-  for (auto const &i : vRenderers) {
-    i->updatePushConstants(_framebuffer);
-  }
-
-  _buffers->pre.clear();
-  _buffers->render.clear();
-  _buffers->post.clear();
-
-  for (auto const &i : _buffers->pointers) {
-    if (!*i[_framebuffer].enableRendering)
-      continue;
-
-    _buffers->pre.emplace_back(*i[_framebuffer].pre);
-    _buffers->render.emplace_back(*i[_framebuffer].render);
-    _buffers->post.emplace_back(*i[_framebuffer].post);
-  }
-}
-
-/**
- * \brief Initilizes all renderes (if neccessary)
- * \returns The sum of all error codes
- */
-int rRenderLoop::init() {
-  std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
-
-  int errorCode = 0;
-  for (auto const &i : vRenderers)
-    if (!i->getIsInit())
-      errorCode += i->init();
-
-  return errorCode;
-}
-
-/**
- * \brief Destoyes all renderes (if neccessary)
- */
-void rRenderLoop::destroy() {
-  std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
-
-  for (auto const &i : vRenderers)
-    if (i->getIsInit())
-      i->destroy();
 }
 
 /**
@@ -380,35 +285,16 @@ bool rRenderLoop::start() {
     return false;
   }
 
-  dRLOG("Initializing renderers");
-
-  for (auto const &i : vRenderers) {
-    if (!i->getIsInit()) {
-      i->init();
-    }
-  }
-
-
   // Sync point 1
   dRLOG("Start recording");
   vLoopStartCommand = PASS;
+  vRunRenderLoop    = true;
   vRenderLoopControl.notify_all();
 
-  while (!vFinishedRecording || vLoopStartCommand != PASSED)
+  while (vLoopStartCommand != PASSED)
     vRenderLoopResponse.wait_for(lControl, cfg.condWaitTimeout);
 
   vLoopStartCommand = BLOCK; // Reset
-
-  // Sync point 2
-  dRLOG("Sending start render loop");
-  vStartRenderLoop = PASS;
-  vRunRenderLoop   = true;
-
-  vRenderLoopControl.notify_all();
-  while (vStartRenderLoop != PASSED)
-    vRenderLoopResponse.wait_for(lControl, cfg.condWaitTimeout);
-
-  vStartRenderLoop = BLOCK; // Reset
   return true;
 }
 
@@ -439,67 +325,26 @@ bool rRenderLoop::stop() {
   return true;
 }
 
-/*!
- * \brief Sets the clear color for all renderers
- */
-void rRenderLoop::updateGlobalClearColor(VkClearColorValue _clear) {
-  std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
+std::unique_lock<std::mutex> rRenderLoop::getRenderLoopLock() noexcept {
+  std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);
+  dRLOG(L"Telling the render loop to block");
 
-  for (auto const &i : vRenderers) {
-    i->setClearColor(_clear);
-  }
+  vBlockRenderLoop = true;
+  std::unique_lock<std::mutex> lLock(vRenderLoopLockMutex); // Get the mutex first
+
+  vBlockRenderLoop = false;
+  vRenderLoopControl.notify_all(); // Tell the render thread to continue (if required)
+  return lLock;
 }
 
 /*!
- * \brief Ads a renderer to the render loop
- * \note This will restart the render loop
+ * \brief Returns a pointer to the struct storing the command buffers used for rendering
+ *
+ * This function should be used to read / write the command buffers that should be rendered
+ *
+ * \note This function must be extrernally synchronized with getRenderLoopLock()
  */
-void rRenderLoop::addRenderer(std::shared_ptr<rRendererBase> _renderer) {
-  std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
-
-  bool lStartRenderLoop = vRunRenderLoop;
-  if (vRunRenderLoop)
-    stop();
-
-  vRenderers.push_back(_renderer);
-
-  if (lStartRenderLoop)
-    start();
-}
-
-/*!
- * \brief Removes a renderer to the render loop
- * \note This will restart the render loop
- */
-void rRenderLoop::removeRenderer(std::shared_ptr<rRendererBase> _renderer) {
-  std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
-
-  bool lStartRenderLoop = vRunRenderLoop;
-  if (vRunRenderLoop)
-    stop();
-
-  vRenderers.erase(std::remove(vRenderers.begin(), vRenderers.end(), _renderer), vRenderers.end());
-
-  if (lStartRenderLoop)
-    start();
-}
-
-/*!
- * \brief Removes all renderers from the render loop
- * \note This will restart the render loop
- */
-void rRenderLoop::clearRenderers() {
-  std::lock_guard<std::recursive_mutex> lGuard(vLoopAccessMutex);
-
-  bool lStartRenderLoop = vRunRenderLoop;
-  if (vRunRenderLoop)
-    stop();
-
-  vRenderers.clear();
-
-  if (lStartRenderLoop)
-    start();
-}
+internal::CommandBufferReferences *rRenderLoop::getCommandBufferReferences() noexcept { return &vCommandBufferRefs; }
 
 uint64_t *rRenderLoop::getRenderedFramesPtr() { return &vRenderedFrames; }
 bool      rRenderLoop::getIsRunning() const { return vRunRenderLoop; }

@@ -83,7 +83,7 @@ rRendererBase::rRendererBase(rWorld *_root, std::wstring _id) : vID(_id), vWorld
 
 rRendererBase::~rRendererBase() {}
 
-int rRendererBase::init() {
+int rRendererBase::init(vkuCommandPool *_pool) {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
   if (vIsSetup)
@@ -109,6 +109,8 @@ int rRendererBase::init() {
   if (initRenderer(lViews, lSwapChain->getFormat()))
     return 2;
 
+  initAllCmdBuffers(_pool);
+
   if (!initRendererData())
     return 4;
 
@@ -132,6 +134,9 @@ void rRendererBase::destroy() {
 
   dVkLOG("  -- freeing old renderer data [renderer ", vID, "]");
   freeRendererData();
+
+  dVkLOG("  -- destroying old command buffers [renderer ", vID, "]");
+  freeAllCmdBuffers();
 
   dVkLOG("  -- destroying old renderpass [renderer ", vID, "]");
   destroyRenderer();

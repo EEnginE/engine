@@ -141,6 +141,16 @@ bool rPipeline::create(VkDevice _device, VkRenderPass _renderPass, uint32_t _sub
     return false;
   }
 
+  if (!_renderPass) {
+    eLOG(L"The Render pass must not be VK_NULL_HANDLE");
+    return false;
+  }
+
+  if (!_device) {
+    eLOG(L"The device must not be VK_NULL_HANDLE");
+    return false;
+  }
+
   vDevice_vk = _device;
 
   std::vector<VkDynamicState> lDynStates;

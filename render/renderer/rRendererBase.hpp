@@ -99,10 +99,6 @@ class rRendererBase {
   void initAllCmdBuffers(vkuCommandPool *_pool);
   void freeAllCmdBuffers();
 
-  void           updateRenderer();
-  void           updatePushConstants(uint32_t _framebuffer);
-  CommandBuffers getCommandBuffers(uint32_t _framebuffer);
-
  protected:
   enum PREDEFINED_ATTACHMENT_INDEXES { FRAMEBUFFER_ATTACHMENT_INDEX = 0, FIRST_FREE_ATTACHMENT_INDEX };
 
@@ -143,7 +139,7 @@ class rRendererBase {
   bool addObject(std::shared_ptr<rObjectBase> _obj);
   bool resetObjects();
 
-  int  init();
+  int  init(vkuCommandPool *_pool);
   void destroy();
 
   void disableRendering();
@@ -158,6 +154,8 @@ class rRendererBase {
 
   uint32_t getNumFramebuffers() const;
 
-  friend class ::e_engine::rRenderLoop;
+  void           updateRenderer();
+  void           updatePushConstants(uint32_t _framebuffer);
+  CommandBuffers getCommandBuffers(uint32_t _framebuffer);
 };
 } // namespace e_engine

@@ -40,24 +40,25 @@ class vkuSwapChain final {
 
    private:
     LOCK     vLock;
-    uint64_t vImg;
+    uint32_t vImg;
+    VkResult vRes;
 
    public:
     LockAndResult() = delete;
-    LockAndResult(LOCK _l, uint64_t _img) : vLock(std::move(_l)), vImg(_img) {}
-    LockAndResult(LOCK _l, VkResult _res) : vLock(std::move(_l)), vImg(static_cast<uint64_t>(_res) + UINT32_MAX) {}
+    LockAndResult(LOCK _l, uint64_t _img) : vLock(std::move(_l)), vImg(_img), vRes(VK_SUCCESS) {}
+    LockAndResult(LOCK _l, VkResult _res) : vLock(std::move(_l)), vImg(UINT32_MAX), vRes(_res) {}
 
     LockAndResult(LockAndResult const &) = delete;
     LockAndResult(LockAndResult &&)      = default;
     LockAndResult &operator=(const LockAndResult &) = delete;
     LockAndResult &operator=(LockAndResult &&) = default;
 
-    inline uint32_t getNextImage() const noexcept { return static_cast<uint32_t>(vImg); }
-    inline VkResult getError() const noexcept { return static_cast<VkResult>((*this) ? 0 : vImg - UINT32_MAX); }
-    inline uint32_t operator*() const noexcept { return static_cast<uint32_t>(vImg); }
+    inline uint32_t getNextImage() const noexcept { return vImg; }
+    inline VkResult getError() const noexcept { return vRes; }
+    inline uint32_t operator*() const noexcept { return vImg; }
 
-    inline bool operator!() const noexcept { return vImg >= UINT32_MAX; }
-    inline explicit operator bool() const noexcept { return vImg < UINT32_MAX; }
+    inline bool operator!() const noexcept { return vRes != VK_SUCCESS; }
+    inline explicit operator bool() const noexcept { return vRes == VK_SUCCESS; }
   };
 
  private:

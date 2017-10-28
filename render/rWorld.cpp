@@ -36,12 +36,7 @@
 namespace e_engine {
 
 void rWorld::handleResize(iEventInfo const &) {
-  bool lWasRunning = vRenderLoop.getIsRunning();
-
-  init(); // Will stop the render loop
-
-  if (lWasRunning)
-    vRenderLoop.start();
+  init(); // Will reset the swapchain and update the renderers
 }
 
 /*!
@@ -86,23 +81,25 @@ int rWorld::init() {
     return -100;
 
   std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
-  if (vRenderLoop.getIsRunning()) {
-    vRenderLoop.stop();
-  }
-  vRenderLoop.destroy();
+  auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
+  iLOG(L"(Re)initializing renderers");
+
+  destroyRenderers();
 
   vSurface_vk = vInitPtr->getVulkanSurface();
 
   if (!vSwapChain.init(vDevice, vSurface_vk))
     return 1;
 
-  vRenderLoop.init();
+  initRenderers();
+  rebuildRenderLoopCommandBuffers();
 
   if (!vIsResizeSlotSetup)
     vInitPtr->addResizeSlot(&vResizeSlot);
 
   vIsResizeSlotSetup = true;
   vIsSetup           = true;
+  iLOG(L"Done (re)initializing renderers");
   return 0;
 }
 
@@ -110,6 +107,7 @@ int rWorld::init() {
  * \brief Stops all render loops
  */
 void rWorld::shutdown() {
+  std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
   if (!vIsSetup || !vInitPtr->getIsSetup())
     return;
 
@@ -117,10 +115,89 @@ void rWorld::shutdown() {
     vRenderLoop.stop();
 
   dVkLOG("Vulkan cleanup [rWorld]:");
-  vRenderLoop.destroy();
+  destroyRenderers();
   vSwapChain.destroy();
 
   vIsSetup = false;
+}
+
+/*!
+ * \brief Recrecords command buffers and writes them to the renderloop
+ */
+void rWorld::rebuildRenderers() {
+  std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
+  auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
+  rebuildRenderLoopCommandBuffers();
+}
+
+
+/*!
+ * \brief Non thread safe private implementation of rebuildRenderers
+ * \note Requires external synchronisation with the Render Loop Lock
+ */
+void rWorld::rebuildRenderLoopCommandBuffers() {
+  auto *lBufferRef = vRenderLoop.getCommandBufferReferences();
+
+  for (auto const &i : vRenderers) {
+    if (!i->getIsInit()) {
+      continue;
+    }
+
+    i->updateRenderer();
+  }
+
+  lBufferRef->frames.resize(vSwapChain.getNumImages());
+
+  for (uint32_t i = 0; i < vSwapChain.getNumImages(); ++i) {
+    lBufferRef->frames[i].pre.clear();
+    lBufferRef->frames[i].render.clear();
+    lBufferRef->frames[i].post.clear();
+
+    for (auto &j : vRenderers) {
+      if (!j->getIsInit()) {
+        continue;
+      }
+
+      if (!j->getIsRenderingEnabled())
+        continue;
+
+      auto lBuff = j->getCommandBuffers(i);
+
+      lBufferRef->frames[i].pre.emplace_back(*lBuff.pre);
+      lBufferRef->frames[i].render.emplace_back(*lBuff.render);
+      lBufferRef->frames[i].post.emplace_back(*lBuff.post);
+    }
+  }
+}
+
+
+/**
+ * \brief Initilizes all renderes (if neccessary)
+ * \returns The sum of all error codes
+ * \note Requires external synchronisation with the Render Loop Lock
+ */
+int rWorld::initRenderers() {
+  vkuCommandPool *lPool     = vkuCommandPoolManager::get(vDevice_vk, vRenderLoop.getQueueFamilyIndex());
+  int             errorCode = 0;
+  for (auto const &i : vRenderers)
+    if (!i->getIsInit())
+      errorCode += i->init(lPool);
+
+  rebuildRenderLoopCommandBuffers();
+
+  return errorCode;
+}
+
+/**
+ * \brief Destoyes all renderes (if neccessary)
+ * \note Requires external synchronisation with the Render Loop Lock
+ */
+void rWorld::destroyRenderers() {
+  for (auto const &i : vRenderers)
+    if (i->getIsInit())
+      i->destroy();
+
+  rebuildRenderLoopCommandBuffers();
 }
 
 /*!
@@ -217,6 +294,40 @@ void rWorld::cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
   vkCmdPipelineBarrier(_cmdBuffer, _srcFlags, _dstFlags, 0, 0, nullptr, 0, nullptr, 1, &lBarriar);
 }
 
+/*!
+ * \brief Ads a renderer to the render loop
+ * \note This will NOT initialize the renderer
+ */
+void rWorld::addRenderer(std::shared_ptr<rRendererBase> _renderer) {
+  std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
+  auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
+
+  vRenderers.push_back(_renderer);
+  rebuildRenderLoopCommandBuffers();
+}
+
+/*!
+ * \brief Removes a renderer to the render loop
+ */
+void rWorld::removeRenderer(std::shared_ptr<rRendererBase> _renderer) {
+  std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
+  auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
+
+  vRenderers.erase(std::remove(vRenderers.begin(), vRenderers.end(), _renderer), vRenderers.end());
+  rebuildRenderLoopCommandBuffers();
+}
+
+/*!
+ * \brief Removes all renderers from the render loop
+ */
+void rWorld::clearRenderers() {
+  std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
+  auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
+
+  vRenderers.clear();
+  rebuildRenderLoopCommandBuffers();
+}
+
 void rWorld::updateViewPort(int _x, int _y, int _width, int _height) {
   vViewPort.vNeedUpdate_B = true;
   vViewPort.x             = _x;
@@ -231,7 +342,10 @@ void rWorld::updateViewPort(int _x, int _y, int _width, int _height) {
  */
 void rWorld::updateClearColor(float _r, float _g, float _b, float _a) {
   VkClearColorValue lClear = {{_r, _g, _b, _a}};
-  vRenderLoop.updateGlobalClearColor(lClear);
+
+  for (auto const &i : vRenderers) {
+    i->setClearColor(lClear);
+  }
 }
 
 /*!

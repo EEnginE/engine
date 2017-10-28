@@ -78,6 +78,8 @@ class rWorld {
   VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
   VkSurfaceKHR vSurface_vk;
 
+  std::vector<std::shared_ptr<rRendererBase>> vRenderers;
+
   vkuSwapChain vSwapChain;
 
   ViewPort   vViewPort;
@@ -95,9 +97,19 @@ class rWorld {
   bool vIsResizeSlotSetup = false;
   bool vIsSetup           = false;
 
+  int  initRenderers();
+  void destroyRenderers();
+  void rebuildRenderLoopCommandBuffers();
+
   void handleResize(iEventInfo const &);
 
-  inline void signalRenderdFrame() { vRenderedFrameSignal.notify_all(); }
+  inline void signalRenderdFrame() {
+    // Update Uniforms
+    for (auto const &i : vRenderers)
+      i->updateUniforms();
+
+    vRenderedFrameSignal.notify_all();
+  }
 
  public:
   rWorld() = delete;
@@ -106,10 +118,14 @@ class rWorld {
 
   int  init();
   void shutdown();
+  void rebuildRenderers();
 
   bool isSetup() { return vIsSetup; }
   bool waitForFrame(std::mutex &_mutex);
 
+  void addRenderer(std::shared_ptr<rRendererBase> _renderer);
+  void removeRenderer(std::shared_ptr<rRendererBase> _renderer);
+  void clearRenderers();
 
   // Begin Low level Vulkan section
   void cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
@@ -128,7 +144,7 @@ class rWorld {
   rRenderLoop * getRenderLoop();
   vkuSwapChain *getSwapChain();
 
-  friend class rRenderLoop;
   friend class rRendererBase;
+  friend class rRenderLoop; //!< \todo get rid of this
 };
 } // namespace e_engine

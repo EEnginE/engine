@@ -33,50 +33,57 @@ namespace e_engine {
 
 class rWorld;
 
-class rRenderLoop {
- public:
-  typedef struct CommandBuffers {
+namespace internal {
+
+struct CommandBufferReferences {
+  struct CommandBuffers {
     std::vector<VkCommandBuffer> pre;
     std::vector<VkCommandBuffer> render;
     std::vector<VkCommandBuffer> post;
+  };
 
-    std::vector<std::vector<rRendererBase::CommandBuffers>> pointers;
-  } CommandBuffers;
+  std::vector<CommandBuffers> frames;
+};
 
+} // namespace internal
+
+class rRenderLoop {
+ public:
   enum LoopCommand { BLOCK, PASS, PASSED };
 
 
  private:
-  static uint64_t vRenderedFrames;
+  static uint64_t                   vRenderedFrames;
+  internal::CommandBufferReferences vCommandBufferRefs;
 
   rWorld *vWorldPtr;
 
   VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
   vkuDevicePTR vDevice;
 
-  std::vector<std::shared_ptr<rRendererBase>> vRenderers;
+  bool vRunRenderLoop   = false;
+  bool vRunRenderThread = true;
+  bool vBlockRenderLoop = false;
 
-  bool vRunRenderLoop     = false;
-  bool vRunRenderThread   = true;
-  bool vFinishedRecording = false;
+  VkQueue  vQueue            = VK_NULL_HANDLE;
+  uint32_t vQueueFamilyIndex = 0;
 
   std::thread vRenderThread;
 
   std::recursive_mutex vLoopAccessMutex;
   std::mutex           vRenderLoopControlMutex;
+  std::mutex           vRenderLoopLockMutex;
 
   std::condition_variable vRenderLoopControl;
   std::condition_variable vRenderLoopResponse;
 
   LoopCommand vLoopStartCommand = BLOCK;
-  LoopCommand vStartRenderLoop  = BLOCK;
   LoopCommand vStopRenderLoop   = BLOCK;
 
   struct Config {
     std::chrono::milliseconds condWaitTimeout = std::chrono::milliseconds(100);
   } cfg;
 
-  void rebuildCommandBuffersArray(CommandBuffers *_buffers, uint32_t _framebuffer);
   void renderLoop();
 
  public:
@@ -88,19 +95,15 @@ class rRenderLoop {
   rRenderLoop &operator=(rRenderLoop &&) = delete;
   virtual ~rRenderLoop();
 
-  int  init();
-  void destroy();
-
   bool start();
   bool stop();
   bool getIsRunning() const;
 
-  void addRenderer(std::shared_ptr<rRendererBase> _renderer);
-  void removeRenderer(std::shared_ptr<rRendererBase> _renderer);
-  void clearRenderers();
+  uint64_t *      getRenderedFramesPtr();
+  inline uint32_t getQueueFamilyIndex() const noexcept { return vQueueFamilyIndex; }
 
-  void updateGlobalClearColor(VkClearColorValue _clear);
-
-  uint64_t *getRenderedFramesPtr();
+  internal::CommandBufferReferences *getCommandBufferReferences() noexcept;
+  std::unique_lock<std::mutex>       getRenderLoopLock() noexcept;
 };
+
 } // namespace e_engine

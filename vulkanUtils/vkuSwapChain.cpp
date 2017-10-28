@@ -363,8 +363,8 @@ vkuSwapChain::LockAndResult vkuSwapChain::acquireNextImage(VkSemaphore _semaphor
 
   auto lRes = vkAcquireNextImageKHR(**vDevice, vSwapChain, _timeout, _semaphore, _fence, &lNextImg);
   if (lRes != VK_SUCCESS) {
-    eLOG(L"Failed to acquire next swap chain image: vkAcquireNextImageKHR returned", uEnum2Str::toStr(lRes));
-    return LockAndResult(std::move(lLock), static_cast<uint64_t>(lRes) + UINT32_MAX);
+    eLOG(L"Failed to acquire next swap chain image:\nvkAcquireNextImageKHR returned: ", uEnum2Str::toStr(lRes));
+    return {std::move(lLock), lRes};
   }
 
   return LockAndResult(std::move(lLock), lNextImg);
