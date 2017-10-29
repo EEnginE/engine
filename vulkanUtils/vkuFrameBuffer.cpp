@@ -41,6 +41,8 @@ vkuFrameBuffer::vkuFrameBuffer(vkuFrameBuffer &&_old) {
 }
 
 vkuFrameBuffer &vkuFrameBuffer::operator=(vkuFrameBuffer &&_old) {
+  destroy(); // Destroy old framebuffer
+
   vFrameBuffer  = _old.vFrameBuffer;
   vRenderPass   = _old.vRenderPass;
   vDevice       = _old.vDevice;
@@ -109,42 +111,7 @@ VkResult vkuFrameBuffer::reCreateFrameBuffers(vkuFrameBuffer::Config _cfg) {
       continue;
     }
 
-    if (!vAttachments[i.attachmentID].imageCfg.useExternalImageView) {
-      wLOG(L"External views not supported for attachment ", i.attachmentID);
-      continue;
-    }
-
     lImageViews[i.attachmentID] = i.view;
-  }
-
-  for (size_t i = 0; i < vAttachments.size(); ++i) {
-    auto &conf = vAttachments[i];
-
-    if (conf.imageCfg.useExternalImageView)
-      continue;
-
-    vkuImageBuffer &buff   = *vImageBuffers.emplace(vDevice);
-    buff->type             = conf.bufferCreateCfg.type;
-    buff->format           = conf.desc.format;
-    buff->extent           = _cfg.size;
-    buff->mipLevels        = conf.bufferCreateCfg.mipLevels;
-    buff->arrayLayers      = conf.bufferCreateCfg.arrayLayers;
-    buff->samples          = conf.desc.samples;
-    buff->tiling           = conf.bufferCreateCfg.tiling;
-    buff->usage            = conf.bufferCreateCfg.usage;
-    buff->initialLayout    = conf.desc.initialLayout;
-    buff->sharingMode      = conf.bufferCreateCfg.sharingMode;
-    buff->subresourceRange = conf.bufferCreateCfg.subresourceRange;
-    buff->components       = conf.bufferCreateCfg.components;
-    buff->imageCreateFlags = conf.bufferCreateCfg.imageCreateFlags;
-
-    if (buff.init() != VK_SUCCESS) {
-      eLOG(L"Failed to create image buffer --> can not create framebuffer");
-      vImageBuffers.clear();
-      return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    lImageViews[i] = *buff;
   }
 
   for (auto i : lImageViews) {
@@ -175,8 +142,6 @@ VkResult vkuFrameBuffer::reCreateFrameBuffers(vkuFrameBuffer::Config _cfg) {
 
   return lRes;
 }
-
-
 
 void vkuFrameBuffer::destroy() {
   if (!isCreated())

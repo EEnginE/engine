@@ -25,9 +25,16 @@ namespace e_engine {
 
 class vkuSwapChain final {
   struct Config {
-    bool     preferMailBoxPresetMode      = true;
-    bool     prefereNonTearingPresentMode = true;
-    VkFormat preferedSurfaceFormat        = VK_FORMAT_B8G8R8A8_UNORM;
+    bool                    preferMailBoxPresetMode      = true;
+    bool                    prefereNonTearingPresentMode = true;
+    VkFormat                preferedSurfaceFormat        = VK_FORMAT_B8G8R8A8_UNORM;
+    VkImageSubresourceRange subResRange                  = {
+        VK_IMAGE_ASPECT_COLOR_BIT, // aspectMask
+        0,                         // baseMipLevel
+        1,                         // levelCount
+        0,                         // baseArrayLayer
+        1                          // layerCount
+    };
   };
 
   struct SwapChainImg {
@@ -57,7 +64,7 @@ class vkuSwapChain final {
     inline VkResult getError() const noexcept { return vRes; }
     inline uint32_t operator*() const noexcept { return vImg; }
 
-    inline bool operator!() const noexcept { return vRes != VK_SUCCESS; }
+    inline bool     operator!() const noexcept { return vRes != VK_SUCCESS; }
     inline explicit operator bool() const noexcept { return vRes == VK_SUCCESS; }
   };
 
@@ -85,7 +92,7 @@ class vkuSwapChain final {
   vkuSwapChain &operator=(vkuSwapChain &&) = delete;
 
   LockAndResult init(vkuDevicePTR _device, VkSurfaceKHR _surface);
-  void destroy();
+  void          destroy();
 
   LockAndResult acquireNextImage(VkSemaphore _semaphore = VK_NULL_HANDLE,
                                  VkFence     _fence     = VK_NULL_HANDLE,
@@ -97,12 +104,14 @@ class vkuSwapChain final {
   inline Config             getConfig() const noexcept { return cfg; }
   inline bool               isCreated() const noexcept { return vSwapChain != VK_NULL_HANDLE; }
 
-  inline uint32_t getNumImages() const noexcept { return static_cast<uint32_t>(vSwapchainImages.size()); }
-  std::vector<vkuSwapChain::SwapChainImg> getImages() const noexcept;
+  inline uint32_t           getNumImages() const noexcept { return static_cast<uint32_t>(vSwapchainImages.size()); }
+  inline SwapChainImg       getImage(uint32_t i) const noexcept { return {vSwapchainImages[i], vSwapchainViews[i]}; }
+  inline SwapChainImg       operator[](uint32_t i) const noexcept { return {vSwapchainImages[i], vSwapchainViews[i]}; }
+  std::vector<SwapChainImg> getImages() const noexcept;
 
   inline VkSwapchainKHR operator*() const noexcept { return vSwapChain; }
 
-  inline bool operator!() const noexcept { return !isCreated(); }
+  inline bool     operator!() const noexcept { return !isCreated(); }
   inline explicit operator bool() const noexcept { return isCreated(); }
 };
-}
+} // namespace e_engine

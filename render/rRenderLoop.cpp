@@ -25,6 +25,7 @@
 #include "uLog.hpp"
 #include "vkuCommandPoolManager.hpp"
 #include "vkuFence.hpp"
+#include "vkuImageBuffer.hpp"
 #include "vkuSemaphore.hpp"
 #include "iInit.hpp"
 #include "rPipeline.hpp"
@@ -45,13 +46,35 @@
 
 namespace e_engine {
 
-uint64_t rRenderLoop::vRenderedFrames = 0;
+struct PresentImageLayoutChange {
+  struct Info {
+    VkSubmitInfo         submitInfo;
+    vkuCommandBuffer     cmdBuffer;
+    VkImageMemoryBarrier barrier;
+  };
+
+  std::array<Info, 2>  infos;
+  VkPipelineStageFlags lSubmitWaitFlags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+};
+
+enum class Semaphores : uint32_t { ACQUIRE = 0, PRESENT, NUM };
+enum class Fences : uint32_t { RENDER = 0, IMG1, IMG2, NUM };
+
+typedef vkuSemaphores<static_cast<uint32_t>(Semaphores::NUM)> LoopSemaphores;
+typedef vkuFences<static_cast<uint32_t>(Fences::NUM)>         LoopFences;
+
+std::vector<PresentImageLayoutChange> rebuildPresentInfo(vkuCommandPool *_pool,
+                                                         vkuSwapChain *  _swapChain,
+                                                         LoopSemaphores &_semaphores,
+                                                         uint32_t        _renderQueue,
+                                                         uint32_t        _presetnQueue);
 
 rRenderLoop::rRenderLoop(rWorld *_root) : vWorldPtr(_root) {
   vRenderThread = std::thread(&rRenderLoop::renderLoop, this);
   vDevice       = vWorldPtr->getDevice();
   vDevice_vk    = **vDevice;
-  vQueue        = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &vQueueFamilyIndex);
+  vQueue        = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &vQueueIndex);
+  vPresentQueue = vDevice->getQueue(0, 0.25, &vPresentQueueIndex, true);
 }
 
 rRenderLoop::~rRenderLoop() {
@@ -62,6 +85,71 @@ rRenderLoop::~rRenderLoop() {
 
   if (vRenderThread.joinable())
     vRenderThread.join();
+}
+
+std::vector<PresentImageLayoutChange> rebuildPresentInfo(vkuCommandPool *_pool,
+                                                         vkuSwapChain *  _swapChain,
+                                                         LoopSemaphores &_semaphores,
+                                                         uint32_t        _renderQueue,
+                                                         uint32_t        _presetnQueue) {
+  std::vector<PresentImageLayoutChange> lPresentInfo;
+  auto                                  lImages  = _swapChain->getImages();
+  auto                                  lSwapCfg = _swapChain->getConfig();
+  lPresentInfo.resize(lImages.size());
+
+  for (uint32_t i = 0; i < lImages.size(); ++i) {
+    PresentImageLayoutChange::Info &acquire = lPresentInfo[i].infos[static_cast<uint32_t>(Semaphores::ACQUIRE)];
+    PresentImageLayoutChange::Info &present = lPresentInfo[i].infos[static_cast<uint32_t>(Semaphores::PRESENT)];
+
+    acquire.cmdBuffer.init(_pool);
+    present.cmdBuffer.init(_pool);
+
+    acquire.barrier = vkuImageBuffer::generateLayoutChangeBarrier(lImages[i].img,
+                                                                  lSwapCfg.subResRange,
+                                                                  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                                                  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                                  _presetnQueue,
+                                                                  _renderQueue);
+
+    present.barrier = vkuImageBuffer::generateLayoutChangeBarrier(lImages[i].img,
+                                                                  lSwapCfg.subResRange,
+                                                                  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                                  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                                                  _renderQueue,
+                                                                  _presetnQueue);
+
+    VkPipelineStageFlags lFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+    acquire.cmdBuffer.begin();
+    vkCmdPipelineBarrier(*acquire.cmdBuffer, lFlags, lFlags, 0, 0, nullptr, 0, nullptr, 1, &acquire.barrier);
+    acquire.cmdBuffer.end();
+
+    present.cmdBuffer.begin();
+    vkCmdPipelineBarrier(*present.cmdBuffer, lFlags, lFlags, 0, 0, nullptr, 0, nullptr, 1, &present.barrier);
+    present.cmdBuffer.end();
+
+    acquire.submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    acquire.submitInfo.pNext                = nullptr;
+    acquire.submitInfo.waitSemaphoreCount   = 1;
+    acquire.submitInfo.pWaitSemaphores      = &_semaphores[static_cast<uint32_t>(Semaphores::ACQUIRE)];
+    acquire.submitInfo.pWaitDstStageMask    = &lPresentInfo[i].lSubmitWaitFlags;
+    acquire.submitInfo.commandBufferCount   = 1;
+    acquire.submitInfo.pCommandBuffers      = &acquire.cmdBuffer.get();
+    acquire.submitInfo.signalSemaphoreCount = 0;
+    acquire.submitInfo.pSignalSemaphores    = nullptr;
+
+    present.submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    present.submitInfo.pNext                = nullptr;
+    present.submitInfo.waitSemaphoreCount   = 0;
+    present.submitInfo.pWaitSemaphores      = nullptr;
+    present.submitInfo.pWaitDstStageMask    = nullptr;
+    present.submitInfo.commandBufferCount   = 1;
+    present.submitInfo.pCommandBuffers      = &present.cmdBuffer.get();
+    present.submitInfo.signalSemaphoreCount = 1;
+    present.submitInfo.pSignalSemaphores    = &_semaphores[static_cast<uint32_t>(Semaphores::PRESENT)];
+  }
+
+  return lPresentInfo;
 }
 
 void rRenderLoop::renderLoop() {
@@ -96,46 +184,29 @@ void rRenderLoop::renderLoop() {
     //    \___/_| |_|_|\__|
     //
 
-    const static uint32_t NUM_FENCES   = 3;
-    const static uint32_t FENCE_RENDER = 0;
-    const static uint32_t FENCE_IMG_1  = 1;
-    const static uint32_t FENCE_IMG_2  = 2;
+    vkuSwapChain *  lSwapchain = vWorldPtr->getSwapChain();
+    LoopFences      lFences(vDevice_vk);
+    LoopSemaphores  lSemaphores(vDevice_vk);
+    vkuCommandPool *lPool = vkuCommandPoolManager::get(vDevice_vk, vQueueIndex);
 
-    const static uint32_t NUM_SEMAPHORES = 2;
-    const static uint32_t SEM_PRESENT    = 0;
-    const static uint32_t SEM_ACQUIRE    = 1;
+    std::vector<PresentImageLayoutChange> lLayoutChangeSubmitInfo;
 
-    vkuSwapChain *                lSwapchain = vWorldPtr->getSwapChain();
-    vkuFences<NUM_FENCES>         lFences(vDevice_vk);
-    vkuSemaphores<NUM_SEMAPHORES> lSemaphores(vDevice_vk);
-
-    VkPipelineStageFlags lSubmitWaitFlags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
-    VkSubmitInfo lRenderSubmit[3];
-    lRenderSubmit[0].sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    lRenderSubmit[0].pNext                = nullptr;
-    lRenderSubmit[0].waitSemaphoreCount   = 0;
-    lRenderSubmit[0].pWaitSemaphores      = nullptr;
-    lRenderSubmit[0].pWaitDstStageMask    = nullptr;
-    lRenderSubmit[0].commandBufferCount   = 0;
-    lRenderSubmit[0].pCommandBuffers      = nullptr; // set in render loop
-    lRenderSubmit[0].signalSemaphoreCount = 0;
-    lRenderSubmit[0].pSignalSemaphores    = nullptr;
-
-    lRenderSubmit[1] = lRenderSubmit[0];
-    lRenderSubmit[2] = lRenderSubmit[0];
-
-    lRenderSubmit[0].waitSemaphoreCount   = 1;
-    lRenderSubmit[0].pWaitSemaphores      = &lSemaphores[SEM_ACQUIRE];
-    lRenderSubmit[0].pWaitDstStageMask    = &lSubmitWaitFlags;
-    lRenderSubmit[2].signalSemaphoreCount = 1;
-    lRenderSubmit[2].pSignalSemaphores    = &lSemaphores[SEM_PRESENT];
+    VkSubmitInfo lRenderSubmit;
+    lRenderSubmit.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    lRenderSubmit.pNext                = nullptr;
+    lRenderSubmit.waitSemaphoreCount   = 0;
+    lRenderSubmit.pWaitSemaphores      = nullptr;
+    lRenderSubmit.pWaitDstStageMask    = nullptr;
+    lRenderSubmit.commandBufferCount   = 0;
+    lRenderSubmit.pCommandBuffers      = nullptr; // set in render loop
+    lRenderSubmit.signalSemaphoreCount = 0;
+    lRenderSubmit.pSignalSemaphores    = nullptr;
 
     VkPresentInfoKHR lPresentInfo   = {};
     lPresentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     lPresentInfo.pNext              = nullptr;
     lPresentInfo.waitSemaphoreCount = 1;
-    lPresentInfo.pWaitSemaphores    = &lSemaphores[SEM_PRESENT];
+    lPresentInfo.pWaitSemaphores    = &lSemaphores[static_cast<uint32_t>(Semaphores::PRESENT)];
     lPresentInfo.swapchainCount     = 1;
     lPresentInfo.pSwapchains        = nullptr;
     lPresentInfo.pImageIndices      = nullptr; // set in render loop
@@ -167,50 +238,65 @@ void rRenderLoop::renderLoop() {
       std::unique_lock<std::mutex> lCmdAccessLock(vRenderLoopLockMutex);
 
       // Get present image (this command blocks)
-      auto lNextImg = lSwapchain->acquireNextImage(lSemaphores[SEM_ACQUIRE]);
+      auto lNextImg = lSwapchain->acquireNextImage(lSemaphores[static_cast<uint32_t>(Semaphores::ACQUIRE)]);
 
       if (!lNextImg) {
         eLOG(L"'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr(lNextImg.getError()));
         continue;
       }
 
+      // Check if the layout chang info is up to data
+      if (lLayoutChangeSubmitInfo.size() != lSwapchain->getNumImages() ||
+          lLayoutChangeSubmitInfo[*lNextImg].infos[0].barrier.image != lSwapchain->getImage(*lNextImg).img) {
+
+        dVkLOG(L"Resetting present layout change structures");
+        lLayoutChangeSubmitInfo = rebuildPresentInfo(lPool, lSwapchain, lSemaphores, vQueueIndex, vPresentQueueIndex);
+      }
+
+      auto &lLayoutAcquire = lLayoutChangeSubmitInfo[*lNextImg].infos[static_cast<uint32_t>(Semaphores::ACQUIRE)];
+      auto &lLayoutPresent = lLayoutChangeSubmitInfo[*lNextImg].infos[static_cast<uint32_t>(Semaphores::PRESENT)];
+
+
       //! \todo Update push constants here
 
+
       // Set CMD buffers
-      lRenderSubmit[0].commandBufferCount = static_cast<uint32_t>(vCommandBufferRefs.frames[*lNextImg].pre.size());
-      lRenderSubmit[0].pCommandBuffers    = vCommandBufferRefs.frames[*lNextImg].pre.data();
-      lRenderSubmit[1].commandBufferCount = static_cast<uint32_t>(vCommandBufferRefs.frames[*lNextImg].render.size());
-      lRenderSubmit[1].pCommandBuffers    = vCommandBufferRefs.frames[*lNextImg].render.data();
-      lRenderSubmit[2].commandBufferCount = static_cast<uint32_t>(vCommandBufferRefs.frames[*lNextImg].post.size());
-      lRenderSubmit[2].pCommandBuffers    = vCommandBufferRefs.frames[*lNextImg].post.data();
+      lRenderSubmit.commandBufferCount = static_cast<uint32_t>(vCommandBufferRefs.frames[*lNextImg].render.size());
+      lRenderSubmit.pCommandBuffers    = vCommandBufferRefs.frames[*lNextImg].render.data();
+
+
+
+      // Render everything here
 
       // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  -->  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-      auto lRes = vkQueueSubmit(vQueue, 1, &lRenderSubmit[0], lFences[FENCE_IMG_1]);
+      auto lRes = vkQueueSubmit(vQueue, 1, &lLayoutAcquire.submitInfo, lFences[static_cast<uint32_t>(Fences::IMG1)]);
       if (lRes) {
         eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
         break;
       }
 
       // Render
-      lRes = vkQueueSubmit(vQueue, 1, &lRenderSubmit[1], lFences[FENCE_RENDER]);
+      lRes = vkQueueSubmit(vQueue, 1, &lRenderSubmit, lFences[static_cast<uint32_t>(Fences::RENDER)]);
       if (lRes) {
         eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
         break;
       }
 
       // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  -->  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-      lRes = vkQueueSubmit(vQueue, 1, &lRenderSubmit[2], lFences[FENCE_IMG_2]);
+      lRes = vkQueueSubmit(vQueue, 1, &lLayoutPresent.submitInfo, lFences[static_cast<uint32_t>(Fences::IMG2)]);
       if (lRes) {
         eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
         break;
       }
+
+
 
       VkSwapchainKHR lTempSc   = **lSwapchain;
       uint32_t       lImgIndex = *lNextImg;
 
       lPresentInfo.pSwapchains   = &lTempSc;
       lPresentInfo.pImageIndices = &lImgIndex;
-      lRes                       = vkQueuePresentKHR(vQueue, &lPresentInfo);
+      lRes                       = vkQueuePresentKHR(vPresentQueue, &lPresentInfo);
       if (lRes) {
         eLOG("'vkQueuePresentKHR' returned ", uEnum2Str::toStr(lRes));
         //         break;
@@ -218,14 +304,14 @@ void rRenderLoop::renderLoop() {
 
 
       // Wait until rendering is done
-      lFences.wait(FENCE_RENDER, 1);
+      lFences.wait(static_cast<uint32_t>(Fences::RENDER), 1);
 
       //       // Update Uniforms
       //       for (auto const &i : vRenderers)
       //         i->updateUniforms();
 
-      lFences.wait(FENCE_IMG_1, 1);
-      lFences.wait(FENCE_IMG_2, 1);
+      lFences.wait(static_cast<uint32_t>(Fences::IMG1), 1);
+      lFences.wait(static_cast<uint32_t>(Fences::IMG2), 1);
 
       lFences.reset();
 
@@ -246,11 +332,6 @@ void rRenderLoop::renderLoop() {
     //    \____/_|\___|\__,_|_| |_|\__,_| .__/
     //                                  | |
     //                                  |_|
-
-    auto lRes = vkDeviceWaitIdle(vDevice_vk);
-    if (lRes) {
-      eLOG("'vkDeviceWaitIdle' returned ", uEnum2Str::toStr(lRes));
-    }
 
     // Sync point 3
     std::unique_lock<std::mutex> lControl(vRenderLoopControlMutex);

@@ -144,6 +144,25 @@ vkuDevice::vkuDevice(VkPhysicalDevice         _device,
     dLOG(L"      - Size:  ", mem.size);
     dLOG(L"      - Flags: ", uEnum2Str::VkMemoryHeapFlagBits_toStr(mem.flags));
   }
+
+  dLOG(L"  -- Queue Families:");
+  for (uint32_t i = 0; i < vQueueFamilyProperties.size(); ++i) {
+    auto const &queue = vQueueFamilyProperties[i];
+    auto const &min   = queue.minImageTransferGranularity;
+
+    VkBool32 lSupported;
+    lRes = vkGetPhysicalDeviceSurfaceSupportKHR(vPhysicalDevice, i, _surface, &lSupported);
+
+    if (lRes)
+      lSupported = VK_FALSE;
+
+    dLOG(L"    - ID: ", i);
+    dLOG(L"      - queueFlags:                  ", uEnum2Str::VkQueueFlagBits_toStr(queue.queueFlags));
+    dLOG(L"      - queueCount:                  ", queue.queueCount);
+    dLOG(L"      - timestampValidBits:          ", queue.timestampValidBits);
+    dLOG(L"      - minImageTransferGranularity: ", min.width, L"x", min.height, L"x", min.depth);
+    dLOG(L"      - surface support:             ", lSupported == VK_TRUE);
+  }
 #endif
 
   lRes = vkCreateDevice(vPhysicalDevice, &lCreateInfo, nullptr, &vDevice);
@@ -244,12 +263,12 @@ uint32_t vkuDevice::getQueueFamily(VkQueueFlags _flags) {
  *
  * \vkIntern
  */
-VkQueue vkuDevice::getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily) {
+VkQueue vkuDevice::getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily, bool _presentSupport) {
   float   lMinDiff = 100.0f;
   VkQueue lQueue   = nullptr;
 
   for (auto const &i : vQueues) {
-    if (!(i.flags & _flags))
+    if (!((i.flags & _flags) == _flags) || (_presentSupport && i.surfaceSupport == false))
       continue;
 
     auto lTemp = i.priority - _priority;

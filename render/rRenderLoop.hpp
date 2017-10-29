@@ -37,9 +37,7 @@ namespace internal {
 
 struct CommandBufferReferences {
   struct CommandBuffers {
-    std::vector<VkCommandBuffer> pre;
     std::vector<VkCommandBuffer> render;
-    std::vector<VkCommandBuffer> post;
   };
 
   std::vector<CommandBuffers> frames;
@@ -53,7 +51,7 @@ class rRenderLoop {
 
 
  private:
-  static uint64_t                   vRenderedFrames;
+  uint64_t                          vRenderedFrames = 0;
   internal::CommandBufferReferences vCommandBufferRefs;
 
   rWorld *vWorldPtr;
@@ -65,8 +63,10 @@ class rRenderLoop {
   bool vRunRenderThread = true;
   bool vBlockRenderLoop = false;
 
-  VkQueue  vQueue            = VK_NULL_HANDLE;
-  uint32_t vQueueFamilyIndex = 0;
+  VkQueue  vQueue             = VK_NULL_HANDLE;
+  VkQueue  vPresentQueue      = VK_NULL_HANDLE;
+  uint32_t vQueueIndex        = 0;
+  uint32_t vPresentQueueIndex = 0;
 
   std::thread vRenderThread;
 
@@ -100,7 +100,7 @@ class rRenderLoop {
   bool getIsRunning() const;
 
   uint64_t *      getRenderedFramesPtr();
-  inline uint32_t getQueueFamilyIndex() const noexcept { return vQueueFamilyIndex; }
+  inline uint32_t getQueueFamilyIndex() const noexcept { return vQueueIndex; }
 
   internal::CommandBufferReferences *getCommandBufferReferences() noexcept;
   std::unique_lock<std::mutex>       getRenderLoopLock() noexcept;

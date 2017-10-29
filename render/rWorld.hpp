@@ -128,13 +128,6 @@ class rWorld {
   void clearRenderers();
 
   // Begin Low level Vulkan section
-  void cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
-                            VkImage                 _img,
-                            VkImageSubresourceRange _imgSubres,
-                            VkImageLayout           _src,
-                            VkImageLayout           _dst,
-                            VkPipelineStageFlags    _srcFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                            VkPipelineStageFlags    _dstFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
   void          updateViewPort(int _x, int _y, int _width, int _height);
   void          updateClearColor(float _r, float _g, float _b, float _a);

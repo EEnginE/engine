@@ -18,6 +18,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "vkuCommandPool.hpp"
 #include "vkuDevice.hpp"
 #include <vulkan.h>
 
@@ -33,16 +34,17 @@ namespace e_engine {
 class vkuImageBuffer {
  public:
   struct Config {
-    VkImageType             type             = VK_IMAGE_TYPE_2D;
-    VkFormat                format           = VK_FORMAT_UNDEFINED;
-    VkExtent3D              extent           = {0, 0, 0};
-    uint32_t                mipLevels        = 1;
-    uint32_t                arrayLayers      = 1;
-    VkSampleCountFlagBits   samples          = VK_SAMPLE_COUNT_1_BIT;
-    VkImageTiling           tiling           = VK_IMAGE_TILING_OPTIMAL;
-    VkImageUsageFlags       usage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    VkImageLayout           initialLayout    = VK_IMAGE_LAYOUT_UNDEFINED;
-    VkSharingMode           sharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+    VkImageType             type          = VK_IMAGE_TYPE_2D;
+    VkFormat                format        = VK_FORMAT_UNDEFINED;
+    VkExtent3D              extent        = {0, 0, 0};
+    uint32_t                mipLevels     = 1;
+    uint32_t                arrayLayers   = 1;
+    VkSampleCountFlagBits   samples       = VK_SAMPLE_COUNT_1_BIT;
+    VkImageTiling           tiling        = VK_IMAGE_TILING_OPTIMAL;
+    VkImageUsageFlags       usage         = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    VkImageLayout           initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkImageLayout           startLayout   = VK_IMAGE_LAYOUT_UNDEFINED; // Layout will be change to this after creation
+    VkSharingMode           sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
     VkImageSubresourceRange subresourceRange = {0, 0, 1, 0, 1};
     VkComponentMapping      components       = {
         VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
@@ -70,7 +72,34 @@ class vkuImageBuffer {
   vkuImageBuffer &operator=(vkuImageBuffer &&);
 
   VkResult init(vkuDevicePTR _device = nullptr);
-  void destroy();
+  void     destroy();
+
+  static VkImageMemoryBarrier generateLayoutChangeBarrier(VkImage                 _img,
+                                                          VkImageSubresourceRange _subResRange,
+                                                          VkImageLayout           _oldLayout,
+                                                          VkImageLayout           _newLayout,
+                                                          uint32_t                _srcQueue = VK_QUEUE_FAMILY_IGNORED,
+                                                          uint32_t _dstQueue = VK_QUEUE_FAMILY_IGNORED) noexcept;
+
+  VkImageMemoryBarrier generateLayoutChangeBarrier(VkImageLayout _oldLayout,
+                                                   VkImageLayout _newLayout,
+                                                   uint32_t      _srcQueue = VK_QUEUE_FAMILY_IGNORED,
+                                                   uint32_t      _dstQueue = VK_QUEUE_FAMILY_IGNORED) noexcept;
+
+  void cmdChangeLayout(vkuCommandBuffer *   _buff,
+                       VkImageLayout        _oldLayout,
+                       VkImageLayout        _newLayout,
+                       uint32_t             _srcQueue = VK_QUEUE_FAMILY_IGNORED,
+                       uint32_t             _dstQueue = VK_QUEUE_FAMILY_IGNORED,
+                       VkPipelineStageFlags _srcFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                       VkPipelineStageFlags _dstFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) noexcept;
+
+  VkResult changeLayout(VkImageLayout        _oldLayout,
+                        VkImageLayout        _newLayout,
+                        uint32_t             _srcQueue = VK_QUEUE_FAMILY_IGNORED,
+                        uint32_t             _dstQueue = VK_QUEUE_FAMILY_IGNORED,
+                        VkPipelineStageFlags _srcFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                        VkPipelineStageFlags _dstFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) noexcept;
 
   inline VkImageView  get() const noexcept { return vImageView; }
   inline VkImage      getImage() const noexcept { return vImage; }
@@ -80,9 +109,9 @@ class vkuImageBuffer {
   inline bool         isCreated() const noexcept { return vImage != VK_NULL_HANDLE; }
 
   inline VkImageView operator*() const noexcept { return vImageView; }
-  inline Config *operator->() noexcept { return &cfg; } //! \brief Allow config access via buffer->cfgField = 1;
+  inline Config *    operator->() noexcept { return &cfg; } //! \brief Allow config access via buffer->cfgField = 1;
 
-  inline bool operator!() const noexcept { return !isCreated(); }
+  inline bool     operator!() const noexcept { return !isCreated(); }
   inline explicit operator bool() const noexcept { return isCreated(); }
 };
-}
+} // namespace e_engine

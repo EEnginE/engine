@@ -69,12 +69,7 @@ vkuRenderPass::Config rRendererBasic::getRenderPassDescription(VkSurfaceFormatKH
               lColorClear,
 
               // Buffer create info
-              {},
-
-              // Buffer config
-              {
-                  true // useExternalImageView
-              }
+              {}
 
           },
 
@@ -106,10 +101,7 @@ vkuRenderPass::Config rRendererBasic::getRenderPassDescription(VkSurfaceFormatKH
                   VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, // usage
                   VK_SHARING_MODE_EXCLUSIVE,                   // sharingMode
                   {lAspectFlags, 0, 1, 0, 1}                   // subresourceRange
-              },
-
-              // Buffer config
-              {}
+              }
 
           }
 
@@ -173,30 +165,6 @@ vkuRenderPass::Config rRendererBasic::getRenderPassDescription(VkSurfaceFormatKH
               VK_ACCESS_MEMORY_READ_BIT,                                                  // dstAccessMask
               VK_DEPENDENCY_BY_REGION_BIT                                                 // dependencyFlags
           },
-
-      }
-
-  };
-}
-
-vkuFrameBuffer::Config rRendererBasic::getFrameBufferDescription(VkImageView _swapChainImageView) {
-  return {
-
-      // Size
-      {
-          GlobConf.win.width,  // width
-          GlobConf.win.height, // height
-          1                    // depth
-      },
-
-      // Data
-      {
-
-          // ATTACHMENT 0 ----- swapchain image
-          {
-              0,                  // attachmentID
-              _swapChainImageView // view
-          }
 
       }
 

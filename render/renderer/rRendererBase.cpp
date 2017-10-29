@@ -237,29 +237,7 @@ void rRendererBase::initFrameCommandBuffers(vkuCommandPool *_pool) {
   lSubResRange.layerCount              = 1;
 
   for (auto &i : vFramebuffers_vk) {
-    i.preRender.init(_pool);
     i.render.init(_pool);
-    i.postRender.init(_pool);
-
-    i.preRender.begin();
-    vWorldPtr->cmdChangeImageLayout(*i.preRender,
-                                    i.img,
-                                    lSubResRange,
-                                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
-    i.preRender.end();
-
-    i.postRender.begin();
-    vWorldPtr->cmdChangeImageLayout(*i.postRender,
-                                    i.img,
-                                    lSubResRange,
-                                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
-    i.postRender.end();
   }
 }
 
@@ -267,9 +245,7 @@ void rRendererBase::freeFrameCommandBuffers() {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
   for (auto &i : vFramebuffers_vk) {
-    i.preRender.destroy();
     i.render.destroy();
-    i.postRender.destroy();
   }
 }
 
@@ -323,9 +299,7 @@ rRendererBase::CommandBuffers rRendererBase::getCommandBuffers(uint32_t _framebu
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
   CommandBuffers                        lBuffers = {};
 
-  lBuffers.pre             = &vFramebuffers_vk[_framebuffer].preRender.get();
   lBuffers.render          = &vFramebuffers_vk[_framebuffer].render.get();
-  lBuffers.post            = &vFramebuffers_vk[_framebuffer].postRender.get();
   lBuffers.enableRendering = &vEnableRendering;
 
   return lBuffers;

@@ -21,6 +21,7 @@
 #include "vkuDevice.hpp"
 #include <vector>
 #include <vulkan.h>
+#include "vkuImageBuffer.hpp"
 
 namespace e_engine {
 
@@ -71,10 +72,6 @@ class vkuRenderPass final {
 
       VkImageCreateFlags imageCreateFlags = 0;
     } bufferCreateCfg; //!< Will only be used when useExternalImageView is false
-
-    struct {
-      bool useExternalImageView = false; //!< The image buffer wont be automatically created and must be provided
-    } imageCfg;
   };
 
   struct SubpassDescription {
@@ -121,6 +118,9 @@ class vkuRenderPass final {
   void addDependency(VkSubpassDependency _dependency) noexcept;
 
   void setup(Config _newCfg) noexcept;
+
+  vkuImageBuffer generateImageBufferFromAttachment(AttachmentDescription _desc, VkExtent3D _size);
+  vkuImageBuffer generateImageBufferFromAttachment(uint32_t _attachmentID, VkExtent3D _size);
 
   std::vector<VkClearValue> getClearValues();
 

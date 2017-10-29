@@ -53,9 +53,7 @@ class rRendererBase {
     VkImage          img; //!< \brief The swapchain image
     VkImageView      iv;  //!< \brief The swapchain image view
     uint32_t         index = 0;
-    vkuCommandBuffer preRender;
     vkuCommandBuffer render;
-    vkuCommandBuffer postRender;
   } Framebuffer_vk;
 
   typedef struct RecordInfo_vk {
@@ -66,9 +64,7 @@ class rRendererBase {
   } RecordInfo_vk;
 
   typedef struct CommandBuffers {
-    VkCommandBuffer *pre;
     VkCommandBuffer *render;
-    VkCommandBuffer *post;
     bool *           enableRendering;
   } CommandBuffers;
 

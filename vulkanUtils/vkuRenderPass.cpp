@@ -51,6 +51,8 @@ vkuRenderPass::vkuRenderPass(vkuRenderPass &&_old) {
 }
 
 vkuRenderPass &vkuRenderPass::operator=(vkuRenderPass &&_old) {
+  destroy(); // Destroy old renderpass
+
   vRenderPass = _old.vRenderPass;
   vDevice     = _old.vDevice;
   cfg         = _old.cfg;
@@ -135,16 +137,13 @@ VkResult vkuRenderPass::init(vkuDevicePTR _device) noexcept {
     dLOG(L"      - stencilStoreOp:    ", uEnum2Str::toStr(i.desc.stencilStoreOp));
     dLOG(L"      - initialLayout:     ", uEnum2Str::toStr(i.desc.initialLayout));
     dLOG(L"      - finalLayout:       ", uEnum2Str::toStr(i.desc.finalLayout));
-    dLOG(L"      - useExternalImage:  ", i.imageCfg.useExternalImageView);
-    if (!i.imageCfg.useExternalImageView) {
-      dLOG(L"      - Image create config:");
-      dLOG(L"        - mipLevels:        ", i.bufferCreateCfg.mipLevels);
-      dLOG(L"        - arrayLayers:      ", i.bufferCreateCfg.arrayLayers);
-      dLOG(L"        - tiling:           ", uEnum2Str::toStr(i.bufferCreateCfg.tiling));
-      dLOG(L"        - usage:            ", uEnum2Str::VkImageUsageFlagBits_toStr(i.bufferCreateCfg.usage));
-      dLOG(L"        - sharingMode:      ", uEnum2Str::toStr(i.bufferCreateCfg.sharingMode));
-      dLOG(L"        - imageCreateFlags: ", uEnum2Str::VkImageCreateFlagBits_toStr(i.bufferCreateCfg.imageCreateFlags));
-    }
+    dLOG(L"      - Image create config:");
+    dLOG(L"        - mipLevels:        ", i.bufferCreateCfg.mipLevels);
+    dLOG(L"        - arrayLayers:      ", i.bufferCreateCfg.arrayLayers);
+    dLOG(L"        - tiling:           ", uEnum2Str::toStr(i.bufferCreateCfg.tiling));
+    dLOG(L"        - usage:            ", uEnum2Str::VkImageUsageFlagBits_toStr(i.bufferCreateCfg.usage));
+    dLOG(L"        - sharingMode:      ", uEnum2Str::toStr(i.bufferCreateCfg.sharingMode));
+    dLOG(L"        - imageCreateFlags: ", uEnum2Str::VkImageCreateFlagBits_toStr(i.bufferCreateCfg.imageCreateFlags));
   }
   lCounter = 0;
   dLOG(L"  -- subpasses:");
@@ -196,6 +195,51 @@ VkResult vkuRenderPass::init(vkuDevicePTR _device) noexcept {
   }
 
   return lRes;
+}
+
+/*!
+ * \brief Genreates an image for a specific attatchment
+ * \param _desc The attachment description
+ * \param _size The required image size
+ */
+vkuImageBuffer vkuRenderPass::generateImageBufferFromAttachment(AttachmentDescription _desc, VkExtent3D _size) {
+  vkuImageBuffer buff(vDevice);
+  buff->type             = _desc.bufferCreateCfg.type;
+  buff->format           = _desc.desc.format;
+  buff->extent           = _size;
+  buff->mipLevels        = _desc.bufferCreateCfg.mipLevels;
+  buff->arrayLayers      = _desc.bufferCreateCfg.arrayLayers;
+  buff->samples          = _desc.desc.samples;
+  buff->tiling           = _desc.bufferCreateCfg.tiling;
+  buff->usage            = _desc.bufferCreateCfg.usage;
+  buff->startLayout      = _desc.desc.initialLayout;
+  buff->sharingMode      = _desc.bufferCreateCfg.sharingMode;
+  buff->subresourceRange = _desc.bufferCreateCfg.subresourceRange;
+  buff->components       = _desc.bufferCreateCfg.components;
+  buff->imageCreateFlags = _desc.bufferCreateCfg.imageCreateFlags;
+
+  auto lRet = buff.init();
+  if (lRet != VK_SUCCESS) {
+    eLOG(L"Failed to create image buffer (return code ", uEnum2Str::toStr(lRet), ")");
+  }
+
+  return buff;
+}
+
+/*!
+ * \brief Genreates an image for a specific attatchment
+ * \param _attachmentID The ID / index of the attachment
+ * \param _size         The required image size
+ *
+ * \note This is a wrapper for generateImageBufferFromAttachment()
+ */
+vkuImageBuffer vkuRenderPass::generateImageBufferFromAttachment(uint32_t _attachmentID, VkExtent3D _size) {
+  if (_attachmentID >= cfg.attachments.size()) {
+    eLOG(L"Invlaid attachment ID ", _attachmentID);
+    return vkuImageBuffer();
+  }
+
+  return generateImageBufferFromAttachment(cfg.attachments[_attachmentID], _size);
 }
 
 /*!

@@ -19,6 +19,8 @@
 #include "vkuImageBuffer.hpp"
 #include "uEnum2Str.hpp"
 #include "uLog.hpp"
+#include "vkuCommandPoolManager.hpp"
+#include "vkuFence.hpp"
 
 using namespace e_engine;
 
@@ -40,6 +42,8 @@ vkuImageBuffer::vkuImageBuffer(vkuImageBuffer &&_old) {
 }
 
 vkuImageBuffer &vkuImageBuffer::operator=(vkuImageBuffer &&_old) {
+  destroy(); // Destroy old image
+
   vImage     = _old.vImage;
   vImageView = _old.vImageView;
   vMemory    = _old.vMemory;
@@ -74,6 +78,11 @@ VkResult vkuImageBuffer::init(vkuDevicePTR _device) {
     return VK_ERROR_INITIALIZATION_FAILED;
   }
 
+  if (cfg.initialLayout != VK_IMAGE_LAYOUT_UNDEFINED && cfg.initialLayout != VK_IMAGE_LAYOUT_PREINITIALIZED) {
+    eLOG(L"Only VK_IMAGE_LAYOUT_UNDEFINED and VK_IMAGE_LAYOUT_PREINITIALIZED are valid for the initial layout");
+    return VK_ERROR_INITIALIZATION_FAILED;
+  }
+
   VkImageCreateInfo     lImageCreate;
   VkMemoryAllocateInfo  lMemoryAlloc;
   VkMemoryRequirements  lRequirements;
@@ -93,7 +102,7 @@ VkResult vkuImageBuffer::init(vkuDevicePTR _device) {
   lImageCreate.sharingMode           = cfg.sharingMode;
   lImageCreate.queueFamilyIndexCount = 0;
   lImageCreate.pQueueFamilyIndices   = nullptr;
-  lImageCreate.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+  lImageCreate.initialLayout         = cfg.initialLayout;
 
   lImageViewCreate.sType            = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   lImageViewCreate.pNext            = nullptr;
@@ -208,6 +217,10 @@ VkResult vkuImageBuffer::init(vkuDevicePTR _device) {
     return lRes;
   }
 
+  if (cfg.startLayout != VK_IMAGE_LAYOUT_UNDEFINED) {
+    return changeLayout(VK_IMAGE_LAYOUT_UNDEFINED, cfg.startLayout);
+  }
+
   return VK_SUCCESS;
 }
 
@@ -223,4 +236,138 @@ void vkuImageBuffer::destroy() {
   vImageView = VK_NULL_HANDLE;
   vImage     = VK_NULL_HANDLE;
   vMemory    = VK_NULL_HANDLE;
+}
+
+VkImageMemoryBarrier vkuImageBuffer::generateLayoutChangeBarrier(VkImage                 _img,
+                                                                 VkImageSubresourceRange _subResRange,
+                                                                 VkImageLayout           _oldLayout,
+                                                                 VkImageLayout           _newLayout,
+                                                                 uint32_t                _srcQueue,
+                                                                 uint32_t                _dstQueue) noexcept {
+  VkImageMemoryBarrier lBarrier;
+  lBarrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  lBarrier.pNext               = nullptr;
+  lBarrier.srcAccessMask       = 0; // set further down
+  lBarrier.dstAccessMask       = 0; // set further down
+  lBarrier.oldLayout           = _oldLayout;
+  lBarrier.newLayout           = _newLayout;
+  lBarrier.srcQueueFamilyIndex = _srcQueue;
+  lBarrier.dstQueueFamilyIndex = _dstQueue;
+  lBarrier.image               = _img;
+  lBarrier.subresourceRange    = _subResRange;
+
+  switch (_oldLayout) {
+    case VK_IMAGE_LAYOUT_PREINITIALIZED:
+      lBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: lBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+      lBarrier.srcAccessMask =
+          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+      lBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: lBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT; break;
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+      lBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+      lBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: lBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT; break;
+    default: lBarrier.srcAccessMask = 0; break;
+  }
+
+  switch (_newLayout) {
+    case VK_IMAGE_LAYOUT_PREINITIALIZED:
+      lBarrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: lBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+      lBarrier.dstAccessMask =
+          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+      lBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: lBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT; break;
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+      lBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+      break;
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+      lBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+      break;
+    default: lBarrier.dstAccessMask = 0; break;
+  }
+
+  return lBarrier;
+}
+
+VkImageMemoryBarrier vkuImageBuffer::generateLayoutChangeBarrier(VkImageLayout _oldLayout,
+                                                                 VkImageLayout _newLayout,
+                                                                 uint32_t      _srcQueue,
+                                                                 uint32_t      _dstQueue) noexcept {
+  return generateLayoutChangeBarrier(vImage, cfg.subresourceRange, _oldLayout, _newLayout, _srcQueue, _dstQueue);
+}
+
+
+void vkuImageBuffer::cmdChangeLayout(vkuCommandBuffer *   _buff,
+                                     VkImageLayout        _oldLayout,
+                                     VkImageLayout        _newLayout,
+                                     uint32_t             _srcQueue,
+                                     uint32_t             _dstQueue,
+                                     VkPipelineStageFlags _srcFlags,
+                                     VkPipelineStageFlags _dstFlags) noexcept {
+  if (!_buff || !*_buff) {
+    eLOG(L"Invalid command buffer");
+    return;
+  }
+
+  VkImageMemoryBarrier lBarrier = generateLayoutChangeBarrier(_oldLayout, _newLayout, _srcQueue, _dstQueue);
+
+  vkCmdPipelineBarrier(**_buff, _srcFlags, _dstFlags, 0, 0, nullptr, 0, nullptr, 1, &lBarrier);
+}
+
+VkResult vkuImageBuffer::changeLayout(VkImageLayout        _oldLayout,
+                                      VkImageLayout        _newLayout,
+                                      uint32_t             _srcQueue,
+                                      uint32_t             _dstQueue,
+                                      VkPipelineStageFlags _srcFlags,
+                                      VkPipelineStageFlags _dstFlags) noexcept {
+  uint32_t         lQueueFamily = 0;
+  VkQueue          lQueue       = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 0.25, &lQueueFamily);
+  vkuCommandPool * lPool        = vkuCommandPoolManager::get(**vDevice, lQueueFamily);
+  vkuCommandBuffer lBuff        = lPool->getBuffer();
+
+  lBuff.begin();
+  cmdChangeLayout(&lBuff, _oldLayout, _newLayout, _srcQueue, _dstQueue, _srcFlags, _dstFlags);
+  auto lRes = lBuff.end();
+
+  if (lRes != VK_SUCCESS) {
+    eLOG(L"Failed to finish recording command buffer (error code: ", uEnum2Str::toStr(lRes), ")");
+    return lRes;
+  }
+
+  vkuFence_t lFence(**vDevice);
+
+  VkSubmitInfo lSubmitInfo;
+  lSubmitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  lSubmitInfo.pNext                = nullptr;
+  lSubmitInfo.waitSemaphoreCount   = 0;
+  lSubmitInfo.pWaitSemaphores      = nullptr;
+  lSubmitInfo.pWaitDstStageMask    = nullptr;
+  lSubmitInfo.commandBufferCount   = 1;
+  lSubmitInfo.pCommandBuffers      = &lBuff.get();
+  lSubmitInfo.signalSemaphoreCount = 0;
+  lSubmitInfo.pSignalSemaphores    = nullptr;
+
+  lRes = vkQueueSubmit(lQueue, 1, &lSubmitInfo, lFence[0]);
+  if (lRes != VK_SUCCESS) {
+    eLOG(L"Failed to submit command buffer. Can not change image layout\nError code: ", uEnum2Str::toStr(lRes));
+    return lRes;
+  }
+
+  lFence();
+  return lRes;
 }

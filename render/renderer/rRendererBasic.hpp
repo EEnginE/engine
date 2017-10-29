@@ -24,6 +24,7 @@
 #include "defines.hpp"
 #include "vkuCommandBuffer.hpp"
 #include "vkuFrameBuffer.hpp"
+#include "vkuImageBuffer.hpp"
 #include "vkuRenderPass.hpp"
 #include "rRendererBase.hpp"
 
@@ -38,12 +39,12 @@ class rRendererBasic final : public rRendererBase {
  private:
   std::vector<FB_DATA> vFbData;
 
-  vkuRenderPass vRenderPass;
+  vkuRenderPass  vRenderPass;
+  vkuImageBuffer vDepthBuffer;
 
   OBJECTS vRenderObjects;
 
-  vkuRenderPass::Config  getRenderPassDescription(VkSurfaceFormatKHR _surfaceFormat);
-  vkuFrameBuffer::Config getFrameBufferDescription(VkImageView _swapChainImageView);
+  vkuRenderPass::Config getRenderPassDescription(VkSurfaceFormatKHR _surfaceFormat);
 
  protected:
   VkResult initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) override;

@@ -69,15 +69,16 @@ class vkuDevice {
   VkFormatProperties                   vFormats[VK_FORMAT_RANGE_SIZE];
   VkPhysicalDeviceFeatures             vFeatures;
 
-  std::vector<std::string> vLayers;
-  std::vector<std::string> vExtensions;
+  std::vector<std::string>                vLayers;
+  std::vector<std::string>                vExtensions;
   std::unordered_map<VkQueue, std::mutex> vQueueMutexMap;
 
  public:
   vkuDevice() = delete;
   vkuDevice(VkPhysicalDevice         _device,
             std::vector<std::string> _layers,
-            std::vector<std::string> _extensions, VkSurfaceKHR _surface);
+            std::vector<std::string> _extensions,
+            VkSurfaceKHR             _surface);
   ~vkuDevice();
 
   vkuDevice(vkuDevice const &) = delete;
@@ -88,7 +89,7 @@ class vkuDevice {
 
   uint32_t getQueueFamily(VkQueueFlags _flags);
 
-  VkQueue getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr);
+  VkQueue getQueue(VkQueueFlags _flags, float _priority, uint32_t *_queueFamily = nullptr, bool _presentSupport = false);
   std::mutex &getQueueMutex(VkQueue _queue);
 
   uint32_t getMemoryTypeIndexFromBitfield(uint32_t _bits, VkMemoryPropertyFlags _flags = 0);
@@ -101,13 +102,13 @@ class vkuDevice {
 
   SurfaceInfo getSurfaceInfo(VkSurfaceKHR _surface);
 
-  inline VkDevice    get() const noexcept { return vDevice; }
+  inline VkDevice get() const noexcept { return vDevice; }
 
   inline bool isCreated() const noexcept { return vDevice != VK_NULL_HANDLE; }
 
   inline VkDevice operator*() const noexcept { return vDevice; }
 
-  inline bool operator!() const noexcept { return !isCreated(); }
+  inline bool     operator!() const noexcept { return !isCreated(); }
   inline explicit operator bool() const noexcept { return isCreated(); }
 };
-}
+} // namespace e_engine

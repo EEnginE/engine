@@ -40,9 +40,37 @@ VkResult rRendererBasic::initRenderer(std::vector<VkImageView> _images, VkSurfac
     return lRes;
   }
 
+  VkExtent3D lSize = {
+      GlobConf.win.width,  // width
+      GlobConf.win.height, // height
+      1                    // depth
+  };
+
+  vDepthBuffer = vRenderPass.generateImageBufferFromAttachment(1, lSize);
+
+  if (!vDepthBuffer) {
+    eLOG(L"Failed to create depth buffer ==> can not create framebuffer");
+  }
+
   for (size_t i = 0; i < vFbData.size(); ++i) {
     vFbData[i].frameBuffer.setup(vRenderPass);
-    lRes = vFbData[i].frameBuffer.reCreateFrameBuffers(getFrameBufferDescription(_images[i]));
+    lRes = vFbData[i].frameBuffer.reCreateFrameBuffers({
+
+        // Size
+        lSize,
+
+        // Data
+        {
+
+            // ATTACHMENT 0 ----- swapchain image
+            {0, _images[i]},
+
+            // ATTACHMENT 1 ----- swapchain image
+            {1, *vDepthBuffer}
+
+        }
+
+    });
   }
 
   return lRes;

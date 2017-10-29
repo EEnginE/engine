@@ -41,6 +41,8 @@ vkuCommandBuffer::vkuCommandBuffer(vkuCommandBuffer &&_old) {
  * \param _old old Fence
  */
 vkuCommandBuffer &vkuCommandBuffer::operator=(vkuCommandBuffer &&_old) {
+  destroy(); // Destroy old command buffer
+
   vBuffer = _old.vBuffer;
   vDevice = _old.vDevice;
   vPool   = _old.vPool;

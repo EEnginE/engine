@@ -149,9 +149,7 @@ void rWorld::rebuildRenderLoopCommandBuffers() {
   lBufferRef->frames.resize(vSwapChain.getNumImages());
 
   for (uint32_t i = 0; i < vSwapChain.getNumImages(); ++i) {
-    lBufferRef->frames[i].pre.clear();
     lBufferRef->frames[i].render.clear();
-    lBufferRef->frames[i].post.clear();
 
     for (auto &j : vRenderers) {
       if (!j->getIsInit()) {
@@ -163,9 +161,7 @@ void rWorld::rebuildRenderLoopCommandBuffers() {
 
       auto lBuff = j->getCommandBuffers(i);
 
-      lBufferRef->frames[i].pre.emplace_back(*lBuff.pre);
       lBufferRef->frames[i].render.emplace_back(*lBuff.render);
-      lBufferRef->frames[i].post.emplace_back(*lBuff.post);
     }
   }
 }
@@ -213,85 +209,6 @@ bool rWorld::waitForFrame(std::mutex &_mutex) {
     return false;
   else
     return true;
-}
-
-
-/*!
- * \brief Changes a Vulkan image layout
- *
- * \param _cmdBuffer The command buffer to record to
- * \param _img       The image to change
- * \param _imgSubres Subresource information (also required for crating an image)
- * \param _src       The current layout
- * \param _dst       The destination layout
- * \param _srcFlags  Pipeline src flags (for vkCmdPipelineBarrier)
- * \param _dstFlags  Pipeline dst flags (for vkCmdPipelineBarrier)
- *
- * \vkIntern
- */
-void rWorld::cmdChangeImageLayout(VkCommandBuffer         _cmdBuffer,
-                                  VkImage                 _img,
-                                  VkImageSubresourceRange _imgSubres,
-                                  VkImageLayout           _src,
-                                  VkImageLayout           _dst,
-                                  VkPipelineStageFlags    _srcFlags,
-                                  VkPipelineStageFlags    _dstFlags) {
-  VkImageMemoryBarrier lBarriar;
-  lBarriar.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-  lBarriar.pNext               = nullptr;
-  lBarriar.oldLayout           = _src;
-  lBarriar.newLayout           = _dst;
-  lBarriar.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-  lBarriar.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-  lBarriar.image               = _img;
-  lBarriar.subresourceRange    = _imgSubres;
-
-  switch (_src) {
-    case VK_IMAGE_LAYOUT_PREINITIALIZED:
-      lBarriar.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: lBarriar.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; break;
-    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-      lBarriar.srcAccessMask =
-          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
-      lBarriar.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: lBarriar.srcAccessMask = VK_ACCESS_SHADER_READ_BIT; break;
-    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-      lBarriar.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-      lBarriar.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: lBarriar.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT; break;
-    default: lBarriar.srcAccessMask = 0; break;
-  }
-
-  switch (_dst) {
-    case VK_IMAGE_LAYOUT_PREINITIALIZED:
-      lBarriar.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: lBarriar.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; break;
-    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-      lBarriar.dstAccessMask =
-          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
-      lBarriar.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: lBarriar.dstAccessMask = VK_ACCESS_SHADER_READ_BIT; break;
-    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-      lBarriar.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-      lBarriar.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
-    default: lBarriar.dstAccessMask = 0; break;
-  }
-
-  vkCmdPipelineBarrier(_cmdBuffer, _srcFlags, _dstFlags, 0, 0, nullptr, 0, nullptr, 1, &lBarriar);
 }
 
 /*!

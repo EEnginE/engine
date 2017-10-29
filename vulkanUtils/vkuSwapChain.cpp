@@ -142,13 +142,6 @@ vkuSwapChain::LockAndResult vkuSwapChain::init(vkuDevicePTR _device, VkSurfaceKH
   lCreateInfo.clipped               = VK_TRUE;
   lCreateInfo.oldSwapchain          = lOldSwapchain;
 
-  VkImageSubresourceRange lSubRange;
-  lSubRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-  lSubRange.baseMipLevel   = 0;
-  lSubRange.levelCount     = 1;
-  lSubRange.baseArrayLayer = 0;
-  lSubRange.layerCount     = 1;
-
   VkImageMemoryBarrier lBarrier;
   lBarrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
   lBarrier.pNext               = nullptr;
@@ -159,7 +152,7 @@ vkuSwapChain::LockAndResult vkuSwapChain::init(vkuDevicePTR _device, VkSurfaceKH
   lBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   lBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   lBarrier.image               = VK_NULL_HANDLE;
-  lBarrier.subresourceRange    = lSubRange;
+  lBarrier.subresourceRange    = cfg.subResRange;
 
 // clang-format off
 #if D_LOG_VULKAN_UTILS
@@ -212,14 +205,11 @@ vkuSwapChain::LockAndResult vkuSwapChain::init(vkuDevicePTR _device, VkSurfaceKH
 #endif
   // clang-format on
 
-  vkDeviceWaitIdle(**vDevice);
   VkResult lRes = vkCreateSwapchainKHR(**vDevice, &lCreateInfo, nullptr, &vSwapChain);
   if (lRes) {
     eLOG("'vkCreateSwapchainKHR' returned ", uEnum2Str::toStr(lRes));
     return {std::move(lLock), lRes};
   }
-
-  vkDeviceWaitIdle(**vDevice);
 
   // Destroying old swapchain
   if (lOldSwapchain != VK_NULL_HANDLE) {
@@ -234,8 +224,6 @@ vkuSwapChain::LockAndResult vkuSwapChain::init(vkuDevicePTR _device, VkSurfaceKH
     dVkLOG(L"    - Destroying old swapchain");
     vkDestroySwapchainKHR(**vDevice, lOldSwapchain, nullptr);
   }
-
-  vkDeviceWaitIdle(**vDevice);
 
   // Aquire new images
   uint32_t lNum;
@@ -270,7 +258,7 @@ vkuSwapChain::LockAndResult vkuSwapChain::init(vkuDevicePTR _device, VkSurfaceKH
     lInfo.components = {
         VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A,
     };
-    lInfo.subresourceRange = lSubRange;
+    lInfo.subresourceRange = cfg.subResRange;
 
     lBarriers.back().image = i;
 
