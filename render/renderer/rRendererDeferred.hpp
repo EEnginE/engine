@@ -52,13 +52,10 @@ class rRendererDeferred : public rRendererBase {
   rBuffer vDeferredIndexBuffer;
 
  protected:
-  void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) override;
+  void recordCmdBuffers(uint32_t &_fbIndex, RECORD_TARGET _toRender) override;
 
   bool initRendererData() override;
   bool freeRendererData() override;
-
-  void initCmdBuffers(vkuCommandPool *_pool) override;
-  void freeCmdBuffers() override;
 
  public:
   static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX   = FIRST_FREE_ATTACHMENT_INDEX + 0;

@@ -83,6 +83,10 @@ rRendererBase::rRendererBase(rWorld *_root, std::wstring _id) : vID(_id), vWorld
 
 rRendererBase::~rRendererBase() {}
 
+/*!
+ * \brief Inirializes the renderer
+ * \returns 0 on success
+ */
 int rRendererBase::init(vkuCommandPool *_pool) {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
@@ -91,25 +95,10 @@ int rRendererBase::init(vkuCommandPool *_pool) {
 
   vkuSwapChain *lSwapChain = vWorldPtr->getSwapChain();
 
-  auto                     lImages = lSwapChain->getImages();
-  std::vector<VkImageView> lViews;
+  vImages = lSwapChain->getImages();
 
-  lViews.reserve(lImages.size());
-  vFramebuffers_vk.resize(lImages.size());
-  for (auto &i : lImages) {
-    lViews.emplace_back(i.iv);
-  }
-
-  for (size_t i = 0; i < lImages.size(); ++i) {
-    vFramebuffers_vk[i].img   = lImages[i].img;
-    vFramebuffers_vk[i].iv    = lImages[i].iv;
-    vFramebuffers_vk[i].index = static_cast<uint32_t>(i);
-  }
-
-  if (initRenderer(lViews, lSwapChain->getFormat()))
+  if (initRenderer(vImages, lSwapChain->getFormat(), _pool))
     return 2;
-
-  initAllCmdBuffers(_pool);
 
   if (!initRendererData())
     return 4;
@@ -135,17 +124,14 @@ void rRendererBase::destroy() {
   dVkLOG("  -- freeing old renderer data [renderer ", vID, "]");
   freeRendererData();
 
-  dVkLOG("  -- destroying old command buffers [renderer ", vID, "]");
-  freeAllCmdBuffers();
-
   dVkLOG("  -- destroying old renderpass [renderer ", vID, "]");
   destroyRenderer();
 
-  vFramebuffers_vk.clear();
+  vImages.clear();
   vIsSetup = false;
 }
 
-void rRendererBase::recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _toRender) {
+void rRendererBase::recordCmdBuffersWrapper(uint32_t &_fbIndex, RECORD_TARGET _toRender) {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
   auto lClearValues = getClearValues();
@@ -153,7 +139,7 @@ void rRendererBase::recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _
   vCmdRecordInfo.lRPInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   vCmdRecordInfo.lRPInfo.pNext                    = nullptr;
   vCmdRecordInfo.lRPInfo.renderPass               = getRenderPass();
-  vCmdRecordInfo.lRPInfo.framebuffer              = getFrameBuffer(_fb.index);
+  vCmdRecordInfo.lRPInfo.framebuffer              = getFrameBuffer(_fbIndex);
   vCmdRecordInfo.lRPInfo.renderArea.extent.width  = GlobConf.win.width;
   vCmdRecordInfo.lRPInfo.renderArea.extent.height = GlobConf.win.height;
   vCmdRecordInfo.lRPInfo.renderArea.offset        = {0, 0};
@@ -175,12 +161,12 @@ void rRendererBase::recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _
   vCmdRecordInfo.lInherit.sType                = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
   vCmdRecordInfo.lInherit.pNext                = nullptr;
   vCmdRecordInfo.lInherit.renderPass           = getRenderPass();
-  vCmdRecordInfo.lInherit.framebuffer          = getFrameBuffer(_fb.index);
+  vCmdRecordInfo.lInherit.framebuffer          = getFrameBuffer(_fbIndex);
   vCmdRecordInfo.lInherit.occlusionQueryEnable = VK_FALSE;
   vCmdRecordInfo.lInherit.queryFlags           = 0;
   vCmdRecordInfo.lInherit.pipelineStatistics   = 0;
 
-  recordCmdBuffers(_fb, _toRender);
+  recordCmdBuffers(_fbIndex, _toRender);
 }
 
 void rRendererBase::updateRenderer() {
@@ -216,7 +202,7 @@ void rRendererBase::updateRenderer() {
   }
 
   // Record all command buffers
-  for (auto &i : vFramebuffers_vk)
+  for (uint32_t i = 0; i < vImages.size(); ++i)
     recordCmdBuffersWrapper(i, RECORD_ALL);
 }
 
@@ -225,32 +211,6 @@ void rRendererBase::updateUniforms() {
     i->updateUniforms();
 }
 
-
-void rRendererBase::initFrameCommandBuffers(vkuCommandPool *_pool) {
-  std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
-
-  for (auto &i : vFramebuffers_vk) {
-    i.render.init(_pool);
-  }
-}
-
-void rRendererBase::freeFrameCommandBuffers() {
-  std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
-
-  for (auto &i : vFramebuffers_vk) {
-    i.render.destroy();
-  }
-}
-
-void rRendererBase::initAllCmdBuffers(vkuCommandPool *_pool) {
-  initFrameCommandBuffers(_pool);
-  initCmdBuffers(_pool);
-}
-
-void rRendererBase::freeAllCmdBuffers() {
-  freeCmdBuffers();
-  freeFrameCommandBuffers();
-}
 
 /*!
  * \brief Adds all objects form a scene to the renderer
@@ -282,20 +242,7 @@ bool rRendererBase::resetObjects() {
 
 void rRendererBase::updatePushConstants(uint32_t _framebuffer) {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
-  recordCmdBuffersWrapper(vFramebuffers_vk[_framebuffer], RECORD_PUSH_CONST_ONLY);
-}
-
-/*!
- * \brief Get pointers to command buffers
- */
-rRendererBase::CommandBuffers rRendererBase::getCommandBuffers(uint32_t _framebuffer) {
-  std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
-  CommandBuffers                        lBuffers = {};
-
-  lBuffers.render          = &vFramebuffers_vk[_framebuffer].render.get();
-  lBuffers.enableRendering = &vEnableRendering;
-
-  return lBuffers;
+  recordCmdBuffersWrapper(_framebuffer, RECORD_PUSH_CONST_ONLY);
 }
 
 /*!
@@ -344,6 +291,6 @@ uint32_t rRendererBase::getNumFramebuffers() const {
   if (!vIsSetup)
     return UINT32_MAX;
 
-  // assert(vWorldPtr->getNumFramebuffers() == vFramebuffers_vk.size());
-  return static_cast<uint32_t>(vFramebuffers_vk.size());
+  // assert(vWorldPtr->getNumFramebuffers() == vImages.size());
+  return static_cast<uint32_t>(vImages.size());
 }

@@ -34,6 +34,7 @@ class rRendererBasic final : public rRendererBase {
   struct FB_DATA {
     std::vector<vkuCommandBuffer> buffers;
     vkuFrameBuffer                frameBuffer;
+    vkuCommandBuffer              cmdBuffer;
   };
 
  private:
@@ -47,22 +48,21 @@ class rRendererBasic final : public rRendererBase {
   vkuRenderPass::Config getRenderPassDescription(VkSurfaceFormatKHR _surfaceFormat);
 
  protected:
-  VkResult initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) override;
+  VkResult initRenderer(SwapChainImages _images, VkSurfaceFormatKHR _surfaceFormat, vkuCommandPool *_pool) override;
   void     destroyRenderer() override;
 
-  void recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) override;
+  void recordCmdBuffers(uint32_t &_fbIndex, RECORD_TARGET _toRender) override;
 
   VkRenderPass              getRenderPass() override { return *vRenderPass; }
   VkFramebuffer             getFrameBuffer(uint32_t _fbIndex) override { return *vFbData[_fbIndex].frameBuffer; }
   std::vector<VkClearValue> getClearValues() override { return vRenderPass.getClearValues(); }
 
-  void initCmdBuffers(vkuCommandPool *_pool) override;
-  void freeCmdBuffers() override;
-
  public:
   static const uint32_t DEPTH_STENCIL_ATTACHMENT_INDEX = FIRST_FREE_ATTACHMENT_INDEX + 0;
 
   VkImageView getAttachmentView(ATTACHMENT_ROLE _role) override;
+
+  SubmitInfo getVulkanSubmitInfos() override;
 
   rRendererBasic() = delete;
   rRendererBasic(rWorld *_root, std::wstring _id) : rRendererBase(_root, _id) {}

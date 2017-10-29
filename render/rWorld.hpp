@@ -99,7 +99,7 @@ class rWorld {
 
   int  initRenderers();
   void destroyRenderers();
-  void rebuildRenderLoopCommandBuffers();
+  void rebuildSubmitInfos();
 
   void handleResize(iEventInfo const &);
 

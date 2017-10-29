@@ -30,8 +30,12 @@
 
 using namespace e_engine;
 
-VkResult rRendererBasic::initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) {
+VkResult rRendererBasic::initRenderer(SwapChainImages    _images,
+                                      VkSurfaceFormatKHR _surfaceFormat,
+                                      vkuCommandPool *   _pool) {
   vFbData.resize(_images.size());
+
+  // ==> Setup render pass
   vRenderPass.setup(getRenderPassDescription(_surfaceFormat));
 
   auto lRes = vRenderPass.init(vDevice);
@@ -46,6 +50,7 @@ VkResult rRendererBasic::initRenderer(std::vector<VkImageView> _images, VkSurfac
       1                    // depth
   };
 
+  // ==> Setup framebuffer
   vDepthBuffer = vRenderPass.generateImageBufferFromAttachment(1, lSize);
 
   if (!vDepthBuffer) {
@@ -63,7 +68,7 @@ VkResult rRendererBasic::initRenderer(std::vector<VkImageView> _images, VkSurfac
         {
 
             // ATTACHMENT 0 ----- swapchain image
-            {0, _images[i]},
+            {0, _images[i].iv},
 
             // ATTACHMENT 1 ----- swapchain image
             {1, *vDepthBuffer}
@@ -73,21 +78,18 @@ VkResult rRendererBasic::initRenderer(std::vector<VkImageView> _images, VkSurfac
     });
   }
 
-  return lRes;
-}
+  // ==> Setup command buffer
 
-void rRendererBasic::destroyRenderer() {
-  vRenderPass.destroy();
-  vFbData.clear();
-}
+  //   -- Root command buffer
+  for (auto &i : vFbData) {
+    i.cmdBuffer.init(_pool);
+  }
 
-
-
-void rRendererBasic::initCmdBuffers(vkuCommandPool *_pool) {
+  //   -- Child object buffers
   for (auto i : vObjects) {
     if (i.get() == nullptr) {
-      eLOG("FATAL ERROR: nullptr in object list!");
-      return;
+      wLOG("WARNING: nullptr in object list! (skipping)");
+      continue;
     }
 
     if (i->isMesh()) {
@@ -101,20 +103,48 @@ void rRendererBasic::initCmdBuffers(vkuCommandPool *_pool) {
       j.init(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
     }
   }
+
+  return lRes;
 }
 
-void rRendererBasic::freeCmdBuffers() {
+void rRendererBasic::destroyRenderer() {
+  vRenderPass.destroy();
+  vFbData.clear();
+  vDepthBuffer.destroy();
+
   for (auto &i : vFbData)
     i.buffers.clear();
 
   vRenderObjects.clear();
 }
 
+
 VkImageView rRendererBasic::getAttachmentView(rRendererBase::ATTACHMENT_ROLE _role) {
   switch (_role) {
-    case DEPTH_STENCIL: return VK_NULL_HANDLE;
+    case DEPTH_STENCIL: return vDepthBuffer.get();
     default: return VK_NULL_HANDLE;
   }
+}
+
+rRendererBase::SubmitInfo rRendererBasic::getVulkanSubmitInfos() {
+  SubmitInfo lInfo;
+
+  for (auto &i : vFbData) {
+    VkSubmitInfo lSubInfo;
+    lSubInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    lSubInfo.pNext                = nullptr;
+    lSubInfo.waitSemaphoreCount   = 0;
+    lSubInfo.pWaitSemaphores      = nullptr;
+    lSubInfo.pWaitDstStageMask    = nullptr;
+    lSubInfo.commandBufferCount   = 1;
+    lSubInfo.pCommandBuffers      = &i.cmdBuffer.get();
+    lSubInfo.signalSemaphoreCount = 0;
+    lSubInfo.pSignalSemaphores    = nullptr;
+
+    lInfo.fb.push_back({{lSubInfo}});
+  }
+
+  return lInfo;
 }
 
 
@@ -124,10 +154,11 @@ VkImageView rRendererBasic::getAttachmentView(rRendererBase::ATTACHMENT_ROLE _ro
  * \note _toRender.size() MUST BE EQUAL TO _fb.secondary.size()
  * Elements in _toRender can be skipped by setting them to nullptr
  */
-void rRendererBasic::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) {
-  _fb.render.begin();
+void rRendererBasic::recordCmdBuffers(uint32_t &_fbIndex, RECORD_TARGET _toRender) {
+  auto &fb = vFbData[_fbIndex];
+  fb.cmdBuffer.begin();
 
-  vkCmdBeginRenderPass(*_fb.render, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+  vkCmdBeginRenderPass(*fb.cmdBuffer, &vCmdRecordInfo.lRPInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
   for (uint32_t i = 0; i < vRenderObjects.size(); i++) {
     if (_toRender == RECORD_PUSH_CONST_ONLY)
@@ -140,25 +171,25 @@ void rRendererBasic::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRend
       continue;
     }
 
-    vFbData[_fb.index].buffers[i].begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
+    vFbData[_fbIndex].buffers[i].begin(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &vCmdRecordInfo.lInherit);
 
     if (lPipe->getNumViewpors() > 0)
-      vkCmdSetViewport(*vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lViewPort);
+      vkCmdSetViewport(*vFbData[_fbIndex].buffers[i], 0, 1, &vCmdRecordInfo.lViewPort);
 
     if (lPipe->getNumScissors() > 0)
-      vkCmdSetScissor(*vFbData[_fb.index].buffers[i], 0, 1, &vCmdRecordInfo.lScissors);
+      vkCmdSetScissor(*vFbData[_fbIndex].buffers[i], 0, 1, &vCmdRecordInfo.lScissors);
 
-    vRenderObjects[i]->record(*vFbData[_fb.index].buffers[i]);
-    vFbData[_fb.index].buffers[i].end();
+    vRenderObjects[i]->record(*vFbData[_fbIndex].buffers[i]);
+    vFbData[_fbIndex].buffers[i].end();
   }
 
-  for (auto &i : vFbData[_fb.index].buffers) {
-    vkCmdExecuteCommands(*_fb.render, 1, &i.get());
+  for (auto &i : vFbData[_fbIndex].buffers) {
+    vkCmdExecuteCommands(*fb.cmdBuffer, 1, &i.get());
   }
 
-  vkCmdEndRenderPass(*_fb.render);
+  vkCmdEndRenderPass(*fb.cmdBuffer);
 
-  auto lRes = vkEndCommandBuffer(*_fb.render);
+  auto lRes = vkEndCommandBuffer(*fb.cmdBuffer);
   if (lRes) {
     eLOG("'vkEndCommandBuffer' returned ", uEnum2Str::toStr(lRes));
     //! \todo Handle this somehow (practically this code must not execute)

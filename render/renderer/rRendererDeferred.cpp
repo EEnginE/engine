@@ -184,6 +184,7 @@ bool rRendererDeferred::freeRendererData() {
   return true;
 }
 
+#if 0
 void rRendererDeferred::initCmdBuffers(vkuCommandPool *_pool) {
   for (auto i : vObjects) {
     if (i.get() == nullptr) {
@@ -219,6 +220,7 @@ void rRendererDeferred::freeCmdBuffers() {
   vRenderObjects.clear();
   vLightObjects.clear();
 }
+#endif
 
 
 /*!
@@ -226,8 +228,8 @@ void rRendererDeferred::freeCmdBuffers() {
  * \note _toRender.size() MUST BE EQUAL TO _fb.secondary.size()
  * Elements in _toRender can be skipped by setting them to nullptr
  */
-void rRendererDeferred::recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender) {
-  (void)_fb;
+void rRendererDeferred::recordCmdBuffers(unsigned int &_fbIndex, RECORD_TARGET _toRender) {
+  (void)_fbIndex;
   (void)_toRender;
 #if 0
   _fb.render.begin();

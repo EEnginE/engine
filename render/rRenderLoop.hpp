@@ -35,12 +35,12 @@ class rWorld;
 
 namespace internal {
 
-struct CommandBufferReferences {
-  struct CommandBuffers {
-    std::vector<VkCommandBuffer> render;
+struct SubmitInfos {
+  struct Infos {
+    std::vector<VkSubmitInfo> inf;
   };
 
-  std::vector<CommandBuffers> frames;
+  std::vector<Infos> frames;
 };
 
 } // namespace internal
@@ -51,8 +51,8 @@ class rRenderLoop {
 
 
  private:
-  uint64_t                          vRenderedFrames = 0;
-  internal::CommandBufferReferences vCommandBufferRefs;
+  uint64_t              vRenderedFrames = 0;
+  internal::SubmitInfos vSubmitInfos;
 
   rWorld *vWorldPtr;
 
@@ -102,8 +102,8 @@ class rRenderLoop {
   uint64_t *      getRenderedFramesPtr();
   inline uint32_t getQueueFamilyIndex() const noexcept { return vQueueIndex; }
 
-  internal::CommandBufferReferences *getCommandBufferReferences() noexcept;
-  std::unique_lock<std::mutex>       getRenderLoopLock() noexcept;
+  internal::SubmitInfos *      getCommandBufferReferences() noexcept;
+  std::unique_lock<std::mutex> getRenderLoopLock() noexcept;
 };
 
 } // namespace e_engine

@@ -92,7 +92,7 @@ int rWorld::init() {
     return 1;
 
   initRenderers();
-  rebuildRenderLoopCommandBuffers();
+  rebuildSubmitInfos();
 
   if (!vIsResizeSlotSetup)
     vInitPtr->addResizeSlot(&vResizeSlot);
@@ -127,7 +127,7 @@ void rWorld::shutdown() {
 void rWorld::rebuildRenderers() {
   std::lock_guard<std::mutex> lGuard(vRenderAccessMutex);
   auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
-  rebuildRenderLoopCommandBuffers();
+  rebuildSubmitInfos();
 }
 
 
@@ -135,7 +135,7 @@ void rWorld::rebuildRenderers() {
  * \brief Non thread safe private implementation of rebuildRenderers
  * \note Requires external synchronisation with the Render Loop Lock
  */
-void rWorld::rebuildRenderLoopCommandBuffers() {
+void rWorld::rebuildSubmitInfos() {
   auto *lBufferRef = vRenderLoop.getCommandBufferReferences();
 
   for (auto const &i : vRenderers) {
@@ -149,7 +149,7 @@ void rWorld::rebuildRenderLoopCommandBuffers() {
   lBufferRef->frames.resize(vSwapChain.getNumImages());
 
   for (uint32_t i = 0; i < vSwapChain.getNumImages(); ++i) {
-    lBufferRef->frames[i].render.clear();
+    lBufferRef->frames[i].inf.clear();
 
     for (auto &j : vRenderers) {
       if (!j->getIsInit()) {
@@ -159,9 +159,12 @@ void rWorld::rebuildRenderLoopCommandBuffers() {
       if (!j->getIsRenderingEnabled())
         continue;
 
-      auto lBuff = j->getCommandBuffers(i);
+      auto lSubmitInfo = j->getVulkanSubmitInfos();
 
-      lBufferRef->frames[i].render.emplace_back(*lBuff.render);
+      auto &lShared = lSubmitInfo.shared.submitInfos;
+      auto &fb      = lSubmitInfo.fb[i].submitInfos;
+      std::copy(lShared.begin(), lShared.end(), std::back_inserter(lBufferRef->frames[i].inf));
+      std::copy(fb.begin(), fb.end(), std::back_inserter(lBufferRef->frames[i].inf));
     }
   }
 }
@@ -179,7 +182,7 @@ int rWorld::initRenderers() {
     if (!i->getIsInit())
       errorCode += i->init(lPool);
 
-  rebuildRenderLoopCommandBuffers();
+  rebuildSubmitInfos();
 
   return errorCode;
 }
@@ -193,7 +196,7 @@ void rWorld::destroyRenderers() {
     if (i->getIsInit())
       i->destroy();
 
-  rebuildRenderLoopCommandBuffers();
+  rebuildSubmitInfos();
 }
 
 /*!
@@ -220,7 +223,7 @@ void rWorld::addRenderer(std::shared_ptr<rRendererBase> _renderer) {
   auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
 
   vRenderers.push_back(_renderer);
-  rebuildRenderLoopCommandBuffers();
+  rebuildSubmitInfos();
 }
 
 /*!
@@ -231,7 +234,7 @@ void rWorld::removeRenderer(std::shared_ptr<rRendererBase> _renderer) {
   auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
 
   vRenderers.erase(std::remove(vRenderers.begin(), vRenderers.end(), _renderer), vRenderers.end());
-  rebuildRenderLoopCommandBuffers();
+  rebuildSubmitInfos();
 }
 
 /*!
@@ -242,7 +245,7 @@ void rWorld::clearRenderers() {
   auto                        lRenderLoopLock = vRenderLoop.getRenderLoopLock();
 
   vRenderers.clear();
-  rebuildRenderLoopCommandBuffers();
+  rebuildSubmitInfos();
 }
 
 void rWorld::updateViewPort(int _x, int _y, int _width, int _height) {

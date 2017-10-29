@@ -24,6 +24,7 @@
 #include "defines.hpp"
 #include "vkuCommandPool.hpp"
 #include "vkuDevice.hpp"
+#include "vkuSwapChain.hpp"
 #include <condition_variable>
 #include <memory>
 #include <mutex>
@@ -47,14 +48,7 @@ class rSceneBase;
 class rRendererBase {
  public:
   typedef std::unordered_map<uint32_t, VkImageLayout> AttachmentLayoutMap;
-
-
-  typedef struct Framebuffer_vk {
-    VkImage          img; //!< \brief The swapchain image
-    VkImageView      iv;  //!< \brief The swapchain image view
-    uint32_t         index = 0;
-    vkuCommandBuffer render;
-  } Framebuffer_vk;
+  typedef std::vector<vkuSwapChain::SwapChainImg>     SwapChainImages;
 
   typedef struct RecordInfo_vk {
     VkRenderPassBeginInfo          lRPInfo   = {};
@@ -63,10 +57,14 @@ class rRendererBase {
     VkCommandBufferInheritanceInfo lInherit  = {};
   } RecordInfo_vk;
 
-  typedef struct CommandBuffers {
-    VkCommandBuffer *render;
-    bool *           enableRendering;
-  } CommandBuffers;
+  struct SubmitInfo {
+    struct FBInfo {
+      std::vector<VkSubmitInfo> submitInfos;
+    };
+
+    std::vector<FBInfo> fb;     //!< Submit infos. Must be empty or have an element for each swapchain image
+    FBInfo              shared; //!< Submit info for single framebuffer systems.
+  };
 
   using OBJECTS = std::vector<std::shared_ptr<rObjectBase>>;
 
@@ -76,9 +74,9 @@ class rRendererBase {
  private:
   std::wstring vID;
 
-  std::vector<Framebuffer_vk> vFramebuffers_vk;
-
   std::recursive_mutex vMutexRecordData;
+
+  SwapChainImages vImages;
 
   VkClearColorValue vClearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
 
@@ -86,14 +84,7 @@ class rRendererBase {
   bool vEnableRendering       = false;
   bool vUserDisabledRendering = false; //!< User manually disabled rendering
 
-  void initFrameCommandBuffers(vkuCommandPool *_pool);
-  void freeFrameCommandBuffers();
-
-  void recordCmdBuffersWrapper(Framebuffer_vk &_fb, RECORD_TARGET _toRender);
-
-  // Meant for the render loop
-  void initAllCmdBuffers(vkuCommandPool *_pool);
-  void freeAllCmdBuffers();
+  void recordCmdBuffersWrapper(uint32_t &_fbIndex, RECORD_TARGET _toRender);
 
  protected:
   enum PREDEFINED_ATTACHMENT_INDEXES { FRAMEBUFFER_ATTACHMENT_INDEX = 0, FIRST_FREE_ATTACHMENT_INDEX };
@@ -107,11 +98,9 @@ class rRendererBase {
 
   OBJECTS vObjects;
 
-  virtual VkResult initRenderer(std::vector<VkImageView> _images, VkSurfaceFormatKHR _surfaceFormat) = 0;
-  virtual void     destroyRenderer()                                                                 = 0;
-  virtual void     initCmdBuffers(vkuCommandPool *_pool)                                             = 0;
-  virtual void     freeCmdBuffers()                                                                  = 0;
-  virtual void     recordCmdBuffers(Framebuffer_vk &_fb, RECORD_TARGET _toRender)                    = 0;
+  virtual VkResult initRenderer(SwapChainImages _images, VkSurfaceFormatKHR _surfaceFormat, vkuCommandPool *_pool) = 0;
+  virtual void     destroyRenderer()                                                                               = 0;
+  virtual void     recordCmdBuffers(uint32_t &_fbIndex, RECORD_TARGET _toRender)                                   = 0;
 
   virtual VkRenderPass              getRenderPass()                   = 0;
   virtual VkFramebuffer             getFrameBuffer(uint32_t _fbIndex) = 0;
@@ -130,6 +119,7 @@ class rRendererBase {
   virtual ~rRendererBase();
 
   virtual VkImageView getAttachmentView(ATTACHMENT_ROLE _role) = 0;
+  virtual SubmitInfo  getVulkanSubmitInfos()                   = 0;
 
   bool renderScene(rSceneBase *_scene);
   bool addObject(std::shared_ptr<rObjectBase> _obj);
@@ -150,8 +140,7 @@ class rRendererBase {
 
   uint32_t getNumFramebuffers() const;
 
-  void           updateRenderer();
-  void           updatePushConstants(uint32_t _framebuffer);
-  CommandBuffers getCommandBuffers(uint32_t _framebuffer);
+  void updateRenderer();
+  void updatePushConstants(uint32_t _framebuffer);
 };
 } // namespace e_engine

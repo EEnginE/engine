@@ -191,17 +191,6 @@ void rRenderLoop::renderLoop() {
 
     std::vector<PresentImageLayoutChange> lLayoutChangeSubmitInfo;
 
-    VkSubmitInfo lRenderSubmit;
-    lRenderSubmit.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    lRenderSubmit.pNext                = nullptr;
-    lRenderSubmit.waitSemaphoreCount   = 0;
-    lRenderSubmit.pWaitSemaphores      = nullptr;
-    lRenderSubmit.pWaitDstStageMask    = nullptr;
-    lRenderSubmit.commandBufferCount   = 0;
-    lRenderSubmit.pCommandBuffers      = nullptr; // set in render loop
-    lRenderSubmit.signalSemaphoreCount = 0;
-    lRenderSubmit.pSignalSemaphores    = nullptr;
-
     VkPresentInfoKHR lPresentInfo   = {};
     lPresentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     lPresentInfo.pNext              = nullptr;
@@ -260,12 +249,6 @@ void rRenderLoop::renderLoop() {
       //! \todo Update push constants here
 
 
-      // Set CMD buffers
-      lRenderSubmit.commandBufferCount = static_cast<uint32_t>(vCommandBufferRefs.frames[*lNextImg].render.size());
-      lRenderSubmit.pCommandBuffers    = vCommandBufferRefs.frames[*lNextImg].render.data();
-
-
-
       // Render everything here
 
       // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  -->  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
@@ -276,7 +259,9 @@ void rRenderLoop::renderLoop() {
       }
 
       // Render
-      lRes = vkQueueSubmit(vQueue, 1, &lRenderSubmit, lFences[static_cast<uint32_t>(Fences::RENDER)]);
+      uint32_t      lNumSubmitInfo = static_cast<uint32_t>(vSubmitInfos.frames[*lNextImg].inf.size());
+      VkSubmitInfo *lSubmitInfo    = vSubmitInfos.frames[*lNextImg].inf.data();
+      lRes = vkQueueSubmit(vQueue, lNumSubmitInfo, lSubmitInfo, lFences[static_cast<uint32_t>(Fences::RENDER)]);
       if (lRes) {
         eLOG("'vkQueueSubmit' returned ", uEnum2Str::toStr(lRes));
         break;
@@ -425,7 +410,7 @@ std::unique_lock<std::mutex> rRenderLoop::getRenderLoopLock() noexcept {
  *
  * \note This function must be extrernally synchronized with getRenderLoopLock()
  */
-internal::CommandBufferReferences *rRenderLoop::getCommandBufferReferences() noexcept { return &vCommandBufferRefs; }
+internal::SubmitInfos *rRenderLoop::getCommandBufferReferences() noexcept { return &vSubmitInfos; }
 
 uint64_t *rRenderLoop::getRenderedFramesPtr() { return &vRenderedFrames; }
 bool      rRenderLoop::getIsRunning() const { return vRunRenderLoop; }

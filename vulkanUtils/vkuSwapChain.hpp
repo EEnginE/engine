@@ -24,6 +24,7 @@
 namespace e_engine {
 
 class vkuSwapChain final {
+ public:
   struct Config {
     bool                    preferMailBoxPresetMode      = true;
     bool                    prefereNonTearingPresentMode = true;
