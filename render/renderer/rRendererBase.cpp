@@ -229,13 +229,6 @@ void rRendererBase::updateUniforms() {
 void rRendererBase::initFrameCommandBuffers(vkuCommandPool *_pool) {
   std::lock_guard<std::recursive_mutex> lGuard(vMutexRecordData);
 
-  VkImageSubresourceRange lSubResRange = {};
-  lSubResRange.aspectMask              = VK_IMAGE_ASPECT_COLOR_BIT;
-  lSubResRange.baseMipLevel            = 0;
-  lSubResRange.levelCount              = 1;
-  lSubResRange.baseArrayLayer          = 0;
-  lSubResRange.layerCount              = 1;
-
   for (auto &i : vFramebuffers_vk) {
     i.render.init(_pool);
   }
