@@ -43,8 +43,15 @@ void rSimpleMesh::record(VkCommandBuffer _buf) {
   VkDeviceSize lOffsets[] = {0};
   VkBuffer     lVertex    = vVertex.getBuffer();
 
-  vShader->cmdBindDescriptorSets(_buf, VK_PIPELINE_BIND_POINT_GRAPHICS);
+  if (vVertUniform)
+    vShader->cmdBindDescriptorSets(_buf, VK_PIPELINE_BIND_POINT_GRAPHICS);
+
   vPipeline->cmdBindPipeline(_buf, VK_PIPELINE_BIND_POINT_GRAPHICS);
+
+  if (vHasMVPMatrix_PC) {
+    std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
+    vShader->cmdUpdatePushConstant(_buf, vMatrixMVP_PC, value_ptr(*getModelViewProjectionMatrix()));
+  }
 
   if (vHasModelMatrix_PC) {
     std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
@@ -87,6 +94,19 @@ void rSimpleMesh::signalRenderReset(rRendererBase *) {
 
   auto lPushConstants = vShader->getPushConstants(VK_SHADER_STAGE_VERTEX_BIT);
 
+  for (auto const &i : lPushConstants) {
+    if (i.guessedRole == rShaderBase::MODEL_MATRIX) {
+      vHasModelMatrix_PC = true;
+      vMatrixModelVar_PC = i;
+    }
+
+    if (i.guessedRole == rShaderBase::MODEL_VIEW_PROJECTION_MATRIX) {
+      vHasMVPMatrix_PC = true;
+      vMatrixMVP_PC    = i;
+      break;
+    }
+  }
+
   if (!vVertUniform) {
     wLOG("No uniform buffers in shader");
     return;
@@ -105,13 +125,6 @@ void rSimpleMesh::signalRenderReset(rRendererBase *) {
       vHasVPMatrix = vShader->tryReserveUniform(i);
       vMatrixVPVar = i;
       break;
-    }
-  }
-
-  for (auto const &i : lPushConstants) {
-    if (i.guessedRole == rShaderBase::MODEL_MATRIX) {
-      vHasModelMatrix_PC = true;
-      vMatrixModelVar_PC = i;
     }
   }
 }

@@ -103,14 +103,6 @@ class rWorld {
 
   void handleResize(iEventInfo const &);
 
-  inline void signalRenderdFrame() {
-    // Update Uniforms
-    for (auto const &i : vRenderers)
-      i->updateUniforms();
-
-    vRenderedFrameSignal.notify_all();
-  }
-
  public:
   rWorld() = delete;
   rWorld(iInit *_init);
@@ -136,8 +128,5 @@ class rWorld {
   iInit *       getInitPtr();
   rRenderLoop * getRenderLoop();
   vkuSwapChain *getSwapChain();
-
-  friend class rRendererBase;
-  friend class rRenderLoop; //!< \todo get rid of this
 };
 } // namespace e_engine

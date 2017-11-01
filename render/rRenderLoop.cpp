@@ -69,12 +69,18 @@ std::vector<PresentImageLayoutChange> rebuildPresentInfo(vkuCommandPool *_pool,
                                                          uint32_t        _renderQueue,
                                                          uint32_t        _presetnQueue);
 
-rRenderLoop::rRenderLoop(rWorld *_root) : vWorldPtr(_root) {
-  vRenderThread = std::thread(&rRenderLoop::renderLoop, this);
-  vDevice       = vWorldPtr->getDevice();
-  vDevice_vk    = **vDevice;
-  vQueue        = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &vQueueIndex);
-  vPresentQueue = vDevice->getQueue(0, 0.25, &vPresentQueueIndex, true);
+rRenderLoop::rRenderLoop(vkuDevicePTR  _device,
+                         vkuSwapChain *_swapChain,
+                         CallBackVoid  _renderedFrame,
+                         CallBackInt   _updatePC) {
+  vRenderThread          = std::thread(&rRenderLoop::renderLoop, this);
+  vDevice                = _device;
+  vDevice_vk             = **vDevice;
+  vSwapChain             = _swapChain;
+  vRenderedFrameCB       = _renderedFrame;
+  vUpdatePushConstantsCB = _updatePC;
+  vQueue                 = vDevice->getQueue(VK_QUEUE_GRAPHICS_BIT, 1.0, &vQueueIndex);
+  vPresentQueue          = vDevice->getQueue(0, 0.25, &vPresentQueueIndex, true);
 }
 
 rRenderLoop::~rRenderLoop() {
@@ -184,7 +190,6 @@ void rRenderLoop::renderLoop() {
     //    \___/_| |_|_|\__|
     //
 
-    vkuSwapChain *  lSwapchain = vWorldPtr->getSwapChain();
     LoopFences      lFences(vDevice_vk);
     LoopSemaphores  lSemaphores(vDevice_vk);
     vkuCommandPool *lPool = vkuCommandPoolManager::get(vDevice_vk, vQueueIndex);
@@ -227,7 +232,7 @@ void rRenderLoop::renderLoop() {
       std::unique_lock<std::mutex> lCmdAccessLock(vRenderLoopLockMutex);
 
       // Get present image (this command blocks)
-      auto lNextImg = lSwapchain->acquireNextImage(lSemaphores[static_cast<uint32_t>(Semaphores::ACQUIRE)]);
+      auto lNextImg = vSwapChain->acquireNextImage(lSemaphores[static_cast<uint32_t>(Semaphores::ACQUIRE)]);
 
       if (!lNextImg) {
         eLOG(L"'vkAcquireNextImageKHR' returned ", uEnum2Str::toStr(lNextImg.getError()));
@@ -235,18 +240,18 @@ void rRenderLoop::renderLoop() {
       }
 
       // Check if the layout chang info is up to data
-      if (lLayoutChangeSubmitInfo.size() != lSwapchain->getNumImages() ||
-          lLayoutChangeSubmitInfo[*lNextImg].infos[0].barrier.image != lSwapchain->getImage(*lNextImg).img) {
+      if (lLayoutChangeSubmitInfo.size() != vSwapChain->getNumImages() ||
+          lLayoutChangeSubmitInfo[*lNextImg].infos[0].barrier.image != vSwapChain->getImage(*lNextImg).img) {
 
         dVkLOG(L"Resetting present layout change structures");
-        lLayoutChangeSubmitInfo = rebuildPresentInfo(lPool, lSwapchain, lSemaphores, vQueueIndex, vPresentQueueIndex);
+        lLayoutChangeSubmitInfo = rebuildPresentInfo(lPool, vSwapChain, lSemaphores, vQueueIndex, vPresentQueueIndex);
       }
 
       auto &lLayoutAcquire = lLayoutChangeSubmitInfo[*lNextImg].infos[static_cast<uint32_t>(Semaphores::ACQUIRE)];
       auto &lLayoutPresent = lLayoutChangeSubmitInfo[*lNextImg].infos[static_cast<uint32_t>(Semaphores::PRESENT)];
 
 
-      //! \todo Update push constants here
+      vUpdatePushConstantsCB(*lNextImg);
 
 
       // Render everything here
@@ -276,7 +281,7 @@ void rRenderLoop::renderLoop() {
 
 
 
-      VkSwapchainKHR lTempSc   = **lSwapchain;
+      VkSwapchainKHR lTempSc   = **vSwapChain;
       uint32_t       lImgIndex = *lNextImg;
 
       lPresentInfo.pSwapchains   = &lTempSc;
@@ -303,7 +308,7 @@ void rRenderLoop::renderLoop() {
       lCmdAccessLock.unlock();
 
 
-      vWorldPtr->signalRenderdFrame();
+      vRenderedFrameCB();
       vRenderedFrames++;
     }
     iLOG(L"Render loop stopped");

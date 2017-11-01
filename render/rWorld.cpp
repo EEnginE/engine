@@ -47,7 +47,25 @@ rWorld::rWorld(iInit *_init)
     : vInitPtr(_init),
       vDevice(_init->getDevicePTR()),
       vDevice_vk(**vDevice),
-      vRenderLoop(this),
+      vRenderLoop(vDevice,
+                  &vSwapChain,
+
+                  // A frame was rendered
+                  [this]() {
+                    for (auto const &i : vRenderers)
+                      i->updateUniforms();
+
+                    vRenderedFrameSignal.notify_all();
+                  },
+
+
+                  // Update all push constants
+                  [this](uint32_t _fb) {
+                    for (auto &i : vRenderers)
+                      i->updatePushConstants(_fb);
+                  }
+
+                  ),
       vResizeSlot(&rWorld::handleResize, this) {
   vSurface_vk = vInitPtr->getVulkanSurface();
 

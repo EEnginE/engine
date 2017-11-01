@@ -42,8 +42,10 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
   UNIFORM_VAR   vMatrixMVPVar      = {};
   UNIFORM_VAR   vMatrixVPVar       = {};
   PUSH_CONSTANT vMatrixModelVar_PC = {};
+  PUSH_CONSTANT vMatrixMVP_PC      = {};
   bool          vHasMVPMatrix      = false;
   bool          vHasVPMatrix       = false;
+  bool          vHasMVPMatrix_PC   = false;
   bool          vHasModelMatrix_PC = false;
 
   std::vector<rBuffer *> setData_IMPL(VkCommandBuffer              _buf,
@@ -66,7 +68,7 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
   rSimpleMesh &operator=(rSimpleMesh &&) = default;
 
   bool isMesh() override { return true; }
-  bool supportsPushConstants() override { return vHasModelMatrix_PC; }
+  bool supportsPushConstants() override { return vHasModelMatrix_PC || vHasMVPMatrix_PC; }
   void record(VkCommandBuffer _buf) override;
   void updateUniforms() override;
   void signalRenderReset(rRendererBase *) override;

@@ -550,18 +550,20 @@ bool rShaderBase::init() {
     return false;
   }
 
-  VkDescriptorPoolCreateInfo lDescPoolInfo;
-  lDescPoolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-  lDescPoolInfo.pNext         = nullptr;
-  lDescPoolInfo.flags         = 0;
-  lDescPoolInfo.maxSets       = NUM_MAX_DESCRIPTOR_SETS;
-  lDescPoolInfo.poolSizeCount = static_cast<uint32_t>(vDescPoolSizes.size());
-  lDescPoolInfo.pPoolSizes    = vDescPoolSizes.data();
+  if (!vDescPoolSizes.empty()) {
+    VkDescriptorPoolCreateInfo lDescPoolInfo;
+    lDescPoolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    lDescPoolInfo.pNext         = nullptr;
+    lDescPoolInfo.flags         = 0;
+    lDescPoolInfo.maxSets       = NUM_MAX_DESCRIPTOR_SETS;
+    lDescPoolInfo.poolSizeCount = static_cast<uint32_t>(vDescPoolSizes.size());
+    lDescPoolInfo.pPoolSizes    = vDescPoolSizes.data();
 
-  lRes = vkCreateDescriptorPool(vDevice_vk, &lDescPoolInfo, nullptr, &vDescPool_vk);
-  if (lRes) {
-    eLOG("'vkCreateDescriptorPool' returend ", uEnum2Str::toStr(lRes));
-    return false;
+    lRes = vkCreateDescriptorPool(vDevice_vk, &lDescPoolInfo, nullptr, &vDescPool_vk);
+    if (lRes) {
+      eLOG("'vkCreateDescriptorPool' returend ", uEnum2Str::toStr(lRes));
+      return false;
+    }
   }
 
   vModulesCreated = true;
@@ -681,15 +683,20 @@ std::vector<VkPipelineShaderStageCreateInfo> rShaderBase::getShaderStageInfo() {
  * _materialPtr functions only as an ID. The material itself will not be accessed, so nullptr is a
  * valid value.
  *
- * \returns nullptr on error
+ * \returns VK_NULL_HANDLE on error
  */
 VkDescriptorSet rShaderBase::getDescriptorSet(rMaterial const *_materialPtr) {
   if (!vModulesCreated)
     if (!init())
-      return nullptr;
+      return VK_NULL_HANDLE;
 
   if (vDescSetMap.find(_materialPtr) != vDescSetMap.end())
     return vDescSetMap[_materialPtr];
+
+  if (vDescPool_vk == VK_NULL_HANDLE) {
+    eLOG(L"No descriptor pool avaliable");
+    return VK_NULL_HANDLE;
+  }
 
   VkDescriptorSet lDescSet = nullptr;
 
@@ -705,7 +712,7 @@ VkDescriptorSet rShaderBase::getDescriptorSet(rMaterial const *_materialPtr) {
   auto lRes = vkAllocateDescriptorSets(vDevice_vk, &lAllocInfo, &lDescSet);
   if (lRes) {
     eLOG("'vkAllocateDescriptorSets' returend ", uEnum2Str::toStr(lRes));
-    return nullptr;
+    return VK_NULL_HANDLE;
   }
 
   // Update uniform buffers descriptor set

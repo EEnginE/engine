@@ -25,13 +25,12 @@
 #include "vkuDevice.hpp"
 #include "rRendererBase.hpp"
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 #include <thread>
 #include <vulkan.h>
 
 namespace e_engine {
-
-class rWorld;
 
 namespace internal {
 
@@ -48,16 +47,21 @@ struct SubmitInfos {
 class rRenderLoop {
  public:
   enum LoopCommand { BLOCK, PASS, PASSED };
+  typedef std::function<void(uint32_t)> CallBackInt;
+  typedef std::function<void()>         CallBackVoid;
 
 
  private:
   uint64_t              vRenderedFrames = 0;
   internal::SubmitInfos vSubmitInfos;
 
-  rWorld *vWorldPtr;
-
   VkDevice     vDevice_vk; //!< \brief Shortcut for **vDevice \todo Evaluate elimenating this.
   vkuDevicePTR vDevice;
+
+  vkuSwapChain *vSwapChain;
+
+  CallBackVoid vRenderedFrameCB;
+  CallBackInt  vUpdatePushConstantsCB;
 
   bool vRunRenderLoop   = false;
   bool vRunRenderThread = true;
@@ -88,7 +92,7 @@ class rRenderLoop {
 
  public:
   rRenderLoop() = delete;
-  rRenderLoop(rWorld *_root);
+  rRenderLoop(vkuDevicePTR _device, vkuSwapChain *_swapChain, CallBackVoid _renderedFrame, CallBackInt _updatePC);
   rRenderLoop(const rRenderLoop &_obj) = delete;
   rRenderLoop(rRenderLoop &&)          = delete;
   rRenderLoop &operator=(const rRenderLoop &) = delete;
