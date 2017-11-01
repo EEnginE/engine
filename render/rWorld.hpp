@@ -87,8 +87,6 @@ class rWorld {
 
   rRenderLoop vRenderLoop;
 
-  VkSurfaceFormatKHR vSwapchainFormat = {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_MAX_ENUM_KHR};
-
   std::mutex              vRenderAccessMutex;
   std::condition_variable vRenderedFrameSignal;
 
