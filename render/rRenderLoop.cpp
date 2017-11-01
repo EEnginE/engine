@@ -294,19 +294,8 @@ void rRenderLoop::renderLoop() {
 
 
       // Wait until rendering is done
-      lFences.wait(static_cast<uint32_t>(Fences::RENDER), 1);
-
-      //       // Update Uniforms
-      //       for (auto const &i : vRenderers)
-      //         i->updateUniforms();
-
-      lFences.wait(static_cast<uint32_t>(Fences::IMG1), 1);
-      lFences.wait(static_cast<uint32_t>(Fences::IMG2), 1);
-
-      lFences.reset();
-
+      lFences(0, static_cast<uint32_t>(Fences::NUM));
       lCmdAccessLock.unlock();
-
 
       vRenderedFrameCB();
       vRenderedFrames++;
