@@ -22,7 +22,6 @@
 
 #include "defines.hpp"
 
-#include "rBuffer.hpp"
 #include "rMatrixObjectBase.hpp"
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
@@ -33,8 +32,8 @@ namespace e_engine {
 
 class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
  private:
-  rBuffer vIndex;
-  rBuffer vVertex;
+  vkuBuffer vIndex;
+  vkuBuffer vVertex;
 
   rShaderBase *  vShader      = nullptr;
   UNIFORM_BUFFER vVertUniform = nullptr;
@@ -47,10 +46,11 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
   bool          vHasVPMatrix       = false;
   bool          vHasMVPMatrix_PC   = false;
   bool          vHasModelMatrix_PC = false;
+  uint32_t      vIndexCount        = 0;
 
-  std::vector<rBuffer *> setData_IMPL(VkCommandBuffer              _buf,
-                                      const std::vector<uint32_t> &_index,
-                                      const std::vector<float> &   _data) override;
+  std::vector<vkuBuffer *> setData_IMPL(vkuCommandBuffer &           _buf,
+                                        const std::vector<uint32_t> &_index,
+                                        const std::vector<float> &   _data) override;
 
   void destroy_IMPL() override;
 

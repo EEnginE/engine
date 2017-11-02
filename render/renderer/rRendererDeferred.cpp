@@ -34,7 +34,8 @@
 namespace e_engine {
 
 rRendererDeferred::rRendererDeferred(rWorld *_root, std::wstring _id)
-    : rRendererBase(_root, _id), vDeferredDataBuffer(_root->getDevice()), vDeferredIndexBuffer(_root->getDevice()) {}
+    : rRendererBase(_root,
+                    _id) /*, vDeferredDataBuffer(_root->getDevice()), vDeferredIndexBuffer(_root->getDevice())*/ {}
 
 #if 0
 void rRendererDeferred::setupSubpasses() {
@@ -148,8 +149,8 @@ bool rRendererDeferred::initRendererData() {
 
   lBuf.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-  vDeferredDataBuffer.cmdInit(lDefBufferData, *lBuf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-  vDeferredIndexBuffer.cmdInit(lDefBufferIndex, *lBuf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+  //   vDeferredDataBuffer.cmdInit(lDefBufferData, *lBuf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+  //   vDeferredIndexBuffer.cmdInit(lDefBufferIndex, *lBuf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
   VkSubmitInfo lInfo;
   lInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -174,13 +175,13 @@ bool rRendererDeferred::initRendererData() {
     eLOG("'vkWaitForFences' returned ", uEnum2Str::toStr(lRes));
   }
 
-  vDeferredDataBuffer.doneCopying();
-  vDeferredIndexBuffer.doneCopying();
+  //   vDeferredDataBuffer.doneCopying();
+  //   vDeferredIndexBuffer.doneCopying();
   return true;
 }
 bool rRendererDeferred::freeRendererData() {
-  vDeferredDataBuffer.destroy();
-  vDeferredIndexBuffer.destroy();
+  //   vDeferredDataBuffer.destroy();
+  //   vDeferredIndexBuffer.destroy();
   return true;
 }
 

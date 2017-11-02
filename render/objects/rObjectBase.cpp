@@ -43,7 +43,7 @@ bool rObjectBase::setPipeline(rPipeline *_pipe) {
   return true;
 }
 
-bool rObjectBase::setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t _meshIndex, std::string _rootPath) {
+bool rObjectBase::setData(vkuCommandBuffer &_buf, aiScene const *_scene, uint32_t _meshIndex, std::string _rootPath) {
   if (vIsLoaded_B || vPartialLoaded_B) {
     eLOG("Data already loaded! Object ", vName_str);
     return false;
@@ -280,10 +280,7 @@ bool rObjectBase::finishData() {
   }
 
   for (auto const &i : vLoadBuffers) {
-    if (!i->doneCopying()) {
-      eLOG("Failed to init data for object ", vName_str);
-      return false;
-    }
+    i->destroyStagingBufferMemory();
   }
 
   vLoadBuffers.clear();

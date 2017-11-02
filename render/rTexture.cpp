@@ -34,6 +34,8 @@ rTexture::rTexture(rTexture &&_old) {
 }
 
 rTexture &rTexture::operator=(rTexture &&_old) {
+  destroy(); // destroy old texture
+
   vDevice = _old.vDevice;
   cfg     = _old.cfg;
 

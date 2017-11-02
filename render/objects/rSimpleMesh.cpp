@@ -41,7 +41,7 @@ rSimpleMesh::rSimpleMesh(rMatrixSceneBase<float> *_scene, vkuDevicePTR _device, 
  */
 void rSimpleMesh::record(VkCommandBuffer _buf) {
   VkDeviceSize lOffsets[] = {0};
-  VkBuffer     lVertex    = vVertex.getBuffer();
+  VkBuffer     lVertex    = *vVertex;
 
   if (vVertUniform)
     vShader->cmdBindDescriptorSets(_buf, VK_PIPELINE_BIND_POINT_GRAPHICS);
@@ -59,21 +59,42 @@ void rSimpleMesh::record(VkCommandBuffer _buf) {
   }
 
   vkCmdBindVertexBuffers(_buf, vPipeline->getVertexBindPoint(), 1, &lVertex, &lOffsets[0]);
-  vkCmdBindIndexBuffer(_buf, vIndex.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-  vkCmdDrawIndexed(_buf, vIndex.getSize(), 1, 0, 0, 1);
+  vkCmdBindIndexBuffer(_buf, *vIndex, 0, VK_INDEX_TYPE_UINT32);
+  vkCmdDrawIndexed(_buf, vIndexCount, 1, 0, 0, 1);
 }
 
 /*!
  * \brief Inits the object (partialy)
  * \note This function SHOULD NOT be called directly! Use the functions in rScene instead!
  */
-std::vector<rBuffer *> rSimpleMesh::setData_IMPL(VkCommandBuffer              _buf,
-                                                 const std::vector<uint32_t> &_index,
-                                                 const std::vector<float> &   _data) {
+std::vector<vkuBuffer *> rSimpleMesh::setData_IMPL(vkuCommandBuffer &           _buf,
+                                                   const std::vector<uint32_t> &_index,
+                                                   const std::vector<float> &   _data) {
   iLOG("Initializing simple mesh object ", vName_str);
 
-  vIndex.cmdInit(_index, _buf, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-  vVertex.cmdInit(_data, _buf, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+  vIndexCount = static_cast<uint32_t>(_index.size());
+
+  vIndex->usage  = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+  vVertex->usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+  vIndex.init(_index.size() * sizeof(uint32_t));
+  vVertex.init(_data.size() * sizeof(float));
+
+  {
+    auto lIndAccess  = vIndex.getBufferAccess();
+    auto lVertAccess = vVertex.getBufferAccess();
+
+    if (!lIndAccess || !lVertAccess) {
+      eLOG(L"Failed to bind vulkan memory");
+      return {};
+    }
+
+    memcpy(*lIndAccess, _index.data(), vIndex.size());
+    memcpy(*lVertAccess, _data.data(), vVertex.size());
+  }
+
+  vIndex.cmdSync(_buf);
+  vVertex.cmdSync(_buf);
 
   return {&vIndex, &vVertex};
 }

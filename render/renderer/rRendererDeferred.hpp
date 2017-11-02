@@ -22,7 +22,7 @@
 #pragma once
 
 #include "defines.hpp"
-#include "rBuffer.hpp"
+// #include "rBuffer.hpp"
 #include "vkuCommandBuffer.hpp"
 #include "rRendererBase.hpp"
 
@@ -48,8 +48,8 @@ class rRendererDeferred : public rRendererBase {
   OBJECTS vRenderObjects;
   OBJECTS vLightObjects;
 
-  rBuffer vDeferredDataBuffer;
-  rBuffer vDeferredIndexBuffer;
+  //   rBuffer vDeferredDataBuffer;
+  //   rBuffer vDeferredIndexBuffer;
 
  protected:
   void recordCmdBuffers(uint32_t &_fbIndex, RECORD_TARGET _toRender) override;

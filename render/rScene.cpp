@@ -197,7 +197,7 @@ bool rSceneBase::initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objInde
 
   std::lock_guard<std::recursive_mutex> lGuard(vObjectsInit_MUT);
 
-  _obj->setData(*vInitBuff_vk, vScene_assimp, _objIndex, vLoadedFilePath);
+  _obj->setData(vInitBuff_vk, vScene_assimp, _objIndex, vLoadedFilePath);
   vInitObjects.emplace_back(_obj);
   return true;
 }

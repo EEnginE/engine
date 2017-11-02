@@ -21,7 +21,7 @@
 
 #include "defines.hpp"
 
-#include "rBuffer.hpp"
+#include "vkuBuffer.hpp"
 #include "rMaterial.hpp"
 #include "rShaderBase.hpp"
 #include <array>
@@ -118,7 +118,7 @@ class rObjectBase {
   using PUSH_CONSTANT  = rShaderBase::PushConstantVar;
 
  private:
-  std::vector<rBuffer *> vLoadBuffers;
+  std::vector<vkuBuffer *> vLoadBuffers;
 
  protected:
   vkuDevicePTR vDevice;
@@ -130,9 +130,9 @@ class rObjectBase {
 
   std::vector<rMaterial> vMaterials;
 
-  virtual std::vector<rBuffer *> setData_IMPL(VkCommandBuffer,
-                                              std::vector<uint32_t> const &,
-                                              std::vector<float> const &) {
+  virtual std::vector<vkuBuffer *> setData_IMPL(vkuCommandBuffer &,
+                                                std::vector<uint32_t> const &,
+                                                std::vector<float> const &) {
     return {};
   }
 
@@ -157,7 +157,7 @@ class rObjectBase {
 
   virtual ~rObjectBase();
 
-  bool setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t _meshIndex, std::string _rootPath);
+  bool setData(vkuCommandBuffer &_buf, aiScene const *_scene, uint32_t _meshIndex, std::string _rootPath);
   void destroy();
 
   bool finishData();
@@ -166,7 +166,7 @@ class rObjectBase {
   virtual bool isMesh()                            = 0;
   virtual void updateUniforms() {}
   virtual void record(VkCommandBuffer) {}
-  virtual void recordLight(VkCommandBuffer, rBuffer &, rBuffer &) {}
+  virtual void recordLight(VkCommandBuffer, vkuBuffer &, vkuBuffer &) {}
   virtual void signalRenderReset(rRendererBase *) {}
   virtual bool supportsPushConstants() { return false; }
 

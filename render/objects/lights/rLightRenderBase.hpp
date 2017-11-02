@@ -30,7 +30,7 @@ namespace e_engine {
 class rLightRenderBase : public rObjectBase {
  private:
   bool isMesh() override { return false; }
-  void recordLight(VkCommandBuffer _buf, rBuffer &_vertex, rBuffer &_index) override;
+  void recordLight(VkCommandBuffer _buf, vkuBuffer &_vertex, vkuBuffer &_index) override;
   bool checkIsCompatible(rPipeline *_pipe) override;
   void signalRenderReset(rRendererBase *_renderer) override;
 

@@ -25,15 +25,15 @@
 
 using namespace e_engine;
 
-void rLightRenderBase::recordLight(VkCommandBuffer _buf, rBuffer &_vertex, rBuffer &_index) {
+void rLightRenderBase::recordLight(VkCommandBuffer _buf, vkuBuffer &_vertex, vkuBuffer &_index) {
   VkDeviceSize lOffsets[] = {0};
-  VkBuffer     lVertex    = _vertex.getBuffer();
+  VkBuffer     lVertex    = *_vertex;
 
   vPipeline->getShader()->cmdBindDescriptorSets(_buf, VK_PIPELINE_BIND_POINT_GRAPHICS);
   vPipeline->cmdBindPipeline(_buf, VK_PIPELINE_BIND_POINT_GRAPHICS);
   vkCmdBindVertexBuffers(_buf, vPipeline->getVertexBindPoint(), 1, &lVertex, &lOffsets[0]);
-  vkCmdBindIndexBuffer(_buf, _index.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-  vkCmdDrawIndexed(_buf, _index.getSize(), 1, 0, 0, 1);
+  vkCmdBindIndexBuffer(_buf, *_index, 0, VK_INDEX_TYPE_UINT32);
+  vkCmdDrawIndexed(_buf, /*_index.size()*/ 6, 1, 0, 0, 1); //!\todo Fix this at refactor
 }
 
 void rLightRenderBase::signalRenderReset(rRendererBase *_renderer) {
