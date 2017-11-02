@@ -26,7 +26,7 @@
 
 namespace e_engine {
 
-template <class T, glm::precision P = glm::precision::highp>
+template <class T, glm::qualifier P = glm::qualifier::highp>
 class rPointLight : public rLightRenderBase, public rMatrixObjectBase<T> {
   typedef rMatrixSceneBase<float> *SCENE;
 
@@ -77,7 +77,7 @@ class rPointLight : public rLightRenderBase, public rMatrixObjectBase<T> {
 };
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 uint32_t rPointLight<T, P>::getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPES _type) {
   *_vec = nullptr;
 

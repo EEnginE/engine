@@ -28,7 +28,7 @@
 
 namespace e_engine {
 
-template <class T, glm::precision P = glm::precision::highp>
+template <class T = float, glm::qualifier P = glm::qualifier::highp>
 class rCameraHandler {
   typedef iInit::SLOT_C<rCameraHandler> SLOT;
 
@@ -105,7 +105,7 @@ class rCameraHandler {
   virtual void afterCameraUpdate() = 0;
 };
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rCameraHandler<T, P>::setCameraKey(KEY_MOVEMENT _key, wchar_t _what) {
   if (_key >= __LAST__ || _key < 0)
     return;
@@ -113,7 +113,7 @@ void rCameraHandler<T, P>::setCameraKey(KEY_MOVEMENT _key, wchar_t _what) {
   keys[_key] = _what;
 }
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rCameraHandler<T, P>::updateCamera() {
   if (vCameraMovementEnabled)
     vScene->setCamera(vPosition, vPosition + vDirection, vUp);
@@ -122,7 +122,7 @@ void rCameraHandler<T, P>::updateCamera() {
 }
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rCameraHandler<T, P>::key(iEventInfo const &_event) {
   if (!vCameraMovementEnabled || _event.eKey.state == E_RELEASED)
     return;
@@ -167,7 +167,7 @@ void rCameraHandler<T, P>::key(iEventInfo const &_event) {
 }
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rCameraHandler<T, P>::updateDirectionAndUp() {
   vDirection.x = static_cast<T>(cos(GlobConf.camera.angleVertical) * sin(GlobConf.camera.angleHorizontal));
   vDirection.y = static_cast<T>(sin(GlobConf.camera.angleVertical));
@@ -190,7 +190,7 @@ void rCameraHandler<T, P>::updateDirectionAndUp() {
 }
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rCameraHandler<T, P>::mouse(iEventInfo const &_event) {
   int lDifX = static_cast<int>((GlobConf.win.width / 2) - _event.iMouse.posX);
   int lDifY = -static_cast<int>((GlobConf.win.height / 2) - _event.iMouse.posY);
@@ -206,7 +206,7 @@ void rCameraHandler<T, P>::mouse(iEventInfo const &_event) {
   updateCamera();
 }
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rCameraHandler<T, P>::printCameraPosition() {
   iLOG(L"Camera position:  X = ", vPosition.x, L"; Y = ", vPosition.y, "; Z = ", vPosition.z);
 }

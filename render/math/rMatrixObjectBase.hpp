@@ -23,7 +23,7 @@
 #include "defines.hpp"
 #include "rMatrixSceneBase.hpp"
 #include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <mutex>
 
 namespace e_engine {
@@ -33,7 +33,7 @@ namespace e_engine {
  *
  *
  */
-template <class T, glm::precision P = glm::precision::highp>
+template <class T = float, glm::qualifier P = glm::qualifier::highp>
 class rMatrixObjectBase {
  private:
   glm::tmat4x4<T, P> vScaleMatrix_MAT;
@@ -94,12 +94,12 @@ class rMatrixObjectBase {
   inline void updateFinalMatrix();
 };
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 rMatrixObjectBase<T, P>::rMatrixObjectBase(rMatrixSceneBase<T> *_scene) {
-  vScaleMatrix_MAT       = glm::tmat4x4<T, P>();
-  vRotationMatrix_MAT    = glm::tmat4x4<T, P>();
-  vTranslationMatrix_MAT = glm::tmat4x4<T, P>();
-  vModelViewMatrix_MAT   = glm::tmat4x4<T, P>();
+  vScaleMatrix_MAT       = glm::tmat4x4<T, P>(static_cast<T>(1));
+  vRotationMatrix_MAT    = glm::tmat4x4<T, P>(static_cast<T>(1));
+  vTranslationMatrix_MAT = glm::tmat4x4<T, P>(static_cast<T>(1));
+  vModelViewMatrix_MAT   = glm::tmat4x4<T, P>(static_cast<T>(1));
 
   vViewProjectionMatrix_MAT = _scene->getViewProjectionMatrix();
   vViewMatrix_MAT           = _scene->getViewMatrix();
@@ -110,61 +110,61 @@ rMatrixObjectBase<T, P>::rMatrixObjectBase(rMatrixSceneBase<T> *_scene) {
   if (vViewProjectionMatrix_MAT)
     vModelViewProjectionMatrix_MAT = *vViewProjectionMatrix_MAT * vModelMatrix_MAT;
   else
-    vModelViewProjectionMatrix_MAT = glm::tmat4x4<T, P>();
+    vModelViewProjectionMatrix_MAT = glm::tmat4x4<T, P>(static_cast<T>(1));
 }
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixObjectBase<T, P>::setScale(T _scale) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vScale           = glm::tvec3<T, P>(_scale, _scale, _scale);
-  vScaleMatrix_MAT = glm::scale(vScale);
+  vScaleMatrix_MAT = glm::scale(glm::tmat4x4<T, P>(static_cast<T>(1)), vScale);
   updateFinalMatrix();
 }
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixObjectBase<T, P>::setScale(const glm::tvec3<T, P> &_scale) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vScale           = _scale;
-  vScaleMatrix_MAT = glm::scale(vScale);
+  vScaleMatrix_MAT = glm::scale(glm::tmat4x4<T, P>(static_cast<T>(1)), vScale);
   updateFinalMatrix();
 }
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixObjectBase<T, P>::addScaleDelta(const glm::tvec3<T, P> &_scale) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vScale += _scale;
-  vScaleMatrix_MAT = glm::scale(vScale);
+  vScaleMatrix_MAT = glm::scale(glm::tmat4x4<T, P>(static_cast<T>(1)), vScale);
   updateFinalMatrix();
 }
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixObjectBase<T, P>::setRotation(const glm::tvec3<T, P> &_axis, T _angle) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-  vRotationMatrix_MAT = glm::rotate(_angle, _axis);
+  vRotationMatrix_MAT = glm::rotate(glm::tmat4x4<T, P>(static_cast<T>(1)), _angle, _axis);
   updateFinalMatrix();
 }
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixObjectBase<T, P>::setPosition(const glm::tvec3<T, P> &_pos) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vPosition              = _pos;
-  vTranslationMatrix_MAT = glm::translate(vPosition);
+  vTranslationMatrix_MAT = glm::translate(glm::tmat4x4<T, P>(static_cast<T>(1)), vPosition);
   updateFinalMatrix();
 }
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixObjectBase<T, P>::addPositionDelta(const glm::tvec3<T, P> &_pos) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vPosition += _pos;
-  vTranslationMatrix_MAT = glm::translate(vPosition);
+  vTranslationMatrix_MAT = glm::translate(glm::tmat4x4<T, P>(static_cast<T>(1)), vPosition);
   updateFinalMatrix();
 }
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixObjectBase<T, P>::updateFinalMatrix() {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vModelMatrix_MAT = vTranslationMatrix_MAT * vRotationMatrix_MAT * vScaleMatrix_MAT;

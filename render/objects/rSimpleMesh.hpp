@@ -58,7 +58,7 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
   MESH_TYPES         getMeshType() const override { return MESH_3D; }
 
  public:
-  rSimpleMesh(rMatrixSceneBase<float> *_scene, std::string _name);
+  rSimpleMesh(rMatrixSceneBase<float> *_scene, vkuDevicePTR _device, std::string _name);
 
   ~rSimpleMesh() override { destroy_IMPL(); }
 

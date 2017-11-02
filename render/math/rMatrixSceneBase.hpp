@@ -35,7 +35,7 @@ class rWorld;
  *
  *
  */
-template <class T, glm::precision P = glm::precision::highp>
+template <class T = float, glm::qualifier P = glm::qualifier::highp>
 class rMatrixSceneBase {
  private:
   rWorld *vWoldPtr;
@@ -65,12 +65,11 @@ class rMatrixSceneBase {
 };
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 rMatrixSceneBase<T, P>::rMatrixSceneBase(rWorld *_init) : vWoldPtr(_init) {
-  glm::mat4 test;
-  vProjectionMatrix_MAT     = glm::tmat4x4<T, P>(1);
-  vViewMatrix_MAT           = glm::tmat4x4<T, P>(1);
-  vViewProjectionMatrix_MAT = glm::tmat4x4<T, P>(1);
+  vProjectionMatrix_MAT     = glm::tmat4x4<T, P>(static_cast<T>(1));
+  vViewMatrix_MAT           = glm::tmat4x4<T, P>(static_cast<T>(1));
+  vViewProjectionMatrix_MAT = glm::tmat4x4<T, P>(static_cast<T>(1));
 }
 
 /*!
@@ -81,7 +80,7 @@ rMatrixSceneBase<T, P>::rMatrixSceneBase(rWorld *_init) : vWoldPtr(_init) {
  * \param[in] _farZ        The far clipping plane
  * \param[in] _fofy        The field of view angle
  */
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixSceneBase<T, P>::calculateProjectionPerspective(T _aspectRatio, T _nearZ, T _farZ, T _fofy) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vProjectionMatrix_MAT     = glm::perspective(_fofy, _aspectRatio, _nearZ, _farZ);
@@ -97,7 +96,7 @@ void rMatrixSceneBase<T, P>::calculateProjectionPerspective(T _aspectRatio, T _n
  * \param[in] _farZ        The far clipping plane
  * \param[in] _fofy        The field of view angle
  */
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixSceneBase<T, P>::calculateProjectionPerspective(T _width, T _height, T _nearZ, T _farZ, T _fofy) {
   std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
   vProjectionMatrix_MAT     = glm::perspective(_fofy, _width / _height, _nearZ, _farZ);
@@ -111,7 +110,7 @@ void rMatrixSceneBase<T, P>::calculateProjectionPerspective(T _width, T _height,
  * \param[in] _lookAt   The direction of the camera
  * \param[in] _upVector The up direction of the camera ( mostly rVec3( 0, 1, 0 ) )
  */
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 void rMatrixSceneBase<T, P>::setCamera(const glm::tvec3<T, P> &_position,
                                        const glm::tvec3<T, P> &_lookAt,
                                        const glm::tvec3<T, P> &_upVector) {

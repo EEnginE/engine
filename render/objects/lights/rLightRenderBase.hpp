@@ -36,7 +36,7 @@ class rLightRenderBase : public rObjectBase {
 
  public:
   rLightRenderBase() = delete;
-  rLightRenderBase(std::string _name) : rObjectBase(_name) {}
+  rLightRenderBase(vkuDevicePTR _device, std::string _name) : rObjectBase(_device, _name) {}
 };
 
 } // namespace e_engine

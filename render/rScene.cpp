@@ -24,8 +24,15 @@
 #include "vkuFence.hpp"
 #include "iInit.hpp"
 #include "rWorld.hpp"
-
 #include <assimp/postprocess.h>
+
+#if __cplusplus <= 201402L || true //! \todo FIX THIS when C++17 is released
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#include <filesystem>
+namespace fs = std::filesystem;
+#endif
 
 namespace e_engine {
 
@@ -88,6 +95,9 @@ std::vector<rSceneBase::MeshInfo> rSceneBase::loadFile(std::string _file) {
           aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_RemoveRedundantMaterials |
           aiProcess_GenUVCoords | aiProcess_FindDegenerates | aiProcess_FindInvalidData | aiProcess_FixInfacingNormals |
           aiProcess_ImproveCacheLocality | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
+
+  fs::path lTempPath(_file);
+  vLoadedFilePath = lTempPath.parent_path().string();
 
   if (!vScene_assimp) {
     eLOG("Loading ", _file, " failed!");
@@ -187,7 +197,7 @@ bool rSceneBase::initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objInde
 
   std::lock_guard<std::recursive_mutex> lGuard(vObjectsInit_MUT);
 
-  _obj->setData(*vInitBuff_vk, vScene_assimp, _objIndex);
+  _obj->setData(*vInitBuff_vk, vScene_assimp, _objIndex, vLoadedFilePath);
   vInitObjects.emplace_back(_obj);
   return true;
 }

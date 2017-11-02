@@ -22,6 +22,7 @@
 #include "defines.hpp"
 
 #include "rBuffer.hpp"
+#include "rMaterial.hpp"
 #include "rShaderBase.hpp"
 #include <array>
 #include <assimp/scene.h>
@@ -60,7 +61,7 @@ class rRendererBase;
 /*!
  * \brief Base class for creating objects
  *
- * \todo Refactor!
+ * \todo Refactor! I know this is bad :(
  *
  * You MUST set some hints in your constructor about the object and create a clearOGLData__
  * and setOGLData__ function.
@@ -120,11 +121,14 @@ class rObjectBase {
   std::vector<rBuffer *> vLoadBuffers;
 
  protected:
-  std::string vName_str;
+  vkuDevicePTR vDevice;
+  std::string  vName_str;
 
   bool       vPartialLoaded_B = false;
   bool       vIsLoaded_B      = false;
   rPipeline *vPipeline        = nullptr;
+
+  std::vector<rMaterial> vMaterials;
 
   virtual std::vector<rBuffer *> setData_IMPL(VkCommandBuffer,
                                               std::vector<uint32_t> const &,
@@ -137,7 +141,7 @@ class rObjectBase {
   virtual void destroy_IMPL() {}
 
  public:
-  rObjectBase(std::string _name) : vName_str(_name) {}
+  rObjectBase(vkuDevicePTR _device, std::string _name) : vDevice(_device), vName_str(_name) {}
   rObjectBase() = delete;
 
   virtual VERTEX_DATA_LAYOUT getDataLayout() const { return UNDEFINED; }
@@ -153,7 +157,7 @@ class rObjectBase {
 
   virtual ~rObjectBase();
 
-  bool setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t _meshIndex);
+  bool setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t _meshIndex, std::string _rootPath);
   void destroy();
 
   bool finishData();

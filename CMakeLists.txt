@@ -109,7 +109,6 @@ endif( ENGINE_VERBOSE OR "${CMAKE_BUILD_TYPE}" MATCHES "DEBUG" )
 find_package(Threads REQUIRED)
 find_package(Vulkan  REQUIRED)
 find_package(assimp  REQUIRED)
-find_package(glm     REQUIRED)
 
 if( CM_UNIX_X11 )
   find_package(XCB COMPONENTS xcb xcb-randr REQUIRED)
@@ -153,7 +152,7 @@ new_project_library(
   PATH         "${PROJECT_SOURCE_DIR}/render"
   NAME         "render"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.lib.in"
-  DEPENDENCIES utils_shared init_shared vulkanUtils_shared glm
+  DEPENDENCIES utils_shared init_shared vulkanUtils_shared
 )
 
 generate_engine_hpp( "${TEMPLATES_DIR}/engine.in.hpp" "${PROJECT_SOURCE_DIR}/include/engine.hpp" )
@@ -162,14 +161,14 @@ new_project_executable(
   PATH         "${PROJECT_SOURCE_DIR}/tests/test1"
   NAME         "test1"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
-  DEPENDENCIES utils_shared init_shared render_shared glm
+  DEPENDENCIES utils_shared init_shared render_shared
 )
 
 new_project_executable(
   PATH         "${PROJECT_SOURCE_DIR}/tests/benchmarks"
   NAME         "benchmarks"
   TEMPLATE     "${TEMPLATES_DIR}/CMakeLists.test.in"
-  DEPENDENCIES utils_shared init_shared render_shared glm
+  DEPENDENCIES utils_shared init_shared render_shared
 )
 
 generate_format_command( format 4.0.0 )
@@ -187,6 +186,8 @@ include_directories(
     ${XCB_INCLUDE_DIRS}
     ${ASSIMP_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/external/plf_colony
+    ${PROJECT_SOURCE_DIR}/external/glm
+    ${PROJECT_SOURCE_DIR}/external/gli
 )
 
 configure_file( "${TEMPLATES_DIR}/defines.in.hpp"      "${PROJECT_SOURCE_DIR}/include/defines.hpp" )
@@ -219,7 +220,7 @@ enum2str_generate(
     "iRandRBasic::ErrorCode" "iWindowBasic::ErrorCode" "iInit::ErrorCode"
 
     # AssImp
-    "aiTextureType" "aiTextureMapping" "aiTextureOp" "aiTextureMapMode"
+    "aiTextureType" "aiTextureMapping" "aiTextureOp" "aiTextureMapMode" "aiBlendMode" "aiShadingMode"
 
     # Vulkan
     "VkPipelineCacheHeaderVersion"

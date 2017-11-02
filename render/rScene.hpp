@@ -38,6 +38,11 @@ namespace e_engine {
 
 class rWorld;
 
+/*!
+ * \brief Contains Objects and other data for a scene
+ *
+ * \todo Refactor file loading! THIS IS BAD!
+ */
 class rSceneBase {
  public:
   struct MeshInfo {
@@ -58,6 +63,7 @@ class rSceneBase {
   std::vector<size_t> vLightSourcesIndex;
 
   std::string vName_str;
+  std::string vLoadedFilePath;
 
   std::mutex           vObjects_MUT;
   std::recursive_mutex vObjectsInit_MUT;
@@ -89,7 +95,8 @@ class rSceneBase {
   bool initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objIndex);
   bool endInitObject();
 
-  size_t getNumObjects() { return vObjects.size(); }
+  inline size_t  getNumObjects() { return vObjects.size(); }
+  inline rWorld *getWorldPTR() { return vWorldPtr; }
 };
 
 template <class T>

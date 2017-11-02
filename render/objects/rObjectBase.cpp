@@ -43,7 +43,7 @@ bool rObjectBase::setPipeline(rPipeline *_pipe) {
   return true;
 }
 
-bool rObjectBase::setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t _meshIndex) {
+bool rObjectBase::setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t _meshIndex, std::string _rootPath) {
   if (vIsLoaded_B || vPartialLoaded_B) {
     eLOG("Data already loaded! Object ", vName_str);
     return false;
@@ -115,11 +115,12 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t 
 
   for (uint32_t i = 0; i < _scene->mNumMaterials; ++i) {
     aiString name;
-    float    opacity;
-    float    shininess;
-    float    shininess_strength;
-    float    refracti;
+    float    opacity            = 1.0;
+    float    shininess          = 0.0;
+    float    shininess_strength = 1.0;
+    float    refracti           = 1.0;
     int      blend_func;
+    int      shading_mode;
 
     aiMaterial *lMat = _scene->mMaterials[i];
     lMat->Get(AI_MATKEY_NAME, &name, nullptr);
@@ -128,6 +129,41 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t 
     lMat->Get(AI_MATKEY_SHININESS_STRENGTH, &shininess_strength, nullptr);
     lMat->Get(AI_MATKEY_REFRACTI, &refracti, nullptr);
     lMat->Get(AI_MATKEY_BLEND_FUNC, &blend_func, nullptr);
+    lMat->Get(AI_MATKEY_SHADING_MODEL, &shading_mode, nullptr);
+
+    vMaterials.emplace_back(vDevice, name.C_Str());
+    rMaterial &lMatOBJ = vMaterials.back();
+
+    lMatOBJ->opacity           = opacity;
+    lMatOBJ->shininess         = shininess;
+    lMatOBJ->shininessStrength = shininess_strength;
+    lMatOBJ->refracti          = refracti;
+
+    lMatOBJ->blendFunc = [blend_func]() {
+      switch (static_cast<aiBlendMode>(blend_func)) {
+        case aiBlendMode_Default: return BlendFunc::DEFAULT;
+        case aiBlendMode_Additive: return BlendFunc::ADAPTIVE;
+        default: return BlendFunc::UNDEFINED;
+      }
+    }();
+
+    lMatOBJ->shadingMode = [shading_mode]() {
+      switch (static_cast<aiShadingMode>(shading_mode)) {
+        case aiShadingMode_Flat: return ShadingMode::FLAT;
+        case aiShadingMode_Gouraud: return ShadingMode::GOURAUD;
+        case aiShadingMode_Phong: return ShadingMode::PHONG;
+        case aiShadingMode_Blinn: return ShadingMode::BLINN;
+        case aiShadingMode_Toon: return ShadingMode::TOON;
+        case aiShadingMode_OrenNayar: return ShadingMode::ORENNAYAR;
+        case aiShadingMode_Minnaert: return ShadingMode::MINNAERT;
+        case aiShadingMode_CookTorrance: return ShadingMode::COOKTORRANCE;
+        case aiShadingMode_NoShading: return ShadingMode::NOSHADING;
+        case aiShadingMode_Fresnel: return ShadingMode::FRESNEL;
+        default: return ShadingMode::UNDEFINED;
+      }
+    }();
+
+
 
     iLOG(L"Material ", i);
     iLOG(L"  -- name:               ", name.C_Str());
@@ -135,7 +171,8 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t 
     iLOG(L"  -- shininess:          ", shininess);
     iLOG(L"  -- shininess_strength: ", shininess_strength);
     iLOG(L"  -- refracti:           ", refracti);
-    iLOG(L"  -- blend_func:         ", blend_func);
+    iLOG(L"  -- blend_func:         ", uEnum2Str::toStr(static_cast<aiBlendMode>(blend_func)));
+    iLOG(L"  -- shading_mode:       ", uEnum2Str::toStr(static_cast<aiShadingMode>(shading_mode)));
 
     for (aiTextureType j : {aiTextureType_NONE,
                             aiTextureType_DIFFUSE,
@@ -168,6 +205,59 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t 
         iLOG(L"    - blend:     ", blend);
         iLOG(L"    - textureOp: ", uEnum2Str::toStr(textureOp));
         iLOG(L"    - mapMode:   ", uEnum2Str::toStr(mapMode));
+
+        TextureType texType = [j]() {
+          switch (j) {
+            case aiTextureType_NONE: return TextureType::NONE;
+            case aiTextureType_DIFFUSE: return TextureType::DIFFUSE;
+            case aiTextureType_SPECULAR: return TextureType::SPECULAR;
+            case aiTextureType_AMBIENT: return TextureType::AMBIENT;
+            case aiTextureType_EMISSIVE: return TextureType::EMISSIVE;
+            case aiTextureType_HEIGHT: return TextureType::HEIGHT;
+            case aiTextureType_NORMALS: return TextureType::NORMALS;
+            case aiTextureType_SHININESS: return TextureType::SHININESS;
+            case aiTextureType_OPACITY: return TextureType::OPACITY;
+            case aiTextureType_DISPLACEMENT: return TextureType::DISPLACEMENT;
+            case aiTextureType_LIGHTMAP: return TextureType::LIGHTMAP;
+            case aiTextureType_REFLECTION: return TextureType::REFLECTION;
+            default: return TextureType::UNKNOWN;
+          }
+        }();
+
+        TextureOP texOP = [textureOp]() {
+          switch (textureOp) {
+            case aiTextureOp_Multiply: return TextureOP::MULTIPLY;
+            case aiTextureOp_Add: return TextureOP::ADD;
+            case aiTextureOp_Subtract: return TextureOP::SUBTRACT;
+            case aiTextureOp_Divide: return TextureOP::DIVIDE;
+            case aiTextureOp_SmoothAdd: return TextureOP::SMOOTH_ADD;
+            case aiTextureOp_SignedAdd: return TextureOP::SIGNED_ADD;
+            default: return TextureOP::MULTIPLY;
+          }
+        }();
+
+        TextureMapping texMap = [mapping]() {
+          switch (mapping) {
+            case aiTextureMapping_UV: return TextureMapping::UV;
+            case aiTextureMapping_SPHERE: return TextureMapping::SPHERE;
+            case aiTextureMapping_CYLINDER: return TextureMapping::CYLINDER;
+            case aiTextureMapping_BOX: return TextureMapping::BOX;
+            case aiTextureMapping_PLANE: return TextureMapping::PLANE;
+            default: return TextureMapping::OTHER;
+          }
+        }();
+
+        TextureMapMode texMapMode = [mapMode]() {
+          switch (mapMode) {
+            case aiTextureMapMode_Wrap: return TextureMapMode::WRAP;
+            case aiTextureMapMode_Clamp: return TextureMapMode::CLAMP;
+            case aiTextureMapMode_Decal: return TextureMapMode::DECAL;
+            case aiTextureMapMode_Mirror: return TextureMapMode::MIRROR;
+            default: return TextureMapMode::WRAP;
+          }
+        }();
+
+        lMatOBJ.addTexture(_rootPath + "/" + path.C_Str(), uvIndex, blend, texType, texOP, texMap, texMapMode);
       }
     }
   }

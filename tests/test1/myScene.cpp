@@ -42,7 +42,7 @@ int myScene::init() {
     if (i.type != MESH_3D)
       continue;
 
-    vObjects.emplace_back(std::make_shared<rSimpleMesh>(this, i.name));
+    vObjects.emplace_back(std::make_shared<rSimpleMesh>(this, getWorldPTR()->getDevice(), i.name));
 
     initObject(vObjects.back(), i.index);
     vObjects.back()->setPosition(vec3(0, 0, -5));

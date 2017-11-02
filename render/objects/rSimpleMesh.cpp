@@ -27,9 +27,9 @@
 using namespace e_engine;
 using namespace glm;
 
-rSimpleMesh::rSimpleMesh(rMatrixSceneBase<float> *_scene, std::string _name)
+rSimpleMesh::rSimpleMesh(rMatrixSceneBase<float> *_scene, vkuDevicePTR _device, std::string _name)
     : rMatrixObjectBase(_scene),
-      rObjectBase(_name),
+      rObjectBase(_device, _name),
       vIndex(_scene->getWorldPtr()->getDevice()),
       vVertex(_scene->getWorldPtr()->getDevice()) {}
 

@@ -26,7 +26,7 @@
 
 namespace e_engine {
 
-template <class T, glm::precision P = glm::precision::highp>
+template <class T, glm::qualifier P = glm::qualifier::highp>
 class rDirectionalLight : public rObjectBase {
  private:
   glm::tvec3<T, P> vAmbientColor;
@@ -70,7 +70,7 @@ class rDirectionalLight : public rObjectBase {
 };
 
 
-template <class T, glm::precision P>
+template <class T, glm::qualifier P>
 uint32_t rDirectionalLight<T, P>::getVector(glm::tvec3<T, P> **_vec, VECTOR_TYPES _type) {
   *_vec = nullptr;
 
