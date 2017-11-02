@@ -60,6 +60,8 @@ class rRendererBase;
 /*!
  * \brief Base class for creating objects
  *
+ * \todo Refactor!
+ *
  * You MUST set some hints in your constructor about the object and create a clearOGLData__
  * and setOGLData__ function.
  *
@@ -131,6 +133,7 @@ class rObjectBase {
   }
 
   bool         setupVertexData_PN(aiMesh const *_mesh, std::vector<float> &_out);
+  bool         setupVertexData_PNUV(aiMesh const *_mesh, std::vector<float> &_out);
   virtual void destroy_IMPL() {}
 
  public:
@@ -150,7 +153,7 @@ class rObjectBase {
 
   virtual ~rObjectBase();
 
-  bool setData(VkCommandBuffer _buf, aiMesh const *_mesh);
+  bool setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t _meshIndex);
   void destroy();
 
   bool finishData();

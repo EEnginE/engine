@@ -54,7 +54,7 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
 
   void destroy_IMPL() override;
 
-  VERTEX_DATA_LAYOUT getDataLayout() const override { return POS_NORM; }
+  VERTEX_DATA_LAYOUT getDataLayout() const override { return POS_NORM_UV; }
   MESH_TYPES         getMeshType() const override { return MESH_3D; }
 
  public:

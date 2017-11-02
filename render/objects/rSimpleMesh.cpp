@@ -147,7 +147,7 @@ void rSimpleMesh::updateUniforms() {
 }
 
 bool rSimpleMesh::checkIsCompatible(rPipeline *_pipe) {
-  return _pipe->checkInputCompatible({{3, sizeof(float)}, {3, sizeof(float)}});
+  return _pipe->checkInputCompatible({{3, sizeof(float)}, {3, sizeof(float)}, {2, sizeof(float)}});
 }
 
 uint32_t rSimpleMesh::getMatrix(mat4 **_mat, rObjectBase::MATRIX_TYPES _type) {

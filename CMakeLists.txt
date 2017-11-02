@@ -206,6 +206,8 @@ enum2str_generate(
     "defines.hpp" "vulkan.h"
     "rObjectBase.hpp" "rShaderBase.hpp"
     "iRandRBasic.hpp" "iWindowBasic.hpp" "iInit.hpp"
+
+    "assimp/material.h"
   ENUMS
     # EEnginE
     "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
@@ -215,6 +217,9 @@ enum2str_generate(
 
     # EEnginE error codes
     "iRandRBasic::ErrorCode" "iWindowBasic::ErrorCode" "iInit::ErrorCode"
+
+    # AssImp
+    "aiTextureType" "aiTextureMapping" "aiTextureOp" "aiTextureMapMode"
 
     # Vulkan
     "VkPipelineCacheHeaderVersion"

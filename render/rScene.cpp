@@ -87,7 +87,7 @@ std::vector<rSceneBase::MeshInfo> rSceneBase::loadFile(std::string _file) {
       aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals |
           aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_RemoveRedundantMaterials |
           aiProcess_GenUVCoords | aiProcess_FindDegenerates | aiProcess_FindInvalidData | aiProcess_FixInfacingNormals |
-          aiProcess_ImproveCacheLocality);
+          aiProcess_ImproveCacheLocality | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
 
   if (!vScene_assimp) {
     eLOG("Loading ", _file, " failed!");
@@ -186,12 +186,8 @@ bool rSceneBase::initObject(std::shared_ptr<rObjectBase> _obj, uint32_t _objInde
   }
 
   std::lock_guard<std::recursive_mutex> lGuard(vObjectsInit_MUT);
-  auto const *                          lMesh = getAiMesh(_objIndex);
 
-  if (!lMesh)
-    return false;
-
-  _obj->setData(*vInitBuff_vk, lMesh);
+  _obj->setData(*vInitBuff_vk, vScene_assimp, _objIndex);
   vInitObjects.emplace_back(_obj);
   return true;
 }

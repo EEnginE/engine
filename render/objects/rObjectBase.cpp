@@ -43,13 +43,20 @@ bool rObjectBase::setPipeline(rPipeline *_pipe) {
   return true;
 }
 
-bool rObjectBase::setData(VkCommandBuffer _buf, aiMesh const *_mesh) {
+bool rObjectBase::setData(VkCommandBuffer _buf, aiScene const *_scene, uint32_t _meshIndex) {
   if (vIsLoaded_B || vPartialLoaded_B) {
     eLOG("Data already loaded! Object ", vName_str);
     return false;
   }
 
-  if (!_mesh) {
+  if (!_scene || _scene->mNumMeshes <= _meshIndex) {
+    eLOG(L"Invalid mesh parameters");
+    return false;
+  }
+
+  aiMesh *lMesh = _scene->mMeshes[_meshIndex];
+
+  if (!lMesh) {
     eLOG("Invalid mesh object!");
     return false;
   }
@@ -58,32 +65,32 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiMesh const *_mesh) {
 
   switch (getMeshType()) {
     case POINTS_3D:
-      if (_mesh->mPrimitiveTypes != aiPrimitiveType_POINT) {
-        eLOG("Invalid primitive type ", _mesh->mPrimitiveTypes, " expected ", aiPrimitiveType_POINT, " (point)");
+      if (lMesh->mPrimitiveTypes != aiPrimitiveType_POINT) {
+        eLOG("Invalid primitive type ", lMesh->mPrimitiveTypes, " expected ", aiPrimitiveType_POINT, " (point)");
         return false;
       }
 
       lIndexSize = 1;
       break;
     case LINES_3D:
-      if (_mesh->mPrimitiveTypes != aiPrimitiveType_LINE) {
-        eLOG("Invalid primitive type ", _mesh->mPrimitiveTypes, " expected ", aiPrimitiveType_LINE, " (line)");
+      if (lMesh->mPrimitiveTypes != aiPrimitiveType_LINE) {
+        eLOG("Invalid primitive type ", lMesh->mPrimitiveTypes, " expected ", aiPrimitiveType_LINE, " (line)");
         return false;
       }
 
       lIndexSize = 2;
       break;
     case MESH_3D:
-      if (_mesh->mPrimitiveTypes != aiPrimitiveType_TRIANGLE) {
-        eLOG("Invalid primitive type ", _mesh->mPrimitiveTypes, " expected ", aiPrimitiveType_TRIANGLE, " (triangle)");
+      if (lMesh->mPrimitiveTypes != aiPrimitiveType_TRIANGLE) {
+        eLOG("Invalid primitive type ", lMesh->mPrimitiveTypes, " expected ", aiPrimitiveType_TRIANGLE, " (triangle)");
         return false;
       }
 
       lIndexSize = 3;
       break;
     case POLYGON_3D:
-      if (_mesh->mPrimitiveTypes != aiPrimitiveType_POLYGON) {
-        eLOG("Invalid primitive type ", _mesh->mPrimitiveTypes, " expected ", aiPrimitiveType_POLYGON, " (polygon)");
+      if (lMesh->mPrimitiveTypes != aiPrimitiveType_POLYGON) {
+        eLOG("Invalid primitive type ", lMesh->mPrimitiveTypes, " expected ", aiPrimitiveType_POLYGON, " (polygon)");
         return false;
       }
 
@@ -95,14 +102,74 @@ bool rObjectBase::setData(VkCommandBuffer _buf, aiMesh const *_mesh) {
   std::vector<uint32_t> lIndex;
   std::vector<float>    lData;
 
-  lIndex.resize(lIndexSize * _mesh->mNumFaces);
-  for (uint32_t i = 0; i < _mesh->mNumFaces; i++)
+  lIndex.resize(lIndexSize * lMesh->mNumFaces);
+  for (uint32_t i = 0; i < lMesh->mNumFaces; i++)
     for (uint32_t j = 0; j < lIndexSize; j++)
-      lIndex[i * lIndexSize + j] = _mesh->mFaces[i].mIndices[j];
+      lIndex[i * lIndexSize + j] = lMesh->mFaces[i].mIndices[j];
 
   switch (getDataLayout()) {
-    case POS_NORM: setupVertexData_PN(_mesh, lData); break;
+    case POS_NORM: setupVertexData_PN(lMesh, lData); break;
+    case POS_NORM_UV: setupVertexData_PNUV(lMesh, lData); break;
     default: eLOG("Data layout ", uEnum2Str::toStr(getDataLayout())); return false;
+  }
+
+  for (uint32_t i = 0; i < _scene->mNumMaterials; ++i) {
+    aiString name;
+    float    opacity;
+    float    shininess;
+    float    shininess_strength;
+    float    refracti;
+    int      blend_func;
+
+    aiMaterial *lMat = _scene->mMaterials[i];
+    lMat->Get(AI_MATKEY_NAME, &name, nullptr);
+    lMat->Get(AI_MATKEY_OPACITY, &opacity, nullptr);
+    lMat->Get(AI_MATKEY_SHININESS, &shininess, nullptr);
+    lMat->Get(AI_MATKEY_SHININESS_STRENGTH, &shininess_strength, nullptr);
+    lMat->Get(AI_MATKEY_REFRACTI, &refracti, nullptr);
+    lMat->Get(AI_MATKEY_BLEND_FUNC, &blend_func, nullptr);
+
+    iLOG(L"Material ", i);
+    iLOG(L"  -- name:               ", name.C_Str());
+    iLOG(L"  -- opacity:            ", opacity);
+    iLOG(L"  -- shininess:          ", shininess);
+    iLOG(L"  -- shininess_strength: ", shininess_strength);
+    iLOG(L"  -- refracti:           ", refracti);
+    iLOG(L"  -- blend_func:         ", blend_func);
+
+    for (aiTextureType j : {aiTextureType_NONE,
+                            aiTextureType_DIFFUSE,
+                            aiTextureType_SPECULAR,
+                            aiTextureType_AMBIENT,
+                            aiTextureType_EMISSIVE,
+                            aiTextureType_HEIGHT,
+                            aiTextureType_NORMALS,
+                            aiTextureType_SHININESS,
+                            aiTextureType_OPACITY,
+                            aiTextureType_DISPLACEMENT,
+                            aiTextureType_LIGHTMAP,
+                            aiTextureType_REFLECTION,
+                            aiTextureType_UNKNOWN}) {
+      uint32_t lCount = lMat->GetTextureCount(j);
+
+      iLOG(L"  -- Texture type: [", lCount, L"]: ", uEnum2Str::toStr(j));
+
+      for (uint32_t k = 0; k < lCount; ++k) {
+        aiString         path;
+        aiTextureMapping mapping;
+        uint32_t         uvIndex;
+        ai_real          blend;
+        aiTextureOp      textureOp;
+        aiTextureMapMode mapMode;
+        lMat->GetTexture(j, k, &path, &mapping, &uvIndex, &blend, &textureOp, &mapMode);
+        iLOG(L"    - path:      ", path.C_Str());
+        iLOG(L"    - mapping:   ", uEnum2Str::toStr(mapping));
+        iLOG(L"    - uvIndex:   ", uvIndex);
+        iLOG(L"    - blend:     ", blend);
+        iLOG(L"    - textureOp: ", uEnum2Str::toStr(textureOp));
+        iLOG(L"    - mapMode:   ", uEnum2Str::toStr(mapMode));
+      }
+    }
   }
 
   vLoadBuffers = setData_IMPL(_buf, lIndex, lData);
@@ -150,6 +217,37 @@ bool rObjectBase::setupVertexData_PN(aiMesh const *_mesh, std::vector<float> &_o
     _out[6 * i + 3] = _mesh->mNormals[i].x;
     _out[6 * i + 4] = _mesh->mNormals[i].y;
     _out[6 * i + 5] = _mesh->mNormals[i].z;
+  }
+
+  return true;
+}
+
+bool rObjectBase::setupVertexData_PNUV(aiMesh const *_mesh, std::vector<float> &_out) {
+  if (!_mesh->HasNormals()) {
+    eLOG("Invalid data! (Missing Normals) Object ", vName_str);
+    return false;
+  }
+
+  if (!_mesh->HasTextureCoords(0)) {
+    eLOG("Invalid data! (Missing UV) Object ", vName_str);
+    return false;
+  }
+
+  if (_mesh->mNumUVComponents[0] != 2) {
+    eLOG("Invalid data! (Invalid number texcords UV) Object ", vName_str);
+    return false;
+  }
+
+  _out.resize(_mesh->mNumVertices * (3 + 3 + 2));
+  for (uint32_t i = 0; i < _mesh->mNumVertices; i++) {
+    _out[8 * i + 0] = _mesh->mVertices[i].x;
+    _out[8 * i + 1] = _mesh->mVertices[i].y;
+    _out[8 * i + 2] = _mesh->mVertices[i].z;
+    _out[8 * i + 3] = _mesh->mNormals[i].x;
+    _out[8 * i + 4] = _mesh->mNormals[i].y;
+    _out[8 * i + 5] = _mesh->mNormals[i].z;
+    _out[8 * i + 6] = _mesh->mTextureCoords[0][i].x;
+    _out[8 * i + 7] = _mesh->mTextureCoords[0][i].y;
   }
 
   return true;

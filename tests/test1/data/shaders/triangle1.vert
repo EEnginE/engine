@@ -18,6 +18,7 @@
 
 layout (location = 0) in vec3 iVertex;
 layout (location = 1) in vec3 iNormals;
+layout (location = 2) in vec2 iUV;
 
 layout (push_constant) uniform UBuffer {
    mat4 mvp;
@@ -26,6 +27,6 @@ layout (push_constant) uniform UBuffer {
 layout (location = 0) out vec3 vColor;
 
 void main() {
-   vColor = normalize( iNormals );
+   vColor = normalize( vec3(iUV.x, iUV.y, 0) );
    gl_Position = uBuff.mvp * vec4(iVertex, 1.0);
 }
