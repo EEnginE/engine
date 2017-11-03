@@ -19,6 +19,7 @@
  */
 
 #include "rSimpleMesh.hpp"
+#include "uEnum2Str.hpp"
 #include "uLog.hpp"
 #include "rPipeline.hpp"
 #include "rWorld.hpp"
@@ -112,6 +113,7 @@ void rSimpleMesh::signalRenderReset(rRendererBase *) {
 
   vShader      = getShader();
   vVertUniform = vShader->getUniformBuffer(VK_SHADER_STAGE_VERTEX_BIT);
+  vUniforms    = vShader->getUniforms();
 
   auto lPushConstants = vShader->getPushConstants(VK_SHADER_STAGE_VERTEX_BIT);
 
@@ -139,14 +141,66 @@ void rSimpleMesh::signalRenderReset(rRendererBase *) {
     if (i.guessedRole == rShaderBase::MODEL_VIEW_PROJECTION_MATRIX) {
       vHasMVPMatrix = vShader->tryReserveUniform(i);
       vMatrixMVPVar = i;
-      break;
+      continue;
     }
 
     if (i.guessedRole == rShaderBase::VIEW_PROJECTION_MATRIX) {
       vHasVPMatrix = vShader->tryReserveUniform(i);
       vMatrixVPVar = i;
-      break;
+      continue;
     }
+
+    if (i.guessedRole == rShaderBase::NORMAL_MATRIX) {
+      vHasNormalMatrix = true;
+      vMatrixNormal    = i;
+      continue;
+    }
+
+    if (i.guessedRole == rShaderBase::LOD_BIAS) {
+      vHasLODBias = true;
+      vLODBias    = i;
+      continue;
+    }
+  }
+
+  for (auto &i : vUniforms) {
+    if (i.guessedRole == rShaderBase::TEXTURE_DIFFUSE_COLOR) {
+      for (auto &j : vMaterials) {
+        auto &lTextures = j.getTextures();
+        if (lTextures.size() > 0) {
+          vTexture    = &lTextures[0];
+          vHasTexture = true;
+          vTextureVar = i;
+        }
+      }
+    }
+  }
+
+  if (vHasTexture) {
+    VkDescriptorSet lSet = vShader->getDescriptorSet(nullptr);
+    if (lSet == VK_NULL_HANDLE) {
+      eLOG(L"Failed to get descriptor set");
+      return;
+    }
+
+    VkDescriptorImageInfo lImageInfo;
+    lImageInfo.sampler     = vTexture->getSampler();
+    lImageInfo.imageView   = vTexture->getImageView();
+    lImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    VkWriteDescriptorSet lWriteSet;
+    lWriteSet.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    lWriteSet.pNext            = nullptr;
+    lWriteSet.dstSet           = lSet;
+    lWriteSet.dstBinding       = vTextureVar.binding;
+    lWriteSet.dstArrayElement  = 0;
+    lWriteSet.descriptorCount  = 1;
+    lWriteSet.descriptorType   = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    lWriteSet.pImageInfo       = &lImageInfo;
+    lWriteSet.pBufferInfo      = nullptr;
+    lWriteSet.pTexelBufferView = nullptr;
+
+    vkUpdateDescriptorSets(**vDevice, 1, &lWriteSet, 0, nullptr);
   }
 }
 
@@ -156,14 +210,24 @@ void rSimpleMesh::updateUniforms() {
     return;
   }
 
-  if (vHasMVPMatrix) {
-    std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
-    vShader->updateUniform(vMatrixMVPVar, value_ptr(*getModelViewProjectionMatrix()));
-  }
-
   if (vHasVPMatrix) {
     std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
     vShader->updateUniform(vMatrixVPVar, value_ptr(*getViewProjectionMatrix()));
+  }
+
+  if (vHasNormalMatrix) {
+    std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
+    vShader->updateUniform(vMatrixNormal, value_ptr(*getNormalMatrix()));
+  }
+
+  if (vHasLODBias) {
+    float lBias = 0.0f;
+    vShader->updateUniform(vLODBias, &lBias);
+  }
+
+  if (vHasMVPMatrix) {
+    std::lock_guard<std::recursive_mutex> lLock(vMatrixAccess);
+    vShader->updateUniform(vMatrixMVPVar, value_ptr(*getModelViewProjectionMatrix()));
   }
 }
 

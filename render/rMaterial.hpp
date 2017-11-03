@@ -81,9 +81,10 @@ class rMaterial final {
                       TextureMapping _mapping,
                       TextureMapMode _mapMode);
 
-  inline std::string getName() const noexcept { return vName; }
-  inline Config      getConfig() const noexcept { return cfg; }
-  inline Config *    getConfigPTR() noexcept { return &cfg; }
+  inline std::vector<rTexture> &getTextures() noexcept { return vTextures; }
+  inline std::string            getName() const noexcept { return vName; }
+  inline Config                 getConfig() const noexcept { return cfg; }
+  inline Config *               getConfigPTR() noexcept { return &cfg; }
 
   inline Config *operator->() noexcept { return &cfg; } //! \brief Allow config access via buffer->cfgField = 1;
 };

@@ -19,10 +19,14 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (location = 0) in vec3 vColor;
+layout (set = 0, binding = 1) uniform sampler2D samplerDiffuse;
+
+layout (location = 0) in vec3 vNormals;
+layout (location = 1) in vec2 vUV;
+layout (location = 2) in float vLodBias;
 layout (location = 0) out vec4 outFragColor;
 
 void main()
 {
-  outFragColor = vec4( vColor, 1.0 );
+  outFragColor = texture(samplerDiffuse, vUV, vLodBias);
 }

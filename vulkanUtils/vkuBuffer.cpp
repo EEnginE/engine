@@ -49,6 +49,7 @@ vkuBuffer::MemoryAccess::MemoryAccess(vkuBuffer::MemoryAccess &&_old) {
   vDevice = _old.vDevice;
   vSize   = _old.vSize;
   vMem    = _old.vMem;
+  vPtr    = _old.vPtr;
 
   // Invalidate old object
   _old.vDevice = nullptr;
@@ -63,6 +64,7 @@ vkuBuffer::MemoryAccess &vkuBuffer::MemoryAccess::operator=(vkuBuffer::MemoryAcc
   vDevice = _old.vDevice;
   vSize   = _old.vSize;
   vMem    = _old.vMem;
+  vPtr    = _old.vPtr;
 
   // Invalidate old object
   _old.vDevice = nullptr;
@@ -162,8 +164,8 @@ VkResult vkuBuffer::init(VkDeviceSize _size) {
   vStagingMemoryIndex = vDevice->getMemoryTypeIndex(lStagingMemReqs, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
   // Check if we need the staging buffer at all. This is not the case when the main buffer is host visible
-  //   if ((cfg.memoryFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-  //     vMainMemoryIndex = vStagingMemoryIndex;
+  if ((cfg.memoryFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+    vMainMemoryIndex = vStagingMemoryIndex;
 
   if (vMainMemoryIndex == UINT32_MAX || vStagingMemoryIndex == UINT32_MAX) {
     eLOG("Unable to find memory type");
@@ -324,6 +326,15 @@ VkResult vkuBuffer::sync() {
   }
 
   VkSubmitInfo lSubmit;
+  lSubmit.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  lSubmit.pNext                = nullptr;
+  lSubmit.waitSemaphoreCount   = 0;
+  lSubmit.pWaitSemaphores      = nullptr;
+  lSubmit.pWaitDstStageMask    = nullptr;
+  lSubmit.commandBufferCount   = 1;
+  lSubmit.pCommandBuffers      = &lBuff.get();
+  lSubmit.signalSemaphoreCount = 0;
+  lSubmit.pSignalSemaphores    = nullptr;
 
   vkQueueSubmit(lQueue, 1, &lSubmit, lFence[0]);
   lFence();

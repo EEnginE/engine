@@ -43,9 +43,12 @@ static const std::vector<std::vector<std::string>> gShaderInputVarNames = {
     {"uMVP", "MVP", "mvp"},                           // Matrix Model View Projection
     {"uViewProject", "uView", "viewProject", "view"}, // View Projection matrix
     {"uModel", "Model", "model"},                     // Model matrix
+    {"uNormal", "Normal", "normal"},                  // Normal matrix
     {"uPos", "uPosition", "pos", "position"},         // Subpass position data
     {"uNormal", "normal"},                            // Subpass normal data
     {"uColor", "uAlbedo", "color", "albedo"},         // Subpass color / albedo data
+    {"uLodBias", "LodBias", "lodBias"},               // Level of detail bias
+    {"uSamplerDiffuse", "samplerDiffuse"},            // Diffuse color texture
     {}};
 
 enum SHADER_INPUT_NAME_INDEX {
@@ -55,21 +58,32 @@ enum SHADER_INPUT_NAME_INDEX {
   U_M_MVP     = 3,
   U_M_VP      = 4,
   U_M_M       = 5,
-  U_SP_POS    = 6,
-  U_SP_NORM   = 7,
-  U_SP_ALBEDO = 8
+  U_M_NORMAL  = 6,
+  U_SP_POS    = 7,
+  U_SP_NORM   = 8,
+  U_SP_ALBEDO = 9,
+  U_LOD_BIAS  = 10,
+  U_SAMP_DIFF = 11
 };
 } // namespace internal
 
+/*!
+ * \brief Base class for all shders
+ * \todo REFACTOR!
+ * \todo Write a new shader generator and delete the old CMake generator
+ */
 class rShaderBase {
  public:
   enum UNIFORM_ROLE {
     MODEL_VIEW_PROJECTION_MATRIX,
     VIEW_PROJECTION_MATRIX,
     MODEL_MATRIX,
+    NORMAL_MATRIX,
     POSITION_SUBPASS_DATA,
     NORMAL_SUBPASS_DATA,
     ALBEDO_SUBPASS_DATA,
+    LOD_BIAS,
+    TEXTURE_DIFFUSE_COLOR,
     UNKONOWN
   };
 

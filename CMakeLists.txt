@@ -209,6 +209,7 @@ enum2str_generate(
     "iRandRBasic.hpp" "iWindowBasic.hpp" "iInit.hpp"
 
     "assimp/material.h"
+    "gli/format.hpp"
   ENUMS
     # EEnginE
     "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"
@@ -221,6 +222,9 @@ enum2str_generate(
 
     # AssImp
     "aiTextureType" "aiTextureMapping" "aiTextureOp" "aiTextureMapMode" "aiBlendMode" "aiShadingMode"
+
+    # GLI
+    "gli::format"
 
     # Vulkan
     "VkPipelineCacheHeaderVersion"

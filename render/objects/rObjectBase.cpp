@@ -163,17 +163,6 @@ bool rObjectBase::setData(vkuCommandBuffer &_buf, aiScene const *_scene, uint32_
       }
     }();
 
-
-
-    iLOG(L"Material ", i);
-    iLOG(L"  -- name:               ", name.C_Str());
-    iLOG(L"  -- opacity:            ", opacity);
-    iLOG(L"  -- shininess:          ", shininess);
-    iLOG(L"  -- shininess_strength: ", shininess_strength);
-    iLOG(L"  -- refracti:           ", refracti);
-    iLOG(L"  -- blend_func:         ", uEnum2Str::toStr(static_cast<aiBlendMode>(blend_func)));
-    iLOG(L"  -- shading_mode:       ", uEnum2Str::toStr(static_cast<aiShadingMode>(shading_mode)));
-
     for (aiTextureType j : {aiTextureType_NONE,
                             aiTextureType_DIFFUSE,
                             aiTextureType_SPECULAR,
@@ -189,7 +178,6 @@ bool rObjectBase::setData(vkuCommandBuffer &_buf, aiScene const *_scene, uint32_
                             aiTextureType_UNKNOWN}) {
       uint32_t lCount = lMat->GetTextureCount(j);
 
-      iLOG(L"  -- Texture type: [", lCount, L"]: ", uEnum2Str::toStr(j));
 
       for (uint32_t k = 0; k < lCount; ++k) {
         aiString         path;
@@ -199,12 +187,6 @@ bool rObjectBase::setData(vkuCommandBuffer &_buf, aiScene const *_scene, uint32_
         aiTextureOp      textureOp;
         aiTextureMapMode mapMode;
         lMat->GetTexture(j, k, &path, &mapping, &uvIndex, &blend, &textureOp, &mapMode);
-        iLOG(L"    - path:      ", path.C_Str());
-        iLOG(L"    - mapping:   ", uEnum2Str::toStr(mapping));
-        iLOG(L"    - uvIndex:   ", uvIndex);
-        iLOG(L"    - blend:     ", blend);
-        iLOG(L"    - textureOp: ", uEnum2Str::toStr(textureOp));
-        iLOG(L"    - mapMode:   ", uEnum2Str::toStr(mapMode));
 
         TextureType texType = [j]() {
           switch (j) {

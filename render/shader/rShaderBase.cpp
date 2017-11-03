@@ -195,6 +195,12 @@ rShaderBase::UNIFORM_ROLE rShaderBase::guessRole(std::string _type, std::string 
         return MODEL_MATRIX;
   }
 
+  if (_type == "mat3" || _type == "mat3x3") {
+    for (auto const &i : gShaderInputVarNames[U_M_NORMAL])
+      if (i == _name)
+        return NORMAL_MATRIX;
+  }
+
   if (_type == "subpassInput") {
     for (auto const &i : gShaderInputVarNames[U_SP_POS])
       if (i == _name)
@@ -207,6 +213,18 @@ rShaderBase::UNIFORM_ROLE rShaderBase::guessRole(std::string _type, std::string 
     for (auto const &i : gShaderInputVarNames[U_SP_ALBEDO])
       if (i == _name)
         return ALBEDO_SUBPASS_DATA;
+  }
+
+  if (_type == "float") {
+    for (auto const &i : gShaderInputVarNames[U_LOD_BIAS])
+      if (i == _name)
+        return LOD_BIAS;
+  }
+
+  if (_type == "sampler2D") {
+    for (auto const &i : gShaderInputVarNames[U_SAMP_DIFF])
+      if (i == _name)
+        return TEXTURE_DIFFUSE_COLOR;
   }
 
   return UNKONOWN;
@@ -383,6 +401,12 @@ void rShaderBase::addLayoutBindings(VkShaderStageFlagBits _stage, ShaderInfo _in
 }
 
 bool rShaderBase::getGLSLTypeInfo(std::string _name, uint32_t &_size, VkFormat &_format) {
+  if (_name == "float") {
+    _size   = 4;
+    _format = VK_FORMAT_R32_SFLOAT;
+    return true;
+  }
+
   if (_name == "vec4") {
     _size   = sizeof(float) * 4;
     _format = VK_FORMAT_R32G32B32A32_SFLOAT;
@@ -528,6 +552,18 @@ bool rShaderBase::init() {
   lSetInfo.flags        = 0;
   lSetInfo.bindingCount = static_cast<uint32_t>(vLayoutBindings.size());
   lSetInfo.pBindings    = vLayoutBindings.data();
+
+#if D_LOG_VULKAN
+  dLOG(L"  -- Layout Bindings (", vLayoutBindings.size(), L")");
+  for (auto const &i : vLayoutBindings) {
+    dLOG(L"    -- Binding:");
+    dLOG(L"      - binding:            ", i.binding);
+    dLOG(L"      - descriptorType:     ", uEnum2Str::toStr(i.descriptorType));
+    dLOG(L"      - descriptorCount:    ", i.descriptorCount);
+    dLOG(L"      - stageFlags:         ", uEnum2Str::VkShaderStageFlagBits_toStr(i.stageFlags));
+    dLOG(L"      - pImmutableSamplers: ", i.binding);
+  }
+#endif
 
   auto lRes = vkCreateDescriptorSetLayout(vDevice_vk, &lSetInfo, nullptr, &vDescLayout_vk);
   if (lRes) {

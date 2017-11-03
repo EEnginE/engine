@@ -269,12 +269,8 @@ VkImageMemoryBarrier vkuImageBuffer::generateLayoutChangeBarrier(VkImage        
       lBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
       break;
     case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: lBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT; break;
-    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-      lBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-      lBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL: lBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT; break;
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL: lBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT; break;
     case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: lBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT; break;
     default: lBarrier.srcAccessMask = 0; break;
   }
@@ -292,12 +288,8 @@ VkImageMemoryBarrier vkuImageBuffer::generateLayoutChangeBarrier(VkImage        
       lBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
       break;
     case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: lBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT; break;
-    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-      lBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
-    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-      lBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-      break;
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL: lBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT; break;
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL: lBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT; break;
     default: lBarrier.dstAccessMask = 0; break;
   }
 

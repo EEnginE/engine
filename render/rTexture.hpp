@@ -55,6 +55,7 @@ class rTexture final {
  private:
   vkuDevicePTR   vDevice;
   vkuImageBuffer vImg;
+  VkSampler      vSampler = VK_NULL_HANDLE;
 
   Config cfg;
 
@@ -74,6 +75,9 @@ class rTexture final {
 
   inline Config  getConfig() const noexcept { return cfg; }
   inline Config *getConfigPTR() noexcept { return &cfg; }
+
+  inline VkSampler   getSampler() const noexcept { return vSampler; }
+  inline VkImageView getImageView() const noexcept { return *vImg; }
 
   inline Config *operator->() noexcept { return &cfg; } //! \brief Allow config access via buffer->cfgField = 1;
 };

@@ -20,13 +20,19 @@ layout (location = 0) in vec3 iVertex;
 layout (location = 1) in vec3 iNormals;
 layout (location = 2) in vec2 iUV;
 
-layout (push_constant) uniform UBuffer {
-   mat4 mvp;
+layout (set = 0, binding = 0) uniform UBuffer {
+  mat4 mvp;
+  float lodBias;
+  mat3 normal;
 } uBuff;
 
-layout (location = 0) out vec3 vColor;
+layout (location = 0) out vec3  vNormals;
+layout (location = 1) out vec2  vUV;
+layout (location = 2) out float vLodBias;
 
 void main() {
-   vColor = normalize( vec3(iUV.x, iUV.y, 0) );
+   vLodBias = uBuff.lodBias;
+   vNormals = uBuff.normal * iNormals;
+   vUV = iUV;
    gl_Position = uBuff.mvp * vec4(iVertex, 1.0);
 }

@@ -22,6 +22,7 @@
 
 #include "defines.hpp"
 
+#include "rTexture.hpp"
 #include "rMatrixObjectBase.hpp"
 #include "rMatrixSceneBase.hpp"
 #include "rObjectBase.hpp"
@@ -35,18 +36,26 @@ class rSimpleMesh final : public rMatrixObjectBase<float>, public rObjectBase {
   vkuBuffer vIndex;
   vkuBuffer vVertex;
 
-  rShaderBase *  vShader      = nullptr;
-  UNIFORM_BUFFER vVertUniform = nullptr;
+  rShaderBase *                        vShader      = nullptr;
+  UNIFORM_BUFFER                       vVertUniform = nullptr;
+  std::vector<rShaderBase::UniformVar> vUniforms;
 
-  UNIFORM_VAR   vMatrixMVPVar      = {};
-  UNIFORM_VAR   vMatrixVPVar       = {};
-  PUSH_CONSTANT vMatrixModelVar_PC = {};
-  PUSH_CONSTANT vMatrixMVP_PC      = {};
-  bool          vHasMVPMatrix      = false;
-  bool          vHasVPMatrix       = false;
-  bool          vHasMVPMatrix_PC   = false;
-  bool          vHasModelMatrix_PC = false;
-  uint32_t      vIndexCount        = 0;
+  UNIFORM_VAR             vMatrixMVPVar      = {};
+  UNIFORM_VAR             vMatrixVPVar       = {};
+  UNIFORM_VAR             vMatrixNormal      = {};
+  UNIFORM_VAR             vLODBias           = {};
+  PUSH_CONSTANT           vMatrixModelVar_PC = {};
+  PUSH_CONSTANT           vMatrixMVP_PC      = {};
+  bool                    vHasMVPMatrix      = false;
+  bool                    vHasVPMatrix       = false;
+  bool                    vHasMVPMatrix_PC   = false;
+  bool                    vHasModelMatrix_PC = false;
+  bool                    vHasNormalMatrix   = false;
+  bool                    vHasLODBias        = false;
+  bool                    vHasTexture        = false;
+  rTexture *              vTexture           = nullptr;
+  rShaderBase::UniformVar vTextureVar        = {};
+  uint32_t                vIndexCount        = 0;
 
   std::vector<vkuBuffer *> setData_IMPL(vkuCommandBuffer &           _buf,
                                         const std::vector<uint32_t> &_index,
